@@ -1,0 +1,2 @@
+const SUPABASE_URL      = 'https://crtvyedloluekovkspqp.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNydHZ5ZWRsb2x1ZWtvdmtzcHFwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE2MzU3NjIsImV4cCI6MjA5NzIxMTc2Mn0.IgPlss5Mtm9GzTWQNbIJ_t9ivuLXvVN3pEyXKRuyGcc';
