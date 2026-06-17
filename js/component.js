@@ -1,3 +1,4 @@
+window.makeAppComponent = function(DCLogic) {
 class AppComponent extends DCLogic {
   state = {
     // auth
@@ -721,3 +722,5 @@ class AppComponent extends DCLogic {
     };
   }
 }
+return AppComponent;
+};
