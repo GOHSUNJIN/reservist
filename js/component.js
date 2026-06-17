@@ -49,6 +49,11 @@ class AppComponent extends DCLogic {
 
   async _afterLogin(user){
     const me = await DB.personnel.get(user.id);
+    if(!me){
+      await DB.auth.logout();
+      this.setState({authed:false,loading:false,authError:'Account setup incomplete. Please sign up again.'});
+      return;
+    }
     const role = me?.role || 'reservist';
     const batches = await DB.batches.list().catch(()=>[]);
     const liveIdx = batches.findIndex(b=>b.is_live);
@@ -121,8 +126,16 @@ class AppComponent extends DCLogic {
     const activeBatch = this.state.batches[this.state.activeBatchIdx||0];
     const shift = this._capShift(suShift);
     const existing = await DB.personnel.findByContact(suContact);
-    if(existing){ await DB.personnel.linkAuth(existing.id, user.id); }
-    else { await DB.personnel.add({authId:user.id, name:suName, contact:suContact, shift, batchId:activeBatch?.id}); }
+    if(existing){
+      await DB.personnel.linkAuth(existing.id, user.id);
+    } else {
+      const {error:addErr} = await DB.personnel.add({authId:user.id, name:suName, contact:suContact, shift, batchId:activeBatch?.id});
+      if(addErr){
+        await DB.auth.logout();
+        this.setState({loading:false, authError:'Profile setup failed: '+(addErr.message||'database error. Check Supabase grants.')});
+        return;
+      }
+    }
     await this._afterLogin(user);
     this.setState({suName:'', suContact:'', suPassword:''});
   };
@@ -477,7 +490,18 @@ class AppComponent extends DCLogic {
   }
 
   _buildCheckin(s, accent, hqName){
-    const me=this.cur(); if(!me) return {};
+    const me=this.cur();
+    if(!me) return {
+      todayLong:Utils.fmtLong(new Date()), clock:Utils.hhmm(s.now),
+      myShiftLabel:'', myShiftWindow:'', myStatusLabel:'', myStatusColor:accent,
+      myStatusPulse:'', phToday:false, phName:'', needCheckin:false, mcMode:false,
+      isPresent:false, isMc:false, checkInTime:'-', checkInDist:'',
+      verifyLocation:()=>{}, submitCheckIn:()=>{}, locLocating:false, locNeedsAction:false,
+      locBorder:'#eef0f4', locCardBg:'#fff', locBadgeBg:'#eceef2', locBadgeColor:'#8a94a3',
+      locMsg:'', locMsgColor:'#8a94a3', checkInOpacity:'.45', checkInPE:'none',
+      openMc:()=>{}, onMcFile:()=>{}, submitMc:()=>{}, cancelMc:()=>{}, undoCheckin:()=>{},
+      mcFileLabel:'',
+    };
     const rec=this.myRec(), status=rec.status||'pending', m=Utils.meta(status);
     const noRep=this.isNoReport(0);
     const locVerified=s.locStatus==='verified', locLocating=s.locStatus==='locating';
