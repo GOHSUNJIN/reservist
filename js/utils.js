@@ -16,6 +16,29 @@ const Utils = {
   fmtShort(d){ const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return d.getDate()+' '+M[d.getMonth()]; },
   fmtMed(d){ const W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return W[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]; },
   fmtLong(d){ const W=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],M=['January','February','March','April','May','June','July','August','September','October','November','December']; return W[d.getDay()]+', '+d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear(); },
+
+  // ── Batch cycle helpers ────────────────────────────────────────────────────
+  // Cycles run Tue→Mon (13 days), dekit on Wed (+15 days from start).
+  // Example: 16 Jun (Tue) → 29 Jun (Mon) → 1 Jul (Wed dekit).
+  nextBatchTuesday(from){
+    const d=new Date(from); d.setHours(0,0,0,0);
+    const dow=d.getDay(); // 0=Sun,1=Mon,2=Tue...
+    if(dow===2) return d;
+    const days=dow<2?2-dow:9-dow;
+    return this.addDays(d,days);
+  },
+  batchDatesFrom(startTue){
+    const start=new Date(startTue); start.setHours(0,0,0,0);
+    const end=this.addDays(start,13);   // Monday
+    const dekit=this.addDays(start,15); // Wednesday
+    return {start,end,dekit};
+  },
+  batchLabel(startDate){
+    const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const d=new Date(startDate+'T00:00:00');
+    return 'ICT '+M[d.getMonth()]+' '+d.getFullYear();
+  },
+
   SG_HOLIDAYS:{
     '2026-01-01':"New Year's Day",'2026-02-17':'Chinese New Year','2026-02-18':'Chinese New Year',
     '2026-03-21':'Hari Raya Puasa','2026-04-03':'Good Friday','2026-05-01':'Labour Day',

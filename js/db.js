@@ -28,9 +28,10 @@ const DB = {
 
   // ── Personnel ─────────────────────────────────────────────────────────────
   personnel: {
-    async list(batchId) {
-      const q = _db.from('personnel').select('*').order('created_at');
-      if (batchId) q.eq('batch_id', batchId);
+    async list(batchId, activeOnly = true) {
+      let q = _db.from('personnel').select('*').order('created_at');
+      if (batchId) q = q.eq('batch_id', batchId);
+      if (activeOnly) q = q.eq('is_active', true);
       const { data } = await q;
       return data || [];
     },
@@ -46,7 +47,7 @@ const DB = {
     },
 
     async add({ authId, name, contact, shift, batchId, role = 'reservist' }) {
-      const row = { name, contact, shift, batch_id: batchId, role };
+      const row = { name, contact, shift, batch_id: batchId, role, is_active: true };
       if (authId) row.auth_id = authId;
       const { data, error } = await _db.from('personnel').insert(row).select().maybeSingle();
       return { data, error };
@@ -56,6 +57,10 @@ const DB = {
       await _db.from('personnel').update({ auth_id: authId }).eq('id', personnelId);
     },
 
+    async deactivate(personnelId) {
+      await _db.from('personnel').update({ is_active: false, deactivated_at: new Date().toISOString() }).eq('id', personnelId);
+    },
+
     async remove(personnelId) {
       await _db.from('personnel').delete().eq('id', personnelId);
     },
@@ -63,17 +68,29 @@ const DB = {
 
   // ── Attendance ────────────────────────────────────────────────────────────
   attendance: {
+    _toEntry(r) {
+      return {
+        status: r.status,
+        time: r.check_in_time ? r.check_in_time.slice(0,5) : '-',
+        dist: r.gps_distance_m,
+        mc: r.mc_filename,
+      };
+    },
+
     async getForDate(dateStr) {
       const { data } = await _db.from('attendance').select('*').eq('date', dateStr);
-      return (data || []).reduce((acc, r) => {
-        acc[r.personnel_id] = {
-          status: r.status,
-          time: r.check_in_time ? r.check_in_time.slice(0,5) : '-',
-          dist: r.gps_distance_m,
-          mc: r.mc_filename,
-        };
-        return acc;
-      }, {});
+      return (data || []).reduce((acc, r) => { acc[r.personnel_id] = this._toEntry(r); return acc; }, {});
+    },
+
+    // Returns { [dateKey]: { [personnelId]: entry } } for supervisor past batch view
+    async getForBatch(startDate, endDate) {
+      const { data } = await _db.from('attendance').select('*').gte('date', startDate).lte('date', endDate);
+      const result = {};
+      for (const r of (data || [])) {
+        if (!result[r.date]) result[r.date] = {};
+        result[r.date][r.personnel_id] = this._toEntry(r);
+      }
+      return result;
     },
 
     async getHistory(personnelId) {
@@ -105,6 +122,15 @@ const DB = {
       const { data } = await _db.from('batches').select('*').order('start_date');
       return data || [];
     },
+
+    async create(label, startDate, endDate, dekitDate) {
+      // Deactivate any previously live batch
+      await _db.from('batches').update({ is_live: false }).eq('is_live', true);
+      const { data, error } = await _db.from('batches').insert({
+        label, start_date: startDate, end_date: endDate, dekit_date: dekitDate, is_live: true,
+      }).select().maybeSingle();
+      return { data, error };
+    },
   },
 
   // ── No-report days ────────────────────────────────────────────────────────
@@ -124,6 +150,36 @@ const DB = {
       }
       await _db.from('no_report_days').insert({ date: dateStr });
       return true;
+    },
+  },
+
+  // ── Storage (MC files) ────────────────────────────────────────────────────
+  storage: {
+    async uploadMc(personnelId, dateStr, file) {
+      const ext = file.name.split('.').pop();
+      const path = `${personnelId}/${dateStr}.${ext}`;
+      const { data, error } = await _db.storage.from('mc-files').upload(path, file, { upsert: true });
+      return { path: data?.path || path, error };
+    },
+
+    async getMcUrl(path) {
+      if (!path) return null;
+      const { data } = await _db.storage.from('mc-files').createSignedUrl(path, 3600);
+      return data?.signedUrl || null;
+    },
+  },
+
+  // ── Realtime ──────────────────────────────────────────────────────────────
+  realtime: {
+    subscribeAttendance(dateStr, onUpdate) {
+      return _db.channel('attendance-' + dateStr)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance', filter: `date=eq.${dateStr}` },
+          payload => { if (payload.new) onUpdate(payload.new); })
+        .subscribe();
+    },
+
+    unsubscribe(channel) {
+      if (channel) _db.removeChannel(channel);
     },
   },
 
