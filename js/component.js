@@ -1,0 +1,723 @@
+class AppComponent extends DCLogic {
+  state = {
+    // auth
+    authed: false, role: null, authMode: 'login',
+    currentUserId: null, me: null,
+    authError: '', loading: false, accountDeleted: false,
+    // form fields
+    loginContact: '', loginPassword: '',
+    suName: '', suContact: '', suShift: 'AM', suPassword: '',
+    // live data
+    personnel: [], attendance: {}, attendanceCache: {},
+    batches: [], activeBatchIdx: 0,
+    noReportDays: new Set(), history: [],
+    batchMembersCache: {},
+    // ui state
+    tab: 'checkin', rolesTab: 'AM',
+    locStatus: 'idle', locDistance: null,
+    accountOpen: false, confirmDelete: false,
+    viewOffset: 0, avatars: {}, selectedCalOffset: null,
+    mcMode: false, mcFileName: '', _mcFile: null,
+    mcViewOpen: false, mcViewName: '', mcViewDate: '', mcViewFile: '', mcViewUrl: '',
+    npName: '', npContact: '', npShift: 'AM',
+    newBatchStart: '', newBatchLabel: '',
+    realtimeChannel: null,
+    now: new Date(), demo: false,
+  };
+
+  // ── Lifecycle ────────────────────────────────────────────────────────────
+  componentDidMount(){
+    this._t = setInterval(()=>this.setState({now:new Date()}), 1000);
+    this._init();
+  }
+  componentWillUnmount(){ clearInterval(this._t); this._unsubscribeRealtime(); }
+
+  // ── Data loading ──────────────────────────────────────────────────────────
+  async _init(){
+    const batches = await DB.batches.list().catch(()=>[]);
+    if(batches.length){
+      const liveIdx = batches.findIndex(b=>b.is_live);
+      const activeBatchIdx = liveIdx>=0?liveIdx:0;
+      const activeBatch = batches[activeBatchIdx];
+      const personnel = activeBatch ? await DB.personnel.list(activeBatch.id).catch(()=>[]) : [];
+      this.setState({batches, activeBatchIdx, personnel});
+    }
+    const user = await DB.auth.session();
+    if(user) await this._afterLogin(user);
+  }
+
+  async _afterLogin(user){
+    const me = await DB.personnel.get(user.id);
+    const role = me?.role || 'reservist';
+    const batches = await DB.batches.list().catch(()=>[]);
+    const liveIdx = batches.findIndex(b=>b.is_live);
+    const activeBatchIdx = liveIdx>=0?liveIdx:0;
+    const activeBatch = batches[activeBatchIdx];
+    const today = Utils.dateKey(new Date());
+
+    // Auto-deactivate reservist if their batch's dekit day has passed
+    if(role==='reservist' && me){
+      const myBatch = batches.find(b=>b.id===me.batch_id);
+      if(myBatch?.dekit_date && today > myBatch.dekit_date){
+        await DB.personnel.deactivate(me.id).catch(()=>{});
+        await DB.auth.logout();
+        this.setState({authed:false,role:null,authMode:'login',loading:false,accountDeleted:true});
+        return;
+      }
+    }
+
+    const [personnel, attendance, noReportDays, history] = await Promise.all([
+      activeBatch ? DB.personnel.list(activeBatch.id) : Promise.resolve([]),
+      DB.attendance.getForDate(today),
+      activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date) : Promise.resolve(new Set()),
+      me ? DB.attendance.getHistory(me.id) : Promise.resolve([]),
+    ]);
+
+    const nextTue = Utils.nextBatchTuesday(new Date());
+    const newBatchStart = Utils.dateKey(nextTue);
+    const newBatchLabel = Utils.batchLabel(newBatchStart);
+
+    this.setState({
+      authed:true, role,
+      tab: role==='admin'?'overview':'checkin',
+      currentUserId: me?.id||null,
+      me, personnel, batches, activeBatchIdx,
+      attendance, noReportDays, history,
+      newBatchStart, newBatchLabel,
+      authError:'', loading:false, accountDeleted:false, demo:false,
+    });
+    if(role==='admin') this._subscribeRealtime(today);
+  }
+
+  async _loadDateAttendance(off){
+    if(off===0) return;
+    const d = this.dateForOffset(off);
+    const dk = Utils.dateKey(d);
+    if(this.state.attendanceCache[dk]) return;
+    const data = await DB.attendance.getForDate(dk).catch(()=>({}));
+    this.setState(s=>({attendanceCache:{...s.attendanceCache,[dk]:data}}));
+  }
+
+  // ── Auth actions ──────────────────────────────────────────────────────────
+  goLogin  = () => this.setState({authMode:'login',  authError:''});
+  goSignup = () => this.setState({authMode:'signup', authError:''});
+
+  doLogin = async () => {
+    if(!this.state.loginContact.trim()){ this.setState({authError:'Enter your contact number.'}); return; }
+    this.setState({loading:true, authError:''});
+    const {user,error} = await DB.auth.login(this.state.loginContact, this.state.loginPassword);
+    if(error||!user){ this.setState({loading:false, authError:'Invalid contact number or password.'}); return; }
+    await this._afterLogin(user);
+    this.setState({loginContact:'', loginPassword:''});
+  };
+
+  doSignup = async () => {
+    const {suName,suContact,suShift,suPassword} = this.state;
+    if(!suName.trim()||!suContact.trim()||!suPassword.trim()){ this.setState({authError:'Please fill in all fields.'}); return; }
+    this.setState({loading:true, authError:''});
+    const {user,error} = await DB.auth.signup(suContact, suPassword);
+    if(error||!user){ this.setState({loading:false, authError:error?.message||'Signup failed. Try a different contact or password.'}); return; }
+    const activeBatch = this.state.batches[this.state.activeBatchIdx||0];
+    const shift = this._capShift(suShift);
+    const existing = await DB.personnel.findByContact(suContact);
+    if(existing){ await DB.personnel.linkAuth(existing.id, user.id); }
+    else { await DB.personnel.add({authId:user.id, name:suName, contact:suContact, shift, batchId:activeBatch?.id}); }
+    await this._afterLogin(user);
+    this.setState({suName:'', suContact:'', suPassword:''});
+  };
+
+  logout = async () => {
+    this._unsubscribeRealtime();
+    if(!this.state.demo) await DB.auth.logout();
+    this.setState({
+      authed:false, role:null, authMode:'login', demo:false,
+      currentUserId:null, me:null, loginContact:'', loginPassword:'',
+      mcMode:false, locStatus:'idle', locDistance:null,
+      accountOpen:false, confirmDelete:false, mcViewOpen:false,
+      personnel:[], attendance:{}, history:[], attendanceCache:{}, batchMembersCache:{},
+    });
+  };
+
+  demoReservist = () => {
+    const today=new Date(); today.setHours(0,0,0,0);
+    const start=Utils.mondayOf(today), end=Utils.addDays(start,13), dekit=Utils.addDays(end,3);
+    const batch={id:'demo-batch',label:'Demo Cycle',start_date:Utils.dateKey(start),end_date:Utils.dateKey(end),dekit_date:Utils.dateKey(dekit),is_live:true};
+    const personnel=[
+      {id:'d1',name:'Demo User',contact:'9000 0001',shift:'PM',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d2',name:'Tan Jian Hui',contact:'9000 0002',shift:'AM',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d3',name:'Ahmad Fariz',contact:'9000 0003',shift:'AM',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d4',name:'Lim Hui Ying',contact:'9000 0004',shift:'OFFICE',role:'reservist',batch_id:'demo-batch',is_active:true},
+    ];
+    this.setState({authed:true,role:'reservist',tab:'checkin',demo:true,currentUserId:'d1',me:personnel[0],personnel,batches:[batch],activeBatchIdx:0,attendance:{},noReportDays:new Set(),history:[],authError:'',accountDeleted:false});
+  };
+
+  demoAdmin = () => {
+    const today=new Date(); today.setHours(0,0,0,0);
+    const tue=Utils.nextBatchTuesday(Utils.addDays(today,-7));
+    const {start,end,dekit}=Utils.batchDatesFrom(tue);
+    const batch={id:'demo-batch',label:'Demo Cycle',start_date:Utils.dateKey(start),end_date:Utils.dateKey(end),dekit_date:Utils.dateKey(dekit),is_live:true};
+    const personnel=[
+      {id:'d2',name:'Tan Jian Hui',contact:'9000 0002',shift:'AM',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d3',name:'Ahmad Fariz',contact:'9000 0003',shift:'AM',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d4',name:'Lim Hui Ying',contact:'9000 0004',shift:'OFFICE',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d5',name:'Brandon Yeo',contact:'9000 0005',shift:'PM',role:'reservist',batch_id:'demo-batch',is_active:true},
+    ];
+    this.setState({authed:true,role:'admin',tab:'overview',demo:true,currentUserId:'demo-admin',me:{id:'demo-admin',name:'Supervisor',role:'admin'},personnel,batches:[batch],activeBatchIdx:0,attendance:{'d2':{status:'present',time:'08:24',dist:32},'d3':{status:'present',time:'08:31',dist:48},'d5':{status:'mc',time:'-',mc:'demo-mc.pdf'}},noReportDays:new Set(),history:[],authError:'',accountDeleted:false});
+  };
+
+  // ── Form handlers ─────────────────────────────────────────────────────────
+  onLoginContact  = e => this.setState({loginContact:e.target.value});
+  onLoginPassword = e => this.setState({loginPassword:e.target.value});
+  onSuName    = e => this.setState({suName:e.target.value});
+  onSuContact = e => this.setState({suContact:e.target.value});
+  onSuShift   = e => this.setState({suShift:e.target.value});
+  onSuPassword= e => this.setState({suPassword:e.target.value});
+  onNpName    = e => this.setState({npName:e.target.value});
+  onNpContact = e => this.setState({npContact:e.target.value});
+  onNpShift   = e => this.setState({npShift:e.target.value});
+
+  // ── Check-in ──────────────────────────────────────────────────────────────
+  verifyLocation = () => {
+    if(this.state.locStatus==='locating') return;
+    this.setState({locStatus:'locating'});
+    setTimeout(()=>{ this.setState({locStatus:'verified',locDistance:Math.round(18+Math.random()*72)}); }, 1600);
+  };
+
+  submitCheckIn = async () => {
+    if(this.state.locStatus!=='verified') return;
+    const today=Utils.dateKey(new Date()), time=Utils.hhmm(new Date()), dist=this.state.locDistance;
+    if(!this.state.demo) await DB.attendance.upsert(this.state.currentUserId, today, 'present', {time,dist});
+    this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:{status:'present',time,dist}}}));
+  };
+
+  openMc  = () => this.setState({mcMode:true});
+  cancelMc= () => this.setState({mcMode:false, mcFileName:'', _mcFile:null});
+  onMcFile= e => { const f=e.target.files&&e.target.files[0]; this.setState({mcFileName:f?f.name:'',_mcFile:f||null}); };
+
+  submitMc = async () => {
+    const today=Utils.dateKey(new Date());
+    let mc=this.state.mcFileName||'medical-cert.pdf';
+    if(!this.state.demo && this.state._mcFile){
+      const {path,error}=await DB.storage.uploadMc(this.state.currentUserId, today, this.state._mcFile).catch(e=>({path:mc,error:e}));
+      if(!error) mc=path;
+    }
+    if(!this.state.demo) await DB.attendance.upsert(this.state.currentUserId, today, 'mc', {mc});
+    this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:{status:'mc',time:'-',mc}},mcMode:false,_mcFile:null}));
+  };
+
+  undoCheckin = async () => {
+    const today=Utils.dateKey(new Date());
+    if(!this.state.demo) await DB.attendance.remove(this.state.currentUserId, today);
+    this.setState(s=>{ const a={...s.attendance}; delete a[s.currentUserId]; return {attendance:a,mcFileName:'',_mcFile:null,locStatus:'idle',locDistance:null}; });
+  };
+
+  // ── Account ───────────────────────────────────────────────────────────────
+  headerChipClick = () => { if(this.state.role==='reservist') this.setState({accountOpen:true}); else this.logout(); };
+  closeAccount= () => this.setState({accountOpen:false, confirmDelete:false});
+  askDelete   = () => this.setState({confirmDelete:true});
+  cancelDelete= () => this.setState({confirmDelete:false});
+
+  deleteAccount = async () => {
+    if(!this.state.demo) await DB.personnel.deactivate(this.state.currentUserId);
+    await DB.auth.logout();
+    this.setState({authed:false,role:null,authMode:'login',accountOpen:false,confirmDelete:false,accountDeleted:true,loginContact:'',loginPassword:'',demo:false});
+  };
+
+  onAvatarFile = e => {
+    const f=e.target.files&&e.target.files[0]; if(!f) return;
+    const r=new FileReader();
+    r.onload=()=>this.setState(s=>({avatars:{...s.avatars,[s.currentUserId]:r.result}}));
+    r.readAsDataURL(f);
+  };
+
+  // ── MC viewer ─────────────────────────────────────────────────────────────
+  openMcViewer = (name, date, file) => async () => {
+    let url='';
+    if(file && !this.state.demo) url = await DB.storage.getMcUrl(file).catch(()=>'');
+    this.setState({mcViewOpen:true, mcViewName:name, mcViewDate:date, mcViewFile:file||'', mcViewUrl:url});
+  };
+  closeMcViewer = () => this.setState({mcViewOpen:false});
+
+  // ── Batch creation ────────────────────────────────────────────────────────
+  onNewBatchStart = e => {
+    const d=e.target.value;
+    this.setState({newBatchStart:d, newBatchLabel:d?Utils.batchLabel(d):''});
+  };
+  onNewBatchLabel = e => this.setState({newBatchLabel:e.target.value});
+
+  createBatch = async () => {
+    const {newBatchStart, newBatchLabel, demo} = this.state;
+    if(!newBatchStart) return;
+    const {start,end,dekit}=Utils.batchDatesFrom(new Date(newBatchStart+'T00:00:00'));
+    const startStr=Utils.dateKey(start), endStr=Utils.dateKey(end), dekitStr=Utils.dateKey(dekit);
+    const label=newBatchLabel.trim()||Utils.batchLabel(startStr);
+    if(demo){
+      const nb={id:'demo-b-'+Date.now(),label,start_date:startStr,end_date:endStr,dekit_date:dekitStr,is_live:true};
+      this.setState(s=>({batches:[...s.batches,nb],activeBatchIdx:s.batches.length,newBatchStart:'',newBatchLabel:''}));
+      return;
+    }
+    const {data,error}=await DB.batches.create(label,startStr,endStr,dekitStr);
+    if(error||!data) return;
+    const batches=await DB.batches.list().catch(()=>this.state.batches);
+    const idx=batches.findIndex(b=>b.id===data.id);
+    const nextTue=Utils.nextBatchTuesday(Utils.addDays(new Date(newBatchStart+'T00:00:00'),7));
+    const ns=Utils.dateKey(nextTue);
+    this.setState({batches,activeBatchIdx:idx>=0?idx:0,newBatchStart:ns,newBatchLabel:Utils.batchLabel(ns)});
+  };
+
+  // ── Export CSV ────────────────────────────────────────────────────────────
+  exportCsv = () => {
+    const {batches,activeBatchIdx,batchMembersCache,personnel,attendance,attendanceCache,noReportDays}=this.state;
+    const batch=batches[activeBatchIdx||0]; if(!batch) return;
+    const members=batch.is_live?personnel:(batchMembersCache[batch.id]||[]);
+    const start=new Date(batch.start_date+'T00:00:00'), end=new Date(batch.end_date+'T00:00:00');
+    const dates=[];
+    for(let d=new Date(start);d<=end;d=Utils.addDays(d,1)){
+      if(Utils.isReportDay(d)&&!Utils.holidayName(d)&&!noReportDays.has(Utils.dateKey(d))) dates.push(new Date(d));
+    }
+    const header=['Name','Contact','Shift',...dates.map(d=>Utils.fmtShort(d)),'Present','MC','Absent'].join(',');
+    const rows=members.map(p=>{
+      const statuses=dates.map(d=>{
+        const dk=Utils.dateKey(d);
+        const map=dk===Utils.dateKey(new Date())?attendance:(attendanceCache[dk]||{});
+        return (map[p.id]?.status)||'absent';
+      });
+      const pres=statuses.filter(s=>s==='present').length;
+      const mc=statuses.filter(s=>s==='mc').length;
+      const abs=statuses.filter(s=>s==='absent').length;
+      return ['"'+p.name+'"',p.contact,p.shift,...statuses,pres,mc,abs].join(',');
+    });
+    const csv=[header,...rows].join('\n');
+    const a=document.createElement('a');
+    a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
+    a.download=(batch.label.replace(/\s+/g,'_')||'batch')+'_attendance.csv';
+    a.click();
+  };
+
+  // ── Realtime ──────────────────────────────────────────────────────────────
+  _subscribeRealtime(dateStr){
+    if(this.state.demo) return;
+    const ch=DB.realtime.subscribeAttendance(dateStr, row=>{
+      const entry={status:row.status,time:row.check_in_time?row.check_in_time.slice(0,5):'-',dist:row.gps_distance_m,mc:row.mc_filename};
+      this.setState(s=>({attendance:{...s.attendance,[row.personnel_id]:entry}}));
+    });
+    this.setState({realtimeChannel:ch});
+  }
+  _unsubscribeRealtime(){
+    DB.realtime.unsubscribe(this.state.realtimeChannel);
+    // setState({realtimeChannel:null}) intentionally skipped here as it may run post-unmount
+  }
+
+  // ── Admin actions ─────────────────────────────────────────────────────────
+  toggleNoReporting = async () => {
+    const off=this.state.viewOffset, d=this.dateForOffset(off);
+    if(!Utils.isReportDay(d)||Utils.holidayName(d)) return;
+    const dk=Utils.dateKey(d);
+    const isNowOn = this.state.demo ? !this.state.noReportDays.has(dk) : await DB.noReportDays.toggle(dk);
+    this.setState(s=>{ const nd=new Set(s.noReportDays); isNowOn?nd.add(dk):nd.delete(dk); return {noReportDays:nd}; });
+  };
+
+  prevDay = () => { const off=this.state.viewOffset-1; this.setState({viewOffset:off}); this._loadDateAttendance(off); };
+  nextDay = () => { const off=this.state.viewOffset+1; this.setState({viewOffset:off}); this._loadDateAttendance(off); };
+  goToday = () => this.setState({viewOffset:0});
+
+  setBatch = i => async () => {
+    const b=this.state.batches[i]; if(!b) return;
+    const start=new Date(b.start_date+'T00:00:00'), today=this.baseDate();
+    const off=Math.round((start-today)/86400000);
+    let members=this.state.batchMembersCache[b.id];
+    if(!members && !b.is_live){
+      members = await DB.personnel.list(b.id, false).catch(()=>[]);
+      this.setState(s=>({batchMembersCache:{...s.batchMembersCache,[b.id]:members}}));
+    }
+    const [noReportDays, batchAttMap] = await Promise.all([
+      DB.noReportDays.list(b.start_date, b.dekit_date||b.end_date).catch(()=>new Set()),
+      b.is_live ? Promise.resolve({}) : DB.attendance.getForBatch(b.start_date, b.end_date).catch(()=>({})),
+    ]);
+    this.setState(s=>({
+      activeBatchIdx:i, viewOffset:off, selectedCalOffset:null,
+      attendanceCache: b.is_live ? {} : {...s.attendanceCache, ...batchAttMap},
+      noReportDays,
+    }));
+  };
+
+  setStatus = (id, status) => async () => {
+    const today=Utils.dateKey(new Date());
+    const prev=this.state.attendance[id]||{};
+    const time=status==='present'?(prev.time&&prev.time!=='-'?prev.time:Utils.hhmm(new Date())):'-';
+    const dist=status==='present'?(prev.dist||Math.round(18+Math.random()*72)):undefined;
+    if(!this.state.demo) await DB.attendance.upsert(id, today, status, {time,dist});
+    this.setState(s=>({attendance:{...s.attendance,[id]:{status,time,dist}}}));
+  };
+
+  addPerson = async () => {
+    const {npName,npContact,npShift,batches,activeBatchIdx,demo}=this.state;
+    if(!npName.trim()) return;
+    const activeBatch=batches[activeBatchIdx||0];
+    const shift=this._capShift(npShift);
+    const contact=npContact.trim()||'-';
+    if(!demo){
+      const {data}=await DB.personnel.add({name:npName,contact,shift,batchId:activeBatch?.id});
+      if(data) this.setState(s=>({personnel:[...s.personnel,data],npName:'',npContact:'',npShift:'AM'}));
+    } else {
+      const id='demo-'+Date.now();
+      this.setState(s=>({personnel:[...s.personnel,{id,name:npName,contact,shift,role:'reservist',batch_id:activeBatch?.id,is_active:true}],npName:'',npContact:'',npShift:'AM'}));
+    }
+  };
+
+  // ── Navigation ────────────────────────────────────────────────────────────
+  go = t => () => this.setState({tab:t});
+  setRolesTab  = k => () => this.setState({rolesTab:k});
+  selectCalDay = off => () => this.setState(s=>({selectedCalOffset:s.selectedCalOffset===off?null:off}));
+
+  // ── Helpers ───────────────────────────────────────────────────────────────
+  baseDate(){ const d=new Date(); d.setHours(0,0,0,0); return d; }
+  dateForOffset(off){ return Utils.addDays(this.baseDate(), off); }
+  isNoReport(off){
+    const d=this.dateForOffset(off);
+    if(!Utils.isReportDay(d)) return false;
+    return this.state.noReportDays.has(Utils.dateKey(d)) || !!Utils.holidayName(d);
+  }
+  cur(){ return this.state.me || this.state.personnel.find(p=>p.id===this.state.currentUserId) || null; }
+  myRec(){ return this.state.attendance[this.state.currentUserId]||{status:'pending'}; }
+  _capShift(want){
+    const am=this.state.personnel.filter(p=>p.shift==='AM').length;
+    const pm=this.state.personnel.filter(p=>p.shift==='PM').length;
+    if(want==='AM'&&am>=2) return 'OFFICE';
+    if(want==='PM'&&pm>=2) return 'OFFICE';
+    return want;
+  }
+
+  _calDayDetail(off, dst){
+    const d=this.dateForOffset(off), hol=Utils.holidayName(d), dk=Utils.dateKey(d);
+    if(off===0){
+      if(this.isNoReport(0)) return {label:'No reporting',sub:hol||'Marked as a no-reporting day',color:'#b9791a',bg:'#f7efdc'};
+      const rec=this.myRec(), st=rec.status||'pending';
+      if(st==='present') return {label:'Checked in',sub:'Reported at '+rec.time,color:'#1f8a5b',bg:'#e7f3ec'};
+      if(st==='mc')      return {label:'On MC',sub:'Sick leave declared for today',color:'#b9791a',bg:'#f7efdc'};
+      return {label:'Pending',sub:'You have not checked in yet today',color:'#5c6678',bg:'#eceef2'};
+    }
+    if(hol) return {label:'Public holiday',sub:hol+', no reporting',color:'#b9791a',bg:'#f7efdc'};
+    if(dst==='ph') return {label:'No reporting',sub:Utils.isReportDay(d)?'Marked as a no-reporting day':'No reporting required',color:'#b9791a',bg:'#f7efdc'};
+    if(dst==='dekit') return {label:'Dekit day',sub:'Return equipment and submit meal allowance forms',color:'#161f30',bg:'#eceef2'};
+    if(dst==='end') return {label:off<0?'Reporting day':'Upcoming',sub:'Last reporting day of your cycle',color:'#5c6678',bg:'#eceef2'};
+    if(dst==='work'||dst==='today'){
+      if(off<0){
+        const hr=this.state.history.find(r=>r.date===dk);
+        if(hr){
+          const t=hr.check_in_time?hr.check_in_time.slice(0,5):'-';
+          if(hr.status==='present') return {label:'Present',sub:'Reported at '+t,color:'#1f8a5b',bg:'#e7f3ec'};
+          if(hr.status==='mc')     return {label:'On MC',sub:'Sick leave recorded',color:'#b9791a',bg:'#f7efdc'};
+          if(hr.status==='absent') return {label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
+        }
+        return {label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
+      }
+      return {label:'Upcoming',sub:'Reporting day',color:'#5c6678',bg:'#eceef2'};
+    }
+    if(dst==='pre') return {label:'No reporting',sub:'Before your cycle started',color:'#5c6678',bg:'#eceef2'};
+    return {label:'No reporting',sub:'Outside your reporting cycle',color:'#b9791a',bg:'#f7efdc'};
+  }
+
+  // ── Render helpers ────────────────────────────────────────────────────────
+  _buildAuth(s, accent){
+    const activeBatch=s.batches[s.activeBatchIdx||0];
+    const amCount=s.personnel.filter(p=>p.shift==='AM').length;
+    const pmCount=s.personnel.filter(p=>p.shift==='PM').length;
+    const amFull=amCount>=2, pmFull=pmCount>=2;
+    let suShift=s.suShift;
+    if((suShift==='AM'&&amFull)||(suShift==='PM'&&pmFull)) suShift='OFFICE';
+    const shiftOptions=[
+      {value:'AM', disabled:amFull, label:amFull?'AM shift, full (2/2)':'AM shift, 0830 to 1530 hrs'},
+      {value:'PM', disabled:pmFull, label:pmFull?'PM shift, full (2/2)':'PM shift, 1530 to 2230 hrs'},
+      {value:'OFFICE', disabled:false, label:'Office hours, 0900 to 1800 hrs'},
+    ];
+    const tb=a=>`flex:1;padding:11px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;${a?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`;
+    const bs=activeBatch?new Date(activeBatch.start_date+'T00:00:00'):null;
+    const be=activeBatch?new Date(activeBatch.end_date+'T00:00:00'):null;
+    const intakeLabel=activeBatch?activeBatch.label:'';
+    const intakeRangeFull=bs&&be?(Utils.fmtShort(bs)+' to '+Utils.fmtShort(be)+' '+bs.getFullYear()):'';
+    return {
+      showAuth:!s.authed, showApp:s.authed,
+      isLogin:s.authMode==='login', isSignup:s.authMode==='signup',
+      goLogin:this.goLogin, goSignup:this.goSignup,
+      loginTabStyle:tb(s.authMode==='login'), signupTabStyle:tb(s.authMode==='signup'),
+      accountDeleted:s.accountDeleted,
+      loginNric:s.loginContact, loginPassword:s.loginPassword, authError:s.authError,
+      authLoading:s.loading,
+      loginBtnLabel:s.loading?'Logging in…':'Log in',
+      signupBtnLabel:s.loading?'Creating account…':'Create account',
+      onLoginNric:this.onLoginContact, onLoginPassword:this.onLoginPassword,
+      doLogin:this.doLogin, demoReservist:this.demoReservist, demoAdmin:this.demoAdmin,
+      suName:s.suName, suNric:'', suContact:s.suContact, suShift, shiftOptions, suPassword:s.suPassword,
+      onSuName:this.onSuName, onSuNric:()=>{}, onSuContact:this.onSuContact, onSuShift:this.onSuShift, onSuPassword:this.onSuPassword,
+      doSignup:this.doSignup,
+      intakeLabel, intakeRange:intakeRangeFull, intakeRangeFull,
+    };
+  }
+
+  _buildNav(s, accent, orgName){
+    const me=this.cur();
+    const TITLES={checkin:'Check-In',briefings:'Briefings',attendance:'Attendance',meal:'Meal Allowance',overview:'Dashboard',roster:'Roster',log:'Attendance Log',people:'Personnel'};
+    const nc=t=>s.tab===t?accent:'#9aa3b2';
+    return {
+      isReservist:s.role==='reservist', isAdmin:s.role==='admin',
+      headerChipClick:this.headerChipClick, logout:this.logout,
+      userName:s.role==='admin'?'Supervisor':(me?.name||''),
+      userInitials:s.role==='admin'?'SV':Utils.initials(me?.name||''),
+      tabTitle:TITLES[s.tab]||'',
+      headerKicker:s.role==='admin'?'Admin, '+orgName:orgName+', PNSMEN',
+      goCheckin:this.go('checkin'), goBriefings:this.go('briefings'), goAttendance:this.go('attendance'), goMeal:this.go('meal'),
+      goOverview:this.go('overview'), goRoster:this.go('roster'), goLog:this.go('log'), goPeople:this.go('people'),
+      cCheckin:nc('checkin'), cBriefings:nc('briefings'), cAttendance:nc('attendance'), cMeal:nc('meal'),
+      cOverview:nc('overview'), cRoster:nc('roster'), cLog:nc('log'), cPeople:nc('people'),
+      tabCheckin:s.tab==='checkin', tabBriefings:s.tab==='briefings', tabAttendance:s.tab==='attendance', tabMeal:s.tab==='meal',
+      tabOverview:s.tab==='overview', tabRoster:s.tab==='roster', tabLog:s.tab==='log', tabPeople:s.tab==='people',
+    };
+  }
+
+  _buildCheckin(s, accent, hqName){
+    const me=this.cur(); if(!me) return {};
+    const rec=this.myRec(), status=rec.status||'pending', m=Utils.meta(status);
+    const noRep=this.isNoReport(0);
+    const locVerified=s.locStatus==='verified', locLocating=s.locStatus==='locating';
+    return {
+      todayLong:Utils.fmtLong(new Date()),
+      clock:Utils.hhmm(s.now),
+      myShiftLabel:Utils.shiftLabel(me.shift), myShiftWindow:Utils.shiftWindow(me.shift),
+      myStatusLabel:noRep?'No reporting':m.label,
+      myStatusColor:noRep?accent:m.color,
+      myStatusPulse:(status==='pending'&&!noRep)?'animation:pulseDot 1.6s ease infinite;':'',
+      phToday:noRep,
+      phName:Utils.holidayName(this.dateForOffset(0))||'No CNB reporting today',
+      needCheckin:status==='pending'&&!s.mcMode&&!noRep,
+      mcMode:s.mcMode&&!noRep,
+      isPresent:status==='present'&&!noRep,
+      isMc:status==='mc'&&!noRep,
+      checkInTime:rec.time||'-',
+      checkInDist:rec.dist!=null?('about '+rec.dist+' m from '+hqName):'on-site',
+      verifyLocation:this.verifyLocation, submitCheckIn:this.submitCheckIn,
+      locLocating,
+      locNeedsAction:!locVerified&&!locLocating,
+      locBorder:locVerified?'#cfe6d8':'#eef0f4',
+      locCardBg:locVerified?'#f5faf7':'#fff',
+      locBadgeBg:locVerified?'#e7f3ec':'#eceef2',
+      locBadgeColor:locVerified?'#1f8a5b':'#8a94a3',
+      locMsg:locVerified?('Within '+hqName+' perimeter, about '+s.locDistance+' m away.'):locLocating?'Locating you via GPS...':('Tap to confirm you are at '+hqName+'.'),
+      locMsgColor:locVerified?'#1f8a5b':'#8a94a3',
+      checkInOpacity:locVerified?'1':'.45',
+      checkInPE:locVerified?'auto':'none',
+      openMc:this.openMc, onMcFile:this.onMcFile, submitMc:this.submitMc, cancelMc:this.cancelMc, undoCheckin:this.undoCheckin,
+      mcFileLabel:s.mcFileName||rec.mc||'No file selected',
+    };
+  }
+
+  _buildCalendar(s, accent){
+    const activeBatch=s.batches[s.activeBatchIdx||0];
+    if(!activeBatch) return {weekdays:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],calCells:[],cycleStart:'',cycleEnd:'',calSelected:false,calNoneSelected:true,calSelLabel:'',calSelStatus:'',calSelSub:'',calSelColor:'',calSelBg:'',dekitMonth:'',dekitDay:'',dekitLabel:'',dekitSub:'',dekitDateFull:''};
+    const bs=new Date(activeBatch.start_date+'T00:00:00');
+    const be=new Date(activeBatch.end_date+'T00:00:00');
+    const dd=activeBatch.dekit_date?new Date(activeBatch.dekit_date+'T00:00:00'):Utils.addDays(be,3);
+    const gridStart=Utils.mondayOf(bs);
+    const today=this.baseDate();
+    const todayKey=Utils.dateKey(today), bsKey=Utils.dateKey(bs), beKey=Utils.dateKey(be), ddKey=Utils.dateKey(dd);
+    const cellBase='aspect-ratio:1;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;';
+    const cellStyle=st=>{
+      if(st==='today') return cellBase+'background:'+accent+';color:#fff;';
+      if(st==='ph')    return cellBase+'background:#f7efdc;color:#b9791a;';
+      if(st==='work')  return cellBase+'background:#fff;border:1px solid #e3e6ec;color:#161f30;';
+      if(st==='end')   return cellBase+'background:#fff;border:1.5px solid '+accent+';color:'+accent+';';
+      if(st==='dekit') return cellBase+'background:#131a27;color:#fff;';
+      return cellBase+'background:transparent;color:#c2c8d2;';
+    };
+    const calCells=Array.from({length:21},(_,i)=>{
+      const d=Utils.addDays(gridStart,i), dk=Utils.dateKey(d);
+      const off=Math.round((d-today)/86400000);
+      const isHol=!!Utils.holidayName(d), isNoRep=s.noReportDays.has(dk), isWknd=!Utils.isReportDay(d);
+      let dst;
+      if(dk<bsKey) dst='pre';
+      else if(dk>ddKey) dst='off';
+      else if(dk===ddKey) dst='dekit';
+      else if(dk>beKey) dst='ph';
+      else if(dk===beKey) dst=dk===todayKey?'today':'end';
+      else if(isWknd) dst='off';
+      else if(isHol||isNoRep) dst='ph';
+      else if(dk===todayKey) dst='today';
+      else dst='work';
+      let style=cellStyle(dst)+'cursor:pointer;';
+      if(s.selectedCalOffset===off) style+='outline:2px solid '+accent+';outline-offset:1px;';
+      return {num:d.getDate(),style,off,st:dst,onClick:this.selectCalDay(off)};
+    });
+    const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const dekitLabel='Dekit, '+WD[dd.getDay()]+' '+dd.getDate()+' '+MON[dd.getMonth()];
+    const dekitSub='Last reporting '+WD[be.getDay()]+' '+be.getDate()+' '+MON[be.getMonth()]+'. Account closes on dekit day.';
+    const dekitDateFull=WD[dd.getDay()]+' '+dd.getDate()+' '+MON[dd.getMonth()];
+    const selOff=s.selectedCalOffset, calSelected=selOff!=null;
+    let calSelLabel='',calSelStatus='',calSelSub='',calSelColor='',calSelBg='';
+    if(calSelected){
+      const sd=this.dateForOffset(selOff);
+      const selCell=calCells.find(c=>c.off===selOff);
+      const info=this._calDayDetail(selOff,selCell?selCell.st:'off');
+      calSelLabel=Utils.fmtMed(sd)+(selOff===0?', today':'');
+      calSelStatus=info.label; calSelSub=info.sub; calSelColor=info.color; calSelBg=info.bg;
+    }
+    return {
+      weekdays:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], calCells,
+      cycleStart:Utils.fmtShort(bs), cycleEnd:Utils.fmtShort(be),
+      calSelected, calNoneSelected:!calSelected,
+      calSelLabel, calSelStatus, calSelSub, calSelColor, calSelBg,
+      dekitMonth:MON[dd.getMonth()].toUpperCase(), dekitDay:dd.getDate(),
+      dekitLabel, dekitSub, dekitDateFull,
+    };
+  }
+
+  _buildAttendance(s){
+    const me=this.cur(); if(!me) return {myHistory:[],statMyPresent:0,statMyMc:0,statMyDays:0,cycleDone:0,cycleTotal:0,cyclePct:0};
+    const rec=this.myRec(), status=rec.status||'pending';
+    const today=Utils.dateKey(new Date()), todayD=new Date(today+'T00:00:00');
+    const todayRow=(status!=='pending'&&Utils.isReportDay(todayD)&&!this.isNoReport(0))?[{date:Utils.fmtMed(todayD)+', Today',shift:Utils.shiftLabel(me.shift),status,time:rec.time||'-',...Utils.meta(status)}]:[];
+    const histRows=s.history.map(r=>{
+      const d=new Date(r.date+'T00:00:00');
+      const t=r.check_in_time?r.check_in_time.slice(0,5):'-';
+      return {date:Utils.fmtMed(d),shift:Utils.shiftLabel(me.shift),status:r.status,time:t,...Utils.meta(r.status)};
+    });
+    const myHistory=[...todayRow,...histRows];
+    const statMyPresent=myHistory.filter(h=>h.label==='Present').length;
+    const statMyMc=myHistory.filter(h=>h.label==='On MC').length;
+    const activeBatch=s.batches[s.activeBatchIdx||0];
+    let cycleTotal=0, cycleDone=0;
+    if(activeBatch){
+      const bStart=new Date(activeBatch.start_date+'T00:00:00'), bEnd=new Date(activeBatch.end_date+'T00:00:00'), now=this.baseDate();
+      for(let d=new Date(bStart);d<=bEnd;d=Utils.addDays(d,1)){
+        if(Utils.isReportDay(d)&&!Utils.holidayName(d)){cycleTotal++; if(d<=now) cycleDone++;}
+      }
+    }
+    return {myHistory,statMyPresent,statMyMc,statMyDays:myHistory.length,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0};
+  }
+
+  _buildBriefings(s, accent){
+    const ROLES={
+      AM:{title:'AM shift',window:'0830 to 1530, lunch 1200 to 1430',items:['Ensure MOPs for CNB testing exit DHQ the same route they came in.','Ensure MOPs do not loiter around the area.','Escort contractors around the building when needed.','Assist with Red Teaming exercises if needed.']},
+      PM:{title:'PM shift',window:'1530 to 2230, dinner 1630 to 1830',items:['Same duties as AM shift.','May leave early if CNB informs there is no more reporting.'],note:'Fridays: stay till 1800 hrs only, may move to canteen after 1630. Update WhatsApp when leaving DHQ or if on MC.'},
+      OFFICE:{title:'Office hours',window:'0900 to 1800, lunch 1200 to 1400',items:['Escort contractors when needed.','Assist with Red Teaming exercises if needed.']},
+    };
+    const tab=s.rolesTab||'AM', active=ROLES[tab];
+    const roleTabs=[['AM','AM'],['PM','PM'],['OFFICE','Office']].map(([key,label])=>({
+      key,label,onClick:this.setRolesTab(key),
+      style:`flex:1;padding:9px 6px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;${tab===key?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`,
+    }));
+    return {roleTabs,roleTitle:active.title,roleWindow:active.window,roleItems:active.items,roleNote:active.note||''};
+  }
+
+  _buildAdmin(s, accent){
+    const batches=s.batches, activeBatchIdx=s.activeBatchIdx||0, activeBatch=batches[activeBatchIdx];
+    const activeMembers=activeBatch?.is_live?s.personnel:(s.batchMembersCache?.[activeBatch?.id]||[]);
+    const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const batchChips=batches.map((b,i)=>{
+      const bs=new Date(b.start_date+'T00:00:00'), be=new Date(b.end_date+'T00:00:00');
+      return {label:b.label,range:Utils.fmtShort(bs)+' to '+Utils.fmtShort(be),onClick:this.setBatch(i),style:'flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;padding:7px 13px;border-radius:9px;cursor:pointer;white-space:nowrap;text-align:left;'+(i===activeBatchIdx?'background:'+accent+';color:#fff;border:1px solid '+accent+';':'background:#fff;color:#5c6678;border:1px solid #d4d9e2;')};
+    });
+    const roster=activeMembers.map(p=>{
+      const r=s.attendance[p.id]||{status:'pending',time:'-'}, mm=Utils.meta(r.status);
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),time:r.time||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.dist!=null)?(', GPS verified '+r.dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent')};
+    });
+    const present=roster.filter(r=>r.label==='Present').length, mc=roster.filter(r=>r.label==='On MC').length, pending=roster.filter(r=>r.label==='Pending').length, total=roster.length;
+    const today2=Utils.dateKey(new Date());
+    const logRows=roster.filter(r=>r.label!=='Pending').map(r=>{
+      const hasMc=r.label==='On MC';
+      return {...r, mcCursor:hasMc?'pointer':'default', onViewMc:hasMc?this.openMcViewer(r.name,today2,s.attendance[r.id]?.mc):()=>{}};
+    });
+    const viewOffset=s.viewOffset||0, viewDate=this.dateForOffset(viewOffset), viewIsToday=viewOffset===0, viewReportDay=Utils.isReportDay(viewDate);
+    const dlabel=WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()];
+    const rel=viewOffset===0?'Today':viewOffset===-1?'Yesterday':viewOffset===1?'Tomorrow':'';
+    const viewDateLabel=(rel?rel+', ':'')+dlabel;
+    const viewHoliday=Utils.holidayName(viewDate), viewBlocked=this.isNoReport(viewOffset);
+    const viewShowReporting=viewReportDay&&!viewBlocked, viewNoReporting=!viewShowReporting;
+    const viewDateSub=!viewReportDay?'Weekend, no reporting':viewHoliday?'Public holiday':viewBlocked?'No reporting, toggled off':viewOffset<0?'Past shift, recorded':viewOffset>0?'Scheduled':'Live now';
+    const viewNoRepReason=!viewReportDay?'This is a weekend. Reservists do not report on Saturdays or Sundays.':viewHoliday?(viewHoliday+' is a public holiday, so reservists are not required to report.'):'This day is marked as a no-reporting day, so reservists are not required to report.';
+    const showRepToggle=viewReportDay, repToggleLocked=!!viewHoliday, repToggleOn=viewBlocked;
+    const noRepMsg=viewHoliday?('Public holiday ('+viewHoliday+'). Auto no-reporting, locked.'):repToggleOn?'On. Reservists are not required to report this day.':'Off. Reservists report and check in as normal.';
+    const viewDateKey=Utils.dateKey(viewDate);
+    const viewMap=viewIsToday?s.attendance:(s.attendanceCache?.[viewDateKey]||{});
+    const viewRoster=activeMembers.map(p=>{
+      const r=viewMap[p.id]||{status:viewOffset>0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
+      const hasMc=r.status==='mc'&&!!r.mc;
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:(r.status==='present'&&r.time&&r.time!=='-')?r.time:'',mcCursor:hasMc?'pointer':'default',onViewMc:hasMc?this.openMcViewer(p.name,viewDateKey,r.mc):()=>{}};
+    });
+    const vPresent=viewRoster.filter(r=>r.label==='Present').length, vMc=viewRoster.filter(r=>r.label==='On MC').length, vAbsent=viewRoster.filter(r=>r.label==='Absent').length, vPending=viewRoster.filter(r=>r.label==='Pending').length, vTotal=viewRoster.length;
+    const vPercent=vTotal?Math.round((vPresent+vMc)/vTotal*100):0;
+    const viewListHeader=viewOffset<0?'ATTENDANCE RECORD':viewOffset>0?'SCHEDULED ROSTER':'LIVE STATUS';
+    const viewPercentText=viewOffset>0?(vTotal+' rostered'):(vPercent+'% reported');
+    const viewPercentColor=viewOffset>0?'#8a94a3':'#1f8a5b';
+    const vThirdLabel=viewOffset<0?'Absent':'Pending', vThirdVal=viewOffset<0?vAbsent:vPending, vThirdColor=viewOffset<0?'#c0392b':'#5c6678';
+    const bs2=activeBatch?new Date(activeBatch.start_date+'T00:00:00'):null, be2=activeBatch?new Date(activeBatch.end_date+'T00:00:00'):null;
+    const intakeLabel=activeBatch?activeBatch.label:'';
+    const intakeRange=bs2&&be2?(Utils.fmtShort(bs2)+' to '+Utils.fmtShort(be2)):'';
+    const newBatchEndPreview=(()=>{
+      if(!s.newBatchStart) return '';
+      const {end,dekit}=Utils.batchDatesFrom(new Date(s.newBatchStart+'T00:00:00'));
+      return 'Ends '+Utils.fmtShort(end)+', dekit '+Utils.fmtShort(dekit);
+    })();
+    return {
+      batchChips, roster, logRows,
+      statPresent:present, statMc:mc, statPending:pending, statTotal:total,
+      noRepMsg, toggleNoReporting:this.toggleNoReporting,
+      showRepToggle, repToggleLocked,
+      noRepTrackBg:repToggleOn?accent:'#39435a',
+      noRepKnobX:repToggleOn?'25px':'3px',
+      repToggleOpacity:repToggleLocked?'0.55':'1',
+      repTogglePE:repToggleLocked?'none':'auto',
+      prevDay:this.prevDay, nextDay:this.nextDay, goToday:this.goToday,
+      viewDateLabel, viewDateSub, viewIsToday, viewNotToday:!viewIsToday,
+      viewShowReporting, viewNoReporting, viewNoRepReason,
+      viewRoster, vPresent, vMc, vThirdVal, vThirdLabel, vThirdColor, vTotal,
+      vPresentLabel:'Checked in',
+      viewListHeader, viewPercentText, viewPercentColor,
+      intakeLabel, intakeRange,
+      personnelList:activeMembers.map(p=>({...p,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift)})),
+      npName:s.npName, npContact:s.npContact, npShift:s.npShift,
+      onNpName:this.onNpName, onNpContact:this.onNpContact, onNpRank:()=>{}, onNpShift:this.onNpShift, addPerson:this.addPerson,
+      exportCsv:this.exportCsv,
+      newBatchStart:s.newBatchStart, newBatchLabel:s.newBatchLabel, newBatchEndPreview,
+      onNewBatchStart:this.onNewBatchStart, onNewBatchLabel:this.onNewBatchLabel, createBatch:this.createBatch,
+      mcViewOpen:s.mcViewOpen, mcViewName:s.mcViewName, mcViewDate:s.mcViewDate,
+      mcViewFile:s.mcViewFile, mcViewUrl:s.mcViewUrl, mcViewNoUrl:!s.mcViewUrl,
+      closeMcViewer:this.closeMcViewer,
+    };
+  }
+
+  _buildAccount(s, accent){
+    const me=this.cur(); if(!me) return {};
+    const avatarUrl=s.avatars[s.currentUserId]||'', showAvatar=s.role==='reservist'&&!!avatarUrl;
+    return {
+      accountOpen:s.accountOpen,
+      closeAccount:this.closeAccount, askDelete:this.askDelete, cancelDelete:this.cancelDelete, deleteAccount:this.deleteAccount,
+      confirmDelete:s.confirmDelete, deleteIdle:!s.confirmDelete,
+      acctNric:'', acctContact:me.contact||'-',
+      onAvatarFile:this.onAvatarFile,
+      headerAvatarBg:showAvatar?('url("'+avatarUrl+'")') :'none',
+      headerNoAvatar:!showAvatar,
+      acctAvatarBg:avatarUrl?('url("'+avatarUrl+'")') :'none',
+      acctNoAvatar:!avatarUrl,
+    };
+  }
+
+  // ── renderVals ────────────────────────────────────────────────────────────
+  renderVals(){
+    const s=this.state;
+    const accent=this.props.accent||'#2f5fd0';
+    const orgName=this.props.orgName||'Ops Security';
+    const hqName=this.props.hqName||'Bedok DHQ';
+    return {
+      accent, orgName, hqName,
+      ...this._buildAuth(s, accent),
+      ...this._buildNav(s, accent, orgName),
+      ...this._buildCheckin(s, accent, hqName),
+      ...this._buildCalendar(s, accent),
+      ...this._buildAttendance(s),
+      ...this._buildBriefings(s, accent),
+      ...this._buildAdmin(s, accent),
+      ...this._buildAccount(s, accent),
+    };
+  }
+}
