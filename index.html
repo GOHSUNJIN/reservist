@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{font-family:'IBM Plex Sans',system-ui,sans-serif;color:#1c2533;background:#cdd2da;-webkit-font-smoothing:antialiased;}
+  input,button,select,textarea{font-family:inherit;}
+  ::placeholder{color:#9aa3b2;}
+  @keyframes pulseDot{0%,100%{opacity:1;}50%{opacity:.3;}}
+  @keyframes ring{0%{transform:scale(.7);opacity:.7;}100%{transform:scale(1.6);opacity:0;}}
+  .scroll::-webkit-scrollbar{width:0;height:0;}
+</style>
+</helmet>
+
+<div style="min-height:100vh;width:100%;display:flex;align-items:center;justify-content:center;background:#cdd2da;">
+<div style="width:390px;height:844px;background:#eef1f5;display:flex;flex-direction:column;overflow:hidden;position:relative;box-shadow:0 24px 60px rgba(20,30,50,.22);">
+
+  <!-- ============ AUTH ============ -->
+  <sc-if value="{{ showAuth }}" hint-placeholder-val="{{ true }}">
+  <div class="scroll" style="flex:1;overflow:auto;display:flex;flex-direction:column;background:#131a27;">
+    <div style="padding:40px 28px 30px;color:#e8ecf3;position:relative;overflow:hidden;flex:0 0 auto;">
+      <div style="display:flex;align-items:center;gap:12px;z-index:1;position:relative;">
+        <div style="width:42px;height:42px;border-radius:9px;background:{{ accent }};display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'IBM Plex Mono',monospace;font-size:17px;color:#fff;box-shadow:0 6px 18px rgba(47,95,208,.4);">OS</div>
+        <div style="font-weight:600;font-size:15px;">{{ orgName }}</div>
+      </div>
+      <div style="margin-top:28px;z-index:1;position:relative;">
+        <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:{{ accent }};text-transform:uppercase;margin-bottom:12px;">Reservist Operations Portal</div>
+        <h1 style="font-size:28px;line-height:1.18;font-weight:700;margin:0;letter-spacing:-0.01em;">Report. Verify.<br>Stay accounted for.</h1>
+      </div>
+      <div style="position:absolute;right:-90px;top:-50px;width:240px;height:240px;border-radius:50%;border:1px solid rgba(47,95,208,.22);"></div>
+    </div>
+
+    <div class="scroll" style="flex:1;background:#f6f7f9;border-radius:22px 22px 0 0;padding:26px 24px 34px;overflow:auto;">
+      <sc-if value="{{ accountDeleted }}" hint-placeholder-val="">
+        <div style="background:#f1f8f4;border:1px solid #cfe6d8;border-radius:11px;padding:13px 15px;font-size:13px;color:#1f8a5b;font-weight:600;margin-bottom:18px;">Your account has been deleted. Thank you for your service.</div>
+      </sc-if>
+
+      <div style="display:flex;gap:4px;background:#e7eaef;padding:4px;border-radius:11px;margin-bottom:24px;">
+        <button onClick="{{ goLogin }}" style="{{ loginTabStyle }}">Log in</button>
+        <button onClick="{{ goSignup }}" style="{{ signupTabStyle }}">Sign up</button>
+      </div>
+
+      <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
+      <div>
+        <h2 style="font-size:21px;font-weight:700;margin:0 0 4px;color:#161f30;">Welcome back</h2>
+        <p style="font-size:14px;color:#5c6678;margin:0 0 22px;">Log in to check in for your shift.</p>
+        <label style="display:block;font-size:13px;font-weight:600;color:#36404f;margin-bottom:7px;">Contact number</label>
+        <input value="{{ loginNric }}" onInput="{{ onLoginNric }}" placeholder="9xxx xxxx" style="width:100%;padding:13px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:15px;background:#fff;outline:none;margin-bottom:15px;" />
+        <label style="display:block;font-size:13px;font-weight:600;color:#36404f;margin-bottom:7px;">Password</label>
+        <input value="{{ loginPassword }}" onInput="{{ onLoginPassword }}" type="password" placeholder="Your password" style="width:100%;padding:13px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:15px;background:#fff;outline:none;margin-bottom:6px;" />
+        <sc-if value="{{ authError }}" hint-placeholder-val="">
+          <div style="color:#c0392b;font-size:13px;margin-bottom:6px;">{{ authError }}</div>
+        </sc-if>
+        <button onClick="{{ doLogin }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:12px;box-shadow:0 4px 14px rgba(47,95,208,.28);">Log in</button>
+        <div style="display:flex;align-items:center;gap:12px;margin:22px 0;color:#9aa3b2;font-size:11px;letter-spacing:.08em;">
+          <div style="flex:1;height:1px;background:#e1e5ec;"></div>QUICK DEMO<div style="flex:1;height:1px;background:#e1e5ec;"></div>
+        </div>
+        <div style="display:flex;gap:10px;">
+          <button onClick="{{ demoReservist }}" style="flex:1;padding:12px;background:#fff;border:1px solid #d4d9e2;border-radius:10px;font-size:13px;font-weight:600;color:#36404f;cursor:pointer;">Reservist</button>
+          <button onClick="{{ demoAdmin }}" style="flex:1;padding:12px;background:#161f30;border:1px solid #161f30;border-radius:10px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;">Admin / Supervisor</button>
+        </div>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ isSignup }}" hint-placeholder-val="">
+      <div>
+        <h2 style="font-size:21px;font-weight:700;margin:0 0 4px;color:#161f30;">Register as PNSMEN</h2>
+        <p style="font-size:14px;color:#5c6678;margin:0 0 16px;">Create your account to join the roster.</p>
+        <div style="background:#eef3fc;border:1px solid #d7e2f7;border-radius:11px;padding:13px 15px;margin-bottom:18px;">
+          <div style="font-size:12.5px;color:#3a4a66;line-height:1.5;">You will be enrolled in the <strong>{{ intakeLabel }}</strong> intake, as set by your supervisor.</div>
+          <div style="display:flex;align-items:center;gap:7px;margin-top:9px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{ accent }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><rect x="3" y="5" width="18" height="16" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="8" y1="3" x2="8" y2="6"></line><line x1="16" y1="3" x2="16" y2="6"></line></svg>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:{{ accent }};white-space:nowrap;">{{ intakeRangeFull }}</span>
+          </div>
+        </div>
+        <label style="display:block;font-size:13px;font-weight:600;color:#36404f;margin-bottom:7px;">Full name</label>
+        <input value="{{ suName }}" onInput="{{ onSuName }}" placeholder="Full name" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:14px;background:#fff;outline:none;margin-bottom:14px;" />
+        <label style="display:block;font-size:13px;font-weight:600;color:#36404f;margin-bottom:7px;">Contact number</label>
+        <input value="{{ suContact }}" onInput="{{ onSuContact }}" placeholder="9xxx xxxx" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:14px;background:#fff;outline:none;margin-bottom:14px;" />
+        <label style="display:block;font-size:13px;font-weight:600;color:#36404f;margin-bottom:7px;">Default shift pattern</label>
+        <select value="{{ suShift }}" onChange="{{ onSuShift }}" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:14px;background:#fff;outline:none;">
+          <sc-for list="{{ shiftOptions }}" as="opt" hint-placeholder-count="3">
+            <option value="{{ opt.value }}" disabled="{{ opt.disabled }}">{{ opt.label }}</option>
+          </sc-for>
+        </select>
+        <div style="font-size:11.5px;color:#8a94a3;line-height:1.45;margin:7px 0 14px;">AM and PM shifts are capped at 2 reservists each. When a slot is full it is disabled, and you are placed in office hours.</div>
+        <label style="display:block;font-size:13px;font-weight:600;color:#36404f;margin-bottom:7px;">Password</label>
+        <input value="{{ suPassword }}" onInput="{{ onSuPassword }}" type="password" placeholder="Create a password" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:14px;background:#fff;outline:none;" />
+        <sc-if value="{{ authError }}" hint-placeholder-val="">
+          <div style="color:#c0392b;font-size:13px;margin-top:12px;">{{ authError }}</div>
+        </sc-if>
+        <button onClick="{{ doSignup }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:18px;box-shadow:0 4px 14px rgba(47,95,208,.28);">Create account</button>
+      </div>
+      </sc-if>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ============ APP ============ -->
+  <sc-if value="{{ showApp }}" hint-placeholder-val="">
+  <div style="flex:1;display:flex;flex-direction:column;min-height:0;background:#eef1f5;position:relative;">
+
+    <div style="flex:0 0 auto;background:#fff;border-bottom:1px solid #e3e6ec;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
+      <div>
+        <div style="font-size:11px;color:#8a94a3;letter-spacing:.04em;">{{ headerKicker }}</div>
+        <div style="font-size:18px;font-weight:700;color:#161f30;line-height:1.1;">{{ tabTitle }}</div>
+      </div>
+      <div onClick="{{ headerChipClick }}" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+        <div style="text-align:right;white-space:nowrap;"><div style="font-size:12px;font-weight:600;color:#36404f;line-height:1.2;">{{ userName }}</div></div>
+        <div style="width:36px;height:36px;border-radius:50%;background:#161f30;background-image:{{ headerAvatarBg }};background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;"><sc-if value="{{ headerNoAvatar }}" hint-placeholder-val="{{ true }}">{{ userInitials }}</sc-if></div>
+      </div>
+    </div>
+
+    <div class="scroll" style="flex:1;overflow:auto;min-height:0;">
+      <div style="padding:18px;">
+
+        <!-- ===== CHECK IN ===== -->
+        <sc-if value="{{ tabCheckin }}" hint-placeholder-val="{{ true }}">
+        <div>
+          <div style="background:#131a27;border-radius:18px;padding:20px;color:#fff;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+            <div>
+              <div style="font-size:12px;color:#7d899b;letter-spacing:.06em;">{{ todayLong }}</div>
+              <div style="font-size:16px;font-weight:600;margin-top:3px;">{{ myShiftLabel }}</div>
+              <div style="font-size:12px;color:#7d899b;font-family:'IBM Plex Mono',monospace;margin-top:1px;">{{ myShiftWindow }}</div>
+            </div>
+            <div style="text-align:right;">
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;letter-spacing:.03em;">{{ clock }}</div>
+              <div style="font-size:10px;color:#7d899b;letter-spacing:.1em;">BEDOK DHQ</div>
+            </div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #e3e6ec;border-radius:18px;padding:22px;box-shadow:0 1px 3px rgba(20,30,50,.05);">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px;">
+              <span style="width:9px;height:9px;border-radius:50%;background:{{ myStatusColor }};display:inline-block;{{ myStatusPulse }}"></span>
+              <span style="font-size:12px;font-weight:600;color:{{ myStatusColor }};text-transform:uppercase;letter-spacing:.06em;">{{ myStatusLabel }}</span>
+            </div>
+
+            <sc-if value="{{ phToday }}" hint-placeholder-val="">
+            <div>
+              <div style="display:flex;align-items:center;gap:14px;margin:6px 0 4px;">
+                <div style="width:52px;height:52px;border-radius:50%;background:#eef3fc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="{{ accent }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"></circle><line x1="4" y1="16" x2="20" y2="16"></line><line x1="6" y1="20" x2="18" y2="20"></line></svg>
+                </div>
+                <div>
+                  <h2 style="font-size:19px;font-weight:700;margin:0;color:#161f30;">No reporting today</h2>
+                  <p style="font-size:13.5px;color:#5c6678;margin:2px 0 0;">{{ phName }}</p>
+                </div>
+              </div>
+              <div style="background:#f6f8fa;border-radius:10px;padding:13px 15px;margin-top:12px;font-size:13px;color:#5c6678;line-height:1.55;">There is no CNB reporting today, so you do not need to report or check in. No attendance submission is required. Enjoy the day off.</div>
+            </div>
+            </sc-if>
+
+            <sc-if value="{{ needCheckin }}" hint-placeholder-val="{{ true }}">
+            <div>
+              <h2 style="font-size:19px;font-weight:700;margin:2px 0 6px;color:#161f30;">Verify you are on shift</h2>
+              <p style="font-size:13.5px;color:#5c6678;margin:0 0 16px;line-height:1.5;">Check-in uses your live GPS location to confirm you are physically at Bedok DHQ. You must be on-site for it to work.</p>
+
+              <div style="border:1px solid {{ locBorder }};border-radius:13px;padding:16px;background:{{ locCardBg }};text-align:center;">
+                <div style="position:relative;width:64px;height:64px;margin:2px auto 12px;">
+                  <sc-if value="{{ locLocating }}" hint-placeholder-val="">
+                    <span style="position:absolute;inset:0;border-radius:50%;background:{{ accent }};opacity:.25;animation:ring 1.4s ease-out infinite;"></span>
+                  </sc-if>
+                  <div style="position:absolute;inset:0;border-radius:50%;background:{{ locBadgeBg }};display:flex;align-items:center;justify-content:center;">
+                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="{{ locBadgeColor }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"></path><circle cx="12" cy="10" r="2.4"></circle></svg>
+                  </div>
+                </div>
+                <div style="font-size:14px;font-weight:600;color:#161f30;">On-site location</div>
+                <div style="font-size:12.5px;color:{{ locMsgColor }};line-height:1.45;margin-top:3px;">{{ locMsg }}</div>
+                <sc-if value="{{ locNeedsAction }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ verifyLocation }}" style="width:100%;margin-top:14px;padding:12px;background:#fff;border:1px solid #d4d9e2;border-radius:10px;font-size:14px;font-weight:600;color:{{ accent }};cursor:pointer;">Locate me</button>
+                </sc-if>
+              </div>
+
+              <button onClick="{{ submitCheckIn }}" style="width:100%;padding:15px;background:{{ accent }};color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:600;cursor:pointer;margin-top:14px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ checkInOpacity }};pointer-events:{{ checkInPE }};">Check in</button>
+
+              <div style="border-top:1px solid #eef0f4;margin-top:18px;padding-top:16px;text-align:center;">
+                <button onClick="{{ openMc }}" style="padding:11px 18px;background:#fff;border:1px solid #d4d9e2;border-radius:10px;font-size:13.5px;font-weight:600;color:#b9791a;cursor:pointer;">Declare sick leave (MC)</button>
+              </div>
+            </div>
+            </sc-if>
+
+            <sc-if value="{{ mcMode }}" hint-placeholder-val="">
+            <div>
+              <h2 style="font-size:19px;font-weight:700;margin:2px 0 6px;color:#161f30;">Declare sick leave</h2>
+              <p style="font-size:13.5px;color:#5c6678;margin:0 0 16px;line-height:1.5;">Upload your MC (.jpg, .png or .pdf). You will be marked <strong>MC</strong> for today.</p>
+              <label style="display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;border:1.5px dashed #c7cdd8;border-radius:12px;padding:26px;cursor:pointer;background:#fafbfc;text-align:center;">
+                <span style="font-size:14px;font-weight:600;color:#36404f;">{{ mcFileLabel }}</span>
+                <span style="font-size:12px;color:#8a94a3;">Tap to select. JPG, PNG, PDF</span>
+                <input onChange="{{ onMcFile }}" type="file" accept=".jpg,.jpeg,.png,.pdf" style="display:none;" />
+              </label>
+              <div style="display:flex;gap:10px;margin-top:16px;">
+                <button onClick="{{ submitMc }}" style="flex:1;padding:13px;background:#b9791a;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">Submit MC</button>
+                <button onClick="{{ cancelMc }}" style="padding:13px 18px;background:#fff;border:1px solid #d4d9e2;border-radius:10px;font-size:14px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
+              </div>
+            </div>
+            </sc-if>
+
+            <sc-if value="{{ isPresent }}" hint-placeholder-val="">
+            <div>
+              <div style="display:flex;align-items:center;gap:14px;margin:6px 0 4px;">
+                <div style="width:52px;height:52px;border-radius:50%;background:#e7f3ec;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1f8a5b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"></polyline></svg>
+                </div>
+                <div>
+                  <h2 style="font-size:19px;font-weight:700;margin:0;color:#161f30;">Checked in</h2>
+                  <p style="font-size:13.5px;color:#5c6678;margin:2px 0 0;">Reported at <strong style="font-family:'IBM Plex Mono',monospace;">{{ checkInTime }}</strong></p>
+                </div>
+              </div>
+              <div style="display:inline-flex;align-items:center;gap:6px;margin-top:12px;background:#e7f3ec;color:#1f8a5b;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1f8a5b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"></path><circle cx="12" cy="10" r="2.4"></circle></svg>GPS-verified on-site, {{ checkInDist }}</div>
+              <div style="background:#f6f8fa;border-radius:10px;padding:13px 15px;margin-top:12px;font-size:13px;color:#5c6678;line-height:1.55;">Remember to update the WhatsApp group when you leave DHQ.</div>
+              <button onClick="{{ undoCheckin }}" style="margin-top:14px;padding:9px 14px;background:transparent;border:1px solid #e3e6ec;border-radius:9px;font-size:13px;color:#8a94a3;cursor:pointer;">Undo check-in</button>
+            </div>
+            </sc-if>
+
+            <sc-if value="{{ isMc }}" hint-placeholder-val="">
+            <div>
+              <h2 style="font-size:19px;font-weight:700;margin:2px 0 6px;color:#161f30;">Marked as MC</h2>
+              <p style="font-size:13.5px;color:#5c6678;margin:0;line-height:1.5;">Your MC <strong>{{ mcFileLabel }}</strong> is recorded for today. Bring the hardcopy on dekit day.</p>
+              <button onClick="{{ undoCheckin }}" style="margin-top:14px;padding:9px 14px;background:transparent;border:1px solid #e3e6ec;border-radius:9px;font-size:13px;color:#8a94a3;cursor:pointer;">Undo</button>
+            </div>
+            </sc-if>
+          </div>
+
+          <div style="background:#fff;border:1px solid #e3e6ec;border-radius:18px;padding:18px;margin-top:14px;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;">
+              <div style="font-size:13px;font-weight:700;color:#161f30;">Your deployment cycle</div>
+              <div style="font-size:11.5px;color:#8a94a3;font-family:'IBM Plex Mono',monospace;">{{ cycleStart }} to {{ cycleEnd }}</div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px;">
+              <sc-for list="{{ weekdays }}" as="wd" hint-placeholder-count="7">
+                <div style="text-align:center;font-size:10px;font-weight:600;color:#9aa3b2;font-family:'IBM Plex Mono',monospace;">{{ wd }}</div>
+              </sc-for>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px;">
+              <sc-for list="{{ calCells }}" as="c" hint-placeholder-count="14">
+                <div onClick="{{ c.onClick }}" style="{{ c.style }}">{{ c.num }}</div>
+              </sc-for>
+            </div>
+            <sc-if value="{{ calSelected }}" hint-placeholder-val="">
+              <div style="margin-top:12px;border:1px solid #eef0f4;border-radius:11px;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+                <div style="min-width:0;"><div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ calSelLabel }}</div><div style="font-size:11.5px;color:#8a94a3;margin-top:2px;">{{ calSelSub }}</div></div>
+                <span style="font-size:11px;font-weight:600;padding:4px 11px;border-radius:20px;color:{{ calSelColor }};background:{{ calSelBg }};white-space:nowrap;flex:0 0 auto;">{{ calSelStatus }}</span>
+              </div>
+            </sc-if>
+            <sc-if value="{{ calNoneSelected }}" hint-placeholder-val="{{ true }}">
+              <div style="margin-top:10px;font-size:11.5px;color:#9aa3b2;text-align:center;">Tap any day to see your status for that date.</div>
+            </sc-if>
+            <div style="display:flex;align-items:center;gap:10px;margin-top:14px;padding:12px 14px;background:#f6f8fa;border-radius:11px;">
+              <div style="width:38px;height:38px;border-radius:9px;background:{{ accent }};display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-weight:700;line-height:1;flex:0 0 auto;"><span style="font-size:8px;font-weight:600;opacity:.85;">JUL</span><span style="font-size:15px;">1</span></div>
+              <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#161f30;">Dekit, Wed 1 Jul</div><div style="font-size:11.5px;color:#8a94a3;">Last reporting Mon 29 Jun. Account closes 2 days after dekit.</div></div>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;">
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#8a94a3;"><span style="width:10px;height:10px;border-radius:3px;background:{{ accent }};"></span>Today</div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#8a94a3;"><span style="width:10px;height:10px;border-radius:3px;background:#fff;border:1px solid #d4d9e2;"></span>Reporting day</div>
+              <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#8a94a3;"><span style="width:10px;height:10px;border-radius:3px;background:#f7efdc;"></span>No reporting</div>
+            </div>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ===== BRIEFINGS ===== -->
+        <sc-if value="{{ tabBriefings }}" hint-placeholder-val="">
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div style="background:#fff;border:1px solid #e3e6ec;border-radius:16px;padding:18px;">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{ accent }};background:#eaf0fc;padding:3px 8px;border-radius:6px;font-weight:600;">01</span><h2 style="font-size:16px;font-weight:700;margin:0;color:#161f30;">Reporting instructions</h2></div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
+              <div style="background:#f6f8fa;border-radius:11px;padding:12px 13px;">
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;color:#8a94a3;text-transform:uppercase;margin-bottom:5px;">Location</div>
+                <div style="font-size:13.5px;font-weight:600;color:#161f30;line-height:1.35;">Bedok HQ Canteen</div>
+              </div>
+              <div style="background:#f6f8fa;border-radius:11px;padding:12px 13px;">
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;color:#8a94a3;text-transform:uppercase;margin-bottom:5px;">Schedule</div>
+                <div style="font-size:13.5px;font-weight:600;color:#161f30;line-height:1.35;">Mondays to Fridays</div>
+              </div>
+              <div style="background:#f6f8fa;border-radius:11px;padding:12px 13px;">
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;color:#8a94a3;text-transform:uppercase;margin-bottom:5px;">Attire</div>
+                <div style="font-size:13.5px;font-weight:600;color:#161f30;line-height:1.35;">Civilian. Pants and covered shoes</div>
+              </div>
+              <div style="background:#f6f8fa;border-radius:11px;padding:12px 13px;">
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.1em;color:#8a94a3;text-transform:uppercase;margin-bottom:5px;">Reporting time</div>
+                <div style="font-size:13.5px;font-weight:600;color:#161f30;line-height:1.35;">As allocated. Inform WhatsApp on arrival</div>
+              </div>
+            </div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #e3e6ec;border-radius:16px;padding:18px;">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{ accent }};background:#eaf0fc;padding:3px 8px;border-radius:6px;font-weight:600;">02</span><h2 style="font-size:16px;font-weight:700;margin:0;color:#161f30;">Roles by shift</h2></div>
+            <div style="display:flex;gap:4px;background:#f1f3f6;padding:4px;border-radius:10px;margin-bottom:14px;">
+              <sc-for list="{{ roleTabs }}" as="t" hint-placeholder-count="3">
+                <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
+              </sc-for>
+            </div>
+            <div style="border:1px solid #eef0f4;border-radius:11px;padding:14px 15px;">
+              <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px;margin-bottom:9px;"><span style="font-weight:700;font-size:14px;color:#161f30;">{{ roleTitle }}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#5c6678;">{{ roleWindow }}</span></div>
+              <ul style="margin:0;padding-left:16px;font-size:13px;color:#3a4350;line-height:1.7;">
+                <sc-for list="{{ roleItems }}" as="it" hint-placeholder-count="4">
+                  <li>{{ it }}</li>
+                </sc-for>
+              </ul>
+              <sc-if value="{{ roleNote }}" hint-placeholder-val="">
+                <div style="margin-top:11px;background:#f6f8fa;border-radius:9px;padding:10px 12px;font-size:12px;color:#5c6678;line-height:1.55;">{{ roleNote }}</div>
+              </sc-if>
+            </div>
+            <div style="margin-top:13px;background:#fdf6e9;border:1px solid #f0e2c2;border-radius:10px;padding:11px 14px;font-size:12.5px;color:#8a6d2a;">Update the WhatsApp group if you are on MC for any shift.</div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #e3e6ec;border-radius:16px;padding:18px;">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{ accent }};background:#eaf0fc;padding:3px 8px;border-radius:6px;font-weight:600;">03</span><h2 style="font-size:16px;font-weight:700;margin:0;color:#161f30;">Meal allowance form</h2></div>
+            <div style="background:#f7efdc;border:1px solid #f0e2c2;border-radius:10px;padding:11px 14px;font-size:12.5px;color:#8a6d2a;font-weight:600;margin-bottom:12px;">On hold until further notice. Do not submit the form for now.</div>
+            <ul style="margin:0;padding-left:16px;font-size:13px;color:#3a4350;line-height:1.7;"><li>When resumed, submit <strong>daily</strong> (Mon to Fri), including MC days.</li><li>Indicate <strong>PRESENT</strong> if you completed the shift, or <strong>MC</strong> if on sick leave.</li><li>No submission needed on no-reporting days such as public holidays.</li></ul>
+          </div>
+
+          <div style="background:#fff;border:1px solid #e3e6ec;border-radius:16px;padding:18px;">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{ accent }};background:#eaf0fc;padding:3px 8px;border-radius:6px;font-weight:600;">04</span><h2 style="font-size:16px;font-weight:700;margin:0;color:#161f30;">Dekit day instructions</h2></div>
+            <ul style="margin:0;padding-left:16px;font-size:13px;color:#3a4350;line-height:1.7;"><li>Accurately fill meal allowance forms and submit to the Manpower Officer in charge of dekit, endorsed by an Ops Branch supervisor.</li><li>Bring hardcopies of any MCs taken.</li><li>Update WhatsApp once all PNSMEN have arrived.</li></ul>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ===== ATTENDANCE ===== -->
+        <sc-if value="{{ tabAttendance }}" hint-placeholder-val="">
+        <div>
+          <div style="display:flex;gap:10px;margin-bottom:14px;">
+            <div style="flex:1;background:#fff;border:1px solid #e3e6ec;border-radius:14px;padding:15px;text-align:center;"><div style="font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;color:#1f8a5b;">{{ statMyPresent }}</div><div style="font-size:11px;color:#8a94a3;margin-top:2px;">Present</div></div>
+            <div style="flex:1;background:#fff;border:1px solid #e3e6ec;border-radius:14px;padding:15px;text-align:center;"><div style="font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;color:#b9791a;">{{ statMyMc }}</div><div style="font-size:11px;color:#8a94a3;margin-top:2px;">MC</div></div>
+            <div style="flex:1;background:#fff;border:1px solid #e3e6ec;border-radius:14px;padding:15px;text-align:center;"><div style="font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;color:#161f30;">{{ statMyDays }}</div><div style="font-size:11px;color:#8a94a3;margin-top:2px;">Days</div></div>
+          </div>
+          <div style="background:#fff;border:1px solid #e3e6ec;border-radius:16px;padding:16px;margin-bottom:14px;">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;"><span style="color:#8a94a3;font-weight:600;letter-spacing:.04em;">CYCLE PROGRESS</span><span style="color:#161f30;font-weight:600;">{{ cycleDone }} of {{ cycleTotal }} days</span></div>
+            <div style="height:8px;border-radius:6px;background:#eef0f4;overflow:hidden;"><div style="height:100%;width:{{ cyclePct }}%;background:{{ accent }};border-radius:6px;"></div></div>
+          </div>
+          <div style="background:#fff;border:1px solid #e3e6ec;border-radius:16px;overflow:hidden;">
+            <div style="padding:14px 16px;border-bottom:1px solid #eef0f4;font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">DEPLOYMENT HISTORY</div>
+            <sc-for list="{{ myHistory }}" as="row" hint-placeholder-count="6">
+              <div style="padding:13px 16px;border-bottom:1px solid #f2f4f7;display:flex;align-items:center;justify-content:space-between;">
+                <div><div style="font-size:14px;font-weight:600;color:#161f30;">{{ row.date }}</div><div style="font-size:12px;color:#8a94a3;">{{ row.shift }}</div></div>
+                <div style="display:flex;align-items:center;gap:10px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a94a3;">{{ row.time }}</span><span style="font-size:11.5px;font-weight:600;padding:4px 10px;border-radius:20px;color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ===== MEAL ===== -->
+        <sc-if value="{{ tabMeal }}" hint-placeholder-val="">
+        <div>
+          <div style="background:#fff;border:1px solid #e3e6ec;border-radius:18px;padding:26px 22px;text-align:center;margin-bottom:14px;">
+            <div style="width:56px;height:56px;border-radius:50%;background:#f7efdc;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="13"></line><line x1="12" y1="16" x2="12" y2="16"></line></svg></div>
+            <h2 style="font-size:19px;font-weight:700;margin:0 0 6px;color:#161f30;">Submission on hold</h2>
+            <p style="font-size:13.5px;color:#5c6678;margin:0;line-height:1.55;text-wrap:pretty;">Meal allowance form submission is <strong>on hold until further notice</strong>. Do not submit the form for now. Your daily attendance is captured through check-in.</p>
+            <div style="display:inline-flex;align-items:center;gap:7px;margin-top:16px;background:#f7efdc;color:#8a6d2a;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;"><span style="width:7px;height:7px;border-radius:50%;background:#b9791a;display:inline-block;"></span>Paused</div>
+          </div>
+          <div style="background:#f6f8fa;border:1px solid #eef0f4;border-radius:14px;padding:15px 17px;font-size:13px;color:#5c6678;line-height:1.6;">You will be notified through the WhatsApp group when submissions resume. Until then, the form link is inactive.</div>
+        </div>
+        </sc-if>
+
+        <!-- ===== ADMIN: OVERVIEW ===== -->
+        <sc-if value="{{ tabOverview }}" hint-placeholder-val="">
+        <div>
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:11px;">
+            <span style="font-size:10px;font-weight:600;color:#9aa3b2;letter-spacing:.08em;font-family:'IBM Plex Mono',monospace;flex:0 0 auto;">BATCH</span>
+            <div style="display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;">
+              <sc-for list="{{ batchChips }}" as="b" hint-placeholder-count="3">
+                <button onClick="{{ b.onClick }}" style="{{ b.style }}">
+                  <span style="font-size:12.5px;font-weight:600;display:block;">{{ b.label }}</span>
+                  <span style="font-size:9.5px;font-weight:500;font-family:'IBM Plex Mono',monospace;opacity:.75;display:block;margin-top:1px;">{{ b.range }}</span>
+                </button>
+              </sc-for>
+            </div>
+          </div>
+
+          <div style="background:#131a27;border-radius:16px;padding:11px 12px;color:#fff;display:flex;align-items:center;gap:9px;margin-bottom:14px;">
+            <button onClick="{{ prevDay }}" style="width:34px;height:34px;border-radius:9px;background:#222c3d;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#cdd4df" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+            <div style="flex:1;text-align:center;min-width:0;">
+              <div style="font-size:15px;font-weight:600;">{{ viewDateLabel }}</div>
+              <div style="font-size:10.5px;color:#7d899b;font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;text-transform:uppercase;margin-top:2px;">{{ viewDateSub }}</div>
+            </div>
+            <sc-if value="{{ viewNotToday }}" hint-placeholder-val="">
+              <button onClick="{{ goToday }}" style="flex:0 0 auto;background:#222c3d;border:none;color:#cdd4df;font-size:10px;font-weight:700;padding:9px 11px;border-radius:9px;cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;">TODAY</button>
+            </sc-if>
+            <button onClick="{{ nextDay }}" style="width:34px;height:34px;border-radius:9px;background:#222c3d;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#cdd4df" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+          </div>
+
+          <sc-if value="{{ showRepToggle }}" hint-placeholder-val="{{ true }}">
+          <div style="background:#fff;border:1px solid #e3e6ec;border-radius:16px;padding:14px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+            <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#161f30;">No-reporting day</div><div style="font-size:11.5px;color:#8a94a3;margin-top:2px;">{{ noRepMsg }}</div></div>
+            <div onClick="{{ toggleNoReporting }}" style="width:50px;height:28px;border-radius:20px;background:{{ noRepTrackBg }};position:relative;cursor:pointer;flex:0 0 auto;opacity:{{ repToggleOpacity }};pointer-events:{{ repTogglePE }};">
+              <span style="position:absolute;top:3px;left:{{ noRepKnobX }};width:22px;height:22px;border-radius:50%;background:#fff;"></span>
+            </div>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ viewShowReporting }}" hint-placeholder-val="{{ true }}">
+          <div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:14px;">
+            <div style="background:#fff;border:1px solid #e3e6ec;border-radius:14px;padding:16px;"><div style="font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;color:#1f8a5b;">{{ vPresent }}</div><div style="font-size:12px;color:#8a94a3;margin-top:2px;">{{ vPresentLabel }}</div></div>
+            <div style="background:#fff;border:1px solid #e3e6ec;border-radius:14px;padding:16px;"><div style="font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;color:#b9791a;">{{ vMc }}</div><div style="font-size:12px;color:#8a94a3;margin-top:2px;">On MC</div></div>
+            <div style="background:#fff;border:1px solid #e3e6ec;border-radius:14px;padding:16px;"><div style="font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;color:{{ vThirdColor }};">{{ vThirdVal }}</div><div style="font-size:12px;color:#8a94a3;margin-top:2px;">{{ vThirdLabel }}</div></div>
+            <div style="background:#fff;border:1px solid #e3e6ec;border-radius:14px;padding:16px;"><div style="font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;color:#161f30;">{{ vTotal }}</div><div style="font-size:12px;color:#8a94a3;margin-top:2px;">Total roster</div></div>
+          </div>
+
+          <div style="background:#fff;border:1px solid #e3e6ec;border-radius:16px;overflow:hidden;">
+            <div style="padding:13px 16px;border-bottom:1px solid #eef0f4;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">{{ viewListHeader }}</span><span style="font-size:11.5px;color:{{ viewPercentColor }};font-weight:600;">{{ viewPercentText }}</span></div>
+            <sc-for list="{{ viewRoster }}" as="row" hint-placeholder-count="6">
+              <div style="padding:12px 16px;border-bottom:1px solid #f2f4f7;display:flex;align-items:center;gap:12px;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#eef0f4;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#5c6678;flex:0 0 auto;">{{ row.initials }}</div>
+                <div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div><div style="font-size:11.5px;color:#8a94a3;">{{ row.shiftLabel }}</div></div>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a94a3;">{{ row.timeText }}</span>
+                <span style="font-size:11px;font-weight:600;padding:4px 9px;border-radius:20px;color:{{ row.color }};background:{{ row.bg }};white-space:nowrap;">{{ row.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+          </div>
+          </sc-if>
+
+          <sc-if value="{{ viewNoReporting }}" hint-placeholder-val="">
+          <div style="background:#fff;border:1px solid #e3e6ec;border-radius:18px;padding:32px 22px;text-align:center;">
+            <div style="width:54px;height:54px;border-radius:50%;background:#f7efdc;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="8" y1="3" x2="8" y2="6"></line><line x1="16" y1="3" x2="16" y2="6"></line></svg></div>
+            <h2 style="font-size:18px;font-weight:700;margin:0 0 6px;color:#161f30;">No reporting</h2>
+            <p style="font-size:13px;color:#5c6678;margin:0;line-height:1.5;">{{ viewNoRepReason }}</p>
+          </div>
+          </sc-if>
+        </div>
+        </sc-if>
+
+        <!-- ===== ADMIN: ROSTER ===== -->
+        <sc-if value="{{ tabRoster }}" hint-placeholder-val="">
+        <div style="display:flex;flex-direction:column;gap:11px;">
+          <sc-for list="{{ roster }}" as="row" hint-placeholder-count="6">
+            <div style="background:#fff;border:1px solid #e3e6ec;border-radius:14px;padding:14px 16px;">
+              <div style="display:flex;align-items:center;gap:11px;margin-bottom:12px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:#eef0f4;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#5c6678;flex:0 0 auto;">{{ row.initials }}</div>
+                <div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:600;color:#161f30;">{{ row.name }}</div><div style="font-size:11.5px;color:#8a94a3;">{{ row.shiftLabel }}</div></div>
+                <span style="font-size:11px;font-weight:600;padding:4px 9px;border-radius:20px;color:{{ row.color }};background:{{ row.bg }};white-space:nowrap;">{{ row.label }}</span>
+              </div>
+              <div style="display:flex;gap:7px;">
+                <button onClick="{{ row.markPresent }}" style="flex:1;padding:9px;background:#f1f8f4;border:1px solid #cfe6d8;border-radius:9px;font-size:12.5px;font-weight:600;color:#1f8a5b;cursor:pointer;">Present</button>
+                <button onClick="{{ row.markMc }}" style="flex:1;padding:9px;background:#fdf6e9;border:1px solid #f0e2c2;border-radius:9px;font-size:12.5px;font-weight:600;color:#b9791a;cursor:pointer;">MC</button>
+                <button onClick="{{ row.markAbsent }}" style="flex:1;padding:9px;background:#fbeeec;border:1px solid #f1d3cf;border-radius:9px;font-size:12.5px;font-weight:600;color:#c0392b;cursor:pointer;">Absent</button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+        </sc-if>
+
+        <!-- ===== ADMIN: LOG ===== -->
+        <sc-if value="{{ tabLog }}" hint-placeholder-val="">
+        <div>
+          <div style="background:#fff;border:1px solid #e3e6ec;border-radius:16px;overflow:hidden;">
+            <div style="padding:13px 16px;border-bottom:1px solid #eef0f4;font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">ATTENDANCE LOG, TODAY</div>
+            <sc-for list="{{ logRows }}" as="row" hint-placeholder-count="6">
+              <div style="padding:12px 16px;border-bottom:1px solid #f2f4f7;display:flex;align-items:center;gap:12px;">
+                <div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div><div style="font-size:11.5px;color:#8a94a3;">{{ row.shiftLabel }}{{ row.geo }}</div></div>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a94a3;">{{ row.time }}</span>
+                <span style="font-size:11px;font-weight:600;padding:4px 9px;border-radius:20px;color:{{ row.color }};background:{{ row.bg }};white-space:nowrap;">{{ row.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        </sc-if>
+
+        <!-- ===== ADMIN: PEOPLE ===== -->
+        <sc-if value="{{ tabPeople }}" hint-placeholder-val="">
+        <div>
+          <div style="background:#131a27;border-radius:16px;padding:16px 18px;color:#fff;margin-bottom:14px;">
+            <div style="font-size:11px;color:#7d899b;letter-spacing:.08em;margin-bottom:4px;">ACTIVE INTAKE</div>
+            <div style="font-size:15px;font-weight:600;">{{ intakeLabel }}</div>
+            <div style="font-size:12px;color:#7d899b;font-family:'IBM Plex Mono',monospace;margin-top:2px;">{{ intakeRange }}. New signups join this cycle.</div>
+          </div>
+          <div style="background:#fff;border:1px solid #e3e6ec;border-radius:16px;overflow:hidden;margin-bottom:14px;">
+            <div style="padding:13px 16px;border-bottom:1px solid #eef0f4;display:flex;justify-content:space-between;"><span style="font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">PERSONNEL</span><span style="font-size:12px;color:#8a94a3;">{{ statTotal }} on roster</span></div>
+            <sc-for list="{{ personnelList }}" as="p" hint-placeholder-count="6">
+              <div style="padding:13px 16px;border-bottom:1px solid #f2f4f7;display:flex;align-items:center;gap:12px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:#eef0f4;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#5c6678;flex:0 0 auto;">{{ p.initials }}</div>
+                <div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:600;color:#161f30;">{{ p.name }}</div><div style="font-size:11.5px;color:#8a94a3;">{{ p.contact }}</div></div>
+                <span style="font-size:11px;font-weight:600;padding:4px 9px;border-radius:20px;background:#eef0f4;color:#5c6678;">{{ p.shiftLabel }}</span>
+              </div>
+            </sc-for>
+          </div>
+          <div style="background:#fff;border:1px solid #e3e6ec;border-radius:16px;padding:18px;">
+            <h2 style="font-size:15px;font-weight:700;margin:0 0 14px;color:#161f30;">Add personnel</h2>
+            <input value="{{ npName }}" onInput="{{ onNpName }}" placeholder="Full name" style="width:100%;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:14px;background:#fff;outline:none;margin-bottom:10px;" />
+            <select value="{{ npShift }}" onChange="{{ onNpShift }}" style="width:100%;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:14px;background:#fff;outline:none;margin-bottom:10px;"><option value="AM">AM shift</option><option value="PM">PM shift</option><option value="OFFICE">Office hours</option></select>
+            <button onClick="{{ addPerson }}" style="width:100%;padding:12px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;">Add to roster</button>
+          </div>
+        </div>
+        </sc-if>
+
+      </div>
+    </div>
+
+    <!-- bottom nav: reservist -->
+    <sc-if value="{{ isReservist }}" hint-placeholder-val="{{ true }}">
+    <div style="flex:0 0 auto;background:#fff;border-top:1px solid #e3e6ec;display:flex;padding:8px 6px 10px;">
+      <button onClick="{{ goCheckin }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:{{ cCheckin }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cCheckin }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="8 12 11 15 16 9"></polyline></svg><span style="font-size:10.5px;font-weight:600;">Check-in</span></button>
+      <button onClick="{{ goBriefings }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:{{ cBriefings }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cBriefings }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"></rect><line x1="9" y1="8" x2="15" y2="8"></line><line x1="9" y1="12" x2="15" y2="12"></line><line x1="9" y1="16" x2="13" y2="16"></line></svg><span style="font-size:10.5px;font-weight:600;">Briefings</span></button>
+      <button onClick="{{ goAttendance }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:{{ cAttendance }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cAttendance }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="8" y1="3" x2="8" y2="6"></line><line x1="16" y1="3" x2="16" y2="6"></line></svg><span style="font-size:10.5px;font-weight:600;">Attendance</span></button>
+      <button onClick="{{ goMeal }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:{{ cMeal }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cMeal }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v8a3 3 0 0 0 6 0V3"></path><line x1="9" y1="11" x2="9" y2="21"></line><path d="M17 3c-1.5 0-2.5 2-2.5 5s1 4 2.5 4v9"></path></svg><span style="font-size:10.5px;font-weight:600;">Meal</span></button>
+    </div>
+    </sc-if>
+
+    <!-- bottom nav: admin -->
+    <sc-if value="{{ isAdmin }}" hint-placeholder-val="">
+    <div style="flex:0 0 auto;background:#fff;border-top:1px solid #e3e6ec;display:flex;padding:8px 6px 10px;">
+      <button onClick="{{ goOverview }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:{{ cOverview }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cOverview }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg><span style="font-size:10.5px;font-weight:600;">Overview</span></button>
+      <button onClick="{{ goRoster }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:{{ cRoster }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cRoster }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><circle cx="3.5" cy="6" r="1.2"></circle><circle cx="3.5" cy="12" r="1.2"></circle><circle cx="3.5" cy="18" r="1.2"></circle></svg><span style="font-size:10.5px;font-weight:600;">Roster</span></button>
+      <button onClick="{{ goLog }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:{{ cLog }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cLog }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span style="font-size:10.5px;font-weight:600;">Log</span></button>
+      <button onClick="{{ goPeople }}" style="flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;color:{{ cPeople }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cPeople }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 20a5.5 5.5 0 0 1 11 0"></path><path d="M16 5.5a3 3 0 0 1 0 5.8"></path><path d="M18 14.5a5.5 5.5 0 0 1 3 5"></path></svg><span style="font-size:10.5px;font-weight:600;">People</span></button>
+    </div>
+    </sc-if>
+
+    <!-- ===== ACCOUNT OVERLAY ===== -->
+    <sc-if value="{{ accountOpen }}" hint-placeholder-val="">
+    <div class="scroll" style="position:absolute;inset:0;background:#f6f7f9;z-index:30;overflow:auto;">
+      <div style="background:#fff;border-bottom:1px solid #e3e6ec;padding:14px 18px;display:flex;align-items:center;gap:12px;">
+        <button onClick="{{ closeAccount }}" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#36404f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+        <div style="font-size:18px;font-weight:700;color:#161f30;">My account</div>
+      </div>
+      <div style="padding:22px 18px 40px;">
+        <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
+          <label style="position:relative;width:64px;height:64px;flex:0 0 auto;cursor:pointer;display:block;">
+            <div style="width:64px;height:64px;border-radius:50%;background:#161f30;background-image:{{ acctAvatarBg }};background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;color:#fff;"><sc-if value="{{ acctNoAvatar }}" hint-placeholder-val="{{ true }}">{{ userInitials }}</sc-if></div>
+            <span style="position:absolute;right:-2px;bottom:-2px;width:24px;height:24px;border-radius:50%;background:{{ accent }};border:2px solid #f6f7f9;display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="6" x2="12" y2="18"></line><line x1="6" y1="12" x2="18" y2="12"></line></svg></span>
+            <input onChange="{{ onAvatarFile }}" type="file" accept="image/*" style="display:none;" />
+          </label>
+          <div><div style="font-size:18px;font-weight:700;color:#161f30;">{{ userName }}</div><div style="font-size:13px;color:#8a94a3;">Tap photo to change</div></div>
+        </div>
+
+        <div style="background:#fff;border:1px solid #e3e6ec;border-radius:16px;overflow:hidden;margin-bottom:14px;">
+          <div style="padding:13px 16px;display:flex;justify-content:space-between;border-bottom:1px solid #f2f4f7;font-size:13.5px;"><span style="color:#8a94a3;">Contact</span><span style="font-weight:600;color:#161f30;">{{ acctContact }}</span></div>
+          <div style="padding:13px 16px;display:flex;justify-content:space-between;border-bottom:1px solid #f2f4f7;font-size:13.5px;"><span style="color:#8a94a3;">Shift pattern</span><span style="font-weight:600;color:#161f30;">{{ myShiftLabel }}</span></div>
+          <div style="padding:13px 16px;display:flex;justify-content:space-between;font-size:13.5px;"><span style="color:#8a94a3;">Deployment cycle</span><span style="font-weight:600;color:#161f30;">{{ cycleStart }} to {{ cycleEnd }}</span></div>
+        </div>
+
+        <div style="background:#eef3fc;border:1px solid #d7e2f7;border-radius:14px;padding:14px 16px;font-size:12.5px;color:#3a4a66;line-height:1.55;margin-bottom:18px;">Your account is removed <strong>automatically 2 days after your dekit day</strong> (Wed 1 Jul). You can also delete it now if your cycle has ended.</div>
+
+        <sc-if value="{{ confirmDelete }}" hint-placeholder-val="">
+          <div style="background:#fbeeec;border:1px solid #f1d3cf;border-radius:14px;padding:16px;">
+            <div style="font-size:14px;font-weight:700;color:#c0392b;margin-bottom:6px;">Delete your account?</div>
+            <p style="font-size:13px;color:#8a5650;margin:0 0 14px;line-height:1.5;">This permanently removes your profile and attendance records from the roster. This cannot be undone.</p>
+            <div style="display:flex;gap:10px;">
+              <button onClick="{{ deleteAccount }}" style="flex:1;padding:12px;background:#c0392b;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">Delete permanently</button>
+              <button onClick="{{ cancelDelete }}" style="padding:12px 18px;background:#fff;border:1px solid #d4d9e2;border-radius:10px;font-size:14px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ deleteIdle }}" hint-placeholder-val="{{ true }}">
+          <button onClick="{{ askDelete }}" style="width:100%;padding:13px;background:#fff;border:1px solid #f1d3cf;border-radius:11px;font-size:14px;font-weight:600;color:#c0392b;cursor:pointer;margin-bottom:10px;">Delete my account</button>
+        </sc-if>
+        <button onClick="{{ logout }}" style="width:100%;padding:13px;background:#fff;border:1px solid #d4d9e2;border-radius:11px;font-size:14px;font-weight:600;color:#36404f;cursor:pointer;">Log out</button>
+      </div>
+    </div>
+    </sc-if>
+
+  </div>
+  </sc-if>
+
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#2f5fd0&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;orgName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Ops Security&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = {
+    authed: false, role: null, authMode: 'login', tab: 'checkin', rolesTab: 'AM',
+    loginNric: '', loginPassword: '', authError: '',
+    suName: '', suNric: '', suContact: '', suShift: 'AM', suPassword: '',
+    currentUserId: 'p3',
+    locStatus: 'idle', locDistance: null,
+    accountOpen: false, confirmDelete: false, accountDeleted: false,
+    noReportDays: {}, viewOffset: 0, avatars: {}, selectedCalOffset: null,
+    cycleStart: '16 Jun', cycleEnd: '29 Jun',
+    now: new Date(),
+    npName: '', npRank: '', npShift: 'AM',
+    personnel: [
+      { id:'p1', name:'Tan Wei Ming',    rank:'CPL (NS)', nric:'S••••231A', contact:'9123 ••45', shift:'AM' },
+      { id:'p2', name:'Muhammad Faizal',  rank:'CFC (NS)', nric:'S••••884C', contact:'8456 ••12', shift:'AM' },
+      { id:'p3', name:'Darryl Ong',       rank:'CPL (NS)', nric:'S••••507F', contact:'9678 ••90', shift:'PM' },
+      { id:'p4', name:'Rajesh Kumar',     rank:'SGT (NS)', nric:'S••••119B', contact:'9011 ••33', shift:'PM' },
+      { id:'p5', name:'Lim Jia Hao',      rank:'CFC (NS)', nric:'S••••742D', contact:'8765 ••21', shift:'OFFICE' },
+      { id:'p6', name:'Brandon Teo',      rank:'CPL (NS)', nric:'S••••356E', contact:'9234 ••77', shift:'OFFICE' },
+      { id:'p7', name:'Arif Rahman',      rank:'LCP (NS)', nric:'S••••918G', contact:'8390 ••44', shift:'OFFICE' },
+      { id:'p8', name:'Wong Kai Xuan',    rank:'CPL (NS)', nric:'S••••603H', contact:'9555 ••08', shift:'OFFICE' },
+    ],
+    attendance: {
+      p1: { status:'present', time:'08:24', dist:32 },
+      p2: { status:'present', time:'08:31', dist:48 },
+      p4: { status:'mc', time:'-' },
+      p6: { status:'present', time:'08:19', dist:21 },
+      p7: { status:'present', time:'08:52', dist:64 },
+    },
+    activeBatchIdx: 1,
+    batches: [
+      { label:'Cycle 12 (May)', range:'19 May to 1 Jun', start:{y:2026,m:5,d:19}, members:[
+        { id:'b2a', name:'Ng Wei Jie',      contact:'9112 ••03', shift:'AM' },
+        { id:'b2b', name:'Syafiq Hassan',   contact:'8233 ••71', shift:'AM' },
+        { id:'b2c', name:'Goh Zhi Hao',     contact:'9344 ••18', shift:'PM' },
+        { id:'b2d', name:'Daniel Soh',      contact:'9455 ••62', shift:'PM' },
+        { id:'b2e', name:'Prakash Nair',    contact:'8566 ••40', shift:'OFFICE' },
+        { id:'b2f', name:'Yeo Kah Wai',     contact:'9677 ••29', shift:'OFFICE' },
+      ]},
+      { label:'Cycle 13 (Jun)', range:'16 Jun to 29 Jun', start:{y:2026,m:6,d:16}, live:true },
+      { label:'Cycle 14 (Jul)', range:'14 Jul to 27 Jul', start:{y:2026,m:7,d:14}, members:[
+        { id:'b3a', name:'Hafiz Osman',     contact:'9788 ••55', shift:'AM' },
+        { id:'b3b', name:'Tan Jun Hao',     contact:'8899 ••13', shift:'AM' },
+        { id:'b3c', name:'Marcus Lee',      contact:'9100 ••84', shift:'PM' },
+        { id:'b3d', name:'Ravi Chandran',   contact:'9211 ••37', shift:'PM' },
+        { id:'b3e', name:'Koh Jin Yang',    contact:'8322 ••06', shift:'OFFICE' },
+      ]},
+    ],
+  };
+
+  componentDidMount(){ this._t = setInterval(()=>this.setState({now:new Date()}), 1000); }
+  componentWillUnmount(){ if(this._t) clearInterval(this._t); }
+
+  shiftLabel(s){ return s==='AM'?'AM shift':s==='PM'?'PM shift':'Office hours'; }
+  shiftWindow(s){ return s==='AM'?'0830 to 1530 hrs':s==='PM'?'1530 to 2230 hrs':'0900 to 1800 hrs'; }
+  initials(name){ const p=(name||'').trim().split(/\s+/); return ((p[0]||'')[0]||'')+((p[p.length-1]||'')[0]||''); }
+  meta(s){
+    if(s==='present') return {label:'Present', color:'#1f8a5b', bg:'#e7f3ec'};
+    if(s==='mc')      return {label:'On MC',   color:'#b9791a', bg:'#f7efdc'};
+    if(s==='absent')  return {label:'Absent',  color:'#c0392b', bg:'#f7e4e1'};
+    return {label:'Pending', color:'#5c6678', bg:'#eceef2'};
+  }
+  hhmm(d){ const p=n=>String(n).padStart(2,'0'); return p(d.getHours())+':'+p(d.getMinutes()); }
+  baseDate(){ return new Date(2026,5,16); }
+  dateForOffset(off){ const d=this.baseDate(); d.setDate(d.getDate()+off); return d; }
+  isReportDay(d){ const wd=d.getDay(); return wd>=1 && wd<=5; }
+  dateKey(d){ const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); }
+  holidayName(d){
+    const H = {
+      '2026-01-01':"New Year's Day", '2026-02-17':'Chinese New Year', '2026-02-18':'Chinese New Year',
+      '2026-03-21':'Hari Raya Puasa', '2026-04-03':'Good Friday', '2026-05-01':'Labour Day',
+      '2026-05-27':'Hari Raya Haji', '2026-05-31':'Vesak Day', '2026-06-01':'Vesak Day (observed)',
+      '2026-08-09':'National Day', '2026-08-10':'National Day (observed)',
+      '2026-11-08':'Deepavali', '2026-11-09':'Deepavali (observed)', '2026-12-25':'Christmas Day',
+    };
+    return H[this.dateKey(d)] || null;
+  }
+  isNoReport(off){
+    const d=this.dateForOffset(off);
+    if(!this.isReportDay(d)) return false;
+    return !!this.state.noReportDays[off] || !!this.holidayName(d);
+  }
+  seed(str){ let h=2166136261; for(let i=0;i<str.length;i++){ h^=str.charCodeAt(i); h=Math.imul(h,16777619); } return h>>>0; }
+  genStatus(p, off){
+    const d=this.dateForOffset(off);
+    if(!this.isReportDay(d)) return {status:'none'};
+    if(off>0) return {status:'pending'};
+    const r=this.seed(p.id+'|'+off)%100;
+    if(r<80){ const base=p.shift==='AM'?8:p.shift==='PM'?15:9; const mm=this.seed(p.id+'t'+off)%55; return {status:'present', time:String(base).padStart(2,'0')+':'+String(mm).padStart(2,'0'), dist:18+(this.seed(p.id+'d'+off)%72)}; }
+    if(r<91) return {status:'mc', time:'-'};
+    return {status:'absent', time:'-'};
+  }
+  cur(){ return this.state.personnel.find(p=>p.id===this.state.currentUserId) || this.state.personnel[0]; }
+  capShift(want){
+    const am = this.state.personnel.filter(p=>p.shift==='AM').length;
+    const pm = this.state.personnel.filter(p=>p.shift==='PM').length;
+    if(want==='AM' && am>=2) return 'OFFICE';
+    if(want==='PM' && pm>=2) return 'OFFICE';
+    return want;
+  }
+  myRec(){ return this.state.attendance[this.state.currentUserId] || {status:'pending'}; }
+
+  goLogin = () => this.setState({authMode:'login', authError:''});
+  goSignup = () => this.setState({authMode:'signup', authError:''});
+  doLogin = () => {
+    if(!this.state.loginNric.trim()){ this.setState({authError:'Enter your contact number to continue.'}); return; }
+    this.setState({authed:true, role:'reservist', tab:'checkin', currentUserId:'p3', authError:'', accountDeleted:false});
+  };
+  demoReservist = () => this.setState({authed:true, role:'reservist', tab:'checkin', currentUserId:'p3', authError:'', accountDeleted:false});
+  demoAdmin = () => this.setState({authed:true, role:'admin', tab:'overview', authError:'', accountDeleted:false});
+  doSignup = () => {
+    if(!this.state.suName.trim() || !this.state.suContact.trim()){ this.setState({authError:'Please fill in your name and contact number.'}); return; }
+    const id='p'+(this.state.personnel.length+1);
+    const shift = this.capShift(this.state.suShift);
+    const np={ id, name:this.state.suName, rank:'PTE (NS)', contact:this.state.suContact||'-', shift };
+    this.setState(s=>({ personnel:[...s.personnel, np], authed:true, role:'reservist', tab:'checkin', currentUserId:id, accountDeleted:false }));
+  };
+  logout = () => this.setState({authed:false, role:null, authMode:'login', loginNric:'', loginPassword:'', mcMode:false, locStatus:'idle', locDistance:null, accountOpen:false, confirmDelete:false});
+
+  onLoginNric = e => this.setState({loginNric:e.target.value});
+  onLoginPassword = e => this.setState({loginPassword:e.target.value});
+  onSuName = e => this.setState({suName:e.target.value});
+  onSuNric = e => this.setState({suNric:e.target.value});
+  onSuContact = e => this.setState({suContact:e.target.value});
+  onSuShift = e => this.setState({suShift:e.target.value});
+  onSuPassword = e => this.setState({suPassword:e.target.value});
+
+  go = t => () => this.setState({tab:t});
+  setRolesTab = k => () => this.setState({rolesTab:k});
+  selectCalDay = off => () => this.setState(s=>({selectedCalOffset: s.selectedCalOffset===off ? null : off}));
+  calDayDetail(off, dst){
+    const d=this.dateForOffset(off);
+    const hol=this.holidayName(d);
+    if(off===0){
+      if(this.isNoReport(0)) return {label:'No reporting', sub: hol || 'Marked as a no-reporting day', color:'#b9791a', bg:'#f7efdc'};
+      const rec=this.myRec(); const cur=rec.status||'pending';
+      if(cur==='present') return {label:'Checked in', sub:'Reported at '+rec.time, color:'#1f8a5b', bg:'#e7f3ec'};
+      if(cur==='mc') return {label:'On MC', sub:'Sick leave declared for today', color:'#b9791a', bg:'#f7efdc'};
+      return {label:'Pending', sub:'You have not checked in yet today', color:'#5c6678', bg:'#eceef2'};
+    }
+    if(hol) return {label:'Public holiday', sub:hol+', no reporting', color:'#b9791a', bg:'#f7efdc'};
+    if(dst==='ph'){
+      if(this.isReportDay(d)) return {label:'No reporting', sub:'Marked as a no-reporting day', color:'#b9791a', bg:'#f7efdc'};
+      return {label:'No reporting', sub:'No reporting required', color:'#b9791a', bg:'#f7efdc'};
+    }
+    if(dst==='dekit') return {label:'Dekit day', sub:'Return equipment and submit meal allowance forms', color:'#161f30', bg:'#eceef2'};
+    if(dst==='end') return {label: off<0?'Reporting day':'Upcoming', sub:'Last reporting day of your cycle', color:'#5c6678', bg:'#eceef2'};
+    if(dst==='work'){
+      if(off<0){
+        const info=this.genStatus(this.cur(), off);
+        if(info.status==='present') return {label:'Present', sub:'Reported at '+info.time, color:'#1f8a5b', bg:'#e7f3ec'};
+        if(info.status==='mc') return {label:'On MC', sub:'Sick leave recorded', color:'#b9791a', bg:'#f7efdc'};
+        if(info.status==='absent') return {label:'Absent', sub:'No attendance recorded', color:'#c0392b', bg:'#f7e4e1'};
+      }
+      return {label:'Upcoming', sub:'Reporting day', color:'#5c6678', bg:'#eceef2'};
+    }
+    if(dst==='pre') return {label:'No reporting', sub:'Before your cycle started', color:'#5c6678', bg:'#eceef2'};
+    if(!this.isReportDay(this.dateForOffset(off))) return {label:'No reporting', sub:'Weekend, no reporting', color:'#b9791a', bg:'#f7efdc'};
+    return {label:'No reporting', sub:'Outside your reporting cycle', color:'#b9791a', bg:'#f7efdc'};
+  }
+
+  verifyLocation = () => {
+    if(this.state.locStatus==='locating') return;
+    this.setState({locStatus:'locating'});
+    setTimeout(()=>{
+      const dist = Math.round(18 + Math.random()*72); // metres from DHQ centre (within ~150m perimeter)
+      this.setState({locStatus:'verified', locDistance:dist});
+    }, 1600);
+  };
+  submitCheckIn = () => {
+    if(this.state.locStatus!=='verified') return;
+    this.setState(s=>({ attendance:{...s.attendance, [s.currentUserId]:{status:'present', time:this.hhmm(new Date()), dist:s.locDistance}} }));
+  };
+  openMc = () => this.setState({mcMode:true});
+  cancelMc = () => this.setState({mcMode:false, mcFileName:''});
+  onMcFile = e => { const f=e.target.files&&e.target.files[0]; this.setState({mcFileName: f?f.name:'medical-cert.pdf'}); };
+  submitMc = () => this.setState(s=>({ attendance:{...s.attendance, [s.currentUserId]:{status:'mc', time:'-', mc:s.mcFileName||'medical-cert.pdf'}}, mcMode:false }));
+  undoCheckin = () => this.setState(s=>{ const a={...s.attendance}; delete a[s.currentUserId]; return {attendance:a, mcFileName:'', locStatus:'idle', locDistance:null}; });
+
+  // account
+  headerChipClick = () => { if(this.state.role==='reservist') this.setState({accountOpen:true}); else this.logout(); };
+  closeAccount = () => this.setState({accountOpen:false, confirmDelete:false});
+  askDelete = () => this.setState({confirmDelete:true});
+  cancelDelete = () => this.setState({confirmDelete:false});
+  deleteAccount = () => this.setState(s=>{
+    const personnel = s.personnel.filter(p=>p.id!==s.currentUserId);
+    const a={...s.attendance}; delete a[s.currentUserId];
+    return { personnel, attendance:a, authed:false, role:null, authMode:'login', accountOpen:false, confirmDelete:false, accountDeleted:true, loginNric:'', loginPassword:'' };
+  });
+
+  // admin
+  toggleNoReporting = () => this.setState(s=>{
+    const off=s.viewOffset; const d=this.dateForOffset(off);
+    if(!this.isReportDay(d) || this.holidayName(d)) return null;
+    const nd={...s.noReportDays};
+    if(nd[off]) delete nd[off]; else nd[off]=true;
+    return {noReportDays:nd};
+  });
+  prevDay = () => this.setState(s=>({viewOffset:s.viewOffset-1}));
+  nextDay = () => this.setState(s=>({viewOffset:s.viewOffset+1}));
+  goToday = () => this.setState({viewOffset:0});
+  offsetForDate(y,m,d){ return Math.round((new Date(y,m-1,d) - this.baseDate())/86400000); }
+  setBatch = i => () => {
+    const b = this.state.batches[i];
+    const off = b && b.start ? this.offsetForDate(b.start.y, b.start.m, b.start.d) : 0;
+    this.setState({activeBatchIdx:i, viewOffset:off, selectedCalOffset:null});
+  };
+  onAvatarFile = e => {
+    const f = e.target.files && e.target.files[0];
+    if(!f) return;
+    const reader = new FileReader();
+    reader.onload = () => this.setState(s=>({avatars:{...s.avatars, [s.currentUserId]: reader.result}}));
+    reader.readAsDataURL(f);
+  };
+  setStatus = (id, status) => () => this.setState(s=>({ attendance:{...s.attendance, [id]:{status, time: status==='present'?(s.attendance[id]&&s.attendance[id].time&&s.attendance[id].time!=='-'?s.attendance[id].time:this.hhmm(new Date())):'-', dist:status==='present'?(s.attendance[id]&&s.attendance[id].dist)||Math.round(18+Math.random()*72):undefined}} }));
+  onNpName = e => this.setState({npName:e.target.value});
+  onNpRank = e => this.setState({npRank:e.target.value});
+  onNpShift = e => this.setState({npShift:e.target.value});
+  addPerson = () => {
+    if(!this.state.npName.trim()) return;
+    const id='p'+(this.state.personnel.length+1);
+    const shift = this.capShift(this.state.npShift);
+    this.setState(s=>({ personnel:[...s.personnel, {id, name:s.npName, rank:(s.npRank||'PTE')+' (NS)', contact:'-', shift}], npName:'', npRank:'', npShift:'AM' }));
+  };
+
+  renderVals(){
+    const s = this.state;
+    const accent = this.props.accent || '#2f5fd0';
+    const orgName = this.props.orgName || 'Ops Security';
+    const classification = this.props.classification || 'Restricted / Sensitive (Normal)';
+    const tabBtn = (active) => `flex:1;padding:11px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;${active?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`;
+
+    // shift capacity: max 2 AM, max 2 PM, overflow forced to office hours
+    const amCount = s.personnel.filter(p=>p.shift==='AM').length;
+    const pmCount = s.personnel.filter(p=>p.shift==='PM').length;
+    const amFull = amCount >= 2, pmFull = pmCount >= 2;
+    let suShift = s.suShift;
+    if((suShift==='AM' && amFull) || (suShift==='PM' && pmFull)) suShift = 'OFFICE';
+    const shiftOptions = [
+      { value:'AM', disabled:amFull, label: amFull ? 'AM shift, full (2/2)' : 'AM shift, 0830 to 1530 hrs' },
+      { value:'PM', disabled:pmFull, label: pmFull ? 'PM shift, full (2/2)' : 'PM shift, 1530 to 2230 hrs' },
+      { value:'OFFICE', disabled:false, label:'Office hours, 0900 to 1800 hrs' },
+    ];
+
+    // roles-by-shift tabs (briefings)
+    const rolesDefs = {
+      AM: { title:'AM shift', window:'0830 to 1530, lunch 1200 to 1430', items:[
+        'Ensure MOPs for CNB testing exit DHQ the same route they came in.',
+        'Ensure MOPs do not loiter around the area.',
+        'Escort contractors around the building when needed.',
+        'Assist with Red Teaming exercises if needed.',
+      ]},
+      PM: { title:'PM shift', window:'1530 to 2230, dinner 1630 to 1830', items:[
+        'Same duties as AM shift.',
+        'May leave early if CNB informs there is no more reporting.',
+      ], note:'Fridays: stay till 1800 hrs only, may move to canteen after 1630. Update WhatsApp when leaving DHQ or if on MC.' },
+      OFFICE: { title:'Office hours', window:'0900 to 1800, lunch 1200 to 1400', items:[
+        'Escort contractors when needed.',
+        'Assist with Red Teaming exercises if needed.',
+      ]},
+    };
+    const rolesTab = s.rolesTab || 'AM';
+    const roleTabs = [['AM','AM'],['PM','PM'],['OFFICE','Office']].map(([key,label])=>({
+      key, label, onClick:this.setRolesTab(key),
+      style:`flex:1;padding:9px 6px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;${rolesTab===key?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`,
+    }));
+    const activeRole = rolesDefs[rolesTab];
+
+    const me = this.cur();
+    const rec = this.myRec();
+    const status = rec.status || 'pending';
+    const m = this.meta(status);
+
+    // batches (intakes) — batch 0 is the live, editable roster
+    const batches = s.batches;
+    const activeBatchIdx = s.activeBatchIdx || 0;
+    const activeBatch = batches[activeBatchIdx] || batches[0];
+    const activeMembers = activeBatch.live ? s.personnel : (activeBatch.members || []);
+    const batchChips = batches.map((b,i)=>({
+      label: b.label.replace(/\s*\(.*\)/,''),
+      range: b.range,
+      onClick: this.setBatch(i),
+      style: 'flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;padding:7px 13px;border-radius:9px;cursor:pointer;white-space:nowrap;text-align:left;'+(i===activeBatchIdx ? ('background:'+accent+';color:#fff;border:1px solid '+accent+';') : 'background:#fff;color:#5c6678;border:1px solid #d4d9e2;'),
+    }));
+
+    // roster (active batch)
+    const roster = activeMembers.map(p=>{
+      const r = s.attendance[p.id] || {status:'pending', time:'-'};
+      const mm = this.meta(r.status);
+      return {
+        id:p.id, name:p.name, rank:p.rank, initials:this.initials(p.name),
+        shiftLabel:this.shiftLabel(p.shift), time:r.time||'-',
+        label:mm.label, color:mm.color, bg:mm.bg,
+        geo: (r.status==='present' && r.dist!=null) ? (', GPS verified '+r.dist+' m') : '',
+        markPresent:this.setStatus(p.id,'present'),
+        markMc:this.setStatus(p.id,'mc'),
+        markAbsent:this.setStatus(p.id,'absent'),
+      };
+    });
+    const present = roster.filter(r=>r.label==='Present').length;
+    const mc = roster.filter(r=>r.label==='On MC').length;
+    const pending = roster.filter(r=>r.label==='Pending').length;
+    const total = roster.length;
+    const statPercent = total ? Math.round((present+mc)/total*100) : 0;
+    const logRows = roster.filter(r=>r.label!=='Pending');
+
+    // admin date navigation (overview)
+    const viewOffset = s.viewOffset || 0;
+    const viewDate = this.dateForOffset(viewOffset);
+    const viewIsToday = viewOffset===0;
+    const viewReportDay = this.isReportDay(viewDate);
+    const wdShort=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const monShort=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const dlabel = wdShort[viewDate.getDay()]+' '+viewDate.getDate()+' '+monShort[viewDate.getMonth()];
+    const rel = viewOffset===0?'Today':viewOffset===-1?'Yesterday':viewOffset===1?'Tomorrow':'';
+    const viewDateLabel = (rel?rel+', ':'')+dlabel;
+    const viewHoliday = this.holidayName(viewDate);
+    const viewBlocked = this.isNoReport(viewOffset); // reporting weekday declared/holiday no-report
+    const viewShowReporting = viewReportDay && !viewBlocked;
+    const viewNoReporting = !viewShowReporting;
+    const viewDateSub = !viewReportDay ? 'Weekend, no reporting' : viewHoliday ? 'Public holiday' : viewBlocked ? 'No reporting, toggled off' : viewOffset<0 ? 'Past shift, recorded' : viewOffset>0 ? 'Scheduled' : 'Live now';
+    const viewNoRepReason = !viewReportDay ? 'This is a weekend. Reservists do not report on Saturdays or Sundays.' : viewHoliday ? (viewHoliday+' is a public holiday, so reservists are not required to report.') : 'This day is marked as a no-reporting day, so reservists are not required to report.';
+    // no-reporting toggle (any reporting weekday; locked on public holidays)
+    const showRepToggle = viewReportDay;
+    const repToggleLocked = !!viewHoliday;
+    const repToggleOn = viewBlocked;
+    const noRepMsg = viewHoliday ? ('Public holiday'+(viewHoliday?' ('+viewHoliday+')':'')+'. Auto no-reporting, locked.') : repToggleOn ? 'On. Reservists are not required to report this day.' : 'Off. Reservists report and check in as normal.';
+
+    let viewMapRaw;
+    if(viewIsToday) viewMapRaw = s.attendance;
+    else { viewMapRaw={}; activeMembers.forEach(p=>{ viewMapRaw[p.id]=this.genStatus(p, viewOffset); }); }
+    const viewRoster = activeMembers.map(p=>{
+      const r = viewMapRaw[p.id] || {status:'pending', time:'-'};
+      const mm = this.meta(r.status);
+      return { id:p.id, name:p.name, initials:this.initials(p.name), shiftLabel:this.shiftLabel(p.shift), label:mm.label, color:mm.color, bg:mm.bg, timeText: (r.status==='present' && r.time && r.time!=='-') ? r.time : '' };
+    });
+    const vPresent = viewRoster.filter(r=>r.label==='Present').length;
+    const vMc = viewRoster.filter(r=>r.label==='On MC').length;
+    const vAbsent = viewRoster.filter(r=>r.label==='Absent').length;
+    const vPending = viewRoster.filter(r=>r.label==='Pending').length;
+    const vTotal = viewRoster.length;
+    const vPercent = vTotal ? Math.round((vPresent+vMc)/vTotal*100) : 0;
+    const viewListHeader = viewOffset<0 ? 'ATTENDANCE RECORD' : viewOffset>0 ? 'SCHEDULED ROSTER' : 'LIVE STATUS';
+    const viewPercentText = viewOffset>0 ? (vTotal+' rostered') : (vPercent+'% reported');
+    const viewPercentColor = viewOffset>0 ? '#8a94a3' : '#1f8a5b';
+    const vThirdLabel = viewOffset<0 ? 'Absent' : 'Pending';
+    const vThirdVal = viewOffset<0 ? vAbsent : vPending;
+    const vThirdColor = viewOffset<0 ? '#c0392b' : '#5c6678';
+
+    // avatar
+    const avatarUrl = s.avatars[s.currentUserId] || '';
+    const showHeaderAvatar = s.role==='reservist' && !!avatarUrl;
+
+    // history
+    const baseHist = [
+      {date:'Mon 15 Jun', shift:'PM shift', status:'present', time:'15:28'},
+      {date:'Fri 12 Jun', shift:'PM shift', status:'present', time:'15:33'},
+      {date:'Thu 11 Jun', shift:'PM shift', status:'mc', time:'-'},
+      {date:'Wed 10 Jun', shift:'PM shift', status:'present', time:'15:21'},
+      {date:'Tue 09 Jun', shift:'PM shift', status:'present', time:'15:40'},
+    ];
+    const todayHist = (status!=='pending' && !this.isNoReport(0)) ? [{date:'Tue 16 Jun, Today', shift:this.shiftLabel(me.shift), status, time:rec.time||'-'}] : [];
+    const myHistory = [...todayHist, ...baseHist].map(h=>{ const mm=this.meta(h.status); return {...h, label:mm.label, color:mm.color, bg:mm.bg}; });
+    const statMyPresent = myHistory.filter(h=>h.label==='Present').length;
+    const statMyMc = myHistory.filter(h=>h.label==='On MC').length;
+
+    // cycle calendar (Mon 15 Jun to Sun 28 Jun, 14 cells)
+    const cellBase = 'aspect-ratio:1;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;';
+    const cellStyle = (st)=>{
+      if(st==='today') return cellBase+'background:'+accent+';color:#fff;';
+      if(st==='ph')    return cellBase+'background:#f7efdc;color:#b9791a;';
+      if(st==='work')  return cellBase+'background:#fff;border:1px solid #e3e6ec;color:#161f30;';
+      if(st==='end')   return cellBase+'background:#fff;border:1.5px solid '+accent+';color:'+accent+';';
+      if(st==='dekit') return cellBase+'background:#131a27;color:#fff;';
+      return cellBase+'background:transparent;color:#c2c8d2;'; // off / pre
+    };
+    const days = [
+      {num:15,st:'pre'}, {num:16,st: this.isNoReport(0)?'ph':'today'}, {num:17,st:'work'}, {num:18,st:'work'}, {num:19,st:'work'}, {num:20,st:'off'}, {num:21,st:'off'},
+      {num:22,st:'work'}, {num:23,st:'work'}, {num:24,st:'work'}, {num:25,st:'work'}, {num:26,st:'work'}, {num:27,st:'off'}, {num:28,st:'off'},
+      {num:29,st:'end'}, {num:30,st:'ph'}, {num:1,st:'dekit'}, {num:2,st:'off'}, {num:3,st:'off'}, {num:4,st:'off'}, {num:5,st:'off'},
+    ];
+    const calCells = days.map((d,i)=>{
+      const off = i - 1; // index 1 (16 Jun) is today
+      let dst = d.st;
+      if((dst==='work' || dst==='end' || dst==='today') && this.isNoReport(off)) dst='ph';
+      let st = cellStyle(dst) + 'cursor:pointer;';
+      if(s.selectedCalOffset===off) st += 'outline:2px solid '+accent+';outline-offset:1px;';
+      return { num:d.num, style:st, off, st:dst, onClick:this.selectCalDay(off) };
+    });
+    const selOff = s.selectedCalOffset;
+    const calSelected = selOff!==null && selOff!==undefined;
+    const calMon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const calWd=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    let calSelLabel='', calSelStatus='', calSelSub='', calSelColor='', calSelBg='';
+    if(calSelected){
+      const sd=this.dateForOffset(selOff);
+      calSelLabel = calWd[sd.getDay()]+' '+sd.getDate()+' '+calMon[sd.getMonth()] + (selOff===0?', today':'');
+      const selDay = calCells.find(c=>c.off===selOff);
+      const info=this.calDayDetail(selOff, selDay ? selDay.st : 'off');
+      calSelStatus=info.label; calSelSub=info.sub; calSelColor=info.color; calSelBg=info.bg;
+    }
+
+    // location ui
+    const locVerified = s.locStatus==='verified';
+    const locLocating = s.locStatus==='locating';
+
+    const navColor = t => s.tab===t ? accent : '#9aa3b2';
+    const titles = {checkin:'Check-In', briefings:'Briefings', attendance:'Attendance', meal:'Meal Allowance', overview:'Dashboard', roster:'Roster', log:'Attendance Log', people:'Personnel'};
+
+    return {
+      accent, orgName, classification,
+      showAuth: !s.authed, showApp: s.authed,
+      isLogin: s.authMode==='login', isSignup: s.authMode==='signup',
+      goLogin:this.goLogin, goSignup:this.goSignup,
+      loginTabStyle: tabBtn(s.authMode==='login'), signupTabStyle: tabBtn(s.authMode==='signup'),
+      accountDeleted: s.accountDeleted,
+      loginNric:s.loginNric, loginPassword:s.loginPassword, authError:s.authError,
+      onLoginNric:this.onLoginNric, onLoginPassword:this.onLoginPassword,
+      doLogin:this.doLogin, demoReservist:this.demoReservist, demoAdmin:this.demoAdmin,
+      suName:s.suName, suNric:s.suNric, suContact:s.suContact, suShift, shiftOptions, suPassword:s.suPassword,
+      onSuName:this.onSuName, onSuNric:this.onSuNric, onSuContact:this.onSuContact, onSuShift:this.onSuShift, onSuPassword:this.onSuPassword,
+      doSignup:this.doSignup,
+      intakeLabel: activeBatch.label, intakeRange: activeBatch.range, intakeRangeFull: activeBatch.range+' 2026',
+      batchChips, goToday:this.goToday, viewNotToday: !viewIsToday,
+
+      // roles by shift
+      roleTabs, roleTitle:activeRole.title, roleWindow:activeRole.window, roleItems:activeRole.items, roleNote:activeRole.note||'',
+
+      isReservist: s.role==='reservist', isAdmin: s.role==='admin',
+      headerChipClick:this.headerChipClick, logout:this.logout,
+      userName: s.role==='admin' ? 'Supervisor' : me.name,
+      userRank: s.role==='admin' ? 'Ops Branch' : me.rank,
+      userInitials: s.role==='admin' ? 'SV' : this.initials(me.name),
+      tabTitle: titles[s.tab]||'',
+      headerKicker: s.role==='admin' ? 'Admin, '+orgName : orgName+', PNSMEN',
+
+      goCheckin:this.go('checkin'), goBriefings:this.go('briefings'), goAttendance:this.go('attendance'), goMeal:this.go('meal'),
+      goOverview:this.go('overview'), goRoster:this.go('roster'), goLog:this.go('log'), goPeople:this.go('people'),
+      cCheckin:navColor('checkin'), cBriefings:navColor('briefings'), cAttendance:navColor('attendance'), cMeal:navColor('meal'),
+      cOverview:navColor('overview'), cRoster:navColor('roster'), cLog:navColor('log'), cPeople:navColor('people'),
+
+      tabCheckin:s.tab==='checkin', tabBriefings:s.tab==='briefings', tabAttendance:s.tab==='attendance', tabMeal:s.tab==='meal',
+      tabOverview:s.tab==='overview', tabRoster:s.tab==='roster', tabLog:s.tab==='log', tabPeople:s.tab==='people',
+
+      // check-in
+      todayLong:'Tuesday, 16 June 2026',
+      clock:this.hhmm(s.now),
+      myShiftLabel:this.shiftLabel(me.shift), myShiftWindow:this.shiftWindow(me.shift),
+      myStatusLabel: this.isNoReport(0) ? 'No reporting' : m.label,
+      myStatusColor: this.isNoReport(0) ? accent : m.color,
+      myStatusPulse: (status==='pending' && !this.isNoReport(0)) ? 'animation:pulseDot 1.6s ease infinite;' : '',
+      phToday: this.isNoReport(0),
+      phName: this.holidayName(this.dateForOffset(0)) || 'No CNB reporting today',
+      needCheckin: status==='pending' && !s.mcMode && !this.isNoReport(0),
+      mcMode: s.mcMode && !this.isNoReport(0),
+      isPresent: status==='present' && !this.isNoReport(0),
+      isMc: status==='mc' && !this.isNoReport(0),
+      checkInTime: rec.time||'-',
+      checkInDist: rec.dist!=null ? ('about '+rec.dist+' m from DHQ') : 'on-site',
+      verifyLocation:this.verifyLocation, submitCheckIn:this.submitCheckIn,
+      locLocating,
+      locNeedsAction: !locVerified && !locLocating,
+      locBorder: locVerified ? '#cfe6d8' : '#eef0f4',
+      locCardBg: locVerified ? '#f5faf7' : '#fff',
+      locBadgeBg: locVerified ? '#e7f3ec' : '#eceef2',
+      locBadgeColor: locVerified ? '#1f8a5b' : '#8a94a3',
+      locMsg: locVerified ? ('Within Bedok DHQ perimeter, about '+s.locDistance+' m away.')
+              : locLocating ? 'Locating you via GPS...'
+              : 'Tap to confirm you are at Bedok DHQ.',
+      locMsgColor: locVerified ? '#1f8a5b' : '#8a94a3',
+      checkInOpacity: locVerified ? '1' : '.45',
+      checkInPE: locVerified ? 'auto' : 'none',
+      openMc:this.openMc, onMcFile:this.onMcFile, submitMc:this.submitMc, cancelMc:this.cancelMc, undoCheckin:this.undoCheckin,
+      mcFileLabel: s.mcFileName || rec.mc || 'No file selected',
+
+      // calendar / cycle
+      cycleStart:s.cycleStart, cycleEnd:s.cycleEnd, weekdays:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], calCells,
+      calSelected, calNoneSelected: !calSelected, calSelLabel, calSelStatus, calSelSub, calSelColor, calSelBg,
+
+      // attendance
+      myHistory, statMyPresent, statMyMc, statMyDays: myHistory.length,
+      cycleDone: 1, cycleTotal: 10, cyclePct: 10,
+
+      // admin
+      noRepMsg,
+      toggleNoReporting:this.toggleNoReporting,
+      showRepToggle, repToggleLocked,
+      noRepTrackBg: repToggleOn ? accent : '#39435a',
+      noRepKnobX: repToggleOn ? '25px' : '3px',
+      repToggleOpacity: repToggleLocked ? '0.55' : '1',
+      repTogglePE: repToggleLocked ? 'none' : 'auto',
+      statPresent:present, statMc:mc, statPending:pending, statTotal:total, statPercent,
+      roster, logRows,
+      // date navigation + viewed-day data
+      prevDay:this.prevDay, nextDay:this.nextDay,
+      viewDateLabel, viewDateSub, viewIsToday, viewShowReporting, viewNoReporting, viewNoRepReason,
+      viewRoster, vPresent, vMc, vThirdVal, vThirdLabel, vThirdColor, vTotal,
+      vPresentLabel: 'Checked in',
+      viewListHeader, viewPercentText, viewPercentColor,
+      // avatar
+      onAvatarFile:this.onAvatarFile,
+      headerAvatarBg: showHeaderAvatar ? ('url("'+avatarUrl+'")') : 'none',
+      headerNoAvatar: !showHeaderAvatar,
+      acctAvatarBg: avatarUrl ? ('url("'+avatarUrl+'")') : 'none',
+      acctNoAvatar: !avatarUrl,
+      personnelList: activeMembers.map(p=>({...p, initials:this.initials(p.name), shiftLabel:this.shiftLabel(p.shift)})),
+      npName:s.npName, npRank:s.npRank, npShift:s.npShift,
+      onNpName:this.onNpName, onNpRank:this.onNpRank, onNpShift:this.onNpShift, addPerson:this.addPerson,
+
+      // account
+      accountOpen: s.accountOpen,
+      closeAccount:this.closeAccount, askDelete:this.askDelete, cancelDelete:this.cancelDelete, deleteAccount:this.deleteAccount,
+      confirmDelete: s.confirmDelete, deleteIdle: !s.confirmDelete,
+      acctNric: me.nric, acctContact: me.contact,
+    };
+  }
+}
+</script>
+</body>
+</html>
