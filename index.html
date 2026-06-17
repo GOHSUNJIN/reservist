@@ -495,10 +495,10 @@
           <div style="background:#fff;border:1px solid #e3e6ec;border-radius:16px;padding:18px;">
             <h2 style="font-size:15px;font-weight:700;margin:0 0 5px;color:#161f30;">Create new batch</h2>
             <p style="font-size:12.5px;color:#8a94a3;margin:0 0 14px;line-height:1.45;">Start date must be a Tuesday. End date and dekit (Wednesday) are auto-calculated.</p>
-            <label style="display:block;font-size:13px;font-weight:600;color:#36404f;margin-bottom:7px;">Start date (Tuesday)</label>
+            <label style="display:block;font-size:13px;font-weight:600;color:#36404f;margin-bottom:7px;">Start Date</label>
             <input type="date" value="{{ newBatchStart }}" onChange="{{ onNewBatchStart }}" style="width:100%;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:14px;background:#fff;outline:none;margin-bottom:10px;" />
             <label style="display:block;font-size:13px;font-weight:600;color:#36404f;margin-bottom:7px;">Batch label</label>
-            <input value="{{ newBatchLabel }}" onInput="{{ onNewBatchLabel }}" placeholder="e.g. ICT Jun 2026" style="width:100%;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:14px;background:#fff;outline:none;margin-bottom:10px;" />
+            <input value="{{ newBatchLabel }}" onInput="{{ onNewBatchLabel }}" placeholder="e.g. Name" style="width:100%;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:14px;background:#fff;outline:none;margin-bottom:10px;" />
             <sc-if value="{{ newBatchEndPreview }}" hint-placeholder-val="">
               <div style="background:#eef3fc;border:1px solid #d7e2f7;border-radius:9px;padding:10px 13px;font-size:12.5px;color:#3a4a66;margin-bottom:10px;">{{ newBatchEndPreview }}</div>
             </sc-if>
