@@ -5,7 +5,7 @@ const DB = {
 
   // ── Auth ──────────────────────────────────────────────────────────────────
   auth: {
-    _email: c => c.replace(/\s+/g,'') + '@opsreservist',
+    _email: c => c.replace(/\s+/g,'') + '@opsreservist.mil',
 
     async login(contact, password) {
       const { data, error } = await _db.auth.signInWithPassword({ email: this._email(contact), password });
