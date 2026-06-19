@@ -605,9 +605,9 @@ class AppComponent extends DCLogic {
     let suShift=s.suShift;
     if((suShift==='AM'&&amFull)||(suShift==='PM'&&pmFull)) suShift='OFFICE';
     const shiftOptions=[
-      {value:'AM', disabled:amFull, label:amFull?'AM shift, full (2/2)':'AM shift, 0830 to 1530 hrs'},
-      {value:'PM', disabled:pmFull, label:pmFull?'PM shift, full (2/2)':'PM shift, 1530 to 2230 hrs'},
-      {value:'OFFICE', disabled:false, label:'Office hours, 0900 to 1800 hrs'},
+      {value:'AM', disabled:amFull, label:amFull?'AM shift — full':'AM shift, 0830–1530'},
+      {value:'PM', disabled:pmFull, label:pmFull?'PM shift — full':'PM shift, 1530–2230'},
+      {value:'OFFICE', disabled:false, label:'Office hours, 0900–1800'},
     ];
     const tb=a=>`flex:1;padding:11px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;${a?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`;
     const bs=activeBatch?new Date(activeBatch.start_date+'T00:00:00'):null;

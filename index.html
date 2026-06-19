@@ -85,7 +85,7 @@
             <option value="{{ opt.value }}" disabled="{{ opt.disabled }}">{{ opt.label }}</option>
           </sc-for>
         </select>
-        <div style="font-size:11.5px;color:#8a94a3;line-height:1.45;margin:7px 0 14px;">AM and PM shifts are capped at 2 reservists each. When a slot is full it is disabled, and you are placed in office hours.</div>
+        <div style="font-size:11.5px;color:#8a94a3;line-height:1.45;margin:7px 0 14px;">AM and PM shifts are limited to 2 each. Full slots are shown as disabled and you will be assigned to office hours instead.</div>
         <label style="display:block;font-size:13px;font-weight:600;color:#36404f;margin-bottom:7px;">Password</label>
         <input value="{{ suPassword }}" onInput="{{ onSuPassword }}" type="password" placeholder="Create a password (min 6 chars)" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;" />
         <sc-if value="{{ authError }}" hint-placeholder-val="">
