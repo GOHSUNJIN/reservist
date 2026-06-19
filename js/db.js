@@ -77,6 +77,16 @@ const DB = {
       return { data, error };
     },
 
+    async updateShift(personnelId, shift) {
+      const { data, error } = await _db.from('personnel').update({ shift }).eq('id', personnelId).select().maybeSingle();
+      return { data, error };
+    },
+
+    async updateNote(personnelId, notes) {
+      const { data, error } = await _db.from('personnel').update({ notes }).eq('id', personnelId).select().maybeSingle();
+      return { data, error };
+    },
+
     async assignBatch(batchId) {
       await _db.from('personnel').update({batch_id:batchId}).is('batch_id',null).eq('is_active',true);
     },

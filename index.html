@@ -6,6 +6,12 @@
 <title>Ops Reservist</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%232f5fd0'/%3E%3Cpolyline points='7,17 13,23 25,10' stroke='white' stroke-width='3.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="./css/styles.css">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#2f5fd0">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Reservist">
 <script src="./support.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="./js/config.js"></script>
@@ -14,6 +20,11 @@
 <script src="./js/component.js"></script>
 </head>
 <body>
+<div class="landscape-wall">
+  <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="#7d899b" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+  <div style="font-size:19px;font-weight:700;">Rotate your phone</div>
+  <div style="font-size:13.5px;color:#7d899b;line-height:1.6;">This app is designed for portrait mode. Please hold your phone upright.</div>
+</div>
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -107,9 +118,14 @@
         <div style="font-size:11px;color:#8a94a3;letter-spacing:.04em;">{{ headerKicker }}</div>
         <div style="font-size:18px;font-weight:700;color:#161f30;line-height:1.1;">{{ tabTitle }}</div>
       </div>
-      <div onClick="{{ headerChipClick }}" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
-        <div style="text-align:right;white-space:nowrap;"><div style="font-size:12px;font-weight:600;color:#36404f;line-height:1.2;">{{ userName }}</div></div>
-        <div style="width:36px;height:36px;border-radius:50%;background:#161f30;background-image:{{ headerAvatarBg }};background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;"><sc-if value="{{ headerNoAvatar }}" hint-placeholder-val="{{ true }}">{{ userInitials }}</sc-if></div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <sc-if value="{{ showRefresh }}" hint-placeholder-val="">
+          <button onClick="{{ refreshPage }}" style="background:none;border:1px solid #e3e6ec;border-radius:8px;padding:7px;cursor:pointer;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8a94a3" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg></button>
+        </sc-if>
+        <div onClick="{{ headerChipClick }}" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
+          <div style="text-align:right;white-space:nowrap;"><div style="font-size:12px;font-weight:600;color:#36404f;line-height:1.2;">{{ userName }}</div></div>
+          <div style="width:36px;height:36px;border-radius:50%;background:#161f30;background-image:{{ headerAvatarBg }};background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;"><sc-if value="{{ headerNoAvatar }}" hint-placeholder-val="{{ true }}">{{ userInitials }}</sc-if></div>
+        </div>
       </div>
     </div>
 
@@ -176,7 +192,7 @@
             <sc-if value="{{ needCheckin }}" hint-placeholder-val="{{ true }}">
             <div>
               <h2 style="font-size:19px;font-weight:700;margin:2px 0 6px;color:#161f30;">Verify you are on shift</h2>
-              <p style="font-size:13.5px;color:#5c6678;margin:0 0 16px;line-height:1.5;">Check-in uses your live GPS location to confirm you are physically at Bedok DHQ. You must be on-site for it to work.</p>
+              <p style="font-size:13.5px;color:#5c6678;margin:0 0 16px;line-height:1.5;">Check-in uses your live GPS location to confirm you are physically at {{ hqName }}. You must be on-site for it to work.</p>
 
               <div style="border:1px solid {{ locBorder }};border-radius:13px;padding:16px;background:{{ locCardBg }};text-align:center;">
                 <div style="position:relative;width:64px;height:64px;margin:2px auto 12px;">
@@ -189,8 +205,8 @@
                 </div>
                 <div style="font-size:14px;font-weight:600;color:#161f30;">On-site location</div>
                 <div style="font-size:12.5px;color:{{ locMsgColor }};line-height:1.45;margin-top:3px;">{{ locMsg }}</div>
-                <sc-if value="{{ locNeedsAction }}" hint-placeholder-val="{{ true }}">
-                  <button onClick="{{ verifyLocation }}" style="width:100%;margin-top:14px;padding:12px;background:#fff;border:1px solid #d4d9e2;border-radius:10px;font-size:14px;font-weight:600;color:{{ accent }};cursor:pointer;">Locate me</button>
+                <sc-if value="{{ locShowLocateBtn }}" hint-placeholder-val="{{ true }}">
+                  <button onClick="{{ verifyLocation }}" style="width:100%;margin-top:14px;padding:12px;background:#fff;border:1px solid #d4d9e2;border-radius:10px;font-size:14px;font-weight:600;color:{{ accent }};cursor:pointer;">{{ locBtnLabel }}</button>
                 </sc-if>
               </div>
 
@@ -230,8 +246,22 @@
                 </div>
               </div>
               <div style="display:inline-flex;align-items:center;gap:6px;margin-top:12px;background:#e7f3ec;color:#1f8a5b;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#1f8a5b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"></path><circle cx="12" cy="10" r="2.4"></circle></svg>GPS-verified on-site, {{ checkInDist }}</div>
+              <sc-if value="{{ isLate }}" hint-placeholder-val="">
+                <div style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;background:#f7efdc;color:#b9791a;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>Late — shift started at {{ lateShiftStart }}</div>
+              </sc-if>
               <div style="background:#f6f8fa;border-radius:10px;padding:13px 15px;margin-top:12px;font-size:13px;color:#5c6678;line-height:1.55;">Remember to update the WhatsApp group when you leave DHQ.</div>
-              <button onClick="{{ undoCheckin }}" style="margin-top:14px;padding:9px 14px;background:transparent;border:1px solid #e3e6ec;border-radius:9px;font-size:13px;color:#8a94a3;cursor:pointer;">Undo check-in</button>
+              <sc-if value="{{ showUndoBtn }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ undoCheckin }}" style="margin-top:14px;padding:9px 14px;background:transparent;border:1px solid #e3e6ec;border-radius:9px;font-size:13px;color:#8a94a3;cursor:pointer;">Undo check-in</button>
+              </sc-if>
+              <sc-if value="{{ showUndoConfirm }}" hint-placeholder-val="">
+                <div style="background:#fbeeec;border:1px solid #f1d3cf;border-radius:11px;padding:13px 15px;margin-top:12px;">
+                  <div style="font-size:13px;font-weight:600;color:#c0392b;margin-bottom:9px;">Undo check-in?</div>
+                  <div style="display:flex;gap:8px;">
+                    <button onClick="{{ doUndo }}" style="flex:1;padding:10px;background:#c0392b;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Yes, undo</button>
+                    <button onClick="{{ cancelUndo }}" style="padding:10px 14px;background:#fff;border:1px solid #d4d9e2;border-radius:8px;font-size:13px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
+                  </div>
+                </div>
+              </sc-if>
               <sc-if value="{{ showWaShare }}" hint-placeholder-val="">
               <a href="{{ whatsappLink }}" target="_blank" rel="noopener" class="wa-link">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
@@ -245,7 +275,18 @@
             <div>
               <h2 style="font-size:19px;font-weight:700;margin:2px 0 6px;color:#161f30;">Marked as MC</h2>
               <p style="font-size:13.5px;color:#5c6678;margin:0;line-height:1.5;">Your MC <strong>{{ mcFileLabel }}</strong> is recorded for today. Bring the hardcopy on dekit day.</p>
-              <button onClick="{{ undoCheckin }}" style="margin-top:14px;padding:9px 14px;background:transparent;border:1px solid #e3e6ec;border-radius:9px;font-size:13px;color:#8a94a3;cursor:pointer;">Undo</button>
+              <sc-if value="{{ showUndoBtn }}" hint-placeholder-val="{{ true }}">
+                <button onClick="{{ undoCheckin }}" style="margin-top:14px;padding:9px 14px;background:transparent;border:1px solid #e3e6ec;border-radius:9px;font-size:13px;color:#8a94a3;cursor:pointer;">Undo</button>
+              </sc-if>
+              <sc-if value="{{ showUndoConfirm }}" hint-placeholder-val="">
+                <div style="background:#fbeeec;border:1px solid #f1d3cf;border-radius:11px;padding:13px 15px;margin-top:12px;">
+                  <div style="font-size:13px;font-weight:600;color:#c0392b;margin-bottom:9px;">Remove sick leave declaration?</div>
+                  <div style="display:flex;gap:8px;">
+                    <button onClick="{{ doUndo }}" style="flex:1;padding:10px;background:#c0392b;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Yes, remove</button>
+                    <button onClick="{{ cancelUndo }}" style="padding:10px 14px;background:#fff;border:1px solid #d4d9e2;border-radius:8px;font-size:13px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
+                  </div>
+                </div>
+              </sc-if>
               <sc-if value="{{ showWaShare }}" hint-placeholder-val="">
               <a href="{{ whatsappLink }}" target="_blank" rel="noopener" class="wa-link">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
@@ -299,11 +340,17 @@
           <div class="card" style="padding:18px;">
             <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{ accent }};background:#eaf0fc;padding:3px 8px;border-radius:6px;font-weight:600;">01</span><h2 style="font-size:16px;font-weight:700;margin:0;color:#161f30;">Reporting instructions</h2></div>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
-              <div class="info-cell"><div class="info-cell-label">Location</div><div class="info-cell-val">Bedok DHQ Canteen</div></div>
-              <div class="info-cell"><div class="info-cell-label">Schedule</div><div class="info-cell-val">Weekdays</div></div>
-              <div class="info-cell"><div class="info-cell-label">Attire</div><div class="info-cell-val">Civilian. Pants and covered shoes</div></div>
-              <div class="info-cell"><div class="info-cell-label">Reporting time</div><div class="info-cell-val">As allocated. Inform WhatsApp on arrival</div></div>
+              <div class="info-cell"><div class="info-cell-label">Location</div><div class="info-cell-val">{{ briefLocation }}</div></div>
+              <div class="info-cell"><div class="info-cell-label">Schedule</div><div class="info-cell-val">{{ briefSchedule }}</div></div>
+              <div class="info-cell"><div class="info-cell-label">Attire</div><div class="info-cell-val">{{ briefAttire }}</div></div>
+              <div class="info-cell"><div class="info-cell-label">Reporting time</div><div class="info-cell-val">{{ briefReportingTime }}</div></div>
             </div>
+            <sc-if value="{{ showWaGroup }}" hint-placeholder-val="">
+            <a href="{{ waGroupUrl }}" target="_blank" rel="noopener" class="wa-link">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              WhatsApp group
+            </a>
+            </sc-if>
           </div>
 
           <div class="card" style="padding:18px;">
@@ -329,13 +376,21 @@
 
           <div class="card" style="padding:18px;">
             <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{ accent }};background:#eaf0fc;padding:3px 8px;border-radius:6px;font-weight:600;">03</span><h2 style="font-size:16px;font-weight:700;margin:0;color:#161f30;">Meal allowance form</h2></div>
-            <div style="background:#f7efdc;border:1px solid #f0e2c2;border-radius:10px;padding:11px 14px;font-size:12.5px;color:#8a6d2a;font-weight:600;margin-bottom:12px;">On hold until further notice. Do not submit the form for now.</div>
-            <ul style="margin:0;padding-left:16px;font-size:13px;color:#3a4350;line-height:1.7;"><li>When resumed, submit <strong>daily</strong> (Mon to Fri), including MC days.</li><li>Indicate <strong>PRESENT</strong> if you completed the shift, or <strong>MC</strong> if on sick leave.</li><li>No submission needed on no-reporting days such as public holidays.</li></ul>
+            <div style="background:#f7efdc;border:1px solid #f0e2c2;border-radius:10px;padding:11px 14px;font-size:12.5px;color:#8a6d2a;font-weight:600;margin-bottom:12px;">{{ mealStatusBanner }}</div>
+            <ul style="margin:0;padding-left:16px;font-size:13px;color:#3a4350;line-height:1.7;">
+              <sc-for list="{{ mealItems }}" as="it" hint-placeholder-count="3">
+                <li>{{ it }}</li>
+              </sc-for>
+            </ul>
           </div>
 
           <div class="card" style="padding:18px;">
             <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{ accent }};background:#eaf0fc;padding:3px 8px;border-radius:6px;font-weight:600;">04</span><h2 style="font-size:16px;font-weight:700;margin:0;color:#161f30;">Dekit day instructions</h2></div>
-            <ul style="margin:0;padding-left:16px;font-size:13px;color:#3a4350;line-height:1.7;"><li>Accurately fill meal allowance forms and submit to the Manpower Officer in charge of dekit, endorsed by an Ops Branch supervisor.</li><li>Bring hardcopies of any MCs taken.</li><li>Update WhatsApp once all PNSMEN have arrived.</li></ul>
+            <ul style="margin:0;padding-left:16px;font-size:13px;color:#3a4350;line-height:1.7;">
+              <sc-for list="{{ dekitItems }}" as="it" hint-placeholder-count="3">
+                <li>{{ it }}</li>
+              </sc-for>
+            </ul>
           </div>
         </div>
         </sc-if>
@@ -381,7 +436,7 @@
         <sc-if value="{{ isAdmin }}" hint-placeholder-val="">
         <div style="display:flex;align-items:center;gap:7px;margin-bottom:11px;">
           <span style="font-size:10px;font-weight:600;color:#9aa3b2;letter-spacing:.08em;font-family:'IBM Plex Mono',monospace;flex:0 0 auto;">BATCH</span>
-          <div class="scroll" style="display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;">
+          <div class="scroll" style="display:flex;gap:7px;overflow-x:auto;padding-bottom:2px;flex:1;">
             <sc-for list="{{ batchChips }}" as="b" hint-placeholder-count="2">
               <button onClick="{{ b.onClick }}" style="{{ b.style }}">
                 <span style="font-size:12.5px;font-weight:600;display:block;">{{ b.label }}</span>
@@ -389,13 +444,20 @@
               </button>
             </sc-for>
           </div>
+          <sc-if value="{{ batchLoading }}" hint-placeholder-val="">
+            <div style="flex:0 0 auto;width:18px;height:18px;border-radius:50%;border:2px solid #d4d9e2;border-top-color:{{ accent }};animation:spin 0.7s linear infinite;"></div>
+          </sc-if>
+        </div>
+        <div style="display:flex;gap:7px;align-items:center;margin-bottom:4px;">
+          <input value="{{ batchJumpDate }}" onInput="{{ onBatchJumpDate }}" type="date" style="flex:1;padding:7px 10px;border:1px solid #d4d9e2;border-radius:8px;font-size:13px;background:#fff;outline:none;color:#36404f;" />
+          <button onClick="{{ jumpToDate }}" style="padding:7px 12px;background:#fff;border:1px solid #d4d9e2;border-radius:8px;font-size:12.5px;font-weight:600;color:#36404f;cursor:pointer;white-space:nowrap;">Jump to</button>
         </div>
         </sc-if>
 
         <!-- ===== ADMIN: OVERVIEW ===== -->
         <sc-if value="{{ tabOverview }}" hint-placeholder-val="">
         <div>
-          <div style="background:#131a27;border-radius:16px;padding:11px 12px;color:#fff;display:flex;align-items:center;gap:9px;margin-bottom:14px;">
+          <div onTouchStart="{{ onDaySwipeStart }}" onTouchEnd="{{ onDaySwipeEnd }}" style="background:#131a27;border-radius:16px;padding:11px 12px;color:#fff;display:flex;align-items:center;gap:9px;margin-bottom:14px;">
             <button onClick="{{ prevDay }}" style="width:34px;height:34px;border-radius:9px;background:#222c3d;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#cdd4df" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
             <div style="flex:1;text-align:center;min-width:0;">
               <div style="font-size:15px;font-weight:600;">{{ viewDateLabel }}</div>
@@ -425,6 +487,12 @@
             <div class="card" style="padding:16px;"><div class="mono-num" style="font-size:26px;color:#161f30;">{{ vTotal }}</div><div style="font-size:12px;color:#8a94a3;margin-top:2px;">Total roster</div></div>
           </div>
 
+          <sc-if value="{{ showSnapshot }}" hint-placeholder-val="">
+          <a href="{{ snapshotLink }}" target="_blank" rel="noopener" class="wa-link" style="margin-bottom:12px;text-decoration:none;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            Share roll call
+          </a>
+          </sc-if>
           <div class="card-flush">
             <div style="padding:13px 16px;border-bottom:1px solid #eef0f4;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">{{ viewListHeader }}</span><span style="font-size:11.5px;color:{{ viewPercentColor }};font-weight:600;">{{ viewPercentText }}</span></div>
             <sc-for list="{{ viewRoster }}" as="row" hint-placeholder-count="6">
@@ -452,11 +520,16 @@
         <!-- ===== ADMIN: ROSTER ===== -->
         <sc-if value="{{ tabRoster }}" hint-placeholder-val="">
         <div style="display:flex;flex-direction:column;gap:11px;">
-          <div style="display:flex;gap:8px;margin-bottom:11px;align-items:center;">
+          <div style="display:flex;gap:8px;margin-bottom:7px;align-items:center;">
             <input value="{{ rosterSearch }}" onInput="{{ onRosterSearch }}" placeholder="Search name..." style="flex:1;padding:10px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:16px;background:#fff;outline:none;" />
             <sc-if value="{{ pendingCount }}" hint-placeholder-val="">
             <button onClick="{{ markAllPresent }}" style="padding:10px 13px;background:#1f8a5b;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">All present</button>
             </sc-if>
+          </div>
+          <div style="display:flex;gap:6px;margin-bottom:11px;">
+            <button onClick="{{ setRosterSortShift }}" style="{{ rosterSortShiftStyle }}">Shift</button>
+            <button onClick="{{ setRosterSortName }}" style="{{ rosterSortNameStyle }}">Name</button>
+            <button onClick="{{ setRosterSortStatus }}" style="{{ rosterSortStatusStyle }}">Status</button>
           </div>
           <sc-for list="{{ filteredRoster }}" as="row" hint-placeholder-count="6">
             <div style="background:#fff;border:1px solid #e3e6ec;border-radius:14px;padding:14px 16px;">
@@ -465,6 +538,11 @@
                 <div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:600;color:#161f30;">{{ row.name }}</div><div style="font-size:11.5px;color:#8a94a3;">{{ row.shiftLabel }}</div></div>
                 <span class="badge" style="color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
               </div>
+              <select value="{{ row.shift }}" onChange="{{ row.onShiftChange }}" style="width:100%;padding:7px 10px;border:1px solid #d4d9e2;border-radius:8px;font-size:13px;color:#36404f;background:#f6f8fa;outline:none;margin-bottom:9px;">
+                <option value="AM">AM shift, 0830–1530</option>
+                <option value="PM">PM shift, 1530–2230</option>
+                <option value="OFFICE">Office hours, 0900–1800</option>
+              </select>
               <div style="display:flex;gap:7px;">
                 <button onClick="{{ row.markPresent }}" class="roster-btn roster-btn-present">Present</button>
                 <button onClick="{{ row.markMc }}" class="roster-btn roster-btn-mc">MC</button>
@@ -508,10 +586,45 @@
           <div class="card-flush" style="margin-bottom:14px;">
             <div style="padding:13px 16px;border-bottom:1px solid #eef0f4;display:flex;justify-content:space-between;"><span style="font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">PERSONNEL</span><span style="font-size:12px;color:#8a94a3;">{{ statTotal }} on roster</span></div>
             <sc-for list="{{ personnelList }}" as="p" hint-placeholder-count="6">
-              <div class="row-item" style="padding-top:13px;padding-bottom:13px;">
-                <div class="avatar-sm">{{ p.initials }}</div>
-                <div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:600;color:#161f30;">{{ p.name }}</div><div style="font-size:11.5px;color:#8a94a3;">{{ p.contact }}</div></div>
-                <span class="badge" style="background:#eef0f4;color:#5c6678;">{{ p.shiftLabel }}</span>
+              <div style="border-bottom:1px solid #f2f4f7;padding:12px 16px;">
+                <div style="display:flex;align-items:center;gap:12px;">
+                  <div class="avatar-sm">{{ p.initials }}</div>
+                  <div style="flex:1;min-width:0;">
+                    <div style="font-size:14px;font-weight:600;color:#161f30;">{{ p.name }}</div>
+                    <div style="font-size:11.5px;color:#8a94a3;">{{ p.contact }}</div>
+                    <sc-if value="{{ p.notes }}" hint-placeholder-val=""><div style="font-size:11.5px;color:#5c6678;margin-top:2px;font-style:italic;">{{ p.notes }}</div></sc-if>
+                    <sc-if value="{{ p.showStats }}" hint-placeholder-val="">
+                    <div style="display:flex;gap:5px;margin-top:5px;">
+                      <span style="font-size:10px;font-weight:600;color:#1f8a5b;background:#f1f8f4;border-radius:5px;padding:2px 6px;">✓ {{ p.statPresent }}</span>
+                      <span style="font-size:10px;font-weight:600;color:#b9791a;background:#fdf6e9;border-radius:5px;padding:2px 6px;">MC {{ p.statMc }}</span>
+                      <span style="font-size:10px;font-weight:600;color:#5c6678;background:#eef0f4;border-radius:5px;padding:2px 6px;">{{ p.statPct }}</span>
+                    </div>
+                    </sc-if>
+                  </div>
+                  <span class="badge" style="background:#eef0f4;color:#5c6678;">{{ p.shiftLabel }}</span>
+                </div>
+                <div style="display:flex;gap:7px;margin-top:9px;">
+                  <button onClick="{{ p.onEditNote }}" style="flex:1;padding:6px 0;background:#fff;border:1px solid #d4d9e2;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;color:#5c6678;">Note</button>
+                  <button onClick="{{ p.onAskDeactivate }}" style="flex:1;padding:6px 0;background:#fbeeec;border:1px solid #f1d3cf;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;color:#c0392b;">Remove</button>
+                </div>
+                <sc-if value="{{ p.isEditingNote }}" hint-placeholder-val="">
+                  <div style="margin-top:10px;">
+                    <input value="{{ editingNoteText }}" onInput="{{ onNoteText }}" placeholder="Add a note about this person..." style="width:100%;padding:9px 11px;border:1px solid #d4d9e2;border-radius:8px;font-size:13px;background:#f6f8fa;outline:none;" />
+                    <div style="display:flex;gap:8px;margin-top:7px;">
+                      <button onClick="{{ saveNote }}" style="flex:1;padding:9px;background:{{ accent }};color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Save</button>
+                      <button onClick="{{ closeNote }}" style="padding:9px 14px;background:#fff;border:1px solid #d4d9e2;border-radius:8px;font-size:13px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
+                    </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ p.isConfirmingDeactivate }}" hint-placeholder-val="">
+                  <div style="margin-top:9px;background:#fbeeec;border:1px solid #f1d3cf;border-radius:9px;padding:11px 13px;">
+                    <div style="font-size:12.5px;font-weight:600;color:#c0392b;margin-bottom:8px;">Remove {{ p.name }} from roster?</div>
+                    <div style="display:flex;gap:7px;">
+                      <button onClick="{{ confirmDeactivatePerson }}" style="flex:1;padding:8px;background:#c0392b;color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;">Remove</button>
+                      <button onClick="{{ cancelDeactivatePerson }}" style="padding:8px 13px;background:#fff;border:1px solid #d4d9e2;border-radius:8px;font-size:12.5px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
+                    </div>
+                  </div>
+                </sc-if>
               </div>
             </sc-for>
           </div>
@@ -522,6 +635,15 @@
             <input value="{{ npContact }}" onInput="{{ onNpContact }}" placeholder="Contact number (9xxx xxxx)" type="tel" class="field" style="margin-bottom:10px;" />
             <select value="{{ npShift }}" onChange="{{ onNpShift }}" class="field" style="margin-bottom:10px;"><option value="AM">AM shift</option><option value="PM">PM shift</option><option value="OFFICE">Office hours</option></select>
             <button onClick="{{ addPerson }}" style="width:100%;padding:12px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;">Add to roster</button>
+          </div>
+
+          <div class="card" style="padding:18px;margin-bottom:14px;">
+            <h2 style="font-size:15px;font-weight:700;margin:0 0 6px;color:#161f30;">Create new batch</h2>
+            <div style="font-size:12px;color:#8a94a3;margin-bottom:12px;line-height:1.5;">Set the start date — end date and dekit day are calculated automatically.</div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <input value="{{ newBatchDate }}" onInput="{{ onNewBatchDate }}" type="date" style="flex:1;padding:9px 11px;border:1px solid #d4d9e2;border-radius:9px;font-size:14px;background:#f6f8fa;outline:none;" />
+              <button onClick="{{ createBatch }}" style="padding:9px 14px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Create</button>
+            </div>
           </div>
 
           <div class="card" style="padding:14px 16px;margin-top:14px;">
@@ -637,6 +759,13 @@
     </div>
     </sc-if>
 
+    <!-- ===== TOAST ===== -->
+    <sc-if value="{{ showToast }}" hint-placeholder-val="">
+    <div style="position:absolute;bottom:76px;left:16px;right:16px;z-index:50;pointer-events:none;">
+      <div style="background:{{ toastBg }};color:#fff;border-radius:11px;padding:13px 16px;font-size:13.5px;font-weight:600;text-align:center;box-shadow:0 4px 18px rgba(20,30,50,.25);">{{ toastMsg }}</div>
+    </div>
+    </sc-if>
+
     <!-- ===== MC VIEWER OVERLAY ===== -->
     <sc-if value="{{ mcViewOpen }}" hint-placeholder-val="">
     <div style="position:absolute;inset:0;background:rgba(0,0,0,.5);z-index:40;display:flex;align-items:flex-end;">
@@ -669,8 +798,13 @@
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#2f5fd0&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;orgName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Ops Security&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Bedok DHQ&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqLat&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;1.3262&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqLon&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;103.9304&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#2f5fd0&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;orgName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Ops Security&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Bedok DHQ&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqLat&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;1.3262&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqLon&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;103.9304&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;waGroupLink&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqRange&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;500&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
 class Component extends makeAppComponent(DCLogic) {}
+</script>
+<script>
+if('serviceWorker' in navigator){
+  navigator.serviceWorker.register('./sw.js').catch(()=>{});
+}
 </script>
 </body>
 </html>
