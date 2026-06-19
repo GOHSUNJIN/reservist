@@ -336,62 +336,66 @@
 
         <!-- ===== BRIEFINGS ===== -->
         <sc-if value="{{ tabBriefings }}" hint-placeholder-val="">
-        <div style="display:flex;flex-direction:column;gap:14px;">
-          <div class="card" style="padding:18px;">
-            <div style="display:flex;align-items:center;gap:9px;margin-bottom:14px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{ accent }};background:#eaf0fc;padding:3px 8px;border-radius:6px;font-weight:600;">01</span><h2 style="font-size:16px;font-weight:700;margin:0;color:#161f30;">Reporting instructions</h2></div>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;">
+        <div style="display:flex;flex-direction:column;gap:11px;">
+
+          <!-- Reporting details -->
+          <div class="card" style="padding:14px 16px;">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:11px;">
+              <span class="section-label">REPORTING DETAILS</span>
+              <sc-if value="{{ showWaGroup }}" hint-placeholder-val="">
+              <a href="{{ waGroupUrl }}" target="_blank" rel="noopener" style="display:inline-flex;align-items:center;gap:5px;padding:5px 11px;background:#25d366;color:#fff;border-radius:7px;font-size:12px;font-weight:600;text-decoration:none;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                WhatsApp
+              </a>
+              </sc-if>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
               <div class="info-cell"><div class="info-cell-label">Location</div><div class="info-cell-val">{{ briefLocation }}</div></div>
               <div class="info-cell"><div class="info-cell-label">Schedule</div><div class="info-cell-val">{{ briefSchedule }}</div></div>
               <div class="info-cell"><div class="info-cell-label">Attire</div><div class="info-cell-val">{{ briefAttire }}</div></div>
-              <div class="info-cell"><div class="info-cell-label">Reporting time</div><div class="info-cell-val">{{ briefReportingTime }}</div></div>
+              <div class="info-cell"><div class="info-cell-label">Report time</div><div class="info-cell-val">{{ briefReportingTime }}</div></div>
             </div>
-            <sc-if value="{{ showWaGroup }}" hint-placeholder-val="">
-            <a href="{{ waGroupUrl }}" target="_blank" rel="noopener" class="wa-link">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-              WhatsApp group
-            </a>
-            </sc-if>
           </div>
 
-          <div class="card" style="padding:18px;">
-            <div style="display:flex;align-items:center;gap:9px;margin-bottom:16px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{ accent }};background:#eaf0fc;padding:3px 8px;border-radius:6px;font-weight:600;">02</span><h2 style="font-size:16px;font-weight:700;margin:0;color:#161f30;">Roles by shift</h2></div>
-            <div style="display:flex;gap:4px;background:#f1f3f6;padding:4px;border-radius:10px;margin-bottom:14px;">
+          <!-- Duties by shift -->
+          <div class="card" style="padding:14px 16px;">
+            <span class="section-label" style="display:block;margin-bottom:10px;">DUTIES BY SHIFT</span>
+            <div style="display:flex;gap:4px;background:#f1f3f6;padding:4px;border-radius:10px;margin-bottom:11px;">
               <sc-for list="{{ roleTabs }}" as="t" hint-placeholder-count="3">
                 <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
               </sc-for>
             </div>
-            <div style="border:1px solid #eef0f4;border-radius:11px;padding:14px 15px;">
-              <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:4px;margin-bottom:9px;"><span style="font-weight:700;font-size:14px;color:#161f30;">{{ roleTitle }}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#5c6678;">{{ roleWindow }}</span></div>
-              <ul style="margin:0;padding-left:16px;font-size:13px;color:#3a4350;line-height:1.7;">
-                <sc-for list="{{ roleItems }}" as="it" hint-placeholder-count="4">
-                  <li>{{ it }}</li>
-                </sc-for>
-              </ul>
-              <sc-if value="{{ roleNote }}" hint-placeholder-val="">
-                <div style="margin-top:11px;background:#f6f8fa;border-radius:9px;padding:10px 12px;font-size:12px;color:#5c6678;line-height:1.55;">{{ roleNote }}</div>
-              </sc-if>
-            </div>
-            <div style="margin-top:13px;background:#fdf6e9;border:1px solid #f0e2c2;border-radius:10px;padding:11px 14px;font-size:12.5px;color:#8a6d2a;">Update the WhatsApp group if you are on MC for any shift.</div>
+            <div style="font-size:13px;font-weight:700;color:#161f30;margin-bottom:1px;">{{ roleTitle }}</div>
+            <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a94a3;margin-bottom:10px;">{{ roleWindow }}</div>
+            <ul style="margin:0;padding-left:15px;font-size:12.5px;color:#3a4350;line-height:1.65;">
+              <sc-for list="{{ roleItems }}" as="it" hint-placeholder-count="4">
+                <li style="margin-bottom:3px;">{{ it }}</li>
+              </sc-for>
+            </ul>
+            <sc-if value="{{ roleNote }}" hint-placeholder-val="">
+              <div style="margin-top:9px;background:#f6f8fa;border-radius:8px;padding:9px 11px;font-size:12px;color:#5c6678;line-height:1.5;">{{ roleNote }}</div>
+            </sc-if>
+            <div style="margin-top:10px;background:#fdf6e9;border:1px solid #f0e2c2;border-radius:8px;padding:9px 12px;font-size:12px;color:#8a6d2a;">Update WhatsApp if you are on MC for any shift.</div>
           </div>
 
-          <div class="card" style="padding:18px;">
-            <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{ accent }};background:#eaf0fc;padding:3px 8px;border-radius:6px;font-weight:600;">03</span><h2 style="font-size:16px;font-weight:700;margin:0;color:#161f30;">Meal allowance form</h2></div>
-            <div style="background:#f7efdc;border:1px solid #f0e2c2;border-radius:10px;padding:11px 14px;font-size:12.5px;color:#8a6d2a;font-weight:600;margin-bottom:12px;">{{ mealStatusBanner }}</div>
-            <ul style="margin:0;padding-left:16px;font-size:13px;color:#3a4350;line-height:1.7;">
+          <!-- Meal allowance + Dekit combined -->
+          <div class="card" style="padding:14px 16px;">
+            <span class="section-label" style="display:block;margin-bottom:8px;">MEAL ALLOWANCE</span>
+            <div style="background:#fdf6e9;border:1px solid #f0e2c2;border-radius:8px;padding:8px 11px;font-size:12px;color:#8a6d2a;font-weight:600;margin-bottom:9px;">{{ mealStatusBanner }}</div>
+            <ul style="margin:0;padding-left:15px;font-size:12.5px;color:#3a4350;line-height:1.65;">
               <sc-for list="{{ mealItems }}" as="it" hint-placeholder-count="3">
-                <li>{{ it }}</li>
+                <li style="margin-bottom:3px;">{{ it }}</li>
+              </sc-for>
+            </ul>
+            <div style="height:1px;background:#eef0f4;margin:12px 0;"></div>
+            <span class="section-label" style="display:block;margin-bottom:8px;">DEKIT DAY</span>
+            <ul style="margin:0;padding-left:15px;font-size:12.5px;color:#3a4350;line-height:1.65;">
+              <sc-for list="{{ dekitItems }}" as="it" hint-placeholder-count="3">
+                <li style="margin-bottom:3px;">{{ it }}</li>
               </sc-for>
             </ul>
           </div>
 
-          <div class="card" style="padding:18px;">
-            <div style="display:flex;align-items:center;gap:9px;margin-bottom:12px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:{{ accent }};background:#eaf0fc;padding:3px 8px;border-radius:6px;font-weight:600;">04</span><h2 style="font-size:16px;font-weight:700;margin:0;color:#161f30;">Dekit day instructions</h2></div>
-            <ul style="margin:0;padding-left:16px;font-size:13px;color:#3a4350;line-height:1.7;">
-              <sc-for list="{{ dekitItems }}" as="it" hint-placeholder-count="3">
-                <li>{{ it }}</li>
-              </sc-for>
-            </ul>
-          </div>
         </div>
         </sc-if>
 
