@@ -110,7 +110,6 @@ class AppComponent extends DCLogic {
     let batches = await DB.batches.list().catch(()=>[]);
     if(role==='admin'){
       batches = await this._ensureLiveBatch(batches);
-      batches = await this._ensureForwardBatches(batches);
     }
 
     const liveIdx = batches.findIndex(b=>b.is_live);
@@ -179,7 +178,7 @@ class AppComponent extends DCLogic {
       // Still haven't reached today — keep creating
       if(startStr>today) break; // gap period: next batch starts after today, stop
     }
-    return this._ensureForwardBatches(await DB.batches.list().catch(()=>sorted));
+    return DB.batches.list().catch(()=>sorted);
   }
 
   async _ensureForwardBatches(batches, ahead=3){
@@ -778,10 +777,15 @@ class AppComponent extends DCLogic {
   };
 
   refreshPage = async () => {
-    const {role, me, batches, activeBatchIdx, demo} = this.state;
+    const {role, me, demo} = this.state;
     if(demo || !me) return;
     const today = Utils.dateKey(this.baseDate());
-    const activeBatch = batches[activeBatchIdx||0];
+    // Reload batch list so deletions/additions in Supabase are reflected
+    let batches = await DB.batches.list().catch(()=>this.state.batches);
+    if(role==='admin') batches = await this._ensureLiveBatch(batches).catch(()=>batches);
+    const liveIdx = batches.findIndex(b=>b.is_live);
+    const activeBatchIdx = liveIdx>=0?liveIdx:this.state.activeBatchIdx||0;
+    const activeBatch = batches[activeBatchIdx];
     const [attendance, noReportDays] = await Promise.all([
       DB.attendance.getForDate(today),
       activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date) : Promise.resolve(new Set()),
@@ -792,7 +796,7 @@ class AppComponent extends DCLogic {
       attendanceCache = await DB.attendance.getForBatch(activeBatch.start_date, activeBatch.end_date).catch(()=>({}));
     }
     const noReportDaysCache = activeBatch ? {[activeBatch.id]: noReportDays} : {};
-    this.setState({attendance, noReportDays, history, attendanceCache, noReportDaysCache});
+    this.setState({batches, activeBatchIdx, attendance, noReportDays, history, attendanceCache, noReportDaysCache});
   };
 
   // ── Navigation ────────────────────────────────────────────────────────────
