@@ -90,13 +90,7 @@
         <input value="{{ suName }}" onInput="{{ onSuName }}" placeholder="Full name" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;margin-bottom:14px;" />
         <label style="display:block;font-size:13px;font-weight:600;color:#36404f;margin-bottom:7px;">Contact number</label>
         <input value="{{ suContact }}" onInput="{{ onSuContact }}" placeholder="9xxx xxxx" type="tel" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;margin-bottom:14px;" />
-        <label style="display:block;font-size:13px;font-weight:600;color:#36404f;margin-bottom:7px;">Default shift pattern</label>
-        <select value="{{ suShift }}" onChange="{{ onSuShift }}" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;">
-          <sc-for list="{{ shiftOptions }}" as="opt" hint-placeholder-count="3">
-            <option value="{{ opt.value }}" disabled="{{ opt.disabled }}">{{ opt.label }}</option>
-          </sc-for>
-        </select>
-        <div style="font-size:11.5px;color:#8a94a3;line-height:1.45;margin:7px 0 14px;">AM and PM shifts are limited to 2 each. Full slots are shown as disabled and you will be assigned to office hours instead.</div>
+        <div style="background:#f6f8fa;border:1px solid #e3e6ec;border-radius:10px;padding:10px 13px;margin-bottom:14px;font-size:12.5px;color:#5c6678;line-height:1.5;">Shift automatically assigned — AM/PM (max 2 each), then Office hours.</div>
         <label style="display:block;font-size:13px;font-weight:600;color:#36404f;margin-bottom:7px;">Password</label>
         <input value="{{ suPassword }}" onInput="{{ onSuPassword }}" type="password" placeholder="Create a password (min 6 chars)" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;" />
         <sc-if value="{{ authError }}" hint-placeholder-val="">
@@ -700,9 +694,7 @@
           <div>
             <div style="font-size:18px;font-weight:700;color:#161f30;">{{ userName }}</div>
             <div style="font-size:13px;color:#8a94a3;">Tap photo to change</div>
-            <sc-if value="{{ acctHasAvatar }}" hint-placeholder-val="">
             <button onClick="{{ removeAvatar }}" style="margin-top:5px;font-size:12px;color:#c0392b;background:none;border:none;cursor:pointer;padding:0;display:block;">Remove photo</button>
-            </sc-if>
           </div>
         </div>
 
