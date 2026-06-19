@@ -91,10 +91,15 @@ class AppComponent extends DCLogic {
       this.setState({authed:false,loading:false,authError:'Account setup incomplete. Please sign up again.'});
       return;
     }
-    // Load persisted avatar — localStorage first, then Supabase public URL
+    // Load avatar: localStorage is instant; Supabase URL must be probe-loaded
+    // so a deleted file doesn't set a URL in state and hide the initials
     const cachedAvatar = localStorage.getItem('avatar_'+me.id);
-    const meAvatarUrl = cachedAvatar || DB.storage.getAvatarUrl(me.id);
-    if(meAvatarUrl) this.setState(s=>({avatars:{...s.avatars,[me.id]:meAvatarUrl}}));
+    if(cachedAvatar){
+      this.setState(s=>({avatars:{...s.avatars,[me.id]:cachedAvatar}}));
+    } else {
+      const meAvatarUrl = DB.storage.getAvatarUrl(me.id);
+      if(meAvatarUrl){ const img=new Image(); img.onload=()=>this.setState(s=>({avatars:{...s.avatars,[me.id]:meAvatarUrl}})); img.src=meAvatarUrl; }
+    }
     const role = me.role || 'reservist';
     const today = Utils.dateKey(this.baseDate());
 
