@@ -453,7 +453,7 @@ class AppComponent extends DCLogic {
         DB.storage.uploadAvatar(uid, f)
           .then(({error})=>{
             if(!error){
-              const url=DB.storage.getAvatarUrl(uid);
+              const url=DB.storage.getAvatarUrl(uid)+'?t='+Date.now();
               if(url){ localStorage.setItem('avatar_'+uid, url); this.setState(s=>({avatars:{...s.avatars,[uid]:url}})); }
             }
           })
@@ -1075,13 +1075,13 @@ class AppComponent extends DCLogic {
       for(let d=new Date(bStart);d<=yesterday;d=Utils.addDays(d,1)){
         const dk=Utils.dateKey(d);
         if(Utils.isReportDay(d)&&!Utils.holidayName(d)&&!s.noReportDays.has(dk)&&!histKeys.has(dk)){
-          missedRows.push({date:Utils.fmtMed(d),dateKey:dk,shift:Utils.shiftLabel(me.shift),status:'absent',time:'–',...Utils.meta('absent')});
+          missedRows.push({date:Utils.fmtMed(d),dateKey:dk,shift:Utils.shiftLabel(me.shift),status:'missed',time:'–',...Utils.meta('missed')});
         }
       }
     }
 
     // Merge past rows oldest-first (chronological)
-    const allPast=[...histRows,...missedRows].sort((a,b)=>a.dateKey>b.dateKey?1:-1);
+    const allPast=[...histRows,...missedRows].sort((a,b)=>a.dateKey>b.dateKey?-1:1);
     const myHistory=[...todayRow,...allPast];
     const statMyPresent=myHistory.filter(h=>h.status==='present').length;
     const statMyMc=myHistory.filter(h=>h.status==='mc').length;
@@ -1153,7 +1153,9 @@ class AppComponent extends DCLogic {
     const roster=activeMembers.map(p=>{
       const r=s.attendance[p.id]||{status:'pending',time:'-'}, mm=Utils.meta(r.status);
       const cardStyle='background:#fff;border:1px solid #e3e6ec;border-left:3px solid '+mm.color+';border-radius:12px;padding:11px 13px;';
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,time:r.time||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.dist!=null)?(', GPS verified '+r.dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent'),onShiftChange:this.changeShift(p.id),cardStyle};
+      const av=s.avatars[p.id]||'';
+      const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,time:r.time||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.dist!=null)?(', GPS verified '+r.dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent'),onShiftChange:this.changeShift(p.id),cardStyle,avatarStyle};
     });
     const search=(s.rosterSearch||'').toLowerCase();
     const filteredRoster=roster.filter(r=>!search||r.name.toLowerCase().includes(search));
@@ -1172,16 +1174,23 @@ class AppComponent extends DCLogic {
     const snapshotLines=['📋 *'+Utils.fmtMed(this.dateForOffset(0))+' Attendance*','✅ Present ('+present+'): '+(roster.filter(r=>r.label==='Present').map(r=>r.name).join(', ')||'—'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.label==='On MC').map(r=>r.name).join(', ')||'—'),'⏳ Pending ('+pending+'): '+(roster.filter(r=>r.label==='Pending').map(r=>r.name).join(', ')||'—')];
     const snapshotLink='https://api.whatsapp.com/send?text='+encodeURIComponent(snapshotLines.join('\n'));
     const pendingCount=roster.filter(r=>r.label==='Pending').length;
-    const today2=Utils.dateKey(new Date());
-    const shiftCutoff={AM:'08:30',PM:'15:30',OFFICE:'09:00'};
-    const logRows=roster.filter(r=>r.label!=='Pending').map(r=>{
-      const hasMc=r.label==='On MC';
-      const member=activeMembers.find(m=>m.id===r.id);
-      const cutoff=shiftCutoff[member?.shift||'AM'];
-      const isLate=r.label==='Present'&&r.time&&r.time!=='-'&&r.time>cutoff;
-      return {...r,isLate,timeColor:isLate?'#c0392b':'#8a94a3',lateTag:isLate?' (late)':'',mcCursor:hasMc?'pointer':'default',onViewMc:hasMc?this.openMcViewer(r.name,today2,s.attendance[r.id]?.mc):()=>{}};
-    });
     const viewOffset=s.viewOffset||0, viewDate=this.dateForOffset(viewOffset), viewIsToday=viewOffset===0, viewReportDay=Utils.isReportDay(viewDate);
+    const viewDateKey=Utils.dateKey(viewDate);
+    const viewMap=viewIsToday?s.attendance:(s.attendanceCache?.[viewDateKey]||{});
+    const shiftCutoff={AM:'08:30',PM:'15:30',OFFICE:'09:00'};
+    const logRows=activeMembers.filter(p=>{
+      const r=viewMap[p.id]||{status:'pending'};
+      return r.status!=='pending';
+    }).map(p=>{
+      const r=viewMap[p.id]||{status:'pending',time:'-'}, mm=Utils.meta(r.status);
+      const cutoff=shiftCutoff[p.shift||'AM'];
+      const isLate=r.status==='present'&&r.time&&r.time!=='-'&&r.time>cutoff;
+      const hasMc=r.status==='mc'&&!!r.mc;
+      const av=s.avatars[p.id]||'';
+      const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,time:r.time||'-',isLate,timeColor:isLate?'#c0392b':'#8a94a3',lateTag:isLate?' (late)':'',mcCursor:hasMc?'pointer':'default',onViewMc:hasMc?this.openMcViewer(p.name,viewDateKey,r.mc):()=>{},avatarStyle};
+    });
+    const logDateLabel=viewIsToday?'TODAY\'S LOG':((WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()]).toUpperCase()+' — LOG');
     const dlabel=WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()];
     const rel=viewOffset===0?'Today':viewOffset===-1?'Yesterday':viewOffset===1?'Tomorrow':'';
     const viewDateLabel=(rel?rel+', ':'')+dlabel;
@@ -1191,12 +1200,12 @@ class AppComponent extends DCLogic {
     const viewNoRepReason=!viewReportDay?'This is a weekend. Reservists do not report on Saturdays or Sundays.':viewHoliday?(viewHoliday+' is a public holiday, so reservists are not required to report.'):'This day is marked as a no-reporting day, so reservists are not required to report.';
     const showRepToggle=viewReportDay, repToggleLocked=!!viewHoliday, repToggleOn=viewBlocked;
     const noRepMsg=viewHoliday?('Public holiday ('+viewHoliday+'). Auto no-reporting, locked.'):repToggleOn?'On. Reservists are not required to report this day.':'Off. Reservists report and check in as normal.';
-    const viewDateKey=Utils.dateKey(viewDate);
-    const viewMap=viewIsToday?s.attendance:(s.attendanceCache?.[viewDateKey]||{});
     const viewRoster=activeMembers.map(p=>{
       const r=viewMap[p.id]||{status:viewOffset>0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
       const hasMc=r.status==='mc'&&!!r.mc;
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:(r.status==='present'&&r.time&&r.time!=='-')?r.time:'',mcCursor:hasMc?'pointer':'default',onViewMc:hasMc?this.openMcViewer(p.name,viewDateKey,r.mc):()=>{}};
+      const av=s.avatars[p.id]||'';
+      const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:(r.status==='present'&&r.time&&r.time!=='-')?r.time:'',mcCursor:hasMc?'pointer':'default',onViewMc:hasMc?this.openMcViewer(p.name,viewDateKey,r.mc):()=>{},avatarStyle};
     });
     const vPresent=viewRoster.filter(r=>r.label==='Present').length, vMc=viewRoster.filter(r=>r.label==='On MC').length, vAbsent=viewRoster.filter(r=>r.label==='Absent').length, vPending=viewRoster.filter(r=>r.label==='Pending').length, vTotal=viewRoster.length;
     const vPercent=vTotal?Math.round((vPresent+vMc)/vTotal*100):0;
@@ -1211,7 +1220,7 @@ class AppComponent extends DCLogic {
       activeChips, archivedChips, archivedCount:archivedChips.length,
       showArchivedBatches:s.showArchivedBatches,
       toggleArchivedBatches:()=>this.setState(s=>({showArchivedBatches:!s.showArchivedBatches})),
-      roster, filteredRoster:sortedFiltered, logRows,
+      roster, filteredRoster:sortedFiltered, logRows, logDateLabel,
       rosterSearch:s.rosterSearch, onRosterSearch:this.onRosterSearch,
       markAllPresent:this.markAllPresent, pendingCount,
       statPresent:present, statMc:mc, statPending:pending, statTotal:total,
