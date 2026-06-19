@@ -94,9 +94,9 @@ class AppComponent extends DCLogic {
     // Load avatar: localStorage is instant; Supabase URL must be probe-loaded
     // so a deleted file doesn't set a URL in state and hide the initials
     const cachedAvatar = localStorage.getItem('avatar_'+me.id);
-    if(cachedAvatar){
+    if(cachedAvatar && cachedAvatar !== 'REMOVED'){
       this.setState(s=>({avatars:{...s.avatars,[me.id]:cachedAvatar}}));
-    } else {
+    } else if(!cachedAvatar){
       const meAvatarUrl = DB.storage.getAvatarUrl(me.id);
       if(meAvatarUrl){ const img=new Image(); img.onload=()=>this.setState(s=>({avatars:{...s.avatars,[me.id]:meAvatarUrl}})); img.src=meAvatarUrl; }
     }
@@ -214,7 +214,10 @@ class AppComponent extends DCLogic {
 
   // ── Auth actions ──────────────────────────────────────────────────────────
   goLogin  = () => this.setState({authMode:'login',  authError:''});
-  goSignup = () => this.setState({authMode:'signup', authError:''});
+  goSignup = async () => {
+    this.setState({authMode:'signup', authError:''});
+    await this._refreshSignupSlots();
+  };
 
   doLogin = async () => {
     if(!this.state.loginContact.trim()){ this.setState({authError:'Enter your contact number.'}); return; }
@@ -226,21 +229,27 @@ class AppComponent extends DCLogic {
   };
 
   doSignup = async () => {
-    const {suName,suContact,suShift,suPassword} = this.state;
+    const {suName,suContact,suPassword} = this.state;
     if(!suName.trim()||!suContact.trim()||!suPassword.trim()){ this.setState({authError:'Please fill in all fields.'}); return; }
     if(suPassword.length < 6){ this.setState({authError:'Password must be at least 6 characters.'}); return; }
     const cleanContact = suContact.replace(/[\s-]/g,'');
     if(!/^\d{8}$/.test(cleanContact)){ this.setState({authError:'Contact must be an 8-digit Singapore number.'}); return; }
+    const activeBatch = this._liveBatch();
+    if(!activeBatch){
+      this.setState({authError:'No active intake batch is open for sign-up right now.'});
+      return;
+    }
+    const members = await DB.personnel.list(activeBatch.id).catch(()=>[]);
+    const {am, pm} = this._shiftSlotCounts(members);
+    const shift = am < 2 ? 'AM' : pm < 2 ? 'PM' : 'OFFICE';
     this.setState({loading:true, authError:''});
     const {user,error} = await DB.auth.signup(suContact, suPassword);
     if(error||!user){ this.setState({loading:false, authError:error?.message||'Signup failed. Try a different contact or password.'}); return; }
-    const activeBatch = this.state.batches[this.state.activeBatchIdx||0];
-    const shift = this._capShift(suShift);
     const existing = await DB.personnel.findByContact(suContact);
     if(existing){
       await DB.personnel.linkAuth(existing.id, user.id);
     } else {
-      const {error:addErr} = await DB.personnel.add({authId:user.id, name:suName, contact:suContact, shift, batchId:activeBatch?.id});
+      const {error:addErr} = await DB.personnel.add({authId:user.id, name:suName, contact:suContact, shift, batchId:activeBatch.id});
       if(addErr){
         await DB.auth.logout();
         this.setState({loading:false, authError:'Profile setup failed: '+(addErr.message||'database error. Check Supabase grants.')});
@@ -248,7 +257,7 @@ class AppComponent extends DCLogic {
       }
     }
     await this._afterLogin(user);
-    this.setState({suName:'', suContact:'', suPassword:''});
+    this.setState({suName:'', suContact:'', suPassword:'', personnel:members});
   };
 
   logout = async () => {
@@ -456,7 +465,7 @@ class AppComponent extends DCLogic {
 
   removeAvatar = async () => {
     const uid=this.state.currentUserId;
-    localStorage.removeItem('avatar_'+uid);
+    localStorage.setItem('avatar_'+uid, 'REMOVED');
     this.setState(s=>{ const av={...s.avatars}; delete av[uid]; return {avatars:av}; });
     if(!this.state.demo) await DB.storage.deleteAvatar(uid).catch(()=>{});
     this._toast('Profile photo removed.');
@@ -656,7 +665,7 @@ class AppComponent extends DCLogic {
     if(cleanContact&&!/^\d{8}$/.test(cleanContact)){ this._toast('Contact must be an 8-digit Singapore number.','error'); return; }
     if(cleanContact&&personnel.some(p=>p.contact.replace(/[\s-]/g,'')===cleanContact)){ this._toast('This contact is already on the roster.','error'); return; }
     const activeBatch=batches[activeBatchIdx||0];
-    const shift=this._capShift(npShift);
+    const shift=this._capShift(npShift, personnel);
     const contact=cleanContact||'-';
     const addedName=npName.trim();
     if(!demo){
@@ -791,9 +800,26 @@ class AppComponent extends DCLogic {
   }
   cur(){ return this.state.me || this.state.personnel.find(p=>p.id===this.state.currentUserId) || null; }
   myRec(){ return this.state.attendance[this.state.currentUserId]||{status:'pending'}; }
-  _capShift(want){
-    const am=this.state.personnel.filter(p=>p.shift==='AM').length;
-    const pm=this.state.personnel.filter(p=>p.shift==='PM').length;
+  _liveBatch(batches){
+    const list = batches || this.state.batches;
+    return list.find(b=>b.is_live) || list[0] || null;
+  }
+  async _refreshSignupSlots(){
+    const liveBatch = this._liveBatch();
+    if(!liveBatch || this.state.demo) return;
+    const personnel = await DB.personnel.list(liveBatch.id).catch(()=>[]);
+    const liveIdx = this.state.batches.findIndex(b=>b.id===liveBatch.id);
+    this.setState({personnel, activeBatchIdx:liveIdx>=0?liveIdx:this.state.activeBatchIdx});
+  }
+  _shiftSlotCounts(members){
+    const list = (members||[]).filter(p=>p.is_active!==false && (p.role||'reservist')==='reservist');
+    return {
+      am: list.filter(p=>p.shift==='AM').length,
+      pm: list.filter(p=>p.shift==='PM').length,
+    };
+  }
+  _capShift(want, members){
+    const {am, pm} = this._shiftSlotCounts(members || this.state.personnel);
     if(want==='AM'&&am>=2) return 'OFFICE';
     if(want==='PM'&&pm>=2) return 'OFFICE';
     return want;
@@ -831,15 +857,14 @@ class AppComponent extends DCLogic {
 
   // ── Render helpers ────────────────────────────────────────────────────────
   _buildAuth(s, accent){
-    const activeBatch=s.batches.find(b=>b.is_live)||s.batches[0];
-    const amCount=s.personnel.filter(p=>p.shift==='AM').length;
-    const pmCount=s.personnel.filter(p=>p.shift==='PM').length;
+    const activeBatch=this._liveBatch(s.batches);
+    const {am:amCount, pm:pmCount}=this._shiftSlotCounts(s.personnel);
     const amFull=amCount>=2, pmFull=pmCount>=2;
     let suShift=s.suShift;
     if((suShift==='AM'&&amFull)||(suShift==='PM'&&pmFull)) suShift='OFFICE';
     const shiftOptions=[
-      {value:'AM', disabled:amFull, label:amFull?'AM shift — full':'AM shift, 0830–1530'},
-      {value:'PM', disabled:pmFull, label:pmFull?'PM shift — full':'PM shift, 1530–2230'},
+      {value:'AM', disabled:amFull, label:amFull?'AM shift — full (2/2)':'AM shift, 0830–1530 ('+amCount+'/2)'},
+      {value:'PM', disabled:pmFull, label:pmFull?'PM shift — full (2/2)':'PM shift, 1530–2230 ('+pmCount+'/2)'},
       {value:'OFFICE', disabled:false, label:'Office hours, 0900–1800'},
     ];
     const tb=a=>`flex:1;padding:11px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;${a?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`;
