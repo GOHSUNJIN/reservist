@@ -22,6 +22,11 @@ const DB = {
 
     async logout() { await _db.auth.signOut(); },
 
+    async updatePassword(newPassword) {
+      const { error } = await _db.auth.updateUser({ password: newPassword });
+      return { error };
+    },
+
     async session() {
       const { data } = await _db.auth.getSession();
       return data?.session?.user || null;
@@ -65,6 +70,11 @@ const DB = {
 
     async remove(personnelId) {
       await _db.from('personnel').delete().eq('id', personnelId);
+    },
+
+    async updateName(personnelId, name) {
+      const { data, error } = await _db.from('personnel').update({ name }).eq('id', personnelId).select().maybeSingle();
+      return { data, error };
     },
 
     async assignBatch(batchId) {
@@ -137,6 +147,11 @@ const DB = {
       }).select().maybeSingle();
       return { data, error };
     },
+
+    async activate(batchId) {
+      await _db.from('batches').update({ is_live: false }).eq('is_live', true);
+      await _db.from('batches').update({ is_live: true }).eq('id', batchId);
+    },
   },
 
   // ── No-report days ────────────────────────────────────────────────────────
@@ -171,6 +186,16 @@ const DB = {
     async getMcUrl(path) {
       if (!path) return null;
       const { data } = await _db.storage.from('mc-files').createSignedUrl(path, 3600);
+      return data?.signedUrl || null;
+    },
+
+    async uploadAvatar(userId, file) {
+      const { data, error } = await _db.storage.from('avatars').upload(userId, file, { upsert: true, contentType: file.type });
+      return { path: data?.path || userId, error };
+    },
+
+    async getAvatarUrl(userId) {
+      const { data } = await _db.storage.from('avatars').createSignedUrl(userId, 604800);
       return data?.signedUrl || null;
     },
   },
