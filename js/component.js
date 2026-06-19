@@ -21,16 +21,36 @@ class AppComponent extends DCLogic {
     mcMode: false, mcFileName: '', _mcFile: null,
     mcViewOpen: false, mcViewName: '', mcViewDate: '', mcViewFile: '', mcViewUrl: '',
     npName: '', npContact: '', npShift: 'AM',
+    rosterSearch: '',
     realtimeChannel: null,
     now: new Date(), demo: false,
+    isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
+    offlinePending: false,
   };
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
   componentDidMount(){
     this._t = setInterval(()=>this.setState({now:new Date()}), 1000);
     this._init();
+    this._onOnline = async () => {
+      this.setState({isOnline:true});
+      const pend = this._offlineQueue;
+      if(pend && !this.state.demo){
+        await DB.attendance.upsert(pend.id, pend.date, pend.status, pend.extras).catch(()=>{});
+        this._offlineQueue = null;
+        this.setState({offlinePending:false});
+      }
+    };
+    this._onOffline = () => this.setState({isOnline:false});
+    window.addEventListener('online', this._onOnline);
+    window.addEventListener('offline', this._onOffline);
   }
-  componentWillUnmount(){ clearInterval(this._t); this._unsubscribeRealtime(); }
+  componentWillUnmount(){
+    clearInterval(this._t);
+    this._unsubscribeRealtime();
+    window.removeEventListener('online', this._onOnline);
+    window.removeEventListener('offline', this._onOffline);
+  }
 
   // ── Data loading ──────────────────────────────────────────────────────────
   async _init(){
@@ -102,7 +122,8 @@ class AppComponent extends DCLogic {
     const nextTue = Utils.nextBatchTuesday(fromDate);
     const {start,end,dekit} = Utils.batchDatesFrom(nextTue);
     const label = Utils.batchLabel(Utils.dateKey(start));
-    await DB.batches.create(label, Utils.dateKey(start), Utils.dateKey(end), Utils.dateKey(dekit)).catch(()=>{});
+    const {data} = await DB.batches.create(label, Utils.dateKey(start), Utils.dateKey(end), Utils.dateKey(dekit)).catch(()=>({}));
+    if(data?.id) await DB.personnel.assignBatch(data.id).catch(()=>{});
     return DB.batches.list().catch(()=>batches);
   }
 
@@ -131,6 +152,9 @@ class AppComponent extends DCLogic {
   doSignup = async () => {
     const {suName,suContact,suShift,suPassword} = this.state;
     if(!suName.trim()||!suContact.trim()||!suPassword.trim()){ this.setState({authError:'Please fill in all fields.'}); return; }
+    if(suPassword.length < 6){ this.setState({authError:'Password must be at least 6 characters.'}); return; }
+    const cleanContact = suContact.replace(/[\s-]/g,'');
+    if(!/^\d{8}$/.test(cleanContact)){ this.setState({authError:'Contact must be an 8-digit Singapore number.'}); return; }
     this.setState({loading:true, authError:''});
     const {user,error} = await DB.auth.signup(suContact, suPassword);
     if(error||!user){ this.setState({loading:false, authError:error?.message||'Signup failed. Try a different contact or password.'}); return; }
@@ -211,8 +235,16 @@ class AppComponent extends DCLogic {
   submitCheckIn = async () => {
     if(this.state.locStatus!=='verified') return;
     const today=Utils.dateKey(new Date()), time=Utils.hhmm(new Date()), dist=this.state.locDistance;
-    if(!this.state.demo) await DB.attendance.upsert(this.state.currentUserId, today, 'present', {time,dist});
-    this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:{status:'present',time,dist}}}));
+    const entry={status:'present',time,dist};
+    this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:entry}}));
+    if(!this.state.demo){
+      if(!this.state.isOnline){
+        this._offlineQueue={id:this.state.currentUserId,date:today,status:'present',extras:{time,dist}};
+        this.setState({offlinePending:true});
+      } else {
+        await DB.attendance.upsert(this.state.currentUserId, today, 'present', {time,dist});
+      }
+    }
   };
 
   openMc  = () => this.setState({mcMode:true});
@@ -364,6 +396,20 @@ class AppComponent extends DCLogic {
     }
   };
 
+  onRosterSearch = e => this.setState({rosterSearch:e.target.value});
+  markAllPresent = async () => {
+    const today=Utils.dateKey(new Date());
+    const pending=this.state.personnel.filter(p=>!this.state.attendance[p.id]?.status||this.state.attendance[p.id]?.status==='absent');
+    const time=Utils.hhmm(new Date());
+    const updates={};
+    await Promise.all(pending.map(async p=>{
+      const dist=Math.round(18+Math.random()*72);
+      updates[p.id]={status:'present',time,dist};
+      if(!this.state.demo) await DB.attendance.upsert(p.id,today,'present',{time,dist}).catch(()=>{});
+    }));
+    this.setState(s=>({attendance:{...s.attendance,...updates}}));
+  };
+
   // ── Navigation ────────────────────────────────────────────────────────────
   go = t => () => this.setState({tab:t});
   setRolesTab  = k => () => this.setState({rolesTab:k});
@@ -486,10 +532,27 @@ class AppComponent extends DCLogic {
       locMsg:'', locMsgColor:'#8a94a3', checkInOpacity:'.45', checkInPE:'none',
       openMc:()=>{}, onMcFile:()=>{}, submitMc:()=>{}, cancelMc:()=>{}, undoCheckin:()=>{},
       mcFileLabel:'',
+      batchLabel:'', dekitCountdown:'', batchRange:'', showBatchInfo:false,
+      whatsappLink:'', showWaShare:false,
+      isOffline:!s.isOnline, offlinePending:s.offlinePending,
     };
     const rec=this.myRec(), status=rec.status||'pending', m=Utils.meta(status);
     const noRep=this.isNoReport(0);
     const locVerified=s.locStatus==='verified', locLocating=s.locStatus==='locating';
+    const activeBatch = s.batches[s.activeBatchIdx||0];
+    const batchLabel = activeBatch?.label || '';
+    const dekit = activeBatch?.dekit_date ? new Date(activeBatch.dekit_date+'T00:00:00') : null;
+    const todayMid = new Date(); todayMid.setHours(0,0,0,0);
+    const dekitDaysLeft = dekit ? Math.round((dekit - todayMid) / 86400000) : null;
+    const dekitCountdown = dekitDaysLeft === null ? '' : dekitDaysLeft === 0 ? 'Dekit day — return all equipment today' : dekitDaysLeft > 0 ? `${dekitDaysLeft} day${dekitDaysLeft !== 1 ? 's' : ''} to dekit` : 'Cycle complete';
+    const batchRange = activeBatch ? (Utils.fmtShort(new Date(activeBatch.start_date+'T00:00:00')) + ' – ' + Utils.fmtShort(new Date(activeBatch.end_date+'T00:00:00'))) : '';
+    const waMsg = status==='present'
+      ? `✅ [${rec.time}] ${me.name} checked in for ${Utils.shiftLabel(me.shift)}.`
+      : status==='mc'
+      ? `🤒 ${me.name} is on MC today (${Utils.shiftLabel(me.shift)}).`
+      : '';
+    const whatsappLink = waMsg ? 'https://api.whatsapp.com/send?text='+encodeURIComponent(waMsg) : '';
+    const showWaShare = !!(status==='present'||status==='mc');
     return {
       todayLong:Utils.fmtLong(new Date()),
       clock:Utils.hhmm(s.now),
@@ -518,6 +581,9 @@ class AppComponent extends DCLogic {
       checkInPE:locVerified?'auto':'none',
       openMc:this.openMc, onMcFile:this.onMcFile, submitMc:this.submitMc, cancelMc:this.cancelMc, undoCheckin:this.undoCheckin,
       mcFileLabel:s.mcFileName||rec.mc||'No file selected',
+      batchLabel, dekitCountdown, batchRange, showBatchInfo: !!activeBatch,
+      whatsappLink, showWaShare,
+      isOffline:!s.isOnline, offlinePending:s.offlinePending,
     };
   }
 
@@ -631,11 +697,18 @@ class AppComponent extends DCLogic {
       const r=s.attendance[p.id]||{status:'pending',time:'-'}, mm=Utils.meta(r.status);
       return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),time:r.time||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.dist!=null)?(', GPS verified '+r.dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent')};
     });
+    const search=(s.rosterSearch||'').toLowerCase();
+    const filteredRoster=roster.filter(r=>!search||r.name.toLowerCase().includes(search));
     const present=roster.filter(r=>r.label==='Present').length, mc=roster.filter(r=>r.label==='On MC').length, pending=roster.filter(r=>r.label==='Pending').length, total=roster.length;
+    const pendingCount=roster.filter(r=>r.label==='Pending').length;
     const today2=Utils.dateKey(new Date());
+    const shiftCutoff={AM:'08:30',PM:'15:30',OFFICE:'09:00'};
     const logRows=roster.filter(r=>r.label!=='Pending').map(r=>{
       const hasMc=r.label==='On MC';
-      return {...r, mcCursor:hasMc?'pointer':'default', onViewMc:hasMc?this.openMcViewer(r.name,today2,s.attendance[r.id]?.mc):()=>{}};
+      const member=activeMembers.find(m=>m.id===r.id);
+      const cutoff=shiftCutoff[member?.shift||'AM'];
+      const isLate=r.label==='Present'&&r.time&&r.time!=='-'&&r.time>cutoff;
+      return {...r,isLate,timeColor:isLate?'#c0392b':'#8a94a3',lateTag:isLate?' (late)':'',mcCursor:hasMc?'pointer':'default',onViewMc:hasMc?this.openMcViewer(r.name,today2,s.attendance[r.id]?.mc):()=>{}};
     });
     const viewOffset=s.viewOffset||0, viewDate=this.dateForOffset(viewOffset), viewIsToday=viewOffset===0, viewReportDay=Utils.isReportDay(viewDate);
     const dlabel=WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()];
@@ -664,7 +737,9 @@ class AppComponent extends DCLogic {
     const intakeLabel=activeBatch?activeBatch.label:'';
     const intakeRange=bs2&&be2?(Utils.fmtShort(bs2)+' to '+Utils.fmtShort(be2)):'';
     return {
-      batchChips, roster, logRows,
+      batchChips, roster, filteredRoster, logRows,
+      rosterSearch:s.rosterSearch, onRosterSearch:this.onRosterSearch,
+      markAllPresent:this.markAllPresent, pendingCount,
       statPresent:present, statMc:mc, statPending:pending, statTotal:total,
       noRepMsg, toggleNoReporting:this.toggleNoReporting,
       showRepToggle, repToggleLocked,
@@ -702,6 +777,7 @@ class AppComponent extends DCLogic {
       headerNoAvatar:!showAvatar,
       acctAvatarBg:avatarUrl?('url("'+avatarUrl+'")') :'none',
       acctNoAvatar:!avatarUrl,
+      isReservistRole: s.role==='reservist',
     };
   }
 
