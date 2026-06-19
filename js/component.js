@@ -552,7 +552,7 @@ class AppComponent extends DCLogic {
     const rows=members.map(p=>{
       const statuses=dates.map(d=>{
         const dk=Utils.dateKey(d);
-        const map=dk===Utils.dateKey(new Date())?attendance:(attendanceCache[dk]||{});
+        const map=dk===Utils.dateKey(this.baseDate())?attendance:(attendanceCache[dk]||{});
         return (map[p.id]?.status)||'absent';
       });
       const pres=statuses.filter(s=>s==='present').length;
@@ -680,7 +680,7 @@ class AppComponent extends DCLogic {
     const viewIsToday=off===0;
     const prev=viewIsToday?(this.state.attendance[id]||{}):((this.state.attendanceCache?.[viewDateKey]||{})[id]||{});
     const time=status==='present'?(prev.time&&prev.time!=='-'?prev.time:Utils.hhmm(new Date())):'-';
-    const dist=status==='present'?(prev.dist||Math.round(18+Math.random()*72)):undefined;
+    const dist=status==='present'?prev.dist:undefined;
     if(!this.state.demo) await DB.attendance.upsert(id, viewDateKey, status, {time,dist});
     if(viewIsToday){
       this.setState(s=>({attendance:{...s.attendance,[id]:{status,time,dist}}}));
@@ -713,16 +713,22 @@ class AppComponent extends DCLogic {
 
   onRosterSearch = e => this.setState({rosterSearch:e.target.value});
   markAllPresent = async () => {
-    const today=Utils.dateKey(new Date());
-    const pending=this.state.personnel.filter(p=>!this.state.attendance[p.id]?.status||this.state.attendance[p.id]?.status==='absent');
+    const off=this.state.viewOffset||0;
+    const viewDateKey=Utils.dateKey(this.dateForOffset(off));
+    const viewIsToday=off===0;
+    const viewMap=viewIsToday?this.state.attendance:(this.state.attendanceCache?.[viewDateKey]||{});
+    const pending=this.state.personnel.filter(p=>!viewMap[p.id]?.status||viewMap[p.id]?.status==='absent');
     const time=Utils.hhmm(new Date());
     const updates={};
     await Promise.all(pending.map(async p=>{
-      const dist=Math.round(18+Math.random()*72);
-      updates[p.id]={status:'present',time,dist};
-      if(!this.state.demo) await DB.attendance.upsert(p.id,today,'present',{time,dist}).catch(()=>{});
+      updates[p.id]={status:'present',time};
+      if(!this.state.demo) await DB.attendance.upsert(p.id,viewDateKey,'present',{time}).catch(()=>{});
     }));
-    this.setState(s=>({attendance:{...s.attendance,...updates}}));
+    if(viewIsToday){
+      this.setState(s=>({attendance:{...s.attendance,...updates}}));
+    } else {
+      this.setState(s=>({attendanceCache:{...s.attendanceCache,[viewDateKey]:{...(s.attendanceCache?.[viewDateKey]||{}),...updates}}}));
+    }
   };
 
   refreshPage = async () => {
@@ -1121,7 +1127,7 @@ class AppComponent extends DCLogic {
         if(Utils.isReportDay(d)&&!Utils.holidayName(d)){cycleTotal++;if(d<=now)cycleDone++;}
       }
     }
-    return {myHistory,statMyPresent,statMyMc,statMyMissed,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0};
+    return {myHistory,statMyPresent,statMyMc,statMyMissed,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500};
   }
 
   _buildBriefings(s, accent){
