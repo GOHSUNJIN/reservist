@@ -555,9 +555,19 @@
         <!-- ===== ADMIN: ROSTER ===== -->
         <sc-if value="{{ tabRoster }}" hint-placeholder-val="">
         <div style="display:flex;flex-direction:column;gap:11px;">
-          <div style="display:flex;gap:8px;margin-bottom:7px;align-items:center;">
+          <div onTouchStart="{{ onDaySwipeStart }}" onTouchEnd="{{ onDaySwipeEnd }}" style="background:#131a27;border-radius:16px;padding:11px 12px;color:#fff;display:flex;align-items:center;gap:9px;">
+            <button onClick="{{ prevDay }}" style="width:34px;height:34px;border-radius:9px;background:#222c3d;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#cdd4df" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
+            <div style="flex:1;text-align:center;min-width:0;">
+              <div style="font-size:15px;font-weight:600;">{{ viewDateLabel }}</div>
+              <div style="font-size:10.5px;color:#7d899b;font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;text-transform:uppercase;margin-top:2px;">{{ viewDateSub }}</div>
+            </div>
+            <sc-if value="{{ viewNotToday }}" hint-placeholder-val="">
+              <button onClick="{{ goToday }}" style="flex:0 0 auto;background:#222c3d;border:none;color:#cdd4df;font-size:10px;font-weight:700;padding:9px 11px;border-radius:9px;cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;">TODAY</button>
+            </sc-if>
+            <button onClick="{{ nextDay }}" style="width:34px;height:34px;border-radius:9px;background:#222c3d;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#cdd4df" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
+          </div>
+          <div style="display:flex;gap:8px;align-items:center;">
             <input value="{{ rosterSearch }}" onInput="{{ onRosterSearch }}" placeholder="Search name..." style="flex:1;padding:10px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:16px;background:#fff;outline:none;" />
-            <button onClick="{{ goToday }}" style="padding:10px 13px;background:#fff;border:1px solid #d4d9e2;border-radius:9px;font-size:13px;font-weight:600;color:#5c6678;cursor:pointer;white-space:nowrap;">Today</button>
           </div>
           <div style="display:flex;align-items:center;gap:7px;margin-bottom:11px;">
             <span style="font-size:10px;font-weight:600;color:#9aa3b2;letter-spacing:.08em;font-family:'IBM Plex Mono',monospace;flex:0 0 auto;">SORT BY</span>
