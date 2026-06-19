@@ -922,6 +922,7 @@ class AppComponent extends DCLogic {
   _calDayDetail(off, dst){
     const d=this.dateForOffset(off), hol=Utils.holidayName(d), dk=Utils.dateKey(d);
     if(off===0){
+      if(!Utils.isReportDay(d)) return {label:'Weekend',sub:'No reporting required',color:'#8a94a3',bg:'#f6f8fa'};
       if(this.isNoReport(0)) return {label:'No reporting',sub:hol||'Marked as a no-reporting day',color:'#b9791a',bg:'#f7efdc'};
       const rec=this.myRec(), st=rec.status||'pending';
       if(st==='present') return {label:'Checked in',sub:'Reported at '+rec.time,color:'#1f8a5b',bg:'#e7f3ec'};
