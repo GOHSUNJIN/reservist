@@ -697,7 +697,13 @@
             <span style="position:absolute;right:-2px;bottom:-2px;width:24px;height:24px;border-radius:50%;background:{{ accent }};border:2px solid #f6f7f9;display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="6" x2="12" y2="18"></line><line x1="6" y1="12" x2="18" y2="12"></line></svg></span>
             <input onChange="{{ onAvatarFile }}" type="file" accept="image/*" style="display:none;" />
           </label>
-          <div><div style="font-size:18px;font-weight:700;color:#161f30;">{{ userName }}</div><div style="font-size:13px;color:#8a94a3;">Tap photo to change</div></div>
+          <div>
+            <div style="font-size:18px;font-weight:700;color:#161f30;">{{ userName }}</div>
+            <div style="font-size:13px;color:#8a94a3;">Tap photo to change</div>
+            <sc-if value="{{ acctHasAvatar }}" hint-placeholder-val="">
+            <button onClick="{{ removeAvatar }}" style="margin-top:5px;font-size:12px;color:#c0392b;background:none;border:none;cursor:pointer;padding:0;display:block;">Remove photo</button>
+            </sc-if>
+          </div>
         </div>
 
         <div class="card-flush" style="margin-bottom:14px;">

@@ -446,6 +446,14 @@ class AppComponent extends DCLogic {
     r.readAsDataURL(f);
   };
 
+  removeAvatar = async () => {
+    const uid=this.state.currentUserId;
+    localStorage.removeItem('avatar_'+uid);
+    this.setState(s=>{ const av={...s.avatars}; delete av[uid]; return {avatars:av}; });
+    if(!this.state.demo) await DB.storage.deleteAvatar(uid).catch(()=>{});
+    this._toast('Profile photo removed.');
+  };
+
   // ── Account editing ───────────────────────────────────────────────────────
   onAcctNameEdit  = e => this.setState({acctNameEdit:e.target.value, acctNameError:'', acctNameSuccess:''});
   onAcctPwCurrent = e => this.setState({acctPwCurrent:e.target.value, acctPwError:'', acctPwSuccess:''});
@@ -1191,7 +1199,7 @@ class AppComponent extends DCLogic {
       vPresentLabel:'Checked in',
       viewListHeader, viewPercentText, viewPercentColor,
       intakeLabel, intakeRange,
-      personnelList:activeMembers.map(p=>{const av=s.avatars[p.id]||'';return{...p,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),onEditNote:this.openNote(p.id,p.notes||''),isEditingNote:s.editingNoteId===p.id,onAskDeactivate:this.askDeactivatePerson(p.id),isConfirmingDeactivate:s.confirmDeactivateId===p.id,statPresent:s.peopleStats[p.id]?.present??'-',statMc:s.peopleStats[p.id]?.mc??'-',statPct:s.peopleStats[p.id]?.pct!=null?(s.peopleStats[p.id].pct+'%'):'-',showStats:s.peopleStatsLoaded,avatarStyle:av?`background-image:url(${av});background-size:cover;background-position:center;color:transparent;`:'',avatarInitials:av?'':Utils.initials(p.name)};}),
+      personnelList:activeMembers.map(p=>{const av=s.avatars[p.id]||'';return{...p,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),onEditNote:this.openNote(p.id,p.notes||''),isEditingNote:s.editingNoteId===p.id,onAskDeactivate:this.askDeactivatePerson(p.id),isConfirmingDeactivate:s.confirmDeactivateId===p.id,statPresent:s.peopleStats[p.id]?.present??'-',statMc:s.peopleStats[p.id]?.mc??'-',statPct:s.peopleStats[p.id]?.pct!=null?(s.peopleStats[p.id].pct+'%'):'-',showStats:s.peopleStatsLoaded,avatarStyle:av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'',avatarInitials:av?'':Utils.initials(p.name)};}),
       cancelDeactivatePerson:this.cancelDeactivatePerson,
       confirmDeactivatePerson:this.confirmDeactivatePerson,
       rosterSort:s.rosterSort,
@@ -1226,7 +1234,8 @@ class AppComponent extends DCLogic {
       headerAvatarBg:avatarUrl?('url("'+avatarUrl+'")') :'none',
       headerNoAvatar:!avatarUrl,
       acctAvatarBg:avatarUrl?('url("'+avatarUrl+'")') :'none',
-      acctNoAvatar:!avatarUrl,
+      acctNoAvatar:!avatarUrl, acctHasAvatar:!!avatarUrl,
+      removeAvatar:this.removeAvatar,
       isReservistRole:s.role==='reservist',
       acctNameEdit:s.acctNameEdit, onAcctNameEdit:this.onAcctNameEdit, saveAcctName:this.saveAcctName,
       acctNameError:s.acctNameError, acctNameSuccess:s.acctNameSuccess,
