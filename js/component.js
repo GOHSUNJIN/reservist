@@ -21,7 +21,6 @@ class AppComponent extends DCLogic {
     mcMode: false, mcFileName: '', _mcFile: null,
     mcViewOpen: false, mcViewName: '', mcViewDate: '', mcViewFile: '', mcViewUrl: '',
     npName: '', npContact: '', npShift: 'AM',
-    newBatchStart: '', newBatchLabel: '',
     realtimeChannel: null,
     now: new Date(), demo: false,
   };
@@ -54,15 +53,18 @@ class AppComponent extends DCLogic {
       this.setState({authed:false,loading:false,authError:'Account setup incomplete. Please sign up again.'});
       return;
     }
-    const role = me?.role || 'reservist';
-    const batches = await DB.batches.list().catch(()=>[]);
+    const role = me.role || 'reservist';
+    const today = Utils.dateKey(new Date());
+
+    let batches = await DB.batches.list().catch(()=>[]);
+    if(role==='admin') batches = await this._ensureLiveBatch(batches);
+
     const liveIdx = batches.findIndex(b=>b.is_live);
     const activeBatchIdx = liveIdx>=0?liveIdx:0;
     const activeBatch = batches[activeBatchIdx];
-    const today = Utils.dateKey(new Date());
 
     // Auto-deactivate reservist if their batch's dekit day has passed
-    if(role==='reservist' && me){
+    if(role==='reservist'){
       const myBatch = batches.find(b=>b.id===me.batch_id);
       if(myBatch?.dekit_date && today > myBatch.dekit_date){
         await DB.personnel.deactivate(me.id).catch(()=>{});
@@ -76,23 +78,32 @@ class AppComponent extends DCLogic {
       activeBatch ? DB.personnel.list(activeBatch.id) : Promise.resolve([]),
       DB.attendance.getForDate(today),
       activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date) : Promise.resolve(new Set()),
-      me ? DB.attendance.getHistory(me.id) : Promise.resolve([]),
+      DB.attendance.getHistory(me.id),
     ]);
-
-    const nextTue = Utils.nextBatchTuesday(new Date());
-    const newBatchStart = Utils.dateKey(nextTue);
-    const newBatchLabel = Utils.batchLabel(newBatchStart);
 
     this.setState({
       authed:true, role,
       tab: role==='admin'?'overview':'checkin',
-      currentUserId: me?.id||null,
+      currentUserId: me.id,
       me, personnel, batches, activeBatchIdx,
       attendance, noReportDays, history,
-      newBatchStart, newBatchLabel,
       authError:'', loading:false, accountDeleted:false, demo:false,
     });
     if(role==='admin') this._subscribeRealtime(today);
+  }
+
+  async _ensureLiveBatch(batches){
+    const today = Utils.dateKey(new Date());
+    const live = batches.find(b=>b.is_live);
+    if(live && today <= (live.dekit_date||live.end_date)) return batches;
+    const fromDate = live?.dekit_date
+      ? Utils.addDays(new Date(live.dekit_date+'T00:00:00'), 1)
+      : new Date();
+    const nextTue = Utils.nextBatchTuesday(fromDate);
+    const {start,end,dekit} = Utils.batchDatesFrom(nextTue);
+    const label = Utils.batchLabel(Utils.dateKey(start));
+    await DB.batches.create(label, Utils.dateKey(start), Utils.dateKey(end), Utils.dateKey(dekit)).catch(()=>{});
+    return DB.batches.list().catch(()=>batches);
   }
 
   async _loadDateAttendance(off){
@@ -252,32 +263,6 @@ class AppComponent extends DCLogic {
   };
   closeMcViewer = () => this.setState({mcViewOpen:false});
 
-  // ── Batch creation ────────────────────────────────────────────────────────
-  onNewBatchStart = e => {
-    const d=e.target.value;
-    this.setState({newBatchStart:d, newBatchLabel:d?Utils.batchLabel(d):''});
-  };
-  onNewBatchLabel = e => this.setState({newBatchLabel:e.target.value});
-
-  createBatch = async () => {
-    const {newBatchStart, newBatchLabel, demo} = this.state;
-    if(!newBatchStart) return;
-    const {start,end,dekit}=Utils.batchDatesFrom(new Date(newBatchStart+'T00:00:00'));
-    const startStr=Utils.dateKey(start), endStr=Utils.dateKey(end), dekitStr=Utils.dateKey(dekit);
-    const label=newBatchLabel.trim()||Utils.batchLabel(startStr);
-    if(demo){
-      const nb={id:'demo-b-'+Date.now(),label,start_date:startStr,end_date:endStr,dekit_date:dekitStr,is_live:true};
-      this.setState(s=>({batches:[...s.batches,nb],activeBatchIdx:s.batches.length,newBatchStart:'',newBatchLabel:''}));
-      return;
-    }
-    const {data,error}=await DB.batches.create(label,startStr,endStr,dekitStr);
-    if(error||!data) return;
-    const batches=await DB.batches.list().catch(()=>this.state.batches);
-    const idx=batches.findIndex(b=>b.id===data.id);
-    const nextTue=Utils.nextBatchTuesday(Utils.addDays(new Date(newBatchStart+'T00:00:00'),7));
-    const ns=Utils.dateKey(nextTue);
-    this.setState({batches,activeBatchIdx:idx>=0?idx:0,newBatchStart:ns,newBatchLabel:Utils.batchLabel(ns)});
-  };
 
   // ── Export CSV ────────────────────────────────────────────────────────────
   exportCsv = () => {
@@ -678,11 +663,6 @@ class AppComponent extends DCLogic {
     const bs2=activeBatch?new Date(activeBatch.start_date+'T00:00:00'):null, be2=activeBatch?new Date(activeBatch.end_date+'T00:00:00'):null;
     const intakeLabel=activeBatch?activeBatch.label:'';
     const intakeRange=bs2&&be2?(Utils.fmtShort(bs2)+' to '+Utils.fmtShort(be2)):'';
-    const newBatchEndPreview=(()=>{
-      if(!s.newBatchStart) return '';
-      const {end,dekit}=Utils.batchDatesFrom(new Date(s.newBatchStart+'T00:00:00'));
-      return 'Ends '+Utils.fmtShort(end)+', dekit '+Utils.fmtShort(dekit);
-    })();
     return {
       batchChips, roster, logRows,
       statPresent:present, statMc:mc, statPending:pending, statTotal:total,
@@ -703,8 +683,6 @@ class AppComponent extends DCLogic {
       npName:s.npName, npContact:s.npContact, npShift:s.npShift,
       onNpName:this.onNpName, onNpContact:this.onNpContact, onNpRank:()=>{}, onNpShift:this.onNpShift, addPerson:this.addPerson,
       exportCsv:this.exportCsv,
-      newBatchStart:s.newBatchStart, newBatchLabel:s.newBatchLabel, newBatchEndPreview,
-      onNewBatchStart:this.onNewBatchStart, onNewBatchLabel:this.onNewBatchLabel, createBatch:this.createBatch,
       mcViewOpen:s.mcViewOpen, mcViewName:s.mcViewName, mcViewDate:s.mcViewDate,
       mcViewFile:s.mcViewFile, mcViewUrl:s.mcViewUrl, mcViewNoUrl:!s.mcViewUrl,
       closeMcViewer:this.closeMcViewer,
