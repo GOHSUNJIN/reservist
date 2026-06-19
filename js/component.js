@@ -1246,9 +1246,10 @@ class AppComponent extends DCLogic {
     const viewPercentText=viewOffset>0?(vTotal+' rostered'):(vPercent+'% reported');
     const viewPercentColor=viewOffset>0?'#8a94a3':'#1f8a5b';
     const vThirdLabel=viewOffset<0?'Absent':'Pending', vThirdVal=viewOffset<0?vAbsent:vPending, vThirdColor=viewOffset<0?'#c0392b':'#5c6678';
-    const bs2=activeBatch?new Date(activeBatch.start_date+'T00:00:00'):null, be2=activeBatch?new Date(activeBatch.end_date+'T00:00:00'):null;
-    const intakeLabel=activeBatch?activeBatch.label:'';
-    const intakeRange=bs2&&be2?(Utils.fmtShort(bs2)+' to '+Utils.fmtShort(be2)):'';
+    const liveBatch=batches.find(b=>b.is_live)||activeBatch;
+    const lbs=liveBatch?new Date(liveBatch.start_date+'T00:00:00'):null, lbe=liveBatch?new Date(liveBatch.end_date+'T00:00:00'):null;
+    const intakeLabel=liveBatch?liveBatch.label:'';
+    const intakeRange=lbs&&lbe?(Utils.fmtShort(lbs)+' to '+Utils.fmtShort(lbe)):'';
     return {
       activeChips, archivedChips, archivedCount:archivedChips.length,
       showArchivedBatches:s.showArchivedBatches,
