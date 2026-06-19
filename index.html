@@ -526,9 +526,10 @@
             <button onClick="{{ markAllPresent }}" style="padding:10px 13px;background:#1f8a5b;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">All present</button>
             </sc-if>
           </div>
-          <div style="display:flex;gap:6px;margin-bottom:11px;">
-            <button onClick="{{ setRosterSortShift }}" style="{{ rosterSortShiftStyle }}">Shift</button>
-            <button onClick="{{ setRosterSortName }}" style="{{ rosterSortNameStyle }}">Name</button>
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:11px;">
+            <span style="font-size:10px;font-weight:600;color:#9aa3b2;letter-spacing:.08em;font-family:'IBM Plex Mono',monospace;flex:0 0 auto;">SORT BY</span>
+            <button onClick="{{ setRosterSortShift }}" style="{{ rosterSortShiftStyle }}">Shift order</button>
+            <button onClick="{{ setRosterSortName }}" style="{{ rosterSortNameStyle }}">A – Z</button>
             <button onClick="{{ setRosterSortStatus }}" style="{{ rosterSortStatusStyle }}">Status</button>
           </div>
           <sc-for list="{{ filteredRoster }}" as="row" hint-placeholder-count="6">
