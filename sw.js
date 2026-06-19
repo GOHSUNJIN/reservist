@@ -1,13 +1,8 @@
-const CACHE = 'ops-v2';
+const CACHE = 'ops-v3';
 const APP_ASSETS = [
   './',
   './index.html',
   './css/styles.css',
-  './js/config.js',
-  './js/utils.js',
-  './js/db.js',
-  './js/component.js',
-  './support.js',
   './manifest.json',
   './icon.svg',
 ];
@@ -29,17 +24,25 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
+  if (!e.request.url.startsWith('http')) return;
   const url = new URL(e.request.url);
 
-  // Network-first for Supabase API and auth calls
-  if (url.hostname.includes('supabase.co') || url.hostname.includes('supabase.io')) {
+  // Network-first for Supabase, JS files, and CDN scripts — always get latest
+  if (
+    url.hostname.includes('supabase.co') ||
+    url.hostname.includes('supabase.io') ||
+    url.pathname.endsWith('.js') ||
+    url.hostname.includes('cdn.jsdelivr.net') ||
+    url.hostname.includes('fonts.googleapis.com') ||
+    url.hostname.includes('fonts.gstatic.com')
+  ) {
     e.respondWith(
       fetch(e.request).catch(() => caches.match(e.request))
     );
     return;
   }
 
-  // Cache-first for app assets
+  // Cache-first for static assets (HTML, CSS, images)
   e.respondWith(
     caches.match(e.request).then(hit => {
       if (hit) return hit;
