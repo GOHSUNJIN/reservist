@@ -573,6 +573,7 @@
             </sc-if>
             <button onClick="{{ nextDay }}" style="width:34px;height:34px;border-radius:9px;background:#222c3d;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#cdd4df" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
           </div>
+          <sc-if value="{{ viewShowReporting }}" hint-placeholder-val="">
           <div style="display:flex;gap:8px;align-items:center;">
             <input value="{{ rosterSearch }}" onInput="{{ onRosterSearch }}" placeholder="Search name..." style="flex:1;padding:10px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:16px;background:#fff;outline:none;" />
           </div>
@@ -606,6 +607,14 @@
           </sc-for>
           <sc-if value="{{ noSearchResults }}" hint-placeholder-val="">
             <div style="padding:28px 16px;text-align:center;color:#8a94a3;font-size:13px;">No results for "{{ rosterSearch }}".</div>
+          </sc-if>
+          </sc-if>
+          <sc-if value="{{ viewNoReporting }}" hint-placeholder-val="">
+          <div style="background:#fff;border:1px solid #e3e6ec;border-radius:18px;padding:32px 22px;text-align:center;">
+            <div style="width:54px;height:54px;border-radius:50%;background:#f0f2f7;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8a94a3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="8" y1="3" x2="8" y2="6"></line><line x1="16" y1="3" x2="16" y2="6"></line></svg></div>
+            <h2 style="font-size:18px;font-weight:700;margin:0 0 6px;color:#161f30;">No reporting</h2>
+            <p style="font-size:13px;color:#5c6678;margin:0;line-height:1.5;text-wrap:pretty;">{{ viewNoRepReason }}</p>
+          </div>
           </sc-if>
         </div>
         </sc-if>
@@ -704,13 +713,6 @@
             <input value="{{ npContact }}" onInput="{{ onNpContact }}" placeholder="Contact number (9xxx xxxx)" type="tel" class="field" style="margin-bottom:10px;" />
             <select value="{{ npShift }}" onChange="{{ onNpShift }}" class="field" style="margin-bottom:10px;"><option value="AM">AM shift</option><option value="PM">PM shift</option><option value="OFFICE">Office hours</option></select>
             <button onClick="{{ addPerson }}" style="width:100%;padding:12px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;">Add to roster</button>
-          </div>
-
-          <div class="card" style="padding:18px;margin-bottom:14px;">
-            <h2 style="font-size:15px;font-weight:700;margin:0 0 4px;color:#161f30;">Create batch</h2>
-            <div style="font-size:12px;color:#8a94a3;margin-bottom:14px;">Pick a Tuesday start date — end date and dekit are set automatically.</div>
-            <input value="{{ newBatchDate }}" onInput="{{ onNewBatchDate }}" type="date" class="field" style="margin-bottom:10px;" />
-            <button onClick="{{ createBatch }}" disabled="{{ batchCreating }}" style="width:100%;padding:12px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;opacity:{{ batchCreating ? 0.6 : 1 }};">{{ batchCreating ? 'Creating…' : 'Create batch' }}</button>
           </div>
 
         </div>

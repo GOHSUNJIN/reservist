@@ -1133,6 +1133,13 @@ class AppComponent extends DCLogic {
       else if(dk<todayKey) dst='past';
       else dst='work';
       let style=cellStyle(dst)+'cursor:pointer;';
+      if(dst==='past'){
+        const hr=s.history.find(r=>r.date===dk);
+        const pst=hr?.status;
+        if(pst==='present') style=cellBase+'background:#e7f3ec;color:#1f8a5b;border:2px solid #a8d5bb;cursor:pointer;';
+        else if(pst==='mc') style=cellBase+'background:#f7efdc;color:#b9791a;border:2px solid #e8c77a;cursor:pointer;';
+        else style=cellBase+'background:#f7e4e1;color:#c0392b;border:2px solid #e5a9a4;cursor:pointer;';
+      }
       if(s.selectedCalOffset===off) style+='outline:2px solid '+accent+';outline-offset:1px;';
       return {num:d.getDate(),style,off,st:dst,onClick:this.selectCalDay(off)};
     });
@@ -1304,10 +1311,11 @@ class AppComponent extends DCLogic {
     const rel=viewOffset===0?'Today':viewOffset===-1?'Yesterday':viewOffset===1?'Tomorrow':'';
     const viewDateLabel=(rel?rel+', ':'')+dlabel;
     const viewHoliday=Utils.holidayName(viewDate), viewBlocked=this.isNoReport(viewOffset);
-    const viewShowReporting=viewReportDay&&!viewBlocked, viewNoReporting=!viewShowReporting;
-    const viewDateSub=!viewReportDay?'Weekend, no reporting':viewHoliday?'Public holiday':viewBlocked?'No reporting, toggled off':viewOffset<0?'Past shift, recorded':viewOffset>0?'Scheduled':'Live now';
-    const viewNoRepReason=!viewReportDay?'This is a weekend. Reservists do not report on Saturdays or Sundays.':viewHoliday?(viewHoliday+' is a public holiday, so reservists are not required to report.'):'This day is marked as a no-reporting day, so reservists are not required to report.';
-    const showRepToggle=viewReportDay, repToggleLocked=!!viewHoliday, repToggleOn=viewBlocked;
+    const isDekit=viewDateKey===activeBatch?.dekit_date;
+    const viewShowReporting=viewReportDay&&!viewBlocked&&!isDekit, viewNoReporting=!viewShowReporting;
+    const viewDateSub=!viewReportDay?'Weekend, no reporting':viewHoliday?'Public holiday':isDekit?'Dekit day':viewBlocked?'No reporting, toggled off':viewOffset<0?'Past shift, recorded':viewOffset>0?'Scheduled':'Live now';
+    const viewNoRepReason=!viewReportDay?'This is a weekend. Reservists do not report on Saturdays or Sundays.':viewHoliday?(viewHoliday+' is a public holiday, so reservists are not required to report.'):isDekit?'Dekit day — reservists return equipment and submit forms. No regular reporting.':'This day is marked as a no-reporting day, so reservists are not required to report.';
+    const showRepToggle=viewReportDay&&!isDekit, repToggleLocked=!!viewHoliday, repToggleOn=viewBlocked;
     const noRepMsg=viewHoliday?('Public holiday ('+viewHoliday+'). Auto no-reporting, locked.'):repToggleOn?'On. Reservists are not required to report this day.':'Off. Reservists report and check in as normal.';
     const viewRoster=activeMembers.map(p=>{
       const r=viewMap[p.id]||{status:viewOffset>0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
