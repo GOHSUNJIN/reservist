@@ -327,8 +327,8 @@ class AppComponent extends DCLogic {
     );
   };
 
-  _hqLat(){ return this.state.hqLatOverride??parseFloat(this.props.hqLat)||1.3262; }
-  _hqLon(){ return this.state.hqLonOverride??parseFloat(this.props.hqLon)||103.9304; }
+  _hqLat(){ return this.state.hqLatOverride??(parseFloat(this.props.hqLat)||1.3262); }
+  _hqLon(){ return this.state.hqLonOverride??(parseFloat(this.props.hqLon)||103.9304); }
   _maxDist(){ return parseInt(this.props.hqRange)||500; }
 
   setHqFromGps = () => {
