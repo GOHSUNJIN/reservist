@@ -46,6 +46,11 @@ const Utils = {
     '2026-05-27':'Hari Raya Haji','2026-05-31':'Vesak Day','2026-06-01':'Vesak Day (observed)',
     '2026-08-09':'National Day','2026-08-10':'National Day (observed)',
     '2026-11-08':'Deepavali','2026-11-09':'Deepavali (observed)','2026-12-25':'Christmas Day',
+    '2027-01-01':"New Year's Day",'2027-02-06':'Chinese New Year','2027-02-08':'Chinese New Year (observed)',
+    '2027-03-10':'Hari Raya Puasa','2027-03-26':'Good Friday','2027-05-01':'Labour Day',
+    '2027-05-03':'Labour Day (observed)','2027-05-16':'Hari Raya Haji','2027-05-21':'Vesak Day',
+    '2027-08-09':'National Day','2027-10-29':'Deepavali','2027-12-25':'Christmas Day',
+    '2027-12-27':'Christmas Day (observed)',
   },
   holidayName(d){ return this.SG_HOLIDAYS[this.dateKey(d)]||null; },
 };
