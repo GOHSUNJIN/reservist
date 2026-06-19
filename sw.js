@@ -1,4 +1,4 @@
-const CACHE = 'ops-v3';
+const CACHE = 'ops-v4';
 const APP_ASSETS = [
   './',
   './index.html',
@@ -27,6 +27,23 @@ self.addEventListener('fetch', e => {
   if (!e.request.url.startsWith('http')) return;
   const url = new URL(e.request.url);
 
+  // Network-first for HTML — always serve the latest index so config changes
+  // (coordinates, props) take effect immediately without needing a hard refresh
+  if (url.pathname === '/' || url.pathname.endsWith('.html')) {
+    e.respondWith(
+      fetch(e.request)
+        .then(res => {
+          if (res.ok) {
+            const clone = res.clone();
+            caches.open(CACHE).then(c => c.put(e.request, clone)).catch(() => {});
+          }
+          return res;
+        })
+        .catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
   // Network-first for Supabase, JS files, and CDN scripts — always get latest
   if (
     url.hostname.includes('supabase.co') ||
@@ -42,7 +59,7 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Cache-first for static assets (HTML, CSS, images)
+  // Cache-first for CSS and images
   e.respondWith(
     caches.match(e.request).then(hit => {
       if (hit) return hit;
