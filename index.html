@@ -434,23 +434,38 @@
 
         <!-- ===== ADMIN BATCH SELECTOR (shared across all admin tabs) ===== -->
         <sc-if value="{{ isAdmin }}" hint-placeholder-val="">
-        <div style="display:flex;align-items:center;gap:7px;margin-bottom:11px;">
-          <span style="font-size:10px;font-weight:600;color:#9aa3b2;letter-spacing:.08em;font-family:'IBM Plex Mono',monospace;flex:0 0 auto;">BATCH</span>
-          <div style="display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;flex:1;">
-            <sc-for list="{{ batchChips }}" as="b" hint-placeholder-count="2">
+        <div style="margin-bottom:11px;">
+          <div style="display:flex;align-items:center;gap:7px;margin-bottom:6px;">
+            <span style="font-size:10px;font-weight:600;color:#9aa3b2;letter-spacing:.08em;font-family:'IBM Plex Mono',monospace;flex:0 0 auto;">BATCH</span>
+            <div style="display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;flex:1;">
+              <sc-for list="{{ activeChips }}" as="b" hint-placeholder-count="2">
+                <button onClick="{{ b.onClick }}" style="{{ b.style }}">
+                  <span style="font-size:12.5px;font-weight:600;display:block;">{{ b.label }}</span>
+                  <span style="font-size:9.5px;font-weight:500;font-family:'IBM Plex Mono',monospace;opacity:.75;display:block;margin-top:1px;">{{ b.range }}</span>
+                </button>
+              </sc-for>
+            </div>
+            <sc-if value="{{ archivedCount }}" hint-placeholder-val="">
+              <button onClick="{{ toggleArchivedBatches }}" style="flex:0 0 auto;padding:5px 10px;border-radius:7px;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;border:1px solid #d4d9e2;background:#f6f8fa;color:#5c6678;">Archived</button>
+            </sc-if>
+            <sc-if value="{{ batchLoading }}" hint-placeholder-val="">
+              <div style="flex:0 0 auto;width:18px;height:18px;border-radius:50%;border:2px solid #d4d9e2;border-top-color:{{ accent }};animation:spin 0.7s linear infinite;"></div>
+            </sc-if>
+          </div>
+          <sc-if value="{{ showArchivedBatches }}" hint-placeholder-val="">
+          <div style="display:flex;gap:7px;overflow-x:auto;padding-bottom:4px;margin-bottom:6px;">
+            <sc-for list="{{ archivedChips }}" as="b" hint-placeholder-count="2">
               <button onClick="{{ b.onClick }}" style="{{ b.style }}">
                 <span style="font-size:12.5px;font-weight:600;display:block;">{{ b.label }}</span>
                 <span style="font-size:9.5px;font-weight:500;font-family:'IBM Plex Mono',monospace;opacity:.75;display:block;margin-top:1px;">{{ b.range }}</span>
               </button>
             </sc-for>
           </div>
-          <sc-if value="{{ batchLoading }}" hint-placeholder-val="">
-            <div style="flex:0 0 auto;width:18px;height:18px;border-radius:50%;border:2px solid #d4d9e2;border-top-color:{{ accent }};animation:spin 0.7s linear infinite;"></div>
           </sc-if>
-        </div>
-        <div style="display:flex;gap:7px;align-items:center;margin-bottom:4px;">
-          <input value="{{ batchJumpDate }}" onInput="{{ onBatchJumpDate }}" type="date" style="flex:1;padding:7px 10px;border:1px solid #d4d9e2;border-radius:8px;font-size:13px;background:#fff;outline:none;color:#36404f;" />
-          <button onClick="{{ jumpToDate }}" style="padding:7px 12px;background:#fff;border:1px solid #d4d9e2;border-radius:8px;font-size:12.5px;font-weight:600;color:#36404f;cursor:pointer;white-space:nowrap;">Jump to</button>
+          <div style="display:flex;gap:7px;align-items:center;">
+            <input value="{{ batchJumpDate }}" onInput="{{ onBatchJumpDate }}" type="date" style="flex:1;padding:7px 10px;border:1px solid #d4d9e2;border-radius:8px;font-size:13px;background:#fff;outline:none;color:#36404f;" />
+            <button onClick="{{ jumpToDate }}" style="padding:7px 12px;background:#fff;border:1px solid #d4d9e2;border-radius:8px;font-size:12.5px;font-weight:600;color:#36404f;cursor:pointer;white-space:nowrap;">Jump to</button>
+          </div>
         </div>
         </sc-if>
 
@@ -523,9 +538,6 @@
           <div style="display:flex;gap:8px;margin-bottom:7px;align-items:center;">
             <input value="{{ rosterSearch }}" onInput="{{ onRosterSearch }}" placeholder="Search name..." style="flex:1;padding:10px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:16px;background:#fff;outline:none;" />
             <button onClick="{{ goToday }}" style="padding:10px 13px;background:#fff;border:1px solid #d4d9e2;border-radius:9px;font-size:13px;font-weight:600;color:#5c6678;cursor:pointer;white-space:nowrap;">Today</button>
-            <sc-if value="{{ pendingCount }}" hint-placeholder-val="">
-            <button onClick="{{ markAllPresent }}" style="padding:10px 13px;background:#1f8a5b;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">All present</button>
-            </sc-if>
           </div>
           <div style="display:flex;align-items:center;gap:7px;margin-bottom:11px;">
             <span style="font-size:10px;font-weight:600;color:#9aa3b2;letter-spacing:.08em;font-family:'IBM Plex Mono',monospace;flex:0 0 auto;">SORT BY</span>
@@ -534,21 +546,21 @@
             <button onClick="{{ setRosterSortStatus }}" style="{{ rosterSortStatusStyle }}">Status</button>
           </div>
           <sc-for list="{{ filteredRoster }}" as="row" hint-placeholder-count="6">
-            <div style="background:#fff;border:1px solid #e3e6ec;border-radius:14px;padding:14px 16px;">
-              <div style="display:flex;align-items:center;gap:11px;margin-bottom:12px;">
-                <div class="avatar-sm">{{ row.initials }}</div>
-                <div style="flex:1;min-width:0;"><div style="font-size:14px;font-weight:600;color:#161f30;">{{ row.name }}</div><div style="font-size:11.5px;color:#8a94a3;">{{ row.shiftLabel }}</div></div>
+            <div style="{{ row.cardStyle }}">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;">
+                <div class="avatar-sm" style="flex:0 0 auto;">{{ row.initials }}</div>
+                <div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div><div style="font-size:11.5px;color:#8a94a3;">{{ row.shiftLabel }}</div></div>
                 <span class="badge" style="color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
               </div>
-              <select value="{{ row.shift }}" onChange="{{ row.onShiftChange }}" style="width:100%;padding:7px 10px;border:1px solid #d4d9e2;border-radius:8px;font-size:13px;color:#36404f;background:#f6f8fa;outline:none;margin-bottom:9px;">
-                <option value="AM">AM shift, 0830–1530</option>
-                <option value="PM">PM shift, 1530–2230</option>
-                <option value="OFFICE">Office hours, 0900–1800</option>
-              </select>
-              <div style="display:flex;gap:7px;">
-                <button onClick="{{ row.markPresent }}" class="roster-btn roster-btn-present">Present</button>
-                <button onClick="{{ row.markMc }}" class="roster-btn roster-btn-mc">MC</button>
-                <button onClick="{{ row.markAbsent }}" class="roster-btn roster-btn-absent">Absent</button>
+              <div style="display:flex;gap:6px;align-items:center;">
+                <select onChange="{{ row.onShiftChange }}" style="flex:1.3;min-width:0;padding:6px 8px;border:1px solid #d4d9e2;border-radius:7px;font-size:12px;color:#36404f;background:#f6f8fa;outline:none;">
+                  <option value="AM">AM, 0830–1530</option>
+                  <option value="PM">PM, 1530–2230</option>
+                  <option value="OFFICE">Office, 0900–1800</option>
+                </select>
+                <button onClick="{{ row.markPresent }}" class="roster-btn roster-btn-present" style="flex:1;padding:6px 4px;font-size:12px;">Present</button>
+                <button onClick="{{ row.markMc }}" class="roster-btn roster-btn-mc" style="flex:0.7;padding:6px 4px;font-size:12px;">MC</button>
+                <button onClick="{{ row.markAbsent }}" class="roster-btn roster-btn-absent" style="flex:1;padding:6px 4px;font-size:12px;">Absent</button>
               </div>
             </div>
           </sc-for>
@@ -639,29 +651,6 @@
             <button onClick="{{ addPerson }}" style="width:100%;padding:12px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;">Add to roster</button>
           </div>
 
-          <div class="card" style="padding:18px;margin-bottom:14px;">
-            <h2 style="font-size:15px;font-weight:700;margin:0 0 6px;color:#161f30;">Create new batch</h2>
-            <div style="font-size:12px;color:#8a94a3;margin-bottom:12px;line-height:1.5;">Set the start date — end date and dekit day are calculated automatically.</div>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <input value="{{ newBatchDate }}" onInput="{{ onNewBatchDate }}" type="date" style="flex:1;padding:9px 11px;border:1px solid #d4d9e2;border-radius:9px;font-size:14px;background:#f6f8fa;outline:none;" />
-              <button onClick="{{ createBatch }}" style="padding:9px 14px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Create</button>
-            </div>
-          </div>
-
-          <div class="card" style="padding:14px 16px;margin-top:14px;">
-            <div class="section-label" style="margin-bottom:4px;">TEST DATE OVERRIDE</div>
-            <div style="font-size:12px;color:#8a94a3;margin-bottom:10px;line-height:1.5;">Set a fake "today" to preview batch transitions.</div>
-            <div style="display:flex;gap:8px;align-items:center;">
-              <input value="{{ testDateInput }}" onInput="{{ onTestDateInput }}" type="date" style="flex:1;padding:9px 11px;border:1px solid #d4d9e2;border-radius:9px;font-size:14px;background:#f6f8fa;outline:none;" />
-              <button onClick="{{ setTestDate }}" style="padding:9px 14px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Set</button>
-            </div>
-            <sc-if value="{{ hasTestDate }}" hint-placeholder-val="">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:9px;background:#f7efdc;border-radius:8px;padding:8px 11px;">
-              <span style="font-size:12px;color:#b9791a;font-family:'IBM Plex Mono',monospace;">Active: {{ testDate }}</span>
-              <button onClick="{{ clearTestDate }}" style="background:none;border:none;cursor:pointer;font-size:12px;font-weight:600;color:#b9791a;padding:0;">Clear</button>
-            </div>
-            </sc-if>
-          </div>
 
         </div>
         </sc-if>
