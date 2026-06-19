@@ -744,22 +744,16 @@ class AppComponent extends DCLogic {
   selectCalDay = off => () => this.setState(s=>({selectedCalOffset:s.selectedCalOffset===off?null:off}));
   goPeople = () => { this.setState({tab:'people',peopleStatsLoaded:false}); this.loadPeopleStats(); this.loadRosterAvatars(); };
 
-  loadRosterAvatars = () => {
+  loadRosterAvatars = async () => {
     const {batches,activeBatchIdx,demo,batchMembersCache,personnel}=this.state;
     if(demo) return;
     const batch=batches[activeBatchIdx||0];
     const members=batch?.is_live?personnel:(batchMembersCache[batch?.id]||[]);
-    // Only attempt IDs not already loaded; probe-load each URL so 404s don't
-    // set a URL in state (which would hide initials via color:transparent)
     const ids=members.map(p=>p.id).filter(id=>!this.state.avatars[id]);
     if(!ids.length) return;
-    for(const id of ids){
-      const url=DB.storage.getAvatarUrl(id);
-      if(!url) continue;
-      const img=new Image();
-      img.onload=()=>this.setState(s=>({avatars:{...s.avatars,[id]:url}}));
-      img.src=url;
-    }
+    const existing=await DB.storage.listAvatarIds().catch(()=>new Set());
+    const urls=DB.storage.getAvatarUrls(ids.filter(id=>existing.has(id)));
+    if(Object.keys(urls).length) this.setState(s=>({avatars:{...s.avatars,...urls}}));
   };
 
   loadPeopleStats = async () => {

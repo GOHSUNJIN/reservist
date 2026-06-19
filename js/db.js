@@ -229,6 +229,11 @@ const DB = {
       }
       return result;
     },
+
+    async listAvatarIds() {
+      const { data } = await _db.storage.from('avatars').list();
+      return new Set((data || []).map(f => f.name));
+    },
   },
 
   // ── Realtime ──────────────────────────────────────────────────────────────
