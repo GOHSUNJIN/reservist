@@ -269,7 +269,7 @@ class AppComponent extends DCLogic {
   };
 
   // ── Account ───────────────────────────────────────────────────────────────
-  headerChipClick = () => { if(this.state.role==='reservist') this.setState({accountOpen:true}); else this.logout(); };
+  headerChipClick = () => this.setState({accountOpen:true});
   closeAccount= () => this.setState({accountOpen:false, confirmDelete:false});
   askDelete   = () => this.setState({confirmDelete:true});
   cancelDelete= () => this.setState({confirmDelete:false});
@@ -465,7 +465,7 @@ class AppComponent extends DCLogic {
 
   // ── Render helpers ────────────────────────────────────────────────────────
   _buildAuth(s, accent){
-    const activeBatch=s.batches[s.activeBatchIdx||0];
+    const activeBatch=s.batches.find(b=>b.is_live)||s.batches[0];
     const amCount=s.personnel.filter(p=>p.shift==='AM').length;
     const pmCount=s.personnel.filter(p=>p.shift==='PM').length;
     const amFull=amCount>=2, pmFull=pmCount>=2;
