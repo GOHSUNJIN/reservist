@@ -584,18 +584,31 @@ class AppComponent extends DCLogic {
 
   onBatchJumpDate = e => this.setState({batchJumpDate:e.target.value});
   jumpToDate = async () => {
-    const {batchJumpDate, batches}=this.state;
-    if(!batchJumpDate||!batches.length) return;
+    const {batchJumpDate, demo}=this.state;
+    if(!batchJumpDate) return;
+    this.setState({batchLoading:true, batchJumpDate:''});
+    // Fetch fresh batch list and create forward batches to cover the target date if needed
+    let batches=this.state.batches;
+    if(!demo){
+      const sorted=[...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
+      const lastBatch=sorted[sorted.length-1];
+      const lastEnd=lastBatch?.dekit_date||lastBatch?.end_date||'';
+      if(batchJumpDate>lastEnd){
+        // Target is beyond all existing batches — create until covered + 3 ahead
+        batches=await this._ensureLiveBatch(batches, batchJumpDate);
+        batches=await this._ensureForwardBatches(batches);
+        this.setState({batches});
+      }
+    }
     let idx=batches.findIndex(b=>batchJumpDate>=b.start_date&&batchJumpDate<=(b.dekit_date||b.end_date));
     if(idx===-1){
       let bestDiff=Infinity;
       batches.forEach((b,i)=>{
         const diff=Math.abs(new Date(b.start_date)-new Date(batchJumpDate+'T00:00:00'));
-        if(diff<bestDiff){ bestDiff=diff; idx=i; }
+        if(diff<bestDiff){bestDiff=diff;idx=i;}
       });
     }
-    if(idx===-1) return;
-    this.setState({batchJumpDate:''});
+    if(idx===-1){this.setState({batchLoading:false});return;}
     await this.setBatch(idx)();
   };
 
