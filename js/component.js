@@ -44,6 +44,7 @@ class AppComponent extends DCLogic {
     peopleStats: {}, peopleStatsLoaded: false,
     confirmDeactivateId: null,
     showArchivedBatches: false,
+    noReportDaysCache: {},
   };
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
@@ -259,7 +260,7 @@ class AppComponent extends DCLogic {
       }
     }
     await this._afterLogin(user);
-    this.setState({suName:'', suContact:'', suPassword:'', personnel:members});
+    this.setState({suName:'', suContact:'', suPassword:''});
   };
 
   logout = async () => {
@@ -279,7 +280,7 @@ class AppComponent extends DCLogic {
       batchJumpDate:Utils.dateKey(new Date()),
       toast:null, rosterSort:'shift', newBatchDate:'',
       peopleStats:{}, peopleStatsLoaded:false, confirmDeactivateId:null, showArchivedBatches:false,
-      noAvatarIds:new Set(),
+      noAvatarIds:new Set(), noReportDaysCache:{},
     });
   };
 
@@ -589,7 +590,12 @@ class AppComponent extends DCLogic {
     if(!Utils.isReportDay(d)||Utils.holidayName(d)) return;
     const dk=Utils.dateKey(d);
     const isNowOn = this.state.demo ? !this.state.noReportDays.has(dk) : await DB.noReportDays.toggle(dk);
-    this.setState(s=>{ const nd=new Set(s.noReportDays); isNowOn?nd.add(dk):nd.delete(dk); return {noReportDays:nd}; });
+    const batchId=this.state.batches[this.state.activeBatchIdx||0]?.id;
+    this.setState(s=>{
+      const nd=new Set(s.noReportDays); isNowOn?nd.add(dk):nd.delete(dk);
+      const noReportDaysCache=batchId?{...s.noReportDaysCache,[batchId]:nd}:s.noReportDaysCache;
+      return {noReportDays:nd,noReportDaysCache};
+    });
   };
 
   _navToOffset = async (off) => {
@@ -611,11 +617,12 @@ class AppComponent extends DCLogic {
       this.setState({batchLoading:true});
       let members=this.state.batchMembersCache[b.id];
       if(!members&&!b.is_live){ members=await DB.personnel.list(b.id,false).catch(()=>[]); this.setState(s=>({batchMembersCache:{...s.batchMembersCache,[b.id]:members}})); }
+      const cachedNrd=this.state.noReportDaysCache[b.id];
       const [nrd,attMap]=await Promise.all([
-        DB.noReportDays.list(b.start_date,b.dekit_date||b.end_date).catch(()=>new Set()),
+        cachedNrd?Promise.resolve(cachedNrd):DB.noReportDays.list(b.start_date,b.dekit_date||b.end_date).catch(()=>new Set()),
         b.is_live?Promise.resolve({}):DB.attendance.getForBatch(b.start_date,b.end_date).catch(()=>({})),
       ]);
-      this.setState(s=>({activeBatchIdx:ni,viewOffset:off,selectedCalOffset:null,attendanceCache:b.is_live?{}:{...s.attendanceCache,...attMap},noReportDays:nrd,batchLoading:false}));
+      this.setState(s=>({activeBatchIdx:ni,viewOffset:off,selectedCalOffset:null,attendanceCache:b.is_live?{}:{...s.attendanceCache,...attMap},noReportDays:nrd,noReportDaysCache:cachedNrd?s.noReportDaysCache:{...s.noReportDaysCache,[b.id]:nrd},batchLoading:false}));
       return;
     }
     this.setState({viewOffset:off});
@@ -635,14 +642,17 @@ class AppComponent extends DCLogic {
       members = await DB.personnel.list(b.id, false).catch(()=>[]);
       this.setState(s=>({batchMembersCache:{...s.batchMembersCache,[b.id]:members}}));
     }
+    const cachedNrd=this.state.noReportDaysCache[b.id];
     const [noReportDays, batchAttMap] = await Promise.all([
-      DB.noReportDays.list(b.start_date, b.dekit_date||b.end_date).catch(()=>new Set()),
+      cachedNrd?Promise.resolve(cachedNrd):DB.noReportDays.list(b.start_date, b.dekit_date||b.end_date).catch(()=>new Set()),
       b.is_live ? Promise.resolve({}) : DB.attendance.getForBatch(b.start_date, b.end_date).catch(()=>({})),
     ]);
     this.setState(s=>({
       activeBatchIdx:i, viewOffset:off, selectedCalOffset:null,
       attendanceCache: b.is_live ? {} : {...s.attendanceCache, ...batchAttMap},
-      noReportDays, batchLoading:false,
+      noReportDays,
+      noReportDaysCache: cachedNrd?s.noReportDaysCache:{...s.noReportDaysCache,[b.id]:noReportDays},
+      batchLoading:false,
     }));
   };
 
@@ -743,7 +753,12 @@ class AppComponent extends DCLogic {
       activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date) : Promise.resolve(new Set()),
     ]);
     const history = role==='reservist' ? await DB.attendance.getHistory(me.id).catch(()=>[]) : this.state.history;
-    this.setState({attendance, noReportDays, history, attendanceCache:{}});
+    let attendanceCache = {};
+    if(activeBatch && !activeBatch.is_live){
+      attendanceCache = await DB.attendance.getForBatch(activeBatch.start_date, activeBatch.end_date).catch(()=>({}));
+    }
+    const noReportDaysCache = activeBatch ? {[activeBatch.id]: noReportDays} : {};
+    this.setState({attendance, noReportDays, history, attendanceCache, noReportDaysCache});
   };
 
   // ── Navigation ────────────────────────────────────────────────────────────
@@ -876,7 +891,8 @@ class AppComponent extends DCLogic {
       return {label:'Pending',sub:'You have not checked in yet today',color:'#5c6678',bg:'#eceef2'};
     }
     if(hol) return {label:'Public holiday',sub:hol+', no reporting',color:'#b9791a',bg:'#f7efdc'};
-    if(dst==='ph') return {label:'No reporting',sub:Utils.isReportDay(d)?'Marked as a no-reporting day':'No reporting required',color:'#b9791a',bg:'#f7efdc'};
+    if(dst==='ph') return {label:'Public holiday',sub:'No reporting required',color:'#b9791a',bg:'#f7efdc'};
+    if(dst==='nr') return {label:'No reporting',sub:'Marked as a no-reporting day',color:'#8a94a3',bg:'#f0f2f7'};
     if(dst==='dekit') return {label:'Dekit day',sub:'Return equipment and submit meal allowance forms',color:'#161f30',bg:'#eceef2'};
     if(dst==='end') return {label:off<0?'Reporting day':'Upcoming',sub:'Last reporting day of your cycle',color:'#5c6678',bg:'#eceef2'};
     if(dst==='work'||dst==='today'){
@@ -1046,6 +1062,7 @@ class AppComponent extends DCLogic {
     const cellStyle=st=>{
       if(st==='today') return cellBase+'background:'+accent+';color:#fff;';
       if(st==='ph')    return cellBase+'background:#f7efdc;color:#b9791a;';
+      if(st==='nr')    return cellBase+'background:#f0f2f7;color:#8a94a3;border:1px dashed #c4c9d4;';
       if(st==='work')  return cellBase+'background:#fff;border:1px solid #e3e6ec;color:#161f30;';
       if(st==='end')   return cellBase+'background:#fff;border:1.5px solid '+accent+';color:'+accent+';';
       if(st==='dekit') return cellBase+'background:#131a27;color:#fff;';
@@ -1062,7 +1079,8 @@ class AppComponent extends DCLogic {
       else if(dk>beKey) dst='ph';
       else if(dk===beKey) dst=dk===todayKey?'today':'end';
       else if(isWknd) dst='off';
-      else if(isHol||isNoRep) dst='ph';
+      else if(isHol) dst='ph';
+      else if(isNoRep) dst='nr';
       else if(dk===todayKey) dst='today';
       else dst='work';
       let style=cellStyle(dst)+'cursor:pointer;';
