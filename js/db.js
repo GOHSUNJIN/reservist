@@ -209,6 +209,11 @@ const DB = {
       return data?.publicUrl || null;
     },
 
+    async deleteAvatar(userId) {
+      const { error } = await _db.storage.from('avatars').remove([userId]);
+      return { error };
+    },
+
     getAvatarUrls(ids) {
       const result = {};
       for(const id of ids){
