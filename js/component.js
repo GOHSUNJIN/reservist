@@ -42,11 +42,16 @@ class AppComponent extends DCLogic {
     newBatchDate: '',
     peopleStats: {}, peopleStatsLoaded: false,
     confirmDeactivateId: null,
+    hqLatOverride: null, hqLonOverride: null,
+    hqGpsSaving: false,
   };
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
   componentDidMount(){
     this._t = setInterval(()=>this.setState({now:new Date()}), 1000);
+    const savedLat=parseFloat(localStorage.getItem('hqLat')||'');
+    const savedLon=parseFloat(localStorage.getItem('hqLon')||'');
+    if(!isNaN(savedLat)&&!isNaN(savedLon)) this.setState({hqLatOverride:savedLat,hqLonOverride:savedLon});
     this._init();
     this._onOnline = async () => {
       this.setState({isOnline:true});
@@ -91,9 +96,8 @@ class AppComponent extends DCLogic {
       return;
     }
     // Load persisted avatar in background
-    DB.storage.getAvatarUrl(me.id).then(url=>{
-      if(url) this.setState(s=>({avatars:{...s.avatars,[me.id]:url}}));
-    }).catch(()=>{});
+    const meAvatarUrl = DB.storage.getAvatarUrl(me.id);
+    if(meAvatarUrl) this.setState(s=>({avatars:{...s.avatars,[me.id]:meAvatarUrl}}));
     const role = me.role || 'reservist';
     const today = Utils.dateKey(this.baseDate());
 
@@ -262,6 +266,7 @@ class AppComponent extends DCLogic {
       batchJumpDate:'',
       toast:null, rosterSort:'shift', newBatchDate:'',
       peopleStats:{}, peopleStatsLoaded:false, confirmDeactivateId:null,
+      hqGpsSaving:false,
     });
   };
 
@@ -322,9 +327,29 @@ class AppComponent extends DCLogic {
     );
   };
 
-  _hqLat(){ return parseFloat(this.props.hqLat)||1.3262; }
-  _hqLon(){ return parseFloat(this.props.hqLon)||103.9304; }
+  _hqLat(){ return this.state.hqLatOverride??parseFloat(this.props.hqLat)||1.3262; }
+  _hqLon(){ return this.state.hqLonOverride??parseFloat(this.props.hqLon)||103.9304; }
   _maxDist(){ return parseInt(this.props.hqRange)||500; }
+
+  setHqFromGps = () => {
+    if(!navigator.geolocation){ this._toast('GPS not available.','error'); return; }
+    this.setState({hqGpsSaving:true});
+    navigator.geolocation.getCurrentPosition(
+      pos=>{
+        const lat=pos.coords.latitude, lon=pos.coords.longitude;
+        localStorage.setItem('hqLat',lat); localStorage.setItem('hqLon',lon);
+        this.setState({hqLatOverride:lat,hqLonOverride:lon,hqGpsSaving:false,locStatus:'idle'});
+        this._toast('HQ location saved.');
+      },
+      ()=>{ this.setState({hqGpsSaving:false}); this._toast('Could not get GPS.','error'); },
+      {enableHighAccuracy:true,timeout:10000}
+    );
+  };
+  clearHqLocation = () => {
+    localStorage.removeItem('hqLat'); localStorage.removeItem('hqLon');
+    this.setState({hqLatOverride:null,hqLonOverride:null,locStatus:'idle'});
+    this._toast('HQ reset to default.');
+  };
   _haversine(lat1,lon1,lat2,lon2){
     const R=6371000, r=Math.PI/180;
     const dLat=(lat2-lat1)*r, dLon=(lon2-lon1)*r;
@@ -357,7 +382,8 @@ class AppComponent extends DCLogic {
     let mc=this.state.mcFileName||'medical-cert.pdf';
     if(!this.state.demo && this.state._mcFile){
       const {path,error}=await DB.storage.uploadMc(this.state.currentUserId, today, this.state._mcFile).catch(e=>({path:mc,error:e}));
-      if(!error) mc=path;
+      if(error) this._toast('File upload failed — MC recorded without attachment.','error');
+      else mc=path;
     }
     if(!this.state.demo) await DB.attendance.upsert(this.state.currentUserId, today, 'mc', {mc});
     this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:{status:'mc',time:'-',mc}},mcMode:false,_mcFile:null}));
@@ -431,8 +457,12 @@ class AppComponent extends DCLogic {
       if(!this.state.demo){
         const uid=this.state.currentUserId;
         DB.storage.uploadAvatar(uid, f)
-          .then(({error})=>{ if(!error) return DB.storage.getAvatarUrl(uid); })
-          .then(url=>{ if(url) this.setState(s=>({avatars:{...s.avatars,[uid]:url}})); })
+          .then(({error})=>{
+            if(!error){
+              const url=DB.storage.getAvatarUrl(uid);
+              if(url) this.setState(s=>({avatars:{...s.avatars,[uid]:url}}));
+            }
+          })
           .catch(()=>{});
       }
     };
@@ -674,7 +704,18 @@ class AppComponent extends DCLogic {
   go = t => () => this.setState({tab:t});
   setRolesTab  = k => () => this.setState({rolesTab:k});
   selectCalDay = off => () => this.setState(s=>({selectedCalOffset:s.selectedCalOffset===off?null:off}));
-  goPeople = () => { this.setState({tab:'people',peopleStatsLoaded:false}); this.loadPeopleStats(); };
+  goPeople = () => { this.setState({tab:'people',peopleStatsLoaded:false}); this.loadPeopleStats(); this.loadRosterAvatars(); };
+
+  loadRosterAvatars = () => {
+    const {batches,activeBatchIdx,demo,batchMembersCache,personnel}=this.state;
+    if(demo) return;
+    const batch=batches[activeBatchIdx||0];
+    const members=batch?.is_live?personnel:(batchMembersCache[batch?.id]||[]);
+    const ids=members.map(p=>p.id).filter(id=>!this.state.avatars[id]);
+    if(!ids.length) return;
+    const urls=DB.storage.getAvatarUrls(ids);
+    if(Object.keys(urls).length) this.setState(s=>({avatars:{...s.avatars,...urls}}));
+  };
 
   loadPeopleStats = async () => {
     const {batches,activeBatchIdx,personnel,demo}=this.state;
@@ -1128,7 +1169,7 @@ class AppComponent extends DCLogic {
       vPresentLabel:'Checked in',
       viewListHeader, viewPercentText, viewPercentColor,
       intakeLabel, intakeRange,
-      personnelList:activeMembers.map(p=>({...p,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),onEditNote:this.openNote(p.id,p.notes||''),isEditingNote:s.editingNoteId===p.id,onAskDeactivate:this.askDeactivatePerson(p.id),isConfirmingDeactivate:s.confirmDeactivateId===p.id,statPresent:s.peopleStats[p.id]?.present??'-',statMc:s.peopleStats[p.id]?.mc??'-',statPct:s.peopleStats[p.id]?.pct!=null?(s.peopleStats[p.id].pct+'%'):'-',showStats:s.peopleStatsLoaded})),
+      personnelList:activeMembers.map(p=>({...p,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),onEditNote:this.openNote(p.id,p.notes||''),isEditingNote:s.editingNoteId===p.id,onAskDeactivate:this.askDeactivatePerson(p.id),isConfirmingDeactivate:s.confirmDeactivateId===p.id,statPresent:s.peopleStats[p.id]?.present??'-',statMc:s.peopleStats[p.id]?.mc??'-',statPct:s.peopleStats[p.id]?.pct!=null?(s.peopleStats[p.id].pct+'%'):'-',showStats:s.peopleStatsLoaded,avatarUrl:s.avatars[p.id]||'',hasAvatar:!!s.avatars[p.id],noAvatar:!s.avatars[p.id]})),
       cancelDeactivatePerson:this.cancelDeactivatePerson,
       confirmDeactivatePerson:this.confirmDeactivatePerson,
       rosterSort:s.rosterSort,
@@ -1172,6 +1213,12 @@ class AppComponent extends DCLogic {
       saveAcctPw:this.saveAcctPw,
       acctPwError:s.acctPwError, acctPwSuccess:s.acctPwSuccess,
       acctSaving:s.acctSaving,
+      hqLatDisplay:this._hqLat().toFixed(5),
+      hqLonDisplay:this._hqLon().toFixed(5),
+      hasHqOverride:!!(s.hqLatOverride),
+      hqGpsSaving:s.hqGpsSaving,
+      setHqFromGps:this.setHqFromGps,
+      clearHqLocation:this.clearHqLocation,
     };
   }
 

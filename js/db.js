@@ -204,9 +204,18 @@ const DB = {
       return { path: data?.path || userId, error };
     },
 
-    async getAvatarUrl(userId) {
-      const { data } = await _db.storage.from('avatars').createSignedUrl(userId, 604800);
-      return data?.signedUrl || null;
+    getAvatarUrl(userId) {
+      const { data } = _db.storage.from('avatars').getPublicUrl(userId);
+      return data?.publicUrl || null;
+    },
+
+    getAvatarUrls(ids) {
+      const result = {};
+      for(const id of ids){
+        const { data } = _db.storage.from('avatars').getPublicUrl(id);
+        if(data?.publicUrl) result[id] = data.publicUrl;
+      }
+      return result;
     },
   },
 

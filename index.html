@@ -589,7 +589,8 @@
             <sc-for list="{{ personnelList }}" as="p" hint-placeholder-count="6">
               <div style="border-bottom:1px solid #f2f4f7;padding:12px 16px;">
                 <div style="display:flex;align-items:center;gap:12px;">
-                  <div class="avatar-sm">{{ p.initials }}</div>
+                  <sc-if value="{{ p.hasAvatar }}" hint-placeholder-val=""><img src="{{ p.avatarUrl }}" style="width:36px;height:36px;border-radius:50%;object-fit:cover;flex:0 0 auto;" /></sc-if>
+                  <sc-if value="{{ p.noAvatar }}" hint-placeholder-val="{{ true }}"><div class="avatar-sm">{{ p.initials }}</div></sc-if>
                   <div style="flex:1;min-width:0;">
                     <div style="font-size:14px;font-weight:600;color:#161f30;">{{ p.name }}</div>
                     <div style="font-size:11.5px;color:#8a94a3;">{{ p.contact }}</div>
@@ -723,6 +724,14 @@
           <sc-if value="{{ acctNameError }}" hint-placeholder-val=""><div style="color:#c0392b;font-size:12.5px;margin-top:6px;">{{ acctNameError }}</div></sc-if>
           <sc-if value="{{ acctNameSuccess }}" hint-placeholder-val=""><div style="color:#1f8a5b;font-size:12.5px;margin-top:6px;">{{ acctNameSuccess }}</div></sc-if>
           <button onClick="{{ saveAcctName }}" disabled="{{ acctSaving }}" style="width:100%;padding:11px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;opacity:{{ acctSaving ? 0.6 : 1 }};">Save name</button>
+        </div>
+        <div class="card" style="padding:16px;margin-bottom:14px;">
+          <div class="section-label" style="margin-bottom:6px;">HQ LOCATION</div>
+          <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#5c6678;margin-bottom:10px;">{{ hqLatDisplay }}, {{ hqLonDisplay }}</div>
+          <button onClick="{{ setHqFromGps }}" style="width:100%;padding:10px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:13.5px;font-weight:600;cursor:pointer;margin-bottom:8px;">{{ hqGpsSaving ? 'Getting location…' : 'Set to my current GPS' }}</button>
+          <sc-if value="{{ hasHqOverride }}" hint-placeholder-val="">
+          <button onClick="{{ clearHqLocation }}" style="width:100%;padding:10px;background:#fff;border:1px solid #d4d9e2;color:#5c6678;border-radius:9px;font-size:13.5px;font-weight:600;cursor:pointer;">Reset to default</button>
+          </sc-if>
         </div>
         </sc-if>
 
