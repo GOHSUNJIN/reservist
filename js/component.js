@@ -32,6 +32,16 @@ class AppComponent extends DCLogic {
     acctPwError: '', acctPwSuccess: '',
     acctNameError: '', acctNameSuccess: '',
     acctSaving: false,
+    confirmUndo: false,
+    addPersonSuccess: '', addPersonError: '',
+    batchLoading: false,
+    editingNoteId: null, editingNoteText: '',
+    batchJumpDate: '',
+    toast: null,
+    rosterSort: 'shift',
+    newBatchDate: '',
+    peopleStats: {}, peopleStatsLoaded: false,
+    confirmDeactivateId: null,
   };
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
@@ -52,6 +62,7 @@ class AppComponent extends DCLogic {
     window.addEventListener('offline', this._onOffline);
   }
   componentWillUnmount(){
+    if(this._toastTimer) clearTimeout(this._toastTimer);
     clearInterval(this._t);
     this._unsubscribeRealtime();
     window.removeEventListener('online', this._onOnline);
@@ -122,32 +133,39 @@ class AppComponent extends DCLogic {
     if(role==='admin') this._subscribeRealtime(today);
   }
 
-  async _ensureLiveBatch(batches){
-    const today = Utils.dateKey(this.baseDate());
+  async _ensureLiveBatch(batches, overrideDate){
+    const today = overrideDate || Utils.dateKey(this.baseDate());
     const live = batches.find(b=>b.is_live);
-    // Live batch is valid: it has started and hasn't expired yet
     if(live && live.start_date<=today && today<=(live.dekit_date||live.end_date)) return batches;
-    // Find an existing batch that covers today
     const current = batches.find(b=>b.start_date<=today && today<=(b.dekit_date||b.end_date));
     if(current){
       await DB.batches.activate(current.id).catch(()=>{});
       return DB.batches.list().catch(()=>batches);
     }
-    // No batch covers today — create the next one
-    const sorted = [...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
-    const lastBatch = sorted[sorted.length-1];
-    const fromDate = lastBatch?.dekit_date
-      ? Utils.addDays(new Date(lastBatch.dekit_date+'T00:00:00'), 1)
-      : this.baseDate();
-    const nextTue = Utils.nextBatchTuesday(fromDate);
-    const {start,end,dekit} = Utils.batchDatesFrom(nextTue);
-    const endDateStr = Utils.dateKey(end);
-    const sameEndMonth = batches.filter(b=>(b.end_date||b.start_date).slice(0,7)===endDateStr.slice(0,7));
-    const num = sameEndMonth.length+1;
-    const label = Utils.batchLabel(Utils.dateKey(start), endDateStr, num);
-    const {data} = await DB.batches.create(label, Utils.dateKey(start), endDateStr, Utils.dateKey(dekit)).catch(()=>({}));
-    if(data?.id) await DB.personnel.assignBatch(data.id).catch(()=>{});
-    return DB.batches.list().catch(()=>batches);
+    // No batch covers today — create batches forward until one does (handles large test-date jumps)
+    let sorted = [...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
+    let lastCreated = null;
+    for(let attempt=0; attempt<20; attempt++){
+      const lastBatch = sorted[sorted.length-1];
+      const fromDate = lastBatch?.dekit_date
+        ? Utils.addDays(new Date(lastBatch.dekit_date+'T00:00:00'), 1)
+        : new Date(today+'T00:00:00');
+      const nextTue = Utils.nextBatchTuesday(fromDate);
+      const {start,end,dekit} = Utils.batchDatesFrom(nextTue);
+      const startStr=Utils.dateKey(start), endStr=Utils.dateKey(end), dekitStr=Utils.dateKey(dekit);
+      const sameEndMonth = sorted.filter(b=>(b.end_date||b.start_date).slice(0,7)===endStr.slice(0,7));
+      const num = sameEndMonth.length+1;
+      const label = Utils.batchLabel(startStr, endStr, num);
+      const {data} = await DB.batches.create(label, startStr, endStr, dekitStr).catch(()=>({}));
+      if(data){ sorted.push(data); lastCreated=data; }
+      if(startStr<=today && today<=dekitStr){
+        if(data?.id) await DB.personnel.assignBatch(data.id).catch(()=>{});
+        break;
+      }
+      // Still haven't reached today — keep creating
+      if(startStr>today) break; // gap period: next batch starts after today, stop
+    }
+    return DB.batches.list().catch(()=>sorted);
   }
 
   async _loadDateAttendance(off){
@@ -215,6 +233,11 @@ class AppComponent extends DCLogic {
       testDate:null, testDateInput:'',
       acctNameEdit:'', acctPwCurrent:'', acctPwNew:'', acctPwConfirm:'',
       acctPwError:'', acctPwSuccess:'', acctNameError:'', acctNameSuccess:'', acctSaving:false,
+      confirmUndo:false, addPersonSuccess:'', addPersonError:'', batchLoading:false,
+      editingNoteId:null, editingNoteText:'',
+      batchJumpDate:'',
+      toast:null, rosterSort:'shift', newBatchDate:'',
+      peopleStats:{}, peopleStatsLoaded:false, confirmDeactivateId:null,
     });
   };
 
@@ -267,15 +290,17 @@ class AppComponent extends DCLogic {
     navigator.geolocation.getCurrentPosition(
       pos=>{
         const dist=this._haversine(pos.coords.latitude, pos.coords.longitude, this._hqLat(), this._hqLon());
-        this.setState({locStatus:'verified', locDistance:Math.round(dist)});
+        const rounded=Math.round(dist);
+        this.setState({locDistance:rounded, locStatus:rounded<=this._maxDist()?'verified':'out_of_range'});
       },
-      ()=>{ this.setState({locStatus:'verified',locDistance:Math.round(18+Math.random()*72)}); },
+      ()=>{ this.setState({locStatus:'gps_error', locDistance:null}); },
       {enableHighAccuracy:true, timeout:10000, maximumAge:60000}
     );
   };
 
   _hqLat(){ return parseFloat(this.props.hqLat)||1.3262; }
   _hqLon(){ return parseFloat(this.props.hqLon)||103.9304; }
+  _maxDist(){ return parseInt(this.props.hqRange)||500; }
   _haversine(lat1,lon1,lat2,lon2){
     const R=6371000, r=Math.PI/180;
     const dLat=(lat2-lat1)*r, dLon=(lon2-lon1)*r;
@@ -288,6 +313,7 @@ class AppComponent extends DCLogic {
     const today=Utils.dateKey(new Date()), time=Utils.hhmm(new Date()), dist=this.state.locDistance;
     const entry={status:'present',time,dist};
     this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:entry}}));
+    this._haptic();
     if(!this.state.demo){
       if(!this.state.isOnline){
         this._offlineQueue={id:this.state.currentUserId,date:today,status:'present',extras:{time,dist}};
@@ -311,12 +337,53 @@ class AppComponent extends DCLogic {
     }
     if(!this.state.demo) await DB.attendance.upsert(this.state.currentUserId, today, 'mc', {mc});
     this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:{status:'mc',time:'-',mc}},mcMode:false,_mcFile:null}));
+    this._haptic();
   };
 
-  undoCheckin = async () => {
+  _haptic(ms=60){ if(navigator.vibrate) navigator.vibrate(ms); }
+  _toast(msg, type='success'){
+    if(this._toastTimer) clearTimeout(this._toastTimer);
+    this.setState({toast:{msg,type}});
+    this._toastTimer=setTimeout(()=>this.setState({toast:null}),3000);
+  }
+
+  _touchStartX = null;
+  onDaySwipeStart = e => { this._touchStartX = e.touches[0].clientX; };
+  onDaySwipeEnd   = e => {
+    if(this._touchStartX===null) return;
+    const dx=e.changedTouches[0].clientX-this._touchStartX;
+    this._touchStartX=null;
+    if(Math.abs(dx)<40) return;
+    if(dx<0) this.nextDay(); else this.prevDay();
+  };
+
+  openNote  = (id, text) => () => this.setState({editingNoteId:id, editingNoteText:text||''});
+  onNoteText= e => this.setState({editingNoteText:e.target.value});
+  saveNote  = async () => {
+    const {editingNoteId, editingNoteText, demo} = this.state;
+    if(!editingNoteId) return;
+    if(!demo) await DB.personnel.updateNote(editingNoteId, editingNoteText).catch(()=>{});
+    this.setState(s=>({
+      personnel: s.personnel.map(p=>p.id===editingNoteId?{...p,notes:editingNoteText}:p),
+      editingNoteId: null, editingNoteText: '',
+    }));
+    this._toast('Note saved.');
+  };
+  closeNote = () => this.setState({editingNoteId:null, editingNoteText:''});
+
+  changeShift = id => async e => {
+    const shift=e.target.value;
+    if(!this.state.demo) await DB.personnel.updateShift(id, shift).catch(()=>{});
+    this.setState(s=>({personnel:s.personnel.map(p=>p.id===id?{...p,shift}:p)}));
+  };
+
+  requestUndo = () => this.setState({confirmUndo: true});
+  cancelUndo  = () => this.setState({confirmUndo: false});
+  doUndo      = async () => {
     const today=Utils.dateKey(new Date());
     if(!this.state.demo) await DB.attendance.remove(this.state.currentUserId, today);
-    this.setState(s=>{ const a={...s.attendance}; delete a[s.currentUserId]; return {attendance:a,mcFileName:'',_mcFile:null,locStatus:'idle',locDistance:null}; });
+    this.setState(s=>{ const a={...s.attendance}; delete a[s.currentUserId]; return {attendance:a,mcFileName:'',_mcFile:null,locStatus:'idle',locDistance:null,confirmUndo:false}; });
+    this._toast('Check-in undone.');
   };
 
   // ── Account ───────────────────────────────────────────────────────────────
@@ -389,14 +456,7 @@ class AppComponent extends DCLogic {
     this.setState({testDate:d, viewOffset:0});
     if(this.state.role==='admin'&&!this.state.demo){
       let batches = await DB.batches.list().catch(()=>this.state.batches);
-      const live = batches.find(b=>b.is_live);
-      if(!live||live.start_date>d||d>(live.dekit_date||live.end_date)){
-        const current = batches.find(b=>b.start_date<=d&&d<=(b.dekit_date||b.end_date));
-        if(current){
-          await DB.batches.activate(current.id).catch(()=>{});
-          batches = await DB.batches.list().catch(()=>batches);
-        }
-      }
+      batches = await this._ensureLiveBatch(batches, d);
       const liveIdx = batches.findIndex(b=>b.is_live);
       this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0});
     }
@@ -406,15 +466,7 @@ class AppComponent extends DCLogic {
     this.setState({testDate:null, testDateInput:'', viewOffset:0});
     if(this.state.role==='admin'&&!this.state.demo){
       let batches = await DB.batches.list().catch(()=>this.state.batches);
-      const today = Utils.dateKey(new Date());
-      const live = batches.find(b=>b.is_live);
-      if(!live||live.start_date>today||today>(live.dekit_date||live.end_date)){
-        const current = batches.find(b=>b.start_date<=today&&today<=(b.dekit_date||b.end_date));
-        if(current){
-          await DB.batches.activate(current.id).catch(()=>{});
-          batches = await DB.batches.list().catch(()=>batches);
-        }
-      }
+      batches = await this._ensureLiveBatch(batches, Utils.dateKey(new Date()));
       const liveIdx = batches.findIndex(b=>b.is_live);
       this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0});
     }
@@ -487,6 +539,7 @@ class AppComponent extends DCLogic {
 
   setBatch = i => async () => {
     const b=this.state.batches[i]; if(!b) return;
+    this.setState({batchLoading:true});
     const start=new Date(b.start_date+'T00:00:00'), today=this.baseDate();
     const off=Math.round((start-today)/86400000);
     let members=this.state.batchMembersCache[b.id];
@@ -501,8 +554,25 @@ class AppComponent extends DCLogic {
     this.setState(s=>({
       activeBatchIdx:i, viewOffset:off, selectedCalOffset:null,
       attendanceCache: b.is_live ? {} : {...s.attendanceCache, ...batchAttMap},
-      noReportDays,
+      noReportDays, batchLoading:false,
     }));
+  };
+
+  onBatchJumpDate = e => this.setState({batchJumpDate:e.target.value});
+  jumpToDate = async () => {
+    const {batchJumpDate, batches}=this.state;
+    if(!batchJumpDate||!batches.length) return;
+    let idx=batches.findIndex(b=>batchJumpDate>=b.start_date&&batchJumpDate<=(b.dekit_date||b.end_date));
+    if(idx===-1){
+      let bestDiff=Infinity;
+      batches.forEach((b,i)=>{
+        const diff=Math.abs(new Date(b.start_date)-new Date(batchJumpDate+'T00:00:00'));
+        if(diff<bestDiff){ bestDiff=diff; idx=i; }
+      });
+    }
+    if(idx===-1) return;
+    this.setState({batchJumpDate:''});
+    await this.setBatch(idx)();
   };
 
   setStatus = (id, status) => async () => {
@@ -512,21 +582,28 @@ class AppComponent extends DCLogic {
     const dist=status==='present'?(prev.dist||Math.round(18+Math.random()*72)):undefined;
     if(!this.state.demo) await DB.attendance.upsert(id, today, status, {time,dist});
     this.setState(s=>({attendance:{...s.attendance,[id]:{status,time,dist}}}));
+    this._haptic(40);
   };
 
   addPerson = async () => {
-    const {npName,npContact,npShift,batches,activeBatchIdx,demo}=this.state;
-    if(!npName.trim()) return;
+    const {npName,npContact,npShift,batches,activeBatchIdx,demo,personnel}=this.state;
+    if(!npName.trim()){ this._toast('Name is required.','error'); return; }
+    const cleanContact=npContact.replace(/[\s-]/g,'');
+    if(cleanContact&&!/^\d{8}$/.test(cleanContact)){ this._toast('Contact must be an 8-digit Singapore number.','error'); return; }
+    if(cleanContact&&personnel.some(p=>p.contact.replace(/[\s-]/g,'')===cleanContact)){ this._toast('This contact is already on the roster.','error'); return; }
     const activeBatch=batches[activeBatchIdx||0];
     const shift=this._capShift(npShift);
-    const contact=npContact.trim()||'-';
+    const contact=cleanContact||'-';
+    const addedName=npName.trim();
     if(!demo){
-      const {data}=await DB.personnel.add({name:npName,contact,shift,batchId:activeBatch?.id});
-      if(data) this.setState(s=>({personnel:[...s.personnel,data],npName:'',npContact:'',npShift:'AM'}));
+      const {data,error}=await DB.personnel.add({name:addedName,contact,shift,batchId:activeBatch?.id});
+      if(error||!data){ this._toast('Failed to add. Try again.','error'); return; }
+      this.setState(s=>({personnel:[...s.personnel,data],npName:'',npContact:'',npShift:'AM'}));
     } else {
       const id='demo-'+Date.now();
-      this.setState(s=>({personnel:[...s.personnel,{id,name:npName,contact,shift,role:'reservist',batch_id:activeBatch?.id,is_active:true}],npName:'',npContact:'',npShift:'AM'}));
+      this.setState(s=>({personnel:[...s.personnel,{id,name:addedName,contact,shift,role:'reservist',batch_id:activeBatch?.id,is_active:true}],npName:'',npContact:'',npShift:'AM'}));
     }
+    this._toast(addedName+' added to roster.');
   };
 
   onRosterSearch = e => this.setState({rosterSearch:e.target.value});
@@ -543,10 +620,79 @@ class AppComponent extends DCLogic {
     this.setState(s=>({attendance:{...s.attendance,...updates}}));
   };
 
+  refreshPage = async () => {
+    const {role, me, batches, activeBatchIdx, demo} = this.state;
+    if(demo || !me) return;
+    const today = Utils.dateKey(this.baseDate());
+    const activeBatch = batches[activeBatchIdx||0];
+    const [attendance, noReportDays] = await Promise.all([
+      DB.attendance.getForDate(today),
+      activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date) : Promise.resolve(new Set()),
+    ]);
+    const history = role==='reservist' ? await DB.attendance.getHistory(me.id).catch(()=>[]) : this.state.history;
+    this.setState({attendance, noReportDays, history, attendanceCache:{}});
+  };
+
   // ── Navigation ────────────────────────────────────────────────────────────
   go = t => () => this.setState({tab:t});
   setRolesTab  = k => () => this.setState({rolesTab:k});
   selectCalDay = off => () => this.setState(s=>({selectedCalOffset:s.selectedCalOffset===off?null:off}));
+  goPeople = () => { this.setState({tab:'people',peopleStatsLoaded:false}); this.loadPeopleStats(); };
+
+  loadPeopleStats = async () => {
+    const {batches,activeBatchIdx,personnel,demo}=this.state;
+    const batch=batches[activeBatchIdx||0];
+    if(!batch||demo) return;
+    const allAtt=await DB.attendance.getForBatch(batch.start_date,batch.dekit_date||batch.end_date).catch(()=>({}));
+    const stats={};
+    for(const p of personnel){
+      let present=0,mc=0,absent=0;
+      for(const dateMap of Object.values(allAtt)){
+        const rec=dateMap[p.id];
+        if(rec?.status==='present') present++;
+        else if(rec?.status==='mc') mc++;
+        else if(rec?.status==='absent') absent++;
+      }
+      const total=present+mc+absent;
+      stats[p.id]={present,mc,absent,total,pct:total?Math.round(present/total*100):null};
+    }
+    this.setState({peopleStats:stats,peopleStatsLoaded:true});
+  };
+
+  setRosterSort = key => () => this.setState({rosterSort:key});
+  onNewBatchDate = e => this.setState({newBatchDate:e.target.value});
+
+  createBatch = async () => {
+    const {newBatchDate,batches,demo}=this.state;
+    if(!newBatchDate) return;
+    const start=new Date(newBatchDate+'T00:00:00');
+    const {start:s,end:e,dekit:dk}=Utils.batchDatesFrom(start);
+    const startStr=Utils.dateKey(s),endStr=Utils.dateKey(e),dekitStr=Utils.dateKey(dk);
+    const sameEndMonth=batches.filter(b=>(b.end_date||b.start_date).slice(0,7)===endStr.slice(0,7));
+    const num=sameEndMonth.length+1;
+    const label=Utils.batchLabel(startStr,endStr,num);
+    if(!demo){
+      const {data,error}=await DB.batches.create(label,startStr,endStr,dekitStr);
+      if(error||!data){ this._toast('Failed to create batch.','error'); return; }
+      const newBatches=await DB.batches.list().catch(()=>[...batches,data]);
+      const liveIdx=newBatches.findIndex(b=>b.is_live);
+      this.setState({batches:newBatches,activeBatchIdx:liveIdx>=0?liveIdx:0,newBatchDate:''});
+    } else {
+      const nb={id:'demo-b-'+Date.now(),label,start_date:startStr,end_date:endStr,dekit_date:dekitStr,is_live:true};
+      this.setState(prev=>({batches:[...prev.batches,nb],newBatchDate:''}));
+    }
+    this._toast('Batch '+label+' created.');
+  };
+
+  askDeactivatePerson = id => () => this.setState({confirmDeactivateId:id});
+  cancelDeactivatePerson = () => this.setState({confirmDeactivateId:null});
+  confirmDeactivatePerson = async () => {
+    const {confirmDeactivateId,demo}=this.state;
+    if(!confirmDeactivateId) return;
+    if(!demo) await DB.personnel.deactivate(confirmDeactivateId).catch(()=>{});
+    this.setState(s=>({personnel:s.personnel.filter(p=>p.id!==confirmDeactivateId),confirmDeactivateId:null}));
+    this._toast('Person removed from roster.');
+  };
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   baseDate(){ if(this.state.testDate){ return new Date(this.state.testDate+'T00:00:00'); } const d=new Date(); d.setHours(0,0,0,0); return d; }
@@ -645,11 +791,13 @@ class AppComponent extends DCLogic {
       tabTitle:TITLES[s.tab]||'',
       headerKicker:s.role==='admin'?'Admin, '+orgName:orgName+', PNSMEN',
       goCheckin:this.go('checkin'), goBriefings:this.go('briefings'), goAttendance:this.go('attendance'), goMeal:this.go('meal'),
-      goOverview:this.go('overview'), goRoster:this.go('roster'), goLog:this.go('log'), goPeople:this.go('people'),
+      goOverview:this.go('overview'), goRoster:this.go('roster'), goLog:this.go('log'), goPeople:this.goPeople,
       cCheckin:nc('checkin'), cBriefings:nc('briefings'), cAttendance:nc('attendance'), cMeal:nc('meal'),
       cOverview:nc('overview'), cRoster:nc('roster'), cLog:nc('log'), cPeople:nc('people'),
       tabCheckin:s.tab==='checkin', tabBriefings:s.tab==='briefings', tabAttendance:s.tab==='attendance', tabMeal:s.tab==='meal',
       tabOverview:s.tab==='overview', tabRoster:s.tab==='roster', tabLog:s.tab==='log', tabPeople:s.tab==='people',
+      showRefresh:['checkin','overview','roster','log'].includes(s.tab),
+      refreshPage:this.refreshPage,
     };
   }
 
@@ -661,6 +809,7 @@ class AppComponent extends DCLogic {
       myStatusPulse:'', phToday:false, phName:'', needCheckin:false, mcMode:false,
       isPresent:false, isMc:false, checkInTime:'-', checkInDist:'',
       verifyLocation:()=>{}, submitCheckIn:()=>{}, locLocating:false, locNeedsAction:false,
+      locShowLocateBtn:false, locBtnLabel:'Locate me',
       locBorder:'#eef0f4', locCardBg:'#fff', locBadgeBg:'#eceef2', locBadgeColor:'#8a94a3',
       locMsg:'', locMsgColor:'#8a94a3', checkInOpacity:'.45', checkInPE:'none',
       openMc:()=>{}, onMcFile:()=>{}, submitMc:()=>{}, cancelMc:()=>{}, undoCheckin:()=>{},
@@ -672,6 +821,14 @@ class AppComponent extends DCLogic {
     const rec=this.myRec(), status=rec.status||'pending', m=Utils.meta(status);
     const noRep=this.isNoReport(0);
     const locVerified=s.locStatus==='verified', locLocating=s.locStatus==='locating';
+    const locOutOfRange=s.locStatus==='out_of_range', locGpsError=s.locStatus==='gps_error';
+    const locIdle=!s.locStatus||s.locStatus==='idle';
+    let locBorder,locCardBg,locBadgeBg,locBadgeColor,locMsg,locMsgColor;
+    if(locVerified){ locBorder='#cfe6d8'; locCardBg='#f5faf7'; locBadgeBg='#e7f3ec'; locBadgeColor='#1f8a5b'; locMsg='Within '+hqName+' perimeter, about '+s.locDistance+' m away.'; locMsgColor='#1f8a5b'; }
+    else if(locOutOfRange){ locBorder='#f1d3cf'; locCardBg='#fbeeec'; locBadgeBg='#f7e4e1'; locBadgeColor='#c0392b'; locMsg='Too far from '+hqName+' ('+s.locDistance+' m). Move on-site to check in.'; locMsgColor='#c0392b'; }
+    else if(locGpsError){ locBorder='#f0e2c2'; locCardBg='#fdf6e9'; locBadgeBg='#f7efdc'; locBadgeColor='#b9791a'; locMsg='Location unavailable. Check permissions and try again.'; locMsgColor='#b9791a'; }
+    else if(locLocating){ locBorder='#eef0f4'; locCardBg='#fff'; locBadgeBg='#eceef2'; locBadgeColor=accent; locMsg='Locating you via GPS...'; locMsgColor='#8a94a3'; }
+    else { locBorder='#eef0f4'; locCardBg='#fff'; locBadgeBg='#eceef2'; locBadgeColor='#8a94a3'; locMsg='Tap to confirm you are at '+hqName+'.'; locMsgColor='#8a94a3'; }
     const activeBatch = s.batches[s.activeBatchIdx||0];
     const batchLabel = activeBatch?.label || '';
     const dekit = activeBatch?.dekit_date ? new Date(activeBatch.dekit_date+'T00:00:00') : null;
@@ -686,6 +843,8 @@ class AppComponent extends DCLogic {
       : '';
     const whatsappLink = waMsg ? 'https://api.whatsapp.com/send?text='+encodeURIComponent(waMsg) : '';
     const showWaShare = !!(status==='present'||status==='mc');
+    const shiftStart={AM:'08:30',PM:'15:30',OFFICE:'09:00'}[me.shift]||'08:30';
+    const isLate=rec.status==='present'&&rec.time&&rec.time!=='-'&&rec.time>shiftStart;
     return {
       todayLong:Utils.fmtLong(this.baseDate()),
       clock:s.testDate?'--:--':Utils.hhmm(s.now),
@@ -703,20 +862,20 @@ class AppComponent extends DCLogic {
       checkInDist:rec.dist!=null?('about '+rec.dist+' m from '+hqName):'on-site',
       verifyLocation:this.verifyLocation, submitCheckIn:this.submitCheckIn,
       locLocating,
-      locNeedsAction:!locVerified&&!locLocating,
-      locBorder:locVerified?'#cfe6d8':'#eef0f4',
-      locCardBg:locVerified?'#f5faf7':'#fff',
-      locBadgeBg:locVerified?'#e7f3ec':'#eceef2',
-      locBadgeColor:locVerified?'#1f8a5b':'#8a94a3',
-      locMsg:locVerified?('Within '+hqName+' perimeter, about '+s.locDistance+' m away.'):locLocating?'Locating you via GPS...':('Tap to confirm you are at '+hqName+'.'),
-      locMsgColor:locVerified?'#1f8a5b':'#8a94a3',
+      locNeedsAction:locIdle||locOutOfRange||locGpsError,
+      locShowLocateBtn:locIdle||locOutOfRange||locGpsError,
+      locBtnLabel:locIdle?'Locate me':'Try again',
+      locBorder,locCardBg,locBadgeBg,locBadgeColor,locMsg,locMsgColor,
       checkInOpacity:locVerified?'1':'.45',
       checkInPE:locVerified?'auto':'none',
-      openMc:this.openMc, onMcFile:this.onMcFile, submitMc:this.submitMc, cancelMc:this.cancelMc, undoCheckin:this.undoCheckin,
+      openMc:this.openMc, onMcFile:this.onMcFile, submitMc:this.submitMc, cancelMc:this.cancelMc,
+      undoCheckin:this.requestUndo, confirmUndo:s.confirmUndo, showUndoBtn:!s.confirmUndo, showUndoConfirm:s.confirmUndo, doUndo:this.doUndo, cancelUndo:this.cancelUndo,
       mcFileLabel:s.mcFileName||rec.mc||'No file selected',
       batchLabel, dekitCountdown, batchRange, showBatchInfo: !!activeBatch,
       whatsappLink, showWaShare,
+      isLate, lateShiftStart:shiftStart,
       isOffline:!s.isOnline, offlinePending:s.offlinePending,
+      refreshPage:this.refreshPage,
     };
   }
 
@@ -814,7 +973,26 @@ class AppComponent extends DCLogic {
       key,label,onClick:this.setRolesTab(key),
       style:`flex:1;padding:9px 6px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;${tab===key?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`,
     }));
-    return {roleTabs,roleTitle:active.title,roleWindow:active.window,roleItems:active.items,roleNote:active.note||''};
+    const waGroupUrl=this.props.waGroupLink||'';
+    return {
+      roleTabs, roleTitle:active.title, roleWindow:active.window, roleItems:active.items, roleNote:active.note||'',
+      briefLocation:(this.props.hqName||'Bedok DHQ')+' Canteen',
+      briefSchedule:'Weekdays',
+      briefAttire:'Civilian. Pants and covered shoes',
+      briefReportingTime:'As allocated. Inform WhatsApp on arrival',
+      mealStatusBanner:'On hold until further notice. Do not submit the form for now.',
+      mealItems:[
+        'When resumed, submit daily (Mon to Fri), including MC days.',
+        'Indicate PRESENT if you completed the shift, or MC if on sick leave.',
+        'No submission needed on no-reporting days such as public holidays.',
+      ],
+      dekitItems:[
+        'Accurately fill meal allowance forms and submit to the Manpower Officer in charge of dekit, endorsed by an Ops Branch supervisor.',
+        'Bring hardcopies of any MCs taken.',
+        'Update WhatsApp once all PNSMEN have arrived.',
+      ],
+      waGroupUrl, showWaGroup:!!waGroupUrl,
+    };
   }
 
   _buildAdmin(s, accent){
@@ -822,17 +1000,39 @@ class AppComponent extends DCLogic {
     const activeMembers=activeBatch?.is_live?s.personnel:(s.batchMembersCache?.[activeBatch?.id]||[]);
     const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    const batchChips=batches.map((b,i)=>{
+    const todayForChips=Utils.dateKey(this.baseDate());
+    const chipStart=Math.max(0, batches.length-4);
+    const batchChips=batches.slice(chipStart).map((b,j)=>{
+      const i=chipStart+j;
       const bs=new Date(b.start_date+'T00:00:00'), be=new Date(b.end_date+'T00:00:00');
-      return {label:b.label,range:Utils.fmtShort(bs)+' to '+Utils.fmtShort(be),onClick:this.setBatch(i),style:'flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;padding:7px 13px;border-radius:9px;cursor:pointer;white-space:nowrap;text-align:left;'+(i===activeBatchIdx?'background:'+accent+';color:#fff;border:1px solid '+accent+';':'background:#fff;color:#5c6678;border:1px solid #d4d9e2;')};
+      const isFuture=b.start_date>todayForChips;
+      const isActive=i===activeBatchIdx;
+      let chipStyle='flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;padding:7px 13px;border-radius:9px;cursor:pointer;white-space:nowrap;text-align:left;';
+      if(isActive) chipStyle+='background:'+accent+';color:#fff;border:1px solid '+accent+';';
+      else if(isFuture) chipStyle+='background:#f6f8fa;color:#8a94a3;border:1.5px dashed #c2c8d2;';
+      else chipStyle+='background:#fff;color:#5c6678;border:1px solid #d4d9e2;';
+      return {label:b.label, range:Utils.fmtShort(bs)+' to '+Utils.fmtShort(be), onClick:this.setBatch(i), style:chipStyle, isFuture};
     });
     const roster=activeMembers.map(p=>{
       const r=s.attendance[p.id]||{status:'pending',time:'-'}, mm=Utils.meta(r.status);
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),time:r.time||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.dist!=null)?(', GPS verified '+r.dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent')};
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,time:r.time||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.dist!=null)?(', GPS verified '+r.dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent'),onShiftChange:this.changeShift(p.id)};
     });
     const search=(s.rosterSearch||'').toLowerCase();
     const filteredRoster=roster.filter(r=>!search||r.name.toLowerCase().includes(search));
+    const sortKey=s.rosterSort||'shift';
+    const sortedFiltered=[...filteredRoster].sort((a,b)=>{
+      if(sortKey==='name') return a.name.localeCompare(b.name);
+      if(sortKey==='status'){const ord={present:0,mc:1,pending:2,absent:3};return (ord[a.label.toLowerCase()]??4)-(ord[b.label.toLowerCase()]??4);}
+      const so={AM:0,PM:1,OFFICE:2};return (so[a.shift]??3)-(so[b.shift]??3);
+    });
+    const _sb='flex:1;padding:6px 4px;border-radius:8px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid ';
+    const _sa=_sb+accent+';background:'+accent+';color:#fff;', _si=_sb+'#d4d9e2;background:#fff;color:#5c6678;';
+    const rosterSortShiftStyle=sortKey==='shift'?_sa:_si;
+    const rosterSortNameStyle=sortKey==='name'?_sa:_si;
+    const rosterSortStatusStyle=sortKey==='status'?_sa:_si;
     const present=roster.filter(r=>r.label==='Present').length, mc=roster.filter(r=>r.label==='On MC').length, pending=roster.filter(r=>r.label==='Pending').length, total=roster.length;
+    const snapshotLines=['📋 *'+Utils.fmtMed(this.dateForOffset(0))+' Attendance*','✅ Present ('+present+'): '+(roster.filter(r=>r.label==='Present').map(r=>r.name).join(', ')||'—'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.label==='On MC').map(r=>r.name).join(', ')||'—'),'⏳ Pending ('+pending+'): '+(roster.filter(r=>r.label==='Pending').map(r=>r.name).join(', ')||'—')];
+    const snapshotLink='https://api.whatsapp.com/send?text='+encodeURIComponent(snapshotLines.join('\n'));
     const pendingCount=roster.filter(r=>r.label==='Pending').length;
     const today2=Utils.dateKey(new Date());
     const shiftCutoff={AM:'08:30',PM:'15:30',OFFICE:'09:00'};
@@ -870,7 +1070,7 @@ class AppComponent extends DCLogic {
     const intakeLabel=activeBatch?activeBatch.label:'';
     const intakeRange=bs2&&be2?(Utils.fmtShort(bs2)+' to '+Utils.fmtShort(be2)):'';
     return {
-      batchChips, roster, filteredRoster, logRows,
+      batchChips, roster, filteredRoster:sortedFiltered, logRows,
       rosterSearch:s.rosterSearch, onRosterSearch:this.onRosterSearch,
       markAllPresent:this.markAllPresent, pendingCount,
       statPresent:present, statMc:mc, statPending:pending, statTotal:total,
@@ -881,15 +1081,28 @@ class AppComponent extends DCLogic {
       repToggleOpacity:repToggleLocked?'0.55':'1',
       repTogglePE:repToggleLocked?'none':'auto',
       prevDay:this.prevDay, nextDay:this.nextDay, goToday:this.goToday,
+      onDaySwipeStart:this.onDaySwipeStart, onDaySwipeEnd:this.onDaySwipeEnd,
+      snapshotLink, showSnapshot:viewIsToday&&viewShowReporting,
+      editingNoteText:s.editingNoteText, onNoteText:this.onNoteText, saveNote:this.saveNote, closeNote:this.closeNote,
+      refreshPage:this.refreshPage,
       viewDateLabel, viewDateSub, viewIsToday, viewNotToday:!viewIsToday,
       viewShowReporting, viewNoReporting, viewNoRepReason,
       viewRoster, vPresent, vMc, vThirdVal, vThirdLabel, vThirdColor, vTotal,
       vPresentLabel:'Checked in',
       viewListHeader, viewPercentText, viewPercentColor,
       intakeLabel, intakeRange,
-      personnelList:activeMembers.map(p=>({...p,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift)})),
+      personnelList:activeMembers.map(p=>({...p,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),onEditNote:this.openNote(p.id,p.notes||''),isEditingNote:s.editingNoteId===p.id,onAskDeactivate:this.askDeactivatePerson(p.id),isConfirmingDeactivate:s.confirmDeactivateId===p.id,statPresent:s.peopleStats[p.id]?.present??'-',statMc:s.peopleStats[p.id]?.mc??'-',statPct:s.peopleStats[p.id]?.pct!=null?(s.peopleStats[p.id].pct+'%'):'-',showStats:s.peopleStatsLoaded})),
+      cancelDeactivatePerson:this.cancelDeactivatePerson,
+      confirmDeactivatePerson:this.confirmDeactivatePerson,
+      rosterSort:s.rosterSort,
+      setRosterSortShift:this.setRosterSort('shift'),
+      setRosterSortName:this.setRosterSort('name'),
+      setRosterSortStatus:this.setRosterSort('status'),
+      rosterSortShiftStyle,rosterSortNameStyle,rosterSortStatusStyle,
+      newBatchDate:s.newBatchDate,onNewBatchDate:this.onNewBatchDate,createBatch:this.createBatch,
       npName:s.npName, npContact:s.npContact, npShift:s.npShift,
       onNpName:this.onNpName, onNpContact:this.onNpContact, onNpRank:()=>{}, onNpShift:this.onNpShift, addPerson:this.addPerson,
+      batchLoading:s.batchLoading,
       exportCsv:this.exportCsv,
       mcViewOpen:s.mcViewOpen, mcViewName:s.mcViewName, mcViewDate:s.mcViewDate,
       mcViewFile:s.mcViewFile, mcViewUrl:s.mcViewUrl, mcViewNoUrl:!s.mcViewUrl,
@@ -897,6 +1110,7 @@ class AppComponent extends DCLogic {
       testDate:s.testDate, testDateInput:s.testDateInput,
       onTestDateInput:this.onTestDateInput, setTestDate:this.setTestDate, clearTestDate:this.clearTestDate,
       hasTestDate:!!s.testDate,
+      batchJumpDate:s.batchJumpDate, onBatchJumpDate:this.onBatchJumpDate, jumpToDate:this.jumpToDate,
     };
   }
 
@@ -932,6 +1146,7 @@ class AppComponent extends DCLogic {
     const hqName=this.props.hqName||'Bedok DHQ';
     return {
       accent, orgName, hqName,
+      showToast:!!s.toast, toastMsg:s.toast?.msg||'', toastBg:s.toast?.type==='error'?'#c0392b':'#1f8a5b',
       ...this._buildAuth(s, accent),
       ...this._buildNav(s, accent, orgName),
       ...this._buildCheckin(s, accent, hqName),
