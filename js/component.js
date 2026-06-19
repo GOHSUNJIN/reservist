@@ -139,7 +139,7 @@ class AppComponent extends DCLogic {
       attendance, noReportDays, history,
       authError:'', loading:false, accountDeleted:false, demo:false,
     });
-    if(role==='admin') this._subscribeRealtime(today);
+    if(role==='admin'){ this._subscribeRealtime(today); setTimeout(()=>this.loadRosterAvatars(),0); }
   }
 
   async _ensureLiveBatch(batches, overrideDate){
@@ -589,8 +589,37 @@ class AppComponent extends DCLogic {
     this.setState(s=>{ const nd=new Set(s.noReportDays); isNowOn?nd.add(dk):nd.delete(dk); return {noReportDays:nd}; });
   };
 
-  prevDay = () => { const off=this.state.viewOffset-1; this.setState({viewOffset:off}); this._loadDateAttendance(off); };
-  nextDay = () => { const off=this.state.viewOffset+1; this.setState({viewOffset:off}); this._loadDateAttendance(off); };
+  _navToOffset = async (off) => {
+    const date=Utils.dateKey(this.dateForOffset(off));
+    const {batches,activeBatchIdx}=this.state;
+    const cur=batches[activeBatchIdx||0];
+    const inCurrent=cur&&date>=cur.start_date&&date<=(cur.dekit_date||cur.end_date);
+    if(!inCurrent){
+      let ni=batches.findIndex(b=>date>=b.start_date&&date<=(b.dekit_date||b.end_date));
+      // Gap between batches: fall back to the most recently ended batch before target date
+      if(ni<0){
+        let bestDate='', bestIdx=-1;
+        batches.forEach((b,i)=>{ const bd=b.dekit_date||b.end_date; if(bd<date&&bd>bestDate){bestDate=bd;bestIdx=i;} });
+        ni=bestIdx;
+      }
+      if(ni>=0&&ni!==activeBatchIdx){
+        const b=batches[ni];
+        this.setState({batchLoading:true});
+        let members=this.state.batchMembersCache[b.id];
+        if(!members&&!b.is_live){ members=await DB.personnel.list(b.id,false).catch(()=>[]); this.setState(s=>({batchMembersCache:{...s.batchMembersCache,[b.id]:members}})); }
+        const [nrd,attMap]=await Promise.all([
+          DB.noReportDays.list(b.start_date,b.dekit_date||b.end_date).catch(()=>new Set()),
+          b.is_live?Promise.resolve({}):DB.attendance.getForBatch(b.start_date,b.end_date).catch(()=>({})),
+        ]);
+        this.setState(s=>({activeBatchIdx:ni,viewOffset:off,selectedCalOffset:null,attendanceCache:b.is_live?{}:{...s.attendanceCache,...attMap},noReportDays:nrd,batchLoading:false}));
+        return;
+      }
+    }
+    this.setState({viewOffset:off});
+    this._loadDateAttendance(off);
+  };
+  prevDay = () => this._navToOffset(this.state.viewOffset-1);
+  nextDay = () => this._navToOffset(this.state.viewOffset+1);
   goToday = () => {
     const liveIdx=this.state.batches.findIndex(b=>b.is_live);
     if(liveIdx>=0&&liveIdx!==this.state.activeBatchIdx) this.setBatch(liveIdx)();
@@ -903,13 +932,14 @@ class AppComponent extends DCLogic {
       tabTitle:TITLES[s.tab]||'',
       headerKicker:s.role==='admin'?'Admin, '+orgName:orgName+', PNSMEN',
       goCheckin:this.go('checkin'), goBriefings:this.go('briefings'), goAttendance:this.go('attendance'), goMeal:this.go('meal'),
-      goOverview:this.go('overview'), goRoster:this.go('roster'), goLog:this.go('log'), goPeople:this.goPeople,
+      goOverview:()=>{ this.setState({tab:'overview'}); setTimeout(()=>this.loadRosterAvatars(),0); },
+      goRoster:()=>{ this.setState({tab:'roster'}); setTimeout(()=>this.loadRosterAvatars(),0); },
+      goLog:()=>{ this.setState({tab:'log'}); setTimeout(()=>this.loadRosterAvatars(),0); },
+      goPeople:this.goPeople,
       cCheckin:nc('checkin'), cBriefings:nc('briefings'), cAttendance:nc('attendance'), cMeal:nc('meal'),
       cOverview:nc('overview'), cRoster:nc('roster'), cLog:nc('log'), cPeople:nc('people'),
       tabCheckin:s.tab==='checkin', tabBriefings:s.tab==='briefings', tabAttendance:s.tab==='attendance', tabMeal:s.tab==='meal',
       tabOverview:s.tab==='overview', tabRoster:s.tab==='roster', tabLog:s.tab==='log', tabPeople:s.tab==='people',
-      showRefresh:['checkin','overview','roster','log'].includes(s.tab),
-      refreshPage:this.refreshPage,
     };
   }
 
@@ -936,8 +966,8 @@ class AppComponent extends DCLogic {
     const locOutOfRange=s.locStatus==='out_of_range', locGpsError=s.locStatus==='gps_error';
     const locIdle=!s.locStatus||s.locStatus==='idle';
     let locBorder,locCardBg,locBadgeBg,locBadgeColor,locMsg,locMsgColor;
-    if(locVerified){ locBorder='#cfe6d8'; locCardBg='#f5faf7'; locBadgeBg='#e7f3ec'; locBadgeColor='#1f8a5b'; locMsg='Within '+hqName+' perimeter, about '+s.locDistance+' m away.'; locMsgColor='#1f8a5b'; }
-    else if(locOutOfRange){ locBorder='#f1d3cf'; locCardBg='#fbeeec'; locBadgeBg='#f7e4e1'; locBadgeColor='#c0392b'; locMsg='Too far from '+hqName+' ('+s.locDistance+' m). Move on-site to check in.'; locMsgColor='#c0392b'; }
+    if(locVerified){ locBorder='#cfe6d8'; locCardBg='#f5faf7'; locBadgeBg='#e7f3ec'; locBadgeColor='#1f8a5b'; locMsg=s.locDistance+' m from '+hqName+' — on-site'; locMsgColor='#1f8a5b'; }
+    else if(locOutOfRange){ locBorder='#f1d3cf'; locCardBg='#fbeeec'; locBadgeBg='#f7e4e1'; locBadgeColor='#c0392b'; locMsg=s.locDistance+' m away — not on-site'; locMsgColor='#c0392b'; }
     else if(locGpsError){ locBorder='#f0e2c2'; locCardBg='#fdf6e9'; locBadgeBg='#f7efdc'; locBadgeColor='#b9791a'; locMsg=s.locGpsMsg||'Location unavailable. Check permissions and try again.'; locMsgColor='#b9791a'; }
     else if(locLocating){ locBorder='#eef0f4'; locCardBg='#fff'; locBadgeBg='#eceef2'; locBadgeColor=accent; locMsg='Locating you via GPS...'; locMsgColor='#8a94a3'; }
     else { locBorder='#eef0f4'; locCardBg='#fff'; locBadgeBg='#eceef2'; locBadgeColor='#8a94a3'; locMsg='Tap to confirm you are at '+hqName+'.'; locMsgColor='#8a94a3'; }
@@ -946,7 +976,7 @@ class AppComponent extends DCLogic {
     const dekit = activeBatch?.dekit_date ? new Date(activeBatch.dekit_date+'T00:00:00') : null;
     const todayMid = new Date(); todayMid.setHours(0,0,0,0);
     const dekitDaysLeft = dekit ? Math.round((dekit - todayMid) / 86400000) : null;
-    const dekitCountdown = dekitDaysLeft === null ? '' : dekitDaysLeft === 0 ? 'Dekit day — return all equipment today' : dekitDaysLeft > 0 ? `${dekitDaysLeft} day${dekitDaysLeft !== 1 ? 's' : ''} to dekit` : 'Cycle complete';
+    const dekitCountdown = dekitDaysLeft === null ? '' : dekitDaysLeft === 0 ? 'Return equipment today' : dekitDaysLeft > 0 ? `${dekitDaysLeft} day${dekitDaysLeft !== 1 ? 's' : ''} to dekit` : 'Cycle complete';
     const batchRange = activeBatch ? (Utils.fmtShort(new Date(activeBatch.start_date+'T00:00:00')) + ' – ' + Utils.fmtShort(new Date(activeBatch.end_date+'T00:00:00'))) : '';
     const waMsg = status==='present'
       ? `✅ [${rec.time}] ${me.name} checked in for ${Utils.shiftLabel(me.shift)}.`
@@ -1029,7 +1059,7 @@ class AppComponent extends DCLogic {
     });
     const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const dekitLabel='Dekit, '+WD[dd.getDay()]+' '+dd.getDate()+' '+MON[dd.getMonth()];
-    const dekitSub='Last reporting '+WD[be.getDay()]+' '+be.getDate()+' '+MON[be.getMonth()]+'. Account closes on dekit day.';
+    const dekitSub='Last report: '+WD[be.getDay()]+' '+be.getDate()+' '+MON[be.getMonth()]+' · Account closes on dekit day';
     const dekitDateFull=WD[dd.getDay()]+' '+dd.getDate()+' '+MON[dd.getMonth()];
     const selOff=s.selectedCalOffset, calSelected=selOff!=null;
     let calSelLabel='',calSelStatus='',calSelSub='',calSelColor='',calSelBg='';
