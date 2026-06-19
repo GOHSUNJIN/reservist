@@ -692,10 +692,17 @@ class AppComponent extends DCLogic {
     if(demo) return;
     const batch=batches[activeBatchIdx||0];
     const members=batch?.is_live?personnel:(batchMembersCache[batch?.id]||[]);
+    // Only attempt IDs not already loaded; probe-load each URL so 404s don't
+    // set a URL in state (which would hide initials via color:transparent)
     const ids=members.map(p=>p.id).filter(id=>!this.state.avatars[id]);
     if(!ids.length) return;
-    const urls=DB.storage.getAvatarUrls(ids);
-    if(Object.keys(urls).length) this.setState(s=>({avatars:{...s.avatars,...urls}}));
+    for(const id of ids){
+      const url=DB.storage.getAvatarUrl(id);
+      if(!url) continue;
+      const img=new Image();
+      img.onload=()=>this.setState(s=>({avatars:{...s.avatars,[id]:url}}));
+      img.src=url;
+    }
   };
 
   loadPeopleStats = async () => {
