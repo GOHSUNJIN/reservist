@@ -569,11 +569,18 @@
 
         <div style="background:#fff;border:1px solid #e3e6ec;border-radius:16px;overflow:hidden;margin-bottom:14px;">
           <div style="padding:13px 16px;display:flex;justify-content:space-between;border-bottom:1px solid #f2f4f7;font-size:13.5px;"><span style="color:#8a94a3;">Contact</span><span style="font-weight:600;color:#161f30;">{{ acctContact }}</span></div>
+          <sc-if value="{{ isReservistRole }}" hint-placeholder-val="">
           <div style="padding:13px 16px;display:flex;justify-content:space-between;border-bottom:1px solid #f2f4f7;font-size:13.5px;"><span style="color:#8a94a3;">Shift pattern</span><span style="font-weight:600;color:#161f30;">{{ myShiftLabel }}</span></div>
           <div style="padding:13px 16px;display:flex;justify-content:space-between;font-size:13.5px;"><span style="color:#8a94a3;">Deployment cycle</span><span style="font-weight:600;color:#161f30;">{{ cycleStart }} to {{ cycleEnd }}</span></div>
+          </sc-if>
+          <sc-if value="{{ isAdmin }}" hint-placeholder-val="">
+          <div style="padding:13px 16px;display:flex;justify-content:space-between;font-size:13.5px;"><span style="color:#8a94a3;">Role</span><span style="font-weight:600;color:#161f30;">Supervisor</span></div>
+          </sc-if>
         </div>
 
+        <sc-if value="{{ isReservistRole }}" hint-placeholder-val="">
         <div style="background:#eef3fc;border:1px solid #d7e2f7;border-radius:14px;padding:14px 16px;font-size:12.5px;color:#3a4a66;line-height:1.55;margin-bottom:18px;">Your account is deactivated automatically on your dekit day ({{ dekitDateFull }}). You can also deactivate it now if your cycle has ended.</div>
+        </sc-if>
 
         <sc-if value="{{ isReservistRole }}" hint-placeholder-val="">
         <sc-if value="{{ confirmDelete }}" hint-placeholder-val="">
