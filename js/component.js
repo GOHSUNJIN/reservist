@@ -42,6 +42,7 @@ class AppComponent extends DCLogic {
     newBatchDate: '',
     peopleStats: {}, peopleStatsLoaded: false,
     confirmDeactivateId: null,
+    showArchivedBatches: false,
   };
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
@@ -90,8 +91,9 @@ class AppComponent extends DCLogic {
       this.setState({authed:false,loading:false,authError:'Account setup incomplete. Please sign up again.'});
       return;
     }
-    // Load persisted avatar in background
-    const meAvatarUrl = DB.storage.getAvatarUrl(me.id);
+    // Load persisted avatar — localStorage first, then Supabase public URL
+    const cachedAvatar = localStorage.getItem('avatar_'+me.id);
+    const meAvatarUrl = cachedAvatar || DB.storage.getAvatarUrl(me.id);
     if(meAvatarUrl) this.setState(s=>({avatars:{...s.avatars,[me.id]:meAvatarUrl}}));
     const role = me.role || 'reservist';
     const today = Utils.dateKey(this.baseDate());
@@ -260,7 +262,7 @@ class AppComponent extends DCLogic {
       editingNoteId:null, editingNoteText:'',
       batchJumpDate:'',
       toast:null, rosterSort:'shift', newBatchDate:'',
-      peopleStats:{}, peopleStatsLoaded:false, confirmDeactivateId:null,
+      peopleStats:{}, peopleStatsLoaded:false, confirmDeactivateId:null, showArchivedBatches:false,
     });
   };
 
@@ -427,15 +429,15 @@ class AppComponent extends DCLogic {
     const f=e.target.files&&e.target.files[0]; if(!f) return;
     const r=new FileReader();
     r.onload=()=>{
-      // Show immediately via base64, then replace with persistent signed URL
-      this.setState(s=>({avatars:{...s.avatars,[s.currentUserId]:r.result}}));
+      const uid=this.state.currentUserId;
+      localStorage.setItem('avatar_'+uid, r.result);
+      this.setState(s=>({avatars:{...s.avatars,[uid]:r.result}}));
       if(!this.state.demo){
-        const uid=this.state.currentUserId;
         DB.storage.uploadAvatar(uid, f)
           .then(({error})=>{
             if(!error){
               const url=DB.storage.getAvatarUrl(uid);
-              if(url) this.setState(s=>({avatars:{...s.avatars,[uid]:url}}));
+              if(url){ localStorage.setItem('avatar_'+uid, url); this.setState(s=>({avatars:{...s.avatars,[uid]:url}})); }
             }
           })
           .catch(()=>{});
@@ -1063,19 +1065,24 @@ class AppComponent extends DCLogic {
     const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const todayForChips=Utils.dateKey(this.baseDate());
-    const batchChips=batches.map((b,i)=>{
+    const allChips=batches.map((b,i)=>{
       const bs=new Date(b.start_date+'T00:00:00'), be=new Date(b.end_date+'T00:00:00');
       const isFuture=b.start_date>todayForChips;
+      const isPast=b.end_date<todayForChips&&!b.is_live;
       const isActive=i===activeBatchIdx;
       let chipStyle='flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;padding:7px 13px;border-radius:9px;cursor:pointer;white-space:nowrap;text-align:left;';
       if(isActive) chipStyle+='background:'+accent+';color:#fff;border:1px solid '+accent+';';
       else if(isFuture) chipStyle+='background:#f6f8fa;color:#8a94a3;border:1.5px dashed #c2c8d2;';
+      else if(isPast) chipStyle+='background:#f6f8fa;color:#8a94a3;border:1px solid #e3e6ec;';
       else chipStyle+='background:#fff;color:#5c6678;border:1px solid #d4d9e2;';
-      return {label:b.label, range:Utils.fmtShort(bs)+' to '+Utils.fmtShort(be), onClick:this.setBatch(i), style:chipStyle, isFuture};
+      return {label:b.label, range:Utils.fmtShort(bs)+' to '+Utils.fmtShort(be), onClick:this.setBatch(i), style:chipStyle, isPast};
     });
+    const activeChips=allChips.filter(c=>!c.isPast);
+    const archivedChips=allChips.filter(c=>c.isPast);
     const roster=activeMembers.map(p=>{
       const r=s.attendance[p.id]||{status:'pending',time:'-'}, mm=Utils.meta(r.status);
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,time:r.time||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.dist!=null)?(', GPS verified '+r.dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent'),onShiftChange:this.changeShift(p.id)};
+      const cardStyle='background:#fff;border:1px solid #e3e6ec;border-left:3px solid '+mm.color+';border-radius:12px;padding:11px 13px;';
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,time:r.time||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.dist!=null)?(', GPS verified '+r.dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent'),onShiftChange:this.changeShift(p.id),cardStyle};
     });
     const search=(s.rosterSearch||'').toLowerCase();
     const filteredRoster=roster.filter(r=>!search||r.name.toLowerCase().includes(search));
@@ -1130,7 +1137,10 @@ class AppComponent extends DCLogic {
     const intakeLabel=activeBatch?activeBatch.label:'';
     const intakeRange=bs2&&be2?(Utils.fmtShort(bs2)+' to '+Utils.fmtShort(be2)):'';
     return {
-      batchChips, roster, filteredRoster:sortedFiltered, logRows,
+      activeChips, archivedChips, archivedCount:archivedChips.length,
+      showArchivedBatches:s.showArchivedBatches,
+      toggleArchivedBatches:()=>this.setState(s=>({showArchivedBatches:!s.showArchivedBatches})),
+      roster, filteredRoster:sortedFiltered, logRows,
       rosterSearch:s.rosterSearch, onRosterSearch:this.onRosterSearch,
       markAllPresent:this.markAllPresent, pendingCount,
       statPresent:present, statMc:mc, statPending:pending, statTotal:total,
