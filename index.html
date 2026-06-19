@@ -522,6 +522,7 @@
         <div style="display:flex;flex-direction:column;gap:11px;">
           <div style="display:flex;gap:8px;margin-bottom:7px;align-items:center;">
             <input value="{{ rosterSearch }}" onInput="{{ onRosterSearch }}" placeholder="Search name..." style="flex:1;padding:10px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:16px;background:#fff;outline:none;" />
+            <button onClick="{{ goToday }}" style="padding:10px 13px;background:#fff;border:1px solid #d4d9e2;border-radius:9px;font-size:13px;font-weight:600;color:#5c6678;cursor:pointer;white-space:nowrap;">Today</button>
             <sc-if value="{{ pendingCount }}" hint-placeholder-val="">
             <button onClick="{{ markAllPresent }}" style="padding:10px 13px;background:#1f8a5b;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">All present</button>
             </sc-if>

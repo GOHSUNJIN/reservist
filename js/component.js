@@ -589,7 +589,11 @@ class AppComponent extends DCLogic {
 
   prevDay = () => { const off=this.state.viewOffset-1; this.setState({viewOffset:off}); this._loadDateAttendance(off); };
   nextDay = () => { const off=this.state.viewOffset+1; this.setState({viewOffset:off}); this._loadDateAttendance(off); };
-  goToday = () => this.setState({viewOffset:0});
+  goToday = () => {
+    const liveIdx=this.state.batches.findIndex(b=>b.is_live);
+    if(liveIdx>=0&&liveIdx!==this.state.activeBatchIdx) this.setBatch(liveIdx)();
+    else this.setState({viewOffset:0});
+  };
 
   setBatch = i => async () => {
     const b=this.state.batches[i]; if(!b) return;
@@ -1079,9 +1083,7 @@ class AppComponent extends DCLogic {
     const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const todayForChips=Utils.dateKey(this.baseDate());
-    const chipStart=Math.max(0, batches.length-4);
-    const batchChips=batches.slice(chipStart).map((b,j)=>{
-      const i=chipStart+j;
+    const batchChips=batches.map((b,i)=>{
       const bs=new Date(b.start_date+'T00:00:00'), be=new Date(b.end_date+'T00:00:00');
       const isFuture=b.start_date>todayForChips;
       const isActive=i===activeBatchIdx;
