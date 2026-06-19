@@ -493,6 +493,10 @@
             <input value="{{ batchJumpDate }}" onInput="{{ onBatchJumpDate }}" type="date" style="flex:1;padding:7px 10px;border:1px solid #d4d9e2;border-radius:8px;font-size:13px;background:#fff;outline:none;color:#36404f;" />
             <button onClick="{{ jumpToDate }}" style="padding:7px 12px;background:#fff;border:1px solid #d4d9e2;border-radius:8px;font-size:12.5px;font-weight:600;color:#36404f;cursor:pointer;white-space:nowrap;">Jump to</button>
           </div>
+          <div style="display:flex;gap:7px;align-items:center;border-top:1px solid #eef0f4;padding-top:10px;margin-top:2px;">
+            <input value="{{ newBatchDate }}" onInput="{{ onNewBatchDate }}" type="date" style="flex:1;padding:7px 10px;border:1px solid #d4d9e2;border-radius:8px;font-size:13px;background:#fff;outline:none;color:#36404f;" placeholder="New batch start (Tue)" />
+            <button onClick="{{ createBatch }}" disabled="{{ batchCreating }}" style="padding:7px 12px;background:{{ accent }};color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;opacity:{{ batchCreating ? 0.6 : 1 }};">{{ batchCreating ? 'Creating…' : '+ Batch' }}</button>
+          </div>
         </div>
         </sc-if>
 
