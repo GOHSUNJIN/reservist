@@ -14,10 +14,17 @@ const DB = {
       return { user: data?.user || null, error };
     },
 
-    async signup(contact, password) {
+    async signup(contact, password, name) {
       const { data, error } = await _db.auth.signUp({ email: this._email(contact), password,
-        options: { emailRedirectTo: null } });
+        options: { emailRedirectTo: null, data: name ? { display_name: name } : undefined } });
       return { user: data?.user || null, error };
+    },
+
+    async syncDisplayName(name) {
+      const { data } = await _db.auth.getUser();
+      if(!data?.user) return;
+      if(data.user.user_metadata?.display_name === name) return;
+      await _db.auth.updateUser({ data: { display_name: name } });
     },
 
     async logout() { await _db.auth.signOut(); },

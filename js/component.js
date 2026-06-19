@@ -140,6 +140,7 @@ class AppComponent extends DCLogic {
       authError:'', loading:false, accountDeleted:false, demo:false,
     });
     if(role==='admin'){ this._subscribeRealtime(today); setTimeout(()=>this.loadRosterAvatars(),0); }
+    if(!this.state.demo) DB.auth.syncDisplayName(me.name).catch(()=>{});
   }
 
   async _ensureLiveBatch(batches, overrideDate){
@@ -243,7 +244,7 @@ class AppComponent extends DCLogic {
     const {am, pm} = this._shiftSlotCounts(members);
     const shift = am < 2 ? 'AM' : pm < 2 ? 'PM' : 'OFFICE';
     this.setState({loading:true, authError:''});
-    const {user,error} = await DB.auth.signup(suContact, suPassword);
+    const {user,error} = await DB.auth.signup(suContact, suPassword, suName.trim());
     if(error||!user){ this.setState({loading:false, authError:error?.message||'Signup failed. Try a different contact or password.'}); return; }
     const existing = await DB.personnel.findByContact(suContact);
     if(existing){
