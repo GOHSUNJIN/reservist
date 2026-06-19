@@ -34,12 +34,13 @@ class AppComponent extends DCLogic {
     acctSaving: false,
     confirmUndo: false,
     addPersonSuccess: '', addPersonError: '',
-    batchLoading: false,
+    batchLoading: false, batchCreating: false,
     editingNoteId: null, editingNoteText: '',
-    batchJumpDate: '',
+    batchJumpDate: Utils.dateKey(new Date()),
     toast: null,
     rosterSort: 'shift',
     newBatchDate: '',
+    noAvatarIds: new Set(),
     peopleStats: {}, peopleStatsLoaded: false,
     confirmDeactivateId: null,
     showArchivedBatches: false,
@@ -273,11 +274,12 @@ class AppComponent extends DCLogic {
       testDate:null, testDateInput:'',
       acctNameEdit:'', acctPwCurrent:'', acctPwNew:'', acctPwConfirm:'',
       acctPwError:'', acctPwSuccess:'', acctNameError:'', acctNameSuccess:'', acctSaving:false,
-      confirmUndo:false, addPersonSuccess:'', addPersonError:'', batchLoading:false,
+      confirmUndo:false, addPersonSuccess:'', addPersonError:'', batchLoading:false, batchCreating:false,
       editingNoteId:null, editingNoteText:'',
-      batchJumpDate:'',
+      batchJumpDate:Utils.dateKey(new Date()),
       toast:null, rosterSort:'shift', newBatchDate:'',
       peopleStats:{}, peopleStatsLoaded:false, confirmDeactivateId:null, showArchivedBatches:false,
+      noAvatarIds:new Set(),
     });
   };
 
@@ -449,7 +451,7 @@ class AppComponent extends DCLogic {
     r.onload=()=>{
       const uid=this.state.currentUserId;
       localStorage.setItem('avatar_'+uid, r.result);
-      this.setState(s=>({avatars:{...s.avatars,[uid]:r.result}}));
+      this.setState(s=>{const noAv=new Set(s.noAvatarIds||[]);noAv.delete(uid);return{avatars:{...s.avatars,[uid]:r.result},noAvatarIds:noAv};});
       if(!this.state.demo){
         DB.storage.uploadAvatar(uid, f)
           .then(({error})=>{
@@ -467,7 +469,7 @@ class AppComponent extends DCLogic {
   removeAvatar = async () => {
     const uid=this.state.currentUserId;
     localStorage.setItem('avatar_'+uid, 'REMOVED');
-    this.setState(s=>{ const av={...s.avatars}; delete av[uid]; return {avatars:av}; });
+    this.setState(s=>{const av={...s.avatars};delete av[uid];const noAv=new Set(s.noAvatarIds||[]);noAv.add(uid);return{avatars:av,noAvatarIds:noAv};});
     if(!this.state.demo) await DB.storage.deleteAvatar(uid).catch(()=>{});
     this._toast('Profile photo removed.');
   };
@@ -751,15 +753,21 @@ class AppComponent extends DCLogic {
   goPeople = () => { this.setState({tab:'people',peopleStatsLoaded:false}); this.loadPeopleStats(); this.loadRosterAvatars(); };
 
   loadRosterAvatars = async () => {
-    const {batches,activeBatchIdx,demo,batchMembersCache,personnel}=this.state;
+    const {batches,activeBatchIdx,demo,batchMembersCache,personnel,noAvatarIds}=this.state;
     if(demo) return;
     const batch=batches[activeBatchIdx||0];
     const members=batch?.is_live?personnel:(batchMembersCache[batch?.id]||[]);
-    const ids=members.map(p=>p.id).filter(id=>!this.state.avatars[id]);
+    const noAvSet=noAvatarIds||new Set();
+    const ids=members.map(p=>p.id).filter(id=>!this.state.avatars[id]&&!noAvSet.has(id));
     if(!ids.length) return;
     const existing=await DB.storage.listAvatarIds().catch(()=>new Set());
-    const urls=DB.storage.getAvatarUrls(ids.filter(id=>existing.has(id)));
-    if(Object.keys(urls).length) this.setState(s=>({avatars:{...s.avatars,...urls}}));
+    const withAvatar=ids.filter(id=>existing.has(id));
+    const withoutAvatar=ids.filter(id=>!existing.has(id));
+    const urls=DB.storage.getAvatarUrls(withAvatar);
+    this.setState(s=>({
+      ...(withAvatar.length?{avatars:{...s.avatars,...urls}}:{}),
+      noAvatarIds:new Set([...(s.noAvatarIds||[]),...withoutAvatar]),
+    }));
   };
 
   loadPeopleStats = async () => {
@@ -786,8 +794,9 @@ class AppComponent extends DCLogic {
   onNewBatchDate = e => this.setState({newBatchDate:e.target.value});
 
   createBatch = async () => {
-    const {newBatchDate,batches,demo}=this.state;
-    if(!newBatchDate) return;
+    const {newBatchDate,batches,demo,batchCreating}=this.state;
+    if(!newBatchDate||batchCreating) return;
+    this.setState({batchCreating:true});
     const start=new Date(newBatchDate+'T00:00:00');
     const {start:s,end:e,dekit:dk}=Utils.batchDatesFrom(start);
     const startStr=Utils.dateKey(s),endStr=Utils.dateKey(e),dekitStr=Utils.dateKey(dk);
@@ -796,13 +805,13 @@ class AppComponent extends DCLogic {
     const label=Utils.batchLabel(startStr,endStr,num);
     if(!demo){
       const {data,error}=await DB.batches.create(label,startStr,endStr,dekitStr);
-      if(error||!data){ this._toast('Failed to create batch.','error'); return; }
+      if(error||!data){ this._toast('Failed to create batch.','error'); this.setState({batchCreating:false}); return; }
       const newBatches=await DB.batches.list().catch(()=>[...batches,data]);
       const liveIdx=newBatches.findIndex(b=>b.is_live);
-      this.setState({batches:newBatches,activeBatchIdx:liveIdx>=0?liveIdx:0,newBatchDate:''});
+      this.setState({batches:newBatches,activeBatchIdx:liveIdx>=0?liveIdx:0,newBatchDate:'',batchCreating:false});
     } else {
       const nb={id:'demo-b-'+Date.now(),label,start_date:startStr,end_date:endStr,dekit_date:dekitStr,is_live:true};
-      this.setState(prev=>({batches:[...prev.batches,nb],newBatchDate:''}));
+      this.setState(prev=>({batches:[...prev.batches,nb],newBatchDate:'',batchCreating:false}));
     }
     this._toast('Batch '+label+' created.');
   };
@@ -1283,7 +1292,7 @@ class AppComponent extends DCLogic {
       setRosterSortName:this.setRosterSort('name'),
       setRosterSortStatus:this.setRosterSort('status'),
       rosterSortShiftStyle,rosterSortNameStyle,rosterSortStatusStyle,
-      newBatchDate:s.newBatchDate,onNewBatchDate:this.onNewBatchDate,createBatch:this.createBatch,
+      newBatchDate:s.newBatchDate,onNewBatchDate:this.onNewBatchDate,createBatch:this.createBatch,batchCreating:s.batchCreating,
       npName:s.npName, npContact:s.npContact, npShift:s.npShift,
       onNpName:this.onNpName, onNpContact:this.onNpContact, onNpRank:()=>{}, onNpShift:this.onNpShift, addPerson:this.addPerson,
       batchLoading:s.batchLoading,

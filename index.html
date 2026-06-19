@@ -696,6 +696,12 @@
             <button onClick="{{ addPerson }}" style="width:100%;padding:12px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;">Add to roster</button>
           </div>
 
+          <div class="card" style="padding:18px;margin-bottom:14px;">
+            <h2 style="font-size:15px;font-weight:700;margin:0 0 4px;color:#161f30;">Create batch</h2>
+            <div style="font-size:12px;color:#8a94a3;margin-bottom:14px;">Pick a Tuesday start date — end date and dekit are set automatically.</div>
+            <input value="{{ newBatchDate }}" onInput="{{ onNewBatchDate }}" type="date" class="field" style="margin-bottom:10px;" />
+            <button onClick="{{ createBatch }}" disabled="{{ batchCreating }}" style="width:100%;padding:12px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;opacity:{{ batchCreating ? 0.6 : 1 }};">{{ batchCreating ? 'Creating…' : 'Create batch' }}</button>
+          </div>
 
         </div>
         </sc-if>
