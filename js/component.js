@@ -621,11 +621,7 @@ class AppComponent extends DCLogic {
   };
   prevDay = () => this._navToOffset(this.state.viewOffset-1);
   nextDay = () => this._navToOffset(this.state.viewOffset+1);
-  goToday = () => {
-    const liveIdx=this.state.batches.findIndex(b=>b.is_live);
-    if(liveIdx>=0&&liveIdx!==this.state.activeBatchIdx) this.setBatch(liveIdx)();
-    else this.setState({viewOffset:0});
-  };
+  goToday = () => this._navToOffset(0);
 
   setBatch = i => async () => {
     const b=this.state.batches[i]; if(!b) return;
@@ -679,12 +675,18 @@ class AppComponent extends DCLogic {
   };
 
   setStatus = (id, status) => async () => {
-    const today=Utils.dateKey(new Date());
-    const prev=this.state.attendance[id]||{};
+    const off=this.state.viewOffset||0;
+    const viewDateKey=Utils.dateKey(this.dateForOffset(off));
+    const viewIsToday=off===0;
+    const prev=viewIsToday?(this.state.attendance[id]||{}):((this.state.attendanceCache?.[viewDateKey]||{})[id]||{});
     const time=status==='present'?(prev.time&&prev.time!=='-'?prev.time:Utils.hhmm(new Date())):'-';
     const dist=status==='present'?(prev.dist||Math.round(18+Math.random()*72)):undefined;
-    if(!this.state.demo) await DB.attendance.upsert(id, today, status, {time,dist});
-    this.setState(s=>({attendance:{...s.attendance,[id]:{status,time,dist}}}));
+    if(!this.state.demo) await DB.attendance.upsert(id, viewDateKey, status, {time,dist});
+    if(viewIsToday){
+      this.setState(s=>({attendance:{...s.attendance,[id]:{status,time,dist}}}));
+    } else {
+      this.setState(s=>({attendanceCache:{...s.attendanceCache,[viewDateKey]:{...(s.attendanceCache?.[viewDateKey]||{}),[id]:{status,time,dist}}}}));
+    }
     this._haptic(40);
   };
 
@@ -1181,8 +1183,11 @@ class AppComponent extends DCLogic {
     });
     const activeChips=allChips.filter(c=>!c.isPast);
     const archivedChips=allChips.filter(c=>c.isPast);
+    const viewOffset=s.viewOffset||0, viewDate=this.dateForOffset(viewOffset), viewIsToday=viewOffset===0, viewReportDay=Utils.isReportDay(viewDate);
+    const viewDateKey=Utils.dateKey(viewDate);
+    const viewMap=viewIsToday?s.attendance:(s.attendanceCache?.[viewDateKey]||{});
     const roster=activeMembers.map(p=>{
-      const r=s.attendance[p.id]||{status:'pending',time:'-'}, mm=Utils.meta(r.status);
+      const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
       const cardStyle='background:#fff;border:1px solid #e3e6ec;border-left:3px solid '+mm.color+';border-radius:12px;padding:11px 13px;';
       const av=s.avatars[p.id]||'';
       const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
@@ -1205,9 +1210,6 @@ class AppComponent extends DCLogic {
     const snapshotLines=['📋 *'+Utils.fmtMed(this.dateForOffset(0))+' Attendance*','✅ Present ('+present+'): '+(roster.filter(r=>r.label==='Present').map(r=>r.name).join(', ')||'—'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.label==='On MC').map(r=>r.name).join(', ')||'—'),'⏳ Pending ('+pending+'): '+(roster.filter(r=>r.label==='Pending').map(r=>r.name).join(', ')||'—')];
     const snapshotLink='https://api.whatsapp.com/send?text='+encodeURIComponent(snapshotLines.join('\n'));
     const pendingCount=roster.filter(r=>r.label==='Pending').length;
-    const viewOffset=s.viewOffset||0, viewDate=this.dateForOffset(viewOffset), viewIsToday=viewOffset===0, viewReportDay=Utils.isReportDay(viewDate);
-    const viewDateKey=Utils.dateKey(viewDate);
-    const viewMap=viewIsToday?s.attendance:(s.attendanceCache?.[viewDateKey]||{});
     const shiftCutoff={AM:'08:30',PM:'15:30',OFFICE:'09:00'};
     const logRows=activeMembers.filter(p=>{
       const r=viewMap[p.id]||{status:'pending'};
