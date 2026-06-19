@@ -331,8 +331,8 @@ class AppComponent extends DCLogic {
     );
   };
 
-  _hqLat(){ return parseFloat(this.props.hqLat)||1.3262; }
-  _hqLon(){ return parseFloat(this.props.hqLon)||103.9304; }
+  _hqLat(){ return parseFloat(this.props.hqLat)||1.332572; }
+  _hqLon(){ return parseFloat(this.props.hqLon)||103.937189; }
   _maxDist(){ return parseInt(this.props.hqRange)||500; }
 
   _haversine(lat1,lon1,lat2,lon2){
