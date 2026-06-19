@@ -34,3 +34,25 @@ input,button,select,textarea{font-family:inherit;}
 
 /* ── Mono stat numbers ────────────────────────────────────────────────────── */
 .mono-num{font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:600;}
+
+/* ── White card panels ────────────────────────────────────────────────────── */
+.card{background:#fff;border:1px solid #e3e6ec;border-radius:16px;}
+.card-flush{background:#fff;border:1px solid #e3e6ec;border-radius:16px;overflow:hidden;}
+
+/* ── Stat counter card ────────────────────────────────────────────────────── */
+.stat-card{flex:1;background:#fff;border:1px solid #e3e6ec;border-radius:14px;padding:15px;text-align:center;}
+
+/* ── Standard text input ──────────────────────────────────────────────────── */
+.field{width:100%;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:16px;background:#fff;outline:none;}
+
+/* ── Info card detail row ─────────────────────────────────────────────────── */
+.detail-row{padding:13px 16px;display:flex;justify-content:space-between;font-size:13.5px;border-bottom:1px solid #f2f4f7;}
+
+/* ── Roster action buttons ────────────────────────────────────────────────── */
+.roster-btn{flex:1;padding:9px;border-radius:9px;font-size:12.5px;font-weight:600;cursor:pointer;border:1px solid;}
+.roster-btn-present{background:#f1f8f4;border-color:#cfe6d8;color:#1f8a5b;}
+.roster-btn-mc{background:#fdf6e9;border-color:#f0e2c2;color:#b9791a;}
+.roster-btn-absent{background:#fbeeec;border-color:#f1d3cf;color:#c0392b;}
+
+/* ── WhatsApp share link ──────────────────────────────────────────────────── */
+.wa-link{display:inline-flex;align-items:center;gap:7px;margin-top:10px;padding:9px 14px;background:#25d366;color:#fff;border-radius:9px;font-size:13px;font-weight:600;text-decoration:none;}

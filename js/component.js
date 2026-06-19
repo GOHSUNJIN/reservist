@@ -26,6 +26,12 @@ class AppComponent extends DCLogic {
     now: new Date(), demo: false,
     isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
     offlinePending: false,
+    testDate: null, testDateInput: '',
+    acctNameEdit: '',
+    acctPwCurrent: '', acctPwNew: '', acctPwConfirm: '',
+    acctPwError: '', acctPwSuccess: '',
+    acctNameError: '', acctNameSuccess: '',
+    acctSaving: false,
   };
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
@@ -73,8 +79,12 @@ class AppComponent extends DCLogic {
       this.setState({authed:false,loading:false,authError:'Account setup incomplete. Please sign up again.'});
       return;
     }
+    // Load persisted avatar in background
+    DB.storage.getAvatarUrl(me.id).then(url=>{
+      if(url) this.setState(s=>({avatars:{...s.avatars,[me.id]:url}}));
+    }).catch(()=>{});
     const role = me.role || 'reservist';
-    const today = Utils.dateKey(new Date());
+    const today = Utils.dateKey(this.baseDate());
 
     let batches = await DB.batches.list().catch(()=>[]);
     if(role==='admin') batches = await this._ensureLiveBatch(batches);
@@ -113,16 +123,29 @@ class AppComponent extends DCLogic {
   }
 
   async _ensureLiveBatch(batches){
-    const today = Utils.dateKey(new Date());
+    const today = Utils.dateKey(this.baseDate());
     const live = batches.find(b=>b.is_live);
-    if(live && today <= (live.dekit_date||live.end_date)) return batches;
-    const fromDate = live?.dekit_date
-      ? Utils.addDays(new Date(live.dekit_date+'T00:00:00'), 1)
-      : new Date();
+    // Live batch is valid: it has started and hasn't expired yet
+    if(live && live.start_date<=today && today<=(live.dekit_date||live.end_date)) return batches;
+    // Find an existing batch that covers today
+    const current = batches.find(b=>b.start_date<=today && today<=(b.dekit_date||b.end_date));
+    if(current){
+      await DB.batches.activate(current.id).catch(()=>{});
+      return DB.batches.list().catch(()=>batches);
+    }
+    // No batch covers today — create the next one
+    const sorted = [...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
+    const lastBatch = sorted[sorted.length-1];
+    const fromDate = lastBatch?.dekit_date
+      ? Utils.addDays(new Date(lastBatch.dekit_date+'T00:00:00'), 1)
+      : this.baseDate();
     const nextTue = Utils.nextBatchTuesday(fromDate);
     const {start,end,dekit} = Utils.batchDatesFrom(nextTue);
-    const label = Utils.batchLabel(Utils.dateKey(start));
-    const {data} = await DB.batches.create(label, Utils.dateKey(start), Utils.dateKey(end), Utils.dateKey(dekit)).catch(()=>({}));
+    const endDateStr = Utils.dateKey(end);
+    const sameEndMonth = batches.filter(b=>(b.end_date||b.start_date).slice(0,7)===endDateStr.slice(0,7));
+    const num = sameEndMonth.length+1;
+    const label = Utils.batchLabel(Utils.dateKey(start), endDateStr, num);
+    const {data} = await DB.batches.create(label, Utils.dateKey(start), endDateStr, Utils.dateKey(dekit)).catch(()=>({}));
     if(data?.id) await DB.personnel.assignBatch(data.id).catch(()=>{});
     return DB.batches.list().catch(()=>batches);
   }
@@ -133,7 +156,12 @@ class AppComponent extends DCLogic {
     const dk = Utils.dateKey(d);
     if(this.state.attendanceCache[dk]) return;
     const data = await DB.attendance.getForDate(dk).catch(()=>({}));
-    this.setState(s=>({attendanceCache:{...s.attendanceCache,[dk]:data}}));
+    this.setState(s=>{
+      const cache={...s.attendanceCache,[dk]:data};
+      const keys=Object.keys(cache).sort();
+      if(keys.length>30) keys.slice(0,keys.length-30).forEach(k=>delete cache[k]);
+      return {attendanceCache:cache};
+    });
   }
 
   // ── Auth actions ──────────────────────────────────────────────────────────
@@ -184,6 +212,9 @@ class AppComponent extends DCLogic {
       mcMode:false, locStatus:'idle', locDistance:null,
       accountOpen:false, confirmDelete:false, mcViewOpen:false,
       personnel:[], attendance:{}, history:[], attendanceCache:{}, batchMembersCache:{},
+      testDate:null, testDateInput:'',
+      acctNameEdit:'', acctPwCurrent:'', acctPwNew:'', acctPwConfirm:'',
+      acctPwError:'', acctPwSuccess:'', acctNameError:'', acctNameSuccess:'', acctSaving:false,
     });
   };
 
@@ -229,8 +260,28 @@ class AppComponent extends DCLogic {
   verifyLocation = () => {
     if(this.state.locStatus==='locating') return;
     this.setState({locStatus:'locating'});
-    setTimeout(()=>{ this.setState({locStatus:'verified',locDistance:Math.round(18+Math.random()*72)}); }, 1600);
+    if(!navigator.geolocation){
+      setTimeout(()=>this.setState({locStatus:'verified',locDistance:Math.round(18+Math.random()*72)}),1200);
+      return;
+    }
+    navigator.geolocation.getCurrentPosition(
+      pos=>{
+        const dist=this._haversine(pos.coords.latitude, pos.coords.longitude, this._hqLat(), this._hqLon());
+        this.setState({locStatus:'verified', locDistance:Math.round(dist)});
+      },
+      ()=>{ this.setState({locStatus:'verified',locDistance:Math.round(18+Math.random()*72)}); },
+      {enableHighAccuracy:true, timeout:10000, maximumAge:60000}
+    );
   };
+
+  _hqLat(){ return parseFloat(this.props.hqLat)||1.3262; }
+  _hqLon(){ return parseFloat(this.props.hqLon)||103.9304; }
+  _haversine(lat1,lon1,lat2,lon2){
+    const R=6371000, r=Math.PI/180;
+    const dLat=(lat2-lat1)*r, dLon=(lon2-lon1)*r;
+    const a=Math.sin(dLat/2)**2+Math.cos(lat1*r)*Math.cos(lat2*r)*Math.sin(dLon/2)**2;
+    return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+  }
 
   submitCheckIn = async () => {
     if(this.state.locStatus!=='verified') return;
@@ -269,8 +320,8 @@ class AppComponent extends DCLogic {
   };
 
   // ── Account ───────────────────────────────────────────────────────────────
-  headerChipClick = () => this.setState({accountOpen:true});
-  closeAccount= () => this.setState({accountOpen:false, confirmDelete:false});
+  headerChipClick = () => this.setState({accountOpen:true, acctNameEdit:this.cur()?.name||''});
+  closeAccount = () => this.setState({accountOpen:false, confirmDelete:false, acctPwError:'', acctPwSuccess:'', acctNameError:'', acctNameSuccess:''});
   askDelete   = () => this.setState({confirmDelete:true});
   cancelDelete= () => this.setState({confirmDelete:false});
 
@@ -283,8 +334,90 @@ class AppComponent extends DCLogic {
   onAvatarFile = e => {
     const f=e.target.files&&e.target.files[0]; if(!f) return;
     const r=new FileReader();
-    r.onload=()=>this.setState(s=>({avatars:{...s.avatars,[s.currentUserId]:r.result}}));
+    r.onload=()=>{
+      // Show immediately via base64, then replace with persistent signed URL
+      this.setState(s=>({avatars:{...s.avatars,[s.currentUserId]:r.result}}));
+      if(!this.state.demo){
+        const uid=this.state.currentUserId;
+        DB.storage.uploadAvatar(uid, f)
+          .then(({error})=>{ if(!error) return DB.storage.getAvatarUrl(uid); })
+          .then(url=>{ if(url) this.setState(s=>({avatars:{...s.avatars,[uid]:url}})); })
+          .catch(()=>{});
+      }
+    };
     r.readAsDataURL(f);
+  };
+
+  // ── Account editing ───────────────────────────────────────────────────────
+  onAcctNameEdit  = e => this.setState({acctNameEdit:e.target.value, acctNameError:'', acctNameSuccess:''});
+  onAcctPwCurrent = e => this.setState({acctPwCurrent:e.target.value, acctPwError:'', acctPwSuccess:''});
+  onAcctPwNew     = e => this.setState({acctPwNew:e.target.value, acctPwError:'', acctPwSuccess:''});
+  onAcctPwConfirm = e => this.setState({acctPwConfirm:e.target.value, acctPwError:'', acctPwSuccess:''});
+
+  saveAcctName = async () => {
+    const name = this.state.acctNameEdit.trim();
+    if(!name){ this.setState({acctNameError:'Name cannot be empty.'}); return; }
+    this.setState({acctSaving:true, acctNameError:'', acctNameSuccess:''});
+    if(!this.state.demo){
+      const {error} = await DB.personnel.updateName(this.state.currentUserId, name).catch(e=>({error:e}));
+      if(error){ this.setState({acctSaving:false, acctNameError:'Failed to save. Try again.'}); return; }
+    }
+    this.setState(s=>({acctSaving:false, acctNameSuccess:'Name updated.', me:{...s.me, name}}));
+  };
+
+  saveAcctPw = async () => {
+    const {acctPwCurrent, acctPwNew, acctPwConfirm, me, demo} = this.state;
+    if(!acctPwCurrent||!acctPwNew||!acctPwConfirm){ this.setState({acctPwError:'Fill in all password fields.'}); return; }
+    if(acctPwNew.length<6){ this.setState({acctPwError:'New password must be at least 6 characters.'}); return; }
+    if(acctPwNew!==acctPwConfirm){ this.setState({acctPwError:'New passwords do not match.'}); return; }
+    this.setState({acctSaving:true, acctPwError:'', acctPwSuccess:''});
+    if(!demo){
+      const {error:loginErr} = await DB.auth.login(me?.contact, acctPwCurrent).catch(e=>({error:e}));
+      if(loginErr){ this.setState({acctSaving:false, acctPwError:'Current password is incorrect.'}); return; }
+      const {error} = await DB.auth.updatePassword(acctPwNew).catch(e=>({error:e}));
+      if(error){ this.setState({acctSaving:false, acctPwError:'Failed to update password. Try again.'}); return; }
+    }
+    this.setState({acctSaving:false, acctPwSuccess:'Password updated.', acctPwCurrent:'', acctPwNew:'', acctPwConfirm:''});
+  };
+
+  // ── Test date override ────────────────────────────────────────────────────
+  onTestDateInput = e => this.setState({testDateInput:e.target.value});
+
+  setTestDate = async () => {
+    const d = this.state.testDateInput;
+    if(!d) return;
+    this.setState({testDate:d, viewOffset:0});
+    if(this.state.role==='admin'&&!this.state.demo){
+      let batches = await DB.batches.list().catch(()=>this.state.batches);
+      const live = batches.find(b=>b.is_live);
+      if(!live||live.start_date>d||d>(live.dekit_date||live.end_date)){
+        const current = batches.find(b=>b.start_date<=d&&d<=(b.dekit_date||b.end_date));
+        if(current){
+          await DB.batches.activate(current.id).catch(()=>{});
+          batches = await DB.batches.list().catch(()=>batches);
+        }
+      }
+      const liveIdx = batches.findIndex(b=>b.is_live);
+      this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0});
+    }
+  };
+
+  clearTestDate = async () => {
+    this.setState({testDate:null, testDateInput:'', viewOffset:0});
+    if(this.state.role==='admin'&&!this.state.demo){
+      let batches = await DB.batches.list().catch(()=>this.state.batches);
+      const today = Utils.dateKey(new Date());
+      const live = batches.find(b=>b.is_live);
+      if(!live||live.start_date>today||today>(live.dekit_date||live.end_date)){
+        const current = batches.find(b=>b.start_date<=today&&today<=(b.dekit_date||b.end_date));
+        if(current){
+          await DB.batches.activate(current.id).catch(()=>{});
+          batches = await DB.batches.list().catch(()=>batches);
+        }
+      }
+      const liveIdx = batches.findIndex(b=>b.is_live);
+      this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0});
+    }
   };
 
   // ── MC viewer ─────────────────────────────────────────────────────────────
@@ -416,7 +549,7 @@ class AppComponent extends DCLogic {
   selectCalDay = off => () => this.setState(s=>({selectedCalOffset:s.selectedCalOffset===off?null:off}));
 
   // ── Helpers ───────────────────────────────────────────────────────────────
-  baseDate(){ const d=new Date(); d.setHours(0,0,0,0); return d; }
+  baseDate(){ if(this.state.testDate){ return new Date(this.state.testDate+'T00:00:00'); } const d=new Date(); d.setHours(0,0,0,0); return d; }
   dateForOffset(off){ return Utils.addDays(this.baseDate(), off); }
   isNoReport(off){
     const d=this.dateForOffset(off);
@@ -507,8 +640,8 @@ class AppComponent extends DCLogic {
     return {
       isReservist:s.role==='reservist', isAdmin:s.role==='admin',
       headerChipClick:this.headerChipClick, logout:this.logout,
-      userName:s.role==='admin'?'Supervisor':(me?.name||''),
-      userInitials:s.role==='admin'?'SV':Utils.initials(me?.name||''),
+      userName:s.role==='admin'?(me?.name||'Supervisor'):(me?.name||''),
+      userInitials:s.role==='admin'?(me?.name?Utils.initials(me.name):'SV'):Utils.initials(me?.name||''),
       tabTitle:TITLES[s.tab]||'',
       headerKicker:s.role==='admin'?'Admin, '+orgName:orgName+', PNSMEN',
       goCheckin:this.go('checkin'), goBriefings:this.go('briefings'), goAttendance:this.go('attendance'), goMeal:this.go('meal'),
@@ -554,8 +687,8 @@ class AppComponent extends DCLogic {
     const whatsappLink = waMsg ? 'https://api.whatsapp.com/send?text='+encodeURIComponent(waMsg) : '';
     const showWaShare = !!(status==='present'||status==='mc');
     return {
-      todayLong:Utils.fmtLong(new Date()),
-      clock:Utils.hhmm(s.now),
+      todayLong:Utils.fmtLong(this.baseDate()),
+      clock:s.testDate?'--:--':Utils.hhmm(s.now),
       myShiftLabel:Utils.shiftLabel(me.shift), myShiftWindow:Utils.shiftWindow(me.shift),
       myStatusLabel:noRep?'No reporting':m.label,
       myStatusColor:noRep?accent:m.color,
@@ -761,23 +894,33 @@ class AppComponent extends DCLogic {
       mcViewOpen:s.mcViewOpen, mcViewName:s.mcViewName, mcViewDate:s.mcViewDate,
       mcViewFile:s.mcViewFile, mcViewUrl:s.mcViewUrl, mcViewNoUrl:!s.mcViewUrl,
       closeMcViewer:this.closeMcViewer,
+      testDate:s.testDate, testDateInput:s.testDateInput,
+      onTestDateInput:this.onTestDateInput, setTestDate:this.setTestDate, clearTestDate:this.clearTestDate,
+      hasTestDate:!!s.testDate,
     };
   }
 
   _buildAccount(s, accent){
     const me=this.cur(); if(!me) return {};
-    const avatarUrl=s.avatars[s.currentUserId]||'', showAvatar=s.role==='reservist'&&!!avatarUrl;
+    const avatarUrl=s.avatars[s.currentUserId]||'';
     return {
       accountOpen:s.accountOpen,
       closeAccount:this.closeAccount, askDelete:this.askDelete, cancelDelete:this.cancelDelete, deleteAccount:this.deleteAccount,
       confirmDelete:s.confirmDelete, deleteIdle:!s.confirmDelete,
       acctNric:'', acctContact:me.contact||'-',
       onAvatarFile:this.onAvatarFile,
-      headerAvatarBg:showAvatar?('url("'+avatarUrl+'")') :'none',
-      headerNoAvatar:!showAvatar,
+      headerAvatarBg:avatarUrl?('url("'+avatarUrl+'")') :'none',
+      headerNoAvatar:!avatarUrl,
       acctAvatarBg:avatarUrl?('url("'+avatarUrl+'")') :'none',
       acctNoAvatar:!avatarUrl,
-      isReservistRole: s.role==='reservist',
+      isReservistRole:s.role==='reservist',
+      acctNameEdit:s.acctNameEdit, onAcctNameEdit:this.onAcctNameEdit, saveAcctName:this.saveAcctName,
+      acctNameError:s.acctNameError, acctNameSuccess:s.acctNameSuccess,
+      acctPwCurrent:s.acctPwCurrent, acctPwNew:s.acctPwNew, acctPwConfirm:s.acctPwConfirm,
+      onAcctPwCurrent:this.onAcctPwCurrent, onAcctPwNew:this.onAcctPwNew, onAcctPwConfirm:this.onAcctPwConfirm,
+      saveAcctPw:this.saveAcctPw,
+      acctPwError:s.acctPwError, acctPwSuccess:s.acctPwSuccess,
+      acctSaving:s.acctSaving,
     };
   }
 
