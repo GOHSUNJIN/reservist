@@ -592,29 +592,29 @@ class AppComponent extends DCLogic {
 
   _navToOffset = async (off) => {
     const date=Utils.dateKey(this.dateForOffset(off));
-    const {batches,activeBatchIdx}=this.state;
-    const cur=batches[activeBatchIdx||0];
-    const inCurrent=cur&&date>=cur.start_date&&date<=(cur.dekit_date||cur.end_date);
-    if(!inCurrent){
-      let ni=batches.findIndex(b=>date>=b.start_date&&date<=(b.dekit_date||b.end_date));
-      // Gap between batches: fall back to the most recently ended batch before target date
-      if(ni<0){
-        let bestDate='', bestIdx=-1;
-        batches.forEach((b,i)=>{ const bd=b.dekit_date||b.end_date; if(bd<date&&bd>bestDate){bestDate=bd;bestIdx=i;} });
-        ni=bestIdx;
-      }
-      if(ni>=0&&ni!==activeBatchIdx){
-        const b=batches[ni];
-        this.setState({batchLoading:true});
-        let members=this.state.batchMembersCache[b.id];
-        if(!members&&!b.is_live){ members=await DB.personnel.list(b.id,false).catch(()=>[]); this.setState(s=>({batchMembersCache:{...s.batchMembersCache,[b.id]:members}})); }
-        const [nrd,attMap]=await Promise.all([
-          DB.noReportDays.list(b.start_date,b.dekit_date||b.end_date).catch(()=>new Set()),
-          b.is_live?Promise.resolve({}):DB.attendance.getForBatch(b.start_date,b.end_date).catch(()=>({})),
-        ]);
-        this.setState(s=>({activeBatchIdx:ni,viewOffset:off,selectedCalOffset:null,attendanceCache:b.is_live?{}:{...s.attendanceCache,...attMap},noReportDays:nrd,batchLoading:false}));
-        return;
-      }
+    const {batches}=this.state;
+    const curIdx=this.state.activeBatchIdx||0;
+    // Check non-current batches first — handles overlap where next batch starts
+    // before current batch's dekit_date
+    let ni=batches.findIndex((b,i)=>i!==curIdx&&date>=b.start_date&&date<=(b.dekit_date||b.end_date));
+    if(ni<0) ni=batches.findIndex((b,i)=>i===curIdx&&date>=b.start_date&&date<=(b.dekit_date||b.end_date));
+    // Gap between batches: fall back to the most recently ended batch before target date
+    if(ni<0){
+      let bestDate='',bestIdx=-1;
+      batches.forEach((b,i)=>{ const bd=b.dekit_date||b.end_date; if(bd<date&&bd>bestDate){bestDate=bd;bestIdx=i;} });
+      ni=bestIdx;
+    }
+    if(ni>=0&&ni!==curIdx){
+      const b=batches[ni];
+      this.setState({batchLoading:true});
+      let members=this.state.batchMembersCache[b.id];
+      if(!members&&!b.is_live){ members=await DB.personnel.list(b.id,false).catch(()=>[]); this.setState(s=>({batchMembersCache:{...s.batchMembersCache,[b.id]:members}})); }
+      const [nrd,attMap]=await Promise.all([
+        DB.noReportDays.list(b.start_date,b.dekit_date||b.end_date).catch(()=>new Set()),
+        b.is_live?Promise.resolve({}):DB.attendance.getForBatch(b.start_date,b.end_date).catch(()=>({})),
+      ]);
+      this.setState(s=>({activeBatchIdx:ni,viewOffset:off,selectedCalOffset:null,attendanceCache:b.is_live?{}:{...s.attendanceCache,...attMap},noReportDays:nrd,batchLoading:false}));
+      return;
     }
     this.setState({viewOffset:off});
     this._loadDateAttendance(off);
