@@ -45,6 +45,8 @@ class AppComponent extends DCLogic {
     confirmDeactivateId: null,
     showArchivedBatches: false,
     noReportDaysCache: {},
+    markAllPresenting: false,
+    mcSubmitting: false,
   };
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
@@ -281,6 +283,7 @@ class AppComponent extends DCLogic {
       toast:null, rosterSort:'shift', newBatchDate:'',
       peopleStats:{}, peopleStatsLoaded:false, confirmDeactivateId:null, showArchivedBatches:false,
       noAvatarIds:new Set(), noReportDaysCache:{},
+      markAllPresenting:false, mcSubmitting:false,
     });
   };
 
@@ -357,7 +360,7 @@ class AppComponent extends DCLogic {
 
   submitCheckIn = async () => {
     if(this.state.locStatus!=='verified') return;
-    const today=Utils.dateKey(new Date()), time=Utils.hhmm(new Date()), dist=this.state.locDistance;
+    const today=Utils.dateKey(this.baseDate()), time=Utils.hhmm(new Date()), dist=this.state.locDistance;
     const entry={status:'present',time,dist};
     this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:entry}}));
     this._haptic();
@@ -376,7 +379,9 @@ class AppComponent extends DCLogic {
   onMcFile= e => { const f=e.target.files&&e.target.files[0]; this.setState({mcFileName:f?f.name:'',_mcFile:f||null}); };
 
   submitMc = async () => {
-    const today=Utils.dateKey(new Date());
+    if(this.state.mcSubmitting) return;
+    this.setState({mcSubmitting:true});
+    const today=Utils.dateKey(this.baseDate());
     let mc=this.state.mcFileName||'medical-cert.pdf';
     if(!this.state.demo && this.state._mcFile){
       const {path,error}=await DB.storage.uploadMc(this.state.currentUserId, today, this.state._mcFile).catch(e=>({path:mc,error:e}));
@@ -384,7 +389,7 @@ class AppComponent extends DCLogic {
       else mc=path;
     }
     if(!this.state.demo) await DB.attendance.upsert(this.state.currentUserId, today, 'mc', {mc});
-    this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:{status:'mc',time:'-',mc}},mcMode:false,_mcFile:null}));
+    this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:{status:'mc',time:'-',mc}},mcMode:false,_mcFile:null,mcSubmitting:false}));
     this._haptic();
   };
 
@@ -428,7 +433,7 @@ class AppComponent extends DCLogic {
   requestUndo = () => this.setState({confirmUndo: true});
   cancelUndo  = () => this.setState({confirmUndo: false});
   doUndo      = async () => {
-    const today=Utils.dateKey(new Date());
+    const today=Utils.dateKey(this.baseDate());
     if(!this.state.demo) await DB.attendance.remove(this.state.currentUserId, today);
     this.setState(s=>{ const a={...s.attendance}; delete a[s.currentUserId]; return {attendance:a,mcFileName:'',_mcFile:null,locStatus:'idle',locDistance:null,confirmUndo:false}; });
     this._toast('Check-in undone.');
@@ -542,8 +547,8 @@ class AppComponent extends DCLogic {
 
 
   // ── Export CSV ────────────────────────────────────────────────────────────
-  exportCsv = () => {
-    const {batches,activeBatchIdx,batchMembersCache,personnel,attendance,attendanceCache,noReportDays}=this.state;
+  exportCsv = async () => {
+    const {batches,activeBatchIdx,batchMembersCache,personnel,attendance,noReportDays,demo}=this.state;
     const batch=batches[activeBatchIdx||0]; if(!batch) return;
     const members=batch.is_live?personnel:(batchMembersCache[batch.id]||[]);
     const start=new Date(batch.start_date+'T00:00:00'), end=new Date(batch.end_date+'T00:00:00');
@@ -551,11 +556,19 @@ class AppComponent extends DCLogic {
     for(let d=new Date(start);d<=end;d=Utils.addDays(d,1)){
       if(Utils.isReportDay(d)&&!Utils.holidayName(d)&&!noReportDays.has(Utils.dateKey(d))) dates.push(new Date(d));
     }
+    // For the live batch, attendanceCache only has dates the admin has navigated to.
+    // Fetch the full batch attendance before building the CSV.
+    let attCache=this.state.attendanceCache;
+    if(!demo){
+      const allAtt=await DB.attendance.getForBatch(batch.start_date,batch.end_date).catch(()=>({}));
+      attCache={...attCache,...allAtt};
+    }
+    const todayKey=Utils.dateKey(this.baseDate());
     const header=['Name','Contact','Shift',...dates.map(d=>Utils.fmtShort(d)),'Present','MC','Absent'].join(',');
     const rows=members.map(p=>{
       const statuses=dates.map(d=>{
         const dk=Utils.dateKey(d);
-        const map=dk===Utils.dateKey(this.baseDate())?attendance:(attendanceCache[dk]||{});
+        const map=dk===todayKey?attendance:(attCache[dk]||{});
         return (map[p.id]?.status)||'absent';
       });
       const pres=statuses.filter(s=>s==='present').length;
@@ -596,6 +609,7 @@ class AppComponent extends DCLogic {
       const noReportDaysCache=batchId?{...s.noReportDaysCache,[batchId]:nd}:s.noReportDaysCache;
       return {noReportDays:nd,noReportDaysCache};
     });
+    this._toast('No reporting '+(isNowOn?'enabled':'disabled')+' for '+Utils.fmtShort(d)+'.');
   };
 
   _navToOffset = async (off) => {
@@ -622,7 +636,7 @@ class AppComponent extends DCLogic {
         cachedNrd?Promise.resolve(cachedNrd):DB.noReportDays.list(b.start_date,b.dekit_date||b.end_date).catch(()=>new Set()),
         b.is_live?Promise.resolve({}):DB.attendance.getForBatch(b.start_date,b.end_date).catch(()=>({})),
       ]);
-      this.setState(s=>({activeBatchIdx:ni,viewOffset:off,selectedCalOffset:null,attendanceCache:b.is_live?{}:{...s.attendanceCache,...attMap},noReportDays:nrd,noReportDaysCache:cachedNrd?s.noReportDaysCache:{...s.noReportDaysCache,[b.id]:nrd},batchLoading:false}));
+      this.setState(s=>({activeBatchIdx:ni,viewOffset:off,selectedCalOffset:null,attendanceCache:b.is_live?{}:{...s.attendanceCache,...attMap},noReportDays:nrd,noReportDaysCache:cachedNrd?s.noReportDaysCache:{...s.noReportDaysCache,[b.id]:nrd},batchLoading:false,rosterSearch:''}));
       return;
     }
     this.setState({viewOffset:off});
@@ -652,7 +666,7 @@ class AppComponent extends DCLogic {
       attendanceCache: b.is_live ? {} : {...s.attendanceCache, ...batchAttMap},
       noReportDays,
       noReportDaysCache: cachedNrd?s.noReportDaysCache:{...s.noReportDaysCache,[b.id]:noReportDays},
-      batchLoading:false,
+      batchLoading:false, rosterSearch:'',
     }));
   };
 
@@ -693,11 +707,21 @@ class AppComponent extends DCLogic {
     const prev=viewIsToday?(this.state.attendance[id]||{}):((this.state.attendanceCache?.[viewDateKey]||{})[id]||{});
     const time=status==='present'?(prev.time&&prev.time!=='-'?prev.time:Utils.hhmm(new Date())):'-';
     const dist=status==='present'?prev.dist:undefined;
-    if(!this.state.demo) await DB.attendance.upsert(id, viewDateKey, status, {time,dist});
-    if(viewIsToday){
-      this.setState(s=>({attendance:{...s.attendance,[id]:{status,time,dist}}}));
-    } else {
-      this.setState(s=>({attendanceCache:{...s.attendanceCache,[viewDateKey]:{...(s.attendanceCache?.[viewDateKey]||{}),[id]:{status,time,dist}}}}));
+    if(viewIsToday){ this.setState(s=>({attendance:{...s.attendance,[id]:{status,time,dist}}})); }
+    else { this.setState(s=>({attendanceCache:{...s.attendanceCache,[viewDateKey]:{...(s.attendanceCache?.[viewDateKey]||{}),[id]:{status,time,dist}}}})); }
+    if(!this.state.demo){
+      const {error}=await DB.attendance.upsert(id,viewDateKey,status,{time,dist});
+      if(error){
+        if(prev.status){
+          if(viewIsToday){ this.setState(s=>({attendance:{...s.attendance,[id]:{status:prev.status,time:prev.time,dist:prev.dist}}})); }
+          else { this.setState(s=>({attendanceCache:{...s.attendanceCache,[viewDateKey]:{...(s.attendanceCache?.[viewDateKey]||{}),[id]:{status:prev.status,time:prev.time,dist:prev.dist}}}})); }
+        } else {
+          if(viewIsToday){ this.setState(s=>{const a={...s.attendance};delete a[id];return{attendance:a};}); }
+          else { this.setState(s=>{const c={...(s.attendanceCache?.[viewDateKey]||{})};delete c[id];return{attendanceCache:{...s.attendanceCache,[viewDateKey]:c}};}); }
+        }
+        this._toast('Failed to update. Try again.','error');
+        return;
+      }
     }
     this._haptic(40);
   };
@@ -715,21 +739,26 @@ class AppComponent extends DCLogic {
     if(!demo){
       const {data,error}=await DB.personnel.add({name:addedName,contact,shift,batchId:activeBatch?.id});
       if(error||!data){ this._toast('Failed to add. Try again.','error'); return; }
-      this.setState(s=>({personnel:[...s.personnel,data],npName:'',npContact:'',npShift:'AM'}));
+      this.setState(s=>({personnel:[...s.personnel,data],npName:'',npContact:'',npShift:'AM',rosterSearch:''}));
     } else {
       const id='demo-'+Date.now();
-      this.setState(s=>({personnel:[...s.personnel,{id,name:addedName,contact,shift,role:'reservist',batch_id:activeBatch?.id,is_active:true}],npName:'',npContact:'',npShift:'AM'}));
+      this.setState(s=>({personnel:[...s.personnel,{id,name:addedName,contact,shift,role:'reservist',batch_id:activeBatch?.id,is_active:true}],npName:'',npContact:'',npShift:'AM',rosterSearch:''}));
     }
     this._toast(addedName+' added to roster.');
   };
 
   onRosterSearch = e => this.setState({rosterSearch:e.target.value});
   markAllPresent = async () => {
+    if(this.state.markAllPresenting) return;
+    this.setState({markAllPresenting:true});
     const off=this.state.viewOffset||0;
     const viewDateKey=Utils.dateKey(this.dateForOffset(off));
     const viewIsToday=off===0;
     const viewMap=viewIsToday?this.state.attendance:(this.state.attendanceCache?.[viewDateKey]||{});
-    const pending=this.state.personnel.filter(p=>!viewMap[p.id]?.status||viewMap[p.id]?.status==='absent');
+    const {batches,activeBatchIdx,batchMembersCache}=this.state;
+    const activeBatch=batches[activeBatchIdx||0];
+    const activeMembers=activeBatch?.is_live?this.state.personnel:(batchMembersCache?.[activeBatch?.id]||[]);
+    const pending=activeMembers.filter(p=>!viewMap[p.id]?.status||viewMap[p.id]?.status==='absent');
     const time=Utils.hhmm(new Date());
     const updates={};
     await Promise.all(pending.map(async p=>{
@@ -737,9 +766,9 @@ class AppComponent extends DCLogic {
       if(!this.state.demo) await DB.attendance.upsert(p.id,viewDateKey,'present',{time}).catch(()=>{});
     }));
     if(viewIsToday){
-      this.setState(s=>({attendance:{...s.attendance,...updates}}));
+      this.setState(s=>({attendance:{...s.attendance,...updates},markAllPresenting:false}));
     } else {
-      this.setState(s=>({attendanceCache:{...s.attendanceCache,[viewDateKey]:{...(s.attendanceCache?.[viewDateKey]||{}),...updates}}}));
+      this.setState(s=>({attendanceCache:{...s.attendanceCache,[viewDateKey]:{...(s.attendanceCache?.[viewDateKey]||{}),...updates}},markAllPresenting:false}));
     }
   };
 
@@ -823,7 +852,7 @@ class AppComponent extends DCLogic {
       if(error||!data){ this._toast('Failed to create batch.','error'); this.setState({batchCreating:false}); return; }
       const newBatches=await DB.batches.list().catch(()=>[...batches,data]);
       const liveIdx=newBatches.findIndex(b=>b.is_live);
-      this.setState({batches:newBatches,activeBatchIdx:liveIdx>=0?liveIdx:0,newBatchDate:'',batchCreating:false});
+      this.setState({batches:newBatches,activeBatchIdx:liveIdx>=0?liveIdx:0,newBatchDate:'',batchCreating:false,tab:'people'});
     } else {
       const nb={id:'demo-b-'+Date.now(),label,start_date:startStr,end_date:endStr,dekit_date:dekitStr,is_live:true};
       this.setState(prev=>({batches:[...prev.batches,nb],newBatchDate:'',batchCreating:false}));
@@ -895,6 +924,18 @@ class AppComponent extends DCLogic {
     if(dst==='nr') return {label:'No reporting',sub:'Marked as a no-reporting day',color:'#8a94a3',bg:'#f0f2f7'};
     if(dst==='dekit') return {label:'Dekit day',sub:'Return equipment and submit meal allowance forms',color:'#161f30',bg:'#eceef2'};
     if(dst==='end') return {label:off<0?'Reporting day':'Upcoming',sub:'Last reporting day of your cycle',color:'#5c6678',bg:'#eceef2'};
+    if(dst==='post') return {label:'No reporting',sub:'Reporting cycle ended — await dekit',color:'#8a94a3',bg:'#f0f2f7'};
+    if(dst==='wknd') return {label:'Weekend',sub:'No reporting required',color:'#8a94a3',bg:'#f6f8fa'};
+    if(dst==='past'){
+      const hr=this.state.history.find(r=>r.date===dk);
+      if(hr){
+        const t=hr.check_in_time?hr.check_in_time.slice(0,5):'-';
+        if(hr.status==='present') return {label:'Present',sub:'Reported at '+t,color:'#1f8a5b',bg:'#e7f3ec'};
+        if(hr.status==='mc')     return {label:'On MC',sub:'Sick leave recorded',color:'#b9791a',bg:'#f7efdc'};
+        if(hr.status==='absent') return {label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
+      }
+      return {label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
+    }
     if(dst==='work'||dst==='today'){
       if(off<0){
         const hr=this.state.history.find(r=>r.date===dk);
@@ -989,7 +1030,9 @@ class AppComponent extends DCLogic {
       isOffline:!s.isOnline, offlinePending:s.offlinePending,
     };
     const rec=this.myRec(), status=rec.status||'pending', m=Utils.meta(status);
-    const noRep=this.isNoReport(0);
+    const todayD=this.dateForOffset(0);
+    const isOffDay=!Utils.isReportDay(todayD);
+    const noRep=isOffDay||this.isNoReport(0);
     const locVerified=s.locStatus==='verified', locLocating=s.locStatus==='locating';
     const locOutOfRange=s.locStatus==='out_of_range', locGpsError=s.locStatus==='gps_error';
     const locIdle=!s.locStatus||s.locStatus==='idle';
@@ -1023,7 +1066,7 @@ class AppComponent extends DCLogic {
       myStatusColor:noRep?accent:m.color,
       myStatusPulse:(status==='pending'&&!noRep)?'animation:pulseDot 1.6s ease infinite;':'',
       phToday:noRep,
-      phName:Utils.holidayName(this.dateForOffset(0))||'No CNB reporting today',
+      phName:Utils.holidayName(todayD)||(isOffDay?'Reservists do not report on weekends.':'No CNB reporting today.'),
       needCheckin:status==='pending'&&!s.mcMode&&!noRep,
       mcMode:s.mcMode&&!noRep,
       isPresent:status==='present'&&!noRep,
@@ -1046,6 +1089,8 @@ class AppComponent extends DCLogic {
       isLate, lateShiftStart:shiftStart,
       isOffline:!s.isOnline, offlinePending:s.offlinePending,
       refreshPage:this.refreshPage,
+      mcSubmitting:s.mcSubmitting,
+      mcSubmitLabel:s.mcSubmitting?'Submitting…':'Submit MC',
     };
   }
 
@@ -1066,6 +1111,9 @@ class AppComponent extends DCLogic {
       if(st==='work')  return cellBase+'background:#fff;border:1px solid #e3e6ec;color:#161f30;';
       if(st==='end')   return cellBase+'background:#fff;border:1.5px solid '+accent+';color:'+accent+';';
       if(st==='dekit') return cellBase+'background:#131a27;color:#fff;';
+      if(st==='post')  return cellBase+'background:#f0f2f7;color:#8a94a3;';
+      if(st==='wknd')  return cellBase+'background:#f6f8fa;color:#c2c8d2;';
+      if(st==='past')  return cellBase+'background:#f6f8fa;color:#b0b8c4;border:1px solid #eef0f4;';
       return cellBase+'background:transparent;color:#c2c8d2;';
     };
     const calCells=Array.from({length:21},(_,i)=>{
@@ -1076,12 +1124,13 @@ class AppComponent extends DCLogic {
       if(dk<bsKey) dst='pre';
       else if(dk>ddKey) dst='off';
       else if(dk===ddKey) dst='dekit';
-      else if(dk>beKey) dst='ph';
+      else if(dk>beKey) dst='post';
       else if(dk===beKey) dst=dk===todayKey?'today':'end';
-      else if(isWknd) dst='off';
+      else if(dk===todayKey) dst='today';
+      else if(isWknd) dst='wknd';
       else if(isHol) dst='ph';
       else if(isNoRep) dst='nr';
-      else if(dk===todayKey) dst='today';
+      else if(dk<todayKey) dst='past';
       else dst='work';
       let style=cellStyle(dst)+'cursor:pointer;';
       if(s.selectedCalOffset===off) style+='outline:2px solid '+accent+';outline-offset:1px;';
@@ -1113,7 +1162,7 @@ class AppComponent extends DCLogic {
   _buildAttendance(s){
     const me=this.cur(); if(!me) return {myHistory:[],statMyPresent:0,statMyMc:0,statMyMissed:0,statMyDays:0,cycleDone:0,cycleTotal:0,cyclePct:0};
     const rec=this.myRec(), status=rec.status||'pending';
-    const today=Utils.dateKey(new Date()), todayD=new Date(today+'T00:00:00');
+    const todayD=this.baseDate(), today=Utils.dateKey(todayD);
     const activeBatch=s.batches[s.activeBatchIdx||0];
 
     // Today row
@@ -1134,7 +1183,7 @@ class AppComponent extends DCLogic {
       const bStart=new Date(activeBatch.start_date+'T00:00:00'), yesterday=Utils.addDays(todayD,-1);
       for(let d=new Date(bStart);d<=yesterday;d=Utils.addDays(d,1)){
         const dk=Utils.dateKey(d);
-        if(Utils.isReportDay(d)&&!Utils.holidayName(d)&&!s.noReportDays.has(dk)&&!histKeys.has(dk)){
+        if(Utils.isReportDay(d)&&dk<=activeBatch.end_date&&!Utils.holidayName(d)&&!s.noReportDays.has(dk)&&!histKeys.has(dk)){
           missedRows.push({date:Utils.fmtMed(d),dateKey:dk,shift:Utils.shiftLabel(me.shift),status:'missed',time:'–',...Utils.meta('missed')});
         }
       }
@@ -1154,7 +1203,7 @@ class AppComponent extends DCLogic {
         if(Utils.isReportDay(d)&&!Utils.holidayName(d)){cycleTotal++;if(d<=now)cycleDone++;}
       }
     }
-    return {myHistory,statMyPresent,statMyMc,statMyMissed,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500};
+    return {myHistory,statMyPresent,statMyMc,statMyMissed,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:myHistory.length===0};
   }
 
   _buildBriefings(s, accent){
@@ -1218,14 +1267,14 @@ class AppComponent extends DCLogic {
       const cardStyle='background:#fff;border:1px solid #e3e6ec;border-left:3px solid '+mm.color+';border-radius:12px;padding:11px 13px;';
       const av=s.avatars[p.id]||'';
       const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,time:r.time||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.dist!=null)?(', GPS verified '+r.dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent'),onShiftChange:this.changeShift(p.id),cardStyle,avatarStyle};
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,status:r.status,time:r.time||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.dist!=null)?(', GPS verified '+r.dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent'),onShiftChange:this.changeShift(p.id),cardStyle,avatarStyle};
     });
     const search=(s.rosterSearch||'').toLowerCase();
     const filteredRoster=roster.filter(r=>!search||r.name.toLowerCase().includes(search));
     const sortKey=s.rosterSort||'shift';
     const sortedFiltered=[...filteredRoster].sort((a,b)=>{
       if(sortKey==='name') return a.name.localeCompare(b.name);
-      if(sortKey==='status'){const ord={present:0,mc:1,pending:2,absent:3};return (ord[a.label.toLowerCase()]??4)-(ord[b.label.toLowerCase()]??4);}
+      if(sortKey==='status'){const ord={present:0,mc:1,pending:2,absent:3};return (ord[a.status]??4)-(ord[b.status]??4);}
       const so={AM:0,PM:1,OFFICE:2};return (so[a.shift]??3)-(so[b.shift]??3);
     });
     const _sb='flex:1;padding:6px 4px;border-radius:8px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid ';
@@ -1283,7 +1332,8 @@ class AppComponent extends DCLogic {
       toggleArchivedBatches:()=>this.setState(s=>({showArchivedBatches:!s.showArchivedBatches})),
       roster, filteredRoster:sortedFiltered, logRows, logDateLabel,
       rosterSearch:s.rosterSearch, onRosterSearch:this.onRosterSearch,
-      markAllPresent:this.markAllPresent, pendingCount,
+      markAllPresent:this.markAllPresent, pendingCount, markAllPresenting:s.markAllPresenting,
+      noSearchResults:!!search&&sortedFiltered.length===0,
       statPresent:present, statMc:mc, statPending:pending, statTotal:total,
       noRepMsg, toggleNoReporting:this.toggleNoReporting,
       showRepToggle, repToggleLocked,
