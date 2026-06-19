@@ -1099,30 +1099,30 @@ class AppComponent extends DCLogic {
 
   _buildBriefings(s, accent){
     const ROLES={
-      AM:{title:'AM shift',window:'0830 to 1530, lunch 1200 to 1430',items:['Ensure MOPs for CNB testing exit DHQ the same route they came in.','Ensure MOPs do not loiter around the area.','Escort contractors around the building when needed.','Assist with Red Teaming exercises if needed.']},
-      PM:{title:'PM shift',window:'1530 to 2230, dinner 1630 to 1830',items:['Same duties as AM shift.','May leave early if CNB informs there is no more reporting.'],note:'Fridays: stay till 1800 hrs only, may move to canteen after 1630. Update WhatsApp when leaving DHQ or if on MC.'},
-      OFFICE:{title:'Office hours',window:'0900 to 1800, lunch 1200 to 1400',items:['Escort contractors when needed.','Assist with Red Teaming exercises if needed.']},
+      AM:{title:'AM Shift',window:'0830 – 1530  ·  Lunch 1200–1430',items:['MOPs for CNB testing must exit via the same route they entered.','MOPs must not loiter around the area.','Escort contractors around the building when required.','Assist with Red Teaming exercises if needed.']},
+      PM:{title:'PM Shift',window:'1530 – 2230  ·  Dinner 1630–1830',items:['Same duties as AM shift.','May leave early if CNB confirms no more reporting.'],note:'Fridays: stay till 1800 only. May move to canteen after 1630. Update WhatsApp when leaving DHQ or if on MC.'},
+      OFFICE:{title:'Office Hours',window:'0900 – 1800  ·  Lunch 1200–1400',items:['Escort contractors when required.','Assist with Red Teaming exercises if needed.']},
     };
-    const tab=s.rolesTab||'AM', active=ROLES[tab];
+    const me=this.cur(), myShift=me?.shift||'AM';
+    const tab=s.rolesTab||myShift, active=ROLES[tab], mine=ROLES[myShift];
     const roleTabs=[['AM','AM'],['PM','PM'],['OFFICE','Office']].map(([key,label])=>({
-      key,label,onClick:this.setRolesTab(key),
-      style:`flex:1;padding:9px 6px;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;${tab===key?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`,
+      key,label,isMyShift:key===myShift,onClick:this.setRolesTab(key),
+      style:`flex:1;padding:8px 4px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;${tab===key?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':key===myShift?`background:rgba(47,95,208,.07);color:${accent};`:'background:transparent;color:#8a94a3;'}`,
     }));
     const waGroupUrl=this.props.waGroupLink||'';
     return {
       roleTabs, roleTitle:active.title, roleWindow:active.window, roleItems:active.items, roleNote:active.note||'',
+      myShiftTitle:mine.title, myShiftWindow:mine.window, myShiftItems:mine.items, myShiftNote:mine.note||'',
       briefLocation:(this.props.hqName||'Bedok DHQ')+' Canteen',
-      briefSchedule:'Weekdays',
-      briefAttire:'Civilian. Pants and covered shoes',
-      briefReportingTime:'As allocated. Inform WhatsApp on arrival',
-      mealStatusBanner:'On hold until further notice. Do not submit the form for now.',
+      briefAttire:'Civilian — pants and covered shoes',
+      mealStatusBanner:'On hold — do not submit the form for now.',
       mealItems:[
-        'When resumed, submit daily (Mon to Fri), including MC days.',
-        'Indicate PRESENT if you completed the shift, or MC if on sick leave.',
-        'No submission needed on no-reporting days such as public holidays.',
+        'When resumed: submit daily Mon–Fri, including MC days.',
+        'Mark PRESENT if shift completed, MC if on sick leave.',
+        'No submission on public holidays or no-reporting days.',
       ],
       dekitItems:[
-        'Accurately fill meal allowance forms and submit to the Manpower Officer in charge of dekit, endorsed by an Ops Branch supervisor.',
+        'Fill meal allowance forms and submit to the Manpower Officer, endorsed by Ops Branch supervisor.',
         'Bring hardcopies of any MCs taken.',
         'Update WhatsApp once all PNSMEN have arrived.',
       ],
