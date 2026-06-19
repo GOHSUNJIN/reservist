@@ -123,7 +123,7 @@ const DB = {
       const today = Utils.dateKey(new Date());
       const { data } = await _db.from('attendance')
         .select('*').eq('personnel_id', personnelId).lt('date', today)
-        .order('date', { ascending: false }).limit(30);
+        .order('date', { ascending: false }).limit(200);
       return data || [];
     },
 

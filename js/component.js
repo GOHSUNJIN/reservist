@@ -1003,27 +1003,50 @@ class AppComponent extends DCLogic {
   }
 
   _buildAttendance(s){
-    const me=this.cur(); if(!me) return {myHistory:[],statMyPresent:0,statMyMc:0,statMyDays:0,cycleDone:0,cycleTotal:0,cyclePct:0};
+    const me=this.cur(); if(!me) return {myHistory:[],statMyPresent:0,statMyMc:0,statMyMissed:0,statMyDays:0,cycleDone:0,cycleTotal:0,cyclePct:0};
     const rec=this.myRec(), status=rec.status||'pending';
     const today=Utils.dateKey(new Date()), todayD=new Date(today+'T00:00:00');
-    const todayRow=(status!=='pending'&&Utils.isReportDay(todayD)&&!this.isNoReport(0))?[{date:Utils.fmtMed(todayD)+', Today',shift:Utils.shiftLabel(me.shift),status,time:rec.time||'-',...Utils.meta(status)}]:[];
+    const activeBatch=s.batches[s.activeBatchIdx||0];
+
+    // Today row
+    const todayRow=(status!=='pending'&&Utils.isReportDay(todayD)&&!this.isNoReport(0))
+      ?[{date:Utils.fmtMed(todayD)+', Today',dateKey:today,shift:Utils.shiftLabel(me.shift),status,time:rec.time||'-',...Utils.meta(status)}]:[];
+
+    // Past recorded rows
+    const histKeys=new Set(s.history.map(r=>r.date));
     const histRows=s.history.map(r=>{
       const d=new Date(r.date+'T00:00:00');
       const t=r.check_in_time?r.check_in_time.slice(0,5):'-';
-      return {date:Utils.fmtMed(d),shift:Utils.shiftLabel(me.shift),status:r.status,time:t,...Utils.meta(r.status)};
+      return {date:Utils.fmtMed(d),dateKey:r.date,shift:Utils.shiftLabel(me.shift),status:r.status,time:t,...Utils.meta(r.status)};
     });
-    const myHistory=[...todayRow,...histRows];
-    const statMyPresent=myHistory.filter(h=>h.label==='Present').length;
-    const statMyMc=myHistory.filter(h=>h.label==='On MC').length;
-    const activeBatch=s.batches[s.activeBatchIdx||0];
-    let cycleTotal=0, cycleDone=0;
+
+    // Missed shifts: reporting days in current batch before today with no record
+    const missedRows=[];
     if(activeBatch){
-      const bStart=new Date(activeBatch.start_date+'T00:00:00'), bEnd=new Date(activeBatch.end_date+'T00:00:00'), now=this.baseDate();
-      for(let d=new Date(bStart);d<=bEnd;d=Utils.addDays(d,1)){
-        if(Utils.isReportDay(d)&&!Utils.holidayName(d)){cycleTotal++; if(d<=now) cycleDone++;}
+      const bStart=new Date(activeBatch.start_date+'T00:00:00'), yesterday=Utils.addDays(todayD,-1);
+      for(let d=new Date(bStart);d<=yesterday;d=Utils.addDays(d,1)){
+        const dk=Utils.dateKey(d);
+        if(Utils.isReportDay(d)&&!Utils.holidayName(d)&&!s.noReportDays.has(dk)&&!histKeys.has(dk)){
+          missedRows.push({date:Utils.fmtMed(d),dateKey:dk,shift:Utils.shiftLabel(me.shift),status:'absent',time:'–',...Utils.meta('absent')});
+        }
       }
     }
-    return {myHistory,statMyPresent,statMyMc,statMyDays:myHistory.length,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0};
+
+    // Merge past rows newest-first
+    const allPast=[...histRows,...missedRows].sort((a,b)=>a.dateKey>b.dateKey?-1:1);
+    const myHistory=[...todayRow,...allPast];
+    const statMyPresent=myHistory.filter(h=>h.status==='present').length;
+    const statMyMc=myHistory.filter(h=>h.status==='mc').length;
+    const statMyMissed=missedRows.length;
+
+    let cycleTotal=0, cycleDone=0;
+    if(activeBatch){
+      const bStart=new Date(activeBatch.start_date+'T00:00:00'),bEnd=new Date(activeBatch.end_date+'T00:00:00'),now=this.baseDate();
+      for(let d=new Date(bStart);d<=bEnd;d=Utils.addDays(d,1)){
+        if(Utils.isReportDay(d)&&!Utils.holidayName(d)){cycleTotal++;if(d<=now)cycleDone++;}
+      }
+    }
+    return {myHistory,statMyPresent,statMyMc,statMyMissed,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0};
   }
 
   _buildBriefings(s, accent){
