@@ -98,7 +98,10 @@ class AppComponent extends DCLogic {
     const today = Utils.dateKey(this.baseDate());
 
     let batches = await DB.batches.list().catch(()=>[]);
-    if(role==='admin') batches = await this._ensureLiveBatch(batches);
+    if(role==='admin'){
+      batches = await this._ensureLiveBatch(batches);
+      batches = await this._ensureForwardBatches(batches);
+    }
 
     const liveIdx = batches.findIndex(b=>b.is_live);
     const activeBatchIdx = liveIdx>=0?liveIdx:0;
@@ -165,7 +168,28 @@ class AppComponent extends DCLogic {
       // Still haven't reached today — keep creating
       if(startStr>today) break; // gap period: next batch starts after today, stop
     }
-    return DB.batches.list().catch(()=>sorted);
+    return this._ensureForwardBatches(await DB.batches.list().catch(()=>sorted));
+  }
+
+  async _ensureForwardBatches(batches, ahead=3){
+    const today=Utils.dateKey(this.baseDate());
+    let sorted=[...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
+    const futureBatches=sorted.filter(b=>b.start_date>today);
+    const needed=ahead-futureBatches.length;
+    for(let i=0;i<needed;i++){
+      const lastBatch=sorted[sorted.length-1];
+      const fromDate=lastBatch?.dekit_date
+        ?Utils.addDays(new Date(lastBatch.dekit_date+'T00:00:00'),1)
+        :new Date(today+'T00:00:00');
+      const nextTue=Utils.nextBatchTuesday(fromDate);
+      const {start,end,dekit}=Utils.batchDatesFrom(nextTue);
+      const startStr=Utils.dateKey(start),endStr=Utils.dateKey(end),dekitStr=Utils.dateKey(dekit);
+      const sameEndMonth=sorted.filter(b=>(b.end_date||b.start_date).slice(0,7)===endStr.slice(0,7));
+      const label=Utils.batchLabel(startStr,endStr,sameEndMonth.length+1);
+      const {data}=await DB.batches.create(label,startStr,endStr,dekitStr).catch(()=>({}));
+      if(data) sorted.push(data); else break;
+    }
+    return needed>0?DB.batches.list().catch(()=>sorted):batches;
   }
 
   async _loadDateAttendance(off){
