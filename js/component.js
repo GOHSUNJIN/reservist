@@ -15,7 +15,7 @@ class AppComponent extends DCLogic {
     batchMembersCache: {},
     // ui state
     tab: 'checkin', rolesTab: 'AM',
-    locStatus: 'idle', locDistance: null,
+    locStatus: 'idle', locDistance: null, locGpsMsg: '',
     accountOpen: false, confirmDelete: false,
     viewOffset: 0, avatars: {}, selectedCalOffset: null,
     mcMode: false, mcFileName: '', _mcFile: null,
@@ -257,7 +257,7 @@ class AppComponent extends DCLogic {
     this.setState({
       authed:false, role:null, authMode:'login', demo:false,
       currentUserId:null, me:null, loginContact:'', loginPassword:'',
-      mcMode:false, locStatus:'idle', locDistance:null,
+      mcMode:false, locStatus:'idle', locDistance:null, locGpsMsg:'',
       accountOpen:false, confirmDelete:false, mcViewOpen:false,
       personnel:[], attendance:{}, history:[], attendanceCache:{}, batchMembersCache:{},
       testDate:null, testDateInput:'',
@@ -323,8 +323,11 @@ class AppComponent extends DCLogic {
         const rounded=Math.round(dist);
         this.setState({locDistance:rounded, locStatus:rounded<=this._maxDist()?'verified':'out_of_range'});
       },
-      ()=>{ this.setState({locStatus:'gps_error', locDistance:null}); },
-      {enableHighAccuracy:true, timeout:10000, maximumAge:60000}
+      err=>{
+        const msg=err.code===1?'Location permission denied. Enable it in your browser/phone settings.':err.code===2?'GPS signal unavailable. Try stepping outside or disabling Airplane mode.':'GPS timed out. Make sure location is on and try again.';
+        this.setState({locStatus:'gps_error', locDistance:null, locGpsMsg:msg});
+      },
+      {enableHighAccuracy:true, timeout:15000, maximumAge:0}
     );
   };
 
@@ -910,7 +913,7 @@ class AppComponent extends DCLogic {
     let locBorder,locCardBg,locBadgeBg,locBadgeColor,locMsg,locMsgColor;
     if(locVerified){ locBorder='#cfe6d8'; locCardBg='#f5faf7'; locBadgeBg='#e7f3ec'; locBadgeColor='#1f8a5b'; locMsg='Within '+hqName+' perimeter, about '+s.locDistance+' m away.'; locMsgColor='#1f8a5b'; }
     else if(locOutOfRange){ locBorder='#f1d3cf'; locCardBg='#fbeeec'; locBadgeBg='#f7e4e1'; locBadgeColor='#c0392b'; locMsg='Too far from '+hqName+' ('+s.locDistance+' m). Move on-site to check in.'; locMsgColor='#c0392b'; }
-    else if(locGpsError){ locBorder='#f0e2c2'; locCardBg='#fdf6e9'; locBadgeBg='#f7efdc'; locBadgeColor='#b9791a'; locMsg='Location unavailable. Check permissions and try again.'; locMsgColor='#b9791a'; }
+    else if(locGpsError){ locBorder='#f0e2c2'; locCardBg='#fdf6e9'; locBadgeBg='#f7efdc'; locBadgeColor='#b9791a'; locMsg=s.locGpsMsg||'Location unavailable. Check permissions and try again.'; locMsgColor='#b9791a'; }
     else if(locLocating){ locBorder='#eef0f4'; locCardBg='#fff'; locBadgeBg='#eceef2'; locBadgeColor=accent; locMsg='Locating you via GPS...'; locMsgColor='#8a94a3'; }
     else { locBorder='#eef0f4'; locCardBg='#fff'; locBadgeBg='#eceef2'; locBadgeColor='#8a94a3'; locMsg='Tap to confirm you are at '+hqName+'.'; locMsgColor='#8a94a3'; }
     const activeBatch = s.batches[s.activeBatchIdx||0];
@@ -1052,8 +1055,8 @@ class AppComponent extends DCLogic {
       }
     }
 
-    // Merge past rows newest-first
-    const allPast=[...histRows,...missedRows].sort((a,b)=>a.dateKey>b.dateKey?-1:1);
+    // Merge past rows oldest-first (chronological)
+    const allPast=[...histRows,...missedRows].sort((a,b)=>a.dateKey>b.dateKey?1:-1);
     const myHistory=[...todayRow,...allPast];
     const statMyPresent=myHistory.filter(h=>h.status==='present').length;
     const statMyMc=myHistory.filter(h=>h.status==='mc').length;
