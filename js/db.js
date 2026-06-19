@@ -66,6 +66,10 @@ const DB = {
     async remove(personnelId) {
       await _db.from('personnel').delete().eq('id', personnelId);
     },
+
+    async assignBatch(batchId) {
+      await _db.from('personnel').update({batch_id:batchId}).is('batch_id',null).eq('is_active',true);
+    },
   },
 
   // ── Attendance ────────────────────────────────────────────────────────────
