@@ -616,9 +616,13 @@ class AppComponent extends DCLogic {
     const date=Utils.dateKey(this.dateForOffset(off));
     const {batches}=this.state;
     const curIdx=this.state.activeBatchIdx||0;
-    // Check non-current batches first — handles overlap where next batch starts
-    // before current batch's dekit_date
-    let ni=batches.findIndex((b,i)=>i!==curIdx&&date>=b.start_date&&date<=(b.dekit_date||b.end_date));
+    // Prefer the batch whose reporting window (start→end_date) covers the date —
+    // this handles overlap where the next batch's reporting days start before the
+    // previous batch's dekit date (e.g. B1 Jul starts Jun 30, B2 Jun dekit Jul 1).
+    let ni=batches.findIndex((b,i)=>i!==curIdx&&date>=b.start_date&&date<=b.end_date);
+    if(ni<0) ni=batches.findIndex((b,i)=>i===curIdx&&date>=b.start_date&&date<=b.end_date);
+    // Fall back to dekit range (e.g. navigating to the dekit day itself)
+    if(ni<0) ni=batches.findIndex((b,i)=>i!==curIdx&&date>=b.start_date&&date<=(b.dekit_date||b.end_date));
     if(ni<0) ni=batches.findIndex((b,i)=>i===curIdx&&date>=b.start_date&&date<=(b.dekit_date||b.end_date));
     // Gap between batches: fall back to the most recently ended batch before target date
     if(ni<0){
@@ -688,7 +692,8 @@ class AppComponent extends DCLogic {
         this.setState({batches});
       }
     }
-    let idx=batches.findIndex(b=>batchJumpDate>=b.start_date&&batchJumpDate<=(b.dekit_date||b.end_date));
+    let idx=batches.findIndex(b=>batchJumpDate>=b.start_date&&batchJumpDate<=b.end_date);
+    if(idx===-1) idx=batches.findIndex(b=>batchJumpDate>=b.start_date&&batchJumpDate<=(b.dekit_date||b.end_date));
     if(idx===-1){
       let bestDiff=Infinity;
       batches.forEach((b,i)=>{
