@@ -778,7 +778,7 @@
             <h2 style="font-size:15px;font-weight:700;margin:0 0 14px;color:#161f30;">Add personnel</h2>
             <input value="{{ npName }}" onInput="{{ onNpName }}" placeholder="Full name" class="field" style="margin-bottom:10px;" />
             <input value="{{ npContact }}" onInput="{{ onNpContact }}" placeholder="Contact number (9xxx xxxx)" type="tel" class="field" style="margin-bottom:10px;" />
-            <select value="{{ npShift }}" onChange="{{ onNpShift }}" class="field" style="margin-bottom:10px;"><option value="AM">AM shift (0830-1530)</option><option value="PM">PM shift (1530-2230)</option><option value="OFFICE">Office (0900-1800)</option></select>
+            <select value="{{ npShift }}" onChange="{{ onNpShift }}" class="field" style="margin-bottom:10px;"><option value="AM" disabled="{{ npAmFull }}">{{ npAmLabel }}</option><option value="PM" disabled="{{ npPmFull }}">{{ npPmLabel }}</option><option value="OFFICE">Office (0900-1800)</option></select>
             <input value="{{ npPassword }}" onInput="{{ onNpPassword }}" placeholder="Password (min 6 chars)" type="password" class="field" style="margin-bottom:10px;" />
             <div style="font-size:11.5px;color:#8a94a3;margin-bottom:12px;line-height:1.5;">The reservist will log in with their contact number and this password.</div>
             <button onClick="{{ addPerson }}" style="width:100%;padding:12px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;">Add to roster</button>
