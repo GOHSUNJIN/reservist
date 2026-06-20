@@ -426,6 +426,11 @@ class AppComponent extends DCLogic {
 
   changeShift = id => async e => {
     const shift=e.target.value;
+    if(shift==='AM'||shift==='PM'){
+      const others=this.state.personnel.filter(p=>p.id!==id&&p.is_active!==false&&(p.role||'reservist')==='reservist');
+      const count=others.filter(p=>p.shift===shift).length;
+      if(count>=2){ this._toast((shift==='AM'?'AM':'PM')+' shift is full (2/2).','error'); return; }
+    }
     if(!this.state.demo) await DB.personnel.updateShift(id, shift).catch(()=>{});
     this.setState(s=>({personnel:s.personnel.map(p=>p.id===id?{...p,shift}:p)}));
   };
@@ -752,7 +757,10 @@ class AppComponent extends DCLogic {
     if(npPassword.length<6){ this._toast('Password must be at least 6 characters.','error'); return; }
     const activeBatch=batches[activeBatchIdx||0];
     const batchMembers=activeBatch?.is_live?personnel:(batchMembersCache?.[activeBatch?.id]||[]);
-    const shift=this._capShift(npShift, batchMembers);
+    const {am:bAm,pm:bPm}=this._shiftSlotCounts(batchMembers);
+    if(npShift==='AM'&&bAm>=2){ this._toast('AM shift is full (2/2). Select PM or Office.','error'); return; }
+    if(npShift==='PM'&&bPm>=2){ this._toast('PM shift is full (2/2). Select AM or Office.','error'); return; }
+    const shift=npShift;
     const contact=cleanContact;
     const addedName=npName.trim();
     if(!demo){
@@ -1293,6 +1301,10 @@ class AppComponent extends DCLogic {
   _buildAdmin(s, accent){
     const batches=s.batches, activeBatchIdx=s.activeBatchIdx||0, activeBatch=batches[activeBatchIdx];
     const activeMembers=activeBatch?.is_live?s.personnel:(s.batchMembersCache?.[activeBatch?.id]||[]);
+    const {am:npAmCount,pm:npPmCount}=this._shiftSlotCounts(activeMembers);
+    const npAmFull=npAmCount>=2, npPmFull=npPmCount>=2;
+    let npShift=s.npShift;
+    if((npShift==='AM'&&npAmFull)||(npShift==='PM'&&npPmFull)) npShift='OFFICE';
     const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const todayForChips=Utils.dateKey(this.baseDate());
@@ -1362,7 +1374,7 @@ class AppComponent extends DCLogic {
     const showRepToggle=viewReportDay&&!isDekit, repToggleLocked=!!viewHoliday, repToggleOn=viewBlocked;
     const noRepMsg=viewHoliday?('Public holiday ('+viewHoliday+'). Auto no-reporting, locked.'):repToggleOn?'On. Reservists are not required to report this day.':'Off. Reservists report and check in as normal.';
     const viewRoster=activeMembers.map(p=>{
-      const r=viewMap[p.id]||{status:viewOffset>0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
+      const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
       const hasMc=r.status==='mc'&&!!r.mc;
       const av=s.avatars[p.id]||'';
       const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
@@ -1413,7 +1425,10 @@ class AppComponent extends DCLogic {
       setRosterSortStatus:this.setRosterSort('status'),
       rosterSortShiftStyle,rosterSortNameStyle,rosterSortStatusStyle,
       newBatchDate:s.newBatchDate,onNewBatchDate:this.onNewBatchDate,createBatch:this.createBatch,batchCreating:s.batchCreating,
-      npName:s.npName, npContact:s.npContact, npShift:s.npShift, npPassword:s.npPassword,
+      npName:s.npName, npContact:s.npContact, npShift, npPassword:s.npPassword,
+      npAmFull, npPmFull, npAmCount, npPmCount,
+      npAmLabel:npAmFull?'AM shift (0830-1530) - Full':'AM shift (0830-1530) ('+npAmCount+'/2)',
+      npPmLabel:npPmFull?'PM shift (1530-2230) - Full':'PM shift (1530-2230) ('+npPmCount+'/2)',
       onNpName:this.onNpName, onNpContact:this.onNpContact, onNpRank:()=>{}, onNpShift:this.onNpShift, onNpPassword:this.onNpPassword, addPerson:this.addPerson,
       mealActive:!!(activeBatch?.meal_active), toggleMealActive:this.toggleMealActive,
       mealToggleTrackBg:activeBatch?.meal_active?accent:'#39435a',
