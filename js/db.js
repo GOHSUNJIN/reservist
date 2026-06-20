@@ -110,10 +110,15 @@ const DB = {
   // ── Attendance ────────────────────────────────────────────────────────────
   attendance: {
     _toEntry(r) {
+      const t=s=>s?s.slice(0,5):null;
       return {
         status: r.status,
-        time: r.check_in_time ? r.check_in_time.slice(0,5) : '-',
-        dist: r.gps_distance_m,
+        p1: t(r.check_in_time),
+        p1dist: r.gps_distance_m,
+        p2: t(r.lunch_out_time),
+        p3: t(r.work_return_time),
+        p3dist: r.work_return_dist,
+        p4: t(r.work_end_time),
       };
     },
 
@@ -152,6 +157,14 @@ const DB = {
 
     async remove(personnelId, dateStr) {
       await _db.from('attendance').delete().eq('personnel_id', personnelId).eq('date', dateStr);
+    },
+
+    async logPhase(personnelId, dateStr, key, timeStr, dist) {
+      const colMap={p1:'check_in_time',p2:'lunch_out_time',p3:'work_return_time',p4:'work_end_time'};
+      const distMap={p1:'gps_distance_m',p3:'work_return_dist'};
+      const row={personnel_id:personnelId,date:dateStr,status:'present',[colMap[key]]:timeStr+':00'};
+      if(distMap[key]&&dist!=null) row[distMap[key]]=dist;
+      await _db.from('attendance').upsert(row,{onConflict:'personnel_id,date'});
     },
   },
 

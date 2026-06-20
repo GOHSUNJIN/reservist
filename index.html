@@ -164,6 +164,21 @@
           </div>
           </sc-if>
 
+          <!-- DEV: test date panel (remove before production) -->
+          <div style="background:#f0e2c2;border:1px solid #e8c77a;border-radius:10px;padding:9px 13px;margin-bottom:10px;">
+            <div style="font-size:11px;font-weight:700;color:#8a6d2a;margin-bottom:6px;letter-spacing:.05em;">⚠ DEV — TEST DATE</div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <input value="{{ testDateInput }}" onInput="{{ onTestDateInput }}" type="date" style="flex:1;padding:5px 8px;border:1px solid #e8c77a;border-radius:7px;font-size:12px;background:#fff;outline:none;color:#161f30;" />
+              <button onClick="{{ setTestDate }}" style="padding:5px 12px;background:#b9791a;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">Set</button>
+              <sc-if value="{{ hasTestDate }}" hint-placeholder-val="">
+                <button onClick="{{ clearTestDate }}" style="padding:5px 10px;background:#fff;color:#b9791a;border:1px solid #e8c77a;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">Clear</button>
+              </sc-if>
+            </div>
+            <sc-if value="{{ hasTestDate }}" hint-placeholder-val="">
+              <div style="font-size:11px;color:#8a6d2a;margin-top:4px;">Active: {{ testDate }}</div>
+            </sc-if>
+          </div>
+
           <div style="background:#fff;border:1px solid #e3e6ec;border-radius:18px;padding:22px;box-shadow:0 1px 3px rgba(20,30,50,.05);">
             <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px;">
               <span style="width:9px;height:9px;border-radius:50%;background:{{ myStatusColor }};display:inline-block;{{ myStatusPulse }}"></span>
@@ -185,35 +200,6 @@
             </div>
             </sc-if>
 
-            <sc-if value="{{ needCheckin }}" hint-placeholder-val="{{ true }}">
-            <div>
-              <h2 style="font-size:19px;font-weight:700;margin:2px 0 6px;color:#161f30;">Verify you are on shift</h2>
-              <p style="font-size:13.5px;color:#5c6678;margin:0 0 16px;line-height:1.5;text-wrap:pretty;">Check-in uses your live GPS location to confirm you are physically at {{ hqName }}. You must be on-site for it to work.</p>
-
-              <div style="border:1px solid {{ locBorder }};border-radius:13px;padding:16px;background:{{ locCardBg }};text-align:center;">
-                <div style="position:relative;width:64px;height:64px;margin:2px auto 12px;">
-                  <sc-if value="{{ locLocating }}" hint-placeholder-val="">
-                    <span style="position:absolute;inset:0;border-radius:50%;background:{{ accent }};opacity:.25;animation:ring 1.4s ease-out infinite;"></span>
-                  </sc-if>
-                  <div style="position:absolute;inset:0;border-radius:50%;background:{{ locBadgeBg }};display:flex;align-items:center;justify-content:center;">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="{{ locBadgeColor }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"></path><circle cx="12" cy="10" r="2.4"></circle></svg>
-                  </div>
-                </div>
-                <div style="font-size:14px;font-weight:600;color:#161f30;">On-site location</div>
-                <div style="font-size:12.5px;color:{{ locMsgColor }};line-height:1.45;margin-top:3px;text-wrap:pretty;">{{ locMsg }}</div>
-                <sc-if value="{{ locShowLocateBtn }}" hint-placeholder-val="{{ true }}">
-                  <button onClick="{{ verifyLocation }}" style="width:100%;margin-top:14px;padding:12px;background:#fff;border:1px solid #d4d9e2;border-radius:10px;font-size:14px;font-weight:600;color:{{ accent }};cursor:pointer;">{{ locBtnLabel }}</button>
-                </sc-if>
-              </div>
-
-              <button onClick="{{ submitCheckIn }}" style="width:100%;padding:15px;background:{{ accent }};color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:600;cursor:pointer;margin-top:14px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ checkInOpacity }};pointer-events:{{ checkInPE }};">Check in</button>
-
-              <div style="border-top:1px solid #eef0f4;margin-top:18px;padding-top:16px;text-align:center;">
-                <button onClick="{{ openMc }}" style="padding:11px 18px;background:#fff;border:1px solid #d4d9e2;border-radius:10px;font-size:13.5px;font-weight:600;color:#b9791a;cursor:pointer;">Declare sick leave (MC)</button>
-              </div>
-            </div>
-            </sc-if>
-
             <sc-if value="{{ mcMode }}" hint-placeholder-val="">
             <div>
               <h2 style="font-size:19px;font-weight:700;margin:2px 0 6px;color:#161f30;">Declare sick leave</h2>
@@ -225,34 +211,73 @@
             </div>
             </sc-if>
 
-            <sc-if value="{{ isPresent }}" hint-placeholder-val="">
+            <!-- 4-phase check-in tracker -->
+            <sc-if value="{{ showPhases }}" hint-placeholder-val="{{ true }}">
             <div>
-              <div style="display:flex;align-items:center;gap:14px;margin:6px 0 4px;">
-                <div style="width:52px;height:52px;border-radius:50%;background:#e7f3ec;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
-                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1f8a5b" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"></polyline></svg>
+              <sc-for list="{{ phases }}" as="ph" hint-placeholder-count="4">
+              <div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid #f2f4f7;">
+                <div style="display:flex;flex-direction:column;align-items:center;padding-top:2px;">
+                  <div style="width:26px;height:26px;border-radius:50%;background:{{ ph.stepBg }};color:{{ ph.stepColor }};font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">{{ ph.num }}</div>
                 </div>
-                <div>
-                  <h2 style="font-size:19px;font-weight:700;margin:0;color:#161f30;">Checked in</h2>
-                  <p style="font-size:13.5px;color:#5c6678;margin:2px 0 0;">Reported at <strong style="font-family:'IBM Plex Mono',monospace;">{{ checkInTime }}</strong></p>
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                    <div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ ph.label }}</div>
+                    <sc-if value="{{ ph.done }}" hint-placeholder-val="">
+                      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#1f8a5b;font-weight:600;white-space:nowrap;flex:0 0 auto;">{{ ph.time }}</span>
+                    </sc-if>
+                  </div>
+                  <sc-if value="{{ ph.done }}" hint-placeholder-val="">
+                    <div style="font-size:11.5px;color:#1f8a5b;margin-top:2px;">{{ ph.doneText }}</div>
+                  </sc-if>
+                  <sc-if value="{{ ph.upcoming }}" hint-placeholder-val="">
+                    <div style="font-size:11.5px;color:#8a94a3;margin-top:2px;">Window: {{ ph.subLabel }}</div>
+                  </sc-if>
+                  <sc-if value="{{ ph.locked }}" hint-placeholder-val="">
+                    <div style="font-size:11.5px;color:#8a94a3;margin-top:2px;">Complete the previous step first</div>
+                  </sc-if>
+                  <sc-if value="{{ ph.missed }}" hint-placeholder-val="">
+                    <div style="font-size:11.5px;color:#c0392b;margin-top:2px;">Window closed</div>
+                  </sc-if>
+                  <!-- Active GPS phase -->
+                  <sc-if value="{{ ph.isActive }}" hint-placeholder-val="{{ true }}">
+                    <sc-if value="{{ ph.needsGps }}" hint-placeholder-val="">
+                      <sc-if value="{{ ph.gpsStarted }}" hint-placeholder-val="">
+                      <div style="border:1px solid {{ ph.locBorder }};border-radius:11px;padding:11px;background:{{ ph.locCardBg }};text-align:center;margin-top:9px;">
+                        <div style="position:relative;width:46px;height:46px;margin:0 auto 7px;">
+                          <sc-if value="{{ ph.locLocating }}" hint-placeholder-val="">
+                            <span style="position:absolute;inset:0;border-radius:50%;background:{{ accent }};opacity:.25;animation:ring 1.4s ease-out infinite;"></span>
+                          </sc-if>
+                          <div style="position:absolute;inset:0;border-radius:50%;background:{{ ph.locBadgeBg }};display:flex;align-items:center;justify-content:center;">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{ ph.locBadgeColor }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"></path><circle cx="12" cy="10" r="2.4"></circle></svg>
+                          </div>
+                        </div>
+                        <div style="font-size:12px;color:{{ ph.locMsgColor }};line-height:1.45;text-wrap:pretty;">{{ ph.locMsg }}</div>
+                      </div>
+                      </sc-if>
+                      <div style="display:flex;gap:7px;margin-top:9px;">
+                        <button onClick="{{ ph.onStart }}" disabled="{{ ph.locBtnDisabled }}" style="flex:1;padding:9px;background:#fff;border:1px solid #d4d9e2;border-radius:9px;font-size:12.5px;font-weight:600;color:{{ accent }};cursor:pointer;">{{ ph.locBtnLabel }}</button>
+                        <button onClick="{{ ph.onSubmit }}" style="flex:2;padding:9px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:12.5px;font-weight:600;cursor:pointer;opacity:{{ ph.checkInOpacity }};pointer-events:{{ ph.checkInPE }};">{{ ph.btnLabel }}</button>
+                      </div>
+                    </sc-if>
+                    <!-- Active non-GPS phase -->
+                    <sc-if value="{{ ph.notNeedsGps }}" hint-placeholder-val="">
+                      <button onClick="{{ ph.onSubmit }}" style="width:100%;padding:10px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;margin-top:9px;">{{ ph.btnLabel }}</button>
+                    </sc-if>
+                  </sc-if>
                 </div>
               </div>
-              <div style="display:flex;align-items:center;gap:9px;margin-top:12px;background:#e7f3ec;padding:9px 13px;border-radius:11px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#1f8a5b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"></path><circle cx="12" cy="10" r="2.4"></circle></svg><div><div style="font-size:11.5px;font-weight:700;color:#1f8a5b;line-height:1.3;">GPS-verified on-site</div><div style="font-size:11px;color:#3a9e6d;margin-top:1px;">{{ checkInDist }}</div></div></div>
+              </sc-for>
+
               <sc-if value="{{ isLate }}" hint-placeholder-val="">
-                <div style="display:inline-flex;align-items:center;gap:6px;margin-top:8px;background:#f7efdc;color:#b9791a;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>Late, shift started at {{ lateShiftStart }}</div>
+                <div style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:#f7efdc;color:#b9791a;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>Late arrival, shift started at {{ lateShiftStart }}</div>
               </sc-if>
-              <div style="background:#f6f8fa;border-radius:10px;padding:13px 15px;margin-top:12px;font-size:13px;color:#5c6678;line-height:1.55;text-wrap:pretty;">Remember to update the WhatsApp group when you leave DHQ.</div>
-              <sc-if value="{{ showUndoBtn }}" hint-placeholder-val="{{ true }}">
-                <button onClick="{{ undoCheckin }}" style="margin-top:14px;padding:9px 14px;background:transparent;border:1px solid #e3e6ec;border-radius:9px;font-size:13px;color:#8a94a3;cursor:pointer;">Undo check-in</button>
-              </sc-if>
-              <sc-if value="{{ showUndoConfirm }}" hint-placeholder-val="">
-                <div style="display:flex;align-items:center;gap:8px;margin-top:12px;padding:11px 14px;background:#f8f9fb;border-radius:10px;border:1px solid #e8eaef;">
-                  <span style="flex:1;font-size:12.5px;color:#5c6678;">Remove this check-in?</span>
-                  <button onClick="{{ cancelUndo }}" style="padding:6px 11px;background:#fff;border:1px solid #d4d9e2;border-radius:7px;font-size:12px;font-weight:600;color:#5c6678;cursor:pointer;white-space:nowrap;">Keep</button>
-                  <button onClick="{{ doUndo }}" style="padding:6px 11px;background:#fbeeec;border:1px solid #f1d3cf;border-radius:7px;font-size:12px;font-weight:600;color:#c0392b;cursor:pointer;white-space:nowrap;">Remove</button>
-                </div>
-              </sc-if>
+
+              <div style="border-top:1px solid #eef0f4;margin-top:14px;padding-top:14px;text-align:center;">
+                <button onClick="{{ openMc }}" style="padding:10px 18px;background:#fff;border:1px solid #d4d9e2;border-radius:10px;font-size:13px;font-weight:600;color:#b9791a;cursor:pointer;">Declare sick leave (MC)</button>
+              </div>
+
               <sc-if value="{{ showWaShare }}" hint-placeholder-val="">
-              <a href="{{ whatsappLink }}" target="_blank" rel="noopener" class="wa-link">
+              <a href="{{ whatsappLink }}" target="_blank" rel="noopener" class="wa-link" style="margin-top:10px;">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                 Share to group
               </a>
@@ -264,18 +289,8 @@
             <div>
               <h2 style="font-size:19px;font-weight:700;margin:2px 0 6px;color:#161f30;">Marked as MC</h2>
               <p style="font-size:13.5px;color:#5c6678;margin:0;line-height:1.5;text-wrap:pretty;">You are on MC today. Inform your supervisor on WhatsApp if you haven't already. Bring your MC hardcopy on dekit day.</p>
-              <sc-if value="{{ showUndoBtn }}" hint-placeholder-val="{{ true }}">
-                <button onClick="{{ undoCheckin }}" style="margin-top:14px;padding:9px 14px;background:transparent;border:1px solid #e3e6ec;border-radius:9px;font-size:13px;color:#8a94a3;cursor:pointer;">Undo</button>
-              </sc-if>
-              <sc-if value="{{ showUndoConfirm }}" hint-placeholder-val="">
-                <div style="display:flex;align-items:center;gap:8px;margin-top:12px;padding:11px 14px;background:#f8f9fb;border-radius:10px;border:1px solid #e8eaef;">
-                  <span style="flex:1;font-size:12.5px;color:#5c6678;">Remove sick leave?</span>
-                  <button onClick="{{ cancelUndo }}" style="padding:6px 11px;background:#fff;border:1px solid #d4d9e2;border-radius:7px;font-size:12px;font-weight:600;color:#5c6678;cursor:pointer;white-space:nowrap;">Keep</button>
-                  <button onClick="{{ doUndo }}" style="padding:6px 11px;background:#fbeeec;border:1px solid #f1d3cf;border-radius:7px;font-size:12px;font-weight:600;color:#c0392b;cursor:pointer;white-space:nowrap;">Remove</button>
-                </div>
-              </sc-if>
               <sc-if value="{{ showWaShare }}" hint-placeholder-val="">
-              <a href="{{ whatsappLink }}" target="_blank" rel="noopener" class="wa-link">
+              <a href="{{ whatsappLink }}" target="_blank" rel="noopener" class="wa-link" style="margin-top:12px;">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                 Share to group
               </a>
@@ -687,7 +702,13 @@
             <sc-for list="{{ logRows }}" as="row" hint-placeholder-count="6">
               <div class="row-item">
                 <div class="avatar-sm" style="{{ row.avatarStyle }}">{{ row.initials }}</div>
-                <div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div><div style="font-size:11.5px;color:#8a94a3;">{{ row.shiftLabel }}</div></div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div>
+                  <div style="font-size:11.5px;color:#8a94a3;">{{ row.shiftLabel }}</div>
+                  <sc-if value="{{ row.hasPhases }}" hint-placeholder-val="">
+                    <div style="font-size:10.5px;color:#8a94a3;font-family:'IBM Plex Mono',monospace;margin-top:2px;">{{ row.phasesText }}</div>
+                  </sc-if>
+                </div>
                 <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:{{ row.timeColor }};">{{ row.time }}{{ row.lateTag }}</span>
                 <span class="badge" style="color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
               </div>

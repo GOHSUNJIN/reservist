@@ -31,7 +31,7 @@ class AppComponent extends DCLogic {
     acctPwError: '', acctPwSuccess: '',
     acctNameError: '', acctNameSuccess: '',
     acctSaving: false,
-    confirmUndo: false,
+    locPhase: null,
     addPersonSuccess: '', addPersonError: '',
     batchLoading: false, batchCreating: false,
     editingNoteId: null, editingNoteText: '',
@@ -56,7 +56,11 @@ class AppComponent extends DCLogic {
       this.setState({isOnline:true});
       const pend = this._offlineQueue;
       if(pend && !this.state.demo){
-        await DB.attendance.upsert(pend.id, pend.date, pend.status, pend.extras).catch(()=>{});
+        if(pend.key){
+          await DB.attendance.logPhase(pend.id, pend.date, pend.key, pend.time, pend.dist).catch(()=>{});
+        } else {
+          await DB.attendance.upsert(pend.id, pend.date, pend.status, pend.extras).catch(()=>{});
+        }
         this._offlineQueue = null;
         this.setState({offlinePending:false});
       }
@@ -274,7 +278,7 @@ class AppComponent extends DCLogic {
       testDate:null, testDateInput:'',
       acctNameEdit:'', acctPwCurrent:'', acctPwNew:'', acctPwConfirm:'',
       acctPwError:'', acctPwSuccess:'', acctNameError:'', acctNameSuccess:'', acctSaving:false,
-      confirmUndo:false, addPersonSuccess:'', addPersonError:'', batchLoading:false, batchCreating:false,
+      locPhase:null, addPersonSuccess:'', addPersonError:'', batchLoading:false, batchCreating:false,
       editingNoteId:null, editingNoteText:'',
       batchJumpDate:Utils.dateKey(new Date()),
       toast:null, rosterSort:'shift', newBatchDate:'',
@@ -308,7 +312,7 @@ class AppComponent extends DCLogic {
       {id:'d4',name:'Lim Hui Ying',contact:'9000 0004',shift:'OFFICE',role:'reservist',batch_id:'demo-batch',is_active:true},
       {id:'d5',name:'Brandon Yeo',contact:'9000 0005',shift:'PM',role:'reservist',batch_id:'demo-batch',is_active:true},
     ];
-    this.setState({authed:true,role:'admin',tab:'overview',demo:true,currentUserId:'demo-admin',me:{id:'demo-admin',name:'Supervisor',role:'admin'},personnel,batches:[batch],activeBatchIdx:0,attendance:{'d2':{status:'present',time:'08:24',dist:32},'d3':{status:'present',time:'08:31',dist:48},'d5':{status:'mc',time:'-',mc:'demo-mc.pdf'}},noReportDays:new Set(),history:[],authError:'',accountDeleted:false});
+    this.setState({authed:true,role:'admin',tab:'overview',demo:true,currentUserId:'demo-admin',me:{id:'demo-admin',name:'Supervisor',role:'admin'},personnel,batches:[batch],activeBatchIdx:0,attendance:{'d2':{status:'present',p1:'08:24',p1dist:32},'d3':{status:'present',p1:'08:31',p1dist:48},'d5':{status:'mc',p1:null}},noReportDays:new Set(),history:[],authError:'',accountDeleted:false});
   };
 
   // ── Form handlers ─────────────────────────────────────────────────────────
@@ -357,18 +361,36 @@ class AppComponent extends DCLogic {
     return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
   }
 
-  submitCheckIn = async () => {
-    if(this.state.locStatus!=='verified') return;
-    const today=Utils.dateKey(this.baseDate()), time=Utils.hhmm(new Date()), dist=this.state.locDistance;
-    const entry={status:'present',time,dist};
-    this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:entry}}));
+  startPhaseGps = phase => () => {
+    if(this.state.locStatus==='locating') return;
+    this.setState({locPhase:phase, locStatus:'idle', locDistance:null, locGpsMsg:''});
+    this.verifyLocation();
+  };
+
+  doPhase = key => async () => {
+    const {locStatus,locDistance,currentUserId,demo,isOnline} = this.state;
+    const needsGps = key==='p1'||key==='p3';
+    if(needsGps && locStatus!=='verified') return;
+    const time = Utils.hhmm(new Date());
+    const dist = needsGps ? locDistance : null;
+    const today = Utils.dateKey(this.baseDate());
+    const rec = {...this.myRec()};
+    if(key==='p1'){rec.status='present';rec.p1=time;rec.p1dist=dist;}
+    else if(key==='p2') rec.p2=time;
+    else if(key==='p3'){rec.p3=time;rec.p3dist=dist;}
+    else if(key==='p4') rec.p4=time;
+    this.setState(s=>({
+      attendance:{...s.attendance,[currentUserId]:rec},
+      locStatus:needsGps?'idle':s.locStatus,
+      locPhase:needsGps?null:s.locPhase,
+    }));
     this._haptic();
-    if(!this.state.demo){
-      if(!this.state.isOnline){
-        this._offlineQueue={id:this.state.currentUserId,date:today,status:'present',extras:{time,dist}};
+    if(!demo){
+      if(key==='p1'&&!isOnline){
+        this._offlineQueue={id:currentUserId,date:today,key,time,dist};
         this.setState({offlinePending:true});
       } else {
-        await DB.attendance.upsert(this.state.currentUserId, today, 'present', {time,dist});
+        await DB.attendance.logPhase(currentUserId, today, key, time, dist).catch(()=>{});
       }
     }
   };
@@ -427,14 +449,6 @@ class AppComponent extends DCLogic {
     this.setState(s=>({personnel:s.personnel.map(p=>p.id===id?{...p,shift}:p)}));
   };
 
-  requestUndo = () => this.setState({confirmUndo: true});
-  cancelUndo  = () => this.setState({confirmUndo: false});
-  doUndo      = async () => {
-    const today=Utils.dateKey(this.baseDate());
-    if(!this.state.demo) await DB.attendance.remove(this.state.currentUserId, today);
-    this.setState(s=>{ const a={...s.attendance}; delete a[s.currentUserId]; return {attendance:a,locStatus:'idle',locDistance:null,confirmUndo:false}; });
-    this._toast('Check-in undone.');
-  };
 
   // ── Account ───────────────────────────────────────────────────────────────
   headerChipClick = () => this.setState({accountOpen:true, acctNameEdit:this.cur()?.name||''});
@@ -522,6 +536,10 @@ class AppComponent extends DCLogic {
       const liveIdx = batches.findIndex(b=>b.is_live);
       this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0});
     }
+    if(this.state.role==='reservist'&&!this.state.demo){
+      const att = await DB.attendance.getForDate(d).catch(()=>({}));
+      this.setState({attendance:att});
+    }
   };
 
   clearTestDate = async () => {
@@ -531,6 +549,11 @@ class AppComponent extends DCLogic {
       batches = await this._ensureLiveBatch(batches, Utils.dateKey(new Date()));
       const liveIdx = batches.findIndex(b=>b.is_live);
       this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0});
+    }
+    if(this.state.role==='reservist'&&!this.state.demo){
+      const today = Utils.dateKey(new Date());
+      const att = await DB.attendance.getForDate(today).catch(()=>({}));
+      this.setState({attendance:att});
     }
   };
 
@@ -577,7 +600,14 @@ class AppComponent extends DCLogic {
   _subscribeRealtime(dateStr){
     if(this.state.demo) return;
     const ch=DB.realtime.subscribeAttendance(dateStr, row=>{
-      const entry={status:row.status,time:row.check_in_time?row.check_in_time.slice(0,5):'-',dist:row.gps_distance_m,mc:row.mc_filename};
+      const t=s=>s?s.slice(0,5):null;
+      const entry={
+        status:row.status,
+        p1:t(row.check_in_time), p1dist:row.gps_distance_m,
+        p2:t(row.lunch_out_time),
+        p3:t(row.work_return_time), p3dist:row.work_return_dist,
+        p4:t(row.work_end_time),
+      };
       this.setState(s=>({attendance:{...s.attendance,[row.personnel_id]:entry}}));
     });
     this.setState({realtimeChannel:ch});
@@ -710,16 +740,18 @@ class AppComponent extends DCLogic {
     const viewDateKey=Utils.dateKey(this.dateForOffset(off));
     const viewIsToday=off===0;
     const prev=viewIsToday?(this.state.attendance[id]||{}):((this.state.attendanceCache?.[viewDateKey]||{})[id]||{});
-    const time=status==='present'?(prev.time&&prev.time!=='-'?prev.time:Utils.hhmm(new Date())):'-';
-    const dist=status==='present'?prev.dist:undefined;
-    if(viewIsToday){ this.setState(s=>({attendance:{...s.attendance,[id]:{status,time,dist}}})); }
-    else { this.setState(s=>({attendanceCache:{...s.attendanceCache,[viewDateKey]:{...(s.attendanceCache?.[viewDateKey]||{}),[id]:{status,time,dist}}}})); }
+    const p1=status==='present'?(prev.p1||Utils.hhmm(new Date())):null;
+    const p1dist=status==='present'?prev.p1dist:undefined;
+    const entry={status, p1, p1dist};
+    if(viewIsToday){ this.setState(s=>({attendance:{...s.attendance,[id]:entry}})); }
+    else { this.setState(s=>({attendanceCache:{...s.attendanceCache,[viewDateKey]:{...(s.attendanceCache?.[viewDateKey]||{}),[id]:entry}}})); }
     if(!this.state.demo){
-      const {error}=await DB.attendance.upsert(id,viewDateKey,status,{time,dist});
+      const {error}=await DB.attendance.upsert(id,viewDateKey,status,{time:p1,dist:p1dist});
       if(error){
         if(prev.status){
-          if(viewIsToday){ this.setState(s=>({attendance:{...s.attendance,[id]:{status:prev.status,time:prev.time,dist:prev.dist}}})); }
-          else { this.setState(s=>({attendanceCache:{...s.attendanceCache,[viewDateKey]:{...(s.attendanceCache?.[viewDateKey]||{}),[id]:{status:prev.status,time:prev.time,dist:prev.dist}}}})); }
+          const restore={status:prev.status,p1:prev.p1,p1dist:prev.p1dist};
+          if(viewIsToday){ this.setState(s=>({attendance:{...s.attendance,[id]:restore}})); }
+          else { this.setState(s=>({attendanceCache:{...s.attendanceCache,[viewDateKey]:{...(s.attendanceCache?.[viewDateKey]||{}),[id]:restore}}})); }
         } else {
           if(viewIsToday){ this.setState(s=>{const a={...s.attendance};delete a[id];return{attendance:a};}); }
           else { this.setState(s=>{const c={...(s.attendanceCache?.[viewDateKey]||{})};delete c[id];return{attendanceCache:{...s.attendanceCache,[viewDateKey]:c}};}); }
@@ -777,11 +809,11 @@ class AppComponent extends DCLogic {
     const activeBatch=batches[activeBatchIdx||0];
     const activeMembers=activeBatch?.is_live?this.state.personnel:(batchMembersCache?.[activeBatch?.id]||[]);
     const pending=activeMembers.filter(p=>!viewMap[p.id]?.status||viewMap[p.id]?.status==='absent');
-    const time=Utils.hhmm(new Date());
+    const p1=Utils.hhmm(new Date());
     const updates={};
     await Promise.all(pending.map(async p=>{
-      updates[p.id]={status:'present',time};
-      if(!this.state.demo) await DB.attendance.upsert(p.id,viewDateKey,'present',{time}).catch(()=>{});
+      updates[p.id]={status:'present',p1};
+      if(!this.state.demo) await DB.attendance.upsert(p.id,viewDateKey,'present',{time:p1}).catch(()=>{});
     }));
     if(viewIsToday){
       this.setState(s=>({attendance:{...s.attendance,...updates},markAllPresenting:false}));
@@ -939,7 +971,7 @@ class AppComponent extends DCLogic {
       if(!Utils.isReportDay(d)) return {label:'Weekend',sub:'No reporting required',color:'#8a94a3',bg:'#f6f8fa'};
       if(this.isNoReport(0)) return {label:'No reporting',sub:hol||'Marked as a no-reporting day',color:'#b9791a',bg:'#f7efdc'};
       const rec=this.myRec(), st=rec.status||'pending';
-      if(st==='present') return {label:'Checked in',sub:'Reported at '+rec.time,color:'#1f8a5b',bg:'#e7f3ec'};
+      if(st==='present') return {label:'Checked in',sub:'Reported at '+(rec.p1||'-'),color:'#1f8a5b',bg:'#e7f3ec'};
       if(st==='mc')      return {label:'On MC',sub:'Sick leave declared for today',color:'#b9791a',bg:'#f7efdc'};
       return {label:'Pending',sub:'You have not checked in yet today',color:'#5c6678',bg:'#eceef2'};
     }
@@ -1044,58 +1076,98 @@ class AppComponent extends DCLogic {
     if(!me) return {
       todayLong:Utils.fmtLong(new Date()), clock:Utils.hhmm(s.now),
       myShiftLabel:'', myShiftWindow:'', myStatusLabel:'', myStatusColor:accent,
-      myStatusPulse:'', phToday:false, phName:'', needCheckin:false, mcMode:false,
-      isPresent:false, isMc:false, checkInTime:'-', checkInDist:'',
-      verifyLocation:()=>{}, submitCheckIn:()=>{}, locLocating:false, locNeedsAction:false,
-      locShowLocateBtn:false, locBtnLabel:'Locate me',
-      locBorder:'#eef0f4', locCardBg:'#fff', locBadgeBg:'#eceef2', locBadgeColor:'#8a94a3',
-      locMsg:'', locMsgColor:'#8a94a3', checkInOpacity:'.45', checkInPE:'none',
-      openMc:()=>{}, submitMc:()=>{}, cancelMc:()=>{}, undoCheckin:()=>{},
+      myStatusPulse:'', phToday:false, phName:'', mcMode:false,
+      isMc:false, showPhases:false, phases:[], allDone:false,
+      openMc:()=>{}, submitMc:()=>{}, cancelMc:()=>{},
       batchLabel:'', dekitCountdown:'', batchRange:'', showBatchInfo:false,
       whatsappLink:'', showWaShare:false,
       isOffline:!s.isOnline, offlinePending:s.offlinePending,
+      hasTestDate:false, testDate:'', testDateInput:'', onTestDateInput:()=>{}, setTestDate:()=>{}, clearTestDate:()=>{},
     };
     const rec=this.myRec(), status=rec.status||'pending', m=Utils.meta(status);
     const todayD=this.dateForOffset(0);
     const isOffDay=!Utils.isReportDay(todayD);
     const noRep=isOffDay||this.isNoReport(0);
+
+    // GPS state (shared across phases, scoped by locPhase)
     const locVerified=s.locStatus==='verified', locLocating=s.locStatus==='locating';
     const locOutOfRange=s.locStatus==='out_of_range', locGpsError=s.locStatus==='gps_error';
     const locIdle=!s.locStatus||s.locStatus==='idle';
-    let locBorder,locCardBg,locBadgeBg,locBadgeColor,locMsg,locMsgColor;
-    if(locVerified){ locBorder='#cfe6d8'; locCardBg='#f5faf7'; locBadgeBg='#e7f3ec'; locBadgeColor='#1f8a5b'; locMsg=s.locDistance+' m from '+hqName+', on-site'; locMsgColor='#1f8a5b'; }
-    else if(locOutOfRange){ locBorder='#f1d3cf'; locCardBg='#fbeeec'; locBadgeBg='#f7e4e1'; locBadgeColor='#c0392b'; locMsg=s.locDistance+' m away, not on-site'; locMsgColor='#c0392b'; }
-    else if(locGpsError){ locBorder='#f0e2c2'; locCardBg='#fdf6e9'; locBadgeBg='#f7efdc'; locBadgeColor='#b9791a'; locMsg=s.locGpsMsg||'Location unavailable. Check permissions and try again.'; locMsgColor='#b9791a'; }
-    else if(locLocating){ locBorder='#eef0f4'; locCardBg='#fff'; locBadgeBg='#eceef2'; locBadgeColor=accent; locMsg='Locating you via GPS...'; locMsgColor='#8a94a3'; }
-    else { locBorder='#eef0f4'; locCardBg='#fff'; locBadgeBg='#eceef2'; locBadgeColor='#8a94a3'; locMsg='Tap to confirm you are at '+hqName+'.'; locMsgColor='#8a94a3'; }
-    const activeBatch = s.batches[s.activeBatchIdx||0];
-    const batchLabel = activeBatch?.label || '';
-    const dekit = activeBatch?.dekit_date ? new Date(activeBatch.dekit_date+'T00:00:00') : null;
-    const todayMid = new Date(); todayMid.setHours(0,0,0,0);
-    const dekitDaysLeft = dekit ? Math.round((dekit - todayMid) / 86400000) : null;
-    const dekitCountdown = dekitDaysLeft === null ? '' : dekitDaysLeft === 0 ? 'Return equipment today' : dekitDaysLeft > 0 ? `${dekitDaysLeft} day${dekitDaysLeft !== 1 ? 's' : ''} to dekit` : 'Cycle complete';
-    const batchRange = activeBatch ? (Utils.fmtShort(new Date(activeBatch.start_date+'T00:00:00')) + ' to ' + Utils.fmtShort(new Date(activeBatch.end_date+'T00:00:00'))) : '';
-    const waMsg = status==='present'
-      ? `✅ [${rec.time}] ${me.name} checked in for ${Utils.shiftLabel(me.shift)}.`
-      : status==='mc'
-      ? `🤒 ${me.name} is on MC today (${Utils.shiftLabel(me.shift)}).`
-      : '';
-    const whatsappLink = waMsg ? 'https://api.whatsapp.com/send?text='+encodeURIComponent(waMsg) : '';
-    const showWaShare = !!(status==='present'||status==='mc');
-    const shiftStart={AM:'08:30',PM:'15:30',OFFICE:'09:00'}[me.shift]||'08:30';
-    const isLate=rec.status==='present'&&rec.time&&rec.time!=='-'&&rec.time>shiftStart;
-    let showUndoBtn=false;
-    if(!s.confirmUndo){
-      if(status==='mc') showUndoBtn=true;
-      else if(status==='present'){
-        if(s.demo){showUndoBtn=true;}
-        else if(rec.time&&rec.time!=='-'){
-          const [uh,um]=rec.time.split(':').map(Number);
-          const ci=new Date(s.now);ci.setHours(uh,um,0,0);
-          showUndoBtn=(s.now.getTime()-ci.getTime())<=30*60*1000;
-        }
-      }
-    }
+    let gLocBorder,gLocCardBg,gLocBadgeBg,gLocBadgeColor,gLocMsg,gLocMsgColor;
+    if(locVerified){gLocBorder='#cfe6d8';gLocCardBg='#f5faf7';gLocBadgeBg='#e7f3ec';gLocBadgeColor='#1f8a5b';gLocMsg=s.locDistance+' m from '+hqName+', on-site';gLocMsgColor='#1f8a5b';}
+    else if(locOutOfRange){gLocBorder='#f1d3cf';gLocCardBg='#fbeeec';gLocBadgeBg='#f7e4e1';gLocBadgeColor='#c0392b';gLocMsg=s.locDistance+' m away, not on-site';gLocMsgColor='#c0392b';}
+    else if(locGpsError){gLocBorder='#f0e2c2';gLocCardBg='#fdf6e9';gLocBadgeBg='#f7efdc';gLocBadgeColor='#b9791a';gLocMsg=s.locGpsMsg||'Location unavailable. Check permissions and try again.';gLocMsgColor='#b9791a';}
+    else if(locLocating){gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor=accent;gLocMsg='Locating you via GPS...';gLocMsgColor='#8a94a3';}
+    else{gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor='#8a94a3';gLocMsg='Tap "Locate me" to verify your location.';gLocMsgColor='#8a94a3';}
+
+    const shift=me.shift||'AM';
+    const now=s.now;
+    const testMode=!!s.testDate||s.demo;
+    const phaseDefs=[
+      {key:'p1',num:1,label:'Check in to work',needsGps:true,depends:null},
+      {key:'p2',num:2,label:'Lunch break',needsGps:false,depends:'p1'},
+      {key:'p3',num:3,label:'Return from lunch',needsGps:true,depends:'p2'},
+      {key:'p4',num:4,label:'Check out',needsGps:false,depends:'p3'},
+    ];
+    const phases=phaseDefs.map(pd=>{
+      const time=rec[pd.key];
+      const dist=pd.key==='p1'?rec.p1dist:pd.key==='p3'?rec.p3dist:null;
+      const done=!!time;
+      const locked=!!pd.depends&&!rec[pd.depends];
+      const inWin=testMode||Utils.phaseInWindow(shift,pd.key,now);
+      const pastWin=!testMode&&Utils.phaseWindowPast(shift,pd.key,now);
+      const upcoming=!done&&!locked&&!inWin&&!pastWin;
+      const missed=!done&&!locked&&pastWin;
+      const isActive=!done&&!locked&&inWin;
+      const myGpsActive=isActive&&pd.needsGps&&s.locPhase===pd.key;
+      const doneText=done?(pd.needsGps?(dist!=null?'GPS verified · '+dist+' m from '+hqName:'GPS verified'):'Recorded'):'';
+      const btnLabel=pd.key==='p1'?'Check in to work':pd.key==='p2'?'Record lunch break':pd.key==='p3'?'Return from lunch':'Check out';
+      const win=Utils.phaseWindow(shift,pd.key);
+      return {
+        key:pd.key, num:pd.num, label:pd.label,
+        needsGps:pd.needsGps, notNeedsGps:!pd.needsGps,
+        done, notDone:!done, time:time||'-', doneText,
+        locked, upcoming, missed, isActive, notActive:!isActive||done,
+        stepBg:done?'#1f8a5b':isActive?accent:'#eceef2',
+        stepColor:done||isActive?'#fff':'#8a94a3',
+        subLabel:win?win[0]+' – '+win[1]:'',
+        btnLabel,
+        onStart:this.startPhaseGps(pd.key),
+        onSubmit:this.doPhase(pd.key),
+        gpsStarted:myGpsActive,
+        gpsNotStarted:isActive&&pd.needsGps&&!myGpsActive,
+        locLocating:myGpsActive&&locLocating,
+        locVerified:myGpsActive&&locVerified,
+        locNeedsAction:myGpsActive&&(locIdle||locOutOfRange||locGpsError),
+        locBtnLabel:locIdle?'Locate me':'Try again',
+        locBtnDisabled:myGpsActive&&locLocating,
+        locBorder:myGpsActive?gLocBorder:'#eef0f4',
+        locCardBg:myGpsActive?gLocCardBg:'#fff',
+        locBadgeBg:myGpsActive?gLocBadgeBg:'#eceef2',
+        locBadgeColor:myGpsActive?gLocBadgeColor:'#8a94a3',
+        locMsg:myGpsActive?gLocMsg:('Tap "Locate me" to verify you are at '+hqName+'.'),
+        locMsgColor:myGpsActive?gLocMsgColor:'#8a94a3',
+        checkInOpacity:(myGpsActive&&locVerified)?'1':'.45',
+        checkInPE:(myGpsActive&&locVerified)?'auto':'none',
+      };
+    });
+    const allDone=phases.every(ph=>ph.done);
+    const shiftStart={AM:'08:30',PM:'15:30',OFFICE:'09:00'}[shift]||'08:30';
+    const isLate=rec.p1&&rec.p1>shiftStart;
+    const waMsg=status==='present'
+      ?`✅ [${rec.p1||'-'}] ${me.name} checked in for ${Utils.shiftLabel(me.shift)}.`
+      :status==='mc'
+      ?`🤒 ${me.name} is on MC today (${Utils.shiftLabel(me.shift)}).`
+      :'';
+    const whatsappLink=waMsg?'https://api.whatsapp.com/send?text='+encodeURIComponent(waMsg):'';
+    const showWaShare=!!(status==='present'||status==='mc');
+    const activeBatch=s.batches[s.activeBatchIdx||0];
+    const batchLabel=activeBatch?.label||'';
+    const dekit=activeBatch?.dekit_date?new Date(activeBatch.dekit_date+'T00:00:00'):null;
+    const todayMid=new Date();todayMid.setHours(0,0,0,0);
+    const dekitDaysLeft=dekit?Math.round((dekit-todayMid)/86400000):null;
+    const dekitCountdown=dekitDaysLeft===null?'':dekitDaysLeft===0?'Return equipment today':dekitDaysLeft>0?`${dekitDaysLeft} day${dekitDaysLeft!==1?'s':''} to dekit`:'Cycle complete';
+    const batchRange=activeBatch?(Utils.fmtShort(new Date(activeBatch.start_date+'T00:00:00'))+' to '+Utils.fmtShort(new Date(activeBatch.end_date+'T00:00:00'))):'';
     return {
       todayLong:Utils.fmtLong(this.baseDate()),
       clock:s.testDate?'--:--':Utils.hhmm(s.now),
@@ -1105,28 +1177,20 @@ class AppComponent extends DCLogic {
       myStatusPulse:(status==='pending'&&!noRep)?'animation:pulseDot 1.6s ease infinite;':'',
       phToday:noRep,
       phName:Utils.holidayName(todayD)||(isOffDay?'Reservists do not report on weekends.':'No CNB reporting today.'),
-      needCheckin:status==='pending'&&!s.mcMode&&!noRep,
       mcMode:s.mcMode&&!noRep,
-      isPresent:status==='present'&&!noRep,
       isMc:status==='mc'&&!noRep,
-      checkInTime:rec.time||'-',
-      checkInDist:rec.dist!=null?('about '+rec.dist+' m from '+hqName):'on-site',
-      verifyLocation:this.verifyLocation, submitCheckIn:this.submitCheckIn,
-      locLocating,
-      locNeedsAction:locIdle||locOutOfRange||locGpsError,
-      locShowLocateBtn:locIdle||locOutOfRange||locGpsError,
-      locBtnLabel:locIdle?'Locate me':'Try again',
-      locBorder,locCardBg,locBadgeBg,locBadgeColor,locMsg,locMsgColor,
-      checkInOpacity:locVerified?'1':'.45',
-      checkInPE:locVerified?'auto':'none',
-      openMc:this.openMc, submitMc:this.submitMc, cancelMc:this.cancelMc,
-      undoCheckin:this.requestUndo, confirmUndo:s.confirmUndo, showUndoBtn, showUndoConfirm:s.confirmUndo, doUndo:this.doUndo, cancelUndo:this.cancelUndo,
-      batchLabel, dekitCountdown, batchRange, showBatchInfo: !!activeBatch,
-      whatsappLink, showWaShare,
+      showPhases:!noRep&&status!=='mc'&&!s.mcMode,
+      phases, allDone,
       isLate, lateShiftStart:shiftStart,
+      openMc:this.openMc, submitMc:this.submitMc, cancelMc:this.cancelMc,
+      batchLabel, dekitCountdown, batchRange, showBatchInfo:!!activeBatch,
+      whatsappLink, showWaShare,
       isOffline:!s.isOnline, offlinePending:s.offlinePending,
       refreshPage:this.refreshPage,
       mcSubmitting:s.mcSubmitting,
+      hasTestDate:!!s.testDate, testDate:s.testDate||'',
+      testDateInput:s.testDateInput, onTestDateInput:this.onTestDateInput,
+      setTestDate:this.setTestDate, clearTestDate:this.clearTestDate,
     };
   }
 
@@ -1210,7 +1274,7 @@ class AppComponent extends DCLogic {
 
     // Today row
     const todayRow=(status!=='pending'&&Utils.isReportDay(todayD)&&!this.isNoReport(0))
-      ?[{date:Utils.fmtMed(todayD)+', Today',dateKey:today,shift:Utils.shiftLabel(me.shift),status,time:rec.time||'-',...Utils.meta(status)}]:[];
+      ?[{date:Utils.fmtMed(todayD)+', Today',dateKey:today,shift:Utils.shiftLabel(me.shift),status,time:rec.p1||'-',...Utils.meta(status)}]:[];
 
     // Past recorded rows
     const histKeys=new Set(s.history.map(r=>r.date));
@@ -1324,7 +1388,7 @@ class AppComponent extends DCLogic {
       const cardStyle='background:#fff;border:1px solid #e3e6ec;border-left:3px solid '+mm.color+';border-radius:12px;padding:11px 13px;';
       const av=s.avatars[p.id]||'';
       const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,status:r.status,time:r.time||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.dist!=null)?(', GPS verified '+r.dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent'),onShiftChange:this.changeShift(p.id),cardStyle,avatarStyle};
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent'),onShiftChange:this.changeShift(p.id),cardStyle,avatarStyle};
     });
     const search=(s.rosterSearch||'').toLowerCase();
     const filteredRoster=roster.filter(r=>!search||r.name.toLowerCase().includes(search));
@@ -1348,12 +1412,13 @@ class AppComponent extends DCLogic {
       const r=viewMap[p.id]||{status:'pending'};
       return r.status!=='pending';
     }).map(p=>{
-      const r=viewMap[p.id]||{status:'pending',time:'-'}, mm=Utils.meta(r.status);
+      const r=viewMap[p.id]||{status:'pending'}, mm=Utils.meta(r.status);
       const cutoff=shiftCutoff[p.shift||'AM'];
-      const isLate=r.status==='present'&&r.time&&r.time!=='-'&&r.time>cutoff;
+      const isLate=r.status==='present'&&r.p1&&r.p1>cutoff;
       const av=s.avatars[p.id]||'';
       const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,time:r.time||'-',isLate,timeColor:isLate?'#c0392b':'#8a94a3',lateTag:isLate?' (late)':'',avatarStyle};
+      const phasesText=[r.p2&&'Lunch:'+r.p2,r.p3&&'Return:'+r.p3,r.p4&&'Out:'+r.p4].filter(Boolean).join('  ');
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,time:r.p1||'-',isLate,timeColor:isLate?'#c0392b':'#8a94a3',lateTag:isLate?' (late)':'',phasesText,hasPhases:!!phasesText,avatarStyle};
     });
     const logDateLabel=viewIsToday?'TODAY\'S LOG':((WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()]).toUpperCase()+' LOG');
     const dlabel=WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()];
@@ -1370,7 +1435,7 @@ class AppComponent extends DCLogic {
       const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
       const av=s.avatars[p.id]||'';
       const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:(r.status==='present'&&r.time&&r.time!=='-')?r.time:'',avatarStyle};
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:(r.status==='present'&&r.p1)?r.p1:'',avatarStyle};
     });
     const vPresent=viewRoster.filter(r=>r.label==='Present').length, vMc=viewRoster.filter(r=>r.label==='On MC').length, vAbsent=viewRoster.filter(r=>r.label==='Absent').length, vPending=viewRoster.filter(r=>r.label==='Pending').length, vTotal=viewRoster.length;
     const vPercent=vTotal?Math.round((vPresent+vMc)/vTotal*100):0;
