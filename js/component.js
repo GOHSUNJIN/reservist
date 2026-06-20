@@ -84,7 +84,7 @@ class AppComponent extends DCLogic {
       const liveIdx = batches.findIndex(b=>b.is_live);
       const activeBatchIdx = liveIdx>=0?liveIdx:0;
       const activeBatch = batches[activeBatchIdx];
-      const personnel = activeBatch ? await DB.personnel.list(activeBatch.id).catch(()=>[]) : [];
+      const personnel = await DB.personnel.list().catch(()=>[]);
       this.setState({batches, activeBatchIdx, personnel});
     }
     const user = await DB.auth.session();
@@ -1084,6 +1084,7 @@ class AppComponent extends DCLogic {
       myShiftLabel:'', myShiftWindow:'', myStatusLabel:'', myStatusColor:accent,
       myStatusPulse:'', phToday:false, phName:'', mcMode:false,
       isMc:false, showPhases:false, phases:[], allDone:false,
+      outOfCycle:false, outOfCycleTitle:'', outOfCycleSub:'',
       openMc:()=>{}, submitMc:()=>{}, cancelMc:()=>{},
       batchLabel:'', dekitCountdown:'', batchRange:'', showBatchInfo:false,
       whatsappLink:'', showWaShare:false,
@@ -1094,6 +1095,26 @@ class AppComponent extends DCLogic {
     const todayD=this.dateForOffset(0);
     const isOffDay=!Utils.isReportDay(todayD);
     const noRep=isOffDay||this.isNoReport(0);
+    const todayKey=Utils.dateKey(todayD);
+    const myBatch=s.batches.find(b=>b.id===me.batch_id);
+    let outOfCycle=false, outOfCycleTitle='', outOfCycleSub='';
+    if(!myBatch){
+      outOfCycle=true; outOfCycleTitle='No cycle assigned';
+      outOfCycleSub='You have not been assigned to a batch. Contact your supervisor.';
+    } else {
+      const bsKey=myBatch.start_date, beKey=myBatch.end_date, ddKey=myBatch.dekit_date;
+      if(todayKey<bsKey){
+        outOfCycle=true; outOfCycleTitle='Cycle not started';
+        outOfCycleSub='Your reporting cycle begins on '+Utils.fmtMed(new Date(bsKey+'T00:00:00'))+'. Nothing to do yet.';
+      } else if(ddKey&&todayKey>ddKey){
+        outOfCycle=true; outOfCycleTitle='Cycle complete';
+        outOfCycleSub=(myBatch.label?myBatch.label+' is complete.':'Your cycle is complete.')+' Well done.';
+      } else if(todayKey>beKey){
+        outOfCycle=true; outOfCycleTitle='Reporting days ended';
+        const dekitD=ddKey?Utils.fmtMed(new Date(ddKey+'T00:00:00')):null;
+        outOfCycleSub='Your last reporting day has passed.'+(dekitD?' Dekit on '+dekitD+'.':'');
+      }
+    }
 
     // GPS state (shared across phases, scoped by locPhase)
     const locVerified=s.locStatus==='verified', locLocating=s.locStatus==='locating';
@@ -1178,14 +1199,15 @@ class AppComponent extends DCLogic {
       todayLong:Utils.fmtLong(this.baseDate()),
       clock:s.testDate?'--:--':Utils.hhmm(s.now),
       myShiftLabel:Utils.shiftLabel(me.shift), myShiftWindow:Utils.shiftWindow(me.shift),
-      myStatusLabel:noRep?'No reporting':m.label,
-      myStatusColor:noRep?accent:m.color,
-      myStatusPulse:(status==='pending'&&!noRep)?'animation:pulseDot 1.6s ease infinite;':'',
-      phToday:noRep,
+      myStatusLabel:outOfCycle?outOfCycleTitle:noRep?'No reporting':m.label,
+      myStatusColor:outOfCycle?'#8a94a3':noRep?accent:m.color,
+      myStatusPulse:(!outOfCycle&&status==='pending'&&!noRep)?'animation:pulseDot 1.6s ease infinite;':'',
+      phToday:!outOfCycle&&noRep,
       phName:Utils.holidayName(todayD)||(isOffDay?'Reservists do not report on weekends.':'No CNB reporting today.'),
-      mcMode:s.mcMode&&!noRep,
-      isMc:status==='mc'&&!noRep,
-      showPhases:!noRep&&status!=='mc'&&!s.mcMode,
+      mcMode:!outOfCycle&&s.mcMode&&!noRep,
+      isMc:!outOfCycle&&status==='mc'&&!noRep,
+      showPhases:!outOfCycle&&!noRep&&status!=='mc'&&!s.mcMode,
+      outOfCycle, outOfCycleTitle, outOfCycleSub,
       phases, allDone,
       isLate, lateShiftStart:shiftStart,
       openMc:this.openMc, submitMc:this.submitMc, cancelMc:this.cancelMc,
