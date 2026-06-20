@@ -233,7 +233,7 @@ class AppComponent extends DCLogic {
   };
 
   doSignup = async () => {
-    const {suName,suContact,suPassword} = this.state;
+    const {suName,suContact,suPassword,suShift} = this.state;
     if(!suName.trim()||!suContact.trim()||!suPassword.trim()){ this.setState({authError:'Please fill in all fields.'}); return; }
     if(suPassword.length < 6){ this.setState({authError:'Password must be at least 6 characters.'}); return; }
     const cleanContact = suContact.replace(/[\s-]/g,'');
@@ -244,8 +244,7 @@ class AppComponent extends DCLogic {
       return;
     }
     const members = await DB.personnel.list(activeBatch.id).catch(()=>[]);
-    const {am, pm} = this._shiftSlotCounts(members);
-    const shift = am < 2 ? 'AM' : pm < 2 ? 'PM' : 'OFFICE';
+    const shift = this._capShift(suShift||'AM', members);
     this.setState({loading:true, authError:''});
     const {user,error} = await DB.auth.signup(suContact, suPassword, suName.trim());
     if(error||!user){ this.setState({loading:false, authError:error?.message||'Signup failed. Try a different contact or password.'}); return; }
@@ -316,9 +315,10 @@ class AppComponent extends DCLogic {
   // ── Form handlers ─────────────────────────────────────────────────────────
   onLoginContact  = e => this.setState({loginContact:e.target.value});
   onLoginPassword = e => this.setState({loginPassword:e.target.value});
-  onSuName    = e => this.setState({suName:e.target.value});
-  onSuContact = e => this.setState({suContact:e.target.value});
-  onSuShift   = e => this.setState({suShift:e.target.value});
+  onSuName         = e => this.setState({suName:e.target.value});
+  onSuContact      = e => this.setState({suContact:e.target.value});
+  onSuShift        = e => this.setState({suShift:e.target.value});
+  onSuShiftSelect  = v => () => this.setState({suShift:v});
   onSuPassword= e => this.setState({suPassword:e.target.value});
   onNpName     = e => this.setState({npName:e.target.value});
   onNpContact  = e => this.setState({npContact:e.target.value});
@@ -385,7 +385,7 @@ class AppComponent extends DCLogic {
     let mc=this.state.mcFileName||'medical-cert.pdf';
     if(!this.state.demo && this.state._mcFile){
       const {path,error}=await DB.storage.uploadMc(this.state.currentUserId, today, this.state._mcFile).catch(e=>({path:mc,error:e}));
-      if(error) this._toast('File upload failed — MC recorded without attachment.','error');
+      if(error) this._toast('File upload failed. MC recorded without attachment.','error');
       else mc=path;
     }
     if(!this.state.demo) await DB.attendance.upsert(this.state.currentUserId, today, 'mc', {mc});
@@ -954,7 +954,7 @@ class AppComponent extends DCLogic {
     if(dst==='nr') return {label:'No reporting',sub:'Marked as a no-reporting day',color:'#8a94a3',bg:'#f0f2f7'};
     if(dst==='dekit') return {label:'Dekit day',sub:'Return equipment and submit meal allowance forms',color:'#161f30',bg:'#eceef2'};
     if(dst==='end') return {label:off<0?'Reporting day':'Upcoming',sub:'Last reporting day of your cycle',color:'#5c6678',bg:'#eceef2'};
-    if(dst==='post') return {label:'No reporting',sub:'Reporting cycle ended — await dekit',color:'#8a94a3',bg:'#f0f2f7'};
+    if(dst==='post') return {label:'No reporting',sub:'Reporting cycle ended, await dekit',color:'#8a94a3',bg:'#f0f2f7'};
     if(dst==='wknd') return {label:'Weekend',sub:'No reporting required',color:'#8a94a3',bg:'#f6f8fa'};
     if(dst==='past'){
       const hr=this.state.history.find(r=>r.date===dk);
@@ -991,9 +991,9 @@ class AppComponent extends DCLogic {
     let suShift=s.suShift;
     if((suShift==='AM'&&amFull)||(suShift==='PM'&&pmFull)) suShift='OFFICE';
     const shiftOptions=[
-      {value:'AM', disabled:amFull, label:amFull?'AM shift — full (2/2)':'AM shift, 0830–1530 ('+amCount+'/2)'},
-      {value:'PM', disabled:pmFull, label:pmFull?'PM shift — full (2/2)':'PM shift, 1530–2230 ('+pmCount+'/2)'},
-      {value:'OFFICE', disabled:false, label:'Office hours, 0900–1800'},
+      {value:'AM', disabled:amFull, selected:suShift==='AM', label:amFull?'AM (full)':'AM shift ('+amCount+'/2)'},
+      {value:'PM', disabled:pmFull, selected:suShift==='PM', label:pmFull?'PM (full)':'PM shift ('+pmCount+'/2)'},
+      {value:'OFFICE', disabled:false, selected:suShift==='OFFICE', label:'Office hours'},
     ];
     const tb=a=>`flex:1;padding:11px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;${a?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`;
     const bs=activeBatch?new Date(activeBatch.start_date+'T00:00:00'):null;
@@ -1013,7 +1013,7 @@ class AppComponent extends DCLogic {
       onLoginNric:this.onLoginContact, onLoginPassword:this.onLoginPassword,
       doLogin:this.doLogin, demoReservist:this.demoReservist, demoAdmin:this.demoAdmin,
       suName:s.suName, suNric:'', suContact:s.suContact, suShift, shiftOptions, suPassword:s.suPassword,
-      onSuName:this.onSuName, onSuNric:()=>{}, onSuContact:this.onSuContact, onSuShift:this.onSuShift, onSuPassword:this.onSuPassword,
+      onSuName:this.onSuName, onSuNric:()=>{}, onSuContact:this.onSuContact, onSuShift:this.onSuShift, onSuShiftSelect:this.onSuShiftSelect, onSuPassword:this.onSuPassword,
       doSignup:this.doSignup,
       intakeLabel, intakeRange:intakeRangeFull, intakeRangeFull,
     };
@@ -1067,8 +1067,8 @@ class AppComponent extends DCLogic {
     const locOutOfRange=s.locStatus==='out_of_range', locGpsError=s.locStatus==='gps_error';
     const locIdle=!s.locStatus||s.locStatus==='idle';
     let locBorder,locCardBg,locBadgeBg,locBadgeColor,locMsg,locMsgColor;
-    if(locVerified){ locBorder='#cfe6d8'; locCardBg='#f5faf7'; locBadgeBg='#e7f3ec'; locBadgeColor='#1f8a5b'; locMsg=s.locDistance+' m from '+hqName+' — on-site'; locMsgColor='#1f8a5b'; }
-    else if(locOutOfRange){ locBorder='#f1d3cf'; locCardBg='#fbeeec'; locBadgeBg='#f7e4e1'; locBadgeColor='#c0392b'; locMsg=s.locDistance+' m away — not on-site'; locMsgColor='#c0392b'; }
+    if(locVerified){ locBorder='#cfe6d8'; locCardBg='#f5faf7'; locBadgeBg='#e7f3ec'; locBadgeColor='#1f8a5b'; locMsg=s.locDistance+' m from '+hqName+', on-site'; locMsgColor='#1f8a5b'; }
+    else if(locOutOfRange){ locBorder='#f1d3cf'; locCardBg='#fbeeec'; locBadgeBg='#f7e4e1'; locBadgeColor='#c0392b'; locMsg=s.locDistance+' m away, not on-site'; locMsgColor='#c0392b'; }
     else if(locGpsError){ locBorder='#f0e2c2'; locCardBg='#fdf6e9'; locBadgeBg='#f7efdc'; locBadgeColor='#b9791a'; locMsg=s.locGpsMsg||'Location unavailable. Check permissions and try again.'; locMsgColor='#b9791a'; }
     else if(locLocating){ locBorder='#eef0f4'; locCardBg='#fff'; locBadgeBg='#eceef2'; locBadgeColor=accent; locMsg='Locating you via GPS...'; locMsgColor='#8a94a3'; }
     else { locBorder='#eef0f4'; locCardBg='#fff'; locBadgeBg='#eceef2'; locBadgeColor='#8a94a3'; locMsg='Tap to confirm you are at '+hqName+'.'; locMsgColor='#8a94a3'; }
@@ -1078,7 +1078,7 @@ class AppComponent extends DCLogic {
     const todayMid = new Date(); todayMid.setHours(0,0,0,0);
     const dekitDaysLeft = dekit ? Math.round((dekit - todayMid) / 86400000) : null;
     const dekitCountdown = dekitDaysLeft === null ? '' : dekitDaysLeft === 0 ? 'Return equipment today' : dekitDaysLeft > 0 ? `${dekitDaysLeft} day${dekitDaysLeft !== 1 ? 's' : ''} to dekit` : 'Cycle complete';
-    const batchRange = activeBatch ? (Utils.fmtShort(new Date(activeBatch.start_date+'T00:00:00')) + ' – ' + Utils.fmtShort(new Date(activeBatch.end_date+'T00:00:00'))) : '';
+    const batchRange = activeBatch ? (Utils.fmtShort(new Date(activeBatch.start_date+'T00:00:00')) + ' to ' + Utils.fmtShort(new Date(activeBatch.end_date+'T00:00:00'))) : '';
     const waMsg = status==='present'
       ? `✅ [${rec.time}] ${me.name} checked in for ${Utils.shiftLabel(me.shift)}.`
       : status==='mc'
@@ -1221,7 +1221,7 @@ class AppComponent extends DCLogic {
       for(let d=new Date(bStart);d<=yesterday;d=Utils.addDays(d,1)){
         const dk=Utils.dateKey(d);
         if(Utils.isReportDay(d)&&dk<=activeBatch.end_date&&!Utils.holidayName(d)&&!s.noReportDays.has(dk)&&!histKeys.has(dk)){
-          missedRows.push({date:Utils.fmtMed(d),dateKey:dk,shift:Utils.shiftLabel(me.shift),status:'missed',time:'–',...Utils.meta('missed')});
+          missedRows.push({date:Utils.fmtMed(d),dateKey:dk,shift:Utils.shiftLabel(me.shift),status:'missed',time:'-',...Utils.meta('missed')});
         }
       }
     }
@@ -1247,9 +1247,9 @@ class AppComponent extends DCLogic {
     const activeBatch=s.batches[s.activeBatchIdx||0];
     const mealActive=!!(activeBatch?.meal_active);
     const ROLES={
-      AM:{title:'AM Shift',window:'0830 – 1530  ·  Lunch 1200–1430',items:['MOPs for CNB testing must exit via the same route they entered.','MOPs must not loiter around the area.','Escort contractors around the building when required.','Assist with Red Teaming exercises if needed.']},
-      PM:{title:'PM Shift',window:'1530 – 2230  ·  Dinner 1630–1830',items:['Same duties as AM shift.','May leave early if CNB confirms no more reporting.'],note:'Fridays: stay till 1800 only. May move to canteen after 1630. Update WhatsApp when leaving DHQ or if on MC.'},
-      OFFICE:{title:'Office Hours',window:'0900 – 1800  ·  Lunch 1200–1400',items:['Escort contractors when required.','Assist with Red Teaming exercises if needed.']},
+      AM:{title:'AM Shift',window:'0830 to 1530, Lunch 1200-1430',items:['MOPs for CNB testing must exit via the same route they entered.','MOPs must not loiter around the area.','Escort contractors around the building when required.','Assist with Red Teaming exercises if needed.']},
+      PM:{title:'PM Shift',window:'1530 to 2230, Dinner 1630-1830',items:['Same duties as AM shift.','May leave early if CNB confirms no more reporting.'],note:'Fridays: stay till 1800 only. May move to canteen after 1630. Update WhatsApp when leaving DHQ or if on MC.'},
+      OFFICE:{title:'Office Hours',window:'0900 to 1800, Lunch 1200-1400',items:['Escort contractors when required.','Assist with Red Teaming exercises if needed.']},
     };
     const me=this.cur(), myShift=me?.shift||'AM';
     const tab=s.rolesTab||myShift, active=ROLES[tab], mine=ROLES[myShift];
@@ -1262,12 +1262,12 @@ class AppComponent extends DCLogic {
       roleTabs, roleTitle:active.title, roleWindow:active.window, roleItems:active.items, roleNote:active.note||'',
       myShiftTitle:mine.title, myShiftWindow:mine.window, myShiftItems:mine.items, myShiftNote:mine.note||'',
       briefLocation:(this.props.hqName||'Bedok DHQ')+' Canteen',
-      briefAttire:'Civilian — pants and covered shoes',
+      briefAttire:'Civilian: pants and covered shoes',
       mealActive,
-      mealStatusBanner:mealActive?'Active — submit your form daily (Mon–Fri).':'On hold — do not submit the form for now.',
+      mealStatusBanner:mealActive?'Active: submit your form daily (Mon-Fri).':'On hold: do not submit the form for now.',
       mealStatusStyle:mealActive?'background:#e7f3ec;border:1px solid #a8d5bb;border-radius:8px;padding:7px 10px;font-size:12px;color:#1f8a5b;font-weight:600;margin-bottom:8px;':'background:#fdf6e9;border:1px solid #f0e2c2;border-radius:8px;padding:7px 10px;font-size:12px;color:#8a6d2a;font-weight:600;margin-bottom:8px;',
       mealItems:[
-        'When resumed: submit daily Mon–Fri, including MC days.',
+        'When resumed: submit daily Mon-Fri, including MC days.',
         'Mark PRESENT if shift completed, MC if on sick leave.',
         'No submission on public holidays or no-reporting days.',
       ],
@@ -1324,7 +1324,7 @@ class AppComponent extends DCLogic {
     const rosterSortNameStyle=sortKey==='name'?_sa:_si;
     const rosterSortStatusStyle=sortKey==='status'?_sa:_si;
     const present=roster.filter(r=>r.label==='Present').length, mc=roster.filter(r=>r.label==='On MC').length, pending=roster.filter(r=>r.label==='Pending').length, total=roster.length;
-    const snapshotLines=['📋 *'+Utils.fmtMed(this.dateForOffset(0))+' Attendance*','✅ Present ('+present+'): '+(roster.filter(r=>r.label==='Present').map(r=>r.name).join(', ')||'—'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.label==='On MC').map(r=>r.name).join(', ')||'—'),'⏳ Pending ('+pending+'): '+(roster.filter(r=>r.label==='Pending').map(r=>r.name).join(', ')||'—')];
+    const snapshotLines=['📋 *'+Utils.fmtMed(this.dateForOffset(0))+' Attendance*','✅ Present ('+present+'): '+(roster.filter(r=>r.label==='Present').map(r=>r.name).join(', ')||'(none)'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.label==='On MC').map(r=>r.name).join(', ')||'(none)'),'⏳ Pending ('+pending+'): '+(roster.filter(r=>r.label==='Pending').map(r=>r.name).join(', ')||'(none)')];
     const snapshotLink='https://api.whatsapp.com/send?text='+encodeURIComponent(snapshotLines.join('\n'));
     const pendingCount=roster.filter(r=>r.label==='Pending').length;
     const shiftCutoff={AM:'08:30',PM:'15:30',OFFICE:'09:00'};
@@ -1340,7 +1340,7 @@ class AppComponent extends DCLogic {
       const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
       return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,time:r.time||'-',isLate,timeColor:isLate?'#c0392b':'#8a94a3',lateTag:isLate?' (late)':'',mcCursor:hasMc?'pointer':'default',onViewMc:hasMc?this.openMcViewer(p.name,viewDateKey,r.mc):()=>{},avatarStyle};
     });
-    const logDateLabel=viewIsToday?'TODAY\'S LOG':((WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()]).toUpperCase()+' — LOG');
+    const logDateLabel=viewIsToday?'TODAY\'S LOG':((WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()]).toUpperCase()+' LOG');
     const dlabel=WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()];
     const rel=viewOffset===0?'Today':viewOffset===-1?'Yesterday':viewOffset===1?'Tomorrow':'';
     const viewDateLabel=(rel?rel+', ':'')+dlabel;
@@ -1348,7 +1348,7 @@ class AppComponent extends DCLogic {
     const isDekit=viewDateKey===activeBatch?.dekit_date;
     const viewShowReporting=viewReportDay&&!viewBlocked&&!isDekit, viewNoReporting=!viewShowReporting;
     const viewDateSub=!viewReportDay?'Weekend, no reporting':viewHoliday?'Public holiday':isDekit?'Dekit day':viewBlocked?'No reporting, toggled off':viewOffset<0?'Past shift, recorded':viewOffset>0?'Scheduled':'Live now';
-    const viewNoRepReason=!viewReportDay?'This is a weekend. Reservists do not report on Saturdays or Sundays.':viewHoliday?(viewHoliday+' is a public holiday, so reservists are not required to report.'):isDekit?'Dekit day — reservists return equipment and submit forms. No regular reporting.':'This day is marked as a no-reporting day, so reservists are not required to report.';
+    const viewNoRepReason=!viewReportDay?'This is a weekend. Reservists do not report on Saturdays or Sundays.':viewHoliday?(viewHoliday+' is a public holiday, so reservists are not required to report.'):isDekit?'Dekit day: reservists return equipment and submit forms. No regular reporting.':'This day is marked as a no-reporting day, so reservists are not required to report.';
     const showRepToggle=viewReportDay&&!isDekit, repToggleLocked=!!viewHoliday, repToggleOn=viewBlocked;
     const noRepMsg=viewHoliday?('Public holiday ('+viewHoliday+'). Auto no-reporting, locked.'):repToggleOn?'On. Reservists are not required to report this day.':'Off. Reservists report and check in as normal.';
     const viewRoster=activeMembers.map(p=>{
