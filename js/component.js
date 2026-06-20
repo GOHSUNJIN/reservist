@@ -1144,6 +1144,9 @@ class AppComponent extends DCLogic {
       if(todayKey<bsKey){
         outOfCycle=true; outOfCycleTitle='Cycle not started';
         outOfCycleSub='Your reporting cycle begins on '+Utils.fmtMed(new Date(bsKey+'T00:00:00'))+'. Nothing to do yet.';
+      } else if(ddKey&&todayKey===ddKey){
+        outOfCycle=true; outOfCycleTitle='Dekit day';
+        outOfCycleSub='Return all equipment and submit your meal allowance forms today.';
       } else if(ddKey&&todayKey>ddKey){
         outOfCycle=true; outOfCycleTitle='Cycle complete';
         outOfCycleSub=(myBatch.label?myBatch.label+' is complete.':'Your cycle is complete.')+' Well done.';
