@@ -105,6 +105,16 @@ const DB = {
     async assignBatch(batchId) {
       await _db.from('personnel').update({batch_id:batchId}).is('batch_id',null).eq('is_active',true);
     },
+
+    async carryOver(toBatchId) {
+      const { error } = await _db.from('personnel')
+        .update({ batch_id: toBatchId })
+        .neq('batch_id', toBatchId)
+        .not('batch_id', 'is', null)
+        .eq('is_active', true)
+        .eq('role', 'reservist');
+      return { error };
+    },
   },
 
   // ── Attendance ────────────────────────────────────────────────────────────
