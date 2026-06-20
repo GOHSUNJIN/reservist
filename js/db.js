@@ -177,6 +177,10 @@ const DB = {
       await _db.from('batches').update({ is_live: false }).eq('is_live', true);
       await _db.from('batches').update({ is_live: true }).eq('id', batchId);
     },
+
+    async setMealActive(batchId, active) {
+      await _db.from('batches').update({ meal_active: active }).eq('id', batchId);
+    },
   },
 
   // ── No-report days ────────────────────────────────────────────────────────
