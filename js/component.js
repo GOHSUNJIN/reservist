@@ -745,18 +745,19 @@ class AppComponent extends DCLogic {
     const {npName,npContact,npShift,npPassword,batches,activeBatchIdx,demo,personnel,batchMembersCache}=this.state;
     if(!npName.trim()){ this._toast('Name is required.','error'); return; }
     const cleanContact=npContact.replace(/[\s-]/g,'');
-    if(cleanContact&&!/^\d{8}$/.test(cleanContact)){ this._toast('Contact must be an 8-digit Singapore number.','error'); return; }
-    if(cleanContact&&personnel.some(p=>p.contact.replace(/[\s-]/g,'')===cleanContact)){ this._toast('This contact is already on the roster.','error'); return; }
-    if(npPassword&&npPassword.length<6){ this._toast('Password must be at least 6 characters.','error'); return; }
-    if(npPassword&&!cleanContact){ this._toast('A contact number is required to set a password.','error'); return; }
+    if(!cleanContact){ this._toast('Contact number is required.','error'); return; }
+    if(!/^\d{8}$/.test(cleanContact)){ this._toast('Contact must be an 8-digit Singapore number.','error'); return; }
+    if(personnel.some(p=>p.contact.replace(/[\s-]/g,'')===cleanContact)){ this._toast('This contact is already on the roster.','error'); return; }
+    if(!npPassword.trim()){ this._toast('Password is required.','error'); return; }
+    if(npPassword.length<6){ this._toast('Password must be at least 6 characters.','error'); return; }
     const activeBatch=batches[activeBatchIdx||0];
     const batchMembers=activeBatch?.is_live?personnel:(batchMembersCache?.[activeBatch?.id]||[]);
     const shift=this._capShift(npShift, batchMembers);
-    const contact=cleanContact||'-';
+    const contact=cleanContact;
     const addedName=npName.trim();
     if(!demo){
       let authId=null;
-      if(npPassword&&cleanContact){
+      {
         const {user,error}=await DB.auth.createUserAsAdmin(cleanContact,npPassword,addedName);
         if(error||!user){ this._toast('Account creation failed: '+(error?.message||'Try again.'),'error'); return; }
         authId=user.id;
