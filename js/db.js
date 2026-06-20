@@ -114,7 +114,6 @@ const DB = {
         status: r.status,
         time: r.check_in_time ? r.check_in_time.slice(0,5) : '-',
         dist: r.gps_distance_m,
-        mc: r.mc_filename,
       };
     },
 
@@ -146,7 +145,6 @@ const DB = {
       const row = { personnel_id: personnelId, date: dateStr, status };
       if (extras.time && extras.time !== '-') row.check_in_time = extras.time + ':00';
       if (extras.dist != null) row.gps_distance_m = extras.dist;
-      if (extras.mc) row.mc_filename = extras.mc;
       const { data, error } = await _db.from('attendance')
         .upsert(row, { onConflict: 'personnel_id,date' }).select().maybeSingle();
       return { data, error };
@@ -205,19 +203,6 @@ const DB = {
 
   // ── Storage (MC files) ────────────────────────────────────────────────────
   storage: {
-    async uploadMc(personnelId, dateStr, file) {
-      const ext = file.name.split('.').pop();
-      const path = `${personnelId}/${dateStr}.${ext}`;
-      const { data, error } = await _db.storage.from('mc-files').upload(path, file, { upsert: true });
-      return { path: data?.path || path, error };
-    },
-
-    async getMcUrl(path) {
-      if (!path) return null;
-      const { data } = await _db.storage.from('mc-files').createSignedUrl(path, 3600);
-      return data?.signedUrl || null;
-    },
-
     async uploadAvatar(userId, file) {
       const { data, error } = await _db.storage.from('avatars').upload(userId, file, { upsert: true, contentType: file.type });
       return { path: data?.path || userId, error };
