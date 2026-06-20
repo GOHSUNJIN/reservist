@@ -1417,8 +1417,17 @@ class AppComponent extends DCLogic {
       const isLate=r.status==='present'&&r.p1&&r.p1>cutoff;
       const av=s.avatars[p.id]||'';
       const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
-      const phasesText=[r.p2&&'Lunch:'+r.p2,r.p3&&'Return:'+r.p3,r.p4&&'Out:'+r.p4].filter(Boolean).join('  ');
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,time:r.p1||'-',isLate,timeColor:isLate?'#c0392b':'#8a94a3',lateTag:isLate?' (late)':'',phasesText,hasPhases:!!phasesText,avatarStyle};
+      return {
+        id:p.id, name:p.name, initials:Utils.initials(p.name), shiftLabel:Utils.shiftLabel(p.shift),
+        label:mm.label, color:mm.color, bg:mm.bg, isLate,
+        p1:r.p1||'–', p2:r.p2||'–', p3:r.p3||'–', p4:r.p4||'–',
+        p1Color:r.p1?(isLate?'#c0392b':'#161f30'):'#c2c8d2',
+        p2Color:r.p2?'#161f30':'#c2c8d2',
+        p3Color:r.p3?'#161f30':'#c2c8d2',
+        p4Color:r.p4?'#161f30':'#c2c8d2',
+        lateTag:isLate?' (late)':'',
+        avatarStyle,
+      };
     });
     const logDateLabel=viewIsToday?'TODAY\'S LOG':((WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()]).toUpperCase()+' LOG');
     const dlabel=WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()];
