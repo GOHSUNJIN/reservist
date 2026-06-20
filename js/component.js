@@ -403,7 +403,7 @@ class AppComponent extends DCLogic {
     this.setState({mcSubmitting:true});
     const today=Utils.dateKey(this.baseDate());
     if(!this.state.demo) await DB.attendance.upsert(this.state.currentUserId, today, 'mc');
-    this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:{status:'mc',time:'-'}},mcMode:false,mcSubmitting:false}));
+    this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:{status:'mc',p1:null}},mcMode:false,mcSubmitting:false}));
     this._haptic();
   };
 
@@ -537,8 +537,11 @@ class AppComponent extends DCLogic {
       this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0});
     }
     if(this.state.role==='reservist'&&!this.state.demo){
-      const att = await DB.attendance.getForDate(d).catch(()=>({}));
-      this.setState({attendance:att});
+      const [att, hist] = await Promise.all([
+        DB.attendance.getForDate(d).catch(()=>({})),
+        DB.attendance.getHistory(this.state.currentUserId).catch(()=>[]),
+      ]);
+      this.setState({attendance:att, history:hist});
     }
   };
 
@@ -552,8 +555,11 @@ class AppComponent extends DCLogic {
     }
     if(this.state.role==='reservist'&&!this.state.demo){
       const today = Utils.dateKey(new Date());
-      const att = await DB.attendance.getForDate(today).catch(()=>({}));
-      this.setState({attendance:att});
+      const [att, hist] = await Promise.all([
+        DB.attendance.getForDate(today).catch(()=>({})),
+        DB.attendance.getHistory(this.state.currentUserId).catch(()=>[]),
+      ]);
+      this.setState({attendance:att, history:hist});
     }
   };
 
