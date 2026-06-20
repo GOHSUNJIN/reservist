@@ -131,7 +131,7 @@ class AppComponent extends DCLogic {
     }
 
     const [personnel, attendance, noReportDays, history] = await Promise.all([
-      activeBatch ? DB.personnel.list(activeBatch.id) : Promise.resolve([]),
+      DB.personnel.list(),
       DB.attendance.getForDate(today),
       activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date) : Promise.resolve(new Set()),
       DB.attendance.getHistory(me.id),
@@ -779,8 +779,8 @@ class AppComponent extends DCLogic {
     if(!npPassword.trim()){ this._toast('Password is required.','error'); return; }
     if(npPassword.length<6){ this._toast('Password must be at least 6 characters.','error'); return; }
     const activeBatch=batches[activeBatchIdx||0];
-    const batchMembers=activeBatch?.is_live?personnel:(batchMembersCache?.[activeBatch?.id]||[]);
-    const {am:bAm,pm:bPm}=this._shiftSlotCounts(batchMembers);
+    const batchMembers=activeBatch?.is_live?personnel.filter(p=>p.batch_id===activeBatch?.id):(batchMembersCache?.[activeBatch?.id]||[]);
+    const {am:bAm,pm:bPm}=this._shiftSlotCounts(personnel);
     if(npShift==='AM'&&bAm>=2){ this._toast('AM shift is full (2/2). Select PM or Office.','error'); return; }
     if(npShift==='PM'&&bPm>=2){ this._toast('PM shift is full (2/2). Select AM or Office.','error'); return; }
     const shift=npShift;
@@ -953,7 +953,7 @@ class AppComponent extends DCLogic {
   async _refreshSignupSlots(){
     const liveBatch = this._liveBatch();
     if(!liveBatch || this.state.demo) return;
-    const personnel = await DB.personnel.list(liveBatch.id).catch(()=>[]);
+    const personnel = await DB.personnel.list().catch(()=>[]);
     const liveIdx = this.state.batches.findIndex(b=>b.id===liveBatch.id);
     this.setState({personnel, activeBatchIdx:liveIdx>=0?liveIdx:this.state.activeBatchIdx});
   }
@@ -1386,8 +1386,8 @@ class AppComponent extends DCLogic {
 
   _buildAdmin(s, accent){
     const batches=s.batches, activeBatchIdx=s.activeBatchIdx||0, activeBatch=batches[activeBatchIdx];
-    const activeMembers=activeBatch?.is_live?s.personnel:(s.batchMembersCache?.[activeBatch?.id]||[]);
-    const {am:npAmCount,pm:npPmCount}=this._shiftSlotCounts(activeMembers);
+    const activeMembers=activeBatch?.is_live?s.personnel.filter(p=>p.batch_id===activeBatch?.id):(s.batchMembersCache?.[activeBatch?.id]||[]);
+    const {am:npAmCount,pm:npPmCount}=this._shiftSlotCounts(s.personnel);
     const npAmFull=npAmCount>=2, npPmFull=npPmCount>=2;
     let npShift=s.npShift;
     if((npShift==='AM'&&npAmFull)||(npShift==='PM'&&npPmFull)) npShift='OFFICE';
