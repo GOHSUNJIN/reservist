@@ -38,6 +38,14 @@ const DB = {
       const { data } = await _db.auth.getSession();
       return data?.session?.user || null;
     },
+
+    async createUserAsAdmin(contact, password, name) {
+      const { data: sd } = await _db.auth.getSession();
+      const session = sd?.session;
+      const result = await this.signup(contact, password, name);
+      if (session) await _db.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token });
+      return result;
+    },
   },
 
   // ── Personnel ─────────────────────────────────────────────────────────────

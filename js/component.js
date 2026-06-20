@@ -20,7 +20,7 @@ class AppComponent extends DCLogic {
     viewOffset: 0, avatars: {}, selectedCalOffset: null,
     mcMode: false, mcFileName: '', _mcFile: null,
     mcViewOpen: false, mcViewName: '', mcViewDate: '', mcViewFile: '', mcViewUrl: '',
-    npName: '', npContact: '', npShift: 'AM',
+    npName: '', npContact: '', npShift: 'AM', npPassword: '',
     rosterSearch: '',
     realtimeChannel: null,
     now: new Date(), demo: false,
@@ -320,9 +320,10 @@ class AppComponent extends DCLogic {
   onSuContact = e => this.setState({suContact:e.target.value});
   onSuShift   = e => this.setState({suShift:e.target.value});
   onSuPassword= e => this.setState({suPassword:e.target.value});
-  onNpName    = e => this.setState({npName:e.target.value});
-  onNpContact = e => this.setState({npContact:e.target.value});
-  onNpShift   = e => this.setState({npShift:e.target.value});
+  onNpName     = e => this.setState({npName:e.target.value});
+  onNpContact  = e => this.setState({npContact:e.target.value});
+  onNpShift    = e => this.setState({npShift:e.target.value});
+  onNpPassword = e => this.setState({npPassword:e.target.value});
 
   // ── Check-in ──────────────────────────────────────────────────────────────
   verifyLocation = () => {
@@ -731,22 +732,30 @@ class AppComponent extends DCLogic {
   };
 
   addPerson = async () => {
-    const {npName,npContact,npShift,batches,activeBatchIdx,demo,personnel}=this.state;
+    const {npName,npContact,npShift,npPassword,batches,activeBatchIdx,demo,personnel}=this.state;
     if(!npName.trim()){ this._toast('Name is required.','error'); return; }
     const cleanContact=npContact.replace(/[\s-]/g,'');
     if(cleanContact&&!/^\d{8}$/.test(cleanContact)){ this._toast('Contact must be an 8-digit Singapore number.','error'); return; }
     if(cleanContact&&personnel.some(p=>p.contact.replace(/[\s-]/g,'')===cleanContact)){ this._toast('This contact is already on the roster.','error'); return; }
+    if(npPassword&&npPassword.length<6){ this._toast('Password must be at least 6 characters.','error'); return; }
+    if(npPassword&&!cleanContact){ this._toast('A contact number is required to set a password.','error'); return; }
     const activeBatch=batches[activeBatchIdx||0];
     const shift=this._capShift(npShift, personnel);
     const contact=cleanContact||'-';
     const addedName=npName.trim();
     if(!demo){
-      const {data,error}=await DB.personnel.add({name:addedName,contact,shift,batchId:activeBatch?.id});
+      let authId=null;
+      if(npPassword&&cleanContact){
+        const {user,error}=await DB.auth.createUserAsAdmin(cleanContact,npPassword,addedName);
+        if(error||!user){ this._toast('Account creation failed: '+(error?.message||'Try again.'),'error'); return; }
+        authId=user.id;
+      }
+      const {data,error}=await DB.personnel.add({authId,name:addedName,contact,shift,batchId:activeBatch?.id});
       if(error||!data){ this._toast('Failed to add. Try again.','error'); return; }
-      this.setState(s=>({personnel:[...s.personnel,data],npName:'',npContact:'',npShift:'AM',rosterSearch:''}));
+      this.setState(s=>({personnel:[...s.personnel,data],npName:'',npContact:'',npShift:'AM',npPassword:'',rosterSearch:''}));
     } else {
       const id='demo-'+Date.now();
-      this.setState(s=>({personnel:[...s.personnel,{id,name:addedName,contact,shift,role:'reservist',batch_id:activeBatch?.id,is_active:true}],npName:'',npContact:'',npShift:'AM',rosterSearch:''}));
+      this.setState(s=>({personnel:[...s.personnel,{id,name:addedName,contact,shift,role:'reservist',batch_id:activeBatch?.id,is_active:true}],npName:'',npContact:'',npShift:'AM',npPassword:'',rosterSearch:''}));
     }
     this._toast(addedName+' added to roster.');
   };
@@ -1370,7 +1379,7 @@ class AppComponent extends DCLogic {
       vPresentLabel:'Checked in',
       viewListHeader, viewPercentText, viewPercentColor,
       intakeLabel, intakeRange,
-      personnelList:activeMembers.map(p=>{const av=s.avatars[p.id]||'';return{...p,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),onEditNote:this.openNote(p.id,p.notes||''),isEditingNote:s.editingNoteId===p.id,onAskDeactivate:this.askDeactivatePerson(p.id),isConfirmingDeactivate:s.confirmDeactivateId===p.id,statPresent:s.peopleStats[p.id]?.present??'-',statMc:s.peopleStats[p.id]?.mc??'-',statPct:s.peopleStats[p.id]?.pct!=null?(s.peopleStats[p.id].pct+'%'):'-',showStats:s.peopleStatsLoaded,avatarStyle:av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'',avatarInitials:av?'':Utils.initials(p.name)};}),
+      personnelList:activeMembers.map(p=>{const av=s.avatars[p.id]||'';return{...p,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),onEditNote:this.openNote(p.id,p.notes||''),isEditingNote:s.editingNoteId===p.id,onAskDeactivate:this.askDeactivatePerson(p.id),isConfirmingDeactivate:s.confirmDeactivateId===p.id,statPresent:s.peopleStats[p.id]?.present??0,statMc:s.peopleStats[p.id]?.mc??0,statAbsent:s.peopleStats[p.id]?.absent??0,statPct:s.peopleStats[p.id]?.pct!=null?(s.peopleStats[p.id].pct+'%'):'No records',showStats:s.peopleStatsLoaded,avatarStyle:av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'',avatarInitials:av?'':Utils.initials(p.name)};}),
       cancelDeactivatePerson:this.cancelDeactivatePerson,
       confirmDeactivatePerson:this.confirmDeactivatePerson,
       rosterSort:s.rosterSort,
@@ -1379,8 +1388,8 @@ class AppComponent extends DCLogic {
       setRosterSortStatus:this.setRosterSort('status'),
       rosterSortShiftStyle,rosterSortNameStyle,rosterSortStatusStyle,
       newBatchDate:s.newBatchDate,onNewBatchDate:this.onNewBatchDate,createBatch:this.createBatch,batchCreating:s.batchCreating,
-      npName:s.npName, npContact:s.npContact, npShift:s.npShift,
-      onNpName:this.onNpName, onNpContact:this.onNpContact, onNpRank:()=>{}, onNpShift:this.onNpShift, addPerson:this.addPerson,
+      npName:s.npName, npContact:s.npContact, npShift:s.npShift, npPassword:s.npPassword,
+      onNpName:this.onNpName, onNpContact:this.onNpContact, onNpRank:()=>{}, onNpShift:this.onNpShift, onNpPassword:this.onNpPassword, addPerson:this.addPerson,
       batchLoading:s.batchLoading,
       exportCsv:this.exportCsv,
       mcViewOpen:s.mcViewOpen, mcViewName:s.mcViewName, mcViewDate:s.mcViewDate,
