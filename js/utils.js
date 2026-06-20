@@ -53,4 +53,23 @@ const Utils = {
     '2027-12-27':'Christmas Day (observed)',
   },
   holidayName(d){ return this.SG_HOLIDAYS[this.dateKey(d)]||null; },
+
+  PHASE_WINDOWS:{
+    AM:    {p1:['07:00','09:30'],p2:['11:00','13:00'],p3:['11:30','13:30'],p4:['14:30','16:00']},
+    PM:    {p1:['14:30','17:00'],p2:['19:00','21:00'],p3:['19:30','21:30'],p4:['21:30','23:30']},
+    OFFICE:{p1:['07:30','10:00'],p2:['11:30','13:30'],p3:['12:00','14:00'],p4:['17:00','19:00']},
+  },
+  phaseWindow(shift,key){return(this.PHASE_WINDOWS[shift]||this.PHASE_WINDOWS.OFFICE)[key]||null;},
+  phaseInWindow(shift,key,now){
+    const w=this.phaseWindow(shift,key);if(!w)return false;
+    const p=n=>String(n).padStart(2,'0');
+    const t=p(now.getHours())+':'+p(now.getMinutes());
+    return t>=w[0]&&t<=w[1];
+  },
+  phaseWindowPast(shift,key,now){
+    const w=this.phaseWindow(shift,key);if(!w)return false;
+    const p=n=>String(n).padStart(2,'0');
+    const t=p(now.getHours())+':'+p(now.getMinutes());
+    return t>w[1];
+  },
 };
