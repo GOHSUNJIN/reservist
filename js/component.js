@@ -1164,7 +1164,7 @@ class AppComponent extends DCLogic {
     });
     const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const dekitLabel='Dekit, '+WD[dd.getDay()]+' '+dd.getDate()+' '+MON[dd.getMonth()];
-    const dekitSub='Last report: '+WD[be.getDay()]+' '+be.getDate()+' '+MON[be.getMonth()]+' · Account closes on dekit day';
+    const dekitSub='Last report: '+WD[be.getDay()]+' '+be.getDate()+' '+MON[be.getMonth()];
     const dekitDateFull=WD[dd.getDay()]+' '+dd.getDate()+' '+MON[dd.getMonth()];
     const selOff=s.selectedCalOffset, calSelected=selOff!=null;
     let calSelLabel='',calSelStatus='',calSelSub='',calSelColor='',calSelBg='';
