@@ -1,5 +1,5 @@
 const Utils = {
-  shiftLabel(s){ return s==='AM'?'AM shift':s==='PM'?'PM shift':'Office hours'; },
+  shiftLabel(s){ return s==='AM'?'AM shift':s==='PM'?'PM shift':'Office'; },
   shiftWindow(s){ return s==='AM'?'0830 to 1530 hrs':s==='PM'?'1530 to 2230 hrs':'0900 to 1800 hrs'; },
   initials(name){ const p=(name||'').trim().split(/\s+/); return ((p[0]||'')[0]||'').toUpperCase()+((p[p.length-1]||'')[0]||'').toUpperCase(); },
   meta(s){
