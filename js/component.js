@@ -369,7 +369,7 @@ class AppComponent extends DCLogic {
 
   doPhase = key => async () => {
     const {locStatus,locDistance,currentUserId,demo,isOnline} = this.state;
-    const needsGps = key==='p1'||key==='p3';
+    const needsGps = true;
     if(needsGps && locStatus!=='verified') return;
     const time = Utils.hhmm(new Date());
     const dist = needsGps ? locDistance : null;
@@ -1105,9 +1105,9 @@ class AppComponent extends DCLogic {
     const testMode=!!s.testDate||s.demo;
     const phaseDefs=[
       {key:'p1',num:1,label:'Check in to work',needsGps:true,depends:null},
-      {key:'p2',num:2,label:'Lunch break',needsGps:false,depends:'p1'},
+      {key:'p2',num:2,label:'Lunch break',needsGps:true,depends:'p1'},
       {key:'p3',num:3,label:'Return from lunch',needsGps:true,depends:'p2'},
-      {key:'p4',num:4,label:'Check out',needsGps:false,depends:'p3'},
+      {key:'p4',num:4,label:'Check out',needsGps:true,depends:'p3'},
     ];
     const phases=phaseDefs.map(pd=>{
       const time=rec[pd.key];
