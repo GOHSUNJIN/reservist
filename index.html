@@ -50,7 +50,7 @@
       <div style="position:absolute;right:-90px;top:-50px;width:240px;height:240px;border-radius:50%;border:1px solid rgba(47,95,208,.22);"></div>
     </div>
 
-    <div class="scroll" style="flex:1;background:#f6f7f9;border-radius:22px 22px 0 0;padding:26px 24px 34px;overflow:auto;">
+    <div class="scroll" style="flex:1;background:#f6f7f9;border-radius:22px 22px 0 0;padding:26px 24px 34px;overflow:auto;box-shadow:0 -16px 40px rgba(20,30,50,.16);">
       <sc-if value="{{ accountDeleted }}" hint-placeholder-val="">
         <div style="background:#f1f8f4;border:1px solid #cfe6d8;border-radius:11px;padding:13px 15px;font-size:13px;color:#1f8a5b;font-weight:600;margin-bottom:18px;">Your account has been deactivated. Thank you for your service.</div>
       </sc-if>
@@ -112,7 +112,7 @@
   <sc-if value="{{ showApp }}" hint-placeholder-val="">
   <div style="flex:1;display:flex;flex-direction:column;min-height:0;background:#eef1f5;position:relative;">
 
-    <div style="flex:0 0 auto;background:#fff;border-bottom:1px solid #e3e6ec;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;">
+    <div style="flex:0 0 auto;background:#fff;border-bottom:1px solid #e8ecf2;box-shadow:0 1px 10px rgba(20,30,50,.07);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;z-index:10;">
       <div>
         <div style="font-size:11px;color:#8a94a3;letter-spacing:.04em;">{{ headerKicker }}</div>
         <div style="font-size:18px;font-weight:700;color:#161f30;line-height:1.1;">{{ tabTitle }}</div>
@@ -131,7 +131,7 @@
         <!-- ===== CHECK IN ===== -->
         <sc-if value="{{ tabCheckin }}" hint-placeholder-val="{{ true }}">
         <div>
-          <div style="background:#131a27;border-radius:18px;padding:20px;color:#fff;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+          <div style="background:linear-gradient(135deg,#161f30 0%,#1e2d45 100%);border-radius:18px;padding:20px;color:#fff;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;box-shadow:0 4px 18px rgba(20,30,50,.22);">
             <div>
               <div style="font-size:12px;color:#7d899b;letter-spacing:.06em;">{{ todayLong }}</div>
               <div style="font-size:16px;font-weight:600;margin-top:3px;">{{ myShiftLabel }}</div>
@@ -180,9 +180,11 @@
           </div>
 
           <div style="background:#fff;border:1px solid #e3e6ec;border-radius:18px;padding:22px;box-shadow:0 1px 3px rgba(20,30,50,.05);">
-            <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px;">
-              <span style="width:9px;height:9px;border-radius:50%;background:{{ myStatusColor }};display:inline-block;{{ myStatusPulse }}"></span>
-              <span style="font-size:12px;font-weight:600;color:{{ myStatusColor }};text-transform:uppercase;letter-spacing:.06em;">{{ myStatusLabel }}</span>
+            <div style="margin-bottom:12px;">
+              <span style="display:inline-flex;align-items:center;gap:7px;padding:5px 12px 5px 9px;background:{{ myStatusBg }};border-radius:20px;">
+                <span style="width:7px;height:7px;border-radius:50%;background:{{ myStatusColor }};display:inline-block;flex:0 0 auto;{{ myStatusPulse }}"></span>
+                <span style="font-size:12px;font-weight:700;color:{{ myStatusColor }};text-transform:uppercase;letter-spacing:.07em;">{{ myStatusLabel }}</span>
+              </span>
             </div>
 
             <sc-if value="{{ outOfCycle }}" hint-placeholder-val="">
@@ -465,10 +467,10 @@
         <sc-if value="{{ tabAttendance }}" hint-placeholder-val="">
         <div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-            <div class="stat-card"><div class="mono-num" style="color:#1f8a5b;">{{ statMyPresent }}</div><div style="font-size:11px;color:#8a94a3;margin-top:2px;">Present</div></div>
-            <div class="stat-card"><div class="mono-num" style="color:#b9791a;">{{ statMyMc }}</div><div style="font-size:11px;color:#8a94a3;margin-top:2px;">MC</div></div>
-            <div class="stat-card"><div class="mono-num" style="color:#c0392b;">{{ statMyMissed }}</div><div style="font-size:11px;color:#8a94a3;margin-top:2px;">Missed</div></div>
-            <div class="stat-card"><div class="mono-num" style="color:#161f30;">{{ statMyDays }}</div><div style="font-size:11px;color:#8a94a3;margin-top:2px;">Logged</div></div>
+            <div class="stat-card" style="border-top:3px solid #1f8a5b;"><div class="mono-num" style="color:#1f8a5b;">{{ statMyPresent }}</div><div style="font-size:11px;color:#8a94a3;margin-top:2px;">Present</div></div>
+            <div class="stat-card" style="border-top:3px solid #b9791a;"><div class="mono-num" style="color:#b9791a;">{{ statMyMc }}</div><div style="font-size:11px;color:#8a94a3;margin-top:2px;">MC</div></div>
+            <div class="stat-card" style="border-top:3px solid #c0392b;"><div class="mono-num" style="color:#c0392b;">{{ statMyMissed }}</div><div style="font-size:11px;color:#8a94a3;margin-top:2px;">Missed</div></div>
+            <div class="stat-card" style="border-top:3px solid #d4d9e2;"><div class="mono-num" style="color:#161f30;">{{ statMyDays }}</div><div style="font-size:11px;color:#8a94a3;margin-top:2px;">Logged</div></div>
           </div>
           <div class="card" style="padding:16px;margin-bottom:14px;">
             <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;"><span style="color:#8a94a3;font-weight:600;letter-spacing:.04em;">CYCLE PROGRESS</span><span style="color:#161f30;font-weight:600;">{{ cycleDone }} of {{ cycleTotal }} days</span></div>
@@ -480,7 +482,7 @@
               <div style="padding:9px 16px;font-size:11.5px;color:#b9791a;background:#fdf6e9;border-bottom:1px solid #eef0f4;">Showing most recent 500 records only.</div>
             </sc-if>
             <sc-for list="{{ myHistory }}" as="row" hint-placeholder-count="6">
-              <div class="row-item" style="padding-top:13px;padding-bottom:13px;justify-content:space-between;">
+              <div class="row-item" style="padding-top:13px;padding-bottom:13px;justify-content:space-between;border-left:3px solid {{ row.color }};padding-left:13px;">
                 <div><div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ row.date }}</div><div style="font-size:11.5px;color:#8a94a3;">{{ row.shift }}</div></div>
                 <div style="display:flex;align-items:center;gap:9px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a94a3;">{{ row.time }}</span><span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span></div>
               </div>
@@ -614,10 +616,10 @@
           <sc-if value="{{ viewShowReporting }}" hint-placeholder-val="{{ true }}">
           <div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:14px;">
-            <div class="card" style="padding:16px;"><div class="mono-num" style="font-size:26px;color:#1f8a5b;">{{ vPresent }}</div><div style="font-size:12px;color:#8a94a3;margin-top:2px;">{{ vPresentLabel }}</div></div>
-            <div class="card" style="padding:16px;"><div class="mono-num" style="font-size:26px;color:#b9791a;">{{ vMc }}</div><div style="font-size:12px;color:#8a94a3;margin-top:2px;">On MC</div></div>
-            <div class="card" style="padding:16px;"><div class="mono-num" style="font-size:26px;color:{{ vThirdColor }};">{{ vThirdVal }}</div><div style="font-size:12px;color:#8a94a3;margin-top:2px;">{{ vThirdLabel }}</div></div>
-            <div class="card" style="padding:16px;"><div class="mono-num" style="font-size:26px;color:#161f30;">{{ vTotal }}</div><div style="font-size:12px;color:#8a94a3;margin-top:2px;">Total roster</div></div>
+            <div class="card" style="padding:16px;border-top:3px solid #1f8a5b;"><div class="mono-num" style="font-size:26px;color:#1f8a5b;">{{ vPresent }}</div><div style="font-size:12px;color:#8a94a3;margin-top:2px;">{{ vPresentLabel }}</div></div>
+            <div class="card" style="padding:16px;border-top:3px solid #b9791a;"><div class="mono-num" style="font-size:26px;color:#b9791a;">{{ vMc }}</div><div style="font-size:12px;color:#8a94a3;margin-top:2px;">On MC</div></div>
+            <div class="card" style="padding:16px;border-top:3px solid {{ vThirdColor }};"><div class="mono-num" style="font-size:26px;color:{{ vThirdColor }};">{{ vThirdVal }}</div><div style="font-size:12px;color:#8a94a3;margin-top:2px;">{{ vThirdLabel }}</div></div>
+            <div class="card" style="padding:16px;border-top:3px solid #d4d9e2;"><div class="mono-num" style="font-size:26px;color:#161f30;">{{ vTotal }}</div><div style="font-size:12px;color:#8a94a3;margin-top:2px;">Total roster</div></div>
           </div>
 
           <sc-if value="{{ showSnapshot }}" hint-placeholder-val="">
@@ -868,21 +870,21 @@
 
     <!-- bottom nav: reservist -->
     <sc-if value="{{ isReservist }}" hint-placeholder-val="{{ true }}">
-    <div style="flex:0 0 auto;background:#fff;border-top:1px solid #e3e6ec;display:flex;padding:8px 6px 10px;">
-      <button onClick="{{ goCheckin }}" class="nav-btn" style="color:{{ cCheckin }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cCheckin }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="8 12 11 15 16 9"></polyline></svg><span>Check-in</span></button>
-      <button onClick="{{ goBriefings }}" class="nav-btn" style="color:{{ cBriefings }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cBriefings }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"></rect><line x1="9" y1="8" x2="15" y2="8"></line><line x1="9" y1="12" x2="15" y2="12"></line><line x1="9" y1="16" x2="13" y2="16"></line></svg><span>Briefings</span></button>
-      <button onClick="{{ goAttendance }}" class="nav-btn" style="color:{{ cAttendance }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cAttendance }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="8" y1="3" x2="8" y2="6"></line><line x1="16" y1="3" x2="16" y2="6"></line></svg><span>Attendance</span></button>
-      <button onClick="{{ goMeal }}" class="nav-btn" style="color:{{ cMeal }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cMeal }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v8a3 3 0 0 0 6 0V3"></path><line x1="9" y1="11" x2="9" y2="21"></line><path d="M17 3c-1.5 0-2.5 2-2.5 5s1 4 2.5 4v9"></path></svg><span>Meal</span></button>
+    <div style="flex:0 0 auto;background:#fff;border-top:1px solid #e3e6ec;display:flex;padding:0 6px 10px;">
+      <button onClick="{{ goCheckin }}" class="nav-btn" style="color:{{ cCheckin }};border-top-color:{{ tabCheckin ? accent : 'transparent' }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cCheckin }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="8 12 11 15 16 9"></polyline></svg><span>Check-in</span></button>
+      <button onClick="{{ goBriefings }}" class="nav-btn" style="color:{{ cBriefings }};border-top-color:{{ tabBriefings ? accent : 'transparent' }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cBriefings }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="3" width="14" height="18" rx="2"></rect><line x1="9" y1="8" x2="15" y2="8"></line><line x1="9" y1="12" x2="15" y2="12"></line><line x1="9" y1="16" x2="13" y2="16"></line></svg><span>Briefings</span></button>
+      <button onClick="{{ goAttendance }}" class="nav-btn" style="color:{{ cAttendance }};border-top-color:{{ tabAttendance ? accent : 'transparent' }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cAttendance }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="8" y1="3" x2="8" y2="6"></line><line x1="16" y1="3" x2="16" y2="6"></line></svg><span>Attendance</span></button>
+      <button onClick="{{ goMeal }}" class="nav-btn" style="color:{{ cMeal }};border-top-color:{{ tabMeal ? accent : 'transparent' }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cMeal }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3v8a3 3 0 0 0 6 0V3"></path><line x1="9" y1="11" x2="9" y2="21"></line><path d="M17 3c-1.5 0-2.5 2-2.5 5s1 4 2.5 4v9"></path></svg><span>Meal</span></button>
     </div>
     </sc-if>
 
     <!-- bottom nav: admin -->
     <sc-if value="{{ isAdmin }}" hint-placeholder-val="">
-    <div style="flex:0 0 auto;background:#fff;border-top:1px solid #e3e6ec;display:flex;padding:8px 6px 10px;">
-      <button onClick="{{ goOverview }}" class="nav-btn" style="color:{{ cOverview }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cOverview }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg><span>Overview</span></button>
-      <button onClick="{{ goRoster }}" class="nav-btn" style="color:{{ cRoster }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cRoster }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><circle cx="3.5" cy="6" r="1.2"></circle><circle cx="3.5" cy="12" r="1.2"></circle><circle cx="3.5" cy="18" r="1.2"></circle></svg><span>Roster</span></button>
-      <button onClick="{{ goLog }}" class="nav-btn" style="color:{{ cLog }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cLog }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>Log</span></button>
-      <button onClick="{{ goPeople }}" class="nav-btn" style="color:{{ cPeople }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cPeople }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 20a5.5 5.5 0 0 1 11 0"></path><path d="M16 5.5a3 3 0 0 1 0 5.8"></path><path d="M18 14.5a5.5 5.5 0 0 1 3 5"></path></svg><span>People</span></button>
+    <div style="flex:0 0 auto;background:#fff;border-top:1px solid #e3e6ec;display:flex;padding:0 6px 10px;">
+      <button onClick="{{ goOverview }}" class="nav-btn" style="color:{{ cOverview }};border-top-color:{{ tabOverview ? accent : 'transparent' }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cOverview }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg><span>Overview</span></button>
+      <button onClick="{{ goRoster }}" class="nav-btn" style="color:{{ cRoster }};border-top-color:{{ tabRoster ? accent : 'transparent' }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cRoster }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><circle cx="3.5" cy="6" r="1.2"></circle><circle cx="3.5" cy="12" r="1.2"></circle><circle cx="3.5" cy="18" r="1.2"></circle></svg><span>Roster</span></button>
+      <button onClick="{{ goLog }}" class="nav-btn" style="color:{{ cLog }};border-top-color:{{ tabLog ? accent : 'transparent' }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cLog }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>Log</span></button>
+      <button onClick="{{ goPeople }}" class="nav-btn" style="color:{{ cPeople }};border-top-color:{{ tabPeople ? accent : 'transparent' }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cPeople }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 20a5.5 5.5 0 0 1 11 0"></path><path d="M16 5.5a3 3 0 0 1 0 5.8"></path><path d="M18 14.5a5.5 5.5 0 0 1 3 5"></path></svg><span>People</span></button>
     </div>
     </sc-if>
 
@@ -964,7 +966,7 @@
 
     <!-- ===== TOAST ===== -->
     <sc-if value="{{ showToast }}" hint-placeholder-val="">
-    <div onClick="{{ dismissToast }}" style="position:absolute;top:58px;left:50%;transform:translateX(-50%);z-index:100;cursor:pointer;">
+    <div onClick="{{ dismissToast }}" class="toast-wrap" style="position:absolute;top:58px;left:50%;transform:translateX(-50%);z-index:100;cursor:pointer;">
       <div style="background:#fff;border-radius:100px;padding:9px 18px 9px 12px;font-size:13px;font-weight:600;white-space:nowrap;box-shadow:0 4px 24px rgba(20,30,50,.18);display:flex;align-items:center;gap:9px;border:1px solid #f0f2f5;">
         <span style="width:8px;height:8px;border-radius:50%;background:{{ toastBg }};flex:0 0 auto;display:inline-block;"></span>
         <span style="color:#161f30;">{{ toastMsg }}</span>
