@@ -18,8 +18,7 @@ class AppComponent extends DCLogic {
     locStatus: 'idle', locDistance: null, locGpsMsg: '',
     accountOpen: false, confirmDelete: false,
     viewOffset: 0, avatars: {}, selectedCalOffset: null,
-    mcMode: false, mcFileName: '', _mcFile: null,
-    mcViewOpen: false, mcViewName: '', mcViewDate: '', mcViewFile: '', mcViewUrl: '',
+    mcMode: false,
     npName: '', npContact: '', npShift: 'AM', npPassword: '',
     rosterSearch: '',
     realtimeChannel: null,
@@ -270,7 +269,7 @@ class AppComponent extends DCLogic {
       authed:false, role:null, authMode:'login', demo:false,
       currentUserId:null, me:null, loginContact:'', loginPassword:'',
       mcMode:false, locStatus:'idle', locDistance:null, locGpsMsg:'',
-      accountOpen:false, confirmDelete:false, mcViewOpen:false,
+      accountOpen:false, confirmDelete:false,
       personnel:[], attendance:{}, history:[], attendanceCache:{}, batchMembersCache:{},
       testDate:null, testDateInput:'',
       acctNameEdit:'', acctPwCurrent:'', acctPwNew:'', acctPwConfirm:'',
@@ -374,22 +373,15 @@ class AppComponent extends DCLogic {
     }
   };
 
-  openMc  = () => this.setState({mcMode:true});
-  cancelMc= () => this.setState({mcMode:false, mcFileName:'', _mcFile:null});
-  onMcFile= e => { const f=e.target.files&&e.target.files[0]; this.setState({mcFileName:f?f.name:'',_mcFile:f||null}); };
+  openMc   = () => this.setState({mcMode:true});
+  cancelMc = () => this.setState({mcMode:false});
 
   submitMc = async () => {
     if(this.state.mcSubmitting) return;
     this.setState({mcSubmitting:true});
     const today=Utils.dateKey(this.baseDate());
-    let mc=this.state.mcFileName||'medical-cert.pdf';
-    if(!this.state.demo && this.state._mcFile){
-      const {path,error}=await DB.storage.uploadMc(this.state.currentUserId, today, this.state._mcFile).catch(e=>({path:mc,error:e}));
-      if(error) this._toast('File upload failed. MC recorded without attachment.','error');
-      else mc=path;
-    }
-    if(!this.state.demo) await DB.attendance.upsert(this.state.currentUserId, today, 'mc', {mc});
-    this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:{status:'mc',time:'-',mc}},mcMode:false,_mcFile:null,mcSubmitting:false}));
+    if(!this.state.demo) await DB.attendance.upsert(this.state.currentUserId, today, 'mc');
+    this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:{status:'mc',time:'-'}},mcMode:false,mcSubmitting:false}));
     this._haptic();
   };
 
@@ -440,7 +432,7 @@ class AppComponent extends DCLogic {
   doUndo      = async () => {
     const today=Utils.dateKey(this.baseDate());
     if(!this.state.demo) await DB.attendance.remove(this.state.currentUserId, today);
-    this.setState(s=>{ const a={...s.attendance}; delete a[s.currentUserId]; return {attendance:a,mcFileName:'',_mcFile:null,locStatus:'idle',locDistance:null,confirmUndo:false}; });
+    this.setState(s=>{ const a={...s.attendance}; delete a[s.currentUserId]; return {attendance:a,locStatus:'idle',locDistance:null,confirmUndo:false}; });
     this._toast('Check-in undone.');
   };
 
@@ -542,13 +534,6 @@ class AppComponent extends DCLogic {
     }
   };
 
-  // ── MC viewer ─────────────────────────────────────────────────────────────
-  openMcViewer = (name, date, file) => async () => {
-    let url='';
-    if(file && !this.state.demo) url = await DB.storage.getMcUrl(file).catch(()=>'');
-    this.setState({mcViewOpen:true, mcViewName:name, mcViewDate:date, mcViewFile:file||'', mcViewUrl:url});
-  };
-  closeMcViewer = () => this.setState({mcViewOpen:false});
 
 
   // ── Export CSV ────────────────────────────────────────────────────────────
@@ -1065,8 +1050,7 @@ class AppComponent extends DCLogic {
       locShowLocateBtn:false, locBtnLabel:'Locate me',
       locBorder:'#eef0f4', locCardBg:'#fff', locBadgeBg:'#eceef2', locBadgeColor:'#8a94a3',
       locMsg:'', locMsgColor:'#8a94a3', checkInOpacity:'.45', checkInPE:'none',
-      openMc:()=>{}, onMcFile:()=>{}, submitMc:()=>{}, cancelMc:()=>{}, undoCheckin:()=>{},
-      mcFileLabel:'',
+      openMc:()=>{}, submitMc:()=>{}, cancelMc:()=>{}, undoCheckin:()=>{},
       batchLabel:'', dekitCountdown:'', batchRange:'', showBatchInfo:false,
       whatsappLink:'', showWaShare:false,
       isOffline:!s.isOnline, offlinePending:s.offlinePending,
@@ -1100,6 +1084,18 @@ class AppComponent extends DCLogic {
     const showWaShare = !!(status==='present'||status==='mc');
     const shiftStart={AM:'08:30',PM:'15:30',OFFICE:'09:00'}[me.shift]||'08:30';
     const isLate=rec.status==='present'&&rec.time&&rec.time!=='-'&&rec.time>shiftStart;
+    let showUndoBtn=false;
+    if(!s.confirmUndo){
+      if(status==='mc') showUndoBtn=true;
+      else if(status==='present'){
+        if(s.demo){showUndoBtn=true;}
+        else if(rec.time&&rec.time!=='-'){
+          const [uh,um]=rec.time.split(':').map(Number);
+          const ci=new Date(s.now);ci.setHours(uh,um,0,0);
+          showUndoBtn=(s.now.getTime()-ci.getTime())<=30*60*1000;
+        }
+      }
+    }
     return {
       todayLong:Utils.fmtLong(this.baseDate()),
       clock:s.testDate?'--:--':Utils.hhmm(s.now),
@@ -1123,16 +1119,14 @@ class AppComponent extends DCLogic {
       locBorder,locCardBg,locBadgeBg,locBadgeColor,locMsg,locMsgColor,
       checkInOpacity:locVerified?'1':'.45',
       checkInPE:locVerified?'auto':'none',
-      openMc:this.openMc, onMcFile:this.onMcFile, submitMc:this.submitMc, cancelMc:this.cancelMc,
-      undoCheckin:this.requestUndo, confirmUndo:s.confirmUndo, showUndoBtn:!s.confirmUndo, showUndoConfirm:s.confirmUndo, doUndo:this.doUndo, cancelUndo:this.cancelUndo,
-      mcFileLabel:s.mcFileName||rec.mc||'No file selected',
+      openMc:this.openMc, submitMc:this.submitMc, cancelMc:this.cancelMc,
+      undoCheckin:this.requestUndo, confirmUndo:s.confirmUndo, showUndoBtn, showUndoConfirm:s.confirmUndo, doUndo:this.doUndo, cancelUndo:this.cancelUndo,
       batchLabel, dekitCountdown, batchRange, showBatchInfo: !!activeBatch,
       whatsappLink, showWaShare,
       isLate, lateShiftStart:shiftStart,
       isOffline:!s.isOnline, offlinePending:s.offlinePending,
       refreshPage:this.refreshPage,
       mcSubmitting:s.mcSubmitting,
-      mcSubmitLabel:s.mcSubmitting?'Submitting…':'Submit MC',
     };
   }
 
@@ -1249,7 +1243,7 @@ class AppComponent extends DCLogic {
     if(activeBatch){
       const bStart=new Date(activeBatch.start_date+'T00:00:00'),bEnd=new Date(activeBatch.end_date+'T00:00:00'),now=this.baseDate();
       for(let d=new Date(bStart);d<=bEnd;d=Utils.addDays(d,1)){
-        if(Utils.isReportDay(d)&&!Utils.holidayName(d)){cycleTotal++;if(d<=now)cycleDone++;}
+        if(Utils.isReportDay(d)&&!Utils.holidayName(d)&&!s.noReportDays.has(Utils.dateKey(d))){cycleTotal++;if(d<=now)cycleDone++;}
       }
     }
     return {myHistory,statMyPresent,statMyMc,statMyMissed,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:myHistory.length===0};
@@ -1357,10 +1351,9 @@ class AppComponent extends DCLogic {
       const r=viewMap[p.id]||{status:'pending',time:'-'}, mm=Utils.meta(r.status);
       const cutoff=shiftCutoff[p.shift||'AM'];
       const isLate=r.status==='present'&&r.time&&r.time!=='-'&&r.time>cutoff;
-      const hasMc=r.status==='mc'&&!!r.mc;
       const av=s.avatars[p.id]||'';
       const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,time:r.time||'-',isLate,timeColor:isLate?'#c0392b':'#8a94a3',lateTag:isLate?' (late)':'',mcCursor:hasMc?'pointer':'default',onViewMc:hasMc?this.openMcViewer(p.name,viewDateKey,r.mc):()=>{},avatarStyle};
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,time:r.time||'-',isLate,timeColor:isLate?'#c0392b':'#8a94a3',lateTag:isLate?' (late)':'',avatarStyle};
     });
     const logDateLabel=viewIsToday?'TODAY\'S LOG':((WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()]).toUpperCase()+' LOG');
     const dlabel=WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()];
@@ -1375,10 +1368,9 @@ class AppComponent extends DCLogic {
     const noRepMsg=viewHoliday?('Public holiday ('+viewHoliday+'). Auto no-reporting, locked.'):repToggleOn?'On. Reservists are not required to report this day.':'Off. Reservists report and check in as normal.';
     const viewRoster=activeMembers.map(p=>{
       const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
-      const hasMc=r.status==='mc'&&!!r.mc;
       const av=s.avatars[p.id]||'';
       const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:(r.status==='present'&&r.time&&r.time!=='-')?r.time:'',mcCursor:hasMc?'pointer':'default',onViewMc:hasMc?this.openMcViewer(p.name,viewDateKey,r.mc):()=>{},avatarStyle};
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:(r.status==='present'&&r.time&&r.time!=='-')?r.time:'',avatarStyle};
     });
     const vPresent=viewRoster.filter(r=>r.label==='Present').length, vMc=viewRoster.filter(r=>r.label==='On MC').length, vAbsent=viewRoster.filter(r=>r.label==='Absent').length, vPending=viewRoster.filter(r=>r.label==='Pending').length, vTotal=viewRoster.length;
     const vPercent=vTotal?Math.round((vPresent+vMc)/vTotal*100):0;
@@ -1435,9 +1427,6 @@ class AppComponent extends DCLogic {
       mealToggleKnobX:activeBatch?.meal_active?'25px':'3px',
       batchLoading:s.batchLoading,
       exportCsv:this.exportCsv,
-      mcViewOpen:s.mcViewOpen, mcViewName:s.mcViewName, mcViewDate:s.mcViewDate,
-      mcViewFile:s.mcViewFile, mcViewUrl:s.mcViewUrl, mcViewNoUrl:!s.mcViewUrl,
-      closeMcViewer:this.closeMcViewer,
       testDate:s.testDate, testDateInput:s.testDateInput,
       onTestDateInput:this.onTestDateInput, setTestDate:this.setTestDate, clearTestDate:this.clearTestDate,
       hasTestDate:!!s.testDate,
