@@ -991,9 +991,9 @@ class AppComponent extends DCLogic {
     let suShift=s.suShift;
     if((suShift==='AM'&&amFull)||(suShift==='PM'&&pmFull)) suShift='OFFICE';
     const shiftOptions=[
-      {value:'AM', disabled:amFull, selected:suShift==='AM', label:amFull?'AM (full)':'AM shift ('+amCount+'/2)'},
-      {value:'PM', disabled:pmFull, selected:suShift==='PM', label:pmFull?'PM (full)':'PM shift ('+pmCount+'/2)'},
-      {value:'OFFICE', disabled:false, selected:suShift==='OFFICE', label:'Office hours'},
+      {value:'AM', disabled:amFull, selected:suShift==='AM', label:amFull?'AM shift (0830-1530) - Full':'AM shift (0830-1530) ('+amCount+'/2)'},
+      {value:'PM', disabled:pmFull, selected:suShift==='PM', label:pmFull?'PM shift (1530-2230) - Full':'PM shift (1530-2230) ('+pmCount+'/2)'},
+      {value:'OFFICE', disabled:false, selected:suShift==='OFFICE', label:'Office (0900-1800)'},
     ];
     const tb=a=>`flex:1;padding:11px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;${a?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`;
     const bs=activeBatch?new Date(activeBatch.start_date+'T00:00:00'):null;
@@ -1013,6 +1013,9 @@ class AppComponent extends DCLogic {
       onLoginNric:this.onLoginContact, onLoginPassword:this.onLoginPassword,
       doLogin:this.doLogin, demoReservist:this.demoReservist, demoAdmin:this.demoAdmin,
       suName:s.suName, suNric:'', suContact:s.suContact, suShift, shiftOptions, suPassword:s.suPassword,
+      amFull, pmFull, amCount, pmCount,
+      amShiftLabel:amFull?'AM shift (0830-1530) - Full':'AM shift (0830-1530) ('+amCount+'/2)',
+      pmShiftLabel:pmFull?'PM shift (1530-2230) - Full':'PM shift (1530-2230) ('+pmCount+'/2)',
       onSuName:this.onSuName, onSuNric:()=>{}, onSuContact:this.onSuContact, onSuShift:this.onSuShift, onSuShiftSelect:this.onSuShiftSelect, onSuPassword:this.onSuPassword,
       doSignup:this.doSignup,
       intakeLabel, intakeRange:intakeRangeFull, intakeRangeFull,
@@ -1266,10 +1269,16 @@ class AppComponent extends DCLogic {
       mealActive,
       mealStatusBanner:mealActive?'Active: submit your form daily (Mon-Fri).':'On hold: do not submit the form for now.',
       mealStatusStyle:mealActive?'background:#e7f3ec;border:1px solid #a8d5bb;border-radius:8px;padding:7px 10px;font-size:12px;color:#1f8a5b;font-weight:600;margin-bottom:8px;':'background:#fdf6e9;border:1px solid #f0e2c2;border-radius:8px;padding:7px 10px;font-size:12px;color:#8a6d2a;font-weight:600;margin-bottom:8px;',
-      mealItems:[
-        'When resumed: submit daily Mon-Fri, including MC days.',
+      mealFormLink:'https://go.gov.sg/gdiv-pnsmen-meal-allowance',
+      mealItems:mealActive?[
+        'Mark PRESENT if you completed your shift, MC if on sick leave.',
+        'Upload a copy of your MC when declaring sick leave.',
+        "Supervisor's email is sent daily via the WhatsApp group.",
+        'No submission needed on public holidays or no-reporting days.',
+      ]:[
+        'When active: submit daily Mon-Fri, including MC days.',
         'Mark PRESENT if shift completed, MC if on sick leave.',
-        'No submission on public holidays or no-reporting days.',
+        'No submission needed on public holidays or no-reporting days.',
       ],
       dekitItems:[
         'Fill meal allowance forms and submit to the Manpower Officer, endorsed by Ops Branch supervisor.',
