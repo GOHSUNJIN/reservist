@@ -253,9 +253,9 @@ class AppComponent extends DCLogic {
     const members = await DB.personnel.list(activeBatch.id).catch(()=>[]);
     const shift = this._capShift(suShift||'AM', members);
     this.setState({loading:true, authError:''});
-    const {user,error} = await DB.auth.signup(suContact, suPassword, suName.trim());
+    const {user,error} = await DB.auth.signup(cleanContact, suPassword, suName.trim());
     if(error||!user){ this.setState({loading:false, authError:error?.message||'Signup failed. Try a different contact or password.'}); return; }
-    const existing = await DB.personnel.findByContact(suContact);
+    const existing = await DB.personnel.findByContact(cleanContact);
     if(existing){
       await DB.personnel.linkAuth(existing.id, user.id);
     } else {
@@ -394,7 +394,8 @@ class AppComponent extends DCLogic {
         this._offlineQueues.push({id:currentUserId,date:today,key,time,dist});
         this.setState({offlinePending:true});
       } else {
-        await DB.attendance.logPhase(currentUserId, today, key, time, dist).catch(()=>{});
+        const {error:phErr} = await DB.attendance.logPhase(currentUserId, today, key, time, dist);
+        if(phErr) this._toast('Check-in saved locally but failed to sync. Check your connection.','error');
       }
     }
   };
@@ -422,8 +423,12 @@ class AppComponent extends DCLogic {
   _toast(msg, type='success'){
     if(this._toastTimer) clearTimeout(this._toastTimer);
     this.setState({toast:{msg,type}});
-    this._toastTimer=setTimeout(()=>this.setState({toast:null}),3000);
+    this._toastTimer=setTimeout(()=>this.setState({toast:null}),type==='error'?5000:3000);
   }
+  dismissToast = () => {
+    if(this._toastTimer) clearTimeout(this._toastTimer);
+    this.setState({toast:null});
+  };
 
   _touchStartX = null;
   onDaySwipeStart = e => { this._touchStartX = e.touches[0].clientX; };
@@ -956,7 +961,10 @@ class AppComponent extends DCLogic {
   confirmDeactivatePerson = async () => {
     const {confirmDeactivateId,demo,batches,activeBatchIdx}=this.state;
     if(!confirmDeactivateId) return;
-    if(!demo) await DB.personnel.deactivate(confirmDeactivateId).catch(()=>{});
+    if(!demo){
+      const {error} = await DB.personnel.deactivate(confirmDeactivateId).catch(()=>({error:true}));
+      if(error){ this._toast('Could not remove person. Check your connection.','error'); this.setState({confirmDeactivateId:null}); return; }
+    }
     const batchId=batches[activeBatchIdx||0]?.id;
     this.setState(s=>{
       const personnel=s.personnel.filter(p=>p.id!==confirmDeactivateId);
@@ -1196,7 +1204,7 @@ class AppComponent extends DCLogic {
         locLocating:myGpsActive&&locLocating,
         locVerified:myGpsActive&&locVerified,
         locNeedsAction:myGpsActive&&(locIdle||locOutOfRange||locGpsError),
-        locBtnLabel:locIdle?'Locate me':'Try again',
+        locBtnLabel:locLocating?'Locating...':(locIdle?'Locate me':'Try again'),
         locBtnDisabled:myGpsActive&&locLocating,
         locBorder:myGpsActive?gLocBorder:'#eef0f4',
         locCardBg:myGpsActive?gLocCardBg:'#fff',
@@ -1243,7 +1251,7 @@ class AppComponent extends DCLogic {
       openMc:this.openMc, submitMc:this.submitMc, cancelMc:this.cancelMc,
       batchLabel, dekitCountdown, batchRange, showBatchInfo:!!activeBatch,
       whatsappLink, showWaShare,
-      isOffline:!s.isOnline, offlinePending:s.offlinePending,
+      isOffline:!s.isOnline, offlinePending:s.offlinePending, offlineQueueCount:this._offlineQueues?.length||0,
       refreshPage:this.refreshPage,
       mcSubmitting:s.mcSubmitting,
       hasTestDate:!!s.testDate, testDate:s.testDate||'',
@@ -1525,6 +1533,7 @@ class AppComponent extends DCLogic {
       rosterSearch:s.rosterSearch, onRosterSearch:this.onRosterSearch,
       markAllPresent:this.markAllPresent, pendingCount, markAllPresenting:s.markAllPresenting,
       noSearchResults:!!search&&sortedFiltered.length===0,
+      filteredCount:search?sortedFiltered.length:0, showFilteredCount:!!search&&sortedFiltered.length>0,
       statPresent:present, statMc:mc, statPending:pending, statTotal:total,
       noRepMsg, toggleNoReporting:this.toggleNoReporting,
       showRepToggle, repToggleLocked,
@@ -1604,6 +1613,7 @@ class AppComponent extends DCLogic {
     return {
       accent, orgName, hqName,
       showToast:!!s.toast, toastMsg:s.toast?.msg||'', toastBg:s.toast?.type==='error'?'#c0392b':'#1f8a5b',
+      dismissToast:this.dismissToast,
       ...this._buildAuth(s, accent),
       ...this._buildNav(s, accent, orgName),
       ...this._buildCheckin(s, accent, hqName),
