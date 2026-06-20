@@ -46,6 +46,7 @@ class AppComponent extends DCLogic {
     noReportDaysCache: {},
     markAllPresenting: false,
     mcSubmitting: false,
+    carryingOver: false,
   };
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
@@ -287,7 +288,7 @@ class AppComponent extends DCLogic {
       toast:null, rosterSort:'shift', newBatchDate:'',
       peopleStats:{}, peopleStatsLoaded:false, confirmDeactivateId:null, showArchivedBatches:false,
       noAvatarIds:new Set(), noReportDaysCache:{},
-      markAllPresenting:false, mcSubmitting:false,
+      markAllPresenting:false, mcSubmitting:false, carryingOver:false,
     });
   };
 
@@ -931,6 +932,25 @@ class AppComponent extends DCLogic {
     this._toast('Batch '+label+' created.');
   };
 
+  carryOver = async () => {
+    const {batches, carryingOver, demo} = this.state;
+    if(carryingOver) return;
+    const liveBatch = batches.find(b => b.is_live);
+    if(!liveBatch) return;
+    this.setState({carryingOver:true});
+    if(!demo){
+      const {error} = await DB.personnel.carryOver(liveBatch.id);
+      if(error){
+        this._toast('Could not carry over. Check your connection.', 'error');
+        this.setState({carryingOver:false});
+        return;
+      }
+    }
+    const personnel = await DB.personnel.list().catch(()=>this.state.personnel);
+    this.setState({personnel, carryingOver:false});
+    this._toast('Personnel carried over to current batch.');
+  };
+
   askDeactivatePerson = id => () => this.setState({confirmDeactivateId:id});
   cancelDeactivatePerson = () => this.setState({confirmDeactivateId:null});
   confirmDeactivatePerson = async () => {
@@ -1494,6 +1514,9 @@ class AppComponent extends DCLogic {
     const lbs=liveBatch?new Date(liveBatch.start_date+'T00:00:00'):null, lbe=liveBatch?new Date(liveBatch.end_date+'T00:00:00'):null;
     const intakeLabel=liveBatch?liveBatch.label:'';
     const intakeRange=lbs&&lbe?(Utils.fmtShort(lbs)+' to '+Utils.fmtShort(lbe)):'';
+    const carryOverCandidates=liveBatch?s.personnel.filter(p=>(p.role||'reservist')==='reservist'&&p.batch_id&&p.batch_id!==liveBatch.id):[];
+    const showCarryOver=liveBatch&&carryOverCandidates.length>0;
+    const carryOverCount=carryOverCandidates.length;
     return {
       activeChips, archivedChips, archivedCount:archivedChips.length,
       showArchivedBatches:s.showArchivedBatches,
@@ -1529,6 +1552,7 @@ class AppComponent extends DCLogic {
       setRosterSortStatus:this.setRosterSort('status'),
       rosterSortShiftStyle,rosterSortNameStyle,rosterSortStatusStyle,
       newBatchDate:s.newBatchDate,onNewBatchDate:this.onNewBatchDate,createBatch:this.createBatch,batchCreating:s.batchCreating,
+      showCarryOver, carryOverCount, carryOver:this.carryOver, carryingOver:s.carryingOver,
       npName:s.npName, npContact:s.npContact, npShift, npPassword:s.npPassword,
       npAmFull, npPmFull, npAmCount, npPmCount,
       npAmLabel:npAmFull?'AM shift (0830-1530) - Full':'AM shift (0830-1530) ('+npAmCount+'/2)',
