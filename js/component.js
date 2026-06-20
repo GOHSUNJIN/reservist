@@ -598,6 +598,16 @@ class AppComponent extends DCLogic {
   }
 
   // ── Admin actions ─────────────────────────────────────────────────────────
+  toggleMealActive = async () => {
+    const {batches,activeBatchIdx,demo}=this.state;
+    const idx=activeBatchIdx||0;
+    const activeBatch=batches[idx]; if(!activeBatch) return;
+    const next=!activeBatch.meal_active;
+    if(!demo) await DB.batches.setMealActive(activeBatch.id, next);
+    this.setState(s=>({batches:s.batches.map((b,i)=>i===idx?{...b,meal_active:next}:b)}));
+    this._toast('Meal allowance forms '+(next?'activated':'paused')+'.');
+  };
+
   toggleNoReporting = async () => {
     const off=this.state.viewOffset, d=this.dateForOffset(off);
     if(!Utils.isReportDay(d)||Utils.holidayName(d)) return;
@@ -732,7 +742,7 @@ class AppComponent extends DCLogic {
   };
 
   addPerson = async () => {
-    const {npName,npContact,npShift,npPassword,batches,activeBatchIdx,demo,personnel}=this.state;
+    const {npName,npContact,npShift,npPassword,batches,activeBatchIdx,demo,personnel,batchMembersCache}=this.state;
     if(!npName.trim()){ this._toast('Name is required.','error'); return; }
     const cleanContact=npContact.replace(/[\s-]/g,'');
     if(cleanContact&&!/^\d{8}$/.test(cleanContact)){ this._toast('Contact must be an 8-digit Singapore number.','error'); return; }
@@ -740,7 +750,8 @@ class AppComponent extends DCLogic {
     if(npPassword&&npPassword.length<6){ this._toast('Password must be at least 6 characters.','error'); return; }
     if(npPassword&&!cleanContact){ this._toast('A contact number is required to set a password.','error'); return; }
     const activeBatch=batches[activeBatchIdx||0];
-    const shift=this._capShift(npShift, personnel);
+    const batchMembers=activeBatch?.is_live?personnel:(batchMembersCache?.[activeBatch?.id]||[]);
+    const shift=this._capShift(npShift, batchMembers);
     const contact=cleanContact||'-';
     const addedName=npName.trim();
     if(!demo){
@@ -1233,6 +1244,8 @@ class AppComponent extends DCLogic {
   }
 
   _buildBriefings(s, accent){
+    const activeBatch=s.batches[s.activeBatchIdx||0];
+    const mealActive=!!(activeBatch?.meal_active);
     const ROLES={
       AM:{title:'AM Shift',window:'0830 – 1530  ·  Lunch 1200–1430',items:['MOPs for CNB testing must exit via the same route they entered.','MOPs must not loiter around the area.','Escort contractors around the building when required.','Assist with Red Teaming exercises if needed.']},
       PM:{title:'PM Shift',window:'1530 – 2230  ·  Dinner 1630–1830',items:['Same duties as AM shift.','May leave early if CNB confirms no more reporting.'],note:'Fridays: stay till 1800 only. May move to canteen after 1630. Update WhatsApp when leaving DHQ or if on MC.'},
@@ -1250,7 +1263,9 @@ class AppComponent extends DCLogic {
       myShiftTitle:mine.title, myShiftWindow:mine.window, myShiftItems:mine.items, myShiftNote:mine.note||'',
       briefLocation:(this.props.hqName||'Bedok DHQ')+' Canteen',
       briefAttire:'Civilian — pants and covered shoes',
-      mealStatusBanner:'On hold — do not submit the form for now.',
+      mealActive,
+      mealStatusBanner:mealActive?'Active — submit your form daily (Mon–Fri).':'On hold — do not submit the form for now.',
+      mealStatusStyle:mealActive?'background:#e7f3ec;border:1px solid #a8d5bb;border-radius:8px;padding:7px 10px;font-size:12px;color:#1f8a5b;font-weight:600;margin-bottom:8px;':'background:#fdf6e9;border:1px solid #f0e2c2;border-radius:8px;padding:7px 10px;font-size:12px;color:#8a6d2a;font-weight:600;margin-bottom:8px;',
       mealItems:[
         'When resumed: submit daily Mon–Fri, including MC days.',
         'Mark PRESENT if shift completed, MC if on sick leave.',
@@ -1390,6 +1405,9 @@ class AppComponent extends DCLogic {
       newBatchDate:s.newBatchDate,onNewBatchDate:this.onNewBatchDate,createBatch:this.createBatch,batchCreating:s.batchCreating,
       npName:s.npName, npContact:s.npContact, npShift:s.npShift, npPassword:s.npPassword,
       onNpName:this.onNpName, onNpContact:this.onNpContact, onNpRank:()=>{}, onNpShift:this.onNpShift, onNpPassword:this.onNpPassword, addPerson:this.addPerson,
+      mealActive:!!(activeBatch?.meal_active), toggleMealActive:this.toggleMealActive,
+      mealToggleTrackBg:activeBatch?.meal_active?accent:'#39435a',
+      mealToggleKnobX:activeBatch?.meal_active?'25px':'3px',
       batchLoading:s.batchLoading,
       exportCsv:this.exportCsv,
       mcViewOpen:s.mcViewOpen, mcViewName:s.mcViewName, mcViewDate:s.mcViewDate,
