@@ -227,65 +227,84 @@
             <sc-if value="{{ showPhases }}" hint-placeholder-val="{{ true }}">
             <div>
               <sc-for list="{{ phases }}" as="ph" hint-placeholder-count="4">
-              <div style="display:flex;gap:12px;padding:11px 0;border-bottom:1px solid #f2f4f7;">
-                <div style="display:flex;flex-direction:column;align-items:center;padding-top:2px;">
-                  <div style="width:26px;height:26px;border-radius:50%;background:{{ ph.stepBg }};color:{{ ph.stepColor }};font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">{{ ph.num }}</div>
-                </div>
-                <div style="flex:1;min-width:0;">
-                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                    <div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ ph.label }}</div>
+              <div style="display:flex;gap:13px;">
+                <!-- Step indicator + connector line -->
+                <div style="display:flex;flex-direction:column;align-items:center;width:30px;flex:0 0 auto;">
+                  <div style="width:30px;height:30px;border-radius:50%;background:{{ ph.stepBg }};color:{{ ph.stepColor }};font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
                     <sc-if value="{{ ph.done }}" hint-placeholder-val="">
-                      <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#1f8a5b;font-weight:600;white-space:nowrap;flex:0 0 auto;">{{ ph.time }}</span>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                    </sc-if>
+                    <sc-if value="{{ ph.notDone }}" hint-placeholder-val="{{ true }}">{{ ph.num }}</sc-if>
+                  </div>
+                  <sc-if value="{{ ph.notLast }}" hint-placeholder-val="">
+                    <div style="width:2px;flex:1;min-height:14px;margin:3px 0;background:#eceef2;"></div>
+                  </sc-if>
+                </div>
+                <!-- Content -->
+                <div style="flex:1;min-width:0;padding-bottom:18px;">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px;">
+                    <div style="font-size:13.5px;font-weight:600;color:{{ ph.done ? '#1f8a5b' : ph.isActive ? '#161f30' : '#a0a8b4' }};">{{ ph.label }}</div>
+                    <sc-if value="{{ ph.done }}" hint-placeholder-val="">
+                      <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1f8a5b;font-weight:600;white-space:nowrap;flex:0 0 auto;">{{ ph.time }}</span>
                     </sc-if>
                   </div>
                   <sc-if value="{{ ph.done }}" hint-placeholder-val="">
-                    <div style="font-size:11.5px;color:#1f8a5b;margin-top:2px;">{{ ph.doneText }}</div>
+                    <div style="font-size:11.5px;color:#6aad87;margin-top:2px;">{{ ph.doneText }}</div>
                   </sc-if>
                   <sc-if value="{{ ph.upcoming }}" hint-placeholder-val="">
-                    <div style="font-size:11.5px;color:#8a94a3;margin-top:2px;">Window: {{ ph.subLabel }}</div>
+                    <div style="font-size:11.5px;color:#a0a8b4;margin-top:2px;">{{ ph.subLabel }}</div>
                   </sc-if>
                   <sc-if value="{{ ph.locked }}" hint-placeholder-val="">
-                    <div style="font-size:11.5px;color:#8a94a3;margin-top:2px;">Complete the previous step first</div>
+                    <div style="font-size:11.5px;color:#b8bfc9;margin-top:2px;">Complete the previous step first</div>
                   </sc-if>
                   <sc-if value="{{ ph.missed }}" hint-placeholder-val="">
-                    <div style="font-size:11.5px;color:#c0392b;margin-top:2px;">Window closed</div>
+                    <div style="font-size:11.5px;color:#c0392b;margin-top:2px;">Window closed — inform your supervisor</div>
                   </sc-if>
                   <!-- Active GPS phase -->
                   <sc-if value="{{ ph.isActive }}" hint-placeholder-val="{{ true }}">
                     <sc-if value="{{ ph.needsGps }}" hint-placeholder-val="">
                       <sc-if value="{{ ph.gpsStarted }}" hint-placeholder-val="">
-                      <div style="border:1px solid {{ ph.locBorder }};border-radius:11px;padding:11px;background:{{ ph.locCardBg }};text-align:center;margin-top:9px;">
-                        <div style="position:relative;width:46px;height:46px;margin:0 auto 7px;">
+                      <div style="border:1.5px solid {{ ph.locBorder }};border-radius:12px;padding:13px;background:{{ ph.locCardBg }};text-align:center;margin-top:10px;">
+                        <div style="position:relative;width:44px;height:44px;margin:0 auto 8px;">
                           <sc-if value="{{ ph.locLocating }}" hint-placeholder-val="">
-                            <span style="position:absolute;inset:0;border-radius:50%;background:{{ accent }};opacity:.25;animation:ring 1.4s ease-out infinite;"></span>
+                            <span style="position:absolute;inset:0;border-radius:50%;background:{{ accent }};opacity:.22;animation:ring 1.4s ease-out infinite;"></span>
                           </sc-if>
                           <div style="position:absolute;inset:0;border-radius:50%;background:{{ ph.locBadgeBg }};display:flex;align-items:center;justify-content:center;">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="{{ ph.locBadgeColor }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"></path><circle cx="12" cy="10" r="2.4"></circle></svg>
                           </div>
                         </div>
-                        <div style="font-size:12px;color:{{ ph.locMsgColor }};line-height:1.45;text-wrap:pretty;">{{ ph.locMsg }}</div>
+                        <div style="font-size:12.5px;color:{{ ph.locMsgColor }};font-weight:500;line-height:1.45;text-wrap:pretty;">{{ ph.locMsg }}</div>
                       </div>
                       </sc-if>
-                      <div style="display:flex;gap:7px;margin-top:9px;">
-                        <button onClick="{{ ph.onStart }}" disabled="{{ ph.locBtnDisabled }}" style="flex:1;padding:9px;background:#fff;border:1px solid #d4d9e2;border-radius:9px;font-size:12.5px;font-weight:600;color:{{ accent }};cursor:pointer;">{{ ph.locBtnLabel }}</button>
-                        <button onClick="{{ ph.onSubmit }}" style="flex:2;padding:9px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:12.5px;font-weight:600;cursor:pointer;opacity:{{ ph.checkInOpacity }};pointer-events:{{ ph.checkInPE }};">{{ ph.btnLabel }}</button>
+                      <div style="display:flex;gap:8px;margin-top:10px;">
+                        <button onClick="{{ ph.onStart }}" disabled="{{ ph.locBtnDisabled }}" style="flex:1;padding:10px 0;background:#f6f8fa;border:1.5px solid #e3e6ec;border-radius:10px;font-size:13px;font-weight:600;color:#5c6678;cursor:pointer;">{{ ph.locBtnLabel }}</button>
+                        <button onClick="{{ ph.onSubmit }}" style="flex:2;padding:10px 0;background:{{ accent }};color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ ph.checkInOpacity }};pointer-events:{{ ph.checkInPE }};">{{ ph.btnLabel }}</button>
                       </div>
                     </sc-if>
                     <!-- Active non-GPS phase -->
                     <sc-if value="{{ ph.notNeedsGps }}" hint-placeholder-val="">
-                      <button onClick="{{ ph.onSubmit }}" style="width:100%;padding:10px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;margin-top:9px;">{{ ph.btnLabel }}</button>
+                      <button onClick="{{ ph.onSubmit }}" style="width:100%;padding:11px;background:{{ accent }};color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;margin-top:10px;">{{ ph.btnLabel }}</button>
                     </sc-if>
                   </sc-if>
                 </div>
               </div>
               </sc-for>
 
-              <sc-if value="{{ isLate }}" hint-placeholder-val="">
-                <div style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:#f7efdc;color:#b9791a;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>Late arrival, shift started at {{ lateShiftStart }}</div>
+              <sc-if value="{{ allDone }}" hint-placeholder-val="">
+              <div style="background:#e7f3ec;border:1px solid #c2dece;border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-top:2px;">
+                <div style="width:26px;height:26px;border-radius:50%;background:#1f8a5b;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                <span style="font-size:13.5px;font-weight:600;color:#1a7a51;">All check-ins complete for today.</span>
+              </div>
               </sc-if>
 
-              <div style="border-top:1px solid #eef0f4;margin-top:14px;padding-top:14px;text-align:center;">
-                <button onClick="{{ openMc }}" style="padding:10px 18px;background:#fff;border:1px solid #d4d9e2;border-radius:10px;font-size:13px;font-weight:600;color:#b9791a;cursor:pointer;">Declare sick leave (MC)</button>
+              <sc-if value="{{ isLate }}" hint-placeholder-val="">
+                <div style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:#f7efdc;color:#b9791a;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>Late — shift started {{ lateShiftStart }}</div>
+              </sc-if>
+
+              <div style="border-top:1px solid #f0f2f6;margin-top:16px;padding-top:14px;text-align:center;">
+                <button onClick="{{ openMc }}" style="padding:10px 18px;background:#fff;border:1px solid #e3e6ec;border-radius:10px;font-size:13px;font-weight:600;color:#b9791a;cursor:pointer;">Declare sick leave (MC)</button>
               </div>
 
               <sc-if value="{{ showWaShare }}" hint-placeholder-val="">

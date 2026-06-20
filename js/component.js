@@ -51,17 +51,20 @@ class AppComponent extends DCLogic {
   // ── Lifecycle ────────────────────────────────────────────────────────────
   componentDidMount(){
     this._t = setInterval(()=>this.setState({now:new Date()}), 1000);
+    this._offlineQueues = [];
     this._init();
     this._onOnline = async () => {
       this.setState({isOnline:true});
-      const pend = this._offlineQueue;
-      if(pend && !this.state.demo){
-        if(pend.key){
-          await DB.attendance.logPhase(pend.id, pend.date, pend.key, pend.time, pend.dist).catch(()=>{});
-        } else {
-          await DB.attendance.upsert(pend.id, pend.date, pend.status, pend.extras).catch(()=>{});
+      const pending = this._offlineQueues;
+      if(pending.length && !this.state.demo){
+        for(const pend of pending){
+          if(pend.key){
+            await DB.attendance.logPhase(pend.id, pend.date, pend.key, pend.time, pend.dist).catch(()=>{});
+          } else {
+            await DB.attendance.upsert(pend.id, pend.date, pend.status, pend.extras).catch(()=>{});
+          }
         }
-        this._offlineQueue = null;
+        this._offlineQueues = [];
         this.setState({offlinePending:false});
       }
     };
@@ -368,9 +371,9 @@ class AppComponent extends DCLogic {
   };
 
   doPhase = key => async () => {
-    const {locStatus,locDistance,currentUserId,demo,isOnline} = this.state;
+    const {locStatus,locDistance,locPhase,currentUserId,demo,isOnline} = this.state;
     const needsGps = true;
-    if(needsGps && locStatus!=='verified') return;
+    if(needsGps && (locStatus!=='verified'||locPhase!==key)) return;
     const time = Utils.hhmm(new Date());
     const dist = needsGps ? locDistance : null;
     const today = Utils.dateKey(this.baseDate());
@@ -386,8 +389,8 @@ class AppComponent extends DCLogic {
     }));
     this._haptic();
     if(!demo){
-      if(key==='p1'&&!isOnline){
-        this._offlineQueue={id:currentUserId,date:today,key,time,dist};
+      if(!isOnline){
+        this._offlineQueues.push({id:currentUserId,date:today,key,time,dist});
         this.setState({offlinePending:true});
       } else {
         await DB.attendance.logPhase(currentUserId, today, key, time, dist).catch(()=>{});
@@ -402,7 +405,14 @@ class AppComponent extends DCLogic {
     if(this.state.mcSubmitting) return;
     this.setState({mcSubmitting:true});
     const today=Utils.dateKey(this.baseDate());
-    if(!this.state.demo) await DB.attendance.upsert(this.state.currentUserId, today, 'mc');
+    if(!this.state.demo){
+      const {error} = await DB.attendance.upsert(this.state.currentUserId, today, 'mc');
+      if(error){
+        this._toast('Could not record MC. Check your connection and try again.','error');
+        this.setState({mcSubmitting:false});
+        return;
+      }
+    }
     this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:{status:'mc',p1:null}},mcMode:false,mcSubmitting:false}));
     this._haptic();
   };
@@ -1151,7 +1161,7 @@ class AppComponent extends DCLogic {
       const btnLabel=pd.key==='p1'?'Check in to work':pd.key==='p2'?'Record lunch break':pd.key==='p3'?'Return from lunch':'Check out';
       const win=Utils.phaseWindow(shift,pd.key);
       return {
-        key:pd.key, num:pd.num, label:pd.label,
+        key:pd.key, num:pd.num, label:pd.label, isLast:pd.key==='p4', notLast:pd.key!=='p4',
         needsGps:pd.needsGps, notNeedsGps:!pd.needsGps,
         done, notDone:!done, time:time||'-', doneText,
         locked, upcoming, missed, isActive, notActive:!isActive||done,
