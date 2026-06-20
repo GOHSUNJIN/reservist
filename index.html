@@ -160,7 +160,7 @@
           <sc-if value="{{ isOffline }}" hint-placeholder-val="">
           <div style="background:#f7efdc;border:1px solid #f0e2c2;border-radius:10px;padding:9px 13px;margin-bottom:10px;font-size:12.5px;color:#8a6d2a;font-weight:500;display:flex;align-items:center;gap:8px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l22 22"></path><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path><path d="M10.71 5.05A16 16 0 0 1 22.56 9"></path><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
-            You're offline{{ offlinePending ? ': check-in will sync when reconnected' : '' }}
+            You're offline{{ offlinePending ? ': ' + offlineQueueCount + ' action' + (offlineQueueCount === 1 ? '' : 's') + ' queued, will sync when reconnected' : '' }}
           </div>
           </sc-if>
 
@@ -674,6 +674,9 @@
             <button onClick="{{ setRosterSortName }}" style="{{ rosterSortNameStyle }}">A to Z</button>
             <button onClick="{{ setRosterSortStatus }}" style="{{ rosterSortStatusStyle }}">Status</button>
           </div>
+          <sc-if value="{{ showFilteredCount }}" hint-placeholder-val="">
+          <div style="font-size:11.5px;color:#8a94a3;margin-bottom:8px;padding:0 2px;">{{ filteredCount }} result{{ filteredCount === 1 ? '' : 's' }}</div>
+          </sc-if>
           <sc-for list="{{ filteredRoster }}" as="row" hint-placeholder-count="6">
             <div style="{{ row.cardStyle }}">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;">
@@ -961,10 +964,11 @@
 
     <!-- ===== TOAST ===== -->
     <sc-if value="{{ showToast }}" hint-placeholder-val="">
-    <div style="position:absolute;top:58px;left:50%;transform:translateX(-50%);z-index:100;pointer-events:none;">
+    <div onClick="{{ dismissToast }}" style="position:absolute;top:58px;left:50%;transform:translateX(-50%);z-index:100;cursor:pointer;">
       <div style="background:#fff;border-radius:100px;padding:9px 18px 9px 12px;font-size:13px;font-weight:600;white-space:nowrap;box-shadow:0 4px 24px rgba(20,30,50,.18);display:flex;align-items:center;gap:9px;border:1px solid #f0f2f5;">
         <span style="width:8px;height:8px;border-radius:50%;background:{{ toastBg }};flex:0 0 auto;display:inline-block;"></span>
         <span style="color:#161f30;">{{ toastMsg }}</span>
+        <span style="color:#a0a8b4;font-size:15px;line-height:1;margin-left:2px;">×</span>
       </div>
     </div>
     </sc-if>

@@ -7,7 +7,7 @@ const DB = {
 
   // ── Auth ──────────────────────────────────────────────────────────────────
   auth: {
-    _email: c => c.replace(/\s+/g,'') + '@opsreservist.mil',
+    _email: c => c.replace(/[\s-]/g,'') + '@opsreservist.mil',
 
     async login(contact, password) {
       const { data, error } = await _db.auth.signInWithPassword({ email: this._email(contact), password });
@@ -80,7 +80,8 @@ const DB = {
     },
 
     async deactivate(personnelId) {
-      await _db.from('personnel').update({ is_active: false, deactivated_at: new Date().toISOString() }).eq('id', personnelId);
+      const { error } = await _db.from('personnel').update({ is_active: false, deactivated_at: new Date().toISOString() }).eq('id', personnelId);
+      return { error };
     },
 
     async remove(personnelId) {
@@ -174,7 +175,8 @@ const DB = {
       const distMap={p1:'gps_distance_m',p3:'work_return_dist'};
       const row={personnel_id:personnelId,date:dateStr,status:'present',[colMap[key]]:timeStr+':00'};
       if(distMap[key]&&dist!=null) row[distMap[key]]=dist;
-      await _db.from('attendance').upsert(row,{onConflict:'personnel_id,date'});
+      const { error } = await _db.from('attendance').upsert(row,{onConflict:'personnel_id,date'});
+      return { error };
     },
   },
 
