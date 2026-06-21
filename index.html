@@ -131,15 +131,20 @@
         <!-- ===== CHECK IN ===== -->
         <sc-if value="{{ tabCheckin }}" hint-placeholder-val="{{ true }}">
         <div>
-          <div style="background:linear-gradient(135deg,#161f30 0%,#1e2d45 100%);border-radius:18px;padding:20px;color:#fff;display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;box-shadow:0 4px 18px rgba(20,30,50,.22);">
-            <div>
-              <div style="font-size:12px;color:#7d899b;letter-spacing:.06em;">{{ todayLong }}</div>
-              <div style="font-size:16px;font-weight:600;margin-top:3px;">{{ myShiftLabel }}</div>
-              <div style="font-size:12px;color:#7d899b;font-family:'IBM Plex Mono',monospace;margin-top:1px;">{{ myShiftWindow }}</div>
+          <div style="background:linear-gradient(135deg,#161f30 0%,#1e2d45 100%);border-radius:18px;padding:18px 20px 16px;color:#fff;margin-bottom:14px;box-shadow:0 4px 18px rgba(20,30,50,.22);">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+              <div>
+                <div style="font-size:11px;color:#5d6f84;letter-spacing:.07em;text-transform:uppercase;margin-bottom:5px;">{{ todayLong }}</div>
+                <div style="font-size:18px;font-weight:700;letter-spacing:.01em;line-height:1.1;">{{ myShiftLabel }}</div>
+              </div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;letter-spacing:.02em;line-height:1;margin-top:-2px;">{{ clock }}</div>
             </div>
-            <div style="text-align:right;">
-              <div style="font-family:'IBM Plex Mono',monospace;font-size:26px;font-weight:600;letter-spacing:.03em;">{{ clock }}</div>
-              <div style="font-size:10px;color:#7d899b;letter-spacing:.1em;">{{ hqName }}</div>
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:13px;">
+              <div style="background:rgba(255,255,255,.1);border-radius:20px;padding:4px 10px 4px 8px;display:inline-flex;align-items:center;gap:5px;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.75);">{{ myShiftWindow }}</span>
+              </div>
+              <div style="font-size:10px;color:#4a5d72;letter-spacing:.1em;text-transform:uppercase;">{{ hqName }}</div>
             </div>
           </div>
 
@@ -229,22 +234,22 @@
             <sc-if value="{{ showPhases }}" hint-placeholder-val="{{ true }}">
             <div>
               <sc-for list="{{ phases }}" as="ph" hint-placeholder-count="4">
-              <div style="display:flex;gap:13px;">
+              <div style="display:flex;gap:14px;">
                 <!-- Step indicator + connector line -->
-                <div style="display:flex;flex-direction:column;align-items:center;width:30px;flex:0 0 auto;">
-                  <div style="width:30px;height:30px;border-radius:50%;background:{{ ph.stepBg }};color:{{ ph.stepColor }};font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+                <div style="display:flex;flex-direction:column;align-items:center;width:34px;flex:0 0 auto;">
+                  <div style="width:34px;height:34px;border-radius:50%;background:{{ ph.stepBg }};color:{{ ph.stepColor }};font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:{{ ph.done ? '0 0 0 3px #d4ede0' : ph.isActive ? '0 0 0 3px #dbe6fa' : 'none' }};">
                     <sc-if value="{{ ph.done }}" hint-placeholder-val="">
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     </sc-if>
                     <sc-if value="{{ ph.notDone }}" hint-placeholder-val="{{ true }}">{{ ph.num }}</sc-if>
                   </div>
                   <sc-if value="{{ ph.notLast }}" hint-placeholder-val="">
-                    <div style="width:2px;flex:1;min-height:14px;margin:3px 0;background:#eceef2;"></div>
+                    <div style="width:2px;flex:1;min-height:12px;margin:4px 0;background:{{ ph.connectorBg }};border-radius:2px;"></div>
                   </sc-if>
                 </div>
                 <!-- Content -->
-                <div style="flex:1;min-width:0;padding-bottom:18px;">
-                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:4px;">
+                <div style="flex:1;min-width:0;padding-bottom:{{ ph.rowPadBot }};">
+                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:6px;">
                     <div style="font-size:13.5px;font-weight:600;color:{{ ph.done ? '#1f8a5b' : ph.isActive ? '#161f30' : '#a0a8b4' }};">{{ ph.label }}</div>
                     <sc-if value="{{ ph.done }}" hint-placeholder-val="">
                       <span style="font-family:'IBM Plex Mono',monospace;font-size:12.5px;color:#1f8a5b;font-weight:600;white-space:nowrap;flex:0 0 auto;">{{ ph.time }}</span>
@@ -293,11 +298,14 @@
               </sc-for>
 
               <sc-if value="{{ allDone }}" hint-placeholder-val="">
-              <div style="background:#e7f3ec;border:1px solid #c2dece;border-radius:12px;padding:12px 16px;display:flex;align-items:center;gap:10px;margin-top:2px;">
-                <div style="width:26px;height:26px;border-radius:50%;background:#1f8a5b;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+              <div style="background:linear-gradient(135deg,#1a7a51,#21986a);border-radius:14px;padding:15px 16px;display:flex;align-items:center;gap:13px;margin-top:4px;box-shadow:0 3px 12px rgba(31,138,91,.25);">
+                <div style="width:42px;height:42px;border-radius:50%;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                 </div>
-                <span style="font-size:13.5px;font-weight:600;color:#1a7a51;">All check-ins complete for today.</span>
+                <div>
+                  <div style="font-size:15px;font-weight:700;color:#fff;">All done for today!</div>
+                  <div style="font-size:12px;color:rgba(255,255,255,.75);margin-top:2px;">Fully checked in. Good work.</div>
+                </div>
               </div>
               </sc-if>
 
@@ -305,8 +313,11 @@
                 <div style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:#f7efdc;color:#b9791a;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>Late — shift started {{ lateShiftStart }}</div>
               </sc-if>
 
-              <div style="border-top:1px solid #f0f2f6;margin-top:16px;padding-top:14px;text-align:center;">
-                <button onClick="{{ openMc }}" style="padding:10px 18px;background:#fff;border:1px solid #e3e6ec;border-radius:10px;font-size:13px;font-weight:600;color:#b9791a;cursor:pointer;">Declare sick leave (MC)</button>
+              <div style="border-top:1px solid #f0f2f6;margin-top:16px;padding-top:14px;display:flex;justify-content:center;">
+                <button onClick="{{ openMc }}" style="display:inline-flex;align-items:center;gap:7px;padding:9px 16px;background:#fdf6e9;border:1px solid #f0e2c2;border-radius:10px;font-size:13px;font-weight:600;color:#b9791a;cursor:pointer;">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.27a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                  Declare sick leave (MC)
+                </button>
               </div>
 
               <sc-if value="{{ showWaShare }}" hint-placeholder-val="">

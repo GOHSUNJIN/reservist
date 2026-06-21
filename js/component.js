@@ -1206,6 +1206,8 @@ class AppComponent extends DCLogic {
         locked, upcoming, missed, isActive, notActive:!isActive||done,
         stepBg:done?'#1f8a5b':isActive?accent:'#eceef2',
         stepColor:done||isActive?'#fff':'#8a94a3',
+        connectorBg:done?'#1f8a5b':'#eceef2',
+        rowPadBot:done?'8px':'16px',
         subLabel:win?win[0]+' – '+win[1]:'',
         btnLabel,
         onStart:this.startPhaseGps(pd.key),
