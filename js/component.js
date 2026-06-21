@@ -1411,11 +1411,11 @@ class AppComponent extends DCLogic {
         'Mark PRESENT if you completed your shift, MC if on sick leave.',
         'Upload a copy of your MC when declaring sick leave.',
         "Supervisor's email is sent daily via the WhatsApp group.",
-        'No submission needed on public holidays or no-reporting days.',
+        'No submission needed on public holidays or no‑reporting days.',
       ]:[
         'When active: submit daily Mon-Fri, including MC days.',
         'Mark PRESENT if shift completed, MC if on sick leave.',
-        'No submission needed on public holidays or no-reporting days.',
+        'No submission needed on public holidays or no‑reporting days.',
       ],
       dekitItems:[
         'Fill meal allowance forms and submit to the Manpower Officer, endorsed by Ops Branch supervisor.',
