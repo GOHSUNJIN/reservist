@@ -1342,16 +1342,26 @@ class AppComponent extends DCLogic {
     const todayD=this.baseDate(), today=Utils.dateKey(todayD);
     const activeBatch=s.batches[s.activeBatchIdx||0];
 
+    const _tc=(v,c1,c0)=>v?c1:c0;
+    const _dc='#c2c8d2';
+
     // Today row
     const todayRow=(status!=='pending'&&Utils.isReportDay(todayD)&&!this.isNoReport(0))
-      ?[{date:Utils.fmtMed(todayD)+', Today',dateKey:today,shift:Utils.shiftLabel(me.shift),status,time:rec.p1||'-',...Utils.meta(status)}]:[];
+      ?[{date:Utils.fmtMed(todayD)+', Today',dateKey:today,shift:Utils.shiftLabel(me.shift),status,
+         p1:rec.p1||'-',p2:rec.p2||'-',p3:rec.p3||'-',p4:rec.p4||'-',
+         p1Color:_tc(rec.p1,'#161f30',_dc),p2Color:_tc(rec.p2,'#161f30',_dc),p3Color:_tc(rec.p3,'#161f30',_dc),p4Color:_tc(rec.p4,'#161f30',_dc),
+         showTimes:status==='present',...Utils.meta(status)}]:[];
 
     // Past recorded rows
     const histKeys=new Set(s.history.map(r=>r.date));
     const histRows=s.history.map(r=>{
       const d=new Date(r.date+'T00:00:00');
-      const t=r.check_in_time?r.check_in_time.slice(0,5):'-';
-      return {date:Utils.fmtMed(d),dateKey:r.date,shift:Utils.shiftLabel(me.shift),status:r.status,time:t,...Utils.meta(r.status)};
+      const tk=s=>s?s.slice(0,5):null;
+      const p1=tk(r.check_in_time),p2=tk(r.lunch_out_time),p3=tk(r.work_return_time),p4=tk(r.work_end_time);
+      return {date:Utils.fmtMed(d),dateKey:r.date,shift:Utils.shiftLabel(me.shift),status:r.status,
+        p1:p1||'-',p2:p2||'-',p3:p3||'-',p4:p4||'-',
+        p1Color:_tc(p1,'#161f30',_dc),p2Color:_tc(p2,'#161f30',_dc),p3Color:_tc(p3,'#161f30',_dc),p4Color:_tc(p4,'#161f30',_dc),
+        showTimes:r.status==='present',...Utils.meta(r.status)};
     });
 
     // Missed shifts: reporting days in current batch before today with no record
@@ -1361,7 +1371,8 @@ class AppComponent extends DCLogic {
       for(let d=new Date(bStart);d<=yesterday;d=Utils.addDays(d,1)){
         const dk=Utils.dateKey(d);
         if(Utils.isReportDay(d)&&dk<=activeBatch.end_date&&!Utils.holidayName(d)&&!s.noReportDays.has(dk)&&!histKeys.has(dk)){
-          missedRows.push({date:Utils.fmtMed(d),dateKey:dk,shift:Utils.shiftLabel(me.shift),status:'missed',time:'-',...Utils.meta('missed')});
+          missedRows.push({date:Utils.fmtMed(d),dateKey:dk,shift:Utils.shiftLabel(me.shift),status:'missed',
+            p1:'-',p2:'-',p3:'-',p4:'-',p1Color:_dc,p2Color:_dc,p3Color:_dc,p4Color:_dc,showTimes:false,...Utils.meta('missed')});
         }
       }
     }
