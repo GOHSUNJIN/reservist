@@ -482,9 +482,31 @@
               <div style="padding:9px 16px;font-size:11.5px;color:#b9791a;background:#fdf6e9;border-bottom:1px solid #eef0f4;">Showing most recent 500 records only.</div>
             </sc-if>
             <sc-for list="{{ myHistory }}" as="row" hint-placeholder-count="6">
-              <div class="row-item" style="padding-top:13px;padding-bottom:13px;justify-content:space-between;border-left:3px solid {{ row.color }};padding-left:13px;">
-                <div><div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ row.date }}</div><div style="font-size:11.5px;color:#8a94a3;">{{ row.shift }}</div></div>
-                <div style="display:flex;align-items:center;gap:9px;"><span style="font-family:'IBM Plex Mono',monospace;font-size:12px;color:#8a94a3;">{{ row.time }}</span><span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span></div>
+              <div style="padding:12px 13px 12px 13px;border-bottom:1px solid #f2f4f7;border-left:3px solid {{ row.color }};">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:{{ row.showTimes ? '9px' : '0' }};">
+                  <div><div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ row.date }}</div><div style="font-size:11.5px;color:#8a94a3;margin-top:1px;">{{ row.shift }}</div></div>
+                  <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;color:{{ row.color }};background:{{ row.bg }};flex:0 0 auto;">{{ row.label }}</span>
+                </div>
+                <sc-if value="{{ row.showTimes }}" hint-placeholder-val="">
+                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;">
+                  <div style="background:#f6f8fa;border-radius:7px;padding:5px 0;text-align:center;">
+                    <div style="font-size:9px;color:#9aa3b2;font-weight:600;letter-spacing:.06em;margin-bottom:2px;">IN</div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:{{ row.p1Color }};">{{ row.p1 }}</div>
+                  </div>
+                  <div style="background:#f6f8fa;border-radius:7px;padding:5px 0;text-align:center;">
+                    <div style="font-size:9px;color:#9aa3b2;font-weight:600;letter-spacing:.06em;margin-bottom:2px;">LUNCH</div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:{{ row.p2Color }};">{{ row.p2 }}</div>
+                  </div>
+                  <div style="background:#f6f8fa;border-radius:7px;padding:5px 0;text-align:center;">
+                    <div style="font-size:9px;color:#9aa3b2;font-weight:600;letter-spacing:.06em;margin-bottom:2px;">BACK</div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:{{ row.p3Color }};">{{ row.p3 }}</div>
+                  </div>
+                  <div style="background:#f6f8fa;border-radius:7px;padding:5px 0;text-align:center;">
+                    <div style="font-size:9px;color:#9aa3b2;font-weight:600;letter-spacing:.06em;margin-bottom:2px;">OUT</div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:{{ row.p4Color }};">{{ row.p4 }}</div>
+                  </div>
+                </div>
+                </sc-if>
               </div>
             </sc-for>
             <sc-if value="{{ historyEmpty }}" hint-placeholder-val="">
