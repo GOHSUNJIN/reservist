@@ -47,6 +47,7 @@ class AppComponent extends DCLogic {
     markAllPresenting: false,
     mcSubmitting: false,
     carryingOver: false,
+    historyPage: 1,
   };
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
@@ -289,6 +290,7 @@ class AppComponent extends DCLogic {
       peopleStats:{}, peopleStatsLoaded:false, confirmDeactivateId:null, showArchivedBatches:false,
       noAvatarIds:new Set(), noReportDaysCache:{},
       markAllPresenting:false, mcSubmitting:false, carryingOver:false,
+      historyPage:1,
     });
   };
 
@@ -429,6 +431,8 @@ class AppComponent extends DCLogic {
     if(this._toastTimer) clearTimeout(this._toastTimer);
     this.setState({toast:null});
   };
+
+  showMoreHistory = () => { this.setState(s=>({historyPage:(s.historyPage||1)+1})); };
 
   _touchStartX = null;
   onDaySwipeStart = e => { this._touchStartX = e.touches[0].clientX; };
@@ -1391,7 +1395,11 @@ class AppComponent extends DCLogic {
         if(Utils.isReportDay(d)&&!Utils.holidayName(d)&&!s.noReportDays.has(Utils.dateKey(d))){cycleTotal++;if(d<=now)cycleDone++;}
       }
     }
-    return {myHistory,statMyPresent,statMyMc,statMyMissed,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:myHistory.length===0};
+    const PAGE=10, page=s.historyPage||1;
+    const pagedHistory=myHistory.slice(0,page*PAGE);
+    const historyHasMore=myHistory.length>page*PAGE;
+    const historyRemaining=myHistory.length-pagedHistory.length;
+    return {myHistory:pagedHistory,historyHasMore,historyRemaining,showMoreHistory:this.showMoreHistory,statMyPresent,statMyMc,statMyMissed,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:pagedHistory.length===0};
   }
 
   _buildBriefings(s, accent){
