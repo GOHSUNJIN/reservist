@@ -32,6 +32,7 @@ class AppComponent extends DCLogic {
     acctNameError: '', acctNameSuccess: '',
     acctSaving: false,
     locPhase: null, locSlow: false, locAccuracy: null, locPermErr: false, locRetryCount: 0,
+    isInAppBrowser: false, inAppBrowserName: '',
     addPersonSuccess: '', addPersonError: '',
     batchLoading: false, batchCreating: false,
     editingNoteId: null, editingNoteText: '',
@@ -54,6 +55,8 @@ class AppComponent extends DCLogic {
   componentDidMount(){
     this._t = setInterval(()=>this.setState({now:new Date()}), 1000);
     this._offlineQueues = [];
+    const {detected, name} = this._detectInAppBrowser();
+    if(detected) this.setState({isInAppBrowser:true, inAppBrowserName:name});
     this._init();
     this._onOnline = async () => {
       this.setState({isOnline:true});
@@ -347,6 +350,23 @@ class AppComponent extends DCLogic {
   onNpPassword = e => this.setState({npPassword:e.target.value});
 
   // ── Check-in ──────────────────────────────────────────────────────────────
+  _detectInAppBrowser(){
+    const ua=navigator.userAgent||'';
+    const isIOS=/iP(hone|od|ad)/.test(ua);
+    // Named in-app browsers (UA contains their identifier)
+    if(/WhatsApp/i.test(ua))    return {detected:true, name:'WhatsApp'};
+    if(/Instagram/i.test(ua))   return {detected:true, name:'Instagram'};
+    if(/FBAN|FBAV/i.test(ua))   return {detected:true, name:'Facebook'};
+    if(/Telegram/i.test(ua))    return {detected:true, name:'Telegram'};
+    if(/Line\//i.test(ua))      return {detected:true, name:'Line'};
+    if(/MicroMessenger/i.test(ua)) return {detected:true, name:'WeChat'};
+    // iOS heuristic: real browsers (Safari, Chrome, Firefox, Edge) all append
+    // "Safari/xxx" to their UA. In-app WKWebViews don't.
+    if(isIOS && /AppleWebKit/.test(ua) && !/Safari\//.test(ua))
+      return {detected:true, name:'a messaging app'};
+    return {detected:false, name:''};
+  }
+
   verifyLocation = () => {
     if(this.state.locStatus==='locating') return;
     const retries=this.state.locRetryCount||0;
@@ -360,20 +380,17 @@ class AppComponent extends DCLogic {
       },1200);
       return;
     }
-    const ua=navigator.userAgent;
+    const ua=navigator.userAgent||'';
     const isIOS=/iP(hone|od|ad)/.test(ua), isAndroid=/Android/.test(ua);
-    // Detect in-app browsers (WhatsApp, Telegram, Instagram, etc.) — these block geolocation
-    const isInApp=/WhatsApp|Instagram|FBAN|FBAV|Telegram|Line\/|TelegramBot|MicroMessenger/i.test(ua)
-      ||(isIOS&&!/Safari\//.test(ua)&&/AppleWebKit/.test(ua));
-    const inAppName=/WhatsApp/i.test(ua)?'WhatsApp':/Instagram/i.test(ua)?'Instagram':/FBAN|FBAV/i.test(ua)?'Facebook':/Telegram/i.test(ua)?'Telegram':/Line\//i.test(ua)?'Line':/MicroMessenger/i.test(ua)?'WeChat':'this app';
+    const {detected:isInApp, name:inAppName} = this._detectInAppBrowser();
     // Permission denied — in-app browser takes priority, then private mode, then settings
     const _permMsg=isInApp
-      ?`Location is blocked because you opened this link inside ${inAppName}.\n\n${inAppName}'s built-in browser cannot access your GPS.\n\nTo fix: tap the ··· or share icon and choose "Open in Safari" (iPhone) or "Open in Chrome" (Android). Then check in from there.`
+      ?`Location is blocked inside ${inAppName}.\n\n${inAppName}'s browser cannot access GPS.\n\nFix: tap ··· or the share icon → "Open in Safari" (iPhone) or "Open in Chrome" (Android), then try again there.`
       :isIOS
-      ?'Location is blocked for this site.\n\n⚠️ Using Private Browsing? Safari blocks location in private tabs — open this site in a normal tab instead.\n\nOtherwise check both:\n1. iPhone Settings → Privacy & Security → Location Services → find your browser → "While Using App"\n2. In Safari: tap "aA" in the address bar → Website Settings → Location → Allow\n\nThen tap Reload below.'
+      ?'Location is blocked for this site.\n\n⚠️ Using Private Browsing? Safari blocks location in private tabs — switch to a normal tab.\n\nOtherwise:\n1. iPhone Settings → Privacy & Security → Location Services → your browser → "While Using App"\n2. In Safari: tap "aA" in address bar → Website Settings → Location → Allow\n\nThen tap Reload below.'
       :isAndroid
-      ?'Location is blocked for this site.\n\n⚠️ Using Incognito mode? Location is often blocked in private tabs — open this site in a normal tab instead.\n\nOtherwise try in order:\n1. Tap the 🔒 icon in your browser address bar → Permissions → Location → Allow\n2. Browser Settings → Site Settings → Location → find this site → Allow\n3. Phone Settings → Apps → [your browser] → Permissions → Location → Allow\n\nThen tap Reload below.'
-      :'Location blocked.\n\n⚠️ Using a private/incognito tab? Location is often blocked there — open this site in a normal browser tab instead.\n\nOtherwise allow Location via the lock icon in your address bar, then tap Reload below.';
+      ?'Location is blocked for this site.\n\n⚠️ Using Incognito? Location is often blocked in private tabs — switch to a normal tab.\n\nOtherwise:\n1. Tap the 🔒 icon in your address bar → Permissions → Location → Allow\n2. Browser Settings → Site Settings → Location → this site → Allow\n3. Phone Settings → Apps → [your browser] → Permissions → Location → Allow\n\nThen tap Reload below.'
+      :'Location blocked.\n\n⚠️ Using a private/incognito tab? Switch to a normal tab.\n\nOtherwise allow Location via the 🔒 lock icon in your address bar, then tap Reload below.';
     // GPS unavailable (code 2) — hardware couldn't get a fix
     const _unavailMsg=retries>=2
       ?'GPS still unavailable after several tries.\n\nAdditional steps:\n• Turn Location Services off and back on in phone Settings\n• Restart your phone\n• Contact your supervisor if the issue persists'
@@ -1340,6 +1357,7 @@ class AppComponent extends DCLogic {
       whatsappLink, showWaShare,
       isOffline:!s.isOnline, offlinePending:s.offlinePending, offlineQueueCount:this._offlineQueues?.length||0,
       retrySync:this.retrySync, refreshPage:this.refreshPage,
+      isInAppBrowser:s.isInAppBrowser, inAppBrowserName:s.inAppBrowserName,
       mcSubmitting:s.mcSubmitting,
       hasTestDate:!!s.testDate, testDate:s.testDate||'',
       testDateInput:s.testDateInput, onTestDateInput:this.onTestDateInput,
