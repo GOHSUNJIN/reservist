@@ -267,6 +267,24 @@
             </div>
             </sc-if>
 
+            <!-- Pending request — check-in blocked -->
+            <sc-if value="{{ hasPendingRequest }}" hint-placeholder-val="">
+            <div>
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
+                <div style="width:44px;height:44px;border-radius:50%;background:#fdf6e9;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+                  <svg width="21" height="21" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                </div>
+                <div>
+                  <h2 style="font-size:17px;font-weight:700;margin:0;color:#161f30;">Request pending</h2>
+                  <p style="font-size:13px;color:#8a94a3;margin:2px 0 0;">Awaiting admin review</p>
+                </div>
+              </div>
+              <div style="background:#fdf6e9;border:1px solid #f0e2c2;border-radius:11px;padding:13px 15px;font-size:13px;color:#6b4f1e;line-height:1.6;">
+                Your <strong>{{ pendingRequestLabel }}</strong> request for <strong>{{ pendingRequestDate }}</strong> is pending approval. Check-in is paused until the admin reviews it.
+              </div>
+            </div>
+            </sc-if>
+
             <!-- 4-phase check-in tracker -->
             <sc-if value="{{ showPhases }}" hint-placeholder-val="{{ true }}">
             <div>
