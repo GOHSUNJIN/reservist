@@ -52,6 +52,7 @@ class AppComponent extends DCLogic {
     showLateWarning: false,
     lateReasonOpen: false, lateReasonText: '', lateReasonSubmitting: false,
     leaveOpen: false, leaveDate: '', leaveType: 'mc', leaveReason: '',
+    myPendingRequest: null,
     pendingLeaves: [], pendingLeavesLoaded: false,
     shiftChangeOpen: false, shiftChangeNew: 'AM', shiftChangeReason: '',
     notifGranted: false,
@@ -178,6 +179,20 @@ class AppComponent extends DCLogic {
       authError:'', loading:false, accountDeleted:false, demo:false,
     });
     if(role==='admin'){ this._subscribeRealtime(today); setTimeout(()=>this.loadRosterAvatars(),0); setTimeout(()=>this.loadPendingLeaves(),0); }
+    if(role==='reservist'){
+      DB.leaves.myPending(me.id).then(req=>this.setState({myPendingRequest:req})).catch(()=>{});
+      this._myLeaveChannel = DB.realtime.subscribeLeaveStatus(me.id, async (row) => {
+        if(row.status !== 'pending'){
+          this.setState({myPendingRequest:null});
+          if(row.status === 'rejected') this._toast('Your absence request was declined.');
+          if(row.status === 'approved'){
+            this._toast('Your absence request was approved.');
+            const att = await DB.attendance.getForDate(Utils.dateKey(this.baseDate())).catch(()=>this.state.attendance);
+            this.setState({attendance:att});
+          }
+        }
+      });
+    }
     if(!this.state.demo) DB.auth.syncDisplayName(me.name).catch(()=>{});
     // Session expiry warning — show 5 min before typical 1-hour Supabase JWT expiry
     if(this._sessionWarnTimer) clearTimeout(this._sessionWarnTimer);
@@ -327,6 +342,7 @@ class AppComponent extends DCLogic {
       showLateWarning:false, lateReasonOpen:false, lateReasonText:'', lateReasonSubmitting:false,
       pendingLeaves:[], pendingLeavesLoaded:false,
       leaveOpen:false, leaveDate:'', leaveType:'mc', leaveReason:'',
+      myPendingRequest:null,
       shiftChangeOpen:false, shiftChangeNew:'AM', shiftChangeReason:'',
       notifGranted:false,
     });
@@ -402,11 +418,15 @@ class AppComponent extends DCLogic {
   onLeaveType = v => () => this.setState({leaveType:v});
   onLeaveReason = e => this.setState({leaveReason:e.target.value});
   submitLeaveRequest = async () => {
-    const {currentUserId, leaveDate, leaveType, leaveReason, demo} = this.state;
+    const {currentUserId, leaveDate, leaveType, leaveReason, demo, myPendingRequest} = this.state;
+    if(myPendingRequest){ this._toast('You already have a pending request.','error'); return; }
     if(!leaveDate){ this._toast('Please select a date.','error'); return; }
     if(!demo){
-      const {error} = await DB.leaves.request(currentUserId, leaveDate, leaveType, leaveReason).catch(e=>({error:e}));
+      const {data, error} = await DB.leaves.request(currentUserId, leaveDate, leaveType, leaveReason).catch(e=>({error:e}));
       if(error){ this._toast('Failed to submit request.','error'); return; }
+      if(data) this.setState({myPendingRequest:data});
+    } else {
+      this.setState({myPendingRequest:{id:'demo',personnel_id:currentUserId,date:leaveDate,type:leaveType,status:'pending'}});
     }
     this._toast('Request submitted for approval.');
     this.setState({leaveOpen:false});
@@ -815,6 +835,7 @@ class AppComponent extends DCLogic {
   }
   _unsubscribeRealtime(){
     DB.realtime.unsubscribe(this.state.realtimeChannel);
+    if(this._myLeaveChannel){ DB.realtime.unsubscribe(this._myLeaveChannel); this._myLeaveChannel = null; }
     // setState({realtimeChannel:null}) intentionally skipped here as it may run post-unmount
   }
 
@@ -1347,6 +1368,7 @@ class AppComponent extends DCLogic {
       whatsappLink:'', showWaShare:false,
       isOffline:!s.isOnline, offlinePending:s.offlinePending,
       hasTestDate:false, testDate:'', testDateInput:'', onTestDateInput:()=>{}, setTestDate:()=>{}, clearTestDate:()=>{},
+      hasPendingRequest:false, pendingRequestLabel:'', pendingRequestDate:'',
       openLeaveRequest:()=>{}, leaveOpen:false, leaveDate:'', leaveType:'personal', leaveReason:'',
       leaveIsPersonal:true, leaveIsMc:false, leaveIsOther:false,
       onLeaveDate:()=>{}, onLeaveTypePersonal:()=>{}, onLeaveTypeMc:()=>{}, onLeaveTypeOther:()=>{},
@@ -1500,7 +1522,10 @@ class AppComponent extends DCLogic {
       phToday:!outOfCycle&&noRep,
       phName:Utils.holidayName(todayD)||(isOffDay?'Reservists do not report on weekends.':'No CNB reporting today.'),
       isMc:!outOfCycle&&status==='mc'&&!noRep,
-      showPhases:!outOfCycle&&!noRep&&status!=='mc',
+      hasPendingRequest:!outOfCycle&&!noRep&&status!=='mc'&&!!s.myPendingRequest,
+      pendingRequestLabel:s.myPendingRequest?.type==='mc'?'MC':s.myPendingRequest?.type==='shift_change'?'shift change':'absence',
+      pendingRequestDate:s.myPendingRequest?.date?Utils.fmtMed(new Date(s.myPendingRequest.date+'T00:00:00')):'',
+      showPhases:!outOfCycle&&!noRep&&status!=='mc'&&!s.myPendingRequest,
       outOfCycle, outOfCycleTitle, outOfCycleSub,
       phases, allDone,
       isLate, lateShiftStart:shiftStart,

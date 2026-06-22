@@ -258,6 +258,13 @@ const DB = {
       const { data, error } = await _db.from('leave_requests').update({ status }).eq('id', id).select().maybeSingle();
       return { data, error };
     },
+
+    async myPending(personnelId) {
+      const { data } = await _db.from('leave_requests')
+        .select('*').eq('personnel_id', personnelId).eq('status', 'pending')
+        .order('created_at', { ascending: false }).limit(1).maybeSingle();
+      return data || null;
+    },
   },
 
   // ── Storage (MC files) ────────────────────────────────────────────────────
@@ -297,6 +304,13 @@ const DB = {
     subscribeAttendance(dateStr, onUpdate) {
       return _db.channel('attendance-' + dateStr)
         .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance', filter: `date=eq.${dateStr}` },
+          payload => { if (payload.new) onUpdate(payload.new); })
+        .subscribe();
+    },
+
+    subscribeLeaveStatus(personnelId, onUpdate) {
+      return _db.channel('leave-status-' + personnelId)
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'leave_requests', filter: `personnel_id=eq.${personnelId}` },
           payload => { if (payload.new) onUpdate(payload.new); })
         .subscribe();
     },
