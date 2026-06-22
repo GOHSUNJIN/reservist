@@ -1509,8 +1509,9 @@ class AppComponent extends DCLogic {
     const rosterSortShiftStyle=sortKey==='shift'?_sa:_si;
     const rosterSortNameStyle=sortKey==='name'?_sa:_si;
     const rosterSortStatusStyle=sortKey==='status'?_sa:_si;
-    const present=roster.filter(r=>r.label==='Present').length, mc=roster.filter(r=>r.label==='On MC').length, pending=roster.filter(r=>r.label==='Pending').length, total=roster.length;
-    const snapshotLines=['📋 *'+Utils.fmtMed(this.dateForOffset(0))+' Attendance*','✅ Present ('+present+'): '+(roster.filter(r=>r.label==='Present').map(r=>r.name).join(', ')||'(none)'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.label==='On MC').map(r=>r.name).join(', ')||'(none)'),'⏳ Pending ('+pending+'): '+(roster.filter(r=>r.label==='Pending').map(r=>r.name).join(', ')||'(none)')];
+    const present=roster.filter(r=>r.label==='Present').length, mc=roster.filter(r=>r.label==='On MC').length, pending=roster.filter(r=>r.label==='Pending').length, absent=roster.filter(r=>r.label==='Absent').length, total=roster.length;
+    const snapshotLastLine=viewIsToday?('⏳ Pending ('+pending+'): '+(roster.filter(r=>r.label==='Pending').map(r=>r.name).join(', ')||'(none)')):('❌ Absent ('+absent+'): '+(roster.filter(r=>r.label==='Absent').map(r=>r.name).join(', ')||'(none)'));
+    const snapshotLines=['📋 *'+Utils.fmtMed(viewDate)+' Attendance*','✅ Present ('+present+'): '+(roster.filter(r=>r.label==='Present').map(r=>r.name).join(', ')||'(none)'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.label==='On MC').map(r=>r.name).join(', ')||'(none)'),snapshotLastLine];
     const snapshotLink='https://api.whatsapp.com/send?text='+encodeURIComponent(snapshotLines.join('\n'));
     const pendingCount=roster.filter(r=>r.label==='Pending').length;
     const shiftCutoff={AM:'08:30',PM:'15:30',OFFICE:'09:00'};
@@ -1583,7 +1584,7 @@ class AppComponent extends DCLogic {
       repTogglePE:repToggleLocked?'none':'auto',
       prevDay:this.prevDay, nextDay:this.nextDay, goToday:this.goToday,
       onDaySwipeStart:this.onDaySwipeStart, onDaySwipeEnd:this.onDaySwipeEnd,
-      snapshotLink, showSnapshot:viewIsToday&&viewShowReporting,
+      snapshotLink, showSnapshot:viewShowReporting,
       editingNoteText:s.editingNoteText, onNoteText:this.onNoteText, saveNote:this.saveNote, closeNote:this.closeNote,
       refreshPage:this.refreshPage,
       viewDateLabel, viewDateSub, viewIsToday, viewNotToday:!viewIsToday,
