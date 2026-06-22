@@ -1190,8 +1190,8 @@ class AppComponent extends DCLogic {
     const testMode=!!s.testDate||s.demo;
     const phaseDefs=[
       {key:'p1',num:1,label:'Check in to work',needsGps:true,depends:null},
-      {key:'p2',num:2,label:'Lunch break',needsGps:true,depends:'p1'},
-      {key:'p3',num:3,label:'Return from lunch',needsGps:true,depends:'p2'},
+      {key:'p2',num:2,label:shift==='PM'?'Dinner break':'Lunch break',needsGps:true,depends:'p1'},
+      {key:'p3',num:3,label:shift==='PM'?'Return from dinner':'Return from lunch',needsGps:true,depends:'p2'},
       {key:'p4',num:4,label:'Check out',needsGps:true,depends:'p3'},
     ];
     const phases=phaseDefs.map(pd=>{
@@ -1207,7 +1207,7 @@ class AppComponent extends DCLogic {
       const isActive=!done&&!locked&&(inWin||pastWin);
       const myGpsActive=isActive&&pd.needsGps&&s.locPhase===pd.key;
       const doneText=done?(pd.needsGps?(dist!=null?'GPS verified · '+dist+' m from '+hqName:'GPS verified'):'Recorded'):'';
-      const btnLabel=pd.key==='p1'?'Check in to work':pd.key==='p2'?'Record lunch break':pd.key==='p3'?'Return from lunch':'Check out';
+      const btnLabel=pd.key==='p1'?'Check in to work':pd.key==='p2'?(shift==='PM'?'Record dinner break':'Record lunch break'):pd.key==='p3'?(shift==='PM'?'Return from dinner':'Return from lunch'):'Check out';
       const win=Utils.phaseWindow(shift,pd.key);
       return {
         key:pd.key, num:pd.num, label:pd.label, isLast:pd.key==='p4', notLast:pd.key!=='p4',
