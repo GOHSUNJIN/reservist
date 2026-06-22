@@ -135,6 +135,7 @@ const DB = {
         p3: t(r.work_return_time),
         p3dist: r.work_return_dist,
         p4: t(r.work_end_time),
+        lateReason: r.late_reason || null,
       };
     },
 
@@ -181,6 +182,13 @@ const DB = {
       const row={personnel_id:personnelId,date:dateStr,status:'present',[colMap[key]]:timeStr+':00'};
       if(distMap[key]&&dist!=null) row[distMap[key]]=dist;
       const { error } = await _db.from('attendance').upsert(row,{onConflict:'personnel_id,date'});
+      return { error };
+    },
+
+    async submitLateReason(personnelId, dateStr, reason) {
+      const { error } = await _db.from('attendance')
+        .update({ late_reason: reason })
+        .eq('personnel_id', personnelId).eq('date', dateStr);
       return { error };
     },
   },

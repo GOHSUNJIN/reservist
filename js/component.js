@@ -52,6 +52,8 @@ class AppComponent extends DCLogic {
     sessionExpiring: false,
     showA2hs: false, a2hsIsIos: false,
     forgotPasswordOpen: false,
+    showLateWarning: false,
+    lateReasonOpen: false, lateReasonText: '', lateReasonSubmitting: false,
   };
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
@@ -414,6 +416,12 @@ class AppComponent extends DCLogic {
         const dist=this._haversine(pos.coords.latitude,pos.coords.longitude,this._hqLat(),this._hqLon());
         const rounded=Math.round(dist);
         const accuracy=pos.coords.accuracy!=null?Math.round(pos.coords.accuracy):null;
+        // If accuracy is extremely poor and this is an early attempt, auto-retry for a cleaner fix
+        if(accuracy!=null&&accuracy>400&&(this.state.locRetryCount||0)<=2){
+          this.setState({locStatus:'idle',locSlow:false});
+          setTimeout(()=>this.verifyLocation(),300);
+          return;
+        }
         this.setState({locDistance:rounded,locAccuracy:accuracy,locSlow:false,locPermErr:false,locStatus:rounded<=this._maxDist()?'verified':'out_of_range'});
       },
       err=>{
@@ -452,6 +460,16 @@ class AppComponent extends DCLogic {
     this.setState({phaseSubmitting:true});
     const _now = testTime ? (()=>{const d=new Date();const[h,m]=testTime.split(':').map(Number);d.setHours(h,m,0,0);return d;})() : new Date();
     const time = Utils.hhmm(_now);
+    // Late detection — only on p1 check-in
+    if(key==='p1'){
+      const me=this.state.me; const shift=me?.shift||'AM';
+      const cutoff={AM:'08:30',PM:'15:30',OFFICE:'09:00'}[shift]||'08:30';
+      const [ch,cm]=cutoff.split(':').map(Number);
+      const [th,tm]=time.split(':').map(Number);
+      const minsLate=(th*60+tm)-(ch*60+cm);
+      if(minsLate>=60) this.setState({lateReasonOpen:true,lateReasonText:''});
+      else if(minsLate>=30) this.setState({showLateWarning:true});
+    }
     const dist = needsGps ? locDistance : null;
     const today = Utils.dateKey(this.baseDate());
     const rec = {...this.myRec()};
@@ -915,6 +933,20 @@ class AppComponent extends DCLogic {
   dismissA2hs = () => { localStorage.setItem('a2hs_dismissed','1'); this.setState({showA2hs:false}); };
   openForgotPassword = () => this.setState({forgotPasswordOpen:true});
   closeForgotPassword = () => this.setState({forgotPasswordOpen:false});
+  dismissLateWarning = () => this.setState({showLateWarning:false});
+  onLateReasonText = e => this.setState({lateReasonText:e.target.value});
+  skipLateReason = () => this.setState({lateReasonOpen:false,lateReasonText:''});
+  submitLateReason = async () => {
+    const {lateReasonText,currentUserId,demo} = this.state;
+    if(!lateReasonText.trim()) return;
+    this.setState({lateReasonSubmitting:true});
+    if(!demo){
+      const today=Utils.dateKey(this.baseDate());
+      await DB.attendance.submitLateReason(currentUserId, today, lateReasonText.trim());
+    }
+    this.setState({lateReasonOpen:false,lateReasonText:'',lateReasonSubmitting:false});
+    this._toast('Reason submitted.');
+  };
   _shouldShowA2hs(){
     try{
       if(window.navigator.standalone||window.matchMedia('(display-mode:standalone)').matches) return false;
@@ -1064,6 +1096,7 @@ class AppComponent extends DCLogic {
   confirmDeactivatePerson = async () => {
     const {confirmDeactivateId,demo,batches,activeBatchIdx}=this.state;
     if(!confirmDeactivateId) return;
+    const removedName=this.state.personnel.find(p=>p.id===confirmDeactivateId)?.name||'Person';
     if(!demo){
       const {error} = await DB.personnel.deactivate(confirmDeactivateId).catch(()=>({error:true}));
       if(error){ this._toast('Could not remove person. Check your connection.','error'); this.setState({confirmDeactivateId:null}); return; }
@@ -1074,7 +1107,7 @@ class AppComponent extends DCLogic {
       const batchMembersCache=batchId?{...s.batchMembersCache,[batchId]:(s.batchMembersCache[batchId]||[]).filter(p=>p.id!==confirmDeactivateId)}:s.batchMembersCache;
       return {personnel,batchMembersCache,confirmDeactivateId:null};
     });
-    this._toast('Person removed from roster.');
+    this._toast(removedName+' removed from roster.');
   };
 
   // ── Helpers ───────────────────────────────────────────────────────────────
@@ -1164,8 +1197,8 @@ class AppComponent extends DCLogic {
     let suShift=s.suShift;
     if((suShift==='AM'&&amFull)||(suShift==='PM'&&pmFull)) suShift='OFFICE';
     const shiftOptions=[
-      {value:'AM', disabled:amFull, selected:suShift==='AM', label:amFull?'AM shift (0830-1530) - Full':'AM shift (0830-1530) ('+amCount+'/2)'},
-      {value:'PM', disabled:pmFull, selected:suShift==='PM', label:pmFull?'PM shift (1530-2230) - Full':'PM shift (1530-2230) ('+pmCount+'/2)'},
+      {value:'AM', disabled:amFull, selected:suShift==='AM', label:amFull?'AM shift (0830-1530) - Taken':'AM shift (0830-1530) ('+amCount+'/2)'},
+      {value:'PM', disabled:pmFull, selected:suShift==='PM', label:pmFull?'PM shift (1530-2230) - Taken':'PM shift (1530-2230) ('+pmCount+'/2)'},
       {value:'OFFICE', disabled:false, selected:suShift==='OFFICE', label:'Office (0900-1800)'},
     ];
     const tb=a=>`flex:1;padding:11px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;${a?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`;
@@ -1187,8 +1220,8 @@ class AppComponent extends DCLogic {
       doLogin:this.doLogin, demoReservist:this.demoReservist, demoAdmin:this.demoAdmin,
       suName:s.suName, suNric:'', suContact:s.suContact, suShift, shiftOptions, suPassword:s.suPassword,
       amFull, pmFull, amCount, pmCount,
-      amShiftLabel:amFull?'AM shift (0830-1530) - Full':'AM shift (0830-1530) ('+amCount+'/2)',
-      pmShiftLabel:pmFull?'PM shift (1530-2230) - Full':'PM shift (1530-2230) ('+pmCount+'/2)',
+      amShiftLabel:amFull?'AM shift (0830-1530) - Taken':'AM shift (0830-1530) ('+amCount+'/2)',
+      pmShiftLabel:pmFull?'PM shift (1530-2230) - Taken':'PM shift (1530-2230) ('+pmCount+'/2)',
       onSuName:this.onSuName, onSuNric:()=>{}, onSuContact:this.onSuContact, onSuShift:this.onSuShift, onSuShiftSelect:this.onSuShiftSelect, onSuPassword:this.onSuPassword,
       doSignup:this.doSignup,
       intakeLabel, intakeRange:intakeRangeFull, intakeRangeFull,
@@ -1280,7 +1313,7 @@ class AppComponent extends DCLogic {
       gLocBorder=poorAcc?'#f0e2c2':'#cfe6d8';gLocCardBg=poorAcc?'#fdf6e9':'#f5faf7';gLocBadgeBg=poorAcc?'#f7efdc':'#e7f3ec';gLocBadgeColor=poorAcc?'#b9791a':'#1f8a5b';
       gLocMsg=s.locDistance+' m from '+hqName+', on-site'+accStr+warnAcc;gLocMsgColor=poorAcc?'#b9791a':'#1f8a5b';
     }
-    else if(locOutOfRange){gLocBorder='#f1d3cf';gLocCardBg='#fbeeec';gLocBadgeBg='#f7e4e1';gLocBadgeColor='#c0392b';gLocMsg=s.locDistance+' m away — you must be at '+hqName+' to check in'+accStr+(poorAcc?'\n\nNote: GPS accuracy is low (±'+s.locAccuracy+'m). If you are on-site, move outside and try again.':'');gLocMsgColor='#c0392b';}
+    else if(locOutOfRange){gLocBorder='#f1d3cf';gLocCardBg='#fbeeec';gLocBadgeBg='#f7e4e1';gLocBadgeColor='#c0392b';const veryPoorAcc=s.locAccuracy!=null&&s.locAccuracy>300;gLocMsg=veryPoorAcc?('GPS signal too weak to verify your location (±'+s.locAccuracy+'m).\n\nStep outside to an open area with clear sky and try again.'):s.locDistance+' m away — you must be at '+hqName+' to check in'+accStr+(poorAcc?'\n\nNote: GPS accuracy is low (±'+s.locAccuracy+'m). If you are on-site, move outside and try again.':'');gLocMsgColor='#c0392b';}
     else if(locGpsError){gLocBorder='#f0e2c2';gLocCardBg='#fdf6e9';gLocBadgeBg='#f7efdc';gLocBadgeColor='#b9791a';gLocMsg=s.locGpsMsg||'Location unavailable. Check permissions and try again.';gLocMsgColor='#b9791a';}
     else if(locLocating){gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor=accent;gLocMsg=s.locSlow?slowMsg:'Locating you via GPS...';gLocMsgColor='#8a94a3';}
     else{gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor='#8a94a3';gLocMsg='Tap "Locate me" to verify your location.';gLocMsgColor='#8a94a3';}
@@ -1343,7 +1376,9 @@ class AppComponent extends DCLogic {
     });
     const allDone=phases.every(ph=>ph.done);
     const shiftStart={AM:'08:30',PM:'15:30',OFFICE:'09:00'}[shift]||'08:30';
-    const isLate=rec.p1&&rec.p1>shiftStart;
+    const [_sc,_sm]=shiftStart.split(':').map(Number);
+    const _lateMs=rec.p1?(()=>{const[h,m]=rec.p1.split(':').map(Number);return(h*60+m)-(_sc*60+_sm);})():0;
+    const isLate=_lateMs>=60;
     const _waTimes=[];
     if(rec.p1) _waTimes.push('IN '+rec.p1);
     if(rec.p2) _waTimes.push('LUNCH '+rec.p2);
@@ -1379,6 +1414,10 @@ class AppComponent extends DCLogic {
       outOfCycle, outOfCycleTitle, outOfCycleSub,
       phases, allDone,
       isLate, lateShiftStart:shiftStart,
+      showLateWarning:s.showLateWarning, dismissLateWarning:this.dismissLateWarning,
+      lateReasonOpen:s.lateReasonOpen, lateReasonText:s.lateReasonText,
+      onLateReasonText:this.onLateReasonText, submitLateReason:this.submitLateReason,
+      skipLateReason:this.skipLateReason, lateReasonSubmitting:s.lateReasonSubmitting,
       openMc:this.openMc, submitMc:this.submitMc, cancelMc:this.cancelMc,
       batchLabel, dekitCountdown, batchRange, showBatchInfo:!!activeBatch,
       whatsappLink, showWaShare,
@@ -1643,12 +1682,17 @@ class AppComponent extends DCLogic {
     }).map(p=>{
       const r=viewMap[p.id]||{status:'pending'}, mm=Utils.meta(r.status);
       const cutoff=shiftCutoff[p.shift||'AM'];
-      const isLate=r.status==='present'&&r.p1&&r.p1>cutoff;
+      const [_cc,_ccm]=cutoff.split(':').map(Number);
+      const _lm=r.p1?(()=>{const[h,m]=r.p1.split(':').map(Number);return(h*60+m)-(_cc*60+_ccm);})():0;
+      const isLate=r.status==='present'&&_lm>=60;
+      const lateReason=r.lateReason||'';
+      const showLateReason=isLate&&!!lateReason;
       const av=s.avatars[p.id]||'';
       const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
       return {
         id:p.id, name:p.name, initials:Utils.initials(p.name), shiftLabel:Utils.shiftLabel(p.shift),
         label:mm.label, color:mm.color, bg:mm.bg, isLate,
+        lateReason, showLateReason,
         p1:r.p1||'–', p2:r.p2||'–', p3:r.p3||'–', p4:r.p4||'–',
         p1Color:r.p1?(isLate?'#c0392b':'#161f30'):'#c2c8d2',
         p2Color:r.p2?'#161f30':'#c2c8d2',
@@ -1733,8 +1777,8 @@ class AppComponent extends DCLogic {
       showCarryOver, carryOverCount, carryOver:this.carryOver, carryingOver:s.carryingOver,
       npName:s.npName, npContact:s.npContact, npShift, npPassword:s.npPassword,
       npAmFull, npPmFull, npAmCount, npPmCount,
-      npAmLabel:npAmFull?'AM shift (0830-1530) - Full':'AM shift (0830-1530) ('+npAmCount+'/2)',
-      npPmLabel:npPmFull?'PM shift (1530-2230) - Full':'PM shift (1530-2230) ('+npPmCount+'/2)',
+      npAmLabel:npAmFull?'AM shift (0830-1530) - Taken':'AM shift (0830-1530) ('+npAmCount+'/2)',
+      npPmLabel:npPmFull?'PM shift (1530-2230) - Taken':'PM shift (1530-2230) ('+npPmCount+'/2)',
       onNpName:this.onNpName, onNpContact:this.onNpContact, onNpRank:()=>{}, onNpShift:this.onNpShift, onNpPassword:this.onNpPassword, addPerson:this.addPerson,
       mealActive:!!(activeBatch?.meal_active), toggleMealActive:this.toggleMealActive,
       mealToggleTrackBg:activeBatch?.meal_active?accent:'#39435a',
