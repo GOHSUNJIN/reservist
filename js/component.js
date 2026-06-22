@@ -731,6 +731,7 @@ class AppComponent extends DCLogic {
         p2:t(row.lunch_out_time),
         p3:t(row.work_return_time), p3dist:row.work_return_dist,
         p4:t(row.work_end_time),
+        lateReason:row.late_reason||null,
       };
       this.setState(s=>({attendance:{...s.attendance,[row.personnel_id]:entry}}));
     });
