@@ -48,7 +48,10 @@ const DB = {
       const { data: sd } = await _db.auth.getSession();
       const session = sd?.session;
       const result = await this.signup(contact, password, name);
-      if (session) await _db.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token });
+      if (session) {
+        try { await _db.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token }); }
+        catch { await _db.auth.refreshSession().catch(()=>{}); }
+      }
       return result;
     },
   },
