@@ -359,21 +359,42 @@ class AppComponent extends DCLogic {
       },1200);
       return;
     }
-    navigator.geolocation.getCurrentPosition(
-      pos=>{
-        clearTimeout(this._locSlowTimer);
-        const dist=this._haversine(pos.coords.latitude, pos.coords.longitude, this._hqLat(), this._hqLon());
-        const rounded=Math.round(dist);
-        const accuracy=pos.coords.accuracy!=null?Math.round(pos.coords.accuracy):null;
-        this.setState({locDistance:rounded, locAccuracy:accuracy, locSlow:false, locStatus:rounded<=this._maxDist()?'verified':'out_of_range'});
-      },
-      err=>{
-        clearTimeout(this._locSlowTimer);
-        const msg=err.code===1?'Location permission denied. Enable it in your browser/phone settings.':err.code===2?'GPS signal unavailable. Try stepping outside or disabling Airplane mode.':'GPS timed out. Make sure location is on and try again.';
-        this.setState({locStatus:'gps_error', locDistance:null, locGpsMsg:msg, locSlow:false});
-      },
-      {enableHighAccuracy:true, timeout:15000, maximumAge:0}
-    );
+    const ua=navigator.userAgent;
+    const _permMsg=()=>/iP(hone|od|ad)/.test(ua)
+      ?'Location blocked by your browser. On iPhone: Settings → Privacy & Security → Location Services → find your browser → set to "While Using App". Then reload this page.'
+      :/Android/.test(ua)
+      ?'Location blocked. Tap the 🔒 lock icon in your browser\'s address bar → Permissions → Location → Allow. Then reload this page.'
+      :'Location access denied. Open your browser\'s site settings for this page, allow Location, then reload.';
+    const _doLocate=()=>{
+      navigator.geolocation.getCurrentPosition(
+        pos=>{
+          clearTimeout(this._locSlowTimer);
+          const dist=this._haversine(pos.coords.latitude,pos.coords.longitude,this._hqLat(),this._hqLon());
+          const rounded=Math.round(dist);
+          const accuracy=pos.coords.accuracy!=null?Math.round(pos.coords.accuracy):null;
+          this.setState({locDistance:rounded,locAccuracy:accuracy,locSlow:false,locStatus:rounded<=this._maxDist()?'verified':'out_of_range'});
+        },
+        err=>{
+          clearTimeout(this._locSlowTimer);
+          const msg=err.code===1?_permMsg():err.code===2?'GPS signal unavailable. Try moving to an open area or near a window.':'GPS timed out. Make sure location services are on and try again.';
+          this.setState({locStatus:'gps_error',locDistance:null,locGpsMsg:msg,locSlow:false});
+        },
+        {enableHighAccuracy:true,timeout:15000,maximumAge:0}
+      );
+    };
+    // Pre-check: if already denied, fail immediately instead of waiting 15s
+    if(navigator.permissions){
+      navigator.permissions.query({name:'geolocation'}).then(result=>{
+        if(result.state==='denied'){
+          clearTimeout(this._locSlowTimer);
+          this.setState({locStatus:'gps_error',locGpsMsg:_permMsg(),locSlow:false});
+        } else {
+          _doLocate();
+        }
+      }).catch(()=>_doLocate());
+    } else {
+      _doLocate();
+    }
   };
 
   _hqLat(){ return parseFloat(this.props.hqLat)||1.332572; }
@@ -1251,6 +1272,7 @@ class AppComponent extends DCLogic {
         locLocating:myGpsActive&&locLocating,
         locVerified:myGpsActive&&locVerified,
         locNeedsAction:myGpsActive&&(locIdle||locOutOfRange||locGpsError),
+        locShowReload:myGpsActive&&locGpsError,
         locBtnLabel:locLocating?'Locating...':(locIdle?'Locate me':'Try again'),
         locBtnDisabled:myGpsActive&&locLocating,
         locBorder:myGpsActive?gLocBorder:'#eef0f4',
