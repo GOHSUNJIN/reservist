@@ -169,18 +169,28 @@
           </div>
           </sc-if>
 
-          <!-- DEV: test date panel (remove before production) -->
+          <!-- DEV: test date/time panel (remove before production) -->
           <div style="background:#f0e2c2;border:1px solid #e8c77a;border-radius:10px;padding:9px 13px;margin-bottom:10px;">
-            <div style="font-size:11px;font-weight:700;color:#8a6d2a;margin-bottom:6px;letter-spacing:.05em;">⚠ DEV — TEST DATE</div>
-            <div style="display:flex;gap:6px;align-items:center;">
+            <div style="font-size:11px;font-weight:700;color:#8a6d2a;margin-bottom:6px;letter-spacing:.05em;">⚠ DEV — TEST DATE / TIME</div>
+            <div style="display:flex;gap:6px;align-items:center;margin-bottom:5px;">
               <input value="{{ testDateInput }}" onInput="{{ onTestDateInput }}" type="date" style="flex:1;padding:5px 8px;border:1px solid #e8c77a;border-radius:7px;font-size:12px;background:#fff;outline:none;color:#161f30;" />
               <button onClick="{{ setTestDate }}" style="padding:5px 12px;background:#b9791a;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">Set</button>
               <sc-if value="{{ hasTestDate }}" hint-placeholder-val="">
                 <button onClick="{{ clearTestDate }}" style="padding:5px 10px;background:#fff;color:#b9791a;border:1px solid #e8c77a;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">Clear</button>
               </sc-if>
             </div>
+            <div style="display:flex;gap:6px;align-items:center;">
+              <input value="{{ testTimeInput }}" onInput="{{ onTestTimeInput }}" type="time" style="flex:1;padding:5px 8px;border:1px solid #e8c77a;border-radius:7px;font-size:12px;background:#fff;outline:none;color:#161f30;" />
+              <button onClick="{{ setTestTime }}" style="padding:5px 12px;background:#b9791a;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">Set</button>
+              <sc-if value="{{ hasTestTime }}" hint-placeholder-val="">
+                <button onClick="{{ clearTestTime }}" style="padding:5px 10px;background:#fff;color:#b9791a;border:1px solid #e8c77a;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">Clear</button>
+              </sc-if>
+            </div>
             <sc-if value="{{ hasTestDate }}" hint-placeholder-val="">
-              <div style="font-size:11px;color:#8a6d2a;margin-top:4px;">Active: {{ testDate }}</div>
+              <div style="font-size:11px;color:#8a6d2a;margin-top:4px;">Date: {{ testDate }}</div>
+            </sc-if>
+            <sc-if value="{{ hasTestTime }}" hint-placeholder-val="">
+              <div style="font-size:11px;color:#8a6d2a;margin-top:2px;">Time: {{ testTime }}</div>
             </sc-if>
           </div>
 

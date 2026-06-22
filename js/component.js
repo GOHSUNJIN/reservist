@@ -25,7 +25,7 @@ class AppComponent extends DCLogic {
     now: new Date(), demo: false,
     isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
     offlinePending: false,
-    testDate: null, testDateInput: '',
+    testDate: null, testDateInput: '', testTime: null, testTimeInput: '',
     acctNameEdit: '',
     acctPwCurrent: '', acctPwNew: '', acctPwConfirm: '',
     acctPwError: '', acctPwSuccess: '',
@@ -280,7 +280,7 @@ class AppComponent extends DCLogic {
       mcMode:false, locStatus:'idle', locDistance:null, locGpsMsg:'',
       accountOpen:false, confirmDelete:false,
       personnel:[], attendance:{}, history:[], attendanceCache:{}, batchMembersCache:{},
-      testDate:null, testDateInput:'',
+      testDate:null, testDateInput:'', testTime:null, testTimeInput:'',
       acctNameEdit:'', acctPwCurrent:'', acctPwNew:'', acctPwConfirm:'',
       acctPwError:'', acctPwSuccess:'', acctNameError:'', acctNameSuccess:'', acctSaving:false,
       locPhase:null, addPersonSuccess:'', addPersonError:'', batchLoading:false, batchCreating:false,
@@ -584,6 +584,11 @@ class AppComponent extends DCLogic {
   };
 
 
+
+  // ── Test time override ────────────────────────────────────────────────────
+  onTestTimeInput = e => this.setState({testTimeInput:e.target.value});
+  setTestTime = () => { const t=this.state.testTimeInput; if(!t) return; this.setState({testTime:t}); };
+  clearTestTime = () => this.setState({testTime:null, testTimeInput:''});
 
   // ── Export CSV ────────────────────────────────────────────────────────────
   exportCsv = async () => {
@@ -1177,7 +1182,7 @@ class AppComponent extends DCLogic {
     else{gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor='#8a94a3';gLocMsg='Tap "Locate me" to verify your location.';gLocMsgColor='#8a94a3';}
 
     const shift=me.shift||'AM';
-    const now=s.now;
+    const now=s.testTime?(()=>{const d=new Date(s.now);const[h,m]=s.testTime.split(':').map(Number);d.setHours(h,m,0,0);return d;})():s.now;
     const testMode=!!s.testDate||s.demo;
     const phaseDefs=[
       {key:'p1',num:1,label:'Check in to work',needsGps:true,depends:null},
@@ -1250,7 +1255,7 @@ class AppComponent extends DCLogic {
     const batchRange=activeBatch?(Utils.fmtShort(new Date(activeBatch.start_date+'T00:00:00'))+' to '+Utils.fmtShort(new Date(activeBatch.end_date+'T00:00:00'))):'';
     return {
       todayLong:Utils.fmtLong(this.baseDate()),
-      clock:s.testDate?'--:--':Utils.hhmm(s.now),
+      clock:s.testDate?'--:--':s.testTime?s.testTime:Utils.hhmm(s.now),
       myShiftLabel:Utils.shiftLabel(me.shift), myShiftWindow:Utils.shiftWindow(me.shift),
       myStatusLabel:outOfCycle?outOfCycleTitle:noRep?'No reporting':m.label,
       myStatusColor:outOfCycle?'#8a94a3':noRep?accent:m.color,
@@ -1273,6 +1278,9 @@ class AppComponent extends DCLogic {
       hasTestDate:!!s.testDate, testDate:s.testDate||'',
       testDateInput:s.testDateInput, onTestDateInput:this.onTestDateInput,
       setTestDate:this.setTestDate, clearTestDate:this.clearTestDate,
+      hasTestTime:!!s.testTime, testTime:s.testTime||'',
+      testTimeInput:s.testTimeInput, onTestTimeInput:this.onTestTimeInput,
+      setTestTime:this.setTestTime, clearTestTime:this.clearTestTime,
     };
   }
 
