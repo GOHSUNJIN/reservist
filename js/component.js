@@ -1920,7 +1920,7 @@ class AppComponent extends DCLogic {
         id:l.id, reason:l.reason||'',
         personName:l.personnel?.name||'Unknown',
         personShift:Utils.shiftLabel(l.personnel?.shift||'AM'),
-        typeLabel:l.type==='mc'?'MC':l.type==='shift_change'?'Shift Change':'Personal Leave',
+        typeLabel:l.type==='mc'?'MC':l.type==='shift_change'?'Shift Change':l.type==='other'?'Other':'Personal Leave',
         dateLabel:l.date?Utils.fmtMed(new Date(l.date+'T00:00:00')):'',
         requestedShiftLabel:l.requested_shift?Utils.shiftLabel(l.requested_shift):'',
         showRequestedShift:l.type==='shift_change'&&!!l.requested_shift,
