@@ -397,9 +397,17 @@ class AppComponent extends DCLogic {
   approveLeave = id => async () => {
     const leave = this.state.pendingLeaves.find(l => l.id === id);
     if(!this.state.demo && leave) {
-      const attStatus = leave.type === 'mc' ? 'mc' : leave.type === 'shift_change' ? null : 'absent';
       const ops = [DB.leaves.updateStatus(id, 'approved').catch(()=>{})];
-      if(attStatus) ops.push(DB.attendance.upsert(leave.personnel_id, leave.date, attStatus).catch(()=>{}));
+      if(leave.type === 'shift_change' && leave.requested_shift) {
+        ops.push(
+          DB.personnel.updateShift(leave.personnel_id, leave.requested_shift).then(({data}) => {
+            if(data) this.setState(s=>({personnel:s.personnel.map(p=>p.id===leave.personnel_id?{...p,shift:data.shift}:p)}));
+          }).catch(()=>{})
+        );
+      } else {
+        const attStatus = leave.type === 'mc' ? 'mc' : 'absent';
+        ops.push(DB.attendance.upsert(leave.personnel_id, leave.date, attStatus).catch(()=>{}));
+      }
       await Promise.all(ops);
     }
     this._toast('Request approved.');
