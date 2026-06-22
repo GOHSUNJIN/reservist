@@ -273,6 +273,7 @@
                   </sc-if>
                   <sc-if value="{{ ph.locked }}" hint-placeholder-val="">
                     <div style="font-size:11.5px;color:#b8bfc9;margin-top:2px;">Complete the previous step first</div>
+                    <div style="font-size:11px;color:#c2c8d2;margin-top:1px;">{{ ph.subLabel }}</div>
                   </sc-if>
                   <!-- Active GPS phase -->
                   <sc-if value="{{ ph.isActive }}" hint-placeholder-val="{{ true }}">

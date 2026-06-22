@@ -25,7 +25,7 @@ class AppComponent extends DCLogic {
     now: new Date(), demo: false,
     isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
     offlinePending: false,
-    testDate: null, testDateInput: '', testTime: null, testTimeInput: '',
+    testDate: null, testDateInput: '', testTime: null, testTimeInput: '', phaseSubmitting: false,
     acctNameEdit: '',
     acctPwCurrent: '', acctPwNew: '', acctPwConfirm: '',
     acctPwError: '', acctPwSuccess: '',
@@ -280,7 +280,7 @@ class AppComponent extends DCLogic {
       mcMode:false, locStatus:'idle', locDistance:null, locGpsMsg:'',
       accountOpen:false, confirmDelete:false,
       personnel:[], attendance:{}, history:[], attendanceCache:{}, batchMembersCache:{},
-      testDate:null, testDateInput:'', testTime:null, testTimeInput:'',
+      testDate:null, testDateInput:'', testTime:null, testTimeInput:'', phaseSubmitting:false,
       acctNameEdit:'', acctPwCurrent:'', acctPwNew:'', acctPwConfirm:'',
       acctPwError:'', acctPwSuccess:'', acctNameError:'', acctNameSuccess:'', acctSaving:false,
       locPhase:null, addPersonSuccess:'', addPersonError:'', batchLoading:false, batchCreating:false,
@@ -374,9 +374,11 @@ class AppComponent extends DCLogic {
   };
 
   doPhase = key => async () => {
+    if(this.state.phaseSubmitting) return;
     const {locStatus,locDistance,locPhase,currentUserId,demo,isOnline,testTime} = this.state;
     const needsGps = true;
     if(needsGps && (locStatus!=='verified'||locPhase!==key)) return;
+    this.setState({phaseSubmitting:true});
     const _now = testTime ? (()=>{const d=new Date();const[h,m]=testTime.split(':').map(Number);d.setHours(h,m,0,0);return d;})() : new Date();
     const time = Utils.hhmm(_now);
     const dist = needsGps ? locDistance : null;
@@ -390,6 +392,7 @@ class AppComponent extends DCLogic {
       attendance:{...s.attendance,[currentUserId]:rec},
       locStatus:needsGps?'idle':s.locStatus,
       locPhase:needsGps?null:s.locPhase,
+      phaseSubmitting:false,
     }));
     this._haptic();
     if(!demo){
@@ -1240,8 +1243,13 @@ class AppComponent extends DCLogic {
     const allDone=phases.every(ph=>ph.done);
     const shiftStart={AM:'08:30',PM:'15:30',OFFICE:'09:00'}[shift]||'08:30';
     const isLate=rec.p1&&rec.p1>shiftStart;
+    const _waTimes=[];
+    if(rec.p1) _waTimes.push('IN '+rec.p1);
+    if(rec.p2) _waTimes.push('LUNCH '+rec.p2);
+    if(rec.p3) _waTimes.push('BACK '+rec.p3);
+    if(rec.p4) _waTimes.push('OUT '+rec.p4);
     const waMsg=status==='present'
-      ?`✅ [${rec.p1||'-'}] ${me.name} checked in for ${Utils.shiftLabel(me.shift)}.`
+      ?`✅ ${me.name} — ${Utils.shiftLabel(me.shift)}\n${_waTimes.join(' · ')}`
       :status==='mc'
       ?`🤒 ${me.name} is on MC today (${Utils.shiftLabel(me.shift)}).`
       :'';
