@@ -92,10 +92,6 @@ const DB = {
       return { error };
     },
 
-    async remove(personnelId) {
-      await _db.from('personnel').delete().eq('id', personnelId);
-    },
-
     async updateName(personnelId, name) {
       const { data, error } = await _db.from('personnel').update({ name }).eq('id', personnelId).select().maybeSingle();
       return { data, error };
@@ -244,12 +240,6 @@ const DB = {
 
   // ── Leave requests ────────────────────────────────────────────────────────
   leaves: {
-    async listForPerson(personnelId) {
-      const { data } = await _db.from('leave_requests').select('*')
-        .eq('personnel_id', personnelId).order('created_at', { ascending: false }).limit(50);
-      return data || [];
-    },
-
     async listPending() {
       const { data } = await _db.from('leave_requests')
         .select('*, personnel(name, shift, contact)')
