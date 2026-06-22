@@ -413,6 +413,13 @@
               </sc-if>
             </div>
             </sc-if>
+
+            <sc-if value="{{ isAbsent }}" hint-placeholder-val="">
+            <div>
+              <h2 style="font-size:19px;font-weight:700;margin:2px 0 6px;color:#161f30;">Marked absent</h2>
+              <p style="font-size:13.5px;color:#5c6678;margin:0;line-height:1.5;text-wrap:pretty;">Your absence request has been approved. You are recorded as absent for today.</p>
+            </div>
+            </sc-if>
           </div>
 
           <div style="background:#fff;border:1px solid #e3e6ec;border-radius:18px;padding:18px;margin-top:14px;">
