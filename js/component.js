@@ -18,7 +18,6 @@ class AppComponent extends DCLogic {
     locStatus: 'idle', locDistance: null, locGpsMsg: '',
     accountOpen: false, confirmDelete: false,
     viewOffset: 0, avatars: {}, selectedCalOffset: null,
-    mcMode: false,
     npName: '', npContact: '', npShift: 'AM', npPassword: '',
     rosterSearch: '',
     realtimeChannel: null,
@@ -45,7 +44,6 @@ class AppComponent extends DCLogic {
     showArchivedBatches: false,
     noReportDaysCache: {},
     markAllPresenting: false,
-    mcSubmitting: false,
     carryingOver: false,
     historyPage: 1,
     sessionExpiring: false,
@@ -53,7 +51,7 @@ class AppComponent extends DCLogic {
     forgotPasswordOpen: false,
     showLateWarning: false,
     lateReasonOpen: false, lateReasonText: '', lateReasonSubmitting: false,
-    leaveOpen: false, leaveDate: '', leaveType: 'personal', leaveReason: '',
+    leaveOpen: false, leaveDate: '', leaveType: 'mc', leaveReason: '',
     pendingLeaves: [], pendingLeavesLoaded: false,
     shiftChangeOpen: false, shiftChangeNew: 'AM', shiftChangeReason: '',
     notifGranted: false,
@@ -311,7 +309,7 @@ class AppComponent extends DCLogic {
     this.setState({
       authed:false, role:null, authMode:'login', demo:false,
       currentUserId:null, me:null, loginContact:'', loginPassword:'',
-      mcMode:false, locStatus:'idle', locDistance:null, locGpsMsg:'', locSlow:false, locAccuracy:null, locPermErr:false, locRetryCount:0,
+      locStatus:'idle', locDistance:null, locGpsMsg:'', locSlow:false, locAccuracy:null, locPermErr:false, locRetryCount:0,
       accountOpen:false, confirmDelete:false,
       personnel:[], attendance:{}, history:[], attendanceCache:{}, batchMembersCache:{},
       testDate:null, testDateInput:'', testTime:null, testTimeInput:'', phaseSubmitting:false,
@@ -323,12 +321,12 @@ class AppComponent extends DCLogic {
       toast:null, rosterSort:'shift', newBatchDate:'',
       peopleStats:{}, peopleStatsLoaded:false, confirmDeactivateId:null, showArchivedBatches:false,
       noAvatarIds:new Set(), noReportDaysCache:{},
-      markAllPresenting:false, mcSubmitting:false, carryingOver:false,
+      markAllPresenting:false, carryingOver:false,
       historyPage:1,
       sessionExpiring:false, showA2hs:false, forgotPasswordOpen:false,
       showLateWarning:false, lateReasonOpen:false, lateReasonText:'', lateReasonSubmitting:false,
-      leaveOpen:false, leaveDate:'', leaveType:'personal', leaveReason:'',
       pendingLeaves:[], pendingLeavesLoaded:false,
+      leaveOpen:false, leaveDate:'', leaveType:'mc', leaveReason:'',
       shiftChangeOpen:false, shiftChangeNew:'AM', shiftChangeReason:'',
       notifGranted:false,
     });
@@ -374,22 +372,6 @@ class AppComponent extends DCLogic {
   onNpShift    = e => this.setState({npShift:e.target.value});
   onNpPassword = e => this.setState({npPassword:e.target.value});
 
-  // ── Leave requests ────────────────────────────────────────────────────────
-  openLeaveRequest = dateStr => () => this.setState({leaveOpen:true,leaveDate:dateStr||Utils.dateKey(this.baseDate()),leaveType:'personal',leaveReason:''});
-  closeLeaveRequest = () => this.setState({leaveOpen:false});
-  onLeaveDate = e => this.setState({leaveDate:e.target.value});
-  onLeaveType = v => () => this.setState({leaveType:v});
-  onLeaveReason = e => this.setState({leaveReason:e.target.value});
-  submitLeaveRequest = async () => {
-    const {currentUserId,leaveDate,leaveType,leaveReason,demo}=this.state;
-    if(!leaveDate) return;
-    if(!demo){
-      const {error}=await DB.leaves.request(currentUserId,leaveDate,leaveType,leaveReason).catch(e=>({error:e}));
-      if(error){ this._toast('Failed to submit request.','error'); return; }
-    }
-    this._toast('Absence request submitted.');
-    this.setState({leaveOpen:false});
-  };
   loadPendingLeaves = async () => {
     const {demo}=this.state;
     if(demo) return;
@@ -397,14 +379,37 @@ class AppComponent extends DCLogic {
     this.setState({pendingLeaves:data,pendingLeavesLoaded:true});
   };
   approveLeave = id => async () => {
-    if(!this.state.demo) await DB.leaves.updateStatus(id,'approved').catch(()=>{});
-    this._toast('Leave request approved.');
+    const leave = this.state.pendingLeaves.find(l => l.id === id);
+    if(!this.state.demo && leave) {
+      const attStatus = leave.type === 'mc' ? 'mc' : leave.type === 'shift_change' ? null : 'absent';
+      const ops = [DB.leaves.updateStatus(id, 'approved').catch(()=>{})];
+      if(attStatus) ops.push(DB.attendance.upsert(leave.personnel_id, leave.date, attStatus).catch(()=>{}));
+      await Promise.all(ops);
+    }
+    this._toast('Request approved.');
     this.loadPendingLeaves();
   };
   rejectLeave = id => async () => {
     if(!this.state.demo) await DB.leaves.updateStatus(id,'rejected').catch(()=>{});
-    this._toast('Leave request declined.');
+    this._toast('Request declined.');
     this.loadPendingLeaves();
+  };
+
+  // ── Leave requests ────────────────────────────────────────────────────────
+  openLeaveRequest = date => () => this.setState({leaveOpen:true, leaveDate:date, leaveType:'mc', leaveReason:''});
+  closeLeaveRequest = () => this.setState({leaveOpen:false});
+  onLeaveDate = e => this.setState({leaveDate:e.target.value});
+  onLeaveType = v => () => this.setState({leaveType:v});
+  onLeaveReason = e => this.setState({leaveReason:e.target.value});
+  submitLeaveRequest = async () => {
+    const {currentUserId, leaveDate, leaveType, leaveReason, demo} = this.state;
+    if(!leaveDate){ this._toast('Please select a date.','error'); return; }
+    if(!demo){
+      const {error} = await DB.leaves.request(currentUserId, leaveDate, leaveType, leaveReason).catch(e=>({error:e}));
+      if(error){ this._toast('Failed to submit request.','error'); return; }
+    }
+    this._toast('Request submitted for approval.');
+    this.setState({leaveOpen:false});
   };
 
   // ── Shift change requests ─────────────────────────────────────────────────
@@ -583,25 +588,6 @@ class AppComponent extends DCLogic {
         if(phErr) this._toast('Check-in saved locally but failed to sync. Check your connection.','error');
       }
     }
-  };
-
-  openMc   = () => this.setState({mcMode:true});
-  cancelMc = () => this.setState({mcMode:false});
-
-  submitMc = async () => {
-    if(this.state.mcSubmitting) return;
-    this.setState({mcSubmitting:true});
-    const today=Utils.dateKey(this.baseDate());
-    if(!this.state.demo){
-      const {error} = await DB.attendance.upsert(this.state.currentUserId, today, 'mc');
-      if(error){
-        this._toast('Could not record MC. Check your connection and try again.','error');
-        this.setState({mcSubmitting:false});
-        return;
-      }
-    }
-    this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:{status:'mc',p1:null}},mcMode:false,mcSubmitting:false}));
-    this._haptic();
   };
 
   _haptic(ms=60){ if(navigator.vibrate) navigator.vibrate(ms); }
@@ -1354,10 +1340,9 @@ class AppComponent extends DCLogic {
     if(!me) return {
       todayLong:Utils.fmtLong(new Date()), clock:Utils.hhmm(s.now),
       myShiftLabel:'', myShiftWindow:'', myStatusLabel:'', myStatusColor:accent,
-      myStatusPulse:'', phToday:false, phName:'', mcMode:false,
+      myStatusPulse:'', phToday:false, phName:'',
       isMc:false, showPhases:false, phases:[], allDone:false,
       outOfCycle:false, outOfCycleTitle:'', outOfCycleSub:'',
-      openMc:()=>{}, submitMc:()=>{}, cancelMc:()=>{},
       batchLabel:'', dekitCountdown:'', batchRange:'', showBatchInfo:false,
       whatsappLink:'', showWaShare:false,
       isOffline:!s.isOnline, offlinePending:s.offlinePending,
@@ -1514,9 +1499,8 @@ class AppComponent extends DCLogic {
       myStatusPulse:(!outOfCycle&&status==='pending'&&!noRep)?'animation:pulseDot 1.6s ease infinite;':'',
       phToday:!outOfCycle&&noRep,
       phName:Utils.holidayName(todayD)||(isOffDay?'Reservists do not report on weekends.':'No CNB reporting today.'),
-      mcMode:!outOfCycle&&s.mcMode&&!noRep,
       isMc:!outOfCycle&&status==='mc'&&!noRep,
-      showPhases:!outOfCycle&&!noRep&&status!=='mc'&&!s.mcMode,
+      showPhases:!outOfCycle&&!noRep&&status!=='mc',
       outOfCycle, outOfCycleTitle, outOfCycleSub,
       phases, allDone,
       isLate, lateShiftStart:shiftStart,
@@ -1524,13 +1508,11 @@ class AppComponent extends DCLogic {
       lateReasonOpen:s.lateReasonOpen, lateReasonText:s.lateReasonText,
       onLateReasonText:this.onLateReasonText, submitLateReason:this.submitLateReason,
       skipLateReason:this.skipLateReason, lateReasonSubmitting:s.lateReasonSubmitting,
-      openMc:this.openMc, submitMc:this.submitMc, cancelMc:this.cancelMc,
       batchLabel, dekitCountdown, batchRange, showBatchInfo:!!activeBatch,
       whatsappLink, showWaShare,
       isOffline:!s.isOnline, offlinePending:s.offlinePending, offlineQueueCount:this._offlineQueues?.length||0,
       retrySync:this.retrySync, refreshPage:this.refreshPage,
       isInAppBrowser:s.isInAppBrowser, inAppBrowserName:s.inAppBrowserName,
-      mcSubmitting:s.mcSubmitting,
       hasTestDate:!!s.testDate, testDate:s.testDate||'',
       testDateInput:s.testDateInput, onTestDateInput:this.onTestDateInput,
       setTestDate:this.setTestDate, clearTestDate:this.clearTestDate,

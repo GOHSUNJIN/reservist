@@ -1,0 +1,5 @@
+{
+  "redirects": [
+    { "source": "/%EF%BF%BD", "destination": "/", "permanent": false }
+  ]
+}
