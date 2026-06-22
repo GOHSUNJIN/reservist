@@ -279,7 +279,7 @@ class AppComponent extends DCLogic {
     if(!suName.trim()||!suContact.trim()||!suPassword.trim()){ this.setState({authError:'Please fill in all fields.'}); return; }
     if(suPassword.length < 6){ this.setState({authError:'Password must be at least 6 characters.'}); return; }
     const cleanContact = suContact.replace(/[\s-]/g,'');
-    if(!/^\d{8}$/.test(cleanContact)){ this.setState({authError:'Contact must be an 8-digit Singapore number.'}); return; }
+    if(!/^[689]\d{7}$/.test(cleanContact)){ this.setState({authError:'Contact must be an 8-digit Singapore number.'}); return; }
     const activeBatch = this._liveBatch();
     if(!activeBatch){
       this.setState({authError:'No active intake batch is open for sign-up right now.'});
@@ -983,7 +983,7 @@ class AppComponent extends DCLogic {
     if(!npName.trim()){ this._toast('Name is required.','error'); return; }
     const cleanContact=npContact.replace(/[\s-]/g,'');
     if(!cleanContact){ this._toast('Contact number is required.','error'); return; }
-    if(!/^\d{8}$/.test(cleanContact)){ this._toast('Contact must be an 8-digit Singapore number.','error'); return; }
+    if(!/^[689]\d{7}$/.test(cleanContact)){ this._toast('Contact must be an 8-digit Singapore number.','error'); return; }
     if(personnel.some(p=>p.contact.replace(/[\s-]/g,'')===cleanContact)){ this._toast('This contact is already on the roster.','error'); return; }
     if(!npPassword.trim()){ this._toast('Password is required.','error'); return; }
     if(npPassword.length<6){ this._toast('Password must be at least 6 characters.','error'); return; }
