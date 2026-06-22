@@ -72,6 +72,18 @@
           <div style="color:#c0392b;font-size:13px;margin-bottom:6px;">{{ authError }}</div>
         </sc-if>
         <button onClick="{{ doLogin }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:12px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoading ? 0.6 : 1 }};">{{ loginBtnLabel }}</button>
+        <div style="text-align:center;margin-top:14px;">
+          <button onClick="{{ openForgotPassword }}" style="background:none;border:none;color:#8a94a3;font-size:13px;cursor:pointer;text-decoration:underline;padding:0;">Forgot password?</button>
+        </div>
+        <sc-if value="{{ forgotPasswordOpen }}" hint-placeholder-val="">
+        <div style="background:#f6f8fa;border:1px solid #e3e6ec;border-radius:11px;padding:14px 15px;margin-top:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
+            <div style="font-size:13.5px;font-weight:700;color:#161f30;">Forgot your password?</div>
+            <button onClick="{{ closeForgotPassword }}" style="background:none;border:none;cursor:pointer;color:#8a94a3;padding:0;margin-left:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          </div>
+          <div style="font-size:13px;color:#5c6678;line-height:1.6;">Contact your supervisor and ask them to reset your password. They can remove and re-add your account with a new password from the admin panel.</div>
+        </div>
+        </sc-if>
       </div>
       </sc-if>
 
@@ -124,6 +136,14 @@
         </div>
       </div>
     </div>
+
+    <sc-if value="{{ sessionExpiring }}" hint-placeholder-val="">
+    <div style="background:#fbeeec;border-bottom:1px solid #f1d3cf;padding:10px 18px;display:flex;align-items:center;gap:10px;z-index:9;flex:0 0 auto;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>
+      <span style="flex:1;font-size:12.5px;color:#7a3428;font-weight:500;">Your session is expiring soon.</span>
+      <button onClick="{{ refreshSessionNow }}" style="padding:5px 11px;background:#c0392b;color:#fff;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Stay logged in</button>
+    </div>
+    </sc-if>
 
     <div id="main-scroll" class="scroll" style="flex:1;overflow:auto;min-height:0;background:#f6f7f9;">
       <div style="padding:18px 18px 24px;">
@@ -514,6 +534,21 @@
             <div class="stat-card" style="border-top:3px solid #c0392b;"><div class="mono-num" style="color:#c0392b;">{{ statMyMissed }}</div><div style="font-size:11px;color:#8a94a3;margin-top:2px;">Missed</div></div>
             <div class="stat-card" style="border-top:3px solid #d4d9e2;"><div class="mono-num" style="color:#161f30;">{{ statMyDays }}</div><div style="font-size:11px;color:#8a94a3;margin-top:2px;">Logged</div></div>
           </div>
+          <sc-if value="{{ showAttendanceSummary }}" hint-placeholder-val="">
+          <div class="card" style="padding:17px 18px;margin-bottom:14px;">
+            <div style="font-size:11px;font-weight:600;color:#9aa3b2;letter-spacing:.07em;margin-bottom:13px;">YOUR PERFORMANCE</div>
+            <div style="display:flex;justify-content:space-between;align-items:flex-end;">
+              <div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;color:#1f8a5b;line-height:1;">{{ attendanceRateText }}</div>
+                <div style="font-size:11.5px;color:#8a94a3;margin-top:4px;">attendance rate</div>
+              </div>
+              <div style="text-align:right;">
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;color:#161f30;line-height:1;">{{ attendanceStreak }}</div>
+                <div style="font-size:11.5px;color:#8a94a3;margin-top:4px;">day streak</div>
+              </div>
+            </div>
+          </div>
+          </sc-if>
           <div class="card" style="padding:16px;margin-bottom:14px;">
             <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;"><span style="color:#8a94a3;font-weight:600;letter-spacing:.04em;">CYCLE PROGRESS</span><span style="color:#161f30;font-weight:600;">{{ cycleDone }} of {{ cycleTotal }} days</span></div>
             <div style="height:8px;border-radius:6px;background:#eef0f4;overflow:hidden;"><div style="height:100%;width:{{ cyclePct }}%;background:{{ accent }};border-radius:6px;"></div></div>
@@ -689,6 +724,16 @@
             <div class="card" style="padding:16px;border-top:3px solid #d4d9e2;"><div class="mono-num" style="font-size:26px;color:#161f30;">{{ vTotal }}</div><div style="font-size:12px;color:#8a94a3;margin-top:2px;">Total roster</div></div>
           </div>
 
+          <sc-if value="{{ showLateAlert }}" hint-placeholder-val="">
+          <div style="background:#fdf6e9;border:1px solid #f0e2c2;border-radius:12px;padding:12px 15px;margin-bottom:12px;display:flex;align-items:center;gap:10px;">
+            <div style="width:36px;height:36px;border-radius:50%;background:#f7efdc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg></div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:700;color:#b9791a;">{{ lateAlertLabel }}</div>
+              <div style="font-size:12px;color:#8a6d2a;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ lateNames }}</div>
+            </div>
+          </div>
+          </sc-if>
+
           <sc-if value="{{ showSnapshot }}" hint-placeholder-val="">
           <a href="{{ snapshotLink }}" target="_blank" rel="noopener" style="display:flex;align-items:center;gap:12px;padding:13px 15px;background:#fff;border:1px solid #e3e6ec;border-radius:13px;text-decoration:none;margin-bottom:12px;box-shadow:0 1px 3px rgba(20,30,50,.04);">
             <div style="width:40px;height:40px;border-radius:11px;background:#25d366;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
@@ -702,7 +747,15 @@
           </a>
           </sc-if>
           <div class="card-flush">
-            <div style="padding:13px 16px;border-bottom:1px solid #eef0f4;display:flex;justify-content:space-between;align-items:center;"><span style="font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">{{ viewListHeader }}</span><span style="font-size:11.5px;color:{{ viewPercentColor }};font-weight:600;">{{ viewPercentText }}</span></div>
+            <div style="padding:13px 16px;border-bottom:1px solid #eef0f4;display:flex;justify-content:space-between;align-items:center;">
+              <div style="display:flex;align-items:center;gap:7px;">
+                <span style="font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">{{ viewListHeader }}</span>
+                <sc-if value="{{ viewIsToday }}" hint-placeholder-val="">
+                  <span style="background:#e7f3ec;color:#1f8a5b;font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:7px;letter-spacing:.06em;display:flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;border-radius:50%;background:#1f8a5b;display:inline-block;"></span>LIVE</span>
+                </sc-if>
+              </div>
+              <span style="font-size:11.5px;color:{{ viewPercentColor }};font-weight:600;">{{ viewPercentText }}</span>
+            </div>
             <sc-for list="{{ viewRoster }}" as="row" hint-placeholder-count="6">
               <div class="row-item">
                 <div class="avatar-md" style="{{ row.avatarStyle }}">{{ row.initials }}</div>
@@ -1057,6 +1110,32 @@
     </div>
     </sc-if>
 
+    <!-- ===== ADD TO HOME SCREEN PROMPT ===== -->
+    <sc-if value="{{ showA2hs }}" hint-placeholder-val="">
+    <div style="position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;padding:22px 20px 32px;box-shadow:0 -8px 32px rgba(20,30,50,.16);z-index:200;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <div style="width:38px;height:38px;border-radius:10px;background:#2f5fd0;display:flex;align-items:center;justify-content:center;"><svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="8 17 12 21 16 17"></polyline><line x1="12" y1="12" x2="12" y2="21"></line><path d="M20.88 18.09A5 5 0 0 0 18 9h-1.26A8 8 0 1 0 3 16.29"></path></svg></div>
+          <div style="font-size:15px;font-weight:700;color:#161f30;">Add to Home Screen</div>
+        </div>
+        <button onClick="{{ dismissA2hs }}" style="background:none;border:none;cursor:pointer;color:#8a94a3;padding:4px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      </div>
+      <p style="font-size:13px;color:#5c6678;line-height:1.55;margin:0 0 14px;">Install Ops Reservist on your home screen for one-tap access — no App Store needed.</p>
+      <sc-if value="{{ a2hsIsIos }}" hint-placeholder-val="{{ true }}">
+      <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;font-size:13px;color:#36404f;line-height:1.75;">
+        1. Tap the <strong>Share</strong> button <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg> at the bottom of Safari<br>
+        2. Scroll and tap <strong>Add to Home Screen</strong>
+      </div>
+      </sc-if>
+      <sc-if value="{{ !a2hsIsIos }}" hint-placeholder-val="">
+      <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;font-size:13px;color:#36404f;line-height:1.75;">
+        1. Tap the <strong>Menu ⋮</strong> at the top right of Chrome<br>
+        2. Tap <strong>Add to Home Screen</strong>
+      </div>
+      </sc-if>
+      <button onClick="{{ dismissA2hs }}" style="width:100%;margin-top:14px;padding:12px;background:#eef1f5;border:none;border-radius:11px;font-size:14px;font-weight:600;color:#8a94a3;cursor:pointer;">Not now</button>
+    </div>
+    </sc-if>
 
   </div>
   </sc-if>

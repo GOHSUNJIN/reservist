@@ -49,6 +49,9 @@ class AppComponent extends DCLogic {
     mcSubmitting: false,
     carryingOver: false,
     historyPage: 1,
+    sessionExpiring: false,
+    showA2hs: false, a2hsIsIos: false,
+    forgotPasswordOpen: false,
   };
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
@@ -79,6 +82,7 @@ class AppComponent extends DCLogic {
   }
   componentWillUnmount(){
     if(this._toastTimer) clearTimeout(this._toastTimer);
+    if(this._sessionWarnTimer) clearTimeout(this._sessionWarnTimer);
     clearInterval(this._t);
     this._unsubscribeRealtime();
     window.removeEventListener('online', this._onOnline);
@@ -167,6 +171,11 @@ class AppComponent extends DCLogic {
     });
     if(role==='admin'){ this._subscribeRealtime(today); setTimeout(()=>this.loadRosterAvatars(),0); }
     if(!this.state.demo) DB.auth.syncDisplayName(me.name).catch(()=>{});
+    // Session expiry warning — show 5 min before typical 1-hour Supabase JWT expiry
+    if(this._sessionWarnTimer) clearTimeout(this._sessionWarnTimer);
+    this._sessionWarnTimer = setTimeout(()=>{ if(this.state.authed) this.setState({sessionExpiring:true}); }, 55*60*1000);
+    // Add to Home Screen nudge (shown once, after a short delay)
+    setTimeout(()=>{ if(this._shouldShowA2hs()) this.setState({showA2hs:true, a2hsIsIos:/iP(hone|od|ad)/.test(navigator.userAgent||'')}); }, 5000);
   }
 
   async _ensureLiveBatch(batches, overrideDate){
@@ -897,6 +906,22 @@ class AppComponent extends DCLogic {
   onRosterSearch = e => this.setState({rosterSearch:e.target.value});
   clearRosterSearch = () => this.setState({rosterSearch:''});
   retrySync = () => { if(this.state.isOnline) this._onOnline(); };
+  refreshSessionNow = async () => {
+    this.setState({sessionExpiring:false});
+    if(this._sessionWarnTimer) clearTimeout(this._sessionWarnTimer);
+    try { await DB.auth.refreshSession(); } catch(e){}
+    this._sessionWarnTimer = setTimeout(()=>{ if(this.state.authed) this.setState({sessionExpiring:true}); }, 55*60*1000);
+  };
+  dismissA2hs = () => { localStorage.setItem('a2hs_dismissed','1'); this.setState({showA2hs:false}); };
+  openForgotPassword = () => this.setState({forgotPasswordOpen:true});
+  closeForgotPassword = () => this.setState({forgotPasswordOpen:false});
+  _shouldShowA2hs(){
+    try{
+      if(window.navigator.standalone||window.matchMedia('(display-mode:standalone)').matches) return false;
+      if(localStorage.getItem('a2hs_dismissed')) return false;
+      return /Android|iPhone|iPad|iPod/.test(navigator.userAgent||'');
+    }catch(e){return false;}
+  }
   markAllPresent = async () => {
     if(this.state.markAllPresenting) return;
     this.setState({markAllPresenting:true});
@@ -1167,6 +1192,8 @@ class AppComponent extends DCLogic {
       onSuName:this.onSuName, onSuNric:()=>{}, onSuContact:this.onSuContact, onSuShift:this.onSuShift, onSuShiftSelect:this.onSuShiftSelect, onSuPassword:this.onSuPassword,
       doSignup:this.doSignup,
       intakeLabel, intakeRange:intakeRangeFull, intakeRangeFull,
+      forgotPasswordOpen:s.forgotPasswordOpen,
+      openForgotPassword:this.openForgotPassword, closeForgotPassword:this.closeForgotPassword,
     };
   }
 
@@ -1495,11 +1522,19 @@ class AppComponent extends DCLogic {
         if(Utils.isReportDay(d)&&!Utils.holidayName(d)&&!s.noReportDays.has(Utils.dateKey(d))){cycleTotal++;if(d<=now)cycleDone++;}
       }
     }
+    // Performance summary
+    const totalRecorded=statMyPresent+statMyMc+statMyMissed;
+    const attendanceRate=cycleDone>0?Math.round((statMyPresent+statMyMc)/cycleDone*100):null;
+    const attendanceRateText=attendanceRate!==null?attendanceRate+'%':'—';
+    let attendanceStreak=0;
+    for(const row of myHistory){ if(row.status==='present'||row.status==='mc') attendanceStreak++; else break; }
+    const showAttendanceSummary=totalRecorded>0||cycleDone>0;
+
     const PAGE=10, page=s.historyPage||1;
     const pagedHistory=myHistory.slice(0,page*PAGE);
     const historyHasMore=myHistory.length>page*PAGE;
     const historyRemaining=myHistory.length-pagedHistory.length;
-    return {myHistory:pagedHistory,historyHasMore,historyRemaining,showMoreHistory:this.showMoreHistory,statMyPresent,statMyMc,statMyMissed,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:pagedHistory.length===0};
+    return {myHistory:pagedHistory,historyHasMore,historyRemaining,showMoreHistory:this.showMoreHistory,statMyPresent,statMyMc,statMyMissed,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:pagedHistory.length===0,totalRecorded,attendanceRate,attendanceRateText,attendanceStreak,showAttendanceSummary};
   }
 
   _buildBriefings(s, accent){
@@ -1597,7 +1632,8 @@ class AppComponent extends DCLogic {
     const rosterSortStatusStyle=sortKey==='status'?_sa:_si;
     const present=roster.filter(r=>r.label==='Present').length, mc=roster.filter(r=>r.label==='On MC').length, pending=roster.filter(r=>r.label==='Pending').length, absent=roster.filter(r=>r.label==='Absent').length, total=roster.length;
     const snapshotLastLine=viewIsToday?('⏳ Pending ('+pending+'): '+(roster.filter(r=>r.label==='Pending').map(r=>r.name).join(', ')||'(none)')):('❌ Absent ('+absent+'): '+(roster.filter(r=>r.label==='Absent').map(r=>r.name).join(', ')||'(none)'));
-    const snapshotLines=['📋 *'+Utils.fmtMed(viewDate)+' Attendance*','✅ Present ('+present+'): '+(roster.filter(r=>r.label==='Present').map(r=>r.name).join(', ')||'(none)'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.label==='On MC').map(r=>r.name).join(', ')||'(none)'),snapshotLastLine];
+    const _orgN=this.props.orgName||'Ops Security';
+    const snapshotLines=['📋 *'+_orgN+' — '+Utils.fmtMed(viewDate)+'*','✅ Present ('+present+'): '+(roster.filter(r=>r.label==='Present').map(r=>r.name).join(', ')||'(none)'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.label==='On MC').map(r=>r.name).join(', ')||'(none)'),snapshotLastLine];
     const snapshotLink='https://api.whatsapp.com/send?text='+encodeURIComponent(snapshotLines.join('\n'));
     const pendingCount=roster.filter(r=>r.label==='Pending').length;
     const shiftCutoff={AM:'08:30',PM:'15:30',OFFICE:'09:00'};
@@ -1621,6 +1657,11 @@ class AppComponent extends DCLogic {
         avatarStyle,
       };
     });
+    const lateRows=viewIsToday?logRows.filter(r=>r.isLate):[];
+    const lateCount=lateRows.length;
+    const lateNames=lateRows.map(r=>r.name).join(', ');
+    const showLateAlert=viewIsToday&&lateCount>0;
+    const lateAlertLabel=lateCount===1?'1 late check-in':lateCount+' late check-ins';
     const logDateLabel=viewIsToday?'TODAY\'S LOG':((WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()]).toUpperCase()+' LOG');
     const dlabel=WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()];
     const rel=viewOffset===0?'Today':viewOffset===-1?'Yesterday':viewOffset===1?'Tomorrow':'';
@@ -1662,6 +1703,7 @@ class AppComponent extends DCLogic {
       noSearchResults:!!search&&sortedFiltered.length===0,
       filteredCount:search?sortedFiltered.length:0, showFilteredCount:!!search&&sortedFiltered.length>0,
       statPresent:present, statMc:mc, statPending:pending, statTotal:total,
+      lateCount, lateNames, showLateAlert, lateAlertLabel,
       noRepMsg, toggleNoReporting:this.toggleNoReporting,
       showRepToggle, repToggleLocked,
       noRepTrackBg:repToggleOn?accent:'#39435a',
@@ -1748,6 +1790,8 @@ class AppComponent extends DCLogic {
       accent, orgName, hqName,
       showToast:!!s.toast, toastMsg:s.toast?.msg||'', toastBg:s.toast?.type==='error'?'#c0392b':'#1f8a5b',
       dismissToast:this.dismissToast,
+      sessionExpiring:s.sessionExpiring, refreshSessionNow:this.refreshSessionNow,
+      showA2hs:s.showA2hs, a2hsIsIos:s.a2hsIsIos, dismissA2hs:this.dismissA2hs,
       ...this._buildAuth(s, accent),
       ...this._buildNav(s, accent, orgName),
       ...this._buildCheckin(s, accent, hqName),
