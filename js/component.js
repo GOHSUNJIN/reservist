@@ -31,7 +31,7 @@ class AppComponent extends DCLogic {
     acctPwError: '', acctPwSuccess: '',
     acctNameError: '', acctNameSuccess: '',
     acctSaving: false,
-    locPhase: null,
+    locPhase: null, locSlow: false, locAccuracy: null,
     addPersonSuccess: '', addPersonError: '',
     batchLoading: false, batchCreating: false,
     editingNoteId: null, editingNoteText: '',
@@ -108,12 +108,19 @@ class AppComponent extends DCLogic {
     // returns a URL regardless of whether the file is there)
     const cachedAvatar = localStorage.getItem('avatar_'+me.id);
     if(cachedAvatar && cachedAvatar !== 'REMOVED'){
+      // Show cached immediately, then validate it still exists in Supabase
       this.setState(s=>({avatars:{...s.avatars,[me.id]:cachedAvatar}}));
+      DB.storage.listAvatarIds().then(ids=>{
+        if(!ids.has(me.id)){
+          localStorage.removeItem('avatar_'+me.id);
+          this.setState(s=>{const av={...s.avatars};delete av[me.id];return{avatars:av};});
+        }
+      }).catch(()=>{});
     } else if(!cachedAvatar){
       DB.storage.listAvatarIds().then(ids=>{
         if(ids.has(me.id)){
           const url=DB.storage.getAvatarUrl(me.id);
-          if(url) this.setState(s=>({avatars:{...s.avatars,[me.id]:url}}));
+          if(url){ this.setState(s=>({avatars:{...s.avatars,[me.id]:url}})); localStorage.setItem('avatar_'+me.id,url); }
         }
       }).catch(()=>{});
     }
@@ -282,7 +289,7 @@ class AppComponent extends DCLogic {
     this.setState({
       authed:false, role:null, authMode:'login', demo:false,
       currentUserId:null, me:null, loginContact:'', loginPassword:'',
-      mcMode:false, locStatus:'idle', locDistance:null, locGpsMsg:'',
+      mcMode:false, locStatus:'idle', locDistance:null, locGpsMsg:'', locSlow:false, locAccuracy:null,
       accountOpen:false, confirmDelete:false,
       personnel:[], attendance:{}, history:[], attendanceCache:{}, batchMembersCache:{},
       testDate:null, testDateInput:'', testTime:null, testTimeInput:'', phaseSubmitting:false,
@@ -342,20 +349,28 @@ class AppComponent extends DCLogic {
   // ── Check-in ──────────────────────────────────────────────────────────────
   verifyLocation = () => {
     if(this.state.locStatus==='locating') return;
-    this.setState({locStatus:'locating'});
+    this.setState({locStatus:'locating', locSlow:false});
+    if(this._locSlowTimer) clearTimeout(this._locSlowTimer);
+    this._locSlowTimer = setTimeout(()=>this.setState({locSlow:true}), 8000);
     if(!navigator.geolocation){
-      setTimeout(()=>this.setState({locStatus:'verified',locDistance:Math.round(18+Math.random()*72)}),1200);
+      setTimeout(()=>{
+        clearTimeout(this._locSlowTimer);
+        this.setState({locStatus:'verified',locDistance:Math.round(18+Math.random()*72),locSlow:false});
+      },1200);
       return;
     }
     navigator.geolocation.getCurrentPosition(
       pos=>{
+        clearTimeout(this._locSlowTimer);
         const dist=this._haversine(pos.coords.latitude, pos.coords.longitude, this._hqLat(), this._hqLon());
         const rounded=Math.round(dist);
-        this.setState({locDistance:rounded, locStatus:rounded<=this._maxDist()?'verified':'out_of_range'});
+        const accuracy=pos.coords.accuracy!=null?Math.round(pos.coords.accuracy):null;
+        this.setState({locDistance:rounded, locAccuracy:accuracy, locSlow:false, locStatus:rounded<=this._maxDist()?'verified':'out_of_range'});
       },
       err=>{
+        clearTimeout(this._locSlowTimer);
         const msg=err.code===1?'Location permission denied. Enable it in your browser/phone settings.':err.code===2?'GPS signal unavailable. Try stepping outside or disabling Airplane mode.':'GPS timed out. Make sure location is on and try again.';
-        this.setState({locStatus:'gps_error', locDistance:null, locGpsMsg:msg});
+        this.setState({locStatus:'gps_error', locDistance:null, locGpsMsg:msg, locSlow:false});
       },
       {enableHighAccuracy:true, timeout:15000, maximumAge:0}
     );
@@ -374,7 +389,7 @@ class AppComponent extends DCLogic {
 
   startPhaseGps = phase => () => {
     if(this.state.locStatus==='locating') return;
-    this.setState({locPhase:phase, locStatus:'idle', locDistance:null, locGpsMsg:''});
+    this.setState({locPhase:phase, locStatus:'idle', locDistance:null, locGpsMsg:'', locAccuracy:null, locSlow:false});
     this.verifyLocation();
   };
 
@@ -838,6 +853,8 @@ class AppComponent extends DCLogic {
   };
 
   onRosterSearch = e => this.setState({rosterSearch:e.target.value});
+  clearRosterSearch = () => this.setState({rosterSearch:''});
+  retrySync = () => { if(this.state.isOnline) this._onOnline(); };
   markAllPresent = async () => {
     if(this.state.markAllPresenting) return;
     this.setState({markAllPresenting:true});
@@ -1184,10 +1201,11 @@ class AppComponent extends DCLogic {
     const locOutOfRange=s.locStatus==='out_of_range', locGpsError=s.locStatus==='gps_error';
     const locIdle=!s.locStatus||s.locStatus==='idle';
     let gLocBorder,gLocCardBg,gLocBadgeBg,gLocBadgeColor,gLocMsg,gLocMsgColor;
-    if(locVerified){gLocBorder='#cfe6d8';gLocCardBg='#f5faf7';gLocBadgeBg='#e7f3ec';gLocBadgeColor='#1f8a5b';gLocMsg=s.locDistance+' m from '+hqName+', on-site';gLocMsgColor='#1f8a5b';}
-    else if(locOutOfRange){gLocBorder='#f1d3cf';gLocCardBg='#fbeeec';gLocBadgeBg='#f7e4e1';gLocBadgeColor='#c0392b';gLocMsg=s.locDistance+' m away, not on-site';gLocMsgColor='#c0392b';}
+    const accStr=s.locAccuracy!=null?' · ±'+s.locAccuracy+'m GPS':'';
+    if(locVerified){gLocBorder='#cfe6d8';gLocCardBg='#f5faf7';gLocBadgeBg='#e7f3ec';gLocBadgeColor='#1f8a5b';gLocMsg=s.locDistance+' m from '+hqName+', on-site'+accStr;gLocMsgColor='#1f8a5b';}
+    else if(locOutOfRange){gLocBorder='#f1d3cf';gLocCardBg='#fbeeec';gLocBadgeBg='#f7e4e1';gLocBadgeColor='#c0392b';gLocMsg=s.locDistance+' m away, not on-site'+accStr;gLocMsgColor='#c0392b';}
     else if(locGpsError){gLocBorder='#f0e2c2';gLocCardBg='#fdf6e9';gLocBadgeBg='#f7efdc';gLocBadgeColor='#b9791a';gLocMsg=s.locGpsMsg||'Location unavailable. Check permissions and try again.';gLocMsgColor='#b9791a';}
-    else if(locLocating){gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor=accent;gLocMsg='Locating you via GPS...';gLocMsgColor='#8a94a3';}
+    else if(locLocating){gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor=accent;gLocMsg=s.locSlow?'Taking longer than usual — check your GPS signal':'Locating you via GPS...';gLocMsgColor='#8a94a3';}
     else{gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor='#8a94a3';gLocMsg='Tap "Locate me" to verify your location.';gLocMsgColor='#8a94a3';}
 
     const shift=me.shift||'AM';
@@ -1287,7 +1305,7 @@ class AppComponent extends DCLogic {
       batchLabel, dekitCountdown, batchRange, showBatchInfo:!!activeBatch,
       whatsappLink, showWaShare,
       isOffline:!s.isOnline, offlinePending:s.offlinePending, offlineQueueCount:this._offlineQueues?.length||0,
-      refreshPage:this.refreshPage,
+      retrySync:this.retrySync, refreshPage:this.refreshPage,
       mcSubmitting:s.mcSubmitting,
       hasTestDate:!!s.testDate, testDate:s.testDate||'',
       testDateInput:s.testDateInput, onTestDateInput:this.onTestDateInput,
@@ -1507,7 +1525,10 @@ class AppComponent extends DCLogic {
       const cardStyle='background:#fff;border:1px solid #e3e6ec;border-left:3px solid '+mm.color+';border-radius:12px;padding:11px 13px;';
       const av=s.avatars[p.id]||'';
       const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent'),onShiftChange:this.changeShift(p.id),cardStyle,avatarStyle};
+      const _phaseParts=[r.p1?'IN '+r.p1:null,r.p2?((p.shift==='PM'?'DIN ':'LCH ')+r.p2):null,r.p3?'BACK '+r.p3:null,r.p4?'OUT '+r.p4:null].filter(Boolean);
+      const phaseLine=_phaseParts.join('  ·  ');
+      const showPhaseLine=r.status==='present'&&_phaseParts.length>0;
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent'),onShiftChange:this.changeShift(p.id),cardStyle,avatarStyle,phaseLine,showPhaseLine};
     });
     const search=(s.rosterSearch||'').toLowerCase();
     const filteredRoster=roster.filter(r=>!search||r.name.toLowerCase().includes(search));
@@ -1583,7 +1604,8 @@ class AppComponent extends DCLogic {
       showArchivedBatches:s.showArchivedBatches,
       toggleArchivedBatches:()=>this.setState(s=>({showArchivedBatches:!s.showArchivedBatches})),
       roster, filteredRoster:sortedFiltered, logRows, logDateLabel,
-      rosterSearch:s.rosterSearch, onRosterSearch:this.onRosterSearch,
+      rosterSearch:s.rosterSearch, onRosterSearch:this.onRosterSearch, hasRosterSearch:!!search, clearRosterSearch:this.clearRosterSearch,
+      retrySync:this.retrySync,
       markAllPresent:this.markAllPresent, pendingCount, markAllPresenting:s.markAllPresenting,
       noSearchResults:!!search&&sortedFiltered.length===0,
       filteredCount:search?sortedFiltered.length:0, showFilteredCount:!!search&&sortedFiltered.length>0,
@@ -1635,6 +1657,12 @@ class AppComponent extends DCLogic {
   _buildAccount(s, accent){
     const me=this.cur(); if(!me) return {};
     const avatarUrl=s.avatars[s.currentUserId]||'';
+    const acctBatch=(s.batches||[]).find(b=>b.is_live)||(s.batches||[]).find(b=>b.id===me.batch_id)||null;
+    const acctDekit=acctBatch?.dekit_date?new Date(acctBatch.dekit_date+'T00:00:00'):null;
+    const acctTodayMid=new Date();acctTodayMid.setHours(0,0,0,0);
+    const acctDkLeft=acctDekit?Math.round((acctDekit-acctTodayMid)/86400000):null;
+    const acctDekitCountdown=acctDkLeft===null?'':acctDkLeft===0?'Return equipment today':acctDkLeft>0?`${acctDkLeft} day${acctDkLeft!==1?'s':''} to dekit`:'Cycle complete';
+    const acctShowDekit=s.role==='reservist'&&!!acctDekitCountdown;
     return {
       accountOpen:s.accountOpen,
       closeAccount:this.closeAccount, askDelete:this.askDelete, cancelDelete:this.cancelDelete, deleteAccount:this.deleteAccount,
@@ -1654,6 +1682,7 @@ class AppComponent extends DCLogic {
       saveAcctPw:this.saveAcctPw,
       acctPwError:s.acctPwError, acctPwSuccess:s.acctPwSuccess,
       acctSaving:s.acctSaving,
+      acctDekitCountdown, acctShowDekit,
     };
   }
 
