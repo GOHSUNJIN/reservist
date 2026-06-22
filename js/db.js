@@ -39,6 +39,11 @@ const DB = {
       return data?.session?.user || null;
     },
 
+    async refreshSession() {
+      const { data, error } = await _db.auth.refreshSession();
+      return { session: data?.session || null, error };
+    },
+
     async createUserAsAdmin(contact, password, name) {
       const { data: sd } = await _db.auth.getSession();
       const session = sd?.session;
