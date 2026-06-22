@@ -1199,7 +1199,7 @@ class AppComponent extends DCLogic {
       const inWin=testMode||Utils.phaseInWindow(shift,pd.key,now);
       const pastWin=!testMode&&Utils.phaseWindowPast(shift,pd.key,now);
       const upcoming=!done&&!locked&&!inWin&&!pastWin;
-      const lateActive=!done&&!locked&&pastWin;
+      const lateActive=pd.key!=='p4'&&!done&&!locked&&pastWin;
       const missed=false;
       const isActive=!done&&!locked&&(inWin||pastWin);
       const myGpsActive=isActive&&pd.needsGps&&s.locPhase===pd.key;
