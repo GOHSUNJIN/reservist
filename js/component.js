@@ -374,10 +374,11 @@ class AppComponent extends DCLogic {
   };
 
   doPhase = key => async () => {
-    const {locStatus,locDistance,locPhase,currentUserId,demo,isOnline} = this.state;
+    const {locStatus,locDistance,locPhase,currentUserId,demo,isOnline,testTime} = this.state;
     const needsGps = true;
     if(needsGps && (locStatus!=='verified'||locPhase!==key)) return;
-    const time = Utils.hhmm(new Date());
+    const _now = testTime ? (()=>{const d=new Date();const[h,m]=testTime.split(':').map(Number);d.setHours(h,m,0,0);return d;})() : new Date();
+    const time = Utils.hhmm(_now);
     const dist = needsGps ? locDistance : null;
     const today = Utils.dateKey(this.baseDate());
     const rec = {...this.myRec()};
