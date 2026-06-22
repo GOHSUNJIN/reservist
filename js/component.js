@@ -1101,8 +1101,7 @@ class AppComponent extends DCLogic {
     const me=this.cur();
     const TITLES={checkin:'Check-In',briefings:'Briefings',attendance:'Attendance',meal:'Meal Allowance',overview:'Dashboard',roster:'Roster',log:'Attendance Log',people:'Personnel'};
     const nc=t=>s.tab===t?accent:'#9aa3b2';
-    const nb=t=>s.tab===t?'#f0f4ff':'transparent';
-    const nbc=t=>s.tab===t?accent:'transparent';
+    const nb=t=>s.tab===t?'#e8edfc':'transparent';
     return {
       isReservist:s.role==='reservist', isAdmin:s.role==='admin',
       headerChipClick:this.headerChipClick, logout:this.logout,
@@ -1119,8 +1118,6 @@ class AppComponent extends DCLogic {
       cOverview:nc('overview'), cRoster:nc('roster'), cLog:nc('log'), cPeople:nc('people'),
       bgCheckin:nb('checkin'), bgBriefings:nb('briefings'), bgAttendance:nb('attendance'), bgMeal:nb('meal'),
       bgOverview:nb('overview'), bgRoster:nb('roster'), bgLog:nb('log'), bgPeople:nb('people'),
-      bcCheckin:nbc('checkin'), bcBriefings:nbc('briefings'), bcAttendance:nbc('attendance'), bcMeal:nbc('meal'),
-      bcOverview:nbc('overview'), bcRoster:nbc('roster'), bcLog:nbc('log'), bcPeople:nbc('people'),
       tabCheckin:s.tab==='checkin', tabBriefings:s.tab==='briefings', tabAttendance:s.tab==='attendance', tabMeal:s.tab==='meal',
       tabOverview:s.tab==='overview', tabRoster:s.tab==='roster', tabLog:s.tab==='log', tabPeople:s.tab==='people',
     };
