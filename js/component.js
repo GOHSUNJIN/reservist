@@ -364,10 +364,10 @@ class AppComponent extends DCLogic {
     const isIOS=/iP(hone|od|ad)/.test(ua), isAndroid=/Android/.test(ua);
     // Permission denied — two-layer instructions (OS + browser site)
     const _permMsg=isIOS
-      ?'Location is blocked for this site. Check both:\n\n1. iPhone Settings → Privacy & Security → Location Services → find your browser → set to "While Using App"\n\n2. In Safari: tap the "aA" icon in the address bar → Website Settings → Location → Allow\n\nThen tap Reload below.'
+      ?'Location is blocked for this site.\n\n⚠️ Using Private Browsing? Safari blocks location in private tabs — open this site in a normal tab instead.\n\nOtherwise check both:\n1. iPhone Settings → Privacy & Security → Location Services → find your browser → "While Using App"\n2. In Safari: tap "aA" in the address bar → Website Settings → Location → Allow\n\nThen tap Reload below.'
       :isAndroid
-      ?'Location is blocked for this site. Try in order:\n\n1. Tap the 🔒 icon in your browser address bar → Permissions → Location → Allow\n\n2. If no lock icon, go to your browser Settings → Site Settings → Location → find this site → Allow\n\n3. Phone Settings → Apps → [your browser] → Permissions → Location → Allow\n\nThen tap Reload below.'
-      :'Location blocked. Click the lock icon in your browser\'s address bar, allow Location for this site, then tap Reload below.';
+      ?'Location is blocked for this site.\n\n⚠️ Using Incognito mode? Location is often blocked in private tabs — open this site in a normal tab instead.\n\nOtherwise try in order:\n1. Tap the 🔒 icon in your browser address bar → Permissions → Location → Allow\n2. Browser Settings → Site Settings → Location → find this site → Allow\n3. Phone Settings → Apps → [your browser] → Permissions → Location → Allow\n\nThen tap Reload below.'
+      :'Location blocked.\n\n⚠️ Using a private/incognito tab? Location is often blocked there — open this site in a normal browser tab instead.\n\nOtherwise allow Location via the lock icon in your address bar, then tap Reload below.';
     // GPS unavailable (code 2) — hardware couldn't get a fix
     const _unavailMsg=retries>=2
       ?'GPS still unavailable after several tries.\n\nAdditional steps:\n• Turn Location Services off and back on in phone Settings\n• Restart your phone\n• Contact your supervisor if the issue persists'
