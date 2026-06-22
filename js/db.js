@@ -162,12 +162,22 @@ const DB = {
       return data || [];
     },
 
+    async _findRow(personnelId, dateStr) {
+      const { data } = await _db.from('attendance')
+        .select('id').eq('personnel_id', personnelId).eq('date', dateStr).limit(1);
+      return data?.[0]?.id || null;
+    },
+
     async upsert(personnelId, dateStr, status, extras = {}) {
-      const row = { personnel_id: personnelId, date: dateStr, status };
-      if (extras.time && extras.time !== '-') row.check_in_time = extras.time + ':00';
-      if (extras.dist != null) row.gps_distance_m = extras.dist;
-      const { data, error } = await _db.from('attendance')
-        .upsert(row, { onConflict: 'personnel_id,date' }).select().maybeSingle();
+      const payload = { status };
+      if (extras.time && extras.time !== '-') payload.check_in_time = extras.time + ':00';
+      if (extras.dist != null) payload.gps_distance_m = extras.dist;
+      const existingId = await this._findRow(personnelId, dateStr);
+      if (existingId) {
+        const { data, error } = await _db.from('attendance').update(payload).eq('id', existingId).select().maybeSingle();
+        return { data, error };
+      }
+      const { data, error } = await _db.from('attendance').insert({ personnel_id: personnelId, date: dateStr, ...payload }).select().maybeSingle();
       return { data, error };
     },
 
@@ -176,11 +186,16 @@ const DB = {
     },
 
     async logPhase(personnelId, dateStr, key, timeStr, dist) {
-      const colMap={p1:'check_in_time',p2:'lunch_out_time',p3:'work_return_time',p4:'work_end_time'};
-      const distMap={p1:'gps_distance_m',p3:'work_return_dist'};
-      const row={personnel_id:personnelId,date:dateStr,status:'present',[colMap[key]]:timeStr+':00'};
-      if(distMap[key]&&dist!=null) row[distMap[key]]=dist;
-      const { error } = await _db.from('attendance').upsert(row,{onConflict:'personnel_id,date'});
+      const colMap = {p1:'check_in_time', p2:'lunch_out_time', p3:'work_return_time', p4:'work_end_time'};
+      const distMap = {p1:'gps_distance_m', p3:'work_return_dist'};
+      const payload = { status: 'present', [colMap[key]]: timeStr + ':00' };
+      if (distMap[key] && dist != null) payload[distMap[key]] = dist;
+      const existingId = await this._findRow(personnelId, dateStr);
+      if (existingId) {
+        const { error } = await _db.from('attendance').update(payload).eq('id', existingId);
+        return { error };
+      }
+      const { error } = await _db.from('attendance').insert({ personnel_id: personnelId, date: dateStr, ...payload });
       return { error };
     },
 
