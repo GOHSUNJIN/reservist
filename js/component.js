@@ -181,6 +181,13 @@ class AppComponent extends DCLogic {
     if(role==='admin'){ this._subscribeRealtime(today); setTimeout(()=>this.loadRosterAvatars(),0); setTimeout(()=>this.loadPendingLeaves(),0); }
     if(role==='reservist'){
       DB.leaves.myPending(me.id).then(req=>this.setState({myPendingRequest:req})).catch(()=>{});
+      this._myAttendanceChannel = DB.realtime.subscribeMyAttendance(me.id, (row) => {
+        const todayKey = Utils.dateKey(this.baseDate());
+        if(row.date === todayKey){
+          const entry = DB.attendance._toEntry(row);
+          this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:entry}}));
+        }
+      });
       this._myLeaveChannel = DB.realtime.subscribeLeaveStatus(me.id, async (row) => {
         if(row.status !== 'pending'){
           this.setState({myPendingRequest:null});
@@ -844,6 +851,7 @@ class AppComponent extends DCLogic {
   _unsubscribeRealtime(){
     DB.realtime.unsubscribe(this.state.realtimeChannel);
     if(this._myLeaveChannel){ DB.realtime.unsubscribe(this._myLeaveChannel); this._myLeaveChannel = null; }
+    if(this._myAttendanceChannel){ DB.realtime.unsubscribe(this._myAttendanceChannel); this._myAttendanceChannel = null; }
     // setState({realtimeChannel:null}) intentionally skipped here as it may run post-unmount
   }
 
