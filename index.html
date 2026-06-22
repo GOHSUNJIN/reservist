@@ -333,6 +333,12 @@
                         <sc-if value="{{ ph.locShowReload }}" hint-placeholder-val="">
                           <button onClick="{{ refreshPage }}" style="margin-top:12px;width:100%;padding:9px;background:{{ accent }};border:none;border-radius:9px;font-size:13px;font-weight:700;color:#fff;cursor:pointer;">Reload page</button>
                         </sc-if>
+                        <sc-if value="{{ ph.locIsOutOfRange }}" hint-placeholder-val="">
+                          <a href="{{ ph.geofenceWaLink }}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:7px;margin-top:10px;padding:9px 14px;background:#25d366;color:#fff;border-radius:9px;font-size:13px;font-weight:600;text-decoration:none;">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                            Message supervisor for help
+                          </a>
+                        </sc-if>
                       </div>
                       </sc-if>
                       <div style="display:flex;gap:8px;margin-top:10px;">
@@ -373,7 +379,8 @@
                 <div style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:#f7efdc;color:#b9791a;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>Late — shift started {{ lateShiftStart }}</div>
               </sc-if>
 
-              <div style="border-top:1px solid #f0f2f6;margin-top:16px;padding-top:14px;display:flex;gap:8px;">
+              <div style="border-top:1px solid #f0f2f6;margin-top:16px;padding-top:14px;">
+              <div style="display:flex;gap:8px;margin-bottom:8px;">
                 <button onClick="{{ openMc }}" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;background:#b9791a;border:none;border-radius:10px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;">
                   <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.27a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
                   On MC today
@@ -384,6 +391,11 @@
                   Share status
                 </a>
                 </sc-if>
+              </div>
+              <button onClick="{{ openLeaveRequest }}" style="width:100%;display:flex;align-items:center;justify-content:center;gap:6px;padding:9px 12px;background:#f6f8fa;border:1px solid #d4d9e2;border-radius:10px;font-size:12.5px;font-weight:600;color:#5c6678;cursor:pointer;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                Request absence
+              </button>
               </div>
             </div>
             </sc-if>
@@ -471,6 +483,10 @@
             <sc-if value="{{ myShiftNote }}" hint-placeholder-val="">
             <div style="margin-top:10px;background:rgba(255,255,255,.13);border-radius:8px;padding:9px 12px;font-size:12px;color:rgba(255,255,255,.88);line-height:1.5;text-wrap:pretty;">{{ myShiftNote }}</div>
             </sc-if>
+            <button onClick="{{ openShiftChange }}" style="margin-top:12px;width:100%;padding:9px 12px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:9px;font-size:12.5px;font-weight:600;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
+              Request shift change
+            </button>
           </div>
 
           <!-- Reporting + Attire -->
@@ -528,6 +544,23 @@
               </div>
               </sc-for>
             </div>
+          </div>
+
+          <!-- Reminders card -->
+          <div class="card" style="padding:13px 15px;display:flex;align-items:center;gap:13px;">
+            <div style="width:38px;height:38px;border-radius:10px;background:#eef3fc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ accent }}" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13.5px;font-weight:600;color:#161f30;">Check-in reminders</div>
+              <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;">Get a notification before your shift starts.</div>
+            </div>
+            <sc-if value="{{ notifGranted }}" hint-placeholder-val="">
+              <span style="font-size:11.5px;font-weight:600;color:#1f8a5b;background:#e7f3ec;padding:4px 10px;border-radius:20px;white-space:nowrap;">On</span>
+            </sc-if>
+            <sc-if value="{{ !notifGranted }}" hint-placeholder-val="{{ true }}">
+              <button onClick="{{ requestReminders }}" style="padding:7px 13px;background:{{ accent }};border:none;border-radius:9px;font-size:12.5px;font-weight:600;color:#fff;cursor:pointer;white-space:nowrap;">Enable</button>
+            </sc-if>
           </div>
 
         </div>
@@ -926,6 +959,35 @@
         <!-- ===== ADMIN: PEOPLE ===== -->
         <sc-if value="{{ tabPeople }}" hint-placeholder-val="">
         <div>
+          <!-- Pending leave/shift-change requests -->
+          <sc-if value="{{ hasPendingLeaves }}" hint-placeholder-val="">
+          <div class="card-flush" style="margin-bottom:14px;">
+            <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
+              <span style="font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">PENDING REQUESTS</span>
+              <span style="background:#c0392b;color:#fff;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:20px;">{{ pendingLeavesCount }}</span>
+            </div>
+            <sc-for list="{{ pendingLeaves }}" as="lr" hint-placeholder-count="2">
+            <div style="padding:12px 16px;border-bottom:1px solid #f2f4f7;">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">
+                <div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ lr.personName }}</div>
+                <span style="font-size:11px;font-weight:600;background:#fdf6e9;color:#b9791a;border:1px solid #f0e2c2;padding:3px 8px;border-radius:20px;white-space:nowrap;">{{ lr.typeLabel }}</span>
+              </div>
+              <div style="font-size:12px;color:#8a94a3;margin-bottom:4px;">{{ lr.personShift }} · {{ lr.dateLabel }}</div>
+              <sc-if value="{{ lr.showRequestedShift }}" hint-placeholder-val="">
+                <div style="font-size:12px;color:#5c6678;margin-bottom:4px;">Requesting: <strong>{{ lr.requestedShiftLabel }}</strong></div>
+              </sc-if>
+              <sc-if value="{{ lr.reason }}" hint-placeholder-val="">
+                <div style="font-size:12px;color:#5c6678;font-style:italic;margin-bottom:6px;">"{{ lr.reason }}"</div>
+              </sc-if>
+              <div style="display:flex;gap:7px;margin-top:6px;">
+                <button onClick="{{ lr.onApprove }}" style="flex:1;padding:7px;background:#f1f8f4;border:1px solid #cfe6d8;border-radius:8px;font-size:12.5px;font-weight:600;color:#1f8a5b;cursor:pointer;">Approve</button>
+                <button onClick="{{ lr.onReject }}" style="flex:1;padding:7px;background:#fbeeec;border:1px solid #f1d3cf;border-radius:8px;font-size:12.5px;font-weight:600;color:#c0392b;cursor:pointer;">Decline</button>
+              </div>
+            </div>
+            </sc-for>
+          </div>
+          </sc-if>
+
           <div style="background:#131a27;border-radius:16px;padding:16px 18px;color:#fff;margin-bottom:14px;">
             <div style="font-size:11px;color:#7d899b;letter-spacing:.08em;margin-bottom:4px;">CURRENT INTAKE</div>
             <div style="font-size:15px;font-weight:600;">{{ intakeLabel }}</div>
@@ -1136,6 +1198,70 @@
         <textarea onInput="{{ onLateReasonText }}" value="{{ lateReasonText }}" placeholder="e.g. Traffic jam on CTE, arrived at 09:45" style="width:100%;height:90px;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>
         <button onClick="{{ submitLateReason }}" style="width:100%;margin-top:12px;padding:13px;background:#2f5fd0;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;">Submit reason</button>
         <button onClick="{{ skipLateReason }}" style="width:100%;margin-top:8px;padding:11px;background:none;border:none;font-size:13px;font-weight:600;color:#8a94a3;cursor:pointer;">Skip for now</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ===== LEAVE REQUEST MODAL ===== -->
+    <sc-if value="{{ leaveOpen }}" hint-placeholder-val="">
+    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
+      <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 36px;box-shadow:0 -8px 32px rgba(20,30,50,.18);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div style="font-size:17px;font-weight:700;color:#161f30;">Request absence</div>
+          <button onClick="{{ closeLeaveRequest }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        </div>
+        <p style="font-size:13px;color:#5c6678;margin:0 0 16px;line-height:1.5;">Submit an absence request for review by the admin. It does not automatically mark you absent.</p>
+        <div style="margin-bottom:12px;">
+          <div style="font-size:11.5px;font-weight:600;color:#8a94a3;letter-spacing:.06em;margin-bottom:6px;">DATE</div>
+          <input type="date" value="{{ leaveDate }}" onInput="{{ onLeaveDate }}" class="field" />
+        </div>
+        <div style="margin-bottom:12px;">
+          <div style="font-size:11.5px;font-weight:600;color:#8a94a3;letter-spacing:.06em;margin-bottom:6px;">TYPE</div>
+          <div style="display:flex;gap:7px;">
+            <sc-if value="{{ leaveIsPersonal }}" hint-placeholder-val="{{ true }}"><button onClick="{{ onLeaveTypePersonal }}" style="flex:1;padding:8px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;border:1.5px solid {{ accent }};background:{{ accent }};color:#fff;">Personal</button></sc-if>
+            <sc-if value="{{ !leaveIsPersonal }}" hint-placeholder-val=""><button onClick="{{ onLeaveTypePersonal }}" style="flex:1;padding:8px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;border:1.5px solid #d4d9e2;background:#fff;color:#5c6678;">Personal</button></sc-if>
+            <sc-if value="{{ leaveIsMc }}" hint-placeholder-val=""><button onClick="{{ onLeaveTypeMc }}" style="flex:1;padding:8px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;border:1.5px solid {{ accent }};background:{{ accent }};color:#fff;">MC</button></sc-if>
+            <sc-if value="{{ !leaveIsMc }}" hint-placeholder-val="{{ true }}"><button onClick="{{ onLeaveTypeMc }}" style="flex:1;padding:8px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;border:1.5px solid #d4d9e2;background:#fff;color:#5c6678;">MC</button></sc-if>
+            <sc-if value="{{ leaveIsOther }}" hint-placeholder-val=""><button onClick="{{ onLeaveTypeOther }}" style="flex:1;padding:8px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;border:1.5px solid {{ accent }};background:{{ accent }};color:#fff;">Other</button></sc-if>
+            <sc-if value="{{ !leaveIsOther }}" hint-placeholder-val="{{ true }}"><button onClick="{{ onLeaveTypeOther }}" style="flex:1;padding:8px;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;border:1.5px solid #d4d9e2;background:#fff;color:#5c6678;">Other</button></sc-if>
+          </div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <div style="font-size:11.5px;font-weight:600;color:#8a94a3;letter-spacing:.06em;margin-bottom:6px;">REASON (OPTIONAL)</div>
+          <textarea onInput="{{ onLeaveReason }}" value="{{ leaveReason }}" placeholder="Brief reason..." style="width:100%;height:72px;padding:10px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>
+        </div>
+        <button onClick="{{ submitLeaveRequest }}" style="width:100%;padding:13px;background:{{ accent }};border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;">Submit request</button>
+        <button onClick="{{ closeLeaveRequest }}" style="width:100%;margin-top:8px;padding:11px;background:none;border:none;font-size:13px;font-weight:600;color:#8a94a3;cursor:pointer;">Cancel</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ===== SHIFT CHANGE MODAL ===== -->
+    <sc-if value="{{ shiftChangeOpen }}" hint-placeholder-val="">
+    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
+      <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 36px;box-shadow:0 -8px 32px rgba(20,30,50,.18);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div style="font-size:17px;font-weight:700;color:#161f30;">Request shift change</div>
+          <button onClick="{{ closeShiftChange }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        </div>
+        <p style="font-size:13px;color:#5c6678;margin:0 0 16px;line-height:1.5;">Request to change your assigned shift. The admin will review and approve or decline.</p>
+        <div style="margin-bottom:12px;">
+          <div style="font-size:11.5px;font-weight:600;color:#8a94a3;letter-spacing:.06em;margin-bottom:6px;">REQUESTED SHIFT</div>
+          <div style="display:flex;gap:7px;">
+            <sc-if value="{{ shiftChangeIsAm }}" hint-placeholder-val="{{ true }}"><button onClick="{{ onShiftChangeAm }}" style="flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid {{ accent }};background:{{ accent }};color:#fff;">AM</button></sc-if>
+            <sc-if value="{{ !shiftChangeIsAm }}" hint-placeholder-val=""><button onClick="{{ onShiftChangeAm }}" style="flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid #d4d9e2;background:#fff;color:#5c6678;">AM</button></sc-if>
+            <sc-if value="{{ shiftChangeIsPm }}" hint-placeholder-val=""><button onClick="{{ onShiftChangePm }}" style="flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid {{ accent }};background:{{ accent }};color:#fff;">PM</button></sc-if>
+            <sc-if value="{{ !shiftChangeIsPm }}" hint-placeholder-val="{{ true }}"><button onClick="{{ onShiftChangePm }}" style="flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid #d4d9e2;background:#fff;color:#5c6678;">PM</button></sc-if>
+            <sc-if value="{{ shiftChangeIsOffice }}" hint-placeholder-val=""><button onClick="{{ onShiftChangeOffice }}" style="flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid {{ accent }};background:{{ accent }};color:#fff;">Office</button></sc-if>
+            <sc-if value="{{ !shiftChangeIsOffice }}" hint-placeholder-val="{{ true }}"><button onClick="{{ onShiftChangeOffice }}" style="flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid #d4d9e2;background:#fff;color:#5c6678;">Office</button></sc-if>
+          </div>
+        </div>
+        <div style="margin-bottom:16px;">
+          <div style="font-size:11.5px;font-weight:600;color:#8a94a3;letter-spacing:.06em;margin-bottom:6px;">REASON (OPTIONAL)</div>
+          <textarea onInput="{{ onShiftChangeReason }}" value="{{ shiftChangeReason }}" placeholder="Why do you need this shift change?" style="width:100%;height:72px;padding:10px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>
+        </div>
+        <button onClick="{{ submitShiftChange }}" style="width:100%;padding:13px;background:{{ accent }};border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;">Send request</button>
+        <button onClick="{{ closeShiftChange }}" style="width:100%;margin-top:8px;padding:11px;background:none;border:none;font-size:13px;font-weight:600;color:#8a94a3;cursor:pointer;">Cancel</button>
       </div>
     </div>
     </sc-if>

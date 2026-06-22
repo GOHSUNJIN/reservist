@@ -1,77 +1,208 @@
-# Reservist Operations Portal
+# Ops Reservist
 
-A mobile-first web portal for military reservists to check in, declare MC, and stay accounted for during their cycle. Supervisors get a live dashboard to track attendance, manage the roster, and export records.
+A mobile-first PWA for managing NS reservist attendance. Built with Supabase (auth, Postgres, realtime, storage) and a vanilla JS declarative component system.
+
+---
 
 ## Features
 
-### Reservist
-- **GPS check-in** — Verifies on-site presence within a configurable radius before allowing check-in
-- **MC declaration** — Upload a photo/PDF of the medical certificate with a single tap
-- **Attendance history** — Full cycle history with present / MC / missed breakdown and progress tracker
-- **Calendar view** — Visual cycle calendar showing reporting days, public holidays, weekends, and past attendance status
-- **Offline support** — Check-in queued locally and synced when reconnected
-- **WhatsApp share** — One-tap share of check-in or MC status to the group
+**Reservists**
+- 4-phase GPS check-in (check in, lunch, return, checkout) with geofence verification
+- WhatsApp override button when GPS shows out-of-range
+- MC submission and absence request forms
+- Leave/absence requests submitted to admin for review
+- Shift change requests
+- Daily calendar view with cycle progress
+- Pre-shift notification reminders (browser Notifications API)
+- Attendance history with rate and streak stats
+- Account management (name, password, avatar)
 
-### Admin / Supervisor
-- **Live dashboard** — Real-time roster with GPS-verified check-in times; updates via Supabase Realtime
-- **Date navigation** — Swipe or tap through past and future dates to review or edit attendance
-- **Roster management** — Add/remove personnel, reassign shifts, attach notes
-- **No-reporting toggle** — Mark any weekday as a no-report day (e.g. stand-down); public holidays are auto-locked
-- **Batch management** — Create intake batches with auto-calculated end and dekit dates; auto-advances to the next batch
-- **CSV export** — Full attendance record for the cycle exported as a spreadsheet
-- **MC viewer** — View uploaded MC files directly in the portal
+**Admin / Supervisor**
+- Live attendance roster with realtime updates
+- Mark present / MC / absent per person
+- Time log with late check-in detection and reason display
+- Day navigation (past attendance, future roster)
+- No-reporting day toggle (per date)
+- WhatsApp snapshot share
+- Personnel management (add, remove, notes, shift change)
+- Batch/cycle management with auto-creation
+- CSV attendance export
+- Pending leave and shift change request review (approve / decline)
+- Meal allowance toggle per batch
 
-### General
-- **Role-based access** — Separate views and permissions for Reservist and Admin roles
-- **PWA** — Installable on iOS and Android; service worker caches assets for offline use
-- **Profile management** — Change display name, password, and profile photo; self-service account deletion
-- **Singapore public holidays** — 2026–2027 holidays baked in; auto-applied as no-report days
+---
 
-## Stack
+## Tech Stack
 
-- Vanilla HTML + JavaScript — no build step, no framework
-- [`dc-runtime`](./support.js) — lightweight declarative component system with `{{ }}` interpolation, `sc-if`, and `sc-for`
-- [Supabase](https://supabase.com) — auth, Postgres database, file storage, and Realtime subscriptions
-- IBM Plex Sans / IBM Plex Mono (Google Fonts)
-- Deployed on [Vercel](https://vercel.com)
+| Layer | Technology |
+|---|---|
+| Frontend | Vanilla JS (declarative component runtime via dc-runtime) |
+| Backend | Supabase (PostgreSQL + Auth + Realtime + Storage) |
+| Hosting | Vercel (static) |
+| PWA | Service worker with versioned cache (`ops-v6`) |
 
-## Project structure
+---
 
+## Database Schema
+
+### `personnel`
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid PK | |
+| auth_id | uuid | references auth.users |
+| name | text | |
+| contact | text | phone number |
+| shift | text | AM / PM / OFFICE |
+| role | text | reservist / admin |
+| batch_id | uuid FK | references batches |
+| is_active | boolean | |
+| notes | text | |
+| deactivated_at | timestamptz | |
+
+### `batches`
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid PK | |
+| label | text | e.g. "MAY-JUN 25 #1" |
+| start_date | date | |
+| end_date | date | last reporting day |
+| dekit_date | date | equipment return day |
+| is_live | boolean | only one active at a time |
+| meal_active | boolean | meal allowance toggle |
+
+### `attendance`
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid PK | |
+| personnel_id | uuid FK | |
+| date | date | |
+| status | text | present / mc / absent |
+| check_in_time | time | phase 1 |
+| lunch_out_time | time | phase 2 |
+| work_return_time | time | phase 3 |
+| work_end_time | time | phase 4 |
+| gps_distance_m | integer | phase 1 GPS distance |
+| work_return_dist | integer | phase 3 GPS distance |
+| late_reason | text | |
+
+### `no_report_days`
+| Column | Type |
+|---|---|
+| date | date PK |
+
+### `leave_requests`
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid PK | |
+| personnel_id | uuid FK | |
+| date | date | requested leave date |
+| type | text | personal / mc / shift_change / other |
+| reason | text | |
+| requested_shift | text | for shift_change type |
+| status | text | pending / approved / rejected |
+| created_at | timestamptz | |
+
+### `avatars` (Supabase Storage bucket)
+Files named by `personnel.id`. Public bucket.
+
+---
+
+## Setup
+
+### 1. Supabase project
+
+1. Create a new Supabase project.
+2. Run the table migrations in the Supabase SQL editor.
+3. Enable Row Level Security on all tables with a broad authenticated policy:
+   ```sql
+   CREATE POLICY "authenticated" ON <table>
+     FOR ALL TO authenticated USING (true) WITH CHECK (true);
+   ```
+4. Create a public storage bucket named `avatars`.
+5. For the `leave_requests` table specifically, run:
+   ```sql
+   CREATE TABLE leave_requests (
+     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+     personnel_id UUID REFERENCES personnel(id) ON DELETE CASCADE,
+     date DATE,
+     type TEXT NOT NULL DEFAULT 'personal',
+     reason TEXT,
+     requested_shift TEXT,
+     status TEXT NOT NULL DEFAULT 'pending',
+     created_at TIMESTAMPTZ DEFAULT NOW()
+   );
+   ALTER TABLE leave_requests ENABLE ROW LEVEL SECURITY;
+   CREATE POLICY "authenticated" ON leave_requests
+     FOR ALL TO authenticated USING (true) WITH CHECK (true);
+   ```
+
+### 2. Configure the app
+
+Edit the `<x-dc>` tag near the top of `index.html`:
+
+```html
+<x-dc
+  accent="#2f5fd0"
+  org-name="Your Unit Name"
+  hq-name="Your Location Name"
+  hq-lat="1.332572"
+  hq-lon="103.937189"
+  hq-range="200"
+  wa-group-link="https://chat.whatsapp.com/YOUR_GROUP_LINK"
+>
 ```
-index.html          # Single-page app template (all views)
-support.js          # dc-runtime declarative component engine
-sw.js               # Service worker (network-first for HTML/JS, cache-first for CSS)
-css/styles.css      # Global styles
-js/
-  config.js         # Supabase URL, anon key, and site configuration props
-  utils.js          # Date helpers, shift labels, SG holiday map
-  db.js             # All Supabase queries (auth, personnel, attendance, batches, storage, realtime)
-  component.js      # App logic — state, actions, and render helpers
-manifest.json       # PWA manifest
+
+| Prop | Description |
+|---|---|
+| `accent` | Brand colour (hex) |
+| `org-name` | Unit name shown in the header |
+| `hq-name` | Location name shown in GPS messages |
+| `hq-lat` / `hq-lon` | HQ coordinates for geofencing |
+| `hq-range` | Allowed GPS radius in metres (default 200) |
+| `wa-group-link` | WhatsApp group invite link (optional) |
+
+Also add your Supabase credentials in `index.html` (in the `<script>` block near the bottom):
+
+```html
+<script>
+  const SUPABASE_URL = 'https://xxxx.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJ...';
+</script>
 ```
 
-## Configuration
+### 3. Deploy
 
-All site-specific settings live in `js/config.js`:
+No build step. Deploy the repo root to any static host:
 
-```js
-const SUPABASE_URL  = 'https://your-project.supabase.co';
-const SUPABASE_ANON_KEY = 'your-anon-key';
-// Props passed to the component:
-// hqLat, hqLon   — HQ coordinates for GPS check-in
-// hqRange         — Check-in radius in metres (default 500)
-// hqName          — Display name for the HQ location
-// orgName         — Organisation name shown in the header
-// accent          — Brand colour (hex, default #2f5fd0)
-// waGroupLink     — WhatsApp group invite link (optional)
+```bash
+vercel --prod
 ```
 
-## Quick start
+---
 
-1. Clone the repo and open `index.html` in a browser, or deploy as a static site on Vercel.
-2. Use the **Quick Demo** buttons on the login screen to preview the Reservist or Admin experience without an account.
-3. For a live deployment, fill in `js/config.js` with your Supabase project credentials and HQ coordinates.
+## Development
 
-## Batch cycle
+Serve locally with:
 
-Each intake batch runs **Tuesday → Monday (+13 days)** with a **dekit on Wednesday (+15 days)**. The admin dashboard auto-creates the next three forward batches on login and auto-advances the live batch when the current one ends.
+```bash
+npx serve .
+```
+
+No bundler or Node runtime required.
+
+---
+
+## Auth flow
+
+- Accounts are identified by phone number (stored as a synthetic email: `<contact>@opsreservist.mil`)
+- Admins create reservist accounts via the People tab; personnel records link to auth via `auth_id`
+- Sessions use `sessionStorage` so they expire on tab close
+
+---
+
+## PWA / Offline
+
+- Service worker caches the app shell (`ops-v6`)
+- Network-first for HTML, JS, and Supabase API requests
+- Cache-first for CSS and images
+- Offline attendance writes are queued in memory and retried automatically on reconnect
