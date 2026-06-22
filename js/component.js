@@ -31,7 +31,7 @@ class AppComponent extends DCLogic {
     acctPwError: '', acctPwSuccess: '',
     acctNameError: '', acctNameSuccess: '',
     acctSaving: false,
-    locPhase: null, locSlow: false, locAccuracy: null, locPermErr: false,
+    locPhase: null, locSlow: false, locAccuracy: null, locPermErr: false, locRetryCount: 0,
     addPersonSuccess: '', addPersonError: '',
     batchLoading: false, batchCreating: false,
     editingNoteId: null, editingNoteText: '',
@@ -289,7 +289,7 @@ class AppComponent extends DCLogic {
     this.setState({
       authed:false, role:null, authMode:'login', demo:false,
       currentUserId:null, me:null, loginContact:'', loginPassword:'',
-      mcMode:false, locStatus:'idle', locDistance:null, locGpsMsg:'', locSlow:false, locAccuracy:null, locPermErr:false,
+      mcMode:false, locStatus:'idle', locDistance:null, locGpsMsg:'', locSlow:false, locAccuracy:null, locPermErr:false, locRetryCount:0,
       accountOpen:false, confirmDelete:false,
       personnel:[], attendance:{}, history:[], attendanceCache:{}, batchMembersCache:{},
       testDate:null, testDateInput:'', testTime:null, testTimeInput:'', phaseSubmitting:false,
@@ -349,7 +349,8 @@ class AppComponent extends DCLogic {
   // ── Check-in ──────────────────────────────────────────────────────────────
   verifyLocation = () => {
     if(this.state.locStatus==='locating') return;
-    this.setState({locStatus:'locating', locSlow:false, locPermErr:false});
+    const retries=this.state.locRetryCount||0;
+    this.setState({locStatus:'locating', locSlow:false, locPermErr:false, locRetryCount:retries+1});
     if(this._locSlowTimer) clearTimeout(this._locSlowTimer);
     this._locSlowTimer = setTimeout(()=>this.setState({locSlow:true}), 8000);
     if(!navigator.geolocation){
@@ -361,11 +362,20 @@ class AppComponent extends DCLogic {
     }
     const ua=navigator.userAgent;
     const isIOS=/iP(hone|od|ad)/.test(ua), isAndroid=/Android/.test(ua);
+    // Permission denied — two-layer instructions (OS + browser site)
     const _permMsg=isIOS
-      ?'Location is blocked for this site. Two things to check:\n1. iPhone Settings → Privacy & Security → Location Services → [your browser app] → "While Using App"\n2. In Safari, tap the "aA" icon in the address bar → Website Settings → Location → Allow\nThen tap Reload below.'
+      ?'Location is blocked for this site. Check both:\n\n1. iPhone Settings → Privacy & Security → Location Services → find your browser → set to "While Using App"\n\n2. In Safari: tap the "aA" icon in the address bar → Website Settings → Location → Allow\n\nThen tap Reload below.'
       :isAndroid
-      ?'Location is blocked for this site. Tap the 🔒 icon in your browser address bar → Permissions → Location → Allow. If that option is missing, go to your browser\'s Settings → Site Settings → Location → find this site → Allow.\nThen tap Reload below.'
-      :'Location access denied. Open this site\'s settings in your browser (usually via the lock icon in the address bar) and allow Location. Then tap Reload below.';
+      ?'Location is blocked for this site. Try in order:\n\n1. Tap the 🔒 icon in your browser address bar → Permissions → Location → Allow\n\n2. If no lock icon, go to your browser Settings → Site Settings → Location → find this site → Allow\n\n3. Phone Settings → Apps → [your browser] → Permissions → Location → Allow\n\nThen tap Reload below.'
+      :'Location blocked. Click the lock icon in your browser\'s address bar, allow Location for this site, then tap Reload below.';
+    // GPS unavailable (code 2) — hardware couldn't get a fix
+    const _unavailMsg=retries>=2
+      ?'GPS still unavailable after several tries.\n\nAdditional steps:\n• Turn Location Services off and back on in phone Settings\n• Restart your phone\n• Contact your supervisor if the issue persists'
+      :'GPS signal unavailable.\n\n• Step outside or move near a window\n• Make sure Airplane mode is off\n• Turn Location Services off and back on, then try again';
+    // Timeout (code 3) — got the hardware but fix took too long
+    const _timeoutMsg=retries>=2
+      ?'GPS keeps timing out.\n\n• Move to an open area with clear sky view\n• Turn Location off and back on in Settings\n• Try restarting your phone\n• Contact your supervisor if this continues'
+      :'GPS timed out — took more than 15 seconds.\n\n• Move to an open area or near a window\n• Make sure Location Services is on in Settings\n• Try again in a few seconds';
     navigator.geolocation.getCurrentPosition(
       pos=>{
         clearTimeout(this._locSlowTimer);
@@ -377,7 +387,7 @@ class AppComponent extends DCLogic {
       err=>{
         clearTimeout(this._locSlowTimer);
         const isPerm=err.code===1;
-        const msg=isPerm?_permMsg:err.code===2?'GPS signal unavailable. Try moving to an open area or near a window.':'GPS timed out. Make sure location services are on and try again.';
+        const msg=isPerm?_permMsg:err.code===2?_unavailMsg:_timeoutMsg;
         this.setState({locStatus:'gps_error',locDistance:null,locGpsMsg:msg,locSlow:false,locPermErr:isPerm});
       },
       {enableHighAccuracy:true,timeout:15000,maximumAge:0}
@@ -397,7 +407,8 @@ class AppComponent extends DCLogic {
 
   startPhaseGps = phase => () => {
     if(this.state.locStatus==='locating') return;
-    this.setState({locPhase:phase, locStatus:'idle', locDistance:null, locGpsMsg:'', locAccuracy:null, locSlow:false, locPermErr:false});
+    const switchingPhase=this.state.locPhase!==phase;
+    this.setState({locPhase:phase, locStatus:'idle', locDistance:null, locGpsMsg:'', locAccuracy:null, locSlow:false, locPermErr:false, ...(switchingPhase?{locRetryCount:0}:{})});
     this.verifyLocation();
   };
 
@@ -1210,10 +1221,18 @@ class AppComponent extends DCLogic {
     const locIdle=!s.locStatus||s.locStatus==='idle';
     let gLocBorder,gLocCardBg,gLocBadgeBg,gLocBadgeColor,gLocMsg,gLocMsgColor;
     const accStr=s.locAccuracy!=null?' · ±'+s.locAccuracy+'m GPS':'';
-    if(locVerified){gLocBorder='#cfe6d8';gLocCardBg='#f5faf7';gLocBadgeBg='#e7f3ec';gLocBadgeColor='#1f8a5b';gLocMsg=s.locDistance+' m from '+hqName+', on-site'+accStr;gLocMsgColor='#1f8a5b';}
-    else if(locOutOfRange){gLocBorder='#f1d3cf';gLocCardBg='#fbeeec';gLocBadgeBg='#f7e4e1';gLocBadgeColor='#c0392b';gLocMsg=s.locDistance+' m away, not on-site'+accStr;gLocMsgColor='#c0392b';}
+    const poorAcc=s.locAccuracy!=null&&s.locAccuracy>150;
+    const slowMsg=s.locRetryCount>=2
+      ?'Still locating — GPS signal is very weak. Move outside to an open area, then try again.'
+      :'Taking longer than usual. Try stepping near a window or outside.';
+    if(locVerified){
+      const warnAcc=poorAcc?' (low accuracy — try again outdoors for a better reading)':'';
+      gLocBorder=poorAcc?'#f0e2c2':'#cfe6d8';gLocCardBg=poorAcc?'#fdf6e9':'#f5faf7';gLocBadgeBg=poorAcc?'#f7efdc':'#e7f3ec';gLocBadgeColor=poorAcc?'#b9791a':'#1f8a5b';
+      gLocMsg=s.locDistance+' m from '+hqName+', on-site'+accStr+warnAcc;gLocMsgColor=poorAcc?'#b9791a':'#1f8a5b';
+    }
+    else if(locOutOfRange){gLocBorder='#f1d3cf';gLocCardBg='#fbeeec';gLocBadgeBg='#f7e4e1';gLocBadgeColor='#c0392b';gLocMsg=s.locDistance+' m away — you must be at '+hqName+' to check in'+accStr+(poorAcc?'\n\nNote: GPS accuracy is low (±'+s.locAccuracy+'m). If you are on-site, move outside and try again.':'');gLocMsgColor='#c0392b';}
     else if(locGpsError){gLocBorder='#f0e2c2';gLocCardBg='#fdf6e9';gLocBadgeBg='#f7efdc';gLocBadgeColor='#b9791a';gLocMsg=s.locGpsMsg||'Location unavailable. Check permissions and try again.';gLocMsgColor='#b9791a';}
-    else if(locLocating){gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor=accent;gLocMsg=s.locSlow?'Taking longer than usual — check your GPS signal':'Locating you via GPS...';gLocMsgColor='#8a94a3';}
+    else if(locLocating){gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor=accent;gLocMsg=s.locSlow?slowMsg:'Locating you via GPS...';gLocMsgColor='#8a94a3';}
     else{gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor='#8a94a3';gLocMsg='Tap "Locate me" to verify your location.';gLocMsgColor='#8a94a3';}
 
     const shift=me.shift||'AM';
