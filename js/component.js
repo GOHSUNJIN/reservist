@@ -362,8 +362,14 @@ class AppComponent extends DCLogic {
     }
     const ua=navigator.userAgent;
     const isIOS=/iP(hone|od|ad)/.test(ua), isAndroid=/Android/.test(ua);
-    // Permission denied — two-layer instructions (OS + browser site)
-    const _permMsg=isIOS
+    // Detect in-app browsers (WhatsApp, Telegram, Instagram, etc.) — these block geolocation
+    const isInApp=/WhatsApp|Instagram|FBAN|FBAV|Telegram|Line\/|TelegramBot|MicroMessenger/i.test(ua)
+      ||(isIOS&&!/Safari\//.test(ua)&&/AppleWebKit/.test(ua));
+    const inAppName=/WhatsApp/i.test(ua)?'WhatsApp':/Instagram/i.test(ua)?'Instagram':/FBAN|FBAV/i.test(ua)?'Facebook':/Telegram/i.test(ua)?'Telegram':/Line\//i.test(ua)?'Line':/MicroMessenger/i.test(ua)?'WeChat':'this app';
+    // Permission denied — in-app browser takes priority, then private mode, then settings
+    const _permMsg=isInApp
+      ?`Location is blocked because you opened this link inside ${inAppName}.\n\n${inAppName}'s built-in browser cannot access your GPS.\n\nTo fix: tap the ··· or share icon and choose "Open in Safari" (iPhone) or "Open in Chrome" (Android). Then check in from there.`
+      :isIOS
       ?'Location is blocked for this site.\n\n⚠️ Using Private Browsing? Safari blocks location in private tabs — open this site in a normal tab instead.\n\nOtherwise check both:\n1. iPhone Settings → Privacy & Security → Location Services → find your browser → "While Using App"\n2. In Safari: tap "aA" in the address bar → Website Settings → Location → Allow\n\nThen tap Reload below.'
       :isAndroid
       ?'Location is blocked for this site.\n\n⚠️ Using Incognito mode? Location is often blocked in private tabs — open this site in a normal tab instead.\n\nOtherwise try in order:\n1. Tap the 🔒 icon in your browser address bar → Permissions → Location → Allow\n2. Browser Settings → Site Settings → Location → find this site → Allow\n3. Phone Settings → Apps → [your browser] → Permissions → Location → Allow\n\nThen tap Reload below.'
