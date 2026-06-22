@@ -1532,7 +1532,6 @@ class AppComponent extends DCLogic {
         p2Color:r.p2?'#161f30':'#c2c8d2',
         p3Color:r.p3?'#161f30':'#c2c8d2',
         p4Color:r.p4?'#161f30':'#c2c8d2',
-        lateTag:isLate?' (late)':'',
         avatarStyle,
       };
     });
