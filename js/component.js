@@ -103,14 +103,19 @@ class AppComponent extends DCLogic {
       this.setState({authed:false,loading:false,authError:'Account setup incomplete. Please sign up again.'});
       return;
     }
-    // Load avatar: localStorage is instant; Supabase URL must be probe-loaded
-    // so a deleted file doesn't set a URL in state and hide the initials
+    // Load avatar: localStorage cache is instant; otherwise check bucket listing
+    // to confirm the file actually exists before setting a URL (getPublicUrl always
+    // returns a URL regardless of whether the file is there)
     const cachedAvatar = localStorage.getItem('avatar_'+me.id);
     if(cachedAvatar && cachedAvatar !== 'REMOVED'){
       this.setState(s=>({avatars:{...s.avatars,[me.id]:cachedAvatar}}));
     } else if(!cachedAvatar){
-      const meAvatarUrl = DB.storage.getAvatarUrl(me.id);
-      if(meAvatarUrl){ const img=new Image(); img.onload=()=>this.setState(s=>({avatars:{...s.avatars,[me.id]:meAvatarUrl}})); img.src=meAvatarUrl; }
+      DB.storage.listAvatarIds().then(ids=>{
+        if(ids.has(me.id)){
+          const url=DB.storage.getAvatarUrl(me.id);
+          if(url) this.setState(s=>({avatars:{...s.avatars,[me.id]:url}}));
+        }
+      }).catch(()=>{});
     }
     const role = me.role || 'reservist';
     const today = Utils.dateKey(this.baseDate());
