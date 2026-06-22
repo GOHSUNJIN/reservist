@@ -67,15 +67,19 @@ class AppComponent extends DCLogic {
       this.setState({isOnline:true});
       const pending = this._offlineQueues;
       if(pending.length && !this.state.demo){
+        const failed = [];
         for(const pend of pending){
+          let ok = true;
           if(pend.key){
-            await DB.attendance.logPhase(pend.id, pend.date, pend.key, pend.time, pend.dist).catch(()=>{});
+            await DB.attendance.logPhase(pend.id, pend.date, pend.key, pend.time, pend.dist).catch(()=>{ ok=false; });
           } else {
-            await DB.attendance.upsert(pend.id, pend.date, pend.status, pend.extras).catch(()=>{});
+            await DB.attendance.upsert(pend.id, pend.date, pend.status, pend.extras).catch(()=>{ ok=false; });
           }
+          if(!ok) failed.push(pend);
         }
-        this._offlineQueues = [];
-        this.setState({offlinePending:false});
+        this._offlineQueues = failed;
+        if(!failed.length){ this.setState({offlinePending:false}); }
+        else { this._toast('Some check-ins failed to sync. Tap Retry.','error'); }
       }
     };
     this._onOffline = () => this.setState({isOnline:false});
@@ -317,6 +321,8 @@ class AppComponent extends DCLogic {
       noAvatarIds:new Set(), noReportDaysCache:{},
       markAllPresenting:false, mcSubmitting:false, carryingOver:false,
       historyPage:1,
+      sessionExpiring:false, showA2hs:false, forgotPasswordOpen:false,
+      showLateWarning:false, lateReasonOpen:false, lateReasonText:'', lateReasonSubmitting:false,
     });
   };
 
@@ -938,12 +944,14 @@ class AppComponent extends DCLogic {
   onLateReasonText = e => this.setState({lateReasonText:e.target.value});
   skipLateReason = () => this.setState({lateReasonOpen:false,lateReasonText:''});
   submitLateReason = async () => {
-    const {lateReasonText,currentUserId,demo} = this.state;
+    const {lateReasonText,currentUserId,demo,isOnline} = this.state;
     if(!lateReasonText.trim()) return;
     this.setState({lateReasonSubmitting:true});
     if(!demo){
+      if(!isOnline){ this._toast('No connection — reason not saved. Try again when online.','error'); this.setState({lateReasonSubmitting:false}); return; }
       const today=Utils.dateKey(this.baseDate());
-      await DB.attendance.submitLateReason(currentUserId, today, lateReasonText.trim());
+      const {error} = await DB.attendance.submitLateReason(currentUserId, today, lateReasonText.trim());
+      if(error){ this._toast('Failed to save reason. Try again.','error'); this.setState({lateReasonSubmitting:false}); return; }
     }
     this.setState({lateReasonOpen:false,lateReasonText:'',lateReasonSubmitting:false});
     this._toast('Reason submitted.');
