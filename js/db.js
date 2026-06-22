@@ -242,6 +242,34 @@ const DB = {
     },
   },
 
+  // ── Leave requests ────────────────────────────────────────────────────────
+  leaves: {
+    async listForPerson(personnelId) {
+      const { data } = await _db.from('leave_requests').select('*')
+        .eq('personnel_id', personnelId).order('created_at', { ascending: false }).limit(50);
+      return data || [];
+    },
+
+    async listPending() {
+      const { data } = await _db.from('leave_requests')
+        .select('*, personnel(name, shift, contact)')
+        .eq('status', 'pending').order('created_at');
+      return data || [];
+    },
+
+    async request(personnelId, date, type, reason, requestedShift) {
+      const row = { personnel_id: personnelId, date, type, reason: reason || null };
+      if (requestedShift) row.requested_shift = requestedShift;
+      const { data, error } = await _db.from('leave_requests').insert(row).select().maybeSingle();
+      return { data, error };
+    },
+
+    async updateStatus(id, status) {
+      const { data, error } = await _db.from('leave_requests').update({ status }).eq('id', id).select().maybeSingle();
+      return { data, error };
+    },
+  },
+
   // ── Storage (MC files) ────────────────────────────────────────────────────
   storage: {
     async uploadAvatar(userId, file) {

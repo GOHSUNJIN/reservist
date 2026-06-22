@@ -54,6 +54,11 @@ class AppComponent extends DCLogic {
     forgotPasswordOpen: false,
     showLateWarning: false,
     lateReasonOpen: false, lateReasonText: '', lateReasonSubmitting: false,
+    leaveOpen: false, leaveDate: '', leaveType: 'personal', leaveReason: '', leaveSubmitting: false,
+    myLeaves: [], myLeavesLoaded: false,
+    pendingLeaves: [], pendingLeavesLoaded: false,
+    shiftChangeOpen: false, shiftChangeNew: 'AM', shiftChangeReason: '', shiftChangeSending: false,
+    notifGranted: false,
   };
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
@@ -89,6 +94,7 @@ class AppComponent extends DCLogic {
   componentWillUnmount(){
     if(this._toastTimer) clearTimeout(this._toastTimer);
     if(this._sessionWarnTimer) clearTimeout(this._sessionWarnTimer);
+    if(this._reminderTimer) clearTimeout(this._reminderTimer);
     clearInterval(this._t);
     this._unsubscribeRealtime();
     window.removeEventListener('online', this._onOnline);
@@ -175,7 +181,8 @@ class AppComponent extends DCLogic {
       attendance, noReportDays, history,
       authError:'', loading:false, accountDeleted:false, demo:false,
     });
-    if(role==='admin'){ this._subscribeRealtime(today); setTimeout(()=>this.loadRosterAvatars(),0); }
+    if(role==='admin'){ this._subscribeRealtime(today); setTimeout(()=>this.loadRosterAvatars(),0); setTimeout(()=>this.loadPendingLeaves(),0); }
+    if(role==='reservist') setTimeout(()=>this.loadMyLeaves(),0);
     if(!this.state.demo) DB.auth.syncDisplayName(me.name).catch(()=>{});
     // Session expiry warning — show 5 min before typical 1-hour Supabase JWT expiry
     if(this._sessionWarnTimer) clearTimeout(this._sessionWarnTimer);
@@ -323,6 +330,10 @@ class AppComponent extends DCLogic {
       historyPage:1,
       sessionExpiring:false, showA2hs:false, forgotPasswordOpen:false,
       showLateWarning:false, lateReasonOpen:false, lateReasonText:'', lateReasonSubmitting:false,
+      leaveOpen:false, leaveDate:'', leaveType:'personal', leaveReason:'', leaveSubmitting:false,
+      myLeaves:[], myLeavesLoaded:false, pendingLeaves:[], pendingLeavesLoaded:false,
+      shiftChangeOpen:false, shiftChangeNew:'AM', shiftChangeReason:'', shiftChangeSending:false,
+      notifGranted:false,
     });
   };
 
@@ -365,6 +376,92 @@ class AppComponent extends DCLogic {
   onNpContact  = e => this.setState({npContact:e.target.value});
   onNpShift    = e => this.setState({npShift:e.target.value});
   onNpPassword = e => this.setState({npPassword:e.target.value});
+
+  // ── Leave requests ────────────────────────────────────────────────────────
+  openLeaveRequest = dateStr => () => this.setState({leaveOpen:true,leaveDate:dateStr||Utils.dateKey(this.baseDate()),leaveType:'personal',leaveReason:''});
+  closeLeaveRequest = () => this.setState({leaveOpen:false});
+  onLeaveDate = e => this.setState({leaveDate:e.target.value});
+  onLeaveType = v => () => this.setState({leaveType:v});
+  onLeaveReason = e => this.setState({leaveReason:e.target.value});
+  submitLeaveRequest = async () => {
+    const {currentUserId,leaveDate,leaveType,leaveReason,demo,leaveSubmitting}=this.state;
+    if(!leaveDate||leaveSubmitting) return;
+    this.setState({leaveSubmitting:true});
+    if(!demo){
+      const {error}=await DB.leaves.request(currentUserId,leaveDate,leaveType,leaveReason).catch(e=>({error:e}));
+      if(error){ this._toast('Failed to submit request.','error'); this.setState({leaveSubmitting:false}); return; }
+    }
+    this._toast('Absence request submitted.');
+    this.setState({leaveOpen:false,leaveSubmitting:false});
+    if(!demo) this.loadMyLeaves();
+  };
+  loadMyLeaves = async () => {
+    const {currentUserId,demo}=this.state;
+    if(demo||!currentUserId) return;
+    const data=await DB.leaves.listForPerson(currentUserId).catch(()=>[]);
+    this.setState({myLeaves:data,myLeavesLoaded:true});
+  };
+  loadPendingLeaves = async () => {
+    const {demo}=this.state;
+    if(demo) return;
+    const data=await DB.leaves.listPending().catch(()=>[]);
+    this.setState({pendingLeaves:data,pendingLeavesLoaded:true});
+  };
+  approveLeave = id => async () => {
+    if(!this.state.demo) await DB.leaves.updateStatus(id,'approved').catch(()=>{});
+    this._toast('Leave request approved.');
+    this.loadPendingLeaves();
+  };
+  rejectLeave = id => async () => {
+    if(!this.state.demo) await DB.leaves.updateStatus(id,'rejected').catch(()=>{});
+    this._toast('Leave request declined.');
+    this.loadPendingLeaves();
+  };
+
+  // ── Shift change requests ─────────────────────────────────────────────────
+  openShiftChange = () => { const me=this.cur(); this.setState({shiftChangeOpen:true,shiftChangeNew:me?.shift||'AM',shiftChangeReason:''}); };
+  closeShiftChange = () => this.setState({shiftChangeOpen:false});
+  onShiftChangeNew = v => () => this.setState({shiftChangeNew:v});
+  onShiftChangeReason = e => this.setState({shiftChangeReason:e.target.value});
+  submitShiftChange = async () => {
+    const {currentUserId,shiftChangeNew,shiftChangeReason,demo,shiftChangeSending}=this.state;
+    if(shiftChangeSending) return;
+    this.setState({shiftChangeSending:true});
+    if(!demo){
+      const {error}=await DB.leaves.request(currentUserId,Utils.dateKey(this.baseDate()),'shift_change',shiftChangeReason,shiftChangeNew).catch(e=>({error:e}));
+      if(error){ this._toast('Failed to send request.','error'); this.setState({shiftChangeSending:false}); return; }
+    }
+    this._toast('Shift change request sent.');
+    this.setState({shiftChangeOpen:false,shiftChangeSending:false});
+  };
+
+  // ── Reminders ─────────────────────────────────────────────────────────────
+  requestReminders = async () => {
+    if(!('Notification' in window)){ this._toast('Notifications not supported on this browser.','error'); return; }
+    const perm=await Notification.requestPermission();
+    if(perm==='granted'){
+      this.setState({notifGranted:true});
+      this._scheduleReminder();
+      this._toast('Reminders enabled!');
+    } else {
+      this._toast('Notification permission denied.','error');
+    }
+  };
+  _scheduleReminder = () => {
+    const me=this.cur(); if(!me) return;
+    const shift=me.shift||'AM';
+    const times={AM:'08:00',PM:'15:00',OFFICE:'08:45'};
+    const [h,m]=(times[shift]||'08:00').split(':').map(Number);
+    const fire=new Date(); fire.setHours(h,m,0,0);
+    if(fire<=new Date()) fire.setDate(fire.getDate()+1);
+    if(this._reminderTimer) clearTimeout(this._reminderTimer);
+    this._reminderTimer=setTimeout(()=>{
+      if(this.state.notifGranted&&!this.state.demo){
+        new Notification('Time to check in!',{body:`${Utils.shiftLabel(shift)} shift starts soon. Open the app to check in.`,icon:'./icon.svg'});
+      }
+      this._scheduleReminder();
+    },fire-new Date());
+  };
 
   // ── Check-in ──────────────────────────────────────────────────────────────
   _detectInAppBrowser(){
@@ -1015,7 +1112,7 @@ class AppComponent extends DCLogic {
   go = t => () => { this.setState({tab:t}); this._scrollTop(); };
   setRolesTab  = k => () => this.setState({rolesTab:k});
   selectCalDay = off => () => this.setState(s=>({selectedCalOffset:s.selectedCalOffset===off?null:off}));
-  goPeople = () => { this.setState({tab:'people',peopleStatsLoaded:false}); this.loadPeopleStats(); this.loadRosterAvatars(); this._scrollTop(); };
+  goPeople = () => { this.setState({tab:'people',peopleStatsLoaded:false}); this.loadPeopleStats(); this.loadRosterAvatars(); this.loadPendingLeaves(); this._scrollTop(); };
 
   loadRosterAvatars = async () => {
     const {batches,activeBatchIdx,demo,batchMembersCache,personnel,noAvatarIds}=this.state;
@@ -1278,6 +1375,16 @@ class AppComponent extends DCLogic {
       whatsappLink:'', showWaShare:false,
       isOffline:!s.isOnline, offlinePending:s.offlinePending,
       hasTestDate:false, testDate:'', testDateInput:'', onTestDateInput:()=>{}, setTestDate:()=>{}, clearTestDate:()=>{},
+      openLeaveRequest:()=>{}, leaveOpen:false, leaveDate:'', leaveType:'personal', leaveReason:'', leaveSubmitting:false,
+      leaveIsPersonal:true, leaveIsMc:false, leaveIsOther:false,
+      onLeaveDate:()=>{}, onLeaveTypePersonal:()=>{}, onLeaveTypeMc:()=>{}, onLeaveTypeOther:()=>{},
+      onLeaveReason:()=>{}, submitLeaveRequest:()=>{}, closeLeaveRequest:()=>{},
+      myLeaves:[], myLeavesLoaded:false,
+      openShiftChange:()=>{}, shiftChangeOpen:false, shiftChangeNew:'AM', shiftChangeReason:'', shiftChangeSending:false,
+      shiftChangeIsAm:true, shiftChangeIsPm:false, shiftChangeIsOffice:false,
+      onShiftChangeAm:()=>{}, onShiftChangePm:()=>{}, onShiftChangeOffice:()=>{},
+      onShiftChangeReason:()=>{}, submitShiftChange:()=>{}, closeShiftChange:()=>{},
+      notifGranted:false, requestReminders:()=>{},
     };
     const rec=this.myRec(), status=rec.status||'pending', m=Utils.meta(status);
     const todayD=this.dateForOffset(0);
@@ -1351,6 +1458,10 @@ class AppComponent extends DCLogic {
       const doneText=done?(pd.needsGps?(dist!=null?'GPS verified · '+dist+' m from '+hqName:'GPS verified'):'Recorded'):'';
       const btnLabel=pd.key==='p1'?'Check in to work':pd.key==='p2'?(shift==='PM'?'Record dinner break':'Record lunch break'):pd.key==='p3'?(shift==='PM'?'Return from dinner':'Return from lunch'):'Check out';
       const win=Utils.phaseWindow(shift,pd.key);
+      const locIsOutOfRange=myGpsActive&&locOutOfRange;
+      const _waPhaseLabel=pd.key==='p1'?'Check in':pd.key==='p2'?(shift==='PM'?'Dinner break':'Lunch break'):pd.key==='p3'?(shift==='PM'?'Return from dinner':'Return from lunch'):'Check out';
+      const _waGeoMsg=`Hi, I need help with my attendance.\n\nName: ${me.name}\nShift: ${Utils.shiftLabel(me.shift)}\nPhase: ${_waPhaseLabel}\nDate: ${Utils.dateKey(this.baseDate())}\n\nGPS shows me ${s.locDistance!=null?s.locDistance+'m ':''}out of range. Please assist with a manual record.`;
+      const geofenceWaLink=`https://api.whatsapp.com/send?text=${encodeURIComponent(_waGeoMsg)}`;
       return {
         key:pd.key, num:pd.num, label:pd.label, isLast:pd.key==='p4', notLast:pd.key!=='p4',
         needsGps:pd.needsGps, notNeedsGps:!pd.needsGps,
@@ -1381,6 +1492,7 @@ class AppComponent extends DCLogic {
         locMsgColor:myGpsActive?gLocMsgColor:'#8a94a3',
         checkInOpacity:(myGpsActive&&locVerified)?'1':'.45',
         checkInPE:(myGpsActive&&locVerified)?'auto':'none',
+        locIsOutOfRange, geofenceWaLink,
       };
     });
     const allDone=phases.every(ph=>ph.done);
@@ -1440,6 +1552,19 @@ class AppComponent extends DCLogic {
       hasTestTime:!!s.testTime, testTime:s.testTime||'',
       testTimeInput:s.testTimeInput, onTestTimeInput:this.onTestTimeInput,
       setTestTime:this.setTestTime, clearTestTime:this.clearTestTime,
+      openLeaveRequest:this.openLeaveRequest(Utils.dateKey(this.baseDate())),
+      leaveOpen:s.leaveOpen, leaveDate:s.leaveDate, leaveType:s.leaveType, leaveReason:s.leaveReason, leaveSubmitting:s.leaveSubmitting,
+      onLeaveDate:this.onLeaveDate,
+      leaveIsPersonal:s.leaveType==='personal', leaveIsMc:s.leaveType==='mc', leaveIsOther:s.leaveType==='other',
+      onLeaveTypePersonal:this.onLeaveType('personal'), onLeaveTypeMc:this.onLeaveType('mc'), onLeaveTypeOther:this.onLeaveType('other'),
+      onLeaveReason:this.onLeaveReason, submitLeaveRequest:this.submitLeaveRequest, closeLeaveRequest:this.closeLeaveRequest,
+      myLeaves:s.myLeaves, myLeavesLoaded:s.myLeavesLoaded,
+      openShiftChange:this.openShiftChange, shiftChangeOpen:s.shiftChangeOpen,
+      shiftChangeNew:s.shiftChangeNew, shiftChangeReason:s.shiftChangeReason, shiftChangeSending:s.shiftChangeSending,
+      onShiftChangeAm:this.onShiftChangeNew('AM'), onShiftChangePm:this.onShiftChangeNew('PM'), onShiftChangeOffice:this.onShiftChangeNew('OFFICE'),
+      shiftChangeIsAm:s.shiftChangeNew==='AM', shiftChangeIsPm:s.shiftChangeNew==='PM', shiftChangeIsOffice:s.shiftChangeNew==='OFFICE',
+      onShiftChangeReason:this.onShiftChangeReason, submitShiftChange:this.submitShiftChange, closeShiftChange:this.closeShiftChange,
+      notifGranted:s.notifGranted, requestReminders:this.requestReminders,
     };
   }
 
@@ -1798,6 +1923,19 @@ class AppComponent extends DCLogic {
       onTestDateInput:this.onTestDateInput, setTestDate:this.setTestDate, clearTestDate:this.clearTestDate,
       hasTestDate:!!s.testDate,
       batchJumpDate:s.batchJumpDate, onBatchJumpDate:this.onBatchJumpDate, jumpToDate:this.jumpToDate,
+      pendingLeaves:(s.pendingLeaves||[]).map(l=>({
+        id:l.id, reason:l.reason||'',
+        personName:l.personnel?.name||'Unknown',
+        personShift:Utils.shiftLabel(l.personnel?.shift||'AM'),
+        typeLabel:l.type==='mc'?'MC':l.type==='shift_change'?'Shift Change':'Personal Leave',
+        dateLabel:l.date?Utils.fmtMed(new Date(l.date+'T00:00:00')):'',
+        requestedShiftLabel:l.requested_shift?Utils.shiftLabel(l.requested_shift):'',
+        showRequestedShift:l.type==='shift_change'&&!!l.requested_shift,
+        onApprove:this.approveLeave(l.id), onReject:this.rejectLeave(l.id),
+      })),
+      pendingLeavesCount:(s.pendingLeaves||[]).length,
+      hasPendingLeaves:(s.pendingLeaves||[]).length>0,
+      pendingLeavesLoaded:s.pendingLeavesLoaded,
     };
   }
 
