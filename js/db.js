@@ -323,6 +323,13 @@ const DB = {
         .subscribe();
     },
 
+    subscribeMyAttendance(personnelId, onUpdate) {
+      return _db.channel('my-att-' + personnelId)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance', filter: `personnel_id=eq.${personnelId}` },
+          payload => { if (payload.new) onUpdate(payload.new); })
+        .subscribe();
+    },
+
     subscribeLeaveStatus(personnelId, onUpdate) {
       return _db.channel('leave-status-' + personnelId)
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'leave_requests', filter: `personnel_id=eq.${personnelId}` },
