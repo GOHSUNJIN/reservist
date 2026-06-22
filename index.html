@@ -361,6 +361,14 @@
               </div>
               </sc-if>
 
+              <sc-if value="{{ showLateWarning }}" hint-placeholder-val="">
+                <div style="display:flex;align-items:flex-start;gap:10px;margin-top:12px;padding:11px 13px;background:#fdf6e9;border:1px solid #f0e2c2;border-radius:11px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:1px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                  <div style="flex:1;font-size:13px;color:#b9791a;font-weight:500;">You checked in a bit late today.</div>
+                  <button onClick="{{ dismissLateWarning }}" style="background:none;border:none;cursor:pointer;padding:0;line-height:1;flex:0 0 auto;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                </div>
+              </sc-if>
+
               <sc-if value="{{ isLate }}" hint-placeholder-val="">
                 <div style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:#f7efdc;color:#b9791a;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>Late — shift started {{ lateShiftStart }}</div>
               </sc-if>
@@ -895,6 +903,12 @@
                     <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:{{ row.p4Color }};">{{ row.p4 }}</div>
                   </div>
                 </div>
+                <sc-if value="{{ row.showLateReason }}" hint-placeholder-val="">
+                  <div style="display:flex;align-items:flex-start;gap:7px;margin-top:8px;margin-left:46px;padding:8px 10px;background:#fbeeec;border-radius:8px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:1px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <div style="font-size:12px;color:#c0392b;font-weight:500;line-height:1.4;">Late reason: {{ row.lateReason }}</div>
+                  </div>
+                </sc-if>
               </div>
             </sc-for>
           </div>
@@ -1106,6 +1120,22 @@
         <span style="width:8px;height:8px;border-radius:50%;background:{{ toastBg }};flex:0 0 auto;display:inline-block;"></span>
         <span style="color:#161f30;">{{ toastMsg }}</span>
         <span style="color:#a0a8b4;font-size:15px;line-height:1;margin-left:2px;">×</span>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ===== LATE REASON MODAL ===== -->
+    <sc-if value="{{ lateReasonOpen }}" hint-placeholder-val="">
+    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
+      <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 36px;box-shadow:0 -8px 32px rgba(20,30,50,.18);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+          <div style="font-size:17px;font-weight:700;color:#161f30;">Why were you late?</div>
+          <button onClick="{{ skipLateReason }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        </div>
+        <p style="font-size:13px;color:#5c6678;margin:0 0 14px;line-height:1.5;">You checked in more than an hour late. Please provide a brief reason — it will be visible to the admin.</p>
+        <textarea onInput="{{ onLateReasonText }}" value="{{ lateReasonText }}" placeholder="e.g. Traffic jam on CTE, arrived at 09:45" style="width:100%;height:90px;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>
+        <button onClick="{{ submitLateReason }}" style="width:100%;margin-top:12px;padding:13px;background:#2f5fd0;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;">Submit reason</button>
+        <button onClick="{{ skipLateReason }}" style="width:100%;margin-top:8px;padding:11px;background:none;border:none;font-size:13px;font-weight:600;color:#8a94a3;cursor:pointer;">Skip for now</button>
       </div>
     </div>
     </sc-if>
