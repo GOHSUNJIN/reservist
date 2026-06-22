@@ -31,7 +31,7 @@ class AppComponent extends DCLogic {
     acctPwError: '', acctPwSuccess: '',
     acctNameError: '', acctNameSuccess: '',
     acctSaving: false,
-    locPhase: null, locSlow: false, locAccuracy: null,
+    locPhase: null, locSlow: false, locAccuracy: null, locPermErr: false,
     addPersonSuccess: '', addPersonError: '',
     batchLoading: false, batchCreating: false,
     editingNoteId: null, editingNoteText: '',
@@ -289,7 +289,7 @@ class AppComponent extends DCLogic {
     this.setState({
       authed:false, role:null, authMode:'login', demo:false,
       currentUserId:null, me:null, loginContact:'', loginPassword:'',
-      mcMode:false, locStatus:'idle', locDistance:null, locGpsMsg:'', locSlow:false, locAccuracy:null,
+      mcMode:false, locStatus:'idle', locDistance:null, locGpsMsg:'', locSlow:false, locAccuracy:null, locPermErr:false,
       accountOpen:false, confirmDelete:false,
       personnel:[], attendance:{}, history:[], attendanceCache:{}, batchMembersCache:{},
       testDate:null, testDateInput:'', testTime:null, testTimeInput:'', phaseSubmitting:false,
@@ -349,7 +349,7 @@ class AppComponent extends DCLogic {
   // ── Check-in ──────────────────────────────────────────────────────────────
   verifyLocation = () => {
     if(this.state.locStatus==='locating') return;
-    this.setState({locStatus:'locating', locSlow:false});
+    this.setState({locStatus:'locating', locSlow:false, locPermErr:false});
     if(this._locSlowTimer) clearTimeout(this._locSlowTimer);
     this._locSlowTimer = setTimeout(()=>this.setState({locSlow:true}), 8000);
     if(!navigator.geolocation){
@@ -360,41 +360,28 @@ class AppComponent extends DCLogic {
       return;
     }
     const ua=navigator.userAgent;
-    const _permMsg=()=>/iP(hone|od|ad)/.test(ua)
-      ?'Location blocked by your browser. On iPhone: Settings → Privacy & Security → Location Services → find your browser → set to "While Using App". Then reload this page.'
-      :/Android/.test(ua)
-      ?'Location blocked. Tap the 🔒 lock icon in your browser\'s address bar → Permissions → Location → Allow. Then reload this page.'
-      :'Location access denied. Open your browser\'s site settings for this page, allow Location, then reload.';
-    const _doLocate=()=>{
-      navigator.geolocation.getCurrentPosition(
-        pos=>{
-          clearTimeout(this._locSlowTimer);
-          const dist=this._haversine(pos.coords.latitude,pos.coords.longitude,this._hqLat(),this._hqLon());
-          const rounded=Math.round(dist);
-          const accuracy=pos.coords.accuracy!=null?Math.round(pos.coords.accuracy):null;
-          this.setState({locDistance:rounded,locAccuracy:accuracy,locSlow:false,locStatus:rounded<=this._maxDist()?'verified':'out_of_range'});
-        },
-        err=>{
-          clearTimeout(this._locSlowTimer);
-          const msg=err.code===1?_permMsg():err.code===2?'GPS signal unavailable. Try moving to an open area or near a window.':'GPS timed out. Make sure location services are on and try again.';
-          this.setState({locStatus:'gps_error',locDistance:null,locGpsMsg:msg,locSlow:false});
-        },
-        {enableHighAccuracy:true,timeout:15000,maximumAge:0}
-      );
-    };
-    // Pre-check: if already denied, fail immediately instead of waiting 15s
-    if(navigator.permissions){
-      navigator.permissions.query({name:'geolocation'}).then(result=>{
-        if(result.state==='denied'){
-          clearTimeout(this._locSlowTimer);
-          this.setState({locStatus:'gps_error',locGpsMsg:_permMsg(),locSlow:false});
-        } else {
-          _doLocate();
-        }
-      }).catch(()=>_doLocate());
-    } else {
-      _doLocate();
-    }
+    const isIOS=/iP(hone|od|ad)/.test(ua), isAndroid=/Android/.test(ua);
+    const _permMsg=isIOS
+      ?'Location is blocked for this site. Two things to check:\n1. iPhone Settings → Privacy & Security → Location Services → [your browser app] → "While Using App"\n2. In Safari, tap the "aA" icon in the address bar → Website Settings → Location → Allow\nThen tap Reload below.'
+      :isAndroid
+      ?'Location is blocked for this site. Tap the 🔒 icon in your browser address bar → Permissions → Location → Allow. If that option is missing, go to your browser\'s Settings → Site Settings → Location → find this site → Allow.\nThen tap Reload below.'
+      :'Location access denied. Open this site\'s settings in your browser (usually via the lock icon in the address bar) and allow Location. Then tap Reload below.';
+    navigator.geolocation.getCurrentPosition(
+      pos=>{
+        clearTimeout(this._locSlowTimer);
+        const dist=this._haversine(pos.coords.latitude,pos.coords.longitude,this._hqLat(),this._hqLon());
+        const rounded=Math.round(dist);
+        const accuracy=pos.coords.accuracy!=null?Math.round(pos.coords.accuracy):null;
+        this.setState({locDistance:rounded,locAccuracy:accuracy,locSlow:false,locPermErr:false,locStatus:rounded<=this._maxDist()?'verified':'out_of_range'});
+      },
+      err=>{
+        clearTimeout(this._locSlowTimer);
+        const isPerm=err.code===1;
+        const msg=isPerm?_permMsg:err.code===2?'GPS signal unavailable. Try moving to an open area or near a window.':'GPS timed out. Make sure location services are on and try again.';
+        this.setState({locStatus:'gps_error',locDistance:null,locGpsMsg:msg,locSlow:false,locPermErr:isPerm});
+      },
+      {enableHighAccuracy:true,timeout:15000,maximumAge:0}
+    );
   };
 
   _hqLat(){ return parseFloat(this.props.hqLat)||1.332572; }
@@ -410,7 +397,7 @@ class AppComponent extends DCLogic {
 
   startPhaseGps = phase => () => {
     if(this.state.locStatus==='locating') return;
-    this.setState({locPhase:phase, locStatus:'idle', locDistance:null, locGpsMsg:'', locAccuracy:null, locSlow:false});
+    this.setState({locPhase:phase, locStatus:'idle', locDistance:null, locGpsMsg:'', locAccuracy:null, locSlow:false, locPermErr:false});
     this.verifyLocation();
   };
 
@@ -1272,7 +1259,7 @@ class AppComponent extends DCLogic {
         locLocating:myGpsActive&&locLocating,
         locVerified:myGpsActive&&locVerified,
         locNeedsAction:myGpsActive&&(locIdle||locOutOfRange||locGpsError),
-        locShowReload:myGpsActive&&locGpsError,
+        locShowReload:myGpsActive&&locGpsError&&s.locPermErr,
         locBtnLabel:locLocating?'Locating...':(locIdle?'Locate me':'Try again'),
         locBtnDisabled:myGpsActive&&locLocating,
         locBorder:myGpsActive?gLocBorder:'#eef0f4',
