@@ -36,7 +36,7 @@ const Utils = {
   },
   batchLabel(startDate, endDate, num){
     const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const d=endDate?new Date(endDate+'T00:00:00'):new Date(startDate+'T00:00:00');
+    const d=new Date(startDate+'T00:00:00');
     return 'B'+(num||1)+' '+M[d.getMonth()]+' '+d.getFullYear();
   },
 
