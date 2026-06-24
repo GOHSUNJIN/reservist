@@ -111,6 +111,11 @@ const DB = {
       await _db.from('personnel').update({batch_id:batchId}).is('batch_id',null).eq('is_active',true);
     },
 
+    async listAdmins() {
+      const { data } = await _db.from('personnel').select('*').in('role', ['admin', 'superadmin']).eq('is_active', true).order('created_at');
+      return data || [];
+    },
+
     async carryOver(toBatchId) {
       const { error } = await _db.from('personnel')
         .update({ batch_id: toBatchId })

@@ -62,6 +62,10 @@ class AppComponent extends DCLogic {
     adminNotifGranted: false,
     myLeaveHistory: [], myLeaveHistoryLoaded: false,
     welfareNoteOpen: false, welfareNoteText: '', welfareNoteSaving: false,
+    isSuperAdmin: false,
+    adminsList: [], adminsLoaded: false,
+    npAdminName: '', npAdminContact: '', npAdminPassword: '',
+    confirmDeactivateAdminId: null,
   };
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
@@ -163,7 +167,8 @@ class AppComponent extends DCLogic {
         }
       }).catch(()=>{});
     }
-    const role = me.role || 'reservist';
+    const isSuperAdmin = me.role === 'superadmin';
+    const role = (me.role === 'superadmin' || me.role === 'admin') ? 'admin' : me.role || 'reservist';
     const today = Utils.dateKey(this.baseDate());
 
     let batches = await DB.batches.list().catch(()=>[]);
@@ -200,7 +205,7 @@ class AppComponent extends DCLogic {
       currentUserId: me.id,
       me, personnel, batches, activeBatchIdx,
       attendance, noReportDays, history, attendanceDate: today,
-      authError:'', loading:false, accountDeleted:false, demo:false,
+      authError:'', loading:false, accountDeleted:false, demo:false, isSuperAdmin,
     });
     if(role==='admin'){
       this._subscribeRealtime(today); setTimeout(()=>this.loadRosterAvatars(),0); setTimeout(()=>this.loadPendingLeaves(),0); this._subscribeAdminRequests();
@@ -209,6 +214,7 @@ class AppComponent extends DCLogic {
         localStorage.removeItem('admin_notif');
         this.setState({adminNotifGranted:false});
       }
+      if(isSuperAdmin) setTimeout(()=>this.loadAdmins(), 0);
     }
     if(role==='reservist'){
       // Restore pre-shift reminders if browser permission is still granted from a previous session
@@ -415,6 +421,8 @@ class AppComponent extends DCLogic {
       notifGranted:false, adminNotifGranted:false,
       myLeaveHistory:[], myLeaveHistoryLoaded:false,
       welfareNoteOpen:false, welfareNoteText:'', welfareNoteSaving:false,
+      isSuperAdmin:false, adminsList:[], adminsLoaded:false,
+      npAdminName:'', npAdminContact:'', npAdminPassword:'', confirmDeactivateAdminId:null,
     });
   };
 
@@ -457,6 +465,48 @@ class AppComponent extends DCLogic {
   onNpContact  = e => this.setState({npContact:e.target.value});
   onNpShift    = e => this.setState({npShift:e.target.value});
   onNpPassword = e => this.setState({npPassword:e.target.value});
+
+  // ── Superadmin: admin management ─────────────────────────────────────────
+  loadAdmins = async () => {
+    const data = await DB.personnel.listAdmins().catch(()=>[]);
+    this.setState({adminsList:data, adminsLoaded:true});
+  };
+
+  onNpAdminName     = e => this.setState({npAdminName:e.target.value});
+  onNpAdminContact  = e => this.setState({npAdminContact:e.target.value});
+  onNpAdminPassword = e => this.setState({npAdminPassword:e.target.value});
+
+  addAdmin = async () => {
+    const {npAdminName, npAdminContact, npAdminPassword, adminsList, demo} = this.state;
+    if(!npAdminName.trim()){ this._toast('Name is required.','error'); return; }
+    const cleanContact = npAdminContact.replace(/[\s-]/g,'');
+    if(!cleanContact){ this._toast('Contact number is required.','error'); return; }
+    if(!/^[689]\d{7}$/.test(cleanContact)){ this._toast('Contact must be an 8-digit Singapore number.','error'); return; }
+    if(adminsList.some(a=>a.contact?.replace(/[\s-]/g,'')===cleanContact)){ this._toast('This contact is already an admin.','error'); return; }
+    if(!npAdminPassword || npAdminPassword.length < 6){ this._toast('Password must be at least 6 characters.','error'); return; }
+    if(!demo){
+      const existing = await DB.personnel.findByContact(cleanContact).catch(()=>null);
+      if(existing){ this._toast('This contact is already registered.','error'); return; }
+      const {user, error} = await DB.auth.createUserAsAdmin(cleanContact, npAdminPassword, npAdminName.trim());
+      if(error || !user){ this._toast('Failed to create account. Try again.','error'); return; }
+      const {error:addErr} = await DB.personnel.add({authId:user.id, name:npAdminName.trim(), contact:cleanContact, shift:null, batchId:null, role:'admin'});
+      if(addErr){ this._toast('Account created but roster entry failed.','error'); return; }
+      await this.loadAdmins();
+    }
+    this.setState({npAdminName:'', npAdminContact:'', npAdminPassword:''});
+    this._toast(npAdminName.trim() + ' added as admin.');
+  };
+
+  askDeactivateAdmin = id => () => this.setState({confirmDeactivateAdminId:id});
+  cancelDeactivateAdmin = () => this.setState({confirmDeactivateAdminId:null});
+  confirmDeactivateAdmin = async () => {
+    const id = this.state.confirmDeactivateAdminId;
+    if(!id) return;
+    this.setState({confirmDeactivateAdminId:null});
+    if(!this.state.demo) await DB.personnel.deactivate(id).catch(()=>{});
+    this.setState(s=>({adminsList:s.adminsList.filter(a=>a.id!==id)}));
+    this._toast('Admin removed.');
+  };
 
   loadPendingLeaves = async () => {
     const {demo}=this.state;
@@ -1541,7 +1591,7 @@ class AppComponent extends DCLogic {
       userName:s.role==='admin'?(me?.name||'Supervisor'):(me?.name||''),
       userInitials:s.role==='admin'?(me?.name?Utils.initials(me.name):'SV'):Utils.initials(me?.name||''),
       tabTitle:TITLES[s.tab]||'',
-      headerKicker:s.role==='admin'?'Admin, '+orgName:orgName+', PNSMEN',
+      headerKicker:s.isSuperAdmin?'Master, '+orgName:s.role==='admin'?'Admin, '+orgName:orgName+', PNSMEN',
       goCheckin:this.go('checkin'), goBriefings:this.go('briefings'), goAttendance:this.go('attendance'), goMeal:this.go('meal'),
       goOverview:()=>{ this.setState({tab:'overview'}); setTimeout(()=>this.loadRosterAvatars(),0); this._scrollTop(); },
       goRoster:()=>{ this.setState({tab:'roster'}); setTimeout(()=>this.loadRosterAvatars(),0); this._scrollTop(); },
@@ -2187,6 +2237,22 @@ class AppComponent extends DCLogic {
       batchTotalPresent, batchTotalMc, batchTotalAbsent,
       batchAvgPct:batchAvgPct!==null?batchAvgPct+'%':'—',
       showBatchStats:s.peopleStatsLoaded,
+      isSuperAdmin:s.isSuperAdmin,
+      adminsList:(s.adminsList||[]).map(a=>({
+        id:a.id, name:a.name, contact:a.contact||'',
+        roleLabel:a.role==='superadmin'?'Master':'Admin',
+        isMaster:a.role==='superadmin',
+        initials:Utils.initials(a.name),
+        canDeactivate:a.id!==s.currentUserId&&a.role!=='superadmin',
+        onAskDeactivate:this.askDeactivateAdmin(a.id),
+        isConfirming:s.confirmDeactivateAdminId===a.id,
+        onConfirmDeactivate:this.confirmDeactivateAdmin,
+        onCancelDeactivate:this.cancelDeactivateAdmin,
+      })),
+      npAdminName:s.npAdminName, onNpAdminName:this.onNpAdminName,
+      npAdminContact:s.npAdminContact, onNpAdminContact:this.onNpAdminContact,
+      npAdminPassword:s.npAdminPassword, onNpAdminPassword:this.onNpAdminPassword,
+      addAdmin:this.addAdmin,
     };
   }
 
