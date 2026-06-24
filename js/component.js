@@ -254,8 +254,8 @@ class AppComponent extends DCLogic {
       const nextTue = Utils.nextBatchTuesday(fromDate);
       const {start,end,dekit} = Utils.batchDatesFrom(nextTue);
       const startStr=Utils.dateKey(start), endStr=Utils.dateKey(end), dekitStr=Utils.dateKey(dekit);
-      const sameStartMonth = sorted.filter(b=>b.start_date.slice(0,7)===startStr.slice(0,7));
-      const num = sameStartMonth.length+1;
+      const sameYear = sorted.filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
+      const num = sameYear.length+1;
       const label = Utils.batchLabel(startStr, endStr, num);
       const {data} = await DB.batches.create(label, startStr, endStr, dekitStr).catch(()=>({}));
       if(data){ sorted.push(data); lastCreated=data; }
@@ -284,8 +284,8 @@ class AppComponent extends DCLogic {
       const nextTue=Utils.nextBatchTuesday(fromDate);
       const {start,end,dekit}=Utils.batchDatesFrom(nextTue);
       const startStr=Utils.dateKey(start),endStr=Utils.dateKey(end),dekitStr=Utils.dateKey(dekit);
-      const sameStartMonth=sorted.filter(b=>b.start_date.slice(0,7)===startStr.slice(0,7));
-      const label=Utils.batchLabel(startStr,endStr,sameStartMonth.length+1);
+      const sameYear=sorted.filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
+      const label=Utils.batchLabel(startStr,endStr,sameYear.length+1);
       const {data}=await DB.batches.create(label,startStr,endStr,dekitStr).catch(()=>({}));
       if(data) sorted.push(data); else break;
     }
@@ -1253,8 +1253,8 @@ class AppComponent extends DCLogic {
     const start=new Date(newBatchDate+'T00:00:00');
     const {start:s,end:e,dekit:dk}=Utils.batchDatesFrom(start);
     const startStr=Utils.dateKey(s),endStr=Utils.dateKey(e),dekitStr=Utils.dateKey(dk);
-    const sameStartMonth=batches.filter(b=>b.start_date.slice(0,7)===startStr.slice(0,7));
-    const num=sameStartMonth.length+1;
+    const sameYear=batches.filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
+    const num=sameYear.length+1;
     const label=Utils.batchLabel(startStr,endStr,num);
     if(!demo){
       const {data,error}=await DB.batches.create(label,startStr,endStr,dekitStr);

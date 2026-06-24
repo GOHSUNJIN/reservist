@@ -35,9 +35,7 @@ const Utils = {
     return {start,end,dekit};
   },
   batchLabel(startDate, endDate, num){
-    const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const d=new Date(startDate+'T00:00:00');
-    return 'B'+(num||1)+' '+M[d.getMonth()]+' '+d.getFullYear();
+    return 'Cycle '+(num||1)+'/'+startDate.slice(0,4);
   },
 
   SG_HOLIDAYS:{
