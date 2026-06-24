@@ -354,6 +354,9 @@
                             Message supervisor for help
                           </a>
                         </sc-if>
+                        <sc-if value="{{ ph.showGpsBypass }}" hint-placeholder-val="">
+                          <button onClick="{{ ph.onBypass }}" style="margin-top:10px;width:100%;padding:9px;background:#fff;border:1.5px solid #f0e2c2;border-radius:9px;font-size:12.5px;font-weight:600;color:#b9791a;cursor:pointer;">Check in without GPS</button>
+                        </sc-if>
                       </div>
                       </sc-if>
                       <div style="display:flex;gap:8px;margin-top:10px;">
@@ -1055,6 +1058,12 @@
                   <div style="display:flex;align-items:flex-start;gap:7px;margin-top:8px;margin-left:46px;padding:8px 10px;background:#fbeeec;border-radius:8px;">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:1px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                     <div style="font-size:12px;color:#c0392b;font-weight:500;line-height:1.4;">Late reason: {{ row.lateReason }}</div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ row.showNoGps }}" hint-placeholder-val="">
+                  <div style="display:flex;align-items:center;gap:6px;margin-top:6px;margin-left:46px;">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"></path><line x1="12" y1="21" x2="12" y2="24"></line><line x1="3" y1="3" x2="21" y2="21"></line></svg>
+                    <span style="font-size:11px;font-weight:600;color:#b9791a;">No GPS — checked in without location</span>
                   </div>
                 </sc-if>
               </div>

@@ -81,7 +81,7 @@ class AppComponent extends DCLogic {
         for(const pend of pending){
           let ok = true;
           if(pend.key){
-            await DB.attendance.logPhase(pend.id, pend.date, pend.key, pend.time, pend.dist).catch(()=>{ ok=false; });
+            await DB.attendance.logPhase(pend.id, pend.date, pend.key, pend.time, pend.dist, pend.bypassed||false).catch(()=>{ ok=false; });
           } else {
             await DB.attendance.upsert(pend.id, pend.date, pend.status, pend.extras).catch(()=>{ ok=false; });
           }
@@ -707,6 +707,43 @@ class AppComponent extends DCLogic {
         this.setState({offlinePending:true});
       } else {
         const {error:phErr} = await DB.attendance.logPhase(currentUserId, today, key, time, dist);
+        if(phErr) this._toast('Check-in saved locally but failed to sync. Check your connection.','error');
+      }
+    }
+  };
+
+  doPhaseBypass = key => async () => {
+    if(this.state.phaseSubmitting) return;
+    const {currentUserId,demo,isOnline,testTime} = this.state;
+    this.setState({phaseSubmitting:true});
+    const _now = testTime ? (()=>{const d=new Date();const[h,m]=testTime.split(':').map(Number);d.setHours(h,m,0,0);return d;})() : new Date();
+    const time = Utils.hhmm(_now);
+    if(key==='p1'){
+      const me=this.state.me; const shift=me?.shift||'AM';
+      const cutoff={AM:'08:30',PM:'15:30',OFFICE:'09:00'}[shift]||'08:30';
+      const [ch,cm]=cutoff.split(':').map(Number);
+      const [th,tm]=time.split(':').map(Number);
+      const minsLate=(th*60+tm)-(ch*60+cm);
+      if(minsLate>=60) this.setState({lateReasonOpen:true,lateReasonText:''});
+      else if(minsLate>=30) this.setState({showLateWarning:true});
+    }
+    const today = Utils.dateKey(this.baseDate());
+    const rec = {...this.myRec()};
+    if(key==='p1'){rec.status='present';rec.p1=time;rec.p1dist=null;rec.gpsBypassed=true;}
+    else if(key==='p2') rec.p2=time;
+    else if(key==='p3'){rec.p3=time;rec.p3dist=null;rec.gpsBypassed=true;}
+    else if(key==='p4') rec.p4=time;
+    this.setState(s=>({
+      attendance:{...s.attendance,[currentUserId]:rec},
+      locStatus:'idle', locPhase:null, phaseSubmitting:false,
+    }));
+    this._haptic();
+    if(!demo){
+      if(!isOnline){
+        this._offlineQueues.push({id:currentUserId,date:today,key,time,dist:null,bypassed:true});
+        this.setState({offlinePending:true});
+      } else {
+        const {error:phErr} = await DB.attendance.logPhase(currentUserId, today, key, time, null, true);
         if(phErr) this._toast('Check-in saved locally but failed to sync. Check your connection.','error');
       }
     }
@@ -1587,6 +1624,8 @@ class AppComponent extends DCLogic {
         checkInOpacity:(myGpsActive&&locVerified)?'1':'.45',
         checkInPE:(myGpsActive&&locVerified)?'auto':'none',
         locIsOutOfRange, geofenceWaLink,
+        showGpsBypass: myGpsActive && locGpsError && (s.locRetryCount||0) >= 2 && (pd.key==='p1'||pd.key==='p3'),
+        onBypass: this.doPhaseBypass(pd.key),
       };
     });
     const allDone=phases.every(ph=>ph.done);
@@ -1957,6 +1996,7 @@ class AppComponent extends DCLogic {
         id:p.id, name:p.name, initials:Utils.initials(p.name), shiftLabel:Utils.shiftLabel(p.shift),
         label:mm.label, color:mm.color, bg:mm.bg, isLate,
         lateReason, showLateReason,
+        showNoGps: !!(r.gpsBypassed),
         p1:r.p1||'–', p2:r.p2||'–', p3:r.p3||'–', p4:r.p4||'–',
         p1Color:r.p1?(isLate?'#c0392b':'#161f30'):'#c2c8d2',
         p2Color:r.p2?'#161f30':'#c2c8d2',
