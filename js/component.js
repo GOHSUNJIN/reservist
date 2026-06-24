@@ -1116,18 +1116,19 @@ class AppComponent extends DCLogic {
     const viewDateKey=Utils.dateKey(this.dateForOffset(off));
     const viewIsToday=off===0;
     const prev=viewIsToday?(this.state.attendance[id]||{}):((this.state.attendanceCache?.[viewDateKey]||{})[id]||{});
-    const p1=status==='present'?(prev.p1||Utils.hhmm(new Date())):null;
-    const p1dist=status==='present'?prev.p1dist:undefined;
-    const entry={status, p1, p1dist};
+    // Preserve all existing timing; only fill p1 when marking present with no prior check-in
+    const p1=status==='present'?(prev.p1||Utils.hhmm(new Date())):prev.p1;
+    const entry={...prev,status,p1};
     if(viewIsToday){ this.setState(s=>({attendance:{...s.attendance,[id]:entry}})); }
     else { this.setState(s=>({attendanceCache:{...s.attendanceCache,[viewDateKey]:{...(s.attendanceCache?.[viewDateKey]||{}),[id]:entry}}})); }
     if(!this.state.demo){
-      const {error}=await DB.attendance.upsert(id,viewDateKey,status,{time:p1,dist:p1dist});
+      // Only write check_in_time to DB when there was no prior check-in and we're marking present
+      const isNewPresent=status==='present'&&!prev.p1;
+      const {error}=await DB.attendance.upsert(id,viewDateKey,status,isNewPresent?{time:p1,dist:prev.p1dist}:{});
       if(error){
         if(prev.status){
-          const restore={status:prev.status,p1:prev.p1,p1dist:prev.p1dist};
-          if(viewIsToday){ this.setState(s=>({attendance:{...s.attendance,[id]:restore}})); }
-          else { this.setState(s=>({attendanceCache:{...s.attendanceCache,[viewDateKey]:{...(s.attendanceCache?.[viewDateKey]||{}),[id]:restore}}})); }
+          if(viewIsToday){ this.setState(s=>({attendance:{...s.attendance,[id]:{...prev}}})); }
+          else { this.setState(s=>({attendanceCache:{...s.attendanceCache,[viewDateKey]:{...(s.attendanceCache?.[viewDateKey]||{}),[id]:{...prev}}}})); }
         } else {
           if(viewIsToday){ this.setState(s=>{const a={...s.attendance};delete a[id];return{attendance:a};}); }
           else { this.setState(s=>{const c={...(s.attendanceCache?.[viewDateKey]||{})};delete c[id];return{attendanceCache:{...s.attendanceCache,[viewDateKey]:c}};}); }
