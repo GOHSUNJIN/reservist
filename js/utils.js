@@ -52,6 +52,7 @@ const Utils = {
   },
   holidayName(d){ return this.SG_HOLIDAYS[this.dateKey(d)]||null; },
 
+  LATE_CUTOFF:{AM:'08:30',PM:'15:30',OFFICE:'09:00'},
   PHASE_WINDOWS:{
     AM:    {p1:['07:00','09:30'],p2:['11:30','14:30'],p3:['12:00','15:30'],p4:['14:30','16:30']},
     PM:    {p1:['14:30','17:00'],p2:['16:00','18:30'],p3:['16:30','19:30'],p4:['21:30','23:30']},

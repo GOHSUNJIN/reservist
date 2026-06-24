@@ -460,16 +460,12 @@ class AppComponent extends DCLogic {
         ops.push(DB.attendance.upsert(leave.personnel_id, leave.date, 'mc', {}).catch(()=>{}));
       } else if(leave.type === 'personal' || leave.type === 'other') {
         ops.push(DB.attendance.upsert(leave.personnel_id, leave.date, 'absent', {}).catch(()=>{}));
-      }
-      if(leave.type === 'shift_change' && leave.requested_shift) {
+      } else if(leave.type === 'shift_change' && leave.requested_shift) {
         ops.push(
           DB.personnel.updateShift(leave.personnel_id, leave.requested_shift).then(({data}) => {
             if(data) this.setState(s=>({personnel:s.personnel.map(p=>p.id===leave.personnel_id?{...p,shift:data.shift}:p)}));
           }).catch(()=>{})
         );
-      } else {
-        const attStatus = leave.type === 'mc' ? 'mc' : 'absent';
-        ops.push(DB.attendance.upsert(leave.personnel_id, leave.date, attStatus).catch(()=>{}));
       }
       await Promise.all(ops);
     }
@@ -693,7 +689,7 @@ class AppComponent extends DCLogic {
     // Late detection — only on p1 check-in
     if(key==='p1'){
       const me=this.state.me; const shift=me?.shift||'AM';
-      const cutoff={AM:'08:30',PM:'15:30',OFFICE:'09:00'}[shift]||'08:30';
+      const cutoff=Utils.LATE_CUTOFF[shift]||'08:30';
       const [ch,cm]=cutoff.split(':').map(Number);
       const [th,tm]=time.split(':').map(Number);
       const minsLate=(th*60+tm)-(ch*60+cm);
@@ -733,7 +729,7 @@ class AppComponent extends DCLogic {
     const time = Utils.hhmm(_now);
     if(key==='p1'){
       const me=this.state.me; const shift=me?.shift||'AM';
-      const cutoff={AM:'08:30',PM:'15:30',OFFICE:'09:00'}[shift]||'08:30';
+      const cutoff=Utils.LATE_CUTOFF[shift]||'08:30';
       const [ch,cm]=cutoff.split(':').map(Number);
       const [th,tm]=time.split(':').map(Number);
       const minsLate=(th*60+tm)-(ch*60+cm);
@@ -2012,7 +2008,7 @@ class AppComponent extends DCLogic {
     const snapshotLines=['📋 *'+_orgN+' — '+Utils.fmtMed(viewDate)+'*','✅ Present ('+present+'): '+(roster.filter(r=>r.label==='Present').map(r=>r.name).join(', ')||'(none)'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.label==='On MC').map(r=>r.name).join(', ')||'(none)'),snapshotLastLine];
     const snapshotLink='https://api.whatsapp.com/send?text='+encodeURIComponent(snapshotLines.join('\n'));
     const pendingCount=roster.filter(r=>r.label==='Pending').length;
-    const shiftCutoff={AM:'08:30',PM:'15:30',OFFICE:'09:00'};
+    const shiftCutoff=Utils.LATE_CUTOFF;
     const logRows=activeMembers.filter(p=>{
       const r=viewMap[p.id]||{status:'pending'};
       return r.status!=='pending';
