@@ -170,7 +170,7 @@ class AppComponent extends DCLogic {
     // Auto-deactivate reservist if their batch's dekit day has passed
     if(role==='reservist'){
       const myBatch = batches.find(b=>b.id===me.batch_id);
-      if(myBatch?.dekit_date && today > myBatch.dekit_date){
+      if(myBatch?.dekit_date && today >= myBatch.dekit_date){
         await DB.personnel.deactivate(me.id).catch(()=>{});
         await DB.auth.logout();
         this.setState({authed:false,role:null,authMode:'login',loading:false,accountDeleted:true});
@@ -354,6 +354,8 @@ class AppComponent extends DCLogic {
   logout = async () => {
     if(this._idleWarnTimer) clearTimeout(this._idleWarnTimer);
     if(this._idleLogoutTimer) clearTimeout(this._idleLogoutTimer);
+    if(this._sessionWarnTimer) clearTimeout(this._sessionWarnTimer);
+    if(this._reminderTimer) clearTimeout(this._reminderTimer);
     this._unsubscribeRealtime();
     if(!this.state.demo) await DB.auth.logout();
     this.setState({
