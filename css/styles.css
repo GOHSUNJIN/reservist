@@ -70,3 +70,17 @@ button:active{transform:scale(.97);transition:transform .08s;}
 
 /* ── Toast ────────────────────────────────────────────────────────────────── */
 .toast-wrap{animation:fadeSlideDown .22s ease;}
+
+/* ── Dark mode ────────────────────────────────────────────────────────────── */
+[data-theme="dark"] .card{background:#1e2535 !important;border-color:#2a3448 !important;}
+[data-theme="dark"] .card-flush{background:#1e2535 !important;border-color:#2a3448 !important;}
+[data-theme="dark"] .stat-card{background:#1e2535 !important;border-color:#2a3448 !important;}
+[data-theme="dark"] .field{background:#141c2b !important;border-color:#2a3448 !important;color:#e2e8f0 !important;}
+[data-theme="dark"] .detail-row{border-bottom-color:#2a3448 !important;}
+[data-theme="dark"] .row-item{border-bottom-color:#2a3448 !important;}
+[data-theme="dark"] .info-cell{background:#141c2b !important;}
+[data-theme="dark"] .info-cell-val{color:#e2e8f0 !important;}
+[data-theme="dark"] .avatar-sm,[data-theme="dark"] .avatar-md{background:#1e2535 !important;color:#8a94a3 !important;}
+[data-theme="dark"] .nav-btn{background:#131a27 !important;}
+[data-theme="dark"] .section-label{color:#8a94a3 !important;}
+[data-theme="dark"] .mono-num{color:#e2e8f0 !important;}

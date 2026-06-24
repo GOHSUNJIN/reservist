@@ -27,7 +27,7 @@ const DB = {
       await _db.auth.updateUser({ data: { display_name: name } });
     },
 
-    async logout() { await _db.auth.signOut(); },
+    async logout() { await _db.auth.signOut({ scope: 'local' }).catch(()=>{}); },
 
     async updatePassword(newPassword) {
       const { error } = await _db.auth.updateUser({ password: newPassword });
@@ -135,6 +135,7 @@ const DB = {
         p3dist: r.work_return_dist,
         p4: t(r.work_end_time),
         lateReason: r.late_reason || null,
+        welfareNote: r.welfare_note || null,
       };
     },
 
@@ -203,6 +204,16 @@ const DB = {
       const { error } = await _db.from('attendance')
         .update({ late_reason: reason })
         .eq('personnel_id', personnelId).eq('date', dateStr);
+      return { error };
+    },
+
+    async saveWelfareNote(personnelId, dateStr, note) {
+      const existingId = await this._findRow(personnelId, dateStr);
+      if (existingId) {
+        const { error } = await _db.from('attendance').update({ welfare_note: note }).eq('id', existingId);
+        return { error };
+      }
+      const { error } = await _db.from('attendance').insert({ personnel_id: personnelId, date: dateStr, welfare_note: note });
       return { error };
     },
   },
@@ -280,6 +291,13 @@ const DB = {
         .order('created_at', { ascending: false }).limit(1).maybeSingle();
       return data || null;
     },
+
+    async myHistory(personnelId) {
+      const { data } = await _db.from('leave_requests')
+        .select('*').eq('personnel_id', personnelId)
+        .order('created_at', { ascending: false }).limit(20);
+      return data || [];
+    },
   },
 
   // ── Storage (MC files) ────────────────────────────────────────────────────
@@ -334,6 +352,13 @@ const DB = {
       return _db.channel('leave-status-' + personnelId)
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'leave_requests', filter: `personnel_id=eq.${personnelId}` },
           payload => { if (payload.new) onUpdate(payload.new); })
+        .subscribe();
+    },
+
+    subscribeAdminRequests(onNew) {
+      return _db.channel('admin-new-requests')
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'leave_requests' },
+          payload => { if (payload.new) onNew(payload.new); })
         .subscribe();
     },
 
