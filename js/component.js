@@ -62,7 +62,6 @@ class AppComponent extends DCLogic {
     adminNotifGranted: false,
     myLeaveHistory: [], myLeaveHistoryLoaded: false,
     welfareNoteOpen: false, welfareNoteText: '', welfareNoteSaving: false,
-    darkMode: false,
   };
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
@@ -71,7 +70,6 @@ class AppComponent extends DCLogic {
     this._offlineQueues = [];
     const {detected, name} = this._detectInAppBrowser();
     if(detected) this.setState({isInAppBrowser:true, inAppBrowserName:name});
-    if(localStorage.getItem('dark_mode')==='1') this.setState({darkMode:true});
     if(localStorage.getItem('admin_notif')==='1') this.setState({adminNotifGranted:true});
     this._init();
     this._onOnline = async () => {
@@ -537,13 +535,6 @@ class AppComponent extends DCLogic {
       welfareNoteOpen:false, welfareNoteSaving:false,
     }));
     this._toast('Note saved.');
-  };
-
-  // ── Dark mode ─────────────────────────────────────────────────────────────
-  toggleDarkMode = () => {
-    const next = !this.state.darkMode;
-    this.setState({darkMode:next});
-    localStorage.setItem('dark_mode', next ? '1' : '0');
   };
 
   // ── Admin notifications ───────────────────────────────────────────────────
@@ -2192,9 +2183,6 @@ class AppComponent extends DCLogic {
       acctPwError:s.acctPwError, acctPwSuccess:s.acctPwSuccess,
       acctSaving:s.acctSaving,
       acctDekitCountdown, acctShowDekit,
-      darkMode:s.darkMode, toggleDarkMode:this.toggleDarkMode,
-      darkModeTrackBg:s.darkMode?accent:'#39435a',
-      darkModeKnobX:s.darkMode?'25px':'3px',
       adminNotifGranted:s.adminNotifGranted, requestAdminNotifs:this.requestAdminNotifs,
     };
   }
@@ -2207,10 +2195,8 @@ class AppComponent extends DCLogic {
     const hqName=this.props.hqName||'Bedok DHQ';
     return {
       accent, orgName, hqName,
-      darkMode:s.darkMode,
-      bgApp:s.darkMode?'#111827':'#eef1f5',
-      bgOuter:s.darkMode?'#080c14':'#cdd2da',
-      bgContent:s.darkMode?'#111827':'#f6f7f9',
+      bgOuter:'#cdd2da',
+      bgContent:'#f6f7f9',
       showToast:!!s.toast, toastMsg:s.toast?.msg||'', toastBg:s.toast?.type==='error'?'#c0392b':'#1f8a5b',
       dismissToast:this.dismissToast,
       sessionExpiring:s.sessionExpiring, refreshSessionNow:this.refreshSessionNow,
