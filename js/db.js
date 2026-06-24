@@ -136,6 +136,7 @@ const DB = {
         p4: t(r.work_end_time),
         lateReason: r.late_reason || null,
         welfareNote: r.welfare_note || null,
+        gpsBypassed: r.gps_bypassed || false,
       };
     },
 
@@ -186,11 +187,12 @@ const DB = {
       await _db.from('attendance').delete().eq('personnel_id', personnelId).eq('date', dateStr);
     },
 
-    async logPhase(personnelId, dateStr, key, timeStr, dist) {
+    async logPhase(personnelId, dateStr, key, timeStr, dist, bypassed = false) {
       const colMap = {p1:'check_in_time', p2:'lunch_out_time', p3:'work_return_time', p4:'work_end_time'};
       const distMap = {p1:'gps_distance_m', p3:'work_return_dist'};
       const payload = { status: 'present', [colMap[key]]: timeStr + ':00' };
       if (distMap[key] && dist != null) payload[distMap[key]] = dist;
+      if (bypassed) payload.gps_bypassed = true;
       const existingId = await this._findRow(personnelId, dateStr);
       if (existingId) {
         const { error } = await _db.from('attendance').update(payload).eq('id', existingId);
