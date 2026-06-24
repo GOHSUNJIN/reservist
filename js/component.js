@@ -455,7 +455,9 @@ class AppComponent extends DCLogic {
   approveLeave = id => async () => {
     const leave = this.state.pendingLeaves.find(l => l.id === id);
     if(!this.state.demo && leave) {
-      const ops = [DB.leaves.updateStatus(id, 'approved').catch(()=>{})];
+      const me = this.cur();
+      const reviewMeta = { reviewed_by: me?.name || null, reviewed_at: new Date().toISOString() };
+      const ops = [DB.leaves.updateStatus(id, 'approved', reviewMeta).catch(()=>{})];
       if(leave.type === 'mc') {
         ops.push(DB.attendance.upsert(leave.personnel_id, leave.date, 'mc', {}).catch(()=>{}));
       } else if(leave.type === 'personal' || leave.type === 'other') {
@@ -473,7 +475,11 @@ class AppComponent extends DCLogic {
     this.loadPendingLeaves();
   };
   rejectLeave = id => async () => {
-    if(!this.state.demo) await DB.leaves.updateStatus(id,'rejected').catch(()=>{});
+    if(!this.state.demo) {
+      const me = this.cur();
+      const reviewMeta = { reviewed_by: me?.name || null, reviewed_at: new Date().toISOString() };
+      await DB.leaves.updateStatus(id, 'rejected', reviewMeta).catch(()=>{});
+    }
     this._toast('Request declined.');
     this.loadPendingLeaves();
   };
@@ -1937,6 +1943,8 @@ class AppComponent extends DCLogic {
         statusColor:r.status==='approved'?'#1f8a5b':r.status==='rejected'?'#c0392b':'#b9791a',
         statusBg:r.status==='approved'?'#e7f3ec':r.status==='rejected'?'#f7e4e1':'#fdf6e9',
         reason:r.reason||'',
+        reviewedBy:r.reviewed_by||'',
+        showReviewedBy:!!(r.reviewed_by&&r.status!=='pending'),
       })),
       showLeaveHistory:s.myLeaveHistory.length>0, myLeaveHistoryLoaded:s.myLeaveHistoryLoaded,
     };
