@@ -248,8 +248,8 @@ class AppComponent extends DCLogic {
     let lastCreated = null;
     for(let attempt=0; attempt<20; attempt++){
       const lastBatch = sorted[sorted.length-1];
-      const fromDate = lastBatch?.dekit_date
-        ? Utils.addDays(new Date(lastBatch.dekit_date+'T00:00:00'), 1)
+      const fromDate = lastBatch?.end_date
+        ? Utils.addDays(new Date(lastBatch.end_date+'T00:00:00'), 1)
         : new Date(today+'T00:00:00');
       const nextTue = Utils.nextBatchTuesday(fromDate);
       const {start,end,dekit} = Utils.batchDatesFrom(nextTue);
@@ -278,8 +278,8 @@ class AppComponent extends DCLogic {
     const prevLiveId=sorted.find(b=>b.is_live)?.id;
     for(let i=0;i<needed;i++){
       const lastBatch=sorted[sorted.length-1];
-      const fromDate=lastBatch?.dekit_date
-        ?Utils.addDays(new Date(lastBatch.dekit_date+'T00:00:00'),1)
+      const fromDate=lastBatch?.end_date
+        ?Utils.addDays(new Date(lastBatch.end_date+'T00:00:00'),1)
         :new Date(today+'T00:00:00');
       const nextTue=Utils.nextBatchTuesday(fromDate);
       const {start,end,dekit}=Utils.batchDatesFrom(nextTue);
