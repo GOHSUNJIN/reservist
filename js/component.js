@@ -1964,7 +1964,7 @@ class AppComponent extends DCLogic {
       else if(isFuture) chipStyle+='background:#f6f8fa;color:#8a94a3;border:1.5px dashed #c2c8d2;';
       else if(isPast) chipStyle+='background:#f6f8fa;color:#8a94a3;border:1px solid #e3e6ec;';
       else chipStyle+='background:#fff;color:#5c6678;border:1px solid #d4d9e2;';
-      return {label:b.label, range:Utils.fmtShort(bs)+' to '+Utils.fmtShort(be), onClick:this.setBatch(i), style:chipStyle, isPast};
+      return {label:b.label, range:Utils.fmtShort(bs)+' to '+Utils.fmtShort(be), onClick:this.setBatch(i), style:chipStyle, isPast, isActive, isFuture};
     });
     const activeChips=allChips.filter(c=>!c.isPast);
     const archivedChips=allChips.filter(c=>c.isPast);
