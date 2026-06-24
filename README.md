@@ -27,7 +27,8 @@ A mobile-first PWA for managing NS reservist attendance. Built with Supabase (au
 - Personnel management (add, remove, notes, shift change)
 - Batch/cycle management with auto-creation
 - CSV attendance export
-- Pending leave and shift change request review (approve / decline)
+- Pending leave and shift change request review (approve / decline) with reviewer audit trail
+- Welfare notes per person per day (visible on roster and time log)
 - Meal allowance toggle per batch
 
 ---
@@ -52,7 +53,7 @@ A mobile-first PWA for managing NS reservist attendance. Built with Supabase (au
 | auth_id | uuid | references auth.users |
 | name | text | |
 | contact | text | phone number |
-| shift | text | AM / PM / OFFICE |
+| shift | text | AM / PM / OFFICE — NULL for admins |
 | role | text | reservist / admin |
 | batch_id | uuid FK | references batches |
 | is_active | boolean | |
@@ -84,6 +85,8 @@ A mobile-first PWA for managing NS reservist attendance. Built with Supabase (au
 | gps_distance_m | integer | phase 1 GPS distance |
 | work_return_dist | integer | phase 3 GPS distance |
 | late_reason | text | |
+| gps_bypassed | boolean | true if WhatsApp override was used |
+| welfare_note | text | supervisor welfare note for that day |
 
 ### `no_report_days`
 | Column | Type |
@@ -101,6 +104,8 @@ A mobile-first PWA for managing NS reservist attendance. Built with Supabase (au
 | requested_shift | text | for shift_change type |
 | status | text | pending / approved / rejected |
 | created_at | timestamptz | |
+| reviewed_by | text | name of admin who actioned the request |
+| reviewed_at | timestamptz | when the request was actioned |
 
 ### `avatars` (Supabase Storage bucket)
 Files named by `personnel.id`. Public bucket.
@@ -112,29 +117,75 @@ Files named by `personnel.id`. Public bucket.
 ### 1. Supabase project
 
 1. Create a new Supabase project.
-2. Run the table migrations in the Supabase SQL editor.
+2. Run the table migrations below in the Supabase SQL editor.
 3. Enable Row Level Security on all tables with a broad authenticated policy:
    ```sql
    CREATE POLICY "authenticated" ON <table>
      FOR ALL TO authenticated USING (true) WITH CHECK (true);
    ```
 4. Create a public storage bucket named `avatars`.
-5. For the `leave_requests` table specifically, run:
-   ```sql
-   CREATE TABLE leave_requests (
-     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-     personnel_id UUID REFERENCES personnel(id) ON DELETE CASCADE,
-     date DATE,
-     type TEXT NOT NULL DEFAULT 'personal',
-     reason TEXT,
-     requested_shift TEXT,
-     status TEXT NOT NULL DEFAULT 'pending',
-     created_at TIMESTAMPTZ DEFAULT NOW()
-   );
-   ALTER TABLE leave_requests ENABLE ROW LEVEL SECURITY;
-   CREATE POLICY "authenticated" ON leave_requests
-     FOR ALL TO authenticated USING (true) WITH CHECK (true);
-   ```
+
+**Full schema:**
+
+```sql
+CREATE TABLE personnel (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  auth_id UUID,
+  name TEXT NOT NULL,
+  contact TEXT,
+  shift TEXT CHECK (shift IS NULL OR shift IN ('AM', 'PM', 'OFFICE')),
+  role TEXT NOT NULL DEFAULT 'reservist',
+  batch_id UUID,
+  is_active BOOLEAN NOT NULL DEFAULT true,
+  notes TEXT,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  deactivated_at TIMESTAMPTZ
+);
+
+CREATE TABLE batches (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  label TEXT NOT NULL,
+  start_date DATE NOT NULL,
+  end_date DATE NOT NULL,
+  dekit_date DATE,
+  is_live BOOLEAN NOT NULL DEFAULT false,
+  meal_active BOOLEAN NOT NULL DEFAULT false
+);
+
+CREATE TABLE attendance (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  personnel_id UUID REFERENCES personnel(id) ON DELETE CASCADE,
+  date DATE NOT NULL,
+  status TEXT NOT NULL DEFAULT 'absent',
+  check_in_time TIME,
+  lunch_out_time TIME,
+  work_return_time TIME,
+  work_end_time TIME,
+  gps_distance_m INTEGER,
+  work_return_dist INTEGER,
+  late_reason TEXT,
+  gps_bypassed BOOLEAN DEFAULT false,
+  welfare_note TEXT,
+  UNIQUE(personnel_id, date)
+);
+
+CREATE TABLE no_report_days (
+  date DATE PRIMARY KEY
+);
+
+CREATE TABLE leave_requests (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  personnel_id UUID REFERENCES personnel(id) ON DELETE CASCADE,
+  date DATE,
+  type TEXT NOT NULL DEFAULT 'personal',
+  reason TEXT,
+  requested_shift TEXT,
+  status TEXT NOT NULL DEFAULT 'pending',
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  reviewed_by TEXT,
+  reviewed_at TIMESTAMPTZ
+);
+```
 
 ### 2. Configure the app
 

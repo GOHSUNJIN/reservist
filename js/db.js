@@ -77,7 +77,7 @@ const DB = {
     },
 
     async add({ authId, name, contact, shift, batchId, role = 'reservist' }) {
-      const row = { name, contact, shift, batch_id: batchId, role, is_active: true };
+      const row = { name, contact, shift: shift || null, batch_id: batchId, role, is_active: true };
       if (authId) row.auth_id = authId;
       const { data, error } = await _db.from('personnel').insert(row).select().maybeSingle();
       return { data, error };
@@ -98,7 +98,7 @@ const DB = {
     },
 
     async updateShift(personnelId, shift) {
-      const { data, error } = await _db.from('personnel').update({ shift }).eq('id', personnelId).select().maybeSingle();
+      const { data, error } = await _db.from('personnel').update({ shift: shift || null }).eq('id', personnelId).select().maybeSingle();
       return { data, error };
     },
 
@@ -282,8 +282,8 @@ const DB = {
       return { data, error };
     },
 
-    async updateStatus(id, status) {
-      const { data, error } = await _db.from('leave_requests').update({ status }).eq('id', id).select().maybeSingle();
+    async updateStatus(id, status, meta = {}) {
+      const { data, error } = await _db.from('leave_requests').update({ status, ...meta }).eq('id', id).select().maybeSingle();
       return { data, error };
     },
 

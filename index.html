@@ -638,6 +638,9 @@
                 <sc-if value="{{ rh.reason }}" hint-placeholder-val="">
                   <div style="font-size:11.5px;color:#8a94a3;font-style:italic;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ rh.reason }}</div>
                 </sc-if>
+                <sc-if value="{{ rh.showReviewedBy }}">
+                  <div style="font-size:11px;color:#aab0bc;margin-top:1px;">by {{ rh.reviewedBy }}</div>
+                </sc-if>
               </div>
               <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;color:{{ rh.statusColor }};background:{{ rh.statusBg }};white-space:nowrap;flex:0 0 auto;">{{ rh.statusLabel }}</span>
             </div>
