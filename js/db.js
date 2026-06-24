@@ -215,7 +215,7 @@ const DB = {
         const { error } = await _db.from('attendance').update({ welfare_note: note }).eq('id', existingId);
         return { error };
       }
-      const { error } = await _db.from('attendance').insert({ personnel_id: personnelId, date: dateStr, welfare_note: note });
+      const { error } = await _db.from('attendance').insert({ personnel_id: personnelId, date: dateStr, status: 'absent', welfare_note: note });
       return { error };
     },
   },
