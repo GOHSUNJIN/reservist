@@ -98,6 +98,14 @@ class AppComponent extends DCLogic {
     this._onActivity = () => { if(this.state.authed) this._resetIdleTimer(); };
     window.addEventListener('pointerdown', this._onActivity);
     window.addEventListener('keydown', this._onActivity);
+    this._onVisibilityChange = () => {
+      if(!document.hidden && this.state.authed && this._lastActiveAt){
+        const elapsed = Date.now() - this._lastActiveAt;
+        if(elapsed >= 20*60*1000){ this._toast('Logged out due to inactivity.'); this.logout(); }
+        else if(elapsed >= 18*60*1000){ this.setState({idleWarning:true}); }
+      }
+    };
+    document.addEventListener('visibilitychange', this._onVisibilityChange);
   }
   componentWillUnmount(){
     if(this._toastTimer) clearTimeout(this._toastTimer);
@@ -107,6 +115,7 @@ class AppComponent extends DCLogic {
     if(this._reminderTimer) clearTimeout(this._reminderTimer);
     clearInterval(this._t);
     this._unsubscribeRealtime();
+    document.removeEventListener('visibilitychange', this._onVisibilityChange);
     window.removeEventListener('online', this._onOnline);
     window.removeEventListener('offline', this._onOffline);
     window.removeEventListener('pointerdown', this._onActivity);
@@ -201,8 +210,14 @@ class AppComponent extends DCLogic {
       this._myAttendanceChannel = DB.realtime.subscribeMyAttendance(me.id, (row) => {
         const todayKey = Utils.dateKey(this.baseDate());
         if(row.date === todayKey){
-          const entry = DB.attendance._toEntry(row);
-          this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:entry}}));
+          // Merge with existing — Supabase realtime may send partial rows (only changed columns)
+          this.setState(s=>{
+            const existing=s.attendance[s.currentUserId]||{};
+            const incoming=DB.attendance._toEntry(row);
+            const merged={};
+            for(const k of Object.keys(incoming)) merged[k]=incoming[k]??existing[k];
+            return {attendance:{...s.attendance,[s.currentUserId]:merged}};
+          });
         }
       });
       this._myLeaveChannel = DB.realtime.subscribeLeaveStatus(me.id, async (row) => {
@@ -221,12 +236,13 @@ class AppComponent extends DCLogic {
     // Session expiry warning — show 5 min before typical 1-hour Supabase JWT expiry
     if(this._sessionWarnTimer) clearTimeout(this._sessionWarnTimer);
     this._sessionWarnTimer = setTimeout(()=>{ if(this.state.authed) this.setState({sessionExpiring:true}); }, 55*60*1000);
-    // Add to Home Screen nudge (shown once, after a short delay)
-    setTimeout(()=>{ if(this._shouldShowA2hs()) this.setState({showA2hs:true, a2hsIsIos:/iP(hone|od|ad)/.test(navigator.userAgent||'')}); }, 5000);
+    // Add to Home Screen nudge — 30-second delay, at most once per day
+    setTimeout(()=>{ if(this._shouldShowA2hs()){ localStorage.setItem('a2hs_seen',Date.now().toString()); this.setState({showA2hs:true, a2hsIsIos:/iP(hone|od|ad)/.test(navigator.userAgent||'')}); } }, 30000);
     this._resetIdleTimer();
   }
 
   _resetIdleTimer(){
+    this._lastActiveAt = Date.now();
     if(this._idleWarnTimer) clearTimeout(this._idleWarnTimer);
     if(this._idleLogoutTimer) clearTimeout(this._idleLogoutTimer);
     if(this.state.idleWarning) this.setState({idleWarning:false});
@@ -441,6 +457,11 @@ class AppComponent extends DCLogic {
     const leave = this.state.pendingLeaves.find(l => l.id === id);
     if(!this.state.demo && leave) {
       const ops = [DB.leaves.updateStatus(id, 'approved').catch(()=>{})];
+      if(leave.type === 'mc') {
+        ops.push(DB.attendance.upsert(leave.personnel_id, leave.date, 'mc', {}).catch(()=>{}));
+      } else if(leave.type === 'personal' || leave.type === 'other') {
+        ops.push(DB.attendance.upsert(leave.personnel_id, leave.date, 'absent', {}).catch(()=>{}));
+      }
       if(leave.type === 'shift_change' && leave.requested_shift) {
         ops.push(
           DB.personnel.updateShift(leave.personnel_id, leave.requested_shift).then(({data}) => {
@@ -959,8 +980,14 @@ class AppComponent extends DCLogic {
   _subscribeRealtime(dateStr){
     if(this.state.demo) return;
     const ch=DB.realtime.subscribeAttendance(dateStr, row=>{
-      const entry=DB.attendance._toEntry(row);
-      this.setState(s=>({attendance:{...s.attendance,[row.personnel_id]:entry}}));
+      // Merge with existing — Supabase realtime may send partial rows (only changed columns)
+      this.setState(s=>{
+        const existing=s.attendance[row.personnel_id]||{};
+        const incoming=DB.attendance._toEntry(row);
+        const merged={};
+        for(const k of Object.keys(incoming)) merged[k]=incoming[k]??existing[k];
+        return {attendance:{...s.attendance,[row.personnel_id]:merged}};
+      });
     });
     this.setState({realtimeChannel:ch});
   }
@@ -1186,6 +1213,8 @@ class AppComponent extends DCLogic {
     try{
       if(window.navigator.standalone||window.matchMedia('(display-mode:standalone)').matches) return false;
       if(localStorage.getItem('a2hs_dismissed')) return false;
+      const last = localStorage.getItem('a2hs_seen');
+      if(last && (Date.now() - parseInt(last)) < 24*60*60*1000) return false; // at most once per day
       return /Android|iPhone|iPad|iPod/.test(navigator.userAgent||'');
     }catch(e){return false;}
   }
@@ -1664,10 +1693,11 @@ class AppComponent extends DCLogic {
       phName:Utils.holidayName(todayD)||(isOffDay?'Reservists do not report on weekends.':'No CNB reporting today.'),
       isMc:!outOfCycle&&status==='mc'&&!noRep,
       isAbsent:!outOfCycle&&status==='absent'&&!noRep,
-      hasPendingRequest:!outOfCycle&&!noRep&&status!=='mc'&&status!=='absent'&&!!s.myPendingRequest,
+      // Only block today's check-in if the pending request is for today and not yet checked in
+      hasPendingRequest:!outOfCycle&&!noRep&&status!=='mc'&&status!=='absent'&&!!(s.myPendingRequest&&s.myPendingRequest.date===todayKey&&status!=='present'),
       pendingRequestLabel:s.myPendingRequest?.type==='mc'?'MC':s.myPendingRequest?.type==='shift_change'?'shift change':'absence',
       pendingRequestDate:s.myPendingRequest?.date?Utils.fmtMed(new Date(s.myPendingRequest.date+'T00:00:00')):'',
-      showPhases:!outOfCycle&&!noRep&&status!=='mc'&&status!=='absent'&&!s.myPendingRequest,
+      showPhases:!outOfCycle&&!noRep&&status!=='mc'&&status!=='absent'&&!(s.myPendingRequest&&s.myPendingRequest.date===todayKey&&status!=='present'),
       outOfCycle, outOfCycleTitle, outOfCycleSub,
       phases, allDone,
       isLate, lateShiftStart:shiftStart,
