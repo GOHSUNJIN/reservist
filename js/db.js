@@ -156,8 +156,8 @@ const DB = {
       return result;
     },
 
-    async getHistory(personnelId) {
-      const today = Utils.dateKey(new Date());
+    async getHistory(personnelId, cutoffDate) {
+      const today = cutoffDate || Utils.dateKey(new Date());
       const { data } = await _db.from('attendance')
         .select('*').eq('personnel_id', personnelId).lt('date', today)
         .order('date', { ascending: false }).limit(500);
