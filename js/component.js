@@ -488,6 +488,7 @@ class AppComponent extends DCLogic {
     const {currentUserId, leaveDate, leaveType, leaveReason, demo, myPendingRequest} = this.state;
     if(myPendingRequest){ this._toast('You already have a pending request.','error'); return; }
     if(!leaveDate){ this._toast('Please select a date.','error'); return; }
+    if(leaveDate < Utils.dateKey(this.baseDate())){ this._toast('Cannot submit a request for a past date.','error'); return; }
     if(!demo){
       const {data, error} = await DB.leaves.request(currentUserId, leaveDate, leaveType, leaveReason).catch(e=>({error:e}));
       if(error){ this._toast('Failed to submit request.','error'); return; }
@@ -506,6 +507,7 @@ class AppComponent extends DCLogic {
   onShiftChangeReason = e => this.setState({shiftChangeReason:e.target.value});
   submitShiftChange = async () => {
     const {currentUserId,shiftChangeNew,shiftChangeReason,demo}=this.state;
+    if(!shiftChangeReason.trim()){ this._toast('Please provide a reason for the shift change.','error'); return; }
     if(!demo){
       const {error}=await DB.leaves.request(currentUserId,Utils.dateKey(this.baseDate()),'shift_change',shiftChangeReason,shiftChangeNew).catch(e=>({error:e}));
       if(error){ this._toast('Failed to send request.','error'); return; }
@@ -516,7 +518,7 @@ class AppComponent extends DCLogic {
 
   // ── Welfare note ──────────────────────────────────────────────────────────
   openWelfareNote = () => this.setState({welfareNoteOpen:true, welfareNoteText:this.myRec()?.welfareNote||''});
-  closeWelfareNote = () => this.setState({welfareNoteOpen:false});
+  closeWelfareNote = () => this.setState({welfareNoteOpen:false, welfareNoteText:''});
   onWelfareNoteText = e => this.setState({welfareNoteText:e.target.value});
   submitWelfareNote = async () => {
     const {welfareNoteText, currentUserId, demo} = this.state;
