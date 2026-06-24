@@ -47,6 +47,7 @@ class AppComponent extends DCLogic {
     carryingOver: false,
     historyPage: 1,
     sessionExpiring: false,
+    idleWarning: false,
     showA2hs: false, a2hsIsIos: false,
     forgotPasswordOpen: false,
     showLateWarning: false,
@@ -93,15 +94,22 @@ class AppComponent extends DCLogic {
     this._onOffline = () => this.setState({isOnline:false});
     window.addEventListener('online', this._onOnline);
     window.addEventListener('offline', this._onOffline);
+    this._onActivity = () => { if(this.state.authed) this._resetIdleTimer(); };
+    window.addEventListener('pointerdown', this._onActivity);
+    window.addEventListener('keydown', this._onActivity);
   }
   componentWillUnmount(){
     if(this._toastTimer) clearTimeout(this._toastTimer);
     if(this._sessionWarnTimer) clearTimeout(this._sessionWarnTimer);
+    if(this._idleWarnTimer) clearTimeout(this._idleWarnTimer);
+    if(this._idleLogoutTimer) clearTimeout(this._idleLogoutTimer);
     if(this._reminderTimer) clearTimeout(this._reminderTimer);
     clearInterval(this._t);
     this._unsubscribeRealtime();
     window.removeEventListener('online', this._onOnline);
     window.removeEventListener('offline', this._onOffline);
+    window.removeEventListener('pointerdown', this._onActivity);
+    window.removeEventListener('keydown', this._onActivity);
   }
 
   // ── Data loading ──────────────────────────────────────────────────────────
@@ -213,7 +221,17 @@ class AppComponent extends DCLogic {
     this._sessionWarnTimer = setTimeout(()=>{ if(this.state.authed) this.setState({sessionExpiring:true}); }, 55*60*1000);
     // Add to Home Screen nudge (shown once, after a short delay)
     setTimeout(()=>{ if(this._shouldShowA2hs()) this.setState({showA2hs:true, a2hsIsIos:/iP(hone|od|ad)/.test(navigator.userAgent||'')}); }, 5000);
+    this._resetIdleTimer();
   }
+
+  _resetIdleTimer(){
+    if(this._idleWarnTimer) clearTimeout(this._idleWarnTimer);
+    if(this._idleLogoutTimer) clearTimeout(this._idleLogoutTimer);
+    if(this.state.idleWarning) this.setState({idleWarning:false});
+    this._idleWarnTimer = setTimeout(()=>{ if(this.state.authed) this.setState({idleWarning:true}); }, 18*60*1000);
+    this._idleLogoutTimer = setTimeout(()=>{ if(this.state.authed){ this._toast('Logged out due to inactivity.'); this.logout(); } }, 20*60*1000);
+  }
+  stayActive = () => { this._resetIdleTimer(); };
 
   async _ensureLiveBatch(batches, overrideDate){
     const today = overrideDate || Utils.dateKey(this.baseDate());
@@ -333,6 +351,8 @@ class AppComponent extends DCLogic {
   };
 
   logout = async () => {
+    if(this._idleWarnTimer) clearTimeout(this._idleWarnTimer);
+    if(this._idleLogoutTimer) clearTimeout(this._idleLogoutTimer);
     this._unsubscribeRealtime();
     if(!this.state.demo) await DB.auth.logout();
     this.setState({
@@ -352,7 +372,7 @@ class AppComponent extends DCLogic {
       noAvatarIds:new Set(), noReportDaysCache:{},
       markAllPresenting:false, carryingOver:false,
       historyPage:1,
-      sessionExpiring:false, showA2hs:false, forgotPasswordOpen:false,
+      sessionExpiring:false, idleWarning:false, showA2hs:false, forgotPasswordOpen:false,
       showLateWarning:false, lateReasonOpen:false, lateReasonText:'', lateReasonSubmitting:false,
       pendingLeaves:[], pendingLeavesLoaded:false,
       leaveOpen:false, leaveDate:'', leaveType:'mc', leaveReason:'',
@@ -2084,6 +2104,7 @@ class AppComponent extends DCLogic {
       showToast:!!s.toast, toastMsg:s.toast?.msg||'', toastBg:s.toast?.type==='error'?'#c0392b':'#1f8a5b',
       dismissToast:this.dismissToast,
       sessionExpiring:s.sessionExpiring, refreshSessionNow:this.refreshSessionNow,
+      idleWarning:s.idleWarning, stayActive:this.stayActive,
       showA2hs:s.showA2hs, a2hsIsIos:s.a2hsIsIos, dismissA2hs:this.dismissA2hs,
       ...this._buildAuth(s, accent),
       ...this._buildNav(s, accent, orgName),
