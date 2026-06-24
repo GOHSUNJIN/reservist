@@ -900,9 +900,9 @@ class AppComponent extends DCLogic {
     if(this.state.role==='reservist'&&!this.state.demo){
       const [att, hist] = await Promise.all([
         DB.attendance.getForDate(d).catch(()=>({})),
-        DB.attendance.getHistory(this.state.currentUserId).catch(()=>[]),
+        DB.attendance.getHistory(this.state.currentUserId, d).catch(()=>[]),
       ]);
-      this.setState({attendance:att, history:hist});
+      this.setState({attendance:att, attendanceDate:d, history:hist});
     }
   };
 
@@ -920,7 +920,7 @@ class AppComponent extends DCLogic {
         DB.attendance.getForDate(today).catch(()=>({})),
         DB.attendance.getHistory(this.state.currentUserId).catch(()=>[]),
       ]);
-      this.setState({attendance:att, history:hist});
+      this.setState({attendance:att, attendanceDate:today, history:hist});
     }
   };
 
@@ -1990,7 +1990,7 @@ class AppComponent extends DCLogic {
       const _phaseParts=[r.p1?'IN '+r.p1:null,r.p2?((p.shift==='PM'?'DIN ':'LCH ')+r.p2):null,r.p3?'BACK '+r.p3:null,r.p4?'OUT '+r.p4:null].filter(Boolean);
       const phaseLine=_phaseParts.join('  ·  ');
       const showPhaseLine=r.status==='present'&&_phaseParts.length>0;
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent'),onShiftChange:this.changeShift(p.id),cardStyle,avatarStyle,phaseLine,showPhaseLine};
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent'),onShiftChange:this.changeShift(p.id),cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote)};
     });
     const search=(s.rosterSearch||'').toLowerCase();
     const filteredRoster=roster.filter(r=>!search||r.name.toLowerCase().includes(search));
@@ -2029,6 +2029,7 @@ class AppComponent extends DCLogic {
         id:p.id, name:p.name, initials:Utils.initials(p.name), shiftLabel:Utils.shiftLabel(p.shift),
         label:mm.label, color:mm.color, bg:mm.bg, isLate,
         lateReason, showLateReason,
+        welfareNote:r.welfareNote||'', showWelfareNote:!!(r.welfareNote),
         showNoGps: !!(r.gpsBypassed),
         p1:r.p1||'–', p2:r.p2||'–', p3:r.p3||'–', p4:r.p4||'–',
         p1Color:r.p1?(isLate?'#c0392b':'#161f30'):'#c2c8d2',
@@ -2058,7 +2059,7 @@ class AppComponent extends DCLogic {
       const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
       const av=s.avatars[p.id]||'';
       const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:(r.status==='present'&&r.p1)?r.p1:'',avatarStyle};
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:(r.status==='present'&&r.p1)?r.p1:'',avatarStyle,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote)};
     });
     const vPresent=viewRoster.filter(r=>r.label==='Present').length, vMc=viewRoster.filter(r=>r.label==='On MC').length, vAbsent=viewRoster.filter(r=>r.label==='Absent').length, vPending=viewRoster.filter(r=>r.label==='Pending').length, vTotal=viewRoster.length;
     const vPercent=vTotal?Math.round((vPresent+vMc)/vTotal*100):0;
