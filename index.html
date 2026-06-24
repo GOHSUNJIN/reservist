@@ -719,6 +719,12 @@
               <div style="padding:28px 16px;text-align:center;color:#8a94a3;font-size:13px;">No attendance records yet for this cycle.</div>
             </sc-if>
           </div>
+          <sc-if value="{{ canExportHistory }}">
+            <button onClick="{{ exportMyCsv }}" style="width:100%;margin-top:10px;padding:11px;background:#fff;border:1px solid #d4d9e2;border-radius:12px;font-size:13px;font-weight:600;color:#5c6678;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              Download my attendance (CSV)
+            </button>
+          </sc-if>
         </div>
         </sc-if>
 
