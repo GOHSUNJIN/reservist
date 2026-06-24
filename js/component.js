@@ -160,6 +160,7 @@ class AppComponent extends DCLogic {
     let batches = await DB.batches.list().catch(()=>[]);
     if(role==='admin'){
       batches = await this._ensureLiveBatch(batches);
+      batches = await this._ensureForwardBatches(batches, 2);
     }
 
     const liveIdx = batches.findIndex(b=>b.is_live);
@@ -1172,7 +1173,10 @@ class AppComponent extends DCLogic {
     const today = Utils.dateKey(this.baseDate());
     // Reload batch list so deletions/additions in Supabase are reflected
     let batches = await DB.batches.list().catch(()=>this.state.batches);
-    if(role==='admin') batches = await this._ensureLiveBatch(batches).catch(()=>batches);
+    if(role==='admin'){
+      batches = await this._ensureLiveBatch(batches).catch(()=>batches);
+      batches = await this._ensureForwardBatches(batches, 2).catch(()=>batches);
+    }
     const liveIdx = batches.findIndex(b=>b.is_live);
     const activeBatchIdx = liveIdx>=0?liveIdx:this.state.activeBatchIdx||0;
     const activeBatch = batches[activeBatchIdx];
