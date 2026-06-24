@@ -274,6 +274,8 @@ class AppComponent extends DCLogic {
     let sorted=[...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
     const futureBatches=sorted.filter(b=>b.start_date>today);
     const needed=ahead-futureBatches.length;
+    if(needed<=0) return batches;
+    const prevLiveId=sorted.find(b=>b.is_live)?.id;
     for(let i=0;i<needed;i++){
       const lastBatch=sorted[sorted.length-1];
       const fromDate=lastBatch?.dekit_date
@@ -287,7 +289,8 @@ class AppComponent extends DCLogic {
       const {data}=await DB.batches.create(label,startStr,endStr,dekitStr).catch(()=>({}));
       if(data) sorted.push(data); else break;
     }
-    return needed>0?DB.batches.list().catch(()=>sorted):batches;
+    if(prevLiveId) await DB.batches.activate(prevLiveId).catch(()=>{});
+    return DB.batches.list().catch(()=>sorted);
   }
 
   async _loadDateAttendance(off){
