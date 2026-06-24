@@ -56,6 +56,10 @@ class AppComponent extends DCLogic {
     pendingLeaves: [], pendingLeavesLoaded: false,
     shiftChangeOpen: false, shiftChangeNew: 'AM', shiftChangeReason: '',
     notifGranted: false,
+    adminNotifGranted: false,
+    myLeaveHistory: [], myLeaveHistoryLoaded: false,
+    welfareNoteOpen: false, welfareNoteText: '', welfareNoteSaving: false,
+    darkMode: false,
   };
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
@@ -64,6 +68,8 @@ class AppComponent extends DCLogic {
     this._offlineQueues = [];
     const {detected, name} = this._detectInAppBrowser();
     if(detected) this.setState({isInAppBrowser:true, inAppBrowserName:name});
+    if(localStorage.getItem('dark_mode')==='1') this.setState({darkMode:true});
+    if(localStorage.getItem('admin_notif')==='1') this.setState({adminNotifGranted:true});
     this._init();
     this._onOnline = async () => {
       this.setState({isOnline:true});
@@ -178,9 +184,10 @@ class AppComponent extends DCLogic {
       attendance, noReportDays, history,
       authError:'', loading:false, accountDeleted:false, demo:false,
     });
-    if(role==='admin'){ this._subscribeRealtime(today); setTimeout(()=>this.loadRosterAvatars(),0); setTimeout(()=>this.loadPendingLeaves(),0); }
+    if(role==='admin'){ this._subscribeRealtime(today); setTimeout(()=>this.loadRosterAvatars(),0); setTimeout(()=>this.loadPendingLeaves(),0); this._subscribeAdminRequests(); }
     if(role==='reservist'){
       DB.leaves.myPending(me.id).then(req=>this.setState({myPendingRequest:req})).catch(()=>{});
+      DB.leaves.myHistory(me.id).then(hist=>this.setState({myLeaveHistory:hist,myLeaveHistoryLoaded:true})).catch(()=>{});
       this._myAttendanceChannel = DB.realtime.subscribeMyAttendance(me.id, (row) => {
         const todayKey = Utils.dateKey(this.baseDate());
         if(row.date === todayKey){
@@ -351,7 +358,9 @@ class AppComponent extends DCLogic {
       leaveOpen:false, leaveDate:'', leaveType:'mc', leaveReason:'',
       myPendingRequest:null,
       shiftChangeOpen:false, shiftChangeNew:'AM', shiftChangeReason:'',
-      notifGranted:false,
+      notifGranted:false, adminNotifGranted:false,
+      myLeaveHistory:[], myLeaveHistoryLoaded:false,
+      welfareNoteOpen:false, welfareNoteText:'', welfareNoteSaving:false,
     });
   };
 
@@ -460,6 +469,57 @@ class AppComponent extends DCLogic {
     }
     this._toast('Shift change request sent.');
     this.setState({shiftChangeOpen:false});
+  };
+
+  // ── Welfare note ──────────────────────────────────────────────────────────
+  openWelfareNote = () => this.setState({welfareNoteOpen:true, welfareNoteText:this.myRec()?.welfareNote||''});
+  closeWelfareNote = () => this.setState({welfareNoteOpen:false});
+  onWelfareNoteText = e => this.setState({welfareNoteText:e.target.value});
+  submitWelfareNote = async () => {
+    const {welfareNoteText, currentUserId, demo} = this.state;
+    this.setState({welfareNoteSaving:true});
+    const today = Utils.dateKey(this.baseDate());
+    if(!demo){
+      const {error} = await DB.attendance.saveWelfareNote(currentUserId, today, welfareNoteText.trim()).catch(e=>({error:e}));
+      if(error){ this._toast('Failed to save note.','error'); this.setState({welfareNoteSaving:false}); return; }
+    }
+    this.setState(s=>({
+      attendance:{...s.attendance,[s.currentUserId]:{...s.attendance[s.currentUserId],welfareNote:welfareNoteText.trim()}},
+      welfareNoteOpen:false, welfareNoteSaving:false,
+    }));
+    this._toast('Note saved.');
+  };
+
+  // ── Dark mode ─────────────────────────────────────────────────────────────
+  toggleDarkMode = () => {
+    const next = !this.state.darkMode;
+    this.setState({darkMode:next});
+    localStorage.setItem('dark_mode', next ? '1' : '0');
+  };
+
+  // ── Admin notifications ───────────────────────────────────────────────────
+  _subscribeAdminRequests() {
+    if(this.state.demo) return;
+    if(this._adminRequestsChannel) return;
+    this._adminRequestsChannel = DB.realtime.subscribeAdminRequests((row) => {
+      this.loadPendingLeaves();
+      if(this.state.adminNotifGranted && typeof Notification !== 'undefined' && Notification.permission === 'granted'){
+        const typeMap = {mc:'MC',shift_change:'Shift Change',other:'Other',personal:'Personal Leave'};
+        new Notification('New request from personnel', {body:(typeMap[row.type]||row.type)+' request received.',icon:'./icon.svg'});
+      }
+    });
+  }
+  requestAdminNotifs = async () => {
+    if(!('Notification' in window)){ this._toast('Notifications not supported on this browser.','error'); return; }
+    const perm = await Notification.requestPermission();
+    if(perm === 'granted'){
+      localStorage.setItem('admin_notif','1');
+      this.setState({adminNotifGranted:true});
+      this._subscribeAdminRequests();
+      this._toast('Notifications enabled!');
+    } else {
+      this._toast('Notification permission denied.','error');
+    }
   };
 
   // ── Reminders ─────────────────────────────────────────────────────────────
@@ -835,15 +895,7 @@ class AppComponent extends DCLogic {
   _subscribeRealtime(dateStr){
     if(this.state.demo) return;
     const ch=DB.realtime.subscribeAttendance(dateStr, row=>{
-      const t=s=>s?s.slice(0,5):null;
-      const entry={
-        status:row.status,
-        p1:t(row.check_in_time), p1dist:row.gps_distance_m,
-        p2:t(row.lunch_out_time),
-        p3:t(row.work_return_time), p3dist:row.work_return_dist,
-        p4:t(row.work_end_time),
-        lateReason:row.late_reason||null,
-      };
+      const entry=DB.attendance._toEntry(row);
       this.setState(s=>({attendance:{...s.attendance,[row.personnel_id]:entry}}));
     });
     this.setState({realtimeChannel:ch});
@@ -852,7 +904,7 @@ class AppComponent extends DCLogic {
     DB.realtime.unsubscribe(this.state.realtimeChannel);
     if(this._myLeaveChannel){ DB.realtime.unsubscribe(this._myLeaveChannel); this._myLeaveChannel = null; }
     if(this._myAttendanceChannel){ DB.realtime.unsubscribe(this._myAttendanceChannel); this._myAttendanceChannel = null; }
-    // setState({realtimeChannel:null}) intentionally skipped here as it may run post-unmount
+    if(this._adminRequestsChannel){ DB.realtime.unsubscribe(this._adminRequestsChannel); this._adminRequestsChannel = null; }
   }
 
   // ── Admin actions ─────────────────────────────────────────────────────────
@@ -1574,6 +1626,11 @@ class AppComponent extends DCLogic {
       shiftChangeIsAm:s.shiftChangeNew==='AM', shiftChangeIsPm:s.shiftChangeNew==='PM', shiftChangeIsOffice:s.shiftChangeNew==='OFFICE',
       onShiftChangeReason:this.onShiftChangeReason, submitShiftChange:this.submitShiftChange, closeShiftChange:this.closeShiftChange,
       notifGranted:s.notifGranted, requestReminders:this.requestReminders,
+      welfareNote:rec.welfareNote||'', hasWelfareNote:!!(rec.welfareNote),
+      canAddWelfareNote:!outOfCycle&&!noRep&&Utils.isReportDay(todayD),
+      openWelfareNote:this.openWelfareNote, closeWelfareNote:this.closeWelfareNote,
+      welfareNoteOpen:s.welfareNoteOpen, welfareNoteText:s.welfareNoteText, welfareNoteSaving:s.welfareNoteSaving,
+      onWelfareNoteText:this.onWelfareNoteText, submitWelfareNote:this.submitWelfareNote,
     };
   }
 
@@ -1759,6 +1816,25 @@ class AppComponent extends DCLogic {
         'Update WhatsApp once all PNSMEN have arrived.',
       ],
       waGroupUrl, showWaGroup:!!waGroupUrl,
+      teamMembers: me?.batch_id ? s.personnel
+        .filter(p=>p.batch_id===me.batch_id&&p.id!==s.currentUserId&&(p.role||'reservist')==='reservist')
+        .map(p=>({
+          id:p.id, name:p.name, initials:Utils.initials(p.name),
+          shiftLabel:Utils.shiftLabel(p.shift),
+          contact:p.contact||'',
+          waLink:p.contact?`https://api.whatsapp.com/send?phone=65${p.contact.replace(/[\s-]/g,'')}`:''
+        })) : [],
+      showTeam: !!(me?.batch_id && s.personnel.some(p=>p.batch_id===me.batch_id&&p.id!==s.currentUserId)),
+      leaveHistoryItems: s.myLeaveHistory.map(r=>({
+        id:r.id,
+        typeLabel:r.type==='mc'?'MC':r.type==='shift_change'?'Shift Change':r.type==='other'?'Other':'Personal Leave',
+        dateLabel:r.date?Utils.fmtMed(new Date(r.date+'T00:00:00')):'',
+        statusLabel:r.status==='approved'?'Approved':r.status==='rejected'?'Declined':'Pending',
+        statusColor:r.status==='approved'?'#1f8a5b':r.status==='rejected'?'#c0392b':'#b9791a',
+        statusBg:r.status==='approved'?'#e7f3ec':r.status==='rejected'?'#f7e4e1':'#fdf6e9',
+        reason:r.reason||'',
+      })),
+      showLeaveHistory:s.myLeaveHistory.length>0, myLeaveHistoryLoaded:s.myLeaveHistoryLoaded,
     };
   }
 
@@ -1879,6 +1955,12 @@ class AppComponent extends DCLogic {
     const carryOverCandidates=liveBatch?s.personnel.filter(p=>(p.role||'reservist')==='reservist'&&p.batch_id&&p.batch_id!==liveBatch.id):[];
     const showCarryOver=liveBatch&&carryOverCandidates.length>0;
     const carryOverCount=carryOverCandidates.length;
+    const _psVals = Object.values(s.peopleStats);
+    const batchTotalPresent = _psVals.reduce((n,v)=>n+(v.present||0),0);
+    const batchTotalMc = _psVals.reduce((n,v)=>n+(v.mc||0),0);
+    const batchTotalAbsent = _psVals.reduce((n,v)=>n+(v.absent||0),0);
+    const batchTotalDays = batchTotalPresent+batchTotalMc+batchTotalAbsent;
+    const batchAvgPct = batchTotalDays>0?Math.round(batchTotalPresent/batchTotalDays*100):null;
     return {
       activeChips, archivedChips, archivedCount:archivedChips.length,
       showArchivedBatches:s.showArchivedBatches,
@@ -1945,6 +2027,9 @@ class AppComponent extends DCLogic {
       pendingLeavesCount:(s.pendingLeaves||[]).length,
       hasPendingLeaves:(s.pendingLeaves||[]).length>0,
       pendingLeavesLoaded:s.pendingLeavesLoaded,
+      batchTotalPresent, batchTotalMc, batchTotalAbsent,
+      batchAvgPct:batchAvgPct!==null?batchAvgPct+'%':'—',
+      showBatchStats:s.peopleStatsLoaded,
     };
   }
 
@@ -1977,6 +2062,10 @@ class AppComponent extends DCLogic {
       acctPwError:s.acctPwError, acctPwSuccess:s.acctPwSuccess,
       acctSaving:s.acctSaving,
       acctDekitCountdown, acctShowDekit,
+      darkMode:s.darkMode, toggleDarkMode:this.toggleDarkMode,
+      darkModeTrackBg:s.darkMode?accent:'#39435a',
+      darkModeKnobX:s.darkMode?'25px':'3px',
+      adminNotifGranted:s.adminNotifGranted, requestAdminNotifs:this.requestAdminNotifs,
     };
   }
 
@@ -1988,6 +2077,10 @@ class AppComponent extends DCLogic {
     const hqName=this.props.hqName||'Bedok DHQ';
     return {
       accent, orgName, hqName,
+      darkMode:s.darkMode,
+      bgApp:s.darkMode?'#111827':'#eef1f5',
+      bgOuter:s.darkMode?'#080c14':'#cdd2da',
+      bgContent:s.darkMode?'#111827':'#f6f7f9',
       showToast:!!s.toast, toastMsg:s.toast?.msg||'', toastBg:s.toast?.type==='error'?'#c0392b':'#1f8a5b',
       dismissToast:this.dismissToast,
       sessionExpiring:s.sessionExpiring, refreshSessionNow:this.refreshSessionNow,
