@@ -169,7 +169,7 @@ class AppComponent extends DCLogic {
     let batches = await DB.batches.list().catch(()=>[]);
     if(role==='admin'){
       batches = await this._ensureLiveBatch(batches);
-      batches = await this._ensureForwardBatches(batches, 2);
+      batches = await this._ensureForwardBatches(batches, 8);
     }
 
     const liveIdx = batches.findIndex(b=>b.is_live);
@@ -202,8 +202,20 @@ class AppComponent extends DCLogic {
       attendance, noReportDays, history, attendanceDate: today,
       authError:'', loading:false, accountDeleted:false, demo:false,
     });
-    if(role==='admin'){ this._subscribeRealtime(today); setTimeout(()=>this.loadRosterAvatars(),0); setTimeout(()=>this.loadPendingLeaves(),0); this._subscribeAdminRequests(); }
+    if(role==='admin'){
+      this._subscribeRealtime(today); setTimeout(()=>this.loadRosterAvatars(),0); setTimeout(()=>this.loadPendingLeaves(),0); this._subscribeAdminRequests();
+      // If browser silently revoked notification permission, clear the stale localStorage flag
+      if(typeof Notification !== 'undefined' && Notification.permission !== 'granted'){
+        localStorage.removeItem('admin_notif');
+        this.setState({adminNotifGranted:false});
+      }
+    }
     if(role==='reservist'){
+      // Restore pre-shift reminders if browser permission is still granted from a previous session
+      if(typeof Notification !== 'undefined' && Notification.permission === 'granted'){
+        this.setState({notifGranted:true});
+        this._scheduleReminder();
+      }
       DB.leaves.myPending(me.id).then(req=>this.setState({myPendingRequest:req})).catch(()=>{});
       DB.leaves.myHistory(me.id).then(hist=>this.setState({myLeaveHistory:hist,myLeaveHistoryLoaded:true})).catch(()=>{});
       this._myAttendanceChannel = DB.realtime.subscribeMyAttendance(me.id, (row) => {
@@ -935,6 +947,22 @@ class AppComponent extends DCLogic {
   setTestTime = () => { const t=this.state.testTimeInput; if(!t) return; this.setState({testTime:t}); };
   clearTestTime = () => this.setState({testTime:null, testTimeInput:''});
 
+  exportMyCsv = () => {
+    const {history, me} = this.state;
+    if(!history.length){ this._toast('No attendance records to export.','error'); return; }
+    const tk = s => s ? s.slice(0,5) : '';
+    const rows = [['Date','Status','Check In','Lunch Out','Work Return','Work End','Late Reason']];
+    for(const r of history){
+      rows.push([r.date, r.status||'', tk(r.check_in_time), tk(r.lunch_out_time), tk(r.work_return_time), tk(r.work_end_time), r.late_reason||'']);
+    }
+    const csv = rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
+    const blob = new Blob([csv],{type:'text/csv'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href=url; a.download=(me?.name||'attendance').replace(/\s+/g,'_')+'_attendance.csv'; a.click();
+    URL.revokeObjectURL(url);
+  };
+
   // ── Export CSV ────────────────────────────────────────────────────────────
   exportCsv = async () => {
     const {batches,activeBatchIdx,batchMembersCache,personnel,attendance,noReportDays,demo}=this.state;
@@ -1247,7 +1275,7 @@ class AppComponent extends DCLogic {
     let batches = await DB.batches.list().catch(()=>this.state.batches);
     if(role==='admin'){
       batches = await this._ensureLiveBatch(batches).catch(()=>batches);
-      batches = await this._ensureForwardBatches(batches, 2).catch(()=>batches);
+      batches = await this._ensureForwardBatches(batches, 8).catch(()=>batches);
     }
     const liveIdx = batches.findIndex(b=>b.is_live);
     const activeBatchIdx = liveIdx>=0?liveIdx:this.state.activeBatchIdx||0;
@@ -1883,7 +1911,7 @@ class AppComponent extends DCLogic {
     const pagedHistory=myHistory.slice(0,page*PAGE);
     const historyHasMore=myHistory.length>page*PAGE;
     const historyRemaining=myHistory.length-pagedHistory.length;
-    return {myHistory:pagedHistory,historyHasMore,historyRemaining,showMoreHistory:this.showMoreHistory,statMyPresent,statMyMc,statMyMissed,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:pagedHistory.length===0,totalRecorded,attendanceRate,attendanceRateText,attendanceStreak,showAttendanceSummary};
+    return {myHistory:pagedHistory,historyHasMore,historyRemaining,showMoreHistory:this.showMoreHistory,statMyPresent,statMyMc,statMyMissed,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:pagedHistory.length===0,totalRecorded,attendanceRate,attendanceRateText,attendanceStreak,showAttendanceSummary,exportMyCsv:this.exportMyCsv,canExportHistory:s.history.length>0};
   }
 
   _buildBriefings(s, accent){
