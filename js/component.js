@@ -42,6 +42,7 @@ class AppComponent extends DCLogic {
     peopleStats: {}, peopleStatsLoaded: false,
     confirmDeactivateId: null,
     showArchivedBatches: false,
+    cyclePickerOpen: false,
     noReportDaysCache: {},
     markAllPresenting: false,
     carryingOver: false,
@@ -374,7 +375,7 @@ class AppComponent extends DCLogic {
       editingNoteId:null, editingNoteText:'',
       batchJumpDate:Utils.dateKey(new Date()),
       toast:null, rosterSort:'shift', newBatchDate:'',
-      peopleStats:{}, peopleStatsLoaded:false, confirmDeactivateId:null, showArchivedBatches:false,
+      peopleStats:{}, peopleStatsLoaded:false, confirmDeactivateId:null, showArchivedBatches:false, cyclePickerOpen:false,
       noAvatarIds:new Set(), noReportDaysCache:{},
       markAllPresenting:false, carryingOver:false,
       historyPage:1,
@@ -943,6 +944,9 @@ class AppComponent extends DCLogic {
     this.setState(s=>({batches:s.batches.map((b,i)=>i===idx?{...b,meal_active:next}:b)}));
     this._toast('Meal allowance forms '+(next?'activated':'paused')+'.');
   };
+
+  openCyclePicker  = () => this.setState({cyclePickerOpen:true});
+  closeCyclePicker = () => this.setState({cyclePickerOpen:false});
 
   toggleNoReporting = async () => {
     const off=this.state.viewOffset, d=this.dateForOffset(off);
@@ -1891,6 +1895,19 @@ class AppComponent extends DCLogic {
     });
     const activeChips=allChips.filter(c=>!c.isPast);
     const archivedChips=allChips.filter(c=>c.isPast);
+    // Cycle picker — all batches grouped by year, newest year first
+    const _pickerYearMap={};
+    allChips.forEach((c,i)=>{
+      const yr=batches[i]?.start_date?.slice(0,4)||'';
+      if(!_pickerYearMap[yr]) _pickerYearMap[yr]=[];
+      _pickerYearMap[yr].push({...c, onPick:()=>{ this.closeCyclePicker(); c.onClick(); }});
+    });
+    const cyclePickerGroups=Object.keys(_pickerYearMap).sort((a,b)=>b-a).map(yr=>({year:yr,cycles:[..._pickerYearMap[yr]].reverse()}));
+    const activeBatch=batches[activeBatchIdx];
+    const activeCycleLabel=activeBatch?.label||'No cycle';
+    const _abs=activeBatch?new Date(activeBatch.start_date+'T00:00:00'):null;
+    const _abe=activeBatch?new Date(activeBatch.end_date+'T00:00:00'):null;
+    const activeCycleRange=_abs&&_abe?Utils.fmtShort(_abs)+' – '+Utils.fmtShort(_abe):'';
     const viewOffset=s.viewOffset||0, viewDate=this.dateForOffset(viewOffset), viewIsToday=viewOffset===0, viewReportDay=Utils.isReportDay(viewDate);
     const viewDateKey=Utils.dateKey(viewDate);
     const viewMap=viewIsToday?s.attendance:(s.attendanceCache?.[viewDateKey]||{});
@@ -1992,6 +2009,9 @@ class AppComponent extends DCLogic {
     const batchAvgPct = batchTotalDays>0?Math.round(batchTotalPresent/batchTotalDays*100):null;
     return {
       activeChips, archivedChips, archivedCount:archivedChips.length,
+      cyclePickerGroups, cyclePickerOpen:s.cyclePickerOpen,
+      openCyclePicker:this.openCyclePicker, closeCyclePicker:this.closeCyclePicker,
+      activeCycleLabel, activeCycleRange,
       showArchivedBatches:s.showArchivedBatches,
       toggleArchivedBatches:()=>this.setState(s=>({showArchivedBatches:!s.showArchivedBatches})),
       roster, filteredRoster:sortedFiltered, logRows, logDateLabel,
