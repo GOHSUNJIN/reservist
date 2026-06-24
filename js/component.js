@@ -1655,6 +1655,7 @@ class AppComponent extends DCLogic {
         locIsOutOfRange, geofenceWaLink,
         showGpsBypass: myGpsActive && locGpsError && (s.locRetryCount||0) >= 2 && (pd.key==='p1'||pd.key==='p3'),
         onBypass: this.doPhaseBypass(pd.key),
+        showBrowserTip: myGpsActive && locGpsError,
       };
     });
     const allDone=phases.every(ph=>ph.done);
