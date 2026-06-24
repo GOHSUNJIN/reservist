@@ -1903,7 +1903,6 @@ class AppComponent extends DCLogic {
       _pickerYearMap[yr].push({...c, onPick:()=>{ this.closeCyclePicker(); c.onClick(); }});
     });
     const cyclePickerGroups=Object.keys(_pickerYearMap).sort((a,b)=>b-a).map(yr=>({year:yr,cycles:[..._pickerYearMap[yr]].reverse()}));
-    const activeBatch=batches[activeBatchIdx];
     const activeCycleLabel=activeBatch?.label||'No cycle';
     const _abs=activeBatch?new Date(activeBatch.start_date+'T00:00:00'):null;
     const _abe=activeBatch?new Date(activeBatch.end_date+'T00:00:00'):null;
