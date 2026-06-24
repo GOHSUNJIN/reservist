@@ -43,6 +43,7 @@ class AppComponent extends DCLogic {
     confirmDeactivateId: null,
     showArchivedBatches: false,
     cyclePickerOpen: false,
+    attendanceDate: null,
     noReportDaysCache: {},
     markAllPresenting: false,
     carryingOver: false,
@@ -200,7 +201,7 @@ class AppComponent extends DCLogic {
       tab: role==='admin'?'overview':'checkin',
       currentUserId: me.id,
       me, personnel, batches, activeBatchIdx,
-      attendance, noReportDays, history,
+      attendance, noReportDays, history, attendanceDate: today,
       authError:'', loading:false, accountDeleted:false, demo:false,
     });
     if(role==='admin'){ this._subscribeRealtime(today); setTimeout(()=>this.loadRosterAvatars(),0); setTimeout(()=>this.loadPendingLeaves(),0); this._subscribeAdminRequests(); }
@@ -383,7 +384,7 @@ class AppComponent extends DCLogic {
       currentUserId:null, me:null, loginContact:'', loginPassword:'',
       locStatus:'idle', locDistance:null, locGpsMsg:'', locSlow:false, locAccuracy:null, locPermErr:false, locRetryCount:0,
       accountOpen:false, confirmDelete:false,
-      personnel:[], attendance:{}, history:[], attendanceCache:{}, batchMembersCache:{},
+      personnel:[], attendance:{}, history:[], attendanceCache:{}, batchMembersCache:{}, attendanceDate:null,
       testDate:null, testDateInput:'', testTime:null, testTimeInput:'', phaseSubmitting:false,
       acctNameEdit:'', acctPwCurrent:'', acctPwNew:'', acctPwConfirm:'',
       acctPwError:'', acctPwSuccess:'', acctNameError:'', acctNameSuccess:'', acctSaving:false,
@@ -1430,7 +1431,11 @@ class AppComponent extends DCLogic {
     if(dst==='post') return {label:'No reporting',sub:'Reporting cycle ended, await dekit',color:'#8a94a3',bg:'#f0f2f7'};
     if(dst==='wknd') return {label:'Weekend',sub:'No reporting required',color:'#8a94a3',bg:'#f6f8fa'};
     if(dst==='past'){
-      const hr=this.state.history.find(r=>r.date===dk);
+      const {attendanceDate, attendance, currentUserId} = this.state;
+      const myAtt = attendance[currentUserId];
+      const hr = this.state.history.find(r=>r.date===dk)
+        || (dk===attendanceDate && myAtt?.status && myAtt.status!=='pending'
+            ? {status:myAtt.status, check_in_time:myAtt.p1?myAtt.p1+':00':null} : null);
       if(hr){
         const t=hr.check_in_time?hr.check_in_time.slice(0,5):'-';
         if(hr.status==='present') return {label:'Present',sub:'Reported at '+t,color:'#1f8a5b',bg:'#e7f3ec'};
@@ -1441,7 +1446,11 @@ class AppComponent extends DCLogic {
     }
     if(dst==='work'||dst==='today'){
       if(off<0){
-        const hr=this.state.history.find(r=>r.date===dk);
+        const {attendanceDate, attendance, currentUserId} = this.state;
+        const myAtt = attendance[currentUserId];
+        const hr = this.state.history.find(r=>r.date===dk)
+          || (dk===attendanceDate && myAtt?.status && myAtt.status!=='pending'
+              ? {status:myAtt.status, check_in_time:myAtt.p1?myAtt.p1+':00':null} : null);
         if(hr){
           const t=hr.check_in_time?hr.check_in_time.slice(0,5):'-';
           if(hr.status==='present') return {label:'Present',sub:'Reported at '+t,color:'#1f8a5b',bg:'#e7f3ec'};
@@ -1777,7 +1786,9 @@ class AppComponent extends DCLogic {
       else dst='work';
       let style=cellStyle(dst)+'cursor:pointer;';
       if(dst==='past'){
-        const hr=s.history.find(r=>r.date===dk);
+        const hr=s.history.find(r=>r.date===dk)
+          ||(dk===s.attendanceDate&&s.attendance[s.currentUserId]?.status&&s.attendance[s.currentUserId].status!=='pending'
+             ?{status:s.attendance[s.currentUserId].status}:null);
         const pst=hr?.status;
         if(pst==='present') style=cellBase+'background:#e7f3ec;color:#1f8a5b;border:2px solid #a8d5bb;cursor:pointer;';
         else if(pst==='mc') style=cellBase+'background:#f7efdc;color:#b9791a;border:2px solid #e8c77a;cursor:pointer;';
