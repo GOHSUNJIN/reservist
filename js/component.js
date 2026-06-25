@@ -1302,7 +1302,7 @@ class AppComponent extends DCLogic {
     const viewMap=viewIsToday?this.state.attendance:(this.state.attendanceCache?.[viewDateKey]||{});
     const {batches,activeBatchIdx,batchMembersCache}=this.state;
     const activeBatch=batches[activeBatchIdx||0];
-    const activeMembers=activeBatch?.is_live?this.state.personnel:(batchMembersCache?.[activeBatch?.id]||[]);
+    const activeMembers=(activeBatch?.is_live?this.state.personnel:(batchMembersCache?.[activeBatch?.id]||[])).filter(p=>(p.role||'reservist')==='reservist');
     const pending=activeMembers.filter(p=>!viewMap[p.id]?.status||viewMap[p.id]?.status==='absent');
     const p1=Utils.hhmm(new Date());
     const updates={};
@@ -2030,7 +2030,7 @@ class AppComponent extends DCLogic {
 
   _buildAdmin(s, accent){
     const batches=s.batches, activeBatchIdx=s.activeBatchIdx||0, activeBatch=batches[activeBatchIdx];
-    const activeMembers=activeBatch?.is_live?s.personnel:(s.batchMembersCache?.[activeBatch?.id]||[]);
+    const activeMembers=(activeBatch?.is_live?s.personnel:(s.batchMembersCache?.[activeBatch?.id]||[])).filter(p=>(p.role||'reservist')==='reservist');
     const {am:npAmCount,pm:npPmCount}=this._shiftSlotCounts(s.personnel);
     const npAmFull=npAmCount>=2, npPmFull=npPmCount>=2;
     let npShift=s.npShift;
