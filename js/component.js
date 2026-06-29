@@ -369,9 +369,9 @@ class AppComponent extends DCLogic {
       return;
     }
     const today = Utils.dateKey(this.baseDate());
-    const isDekit = today === liveBatch.dekit_date;
+    const isLastDay = today === liveBatch.end_date;
     const sortedBatches = [...this.state.batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
-    const nextBatch = isDekit ? sortedBatches.find(b=>b.start_date>liveBatch.end_date) : null;
+    const nextBatch = isLastDay ? sortedBatches.find(b=>b.start_date>liveBatch.end_date) : null;
     const activeBatch = nextBatch || liveBatch;
     const members = await DB.personnel.list(activeBatch.id).catch(()=>[]);
     const shift = this._capShift(suShift||'AM', members);
@@ -1549,8 +1549,8 @@ class AppComponent extends DCLogic {
     const today=Utils.dateKey(this.baseDate());
     const liveBatch=this._liveBatch(s.batches);
     const sortedBatches=[...(s.batches||[])].sort((a,b)=>a.start_date>b.start_date?1:-1);
-    const isDekit=!!(liveBatch&&today===liveBatch.dekit_date);
-    const nextBatch=isDekit?sortedBatches.find(b=>b.start_date>(liveBatch?.end_date||'')):null;
+    const isLastDay=!!(liveBatch&&today===liveBatch.end_date);
+    const nextBatch=isLastDay?sortedBatches.find(b=>b.start_date>(liveBatch?.end_date||'')):null;
     const targetBatch=nextBatch||liveBatch;
     const targetMembers=(s.personnel||[]).filter(p=>p.batch_id===targetBatch?.id&&(p.role||'reservist')==='reservist');
     const {am:amCount, pm:pmCount}=this._shiftSlotCounts(targetMembers);
@@ -1586,7 +1586,7 @@ class AppComponent extends DCLogic {
       onSuName:this.onSuName, onSuContact:this.onSuContact, onSuShift:this.onSuShift, onSuShiftSelect:this.onSuShiftSelect, onSuPassword:this.onSuPassword,
       doSignup:this.doSignup,
       intakeLabel, intakeRange:intakeRangeFull, intakeRangeFull,
-      signupIsNextCycle:isDekit&&!!nextBatch,
+      signupIsNextCycle:isLastDay&&!!nextBatch,
       forgotPasswordOpen:s.forgotPasswordOpen,
       openForgotPassword:this.openForgotPassword, closeForgotPassword:this.closeForgotPassword,
     };
