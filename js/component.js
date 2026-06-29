@@ -127,6 +127,8 @@ class AppComponent extends DCLogic {
 
   // ── Data loading ──────────────────────────────────────────────────────────
   async _init(){
+    const y=new Date().getFullYear();
+    Utils.loadHolidays(y-1,y,y+1,y+2).catch(()=>{});
     const batches = await DB.batches.list().catch(()=>[]);
     if(batches.length){
       const liveIdx = batches.findIndex(b=>b.is_live);
