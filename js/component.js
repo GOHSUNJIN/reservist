@@ -1592,9 +1592,6 @@ class AppComponent extends DCLogic {
       forgotPasswordOpen:s.forgotPasswordOpen,
       openForgotPassword:this.openForgotPassword, closeForgotPassword:this.closeForgotPassword,
       capsLock:!!s.capsLock, onPwKeyDown:this.onPwKeyDown,
-      devTestDate:s.testDateInput, onDevTestDate:this.onTestDateInput,
-      setDevTestDate:this.setTestDate, clearDevTestDate:this.clearTestDate,
-      hasDevTestDate:!!s.testDate, devTestDateActive:s.testDate||'',
     };
   }
 
