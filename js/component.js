@@ -385,9 +385,9 @@ class AppComponent extends DCLogic {
       return;
     }
     const today = Utils.dateKey(this.baseDate());
-    const cycleStarted = today >= liveBatch.start_date;
+    const isLastDay = today === liveBatch.end_date;
     const sortedBatches = [...this.state.batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
-    const nextBatch = cycleStarted ? sortedBatches.find(b=>b.start_date>liveBatch.end_date) : null;
+    const nextBatch = isLastDay ? sortedBatches.find(b=>b.start_date>liveBatch.end_date) : null;
     const activeBatch = nextBatch || liveBatch;
     const members = await DB.personnel.list(activeBatch.id).catch(()=>[]);
     const shift = this._capShift(suShift||'AM', members);
@@ -1567,8 +1567,8 @@ class AppComponent extends DCLogic {
     const today=Utils.dateKey(this.baseDate());
     const liveBatch=this._liveBatch(s.batches);
     const sortedBatches=[...(s.batches||[])].sort((a,b)=>a.start_date>b.start_date?1:-1);
-    const cycleStarted=!!(liveBatch&&today>=liveBatch.start_date);
-    const nextBatch=cycleStarted?sortedBatches.find(b=>b.start_date>(liveBatch?.end_date||'')):null;
+    const isLastDay=!!(liveBatch&&today===liveBatch.end_date);
+    const nextBatch=isLastDay?sortedBatches.find(b=>b.start_date>(liveBatch?.end_date||'')):null;
     const targetBatch=nextBatch||liveBatch;
     const targetMembers=(s.personnel||[]).filter(p=>p.batch_id===targetBatch?.id&&(p.role||'reservist')==='reservist');
     const {am:amCount, pm:pmCount}=this._shiftSlotCounts(targetMembers);
@@ -1611,7 +1611,7 @@ class AppComponent extends DCLogic {
       onSuName:this.onSuName, onSuContact:this.onSuContact, onSuShift:this.onSuShift, onSuShiftSelect:this.onSuShiftSelect, onSuPassword:this.onSuPassword,
       doSignup:this.doSignup,
       intakeLabel, intakeRange:intakeRangeFull, intakeRangeFull,
-      signupIsNextCycle:cycleStarted&&!!nextBatch,
+      signupIsNextCycle:isLastDay&&!!nextBatch,
       forgotPasswordOpen:s.forgotPasswordOpen,
       openForgotPassword:this.openForgotPassword, closeForgotPassword:this.closeForgotPassword,
       capsLock:!!s.capsLock, onPwKeyDown:this.onPwKeyDown,
