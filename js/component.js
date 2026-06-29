@@ -46,6 +46,7 @@ class AppComponent extends DCLogic {
     attendanceDate: null,
     noReportDaysCache: {},
     markAllPresenting: false,
+    editingBatchLabel: false, batchLabelText: '',
     historyPage: 1,
     sessionExpiring: false,
     idleWarning: false,
@@ -174,7 +175,6 @@ class AppComponent extends DCLogic {
     if(role==='admin'){
       batches = await this._ensureLiveBatch(batches);
       batches = await this._ensureForwardBatches(batches, 8);
-      batches = await this._fixBatchLabels(batches);
     }
 
     const liveIdx = batches.findIndex(b=>b.is_live);
@@ -328,19 +328,6 @@ class AppComponent extends DCLogic {
     return DB.batches.list().catch(()=>sorted);
   }
 
-  async _fixBatchLabels(batches){
-    if(this.state.demo) return batches;
-    const sorted=[...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
-    const yearCount={};
-    let changed=false;
-    for(const b of sorted){
-      const yr=b.start_date.slice(0,4);
-      yearCount[yr]=(yearCount[yr]||0)+1;
-      const expected=Utils.batchLabel(b.start_date,b.end_date,yearCount[yr]);
-      if(b.label!==expected){ await DB.batches.updateLabel(b.id,expected).catch(()=>{}); changed=true; }
-    }
-    return changed ? DB.batches.list().catch(()=>batches) : batches;
-  }
 
   async _loadDateAttendance(off){
     if(off===0) return;
@@ -443,6 +430,7 @@ class AppComponent extends DCLogic {
       welfareNoteOpen:false, welfareNoteText:'', welfareNoteSaving:false,
       isSuperAdmin:false, adminsList:[], adminsLoaded:false,
       npAdminName:'', npAdminContact:'', npAdminPassword:'', confirmDeactivateAdminId:null,
+      editingBatchLabel:false, batchLabelText:'',
     });
   };
 
@@ -1347,7 +1335,6 @@ class AppComponent extends DCLogic {
     if(role==='admin'){
       batches = await this._ensureLiveBatch(batches).catch(()=>batches);
       batches = await this._ensureForwardBatches(batches, 8).catch(()=>batches);
-      batches = await this._fixBatchLabels(batches).catch(()=>batches);
     }
     const liveIdx = batches.findIndex(b=>b.is_live);
     const activeBatchIdx = liveIdx>=0?liveIdx:this.state.activeBatchIdx||0;
@@ -1436,6 +1423,22 @@ class AppComponent extends DCLogic {
     this._toast('Batch '+label+' created.');
   };
 
+
+  startEditBatchLabel = () => {
+    const liveBatch=this.state.batches.find(b=>b.is_live);
+    this.setState({editingBatchLabel:true, batchLabelText:liveBatch?.label||''});
+  };
+  onBatchLabelText = e => this.setState({batchLabelText:e.target.value});
+  saveBatchLabel = async () => {
+    const {batches, batchLabelText, demo} = this.state;
+    const liveBatch = batches.find(b=>b.is_live);
+    if(!liveBatch||!batchLabelText.trim()) return;
+    if(!demo) await DB.batches.updateLabel(liveBatch.id, batchLabelText.trim()).catch(()=>{});
+    const newBatches = batches.map(b=>b.id===liveBatch.id?{...b,label:batchLabelText.trim()}:b);
+    this.setState({batches:newBatches, editingBatchLabel:false});
+    this._toast('Batch label updated.');
+  };
+  cancelBatchLabel = () => this.setState({editingBatchLabel:false});
 
   askDeactivatePerson = id => () => this.setState({confirmDeactivateId:id});
   cancelDeactivatePerson = () => this.setState({confirmDeactivateId:null});
@@ -1564,15 +1567,7 @@ class AppComponent extends DCLogic {
     const tb=a=>`flex:1;padding:11px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;${a?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`;
     const bs=targetBatch?new Date(targetBatch.start_date+'T00:00:00'):null;
     const be=targetBatch?new Date(targetBatch.end_date+'T00:00:00'):null;
-    // If signing up for next cycle, derive label from live batch label + 1
-    const intakeLabel=(()=>{
-      if(!targetBatch) return '';
-      if(nextBatch&&liveBatch?.label){
-        const m=liveBatch.label.match(/^Cycle (\d+)\/(\d+)$/);
-        if(m) return `Cycle ${parseInt(m[1])+1}/${targetBatch.start_date.slice(0,4)}`;
-      }
-      return targetBatch.label;
-    })();
+    const intakeLabel=targetBatch?.label||'';
     const intakeRangeFull=bs&&be?(Utils.fmtShort(bs)+' to '+Utils.fmtShort(be)+' '+bs.getFullYear()):'';
     return {
       showAuth:!s.authed, showApp:s.authed,
@@ -2217,6 +2212,9 @@ class AppComponent extends DCLogic {
       vPresentLabel:'Checked in',
       viewListHeader, viewPercentText, viewPercentColor,
       intakeLabel, intakeRange,
+      editingBatchLabel:s.editingBatchLabel, batchLabelText:s.batchLabelText,
+      startEditBatchLabel:this.startEditBatchLabel, onBatchLabelText:this.onBatchLabelText,
+      saveBatchLabel:this.saveBatchLabel, cancelBatchLabel:this.cancelBatchLabel,
       personnelList:activeMembers.map(p=>{const av=s.avatars[p.id]||'';return{...p,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),onEditNote:this.openNote(p.id,p.notes||''),isEditingNote:s.editingNoteId===p.id,onAskDeactivate:this.askDeactivatePerson(p.id),isConfirmingDeactivate:s.confirmDeactivateId===p.id,statPresent:s.peopleStats[p.id]?.present??0,statMc:s.peopleStats[p.id]?.mc??0,statAbsent:s.peopleStats[p.id]?.absent??0,statPct:s.peopleStats[p.id]?.pct!=null?(s.peopleStats[p.id].pct+'%'):'No records',showStats:s.peopleStatsLoaded,avatarStyle:av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'',avatarInitials:av?'':Utils.initials(p.name)};}),
       cancelDeactivatePerson:this.cancelDeactivatePerson,
       confirmDeactivatePerson:this.confirmDeactivatePerson,
