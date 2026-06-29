@@ -2191,6 +2191,11 @@ class AppComponent extends DCLogic {
     const editTargetRange=_ebs&&_ebe?(Utils.fmtShort(_ebs)+' – '+Utils.fmtShort(_ebe)+' '+_ebs.getFullYear()):'';
     const editTargetIsPast=!!(activeBatch&&activeBatch.end_date<todayForChips&&!activeBatch.is_live);
     const editTargetStatus=editTargetIsLive?'LIVE':editTargetIsPast?'PAST':'UPCOMING';
+    const _sortedBatches=[...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
+    const _isLastDay=!!(liveBatch&&todayForChips===liveBatch.end_date);
+    const _nextBatch=_isLastDay?_sortedBatches.find(b=>b.start_date>liveBatch.end_date):null;
+    const signupTargetLabel=_nextBatch?_nextBatch.label:(liveBatch?.label||'');
+    const signupIsNextCycle=!!_nextBatch;
     const _psVals = Object.values(s.peopleStats);
     const batchTotalPresent = _psVals.reduce((n,v)=>n+(v.present||0),0);
     const batchTotalMc = _psVals.reduce((n,v)=>n+(v.mc||0),0);
@@ -2229,6 +2234,7 @@ class AppComponent extends DCLogic {
       vPresentLabel:'Checked in',
       viewListHeader, viewPercentText, viewPercentColor,
       editTargetLabel, editTargetIsLive, editTargetRange, editTargetStatus,
+      signupTargetLabel, signupIsNextCycle,
       editingBatchLabel:s.editingBatchLabel, batchLabelText:s.batchLabelText,
       startEditBatchLabel:this.startEditBatchLabel, onBatchLabelText:this.onBatchLabelText,
       saveBatchLabel:this.saveBatchLabel, cancelBatchLabel:this.cancelBatchLabel,
