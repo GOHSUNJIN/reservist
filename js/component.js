@@ -2274,7 +2274,7 @@ class AppComponent extends DCLogic {
   _buildAccount(s, accent){
     const me=this.cur(); if(!me) return {};
     const avatarUrl=s.avatars[s.currentUserId]||'';
-    const acctBatch=(s.batches||[]).find(b=>b.is_live)||(s.batches||[]).find(b=>b.id===me.batch_id)||null;
+    const acctBatch=(s.batches||[]).find(b=>b.id===me.batch_id)||(s.batches||[]).find(b=>b.is_live)||null;
     const acctDekit=acctBatch?.dekit_date?new Date(acctBatch.dekit_date+'T00:00:00'):null;
     const acctTodayMid=new Date();acctTodayMid.setHours(0,0,0,0);
     const acctDkLeft=acctDekit?Math.round((acctDekit-acctTodayMid)/86400000):null;
