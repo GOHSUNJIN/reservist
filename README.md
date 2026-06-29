@@ -13,23 +13,29 @@ A mobile-first PWA for managing NS reservist attendance. Built with Supabase (au
 - Leave/absence requests submitted to admin for review
 - Shift change requests
 - Daily calendar view with cycle progress
-- Pre-shift notification reminders (browser Notifications API)
-- Attendance history with rate and streak stats
+- Pre-shift notification reminders (browser Notifications API) — restored automatically on page reload
+- Attendance history with rate and streak stats, personal CSV export
 - Account management (name, password, avatar)
+- Signups on the last day of a cycle are automatically enrolled in the next cycle
 
 **Admin / Supervisor**
-- Live attendance roster with realtime updates
-- Mark present / MC / absent per person
-- Time log with late check-in detection and reason display
+- Live attendance roster with realtime updates (reservists only, admins excluded)
+- Mark present / MC / absent per person — preserves original check-in time on status changes
+- Time log with late check-in detection, reason display, GPS bypass indicator, welfare notes
 - Day navigation (past attendance, future roster)
 - No-reporting day toggle (per date)
 - WhatsApp snapshot share
 - Personnel management (add, remove, notes, shift change)
-- Batch/cycle management with auto-creation
-- CSV attendance export
+- Batch/cycle management with auto-creation (8 cycles pre-created ahead on every login)
+- CSV attendance export per batch
 - Pending leave and shift change request review (approve / decline) with reviewer audit trail
-- Welfare notes per person per day (visible on roster and time log)
+- Welfare notes per person per day (visible on reservist check-in card, roster, and time log)
 - Meal allowance toggle per batch
+
+**Superadmin / Master**
+- All admin capabilities
+- Create and remove admin accounts from the People tab
+- Identified by "Master" header label
 
 ---
 
@@ -44,6 +50,30 @@ A mobile-first PWA for managing NS reservist attendance. Built with Supabase (au
 
 ---
 
+## Roles
+
+| Role | Access |
+|---|---|
+| `reservist` | Check-in, briefings, attendance history, leave requests, meal |
+| `admin` | Full roster and attendance management, leave approval, people management |
+| `superadmin` | All admin access plus creating/removing admin accounts |
+
+---
+
+## Batch / Cycle structure
+
+Cycles run Tuesday → Monday (13 reporting days). Equipment return (dekit) is the following Wednesday.
+
+| Field | Day | Offset from start |
+|---|---|---|
+| `start_date` | Tuesday | +0 |
+| `end_date` | Monday | +13 |
+| `dekit_date` | Wednesday | +15 |
+
+Reservists who sign up on `end_date` (last Monday) are enrolled in the next cycle, not the ending one.
+
+---
+
 ## Database Schema
 
 ### `personnel`
@@ -53,9 +83,9 @@ A mobile-first PWA for managing NS reservist attendance. Built with Supabase (au
 | auth_id | uuid | references auth.users |
 | name | text | |
 | contact | text | phone number |
-| shift | text | AM / PM / OFFICE — NULL for admins |
-| role | text | reservist / admin |
-| batch_id | uuid FK | references batches |
+| shift | text | AM / PM / OFFICE — always NULL for admin/superadmin |
+| role | text | reservist / admin / superadmin |
+| batch_id | uuid FK | references batches — NULL for admin/superadmin |
 | is_active | boolean | |
 | notes | text | |
 | deactivated_at | timestamptz | |
@@ -64,10 +94,10 @@ A mobile-first PWA for managing NS reservist attendance. Built with Supabase (au
 | Column | Type | Notes |
 |---|---|---|
 | id | uuid PK | |
-| label | text | e.g. "MAY-JUN 25 #1" |
-| start_date | date | |
-| end_date | date | last reporting day |
-| dekit_date | date | equipment return day |
+| label | text | e.g. "Cycle 1/2026" |
+| start_date | date | first reporting day (Tuesday) |
+| end_date | date | last reporting day (Monday) |
+| dekit_date | date | equipment return day (Wednesday) |
 | is_live | boolean | only one active at a time |
 | meal_active | boolean | meal allowance toggle |
 
@@ -134,7 +164,7 @@ CREATE TABLE personnel (
   name TEXT NOT NULL,
   contact TEXT,
   shift TEXT CHECK (shift IS NULL OR shift IN ('AM', 'PM', 'OFFICE')),
-  role TEXT NOT NULL DEFAULT 'reservist',
+  role TEXT NOT NULL DEFAULT 'reservist' CHECK (role IN ('reservist', 'admin', 'superadmin')),
   batch_id UUID,
   is_active BOOLEAN NOT NULL DEFAULT true,
   notes TEXT,
@@ -187,7 +217,15 @@ CREATE TABLE leave_requests (
 );
 ```
 
-### 2. Configure the app
+### 2. Create the superadmin account
+
+Sign up through the app login screen first, then promote the account via SQL:
+
+```sql
+UPDATE personnel SET role = 'superadmin' WHERE contact = '<your_contact>';
+```
+
+### 3. Configure the app
 
 Edit the `<x-dc>` tag near the top of `index.html`:
 
@@ -221,7 +259,7 @@ Also add your Supabase credentials in `index.html` (in the `<script>` block near
 </script>
 ```
 
-### 3. Deploy
+### 4. Deploy
 
 No build step. Deploy the repo root to any static host:
 
@@ -246,7 +284,8 @@ No bundler or Node runtime required.
 ## Auth flow
 
 - Accounts are identified by phone number (stored as a synthetic email: `<contact>@opsreservist.mil`)
-- Admins create reservist accounts via the People tab; personnel records link to auth via `auth_id`
+- Reservist accounts are created by admins via the People tab, or by self-signup on the login screen
+- Superadmin creates admin accounts directly from the People tab (no SQL required after initial setup)
 - Sessions use `sessionStorage` so they expire on tab close
 
 ---
