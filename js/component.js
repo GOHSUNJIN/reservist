@@ -46,7 +46,6 @@ class AppComponent extends DCLogic {
     attendanceDate: null,
     noReportDaysCache: {},
     markAllPresenting: false,
-    carryingOver: false,
     historyPage: 1,
     sessionExpiring: false,
     idleWarning: false,
@@ -431,7 +430,7 @@ class AppComponent extends DCLogic {
       toast:null, rosterSort:'shift', newBatchDate:'',
       peopleStats:{}, peopleStatsLoaded:false, confirmDeactivateId:null, showArchivedBatches:false, cyclePickerOpen:false,
       noAvatarIds:new Set(), noReportDaysCache:{},
-      markAllPresenting:false, carryingOver:false,
+      markAllPresenting:false,
       historyPage:1,
       sessionExpiring:false, idleWarning:false, showA2hs:false, forgotPasswordOpen:false,
       showLateWarning:false, lateReasonOpen:false, lateReasonText:'', lateReasonSubmitting:false,
@@ -1437,24 +1436,6 @@ class AppComponent extends DCLogic {
     this._toast('Batch '+label+' created.');
   };
 
-  carryOver = async () => {
-    const {batches, carryingOver, demo} = this.state;
-    if(carryingOver) return;
-    const liveBatch = batches.find(b => b.is_live);
-    if(!liveBatch) return;
-    this.setState({carryingOver:true});
-    if(!demo){
-      const {error} = await DB.personnel.carryOver(liveBatch.id);
-      if(error){
-        this._toast('Could not carry over. Check your connection.', 'error');
-        this.setState({carryingOver:false});
-        return;
-      }
-    }
-    const personnel = await DB.personnel.list().catch(()=>this.state.personnel);
-    this.setState({personnel, carryingOver:false});
-    this._toast('Personnel carried over to current batch.');
-  };
 
   askDeactivatePerson = id => () => this.setState({confirmDeactivateId:id});
   cancelDeactivatePerson = () => this.setState({confirmDeactivateId:null});
@@ -1583,13 +1564,14 @@ class AppComponent extends DCLogic {
     const tb=a=>`flex:1;padding:11px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;${a?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`;
     const bs=targetBatch?new Date(targetBatch.start_date+'T00:00:00'):null;
     const be=targetBatch?new Date(targetBatch.end_date+'T00:00:00'):null;
-    // Compute label from position rather than trusting the stored DB label
+    // If signing up for next cycle, derive label from live batch label + 1
     const intakeLabel=(()=>{
       if(!targetBatch) return '';
-      const yr=targetBatch.start_date.slice(0,4);
-      const sorted=[...s.batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
-      const n=sorted.filter(b=>b.start_date.slice(0,4)===yr).findIndex(b=>b.id===targetBatch.id)+1;
-      return n>0?`Cycle ${n}/${yr}`:targetBatch.label;
+      if(nextBatch&&liveBatch?.label){
+        const m=liveBatch.label.match(/^Cycle (\d+)\/(\d+)$/);
+        if(m) return `Cycle ${parseInt(m[1])+1}/${targetBatch.start_date.slice(0,4)}`;
+      }
+      return targetBatch.label;
     })();
     const intakeRangeFull=bs&&be?(Utils.fmtShort(bs)+' to '+Utils.fmtShort(be)+' '+bs.getFullYear()):'';
     return {
@@ -2197,9 +2179,6 @@ class AppComponent extends DCLogic {
     const lbs=liveBatch?new Date(liveBatch.start_date+'T00:00:00'):null, lbe=liveBatch?new Date(liveBatch.end_date+'T00:00:00'):null;
     const intakeLabel=liveBatch?liveBatch.label:'';
     const intakeRange=lbs&&lbe?(Utils.fmtShort(lbs)+' to '+Utils.fmtShort(lbe)):'';
-    const carryOverCandidates=liveBatch?s.personnel.filter(p=>(p.role||'reservist')==='reservist'&&p.batch_id&&p.batch_id!==liveBatch.id):[];
-    const showCarryOver=liveBatch&&carryOverCandidates.length>0;
-    const carryOverCount=carryOverCandidates.length;
     const _psVals = Object.values(s.peopleStats);
     const batchTotalPresent = _psVals.reduce((n,v)=>n+(v.present||0),0);
     const batchTotalMc = _psVals.reduce((n,v)=>n+(v.mc||0),0);
@@ -2247,7 +2226,6 @@ class AppComponent extends DCLogic {
       setRosterSortStatus:this.setRosterSort('status'),
       rosterSortShiftStyle,rosterSortNameStyle,rosterSortStatusStyle,
       newBatchDate:s.newBatchDate,onNewBatchDate:this.onNewBatchDate,createBatch:this.createBatch,batchCreating:s.batchCreating,
-      showCarryOver, carryOverCount, carryOver:this.carryOver, carryingOver:s.carryingOver,
       npName:s.npName, npContact:s.npContact, npShift, npPassword:s.npPassword,
       npAmFull, npPmFull, npAmCount, npPmCount,
       npAmLabel:npAmFull?'AM shift (0830-1530) - Taken':'AM shift (0830-1530) ('+npAmCount+'/2)',
