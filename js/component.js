@@ -1583,7 +1583,14 @@ class AppComponent extends DCLogic {
     const tb=a=>`flex:1;padding:11px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;${a?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`;
     const bs=targetBatch?new Date(targetBatch.start_date+'T00:00:00'):null;
     const be=targetBatch?new Date(targetBatch.end_date+'T00:00:00'):null;
-    const intakeLabel=targetBatch?targetBatch.label:'';
+    // Compute label from position rather than trusting the stored DB label
+    const intakeLabel=(()=>{
+      if(!targetBatch) return '';
+      const yr=targetBatch.start_date.slice(0,4);
+      const sorted=[...s.batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
+      const n=sorted.filter(b=>b.start_date.slice(0,4)===yr).findIndex(b=>b.id===targetBatch.id)+1;
+      return n>0?`Cycle ${n}/${yr}`:targetBatch.label;
+    })();
     const intakeRangeFull=bs&&be?(Utils.fmtShort(bs)+' to '+Utils.fmtShort(be)+' '+bs.getFullYear()):'';
     return {
       showAuth:!s.authed, showApp:s.authed,
