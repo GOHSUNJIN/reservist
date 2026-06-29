@@ -1208,15 +1208,6 @@
             </sc-for>
           </div>
 
-          <sc-if value="{{ showCarryOver }}" hint-placeholder-val="">
-          <div class="card" style="padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:14px;">
-            <div style="flex:1;">
-              <div style="font-size:13px;font-weight:600;color:#161f30;">Carry over personnel</div>
-              <div style="font-size:11.5px;color:#8a94a3;margin-top:2px;">{{ carryOverCount }} {{ carryOverCount === 1 ? 'person' : 'people' }} from a previous batch. Move them to the current cycle.</div>
-            </div>
-            <button onClick="{{ carryOver }}" style="padding:9px 16px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">{{ carryingOver ? 'Moving...' : 'Carry over' }}</button>
-          </div>
-          </sc-if>
 
           <div class="card" style="padding:14px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
             <div style="flex:1;">
