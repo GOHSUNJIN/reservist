@@ -1163,7 +1163,7 @@ class AppComponent extends DCLogic {
       b.is_live ? Promise.resolve({}) : DB.attendance.getForBatch(b.start_date, b.end_date).catch(()=>({})),
     ]);
     this.setState(s=>({
-      activeBatchIdx:i, viewOffset:off, selectedCalOffset:null,
+      activeBatchIdx:i, viewOffset:off, selectedCalOffset:null, batchJumpDate:b.is_live?Utils.dateKey(today):b.start_date,
       attendanceCache: b.is_live ? {} : {...s.attendanceCache, ...batchAttMap},
       noReportDays,
       noReportDaysCache: cachedNrd?s.noReportDaysCache:{...s.noReportDaysCache,[b.id]:noReportDays},
