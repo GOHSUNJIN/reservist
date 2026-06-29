@@ -2213,7 +2213,6 @@ class AppComponent extends DCLogic {
       viewRoster, vPresent, vMc, vThirdVal, vThirdLabel, vThirdColor, vTotal,
       vPresentLabel:'Checked in',
       viewListHeader, viewPercentText, viewPercentColor,
-      intakeLabel, intakeRange,
       editTargetLabel, editTargetIsLive,
       editingBatchLabel:s.editingBatchLabel, batchLabelText:s.batchLabelText,
       startEditBatchLabel:this.startEditBatchLabel, onBatchLabelText:this.onBatchLabelText,
