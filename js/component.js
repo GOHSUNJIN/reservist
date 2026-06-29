@@ -175,6 +175,7 @@ class AppComponent extends DCLogic {
     if(role==='admin'){
       batches = await this._ensureLiveBatch(batches);
       batches = await this._ensureForwardBatches(batches, 8);
+      batches = await this._fixBatchLabels(batches);
     }
 
     const liveIdx = batches.findIndex(b=>b.is_live);
@@ -326,6 +327,20 @@ class AppComponent extends DCLogic {
     }
     if(prevLiveId) await DB.batches.activate(prevLiveId).catch(()=>{});
     return DB.batches.list().catch(()=>sorted);
+  }
+
+  async _fixBatchLabels(batches){
+    if(this.state.demo) return batches;
+    const sorted=[...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
+    const yearCount={};
+    let changed=false;
+    for(const b of sorted){
+      const yr=b.start_date.slice(0,4);
+      yearCount[yr]=(yearCount[yr]||0)+1;
+      const expected=Utils.batchLabel(b.start_date,b.end_date,yearCount[yr]);
+      if(b.label!==expected){ await DB.batches.updateLabel(b.id,expected).catch(()=>{}); changed=true; }
+    }
+    return changed ? DB.batches.list().catch(()=>batches) : batches;
   }
 
   async _loadDateAttendance(off){
@@ -1332,6 +1347,7 @@ class AppComponent extends DCLogic {
     if(role==='admin'){
       batches = await this._ensureLiveBatch(batches).catch(()=>batches);
       batches = await this._ensureForwardBatches(batches, 8).catch(()=>batches);
+      batches = await this._fixBatchLabels(batches).catch(()=>batches);
     }
     const liveIdx = batches.findIndex(b=>b.is_live);
     const activeBatchIdx = liveIdx>=0?liveIdx:this.state.activeBatchIdx||0;
