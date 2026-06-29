@@ -289,8 +289,8 @@ class AppComponent extends DCLogic {
       const {start,end,dekit} = Utils.batchDatesFrom(nextTue);
       const startStr=Utils.dateKey(start), endStr=Utils.dateKey(end), dekitStr=Utils.dateKey(dekit);
       const sameYear = sorted.filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
-      const num = sameYear.length+1;
-      const label = Utils.batchLabel(startStr, endStr, num);
+      const maxNum = sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0)),0);
+      const label = Utils.batchLabel(startStr, endStr, maxNum+1);
       const {data} = await DB.batches.create(label, startStr, endStr, dekitStr).catch(()=>({}));
       if(data){ sorted.push(data); lastCreated=data; }
       if(startStr<=today && today<=dekitStr){
@@ -319,7 +319,8 @@ class AppComponent extends DCLogic {
       const {start,end,dekit}=Utils.batchDatesFrom(nextTue);
       const startStr=Utils.dateKey(start),endStr=Utils.dateKey(end),dekitStr=Utils.dateKey(dekit);
       const sameYear=sorted.filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
-      const label=Utils.batchLabel(startStr,endStr,sameYear.length+1);
+      const maxNum=sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0)),0);
+      const label=Utils.batchLabel(startStr,endStr,maxNum+1);
       const {data}=await DB.batches.create(label,startStr,endStr,dekitStr).catch(()=>({}));
       if(data) sorted.push(data); else break;
     }
@@ -1307,7 +1308,7 @@ class AppComponent extends DCLogic {
     const viewMap=viewIsToday?this.state.attendance:(this.state.attendanceCache?.[viewDateKey]||{});
     const {batches,activeBatchIdx,batchMembersCache}=this.state;
     const activeBatch=batches[activeBatchIdx||0];
-    const activeMembers=(activeBatch?.is_live?this.state.personnel:(batchMembersCache?.[activeBatch?.id]||[])).filter(p=>(p.role||'reservist')==='reservist');
+    const activeMembers=(activeBatch?.is_live?this.state.personnel.filter(p=>p.batch_id===activeBatch.id):(batchMembersCache?.[activeBatch?.id]||[])).filter(p=>(p.role||'reservist')==='reservist');
     const pending=activeMembers.filter(p=>!viewMap[p.id]?.status||viewMap[p.id]?.status==='absent');
     const p1=Utils.hhmm(new Date());
     const updates={};
@@ -1404,8 +1405,8 @@ class AppComponent extends DCLogic {
     const {start:s,end:e,dekit:dk}=Utils.batchDatesFrom(start);
     const startStr=Utils.dateKey(s),endStr=Utils.dateKey(e),dekitStr=Utils.dateKey(dk);
     const sameYear=batches.filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
-    const num=sameYear.length+1;
-    const label=Utils.batchLabel(startStr,endStr,num);
+    const maxNum=sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0)),0);
+    const label=Utils.batchLabel(startStr,endStr,maxNum+1);
     if(!demo){
       const {data,error}=await DB.batches.create(label,startStr,endStr,dekitStr);
       if(error||!data){ this._toast('Failed to create batch.','error'); this.setState({batchCreating:false}); return; }
@@ -2045,7 +2046,7 @@ class AppComponent extends DCLogic {
 
   _buildAdmin(s, accent){
     const batches=s.batches, activeBatchIdx=s.activeBatchIdx||0, activeBatch=batches[activeBatchIdx];
-    const activeMembers=(activeBatch?.is_live?s.personnel:(s.batchMembersCache?.[activeBatch?.id]||[])).filter(p=>(p.role||'reservist')==='reservist');
+    const activeMembers=(activeBatch?.is_live?s.personnel.filter(p=>p.batch_id===activeBatch.id):(s.batchMembersCache?.[activeBatch?.id]||[])).filter(p=>(p.role||'reservist')==='reservist');
     const {am:npAmCount,pm:npPmCount}=this._shiftSlotCounts(s.personnel);
     const npAmFull=npAmCount>=2, npPmFull=npPmCount>=2;
     let npShift=s.npShift;
