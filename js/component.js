@@ -1770,7 +1770,7 @@ class AppComponent extends DCLogic {
       :'';
     const whatsappLink=waMsg?'https://api.whatsapp.com/send?text='+encodeURIComponent(waMsg):'';
     const showWaShare=!!(status==='present'||status==='mc');
-    const activeBatch=s.batches[s.activeBatchIdx||0];
+    const activeBatch=myBatch||s.batches[s.activeBatchIdx||0];
     const batchLabel=activeBatch?.label||'';
     const dekit=activeBatch?.dekit_date?new Date(activeBatch.dekit_date+'T00:00:00'):null;
     const todayMid=new Date();todayMid.setHours(0,0,0,0);
@@ -1833,7 +1833,8 @@ class AppComponent extends DCLogic {
   }
 
   _buildCalendar(s, accent){
-    const activeBatch=s.batches[s.activeBatchIdx||0];
+    const me=this.cur();
+    const activeBatch=s.batches.find(b=>b.id===me?.batch_id)||s.batches[s.activeBatchIdx||0];
     if(!activeBatch) return {weekdays:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],calCells:[],cycleStart:'',cycleEnd:'',calSelected:false,calNoneSelected:true,calSelLabel:'',calSelStatus:'',calSelSub:'',calSelColor:'',calSelBg:'',dekitMonth:'',dekitDay:'',dekitLabel:'',dekitSub:'',dekitDateFull:''};
     const bs=new Date(activeBatch.start_date+'T00:00:00');
     const be=new Date(activeBatch.end_date+'T00:00:00');
@@ -1910,7 +1911,7 @@ class AppComponent extends DCLogic {
     const me=this.cur(); if(!me) return {myHistory:[],statMyPresent:0,statMyMc:0,statMyMissed:0,statMyDays:0,cycleDone:0,cycleTotal:0,cyclePct:0};
     const rec=this.myRec(), status=rec.status||'pending';
     const todayD=this.baseDate(), today=Utils.dateKey(todayD);
-    const activeBatch=s.batches[s.activeBatchIdx||0];
+    const activeBatch=s.batches.find(b=>b.id===me.batch_id)||s.batches[s.activeBatchIdx||0];
 
     const _tc=(v,c1,c0)=>v?c1:c0;
     const _dc='#c2c8d2';
