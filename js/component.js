@@ -2066,18 +2066,26 @@ class AppComponent extends DCLogic {
       else if(isFuture) chipStyle+='background:#f6f8fa;color:#8a94a3;border:1.5px dashed #c2c8d2;';
       else if(isPast) chipStyle+='background:#f6f8fa;color:#8a94a3;border:1px solid #e3e6ec;';
       else chipStyle+='background:#fff;color:#5c6678;border:1px solid #d4d9e2;';
-      return {label:b.label, range:Utils.fmtShort(bs)+' to '+Utils.fmtShort(be), onClick:this.setBatch(i), style:chipStyle, isPast, isActive, isFuture};
+      return {label:b.label, range:Utils.fmtShort(bs)+' to '+Utils.fmtShort(be), onClick:this.setBatch(i), style:chipStyle, isPast, isActive, isFuture, startDate:b.start_date};
     });
     const activeChips=allChips.filter(c=>!c.isPast);
     const archivedChips=allChips.filter(c=>c.isPast);
-    // Cycle picker — all batches grouped by year, newest year first
+    // Cycle picker — grouped by year, active first then upcoming nearest→furthest then past most-recent→oldest
     const _pickerYearMap={};
     allChips.forEach((c,i)=>{
       const yr=batches[i]?.start_date?.slice(0,4)||'';
       if(!_pickerYearMap[yr]) _pickerYearMap[yr]=[];
       _pickerYearMap[yr].push({...c, onPick:()=>{ this.closeCyclePicker(); c.onClick(); }});
     });
-    const cyclePickerGroups=Object.keys(_pickerYearMap).sort((a,b)=>b-a).map(yr=>({year:yr,cycles:[..._pickerYearMap[yr]].reverse()}));
+    const cyclePickerGroups=Object.keys(_pickerYearMap).sort((a,b)=>b-a).map(yr=>({
+      year:yr,
+      cycles:[..._pickerYearMap[yr]].sort((a,b)=>{
+        if(a.isActive) return -1; if(b.isActive) return 1;
+        if(!a.isPast&&!b.isPast) return a.startDate>b.startDate?1:-1;
+        if(a.isPast&&b.isPast) return a.startDate>b.startDate?-1:1;
+        return a.isPast?1:-1;
+      }),
+    }));
     const activeCycleLabel=activeBatch?.label||'No cycle';
     const _abs=activeBatch?new Date(activeBatch.start_date+'T00:00:00'):null;
     const _abe=activeBatch?new Date(activeBatch.end_date+'T00:00:00'):null;
