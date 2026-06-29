@@ -1167,8 +1167,9 @@ class AppComponent extends DCLogic {
       attendanceCache: b.is_live ? {} : {...s.attendanceCache, ...batchAttMap},
       noReportDays,
       noReportDaysCache: cachedNrd?s.noReportDaysCache:{...s.noReportDaysCache,[b.id]:noReportDays},
-      batchLoading:false, rosterSearch:'',
+      batchLoading:false, rosterSearch:'', peopleStatsLoaded:false,
     }));
+    this.loadPeopleStats();
   };
 
   onBatchJumpDate = e => this.setState({batchJumpDate:e.target.value});
@@ -1378,12 +1379,13 @@ class AppComponent extends DCLogic {
   };
 
   loadPeopleStats = async () => {
-    const {batches,activeBatchIdx,personnel,demo}=this.state;
+    const {batches,activeBatchIdx,personnel,demo,batchMembersCache}=this.state;
     const batch=batches[activeBatchIdx||0];
     if(!batch||demo) return;
+    const members=batch.is_live?personnel:(batchMembersCache[batch.id]||[]);
     const allAtt=await DB.attendance.getForBatch(batch.start_date,batch.dekit_date||batch.end_date).catch(()=>({}));
     const stats={};
-    for(const p of personnel){
+    for(const p of members){
       let present=0,mc=0,absent=0;
       for(const dateMap of Object.values(allAtt)){
         const rec=dateMap[p.id];
@@ -2184,6 +2186,11 @@ class AppComponent extends DCLogic {
     const intakeRange=lbs&&lbe?(Utils.fmtShort(lbs)+' to '+Utils.fmtShort(lbe)):'';
     const editTargetLabel=activeBatch?.label||'';
     const editTargetIsLive=!!activeBatch?.is_live;
+    const _ebs=activeBatch?new Date(activeBatch.start_date+'T00:00:00'):null;
+    const _ebe=activeBatch?new Date(activeBatch.end_date+'T00:00:00'):null;
+    const editTargetRange=_ebs&&_ebe?(Utils.fmtShort(_ebs)+' – '+Utils.fmtShort(_ebe)+' '+_ebs.getFullYear()):'';
+    const editTargetIsPast=!!(activeBatch&&activeBatch.end_date<todayForChips&&!activeBatch.is_live);
+    const editTargetStatus=editTargetIsLive?'LIVE':editTargetIsPast?'PAST':'UPCOMING';
     const _psVals = Object.values(s.peopleStats);
     const batchTotalPresent = _psVals.reduce((n,v)=>n+(v.present||0),0);
     const batchTotalMc = _psVals.reduce((n,v)=>n+(v.mc||0),0);
@@ -2221,7 +2228,7 @@ class AppComponent extends DCLogic {
       viewRoster, vPresent, vMc, vThirdVal, vThirdLabel, vThirdColor, vTotal,
       vPresentLabel:'Checked in',
       viewListHeader, viewPercentText, viewPercentColor,
-      editTargetLabel, editTargetIsLive,
+      editTargetLabel, editTargetIsLive, editTargetRange, editTargetStatus,
       editingBatchLabel:s.editingBatchLabel, batchLabelText:s.batchLabelText,
       startEditBatchLabel:this.startEditBatchLabel, onBatchLabelText:this.onBatchLabelText,
       saveBatchLabel:this.saveBatchLabel, cancelBatchLabel:this.cancelBatchLabel,
