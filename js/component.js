@@ -27,7 +27,7 @@ class AppComponent extends DCLogic {
     testDate: null, testDateInput: '', testTime: null, testTimeInput: '', phaseSubmitting: false,
     acctNameEdit: '',
     acctPwCurrent: '', acctPwNew: '', acctPwConfirm: '',
-    acctPwError: '', acctPwSuccess: '',
+    acctPwError: '', acctPwSuccess: '', capsLock: false,
     acctNameError: '', acctNameSuccess: '',
     acctSaving: false,
     locPhase: null, locSlow: false, locAccuracy: null, locPermErr: false, locRetryCount: 0,
@@ -477,6 +477,7 @@ class AppComponent extends DCLogic {
   // ── Form handlers ─────────────────────────────────────────────────────────
   onLoginContact  = e => this.setState({loginContact:e.target.value});
   onLoginPassword = e => this.setState({loginPassword:e.target.value});
+  onPwKeyDown     = e => this.setState({capsLock:!!e.getModifierState('CapsLock')});
   onSuName         = e => this.setState({suName:e.target.value});
   onSuContact      = e => this.setState({suContact:e.target.value});
   onSuShift        = e => this.setState({suShift:e.target.value});
@@ -1606,6 +1607,7 @@ class AppComponent extends DCLogic {
       signupIsNextCycle:isLastDay&&!!nextBatch,
       forgotPasswordOpen:s.forgotPasswordOpen,
       openForgotPassword:this.openForgotPassword, closeForgotPassword:this.closeForgotPassword,
+      capsLock:!!s.capsLock, onPwKeyDown:this.onPwKeyDown,
     };
   }
 
@@ -2315,7 +2317,7 @@ class AppComponent extends DCLogic {
       onAcctPwCurrent:this.onAcctPwCurrent, onAcctPwNew:this.onAcctPwNew, onAcctPwConfirm:this.onAcctPwConfirm,
       saveAcctPw:this.saveAcctPw,
       acctPwError:s.acctPwError, acctPwSuccess:s.acctPwSuccess,
-      acctSaving:s.acctSaving,
+      acctSaving:s.acctSaving, capsLock:!!s.capsLock, onPwKeyDown:this.onPwKeyDown,
       acctDekitCountdown, acctShowDekit,
       adminNotifGranted:s.adminNotifGranted, requestAdminNotifs:this.requestAdminNotifs,
     };
