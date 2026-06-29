@@ -2027,7 +2027,7 @@ class AppComponent extends DCLogic {
           contact:p.contact||'',
           waLink:p.contact?`https://api.whatsapp.com/send?phone=65${p.contact.replace(/[\s-]/g,'')}`:''
         })) : [],
-      showTeam: !!(me?.batch_id && s.personnel.some(p=>p.batch_id===me.batch_id&&p.id!==s.currentUserId)),
+      showTeam: !!(me?.batch_id && s.personnel.some(p=>p.batch_id===me.batch_id&&p.id!==s.currentUserId&&(p.role||'reservist')==='reservist')),
       leaveHistoryItems: s.myLeaveHistory.map(r=>({
         id:r.id,
         typeLabel:r.type==='mc'?'MC':r.type==='shift_change'?'Shift Change':r.type==='other'?'Other':'Personal Leave',
