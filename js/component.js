@@ -363,11 +363,16 @@ class AppComponent extends DCLogic {
     if(suPassword.length < 6){ this.setState({authError:'Password must be at least 6 characters.'}); return; }
     const cleanContact = suContact.replace(/[\s-]/g,'');
     if(!/^[689]\d{7}$/.test(cleanContact)){ this.setState({authError:'Contact must be an 8-digit Singapore number.'}); return; }
-    const activeBatch = this._liveBatch();
-    if(!activeBatch){
+    const liveBatch = this._liveBatch();
+    if(!liveBatch){
       this.setState({authError:'No active intake batch is open for sign-up right now.'});
       return;
     }
+    const today = Utils.dateKey(this.baseDate());
+    const isDekit = today === liveBatch.dekit_date;
+    const sortedBatches = [...this.state.batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
+    const nextBatch = isDekit ? sortedBatches.find(b=>b.start_date>liveBatch.end_date) : null;
+    const activeBatch = nextBatch || liveBatch;
     const members = await DB.personnel.list(activeBatch.id).catch(()=>[]);
     const shift = this._capShift(suShift||'AM', members);
     this.setState({loading:true, authError:''});
@@ -1541,8 +1546,14 @@ class AppComponent extends DCLogic {
 
   // ── Render helpers ────────────────────────────────────────────────────────
   _buildAuth(s, accent){
-    const activeBatch=this._liveBatch(s.batches);
-    const {am:amCount, pm:pmCount}=this._shiftSlotCounts(s.personnel);
+    const today=Utils.dateKey(this.baseDate());
+    const liveBatch=this._liveBatch(s.batches);
+    const sortedBatches=[...(s.batches||[])].sort((a,b)=>a.start_date>b.start_date?1:-1);
+    const isDekit=!!(liveBatch&&today===liveBatch.dekit_date);
+    const nextBatch=isDekit?sortedBatches.find(b=>b.start_date>(liveBatch?.end_date||'')):null;
+    const targetBatch=nextBatch||liveBatch;
+    const targetMembers=(s.personnel||[]).filter(p=>p.batch_id===targetBatch?.id&&(p.role||'reservist')==='reservist');
+    const {am:amCount, pm:pmCount}=this._shiftSlotCounts(targetMembers);
     const amFull=amCount>=2, pmFull=pmCount>=2;
     let suShift=s.suShift;
     if((suShift==='AM'&&amFull)||(suShift==='PM'&&pmFull)) suShift='OFFICE';
@@ -1552,9 +1563,9 @@ class AppComponent extends DCLogic {
       {value:'OFFICE', disabled:false, selected:suShift==='OFFICE', label:'Office (0900-1800)'},
     ];
     const tb=a=>`flex:1;padding:11px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;${a?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`;
-    const bs=activeBatch?new Date(activeBatch.start_date+'T00:00:00'):null;
-    const be=activeBatch?new Date(activeBatch.end_date+'T00:00:00'):null;
-    const intakeLabel=activeBatch?activeBatch.label:'';
+    const bs=targetBatch?new Date(targetBatch.start_date+'T00:00:00'):null;
+    const be=targetBatch?new Date(targetBatch.end_date+'T00:00:00'):null;
+    const intakeLabel=targetBatch?targetBatch.label:'';
     const intakeRangeFull=bs&&be?(Utils.fmtShort(bs)+' to '+Utils.fmtShort(be)+' '+bs.getFullYear()):'';
     return {
       showAuth:!s.authed, showApp:s.authed,
@@ -1575,6 +1586,7 @@ class AppComponent extends DCLogic {
       onSuName:this.onSuName, onSuContact:this.onSuContact, onSuShift:this.onSuShift, onSuShiftSelect:this.onSuShiftSelect, onSuPassword:this.onSuPassword,
       doSignup:this.doSignup,
       intakeLabel, intakeRange:intakeRangeFull, intakeRangeFull,
+      signupIsNextCycle:isDekit&&!!nextBatch,
       forgotPasswordOpen:s.forgotPasswordOpen,
       openForgotPassword:this.openForgotPassword, closeForgotPassword:this.closeForgotPassword,
     };

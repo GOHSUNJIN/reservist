@@ -92,7 +92,10 @@
         <h2 style="font-size:21px;font-weight:700;margin:0 0 4px;color:#161f30;">Register as PNSMEN</h2>
         <p style="font-size:14px;color:#5c6678;margin:0 0 16px;">Create your account to join the roster.</p>
         <div style="background:#eef3fc;border:1px solid #d7e2f7;border-radius:11px;padding:13px 15px;margin-bottom:18px;">
-          <div style="font-size:12.5px;color:#3a4a66;line-height:1.5;">You will be enrolled in the <strong>{{ intakeLabel }}</strong> intake, as set by your supervisor.</div>
+          <sc-if value="{{ signupIsNextCycle }}">
+            <div style="font-size:11px;font-weight:600;color:#b9791a;letter-spacing:.06em;margin-bottom:4px;">TODAY IS DEKIT DAY</div>
+          </sc-if>
+          <div style="font-size:12.5px;color:#3a4a66;line-height:1.5;">You will be enrolled in the <strong>{{ intakeLabel }}</strong> intake{{ signupIsNextCycle ? ' (next cycle)' : '' }}, as set by your supervisor.</div>
           <div style="display:flex;align-items:center;gap:7px;margin-top:9px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{ accent }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><rect x="3" y="5" width="18" height="16" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="8" y1="3" x2="8" y2="6"></line><line x1="16" y1="3" x2="16" y2="6"></line></svg>
             <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:{{ accent }};white-space:nowrap;">{{ intakeRangeFull }}</span>
