@@ -678,10 +678,21 @@
             </div>
           </div>
           </sc-if>
-          <div class="card" style="padding:16px;margin-bottom:14px;">
-            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;"><span style="color:#8a94a3;font-weight:600;letter-spacing:.04em;">CYCLE PROGRESS</span><span style="color:#161f30;font-weight:600;">{{ cycleDone }} of {{ cycleTotal }} days</span></div>
-            <div style="height:8px;border-radius:6px;background:#eef0f4;overflow:hidden;"><div style="height:100%;width:{{ cyclePct }}%;background:{{ accent }};border-radius:6px;"></div></div>
-          </div>
+          <sc-if value="{{ cycleNotStarted }}">
+            <div class="card" style="padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+              <div style="font-size:22px;">📅</div>
+              <div>
+                <div style="font-size:13px;font-weight:700;color:#161f30;">Cycle not started yet</div>
+                <div style="font-size:12px;color:#8a94a3;margin-top:2px;">Reporting begins {{ cycleStartsLabel }}. Nothing to do yet.</div>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ !cycleNotStarted }}">
+            <div class="card" style="padding:16px;margin-bottom:14px;">
+              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;"><span style="color:#8a94a3;font-weight:600;letter-spacing:.04em;">CYCLE PROGRESS</span><span style="color:#161f30;font-weight:600;">{{ cycleDone }} of {{ cycleTotal }} days</span></div>
+              <div style="height:8px;border-radius:6px;background:#eef0f4;overflow:hidden;"><div style="height:100%;width:{{ cyclePct }}%;background:{{ accent }};border-radius:6px;"></div></div>
+            </div>
+          </sc-if>
           <div class="card-flush">
             <div style="padding:14px 16px;border-bottom:1px solid #eef0f4;font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">SHIFT HISTORY</div>
             <sc-if value="{{ historyTruncated }}" hint-placeholder-val="">

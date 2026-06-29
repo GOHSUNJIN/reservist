@@ -1860,12 +1860,12 @@ class AppComponent extends DCLogic {
       const off=Math.round((d-today)/86400000);
       const isHol=!!Utils.holidayName(d), isNoRep=s.noReportDays.has(dk), isWknd=!Utils.isReportDay(d);
       let dst;
-      if(dk<bsKey) dst='pre';
+      if(dk===todayKey) dst='today';
+      else if(dk<bsKey) dst='pre';
       else if(dk>ddKey) dst='off';
       else if(dk===ddKey) dst='dekit';
       else if(dk>beKey) dst='post';
-      else if(dk===beKey) dst=dk===todayKey?'today':'end';
-      else if(dk===todayKey) dst='today';
+      else if(dk===beKey) dst='end';
       else if(isWknd) dst='wknd';
       else if(isHol) dst='ph';
       else if(isNoRep) dst='nr';
@@ -1969,12 +1969,14 @@ class AppComponent extends DCLogic {
     let attendanceStreak=0;
     for(const row of myHistory){ if(row.status==='present'||row.status==='mc') attendanceStreak++; else break; }
     const showAttendanceSummary=totalRecorded>0||cycleDone>0;
+    const cycleNotStarted=!!(activeBatch&&today<activeBatch.start_date);
+    const cycleStartsLabel=activeBatch?Utils.fmtLong(new Date(activeBatch.start_date+'T00:00:00')):'';
 
     const PAGE=10, page=s.historyPage||1;
     const pagedHistory=myHistory.slice(0,page*PAGE);
     const historyHasMore=myHistory.length>page*PAGE;
     const historyRemaining=myHistory.length-pagedHistory.length;
-    return {myHistory:pagedHistory,historyHasMore,historyRemaining,showMoreHistory:this.showMoreHistory,statMyPresent,statMyMc,statMyMissed,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:pagedHistory.length===0,totalRecorded,attendanceRate,attendanceRateText,attendanceStreak,showAttendanceSummary,exportMyCsv:this.exportMyCsv,canExportHistory:s.history.length>0};
+    return {myHistory:pagedHistory,historyHasMore,historyRemaining,showMoreHistory:this.showMoreHistory,statMyPresent,statMyMc,statMyMissed,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:pagedHistory.length===0,totalRecorded,attendanceRate,attendanceRateText,attendanceStreak,showAttendanceSummary,cycleNotStarted,cycleStartsLabel,exportMyCsv:this.exportMyCsv,canExportHistory:s.history.length>0};
   }
 
   _buildBriefings(s, accent){
