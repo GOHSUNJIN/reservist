@@ -1425,16 +1425,16 @@ class AppComponent extends DCLogic {
 
 
   startEditBatchLabel = () => {
-    const liveBatch=this.state.batches.find(b=>b.is_live);
-    this.setState({editingBatchLabel:true, batchLabelText:liveBatch?.label||''});
+    const activeBatch=this.state.batches[this.state.activeBatchIdx||0];
+    this.setState({editingBatchLabel:true, batchLabelText:activeBatch?.label||''});
   };
   onBatchLabelText = e => this.setState({batchLabelText:e.target.value});
   saveBatchLabel = async () => {
-    const {batches, batchLabelText, demo} = this.state;
-    const liveBatch = batches.find(b=>b.is_live);
-    if(!liveBatch||!batchLabelText.trim()) return;
-    if(!demo) await DB.batches.updateLabel(liveBatch.id, batchLabelText.trim()).catch(()=>{});
-    const newBatches = batches.map(b=>b.id===liveBatch.id?{...b,label:batchLabelText.trim()}:b);
+    const {batches, batchLabelText, demo, activeBatchIdx} = this.state;
+    const activeBatch = batches[activeBatchIdx||0];
+    if(!activeBatch||!batchLabelText.trim()) return;
+    if(!demo) await DB.batches.updateLabel(activeBatch.id, batchLabelText.trim()).catch(()=>{});
+    const newBatches = batches.map(b=>b.id===activeBatch.id?{...b,label:batchLabelText.trim()}:b);
     this.setState({batches:newBatches, editingBatchLabel:false});
     this._toast('Batch label updated.');
   };
@@ -2174,6 +2174,8 @@ class AppComponent extends DCLogic {
     const lbs=liveBatch?new Date(liveBatch.start_date+'T00:00:00'):null, lbe=liveBatch?new Date(liveBatch.end_date+'T00:00:00'):null;
     const intakeLabel=liveBatch?liveBatch.label:'';
     const intakeRange=lbs&&lbe?(Utils.fmtShort(lbs)+' to '+Utils.fmtShort(lbe)):'';
+    const editTargetLabel=activeBatch?.label||'';
+    const editTargetIsLive=!!activeBatch?.is_live;
     const _psVals = Object.values(s.peopleStats);
     const batchTotalPresent = _psVals.reduce((n,v)=>n+(v.present||0),0);
     const batchTotalMc = _psVals.reduce((n,v)=>n+(v.mc||0),0);
@@ -2212,6 +2214,7 @@ class AppComponent extends DCLogic {
       vPresentLabel:'Checked in',
       viewListHeader, viewPercentText, viewPercentColor,
       intakeLabel, intakeRange,
+      editTargetLabel, editTargetIsLive,
       editingBatchLabel:s.editingBatchLabel, batchLabelText:s.batchLabelText,
       startEditBatchLabel:this.startEditBatchLabel, onBatchLabelText:this.onBatchLabelText,
       saveBatchLabel:this.saveBatchLabel, cancelBatchLabel:this.cancelBatchLabel,
