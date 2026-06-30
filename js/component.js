@@ -70,7 +70,15 @@ class AppComponent extends DCLogic {
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
   componentDidMount(){
-    this._t = setInterval(()=>this.setState({now:new Date()}), 1000);
+    this._lastDate = Utils.dateKey(new Date());
+    this._t = setInterval(()=>{
+      const newNow = new Date();
+      this.setState({now:newNow});
+      if(!this.state.testDate){
+        const newDate = Utils.dateKey(newNow);
+        if(newDate !== this._lastDate){ this._lastDate = newDate; this._onDateChange(newDate); }
+      }
+    }, 1000);
     this._offlineQueues = [];
     const {detected, name} = this._detectInAppBrowser();
     if(detected) this.setState({isInAppBrowser:true, inAppBrowserName:name});
@@ -104,8 +112,13 @@ class AppComponent extends DCLogic {
     this._onVisibilityChange = () => {
       if(!document.hidden && this.state.authed && this._lastActiveAt){
         const elapsed = Date.now() - this._lastActiveAt;
-        if(elapsed >= 20*60*1000){ this._toast('Logged out due to inactivity.'); this.logout(); }
+        if(elapsed >= 20*60*1000){ this._toast('Logged out due to inactivity.'); this.logout(); return; }
         else if(elapsed >= 18*60*1000){ this.setState({idleWarning:true}); }
+        // Detect date change while tab was hidden (e.g. overnight)
+        if(!this.state.testDate){
+          const newDate = Utils.dateKey(new Date());
+          if(newDate !== this._lastDate){ this._lastDate = newDate; this._onDateChange(newDate); }
+        }
       }
     };
     document.addEventListener('visibilitychange', this._onVisibilityChange);
@@ -269,6 +282,29 @@ class AppComponent extends DCLogic {
     this._idleLogoutTimer = setTimeout(()=>{ if(this.state.authed){ this._toast('Logged out due to inactivity.'); this.logout(); } }, 20*60*1000);
   }
   stayActive = () => { this._resetIdleTimer(); };
+
+  async _onDateChange(newDate){
+    if(!this.state.authed || this.state.demo) return;
+    if(this.state.role==='admin'){
+      let batches = await DB.batches.list().catch(()=>this.state.batches);
+      batches = await this._ensureLiveBatch(batches, newDate);
+      const liveIdx = batches.findIndex(b=>b.is_live);
+      const activeBatch = batches[liveIdx>=0?liveIdx:0];
+      const [att, nrd] = await Promise.all([
+        DB.attendance.getForDate(newDate).catch(()=>({})),
+        activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date).catch(()=>new Set()) : Promise.resolve(new Set()),
+      ]);
+      this._unsubscribeRealtime();
+      this._subscribeRealtime(newDate);
+      this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0, attendance:att, attendanceDate:newDate, noReportDays:nrd, viewOffset:0, attendanceCache:{}});
+    } else if(this.state.role==='reservist'){
+      const [att, hist] = await Promise.all([
+        DB.attendance.getForDate(newDate).catch(()=>({})),
+        DB.attendance.getHistory(this.state.currentUserId).catch(()=>[]),
+      ]);
+      this.setState({attendance:att, attendanceDate:newDate, history:hist});
+    }
+  }
 
   async _ensureLiveBatch(batches, overrideDate){
     const today = overrideDate || Utils.dateKey(this.baseDate());
