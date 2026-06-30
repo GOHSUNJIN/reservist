@@ -1553,8 +1553,10 @@ class AppComponent extends DCLogic {
   // ── Render helpers ────────────────────────────────────────────────────────
   _buildAuth(s, accent){
     const today=Utils.dateKey(this.baseDate());
-    const liveBatch=this._liveBatch(s.batches);
     const sortedBatches=[...(s.batches||[])].sort((a,b)=>a.start_date>b.start_date?1:-1);
+    // Derive live batch by date range so signup shows correct cycle even before admin logs in
+    const liveBatch=sortedBatches.find(b=>today>=b.start_date&&today<=b.end_date)
+      ||this._liveBatch(s.batches);
     const isLastDay=!!(liveBatch&&today===liveBatch.end_date);
     const nextBatch=isLastDay?sortedBatches.find(b=>b.start_date>(liveBatch?.end_date||'')):null;
     const targetBatch=nextBatch||liveBatch;
