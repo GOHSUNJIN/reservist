@@ -296,7 +296,7 @@ class AppComponent extends DCLogic {
       ]);
       this._unsubscribeRealtime();
       this._subscribeRealtime(newDate);
-      this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0, attendance:att, attendanceDate:newDate, noReportDays:nrd, viewOffset:0, attendanceCache:{}});
+      this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0, attendance:att, attendanceDate:newDate, noReportDays:nrd, viewOffset:0, attendanceCache:{}, confirmMarkAllAbsent:false});
     } else if(this.state.role==='reservist'){
       const [att, hist] = await Promise.all([
         DB.attendance.getForDate(newDate).catch(()=>({})),
@@ -1185,10 +1185,10 @@ class AppComponent extends DCLogic {
         cachedNrd?Promise.resolve(cachedNrd):DB.noReportDays.list(b.start_date,b.dekit_date||b.end_date).catch(()=>new Set()),
         b.is_live?Promise.resolve({}):DB.attendance.getForBatch(b.start_date,b.end_date).catch(()=>({})),
       ]);
-      this.setState(s=>({activeBatchIdx:ni,viewOffset:off,selectedCalOffset:null,attendanceCache:b.is_live?{}:{...s.attendanceCache,...attMap},noReportDays:nrd,noReportDaysCache:cachedNrd?s.noReportDaysCache:{...s.noReportDaysCache,[b.id]:nrd},batchLoading:false,rosterSearch:''}));
+      this.setState(s=>({activeBatchIdx:ni,viewOffset:off,selectedCalOffset:null,attendanceCache:b.is_live?{}:{...s.attendanceCache,...attMap},noReportDays:nrd,noReportDaysCache:cachedNrd?s.noReportDaysCache:{...s.noReportDaysCache,[b.id]:nrd},batchLoading:false,rosterSearch:'',confirmMarkAllAbsent:false}));
       return;
     }
-    this.setState({viewOffset:off});
+    this.setState({viewOffset:off, confirmMarkAllAbsent:false});
     this._loadDateAttendance(off);
   };
   prevDay = () => this._navToOffset(this.state.viewOffset-1);
