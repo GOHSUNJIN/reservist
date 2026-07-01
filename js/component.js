@@ -66,6 +66,9 @@ class AppComponent extends DCLogic {
     adminsList: [], adminsLoaded: false,
     npAdminName: '', npAdminContact: '', npAdminPassword: '',
     confirmDeactivateAdminId: null,
+    logSearch: '',
+    personHistoryId: null, personHistoryRows: [], personHistoryLoading: false,
+    realtimeLive: false,
   };
 
   // ── Lifecycle ────────────────────────────────────────────────────────────
@@ -78,8 +81,13 @@ class AppComponent extends DCLogic {
         const newDate = Utils.dateKey(newNow);
         if(newDate !== this._lastDate){ this._lastDate = newDate; this._onDateChange(newDate); }
       }
+      if(this.state.role==='admin' && this.state.realtimeChannel){
+        const live = this.state.realtimeChannel.state === 'joined';
+        if(live !== this.state.realtimeLive) this.setState({realtimeLive:live});
+      }
     }, 1000);
-    this._offlineQueues = [];
+    try{ this._offlineQueues = JSON.parse(sessionStorage.getItem('offlineQ')||'[]'); }catch{ this._offlineQueues=[]; }
+    if(this._offlineQueues.length) this.setState({offlinePending:true});
     const {detected, name} = this._detectInAppBrowser();
     if(detected) this.setState({isInAppBrowser:true, inAppBrowserName:name});
     if(localStorage.getItem('admin_notif')==='1') this.setState({adminNotifGranted:true});
@@ -99,6 +107,7 @@ class AppComponent extends DCLogic {
           if(!ok) failed.push(pend);
         }
         this._offlineQueues = failed;
+        try{ sessionStorage.setItem('offlineQ', JSON.stringify(failed)); }catch{}
         if(!failed.length){ this.setState({offlinePending:false}); }
         else { this._toast('Some check-ins failed to sync. Tap Retry.','error'); }
       }
@@ -837,8 +846,7 @@ class AppComponent extends DCLogic {
     this._toast(_phaseToasts[key]||'Recorded');
     if(!demo){
       if(!isOnline){
-        this._offlineQueues.push({id:currentUserId,date:today,key,time,dist});
-        this.setState({offlinePending:true});
+        this._queuePush({id:currentUserId,date:today,key,time,dist});
       } else {
         const {error:phErr} = await DB.attendance.logPhase(currentUserId, today, key, time, dist);
         if(phErr) this._toast('Check-in saved locally but failed to sync. Check your connection.','error');
@@ -876,8 +884,7 @@ class AppComponent extends DCLogic {
     this._toast(_phaseToasts2[key]||'Recorded');
     if(!demo){
       if(!isOnline){
-        this._offlineQueues.push({id:currentUserId,date:today,key,time,dist:null,bypassed:true});
-        this.setState({offlinePending:true});
+        this._queuePush({id:currentUserId,date:today,key,time,dist:null,bypassed:true});
       } else {
         const {error:phErr} = await DB.attendance.logPhase(currentUserId, today, key, time, null, true);
         if(phErr) this._toast('Check-in saved locally but failed to sync. Check your connection.','error');
@@ -886,6 +893,28 @@ class AppComponent extends DCLogic {
   };
 
   _haptic(ms=60){ if(navigator.vibrate) navigator.vibrate(ms); }
+  _queuePush(item){
+    this._offlineQueues.push(item);
+    try{ sessionStorage.setItem('offlineQ', JSON.stringify(this._offlineQueues)); }catch{}
+    this.setState({offlinePending:true});
+  }
+
+  // ── Person history (admin drill-down) ────────────────────────────────────
+  openPersonHistory = id => async () => {
+    this.setState({personHistoryId:id, personHistoryRows:[], personHistoryLoading:true});
+    if(!this.state.demo){
+      const data = await DB.attendance.getHistory(id, null).catch(()=>[]);
+      this.setState({personHistoryRows:data, personHistoryLoading:false});
+    } else {
+      this.setState({personHistoryLoading:false});
+    }
+  };
+  closePersonHistory = () => this.setState({personHistoryId:null, personHistoryRows:[], personHistoryLoading:false});
+
+  // ── Log search ────────────────────────────────────────────────────────────
+  onLogSearch = e => this.setState({logSearch:e.target.value});
+  clearLogSearch = () => this.setState({logSearch:''});
+
   _toast(msg, type='success'){
     if(this._toastTimer) clearTimeout(this._toastTimer);
     this.setState({toast:{msg,type}});
@@ -1253,6 +1282,7 @@ class AppComponent extends DCLogic {
 
   setStatus = (id, status) => async () => {
     const off=this.state.viewOffset||0;
+    if(off > 0) return;
     const viewDateKey=Utils.dateKey(this.dateForOffset(off));
     const viewIsToday=off===0;
     const prev=viewIsToday?(this.state.attendance[id]||{}):((this.state.attendanceCache?.[viewDateKey]||{})[id]||{});
@@ -1262,6 +1292,14 @@ class AppComponent extends DCLogic {
     if(viewIsToday){ this.setState(s=>({attendance:{...s.attendance,[id]:entry}})); }
     else { this.setState(s=>({attendanceCache:{...s.attendanceCache,[viewDateKey]:{...(s.attendanceCache?.[viewDateKey]||{}),[id]:entry}}})); }
     if(!this.state.demo){
+      if(!this.state.isOnline){
+        const isNewPresent=status==='present'&&!prev.p1;
+        this._queuePush({id,date:viewDateKey,status,extras:isNewPresent?{time:p1,dist:prev.p1dist}:{}});
+        this._haptic(40);
+        const _sl={present:'Marked present (queued)',mc:'Marked MC (queued)',absent:'Marked absent (queued)'};
+        this._toast(_sl[status]||'Queued');
+        return;
+      }
       // Only write check_in_time to DB when there was no prior check-in and we're marking present
       const isNewPresent=status==='present'&&!prev.p1;
       const {error}=await DB.attendance.upsert(id,viewDateKey,status,isNewPresent?{time:p1,dist:prev.p1dist}:{});
@@ -1837,6 +1875,7 @@ class AppComponent extends DCLogic {
       };
     });
     const allDone=phases.every(ph=>ph.done);
+    const summaryP1=rec.p1||'–', summaryP2=rec.p2||'–', summaryP3=rec.p3||'–', summaryP4=rec.p4||'–';
     const shiftStart={AM:'08:30',PM:'15:30',OFFICE:'09:00'}[shift]||'08:30';
     const [_sc,_sm]=shiftStart.split(':').map(Number);
     const _lateMs=rec.p1?(()=>{const[h,m]=rec.p1.split(':').map(Number);return(h*60+m)-(_sc*60+_sm);})():0;
@@ -1879,6 +1918,7 @@ class AppComponent extends DCLogic {
       showPhases:!outOfCycle&&!noRep&&status!=='mc'&&status!=='absent'&&!(s.myPendingRequest&&s.myPendingRequest.date===todayKey&&status!=='present'),
       outOfCycle, outOfCycleTitle, outOfCycleSub,
       phases, allDone,
+      summaryP1, summaryP2, summaryP3, summaryP4,
       isLate, lateShiftStart:shiftStart,
       showLateWarning:s.showLateWarning, dismissLateWarning:this.dismissLateWarning,
       lateReasonOpen:s.lateReasonOpen, lateReasonText:s.lateReasonText,
@@ -2182,7 +2222,7 @@ class AppComponent extends DCLogic {
       const _phaseParts=[r.p1?'IN '+r.p1:null,r.p2?((p.shift==='PM'?'DIN ':'LCH ')+r.p2):null,r.p3?'BACK '+r.p3:null,r.p4?'OUT '+r.p4:null].filter(Boolean);
       const phaseLine=_phaseParts.join('  ·  ');
       const showPhaseLine=r.status==='present'&&_phaseParts.length>0;
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent'),onShiftChange:this.changeShift(p.id),cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote)};
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent'),onShiftChange:this.changeShift(p.id),cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0};
     });
     const search=(s.rosterSearch||'').toLowerCase();
     const filteredRoster=roster.filter(r=>!search||r.name.toLowerCase().includes(search));
@@ -2202,7 +2242,6 @@ class AppComponent extends DCLogic {
     const _orgN=this.props.orgName||'Ops Security';
     const snapshotLines=['📋 *'+_orgN+' — '+Utils.fmtMed(viewDate)+'*','✅ Present ('+present+'): '+(roster.filter(r=>r.label==='Present').map(r=>r.name).join(', ')||'(none)'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.label==='On MC').map(r=>r.name).join(', ')||'(none)'),snapshotLastLine];
     const snapshotLink='https://api.whatsapp.com/send?text='+encodeURIComponent(snapshotLines.join('\n'));
-    const pendingCount=roster.filter(r=>r.label==='Pending').length;
     const shiftCutoff=Utils.LATE_CUTOFF;
     const logRows=activeMembers.map(p=>{
       const r=viewMap[p.id]||{status:'pending'}, mm=Utils.meta(r.status);
@@ -2230,8 +2269,10 @@ class AppComponent extends DCLogic {
     });
     const logShiftFilter=s.logShiftFilter||'all';
     const logHidePending=!!s.logHidePending;
+    const logSearch=(s.logSearch||'').toLowerCase().trim();
     const shiftFiltered=logShiftFilter==='all'?logRows:logRows.filter(r=>r.shift===logShiftFilter);
-    const filteredLogRows=logHidePending?shiftFiltered.filter(r=>r.label!=='Pending'):shiftFiltered;
+    const pendingFiltered=logHidePending?shiftFiltered.filter(r=>r.label!=='Pending'):shiftFiltered;
+    const filteredLogRows=logSearch?pendingFiltered.filter(r=>r.name.toLowerCase().includes(logSearch)):pendingFiltered;
     const pendingCount=logRows.filter(r=>r.label==='Pending').length;
     const _fBtn=(f,accent)=>`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid ${logShiftFilter===f?accent:'#d4d9e2'};background:${logShiftFilter===f?accent:'#fff'};color:${logShiftFilter===f?'#fff':'#5c6678'};`;
     const logHidePendingStyle=`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid ${logHidePending?'#d4d9e2':'#d4d9e2'};background:${logHidePending?'#f6f8fa':'#fff'};color:#5c6678;`;
@@ -2305,6 +2346,23 @@ class AppComponent extends DCLogic {
       toggleLogHidePending:this.toggleLogHidePending, logHidePending, logHidePendingStyle,
       logHidePendingLabel:logHidePending?'Show pending':'Hide pending',
       pendingCount,
+      logSearch:s.logSearch||'', onLogSearch:this.onLogSearch, clearLogSearch:this.clearLogSearch, hasLogSearch:!!(s.logSearch),
+      personHistoryOpen:!!s.personHistoryId,
+      personHistoryName:(s.personnel.find(p=>p.id===s.personHistoryId)||{}).name||'',
+      personHistoryLoading:s.personHistoryLoading,
+      personHistoryRows:(s.personHistoryRows||[]).slice(0,100).map(r=>{
+        const mm=Utils.meta(r.status);
+        const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        const d=new Date(r.date+'T00:00:00');
+        return {dateLabel:W[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,color:mm.color,bg:mm.bg,p1:r.check_in_time?r.check_in_time.slice(0,5):'–',p4:r.work_end_time?r.work_end_time.slice(0,5):'–'};
+      }),
+      noPersonHistory:!(s.personHistoryRows||[]).length&&!s.personHistoryLoading,
+      closePersonHistory:this.closePersonHistory,
+      realtimeLive:s.realtimeLive,
+      realtimeLiveBg:s.realtimeLive?'#e7f3ec':'#f7e4e1',
+      realtimeLiveColor:s.realtimeLive?'#1f8a5b':'#c0392b',
+      realtimeLiveLabel:s.realtimeLive?'● LIVE':'● Reconnecting',
+      showRealtimeBadge:!!s.realtimeChannel,
       rosterSearch:s.rosterSearch, onRosterSearch:this.onRosterSearch, hasRosterSearch:!!search, clearRosterSearch:this.clearRosterSearch,
       retrySync:this.retrySync,
       markAllPresent:this.markAllPresent, pendingCount, markAllPresenting:s.markAllPresenting,
@@ -2333,7 +2391,7 @@ class AppComponent extends DCLogic {
       editingBatchLabel:s.editingBatchLabel, batchLabelText:s.batchLabelText,
       startEditBatchLabel:this.startEditBatchLabel, onBatchLabelText:this.onBatchLabelText,
       saveBatchLabel:this.saveBatchLabel, cancelBatchLabel:this.cancelBatchLabel,
-      personnelList:activeMembers.map(p=>{const av=s.avatars[p.id]||'';return{...p,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),onEditNote:this.openNote(p.id,p.notes||''),isEditingNote:s.editingNoteId===p.id,onAskDeactivate:this.askDeactivatePerson(p.id),isConfirmingDeactivate:s.confirmDeactivateId===p.id,statPresent:s.peopleStats[p.id]?.present??0,statMc:s.peopleStats[p.id]?.mc??0,statAbsent:s.peopleStats[p.id]?.absent??0,statPct:s.peopleStats[p.id]?.pct!=null?(s.peopleStats[p.id].pct+'%'):'No records',showStats:s.peopleStatsLoaded,avatarStyle:av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'',avatarInitials:av?'':Utils.initials(p.name)};}),
+      personnelList:activeMembers.map(p=>{const av=s.avatars[p.id]||'';return{...p,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),onEditNote:this.openNote(p.id,p.notes||''),isEditingNote:s.editingNoteId===p.id,onAskDeactivate:this.askDeactivatePerson(p.id),isConfirmingDeactivate:s.confirmDeactivateId===p.id,statPresent:s.peopleStats[p.id]?.present??0,statMc:s.peopleStats[p.id]?.mc??0,statAbsent:s.peopleStats[p.id]?.absent??0,statPct:s.peopleStats[p.id]?.pct!=null?(s.peopleStats[p.id].pct+'%'):'No records',showStats:s.peopleStatsLoaded,avatarStyle:av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'',avatarInitials:av?'':Utils.initials(p.name),onViewHistory:this.openPersonHistory(p.id)};}),
       cancelDeactivatePerson:this.cancelDeactivatePerson,
       confirmDeactivatePerson:this.confirmDeactivatePerson,
       rosterSort:s.rosterSort,
