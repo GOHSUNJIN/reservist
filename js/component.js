@@ -32,7 +32,7 @@ class AppComponent extends DCLogic {
     acctSaving: false,
     locPhase: null, locSlow: false, locAccuracy: null, locPermErr: false, locRetryCount: 0,
     isInAppBrowser: false, inAppBrowserName: '',
-    batchLoading: false, batchCreating: false,
+    batchLoading: false, batchCreating: false, markingAllAbsent: false, logShiftFilter: 'all',
     editingNoteId: null, editingNoteText: '',
     batchJumpDate: Utils.dateKey(new Date()),
     toast: null,
@@ -833,6 +833,8 @@ class AppComponent extends DCLogic {
       phaseSubmitting:false,
     }));
     this._haptic();
+    const _phaseToasts={p1:'Checked in',p2:'Break recorded',p3:'Returned',p4:'Checked out'};
+    this._toast(_phaseToasts[key]||'Recorded');
     if(!demo){
       if(!isOnline){
         this._offlineQueues.push({id:currentUserId,date:today,key,time,dist});
@@ -870,6 +872,8 @@ class AppComponent extends DCLogic {
       locStatus:'idle', locPhase:null, phaseSubmitting:false,
     }));
     this._haptic();
+    const _phaseToasts2={p1:'Checked in',p2:'Break recorded',p3:'Returned',p4:'Checked out'};
+    this._toast(_phaseToasts2[key]||'Recorded');
     if(!demo){
       if(!isOnline){
         this._offlineQueues.push({id:currentUserId,date:today,key,time,dist:null,bypassed:true});
@@ -1274,6 +1278,30 @@ class AppComponent extends DCLogic {
       }
     }
     this._haptic(40);
+    const _sl={present:'Marked present',mc:'Marked MC',absent:'Marked absent'};
+    this._toast(_sl[status]||'Updated');
+  };
+
+  markAllAbsent = async () => {
+    const {personnel,batches,activeBatchIdx,attendance,attendanceCache,viewOffset,batchMembersCache,demo}=this.state;
+    const activeBatch=batches[activeBatchIdx||0]; if(!activeBatch) return;
+    const members=activeBatch.is_live?personnel:(batchMembersCache[activeBatch.id]||[]);
+    const activeMembers=(members||[]).filter(p=>(p.role||'reservist')==='reservist');
+    const off=viewOffset||0;
+    const viewDateKey=Utils.dateKey(this.dateForOffset(off));
+    const viewIsToday=off===0;
+    const viewMap=viewIsToday?attendance:(attendanceCache?.[viewDateKey]||{});
+    const pending=activeMembers.filter(p=>{ const r=viewMap[p.id]||{}; return !r.status||r.status==='pending'; });
+    if(!pending.length){ this._toast('No pending members.'); return; }
+    this.setState({markingAllAbsent:true});
+    if(viewIsToday){
+      this.setState(s=>{const att={...s.attendance};for(const p of pending) att[p.id]={...(att[p.id]||{}),status:'absent'};return{attendance:att};});
+    } else {
+      this.setState(s=>{const c={...(s.attendanceCache?.[viewDateKey]||{})};for(const p of pending) c[p.id]={...(c[p.id]||{}),status:'absent'};return{attendanceCache:{...s.attendanceCache,[viewDateKey]:c}};});
+    }
+    if(!demo) await Promise.all(pending.map(p=>DB.attendance.upsert(p.id,viewDateKey,'absent',{}).catch(()=>{})));
+    this.setState({markingAllAbsent:false});
+    this._toast(pending.length+' member'+(pending.length>1?'s':'')+' marked absent.');
   };
 
   addPerson = async () => {
@@ -1444,6 +1472,7 @@ class AppComponent extends DCLogic {
   };
 
   setRosterSort = key => () => this.setState({rosterSort:key});
+  setLogShiftFilter = f => () => this.setState({logShiftFilter:f});
   onNewBatchDate = e => this.setState({newBatchDate:e.target.value});
 
   createBatch = async () => {
@@ -1796,8 +1825,8 @@ class AppComponent extends DCLogic {
         locBadgeColor:myGpsActive?gLocBadgeColor:'#8a94a3',
         locMsg:myGpsActive?gLocMsg:('Tap "Locate me" to verify you are at '+hqName+'.'),
         locMsgColor:myGpsActive?gLocMsgColor:'#8a94a3',
-        checkInOpacity:(myGpsActive&&locVerified)?'1':'.45',
-        checkInPE:(myGpsActive&&locVerified)?'auto':'none',
+        checkInOpacity:(myGpsActive&&locVerified&&!s.phaseSubmitting)?'1':'.45',
+        checkInPE:(myGpsActive&&locVerified&&!s.phaseSubmitting)?'auto':'none',
         locIsOutOfRange, geofenceWaLink,
         showGpsBypass: myGpsActive && locGpsError && (s.locRetryCount||0) >= 2 && (pd.key==='p1'||pd.key==='p3'),
         onBypass: this.doPhaseBypass(pd.key),
@@ -1973,7 +2002,7 @@ class AppComponent extends DCLogic {
       ?[{date:Utils.fmtMed(todayD)+', Today',dateKey:today,shift:Utils.shiftLabel(me.shift),status,
          p1:rec.p1||'-',p2:rec.p2||'-',p3:rec.p3||'-',p4:rec.p4||'-',
          p1Color:_tc(rec.p1,'#161f30',_dc),p2Color:_tc(rec.p2,'#161f30',_dc),p3Color:_tc(rec.p3,'#161f30',_dc),p4Color:_tc(rec.p4,'#161f30',_dc),
-         showTimes:status==='present',...Utils.meta(status)}]:[];
+         showTimes:status==='present',lateReason:rec.lateReason||'',showLateReason:!!(rec.lateReason),...Utils.meta(status)}]:[];
 
     // Past recorded rows
     const histKeys=new Set(s.history.map(r=>r.date));
@@ -1984,7 +2013,7 @@ class AppComponent extends DCLogic {
       return {date:Utils.fmtMed(d),dateKey:r.date,shift:Utils.shiftLabel(me.shift),status:r.status,
         p1:p1||'-',p2:p2||'-',p3:p3||'-',p4:p4||'-',
         p1Color:_tc(p1,'#161f30',_dc),p2Color:_tc(p2,'#161f30',_dc),p3Color:_tc(p3,'#161f30',_dc),p4Color:_tc(p4,'#161f30',_dc),
-        showTimes:r.status==='present',...Utils.meta(r.status)};
+        showTimes:r.status==='present',lateReason:r.late_reason||'',showLateReason:!!(r.late_reason),...Utils.meta(r.status)};
     });
 
     // Missed shifts: reporting days in current batch before today with no record
@@ -2193,9 +2222,12 @@ class AppComponent extends DCLogic {
         p2Color:r.p2?'#161f30':'#c2c8d2',
         p3Color:r.p3?'#161f30':'#c2c8d2',
         p4Color:r.p4?'#161f30':'#c2c8d2',
-        avatarStyle,
+        avatarStyle, shift:p.shift||'AM',
       };
     });
+    const logShiftFilter=s.logShiftFilter||'all';
+    const filteredLogRows=logShiftFilter==='all'?logRows:logRows.filter(r=>r.shift===logShiftFilter);
+    const _fBtn=(f,accent)=>`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid ${logShiftFilter===f?accent:'#d4d9e2'};background:${logShiftFilter===f?accent:'#fff'};color:${logShiftFilter===f?'#fff':'#5c6678'};`;
     const lateRows=viewIsToday?logRows.filter(r=>r.isLate):[];
     const lateCount=lateRows.length;
     const lateNames=lateRows.map(r=>r.name).join(', ');
@@ -2253,7 +2285,12 @@ class AppComponent extends DCLogic {
       activeCycleLabel, activeCycleRange,
       showArchivedBatches:s.showArchivedBatches,
       toggleArchivedBatches:()=>this.setState(s=>({showArchivedBatches:!s.showArchivedBatches})),
-      roster, filteredRoster:sortedFiltered, logRows, logDateLabel,
+      roster, filteredRoster:sortedFiltered, logRows:filteredLogRows, logDateLabel,
+      setLogFilterAll:this.setLogShiftFilter('all'), setLogFilterAm:this.setLogShiftFilter('AM'),
+      setLogFilterPm:this.setLogShiftFilter('PM'), setLogFilterOffice:this.setLogShiftFilter('OFFICE'),
+      logFilterAllStyle:_fBtn('all',accent), logFilterAmStyle:_fBtn('AM',accent),
+      logFilterPmStyle:_fBtn('PM',accent), logFilterOfficeStyle:_fBtn('OFFICE',accent),
+      markAllAbsent:this.markAllAbsent, markingAllAbsent:s.markingAllAbsent,
       rosterSearch:s.rosterSearch, onRosterSearch:this.onRosterSearch, hasRosterSearch:!!search, clearRosterSearch:this.clearRosterSearch,
       retrySync:this.retrySync,
       markAllPresent:this.markAllPresent, pendingCount, markAllPresenting:s.markAllPresenting,
