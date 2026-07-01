@@ -310,7 +310,7 @@ class AppComponent extends DCLogic {
     const today = overrideDate || Utils.dateKey(this.baseDate());
     const live = batches.find(b=>b.is_live);
     if(live && live.start_date<=today && today<=live.end_date) return batches;
-    const current = batches.find(b=>b.start_date<=today && today<=(b.dekit_date||b.end_date));
+    const current = batches.find(b=>b.start_date<=today && today<=b.end_date);
     if(current){
       await DB.batches.activate(current.id).catch(()=>{});
       return DB.batches.list().catch(()=>batches);
