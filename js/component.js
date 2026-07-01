@@ -1876,6 +1876,7 @@ class AppComponent extends DCLogic {
       onShiftChangeReason:this.onShiftChangeReason, submitShiftChange:this.submitShiftChange, closeShiftChange:this.closeShiftChange,
       notifGranted:s.notifGranted, requestReminders:this.requestReminders,
       welfareNote:rec.welfareNote||'', hasWelfareNote:!!(rec.welfareNote),
+      welfareNoteBtnLabel:rec.welfareNote?'Edit daily note':'Add a note for today',
       canAddWelfareNote:!outOfCycle&&!noRep&&Utils.isReportDay(todayD),
       openWelfareNote:this.openWelfareNote, closeWelfareNote:this.closeWelfareNote,
       welfareNoteOpen:s.welfareNoteOpen, welfareNoteText:s.welfareNoteText, welfareNoteSaving:s.welfareNoteSaving,
