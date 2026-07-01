@@ -401,7 +401,7 @@
               <sc-if value="{{ canAddWelfareNote }}" hint-placeholder-val="">
               <button onClick="{{ openWelfareNote }}" style="width:100%;margin-top:10px;padding:9px 14px;background:#f6f8fa;border:1px solid #d4d9e2;border-radius:10px;font-size:13px;font-weight:600;color:#5c6678;cursor:pointer;display:flex;align-items:center;gap:7px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>
-                <span style="flex:1;text-align:left;">{{ hasWelfareNote ? 'Edit daily note' : 'Add a daily note' }}</span>
+                <span style="flex:1;text-align:left;">{{ welfareNoteBtnLabel }}</span>
                 <sc-if value="{{ hasWelfareNote }}" hint-placeholder-val="">
                   <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1f8a5b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                 </sc-if>
