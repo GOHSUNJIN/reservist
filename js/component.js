@@ -2171,10 +2171,7 @@ class AppComponent extends DCLogic {
     const snapshotLink='https://api.whatsapp.com/send?text='+encodeURIComponent(snapshotLines.join('\n'));
     const pendingCount=roster.filter(r=>r.label==='Pending').length;
     const shiftCutoff=Utils.LATE_CUTOFF;
-    const logRows=activeMembers.filter(p=>{
-      const r=viewMap[p.id]||{status:'pending'};
-      return r.status!=='pending';
-    }).map(p=>{
+    const logRows=activeMembers.map(p=>{
       const r=viewMap[p.id]||{status:'pending'}, mm=Utils.meta(r.status);
       const cutoff=shiftCutoff[p.shift||'AM'];
       const [_cc,_ccm]=cutoff.split(':').map(Number);
