@@ -32,7 +32,7 @@ class AppComponent extends DCLogic {
     acctSaving: false,
     locPhase: null, locSlow: false, locAccuracy: null, locPermErr: false, locRetryCount: 0,
     isInAppBrowser: false, inAppBrowserName: '',
-    batchLoading: false, batchCreating: false, markingAllAbsent: false, logShiftFilter: 'all',
+    batchLoading: false, batchCreating: false, markingAllAbsent: false, confirmMarkAllAbsent: false, logShiftFilter: 'all', logHidePending: false,
     editingNoteId: null, editingNoteText: '',
     batchJumpDate: Utils.dateKey(new Date()),
     toast: null,
@@ -1282,9 +1282,12 @@ class AppComponent extends DCLogic {
     this._toast(_sl[status]||'Updated');
   };
 
+  askMarkAllAbsent = () => this.setState({confirmMarkAllAbsent:true});
+  cancelMarkAllAbsent = () => this.setState({confirmMarkAllAbsent:false});
   markAllAbsent = async () => {
     const {personnel,batches,activeBatchIdx,attendance,attendanceCache,viewOffset,batchMembersCache,demo}=this.state;
-    const activeBatch=batches[activeBatchIdx||0]; if(!activeBatch) return;
+    this.setState({confirmMarkAllAbsent:false, markingAllAbsent:true});
+    const activeBatch=batches[activeBatchIdx||0]; if(!activeBatch){ this.setState({markingAllAbsent:false}); return; }
     const members=activeBatch.is_live?personnel:(batchMembersCache[activeBatch.id]||[]);
     const activeMembers=(members||[]).filter(p=>(p.role||'reservist')==='reservist');
     const off=viewOffset||0;
@@ -1292,8 +1295,7 @@ class AppComponent extends DCLogic {
     const viewIsToday=off===0;
     const viewMap=viewIsToday?attendance:(attendanceCache?.[viewDateKey]||{});
     const pending=activeMembers.filter(p=>{ const r=viewMap[p.id]||{}; return !r.status||r.status==='pending'; });
-    if(!pending.length){ this._toast('No pending members.'); return; }
-    this.setState({markingAllAbsent:true});
+    if(!pending.length){ this.setState({markingAllAbsent:false}); this._toast('No pending members.'); return; }
     if(viewIsToday){
       this.setState(s=>{const att={...s.attendance};for(const p of pending) att[p.id]={...(att[p.id]||{}),status:'absent'};return{attendance:att};});
     } else {
@@ -1303,6 +1305,7 @@ class AppComponent extends DCLogic {
     this.setState({markingAllAbsent:false});
     this._toast(pending.length+' member'+(pending.length>1?'s':'')+' marked absent.');
   };
+  toggleLogHidePending = () => this.setState(s=>({logHidePending:!s.logHidePending}));
 
   addPerson = async () => {
     const {npName,npContact,npShift,npPassword,batches,activeBatchIdx,demo,personnel,batchMembersCache}=this.state;
@@ -2226,8 +2229,12 @@ class AppComponent extends DCLogic {
       };
     });
     const logShiftFilter=s.logShiftFilter||'all';
-    const filteredLogRows=logShiftFilter==='all'?logRows:logRows.filter(r=>r.shift===logShiftFilter);
+    const logHidePending=!!s.logHidePending;
+    const shiftFiltered=logShiftFilter==='all'?logRows:logRows.filter(r=>r.shift===logShiftFilter);
+    const filteredLogRows=logHidePending?shiftFiltered.filter(r=>r.label!=='Pending'):shiftFiltered;
+    const pendingCount=logRows.filter(r=>r.label==='Pending').length;
     const _fBtn=(f,accent)=>`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid ${logShiftFilter===f?accent:'#d4d9e2'};background:${logShiftFilter===f?accent:'#fff'};color:${logShiftFilter===f?'#fff':'#5c6678'};`;
+    const logHidePendingStyle=`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid ${logHidePending?'#d4d9e2':'#d4d9e2'};background:${logHidePending?'#f6f8fa':'#fff'};color:#5c6678;`;
     const lateRows=viewIsToday?logRows.filter(r=>r.isLate):[];
     const lateCount=lateRows.length;
     const lateNames=lateRows.map(r=>r.name).join(', ');
@@ -2290,7 +2297,14 @@ class AppComponent extends DCLogic {
       setLogFilterPm:this.setLogShiftFilter('PM'), setLogFilterOffice:this.setLogShiftFilter('OFFICE'),
       logFilterAllStyle:_fBtn('all',accent), logFilterAmStyle:_fBtn('AM',accent),
       logFilterPmStyle:_fBtn('PM',accent), logFilterOfficeStyle:_fBtn('OFFICE',accent),
-      markAllAbsent:this.markAllAbsent, markingAllAbsent:s.markingAllAbsent,
+      askMarkAllAbsent:this.askMarkAllAbsent, markAllAbsent:this.markAllAbsent,
+      cancelMarkAllAbsent:this.cancelMarkAllAbsent,
+      markingAllAbsent:s.markingAllAbsent, confirmMarkAllAbsent:s.confirmMarkAllAbsent, notConfirmMarkAllAbsent:!s.confirmMarkAllAbsent,
+      markAllAbsentStyle:`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid #f7e4e1;background:#fff;color:#c0392b;opacity:${s.markingAllAbsent?'0.45':'1'};`,
+      markAllAbsentConfirmStyle:`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:700;cursor:pointer;border:none;background:#c0392b;color:#fff;`,
+      toggleLogHidePending:this.toggleLogHidePending, logHidePending, logHidePendingStyle,
+      logHidePendingLabel:logHidePending?'Show pending':'Hide pending',
+      pendingCount,
       rosterSearch:s.rosterSearch, onRosterSearch:this.onRosterSearch, hasRosterSearch:!!search, clearRosterSearch:this.clearRosterSearch,
       retrySync:this.retrySync,
       markAllPresent:this.markAllPresent, pendingCount, markAllPresenting:s.markAllPresenting,
