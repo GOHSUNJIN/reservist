@@ -362,7 +362,13 @@ class AppComponent extends DCLogic {
       const {data}=await DB.batches.create(label,startStr,endStr,dekitStr).catch(()=>({}));
       if(data) sorted.push(data); else break;
     }
-    if(prevLiveId) await DB.batches.activate(prevLiveId).catch(()=>{});
+    if(prevLiveId){
+      await DB.batches.activate(prevLiveId).catch(()=>{});
+    } else {
+      // No batch was live before creating forward batches — re-derive from date range
+      const fresh = await DB.batches.list().catch(()=>sorted);
+      return this._ensureLiveBatch(fresh);
+    }
     return DB.batches.list().catch(()=>sorted);
   }
 
@@ -403,14 +409,14 @@ class AppComponent extends DCLogic {
     if(suPassword.length < 6){ this.setState({authError:'Password must be at least 6 characters.'}); return; }
     const cleanContact = suContact.replace(/[\s-]/g,'');
     if(!/^[689]\d{7}$/.test(cleanContact)){ this.setState({authError:'Contact must be an 8-digit Singapore number.'}); return; }
-    const liveBatch = this._liveBatch();
+    const today = Utils.dateKey(this.baseDate());
+    const sortedBatches = [...this.state.batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
+    const liveBatch = sortedBatches.find(b=>today>=b.start_date&&today<=b.end_date) || this._liveBatch();
     if(!liveBatch){
       this.setState({authError:'No active intake batch is open for sign-up right now.'});
       return;
     }
-    const today = Utils.dateKey(this.baseDate());
     const isLastDay = today === liveBatch.end_date;
-    const sortedBatches = [...this.state.batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
     const nextBatch = isLastDay ? sortedBatches.find(b=>b.start_date>liveBatch.end_date) : null;
     const activeBatch = nextBatch || liveBatch;
     const members = await DB.personnel.list(activeBatch.id).catch(()=>[]);
