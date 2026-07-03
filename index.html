@@ -1020,18 +1020,18 @@
                 <div style="font-size:11.5px;color:#3a6b4f;font-style:italic;line-height:1.4;">{{ row.welfareNote }}</div>
               </div>
             </sc-if>
-            <sc-if value="{{ row.canMark }}" hint-placeholder-val="">
             <div style="display:flex;gap:6px;align-items:center;">
                 <select value="{{ row.shift }}" onChange="{{ row.onShiftChange }}" style="flex:1.3;min-width:0;padding:6px 8px;border:1px solid #d4d9e2;border-radius:7px;font-size:12px;color:#36404f;background:#f6f8fa;outline:none;">
                   <option value="AM">AM shift</option>
                   <option value="PM">PM shift</option>
                   <option value="OFFICE">Office</option>
                 </select>
-                <button onClick="{{ row.markPresent }}" class="roster-btn roster-btn-present" style="flex:1;padding:6px 4px;font-size:12px;">Present</button>
-                <button onClick="{{ row.markMc }}" class="roster-btn roster-btn-mc" style="flex:0.7;padding:6px 4px;font-size:12px;">MC</button>
-                <button onClick="{{ row.markAbsent }}" class="roster-btn roster-btn-absent" style="flex:1;padding:6px 4px;font-size:12px;">Absent</button>
+                <sc-if value="{{ row.canMark }}" hint-placeholder-val="">
+                  <button onClick="{{ row.markPresent }}" class="roster-btn roster-btn-present" style="flex:1;padding:6px 4px;font-size:12px;">Present</button>
+                  <button onClick="{{ row.markMc }}" class="roster-btn roster-btn-mc" style="flex:0.7;padding:6px 4px;font-size:12px;">MC</button>
+                  <button onClick="{{ row.markAbsent }}" class="roster-btn roster-btn-absent" style="flex:1;padding:6px 4px;font-size:12px;">Absent</button>
+                </sc-if>
               </div>
-            </sc-if>
             </div>
           </sc-for>
           <sc-if value="{{ noSearchResults }}" hint-placeholder-val="">
