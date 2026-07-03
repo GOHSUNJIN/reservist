@@ -129,6 +129,8 @@ class AppComponent extends DCLogic {
           const newDate = Utils.dateKey(new Date());
           if(newDate !== this._lastDate){ this._lastDate = newDate; this._onDateChange(newDate); }
         }
+        // Drain offline queue if we came back online while tab was hidden
+        if(this._offlineQueues.length && navigator.onLine) this._onOnline();
       }
     };
     document.addEventListener('visibilitychange', this._onVisibilityChange);
@@ -904,7 +906,8 @@ class AppComponent extends DCLogic {
   openPersonHistory = id => async () => {
     this.setState({personHistoryId:id, personHistoryRows:[], personHistoryLoading:true});
     if(!this.state.demo){
-      const data = await DB.attendance.getHistory(id).catch(()=>[]);
+      const tomorrow = Utils.dateKey(Utils.addDays(new Date(), 1));
+      const data = await DB.attendance.getHistory(id, tomorrow).catch(()=>[]);
       this.setState({personHistoryRows:data, personHistoryLoading:false});
     } else {
       this.setState({personHistoryLoading:false});
@@ -1215,10 +1218,10 @@ class AppComponent extends DCLogic {
         cachedNrd?Promise.resolve(cachedNrd):DB.noReportDays.list(b.start_date,b.dekit_date||b.end_date).catch(()=>new Set()),
         b.is_live?Promise.resolve({}):DB.attendance.getForBatch(b.start_date,b.end_date).catch(()=>({})),
       ]);
-      this.setState(s=>({activeBatchIdx:ni,viewOffset:off,selectedCalOffset:null,attendanceCache:b.is_live?{}:{...s.attendanceCache,...attMap},noReportDays:nrd,noReportDaysCache:cachedNrd?s.noReportDaysCache:{...s.noReportDaysCache,[b.id]:nrd},batchLoading:false,rosterSearch:'',confirmMarkAllAbsent:false}));
+      this.setState(s=>({activeBatchIdx:ni,viewOffset:off,selectedCalOffset:null,attendanceCache:b.is_live?{}:{...s.attendanceCache,...attMap},noReportDays:nrd,noReportDaysCache:cachedNrd?s.noReportDaysCache:{...s.noReportDaysCache,[b.id]:nrd},batchLoading:false,rosterSearch:'',logSearch:'',confirmMarkAllAbsent:false}));
       return;
     }
-    this.setState({viewOffset:off, confirmMarkAllAbsent:false});
+    this.setState({viewOffset:off, logSearch:'', confirmMarkAllAbsent:false});
     this._loadDateAttendance(off);
   };
   prevDay = () => this._navToOffset(this.state.viewOffset-1);
@@ -1325,6 +1328,7 @@ class AppComponent extends DCLogic {
   cancelMarkAllAbsent = () => this.setState({confirmMarkAllAbsent:false});
   markAllAbsent = async () => {
     const {personnel,batches,activeBatchIdx,attendance,attendanceCache,viewOffset,batchMembersCache,demo}=this.state;
+    if((viewOffset||0) > 0){ this.setState({confirmMarkAllAbsent:false}); return; }
     this.setState({confirmMarkAllAbsent:false, markingAllAbsent:true});
     const activeBatch=batches[activeBatchIdx||0]; if(!activeBatch){ this.setState({markingAllAbsent:false}); return; }
     const members=activeBatch.is_live?personnel:(batchMembersCache[activeBatch.id]||[]);
@@ -1419,8 +1423,9 @@ class AppComponent extends DCLogic {
   }
   markAllPresent = async () => {
     if(this.state.markAllPresenting) return;
-    this.setState({markAllPresenting:true});
     const off=this.state.viewOffset||0;
+    if(off > 0){ return; }
+    this.setState({markAllPresenting:true});
     const viewDateKey=Utils.dateKey(this.dateForOffset(off));
     const viewIsToday=off===0;
     const viewMap=viewIsToday?this.state.attendance:(this.state.attendanceCache?.[viewDateKey]||{});
