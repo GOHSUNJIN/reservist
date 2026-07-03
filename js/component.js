@@ -115,6 +115,7 @@ class AppComponent extends DCLogic {
     this._onOffline = () => this.setState({isOnline:false});
     window.addEventListener('online', this._onOnline);
     window.addEventListener('offline', this._onOffline);
+    if(this._offlineQueues.length && navigator.onLine) setTimeout(()=>this._onOnline(), 800);
     this._onActivity = () => { if(this.state.authed) this._resetIdleTimer(); };
     window.addEventListener('pointerdown', this._onActivity);
     window.addEventListener('keydown', this._onActivity);
@@ -903,7 +904,7 @@ class AppComponent extends DCLogic {
   openPersonHistory = id => async () => {
     this.setState({personHistoryId:id, personHistoryRows:[], personHistoryLoading:true});
     if(!this.state.demo){
-      const data = await DB.attendance.getHistory(id, null).catch(()=>[]);
+      const data = await DB.attendance.getHistory(id).catch(()=>[]);
       this.setState({personHistoryRows:data, personHistoryLoading:false});
     } else {
       this.setState({personHistoryLoading:false});
