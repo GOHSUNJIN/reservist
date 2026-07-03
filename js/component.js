@@ -487,6 +487,10 @@ class AppComponent extends DCLogic {
       isSuperAdmin:false, adminsList:[], adminsLoaded:false,
       npAdminName:'', npAdminContact:'', npAdminPassword:'', confirmDeactivateAdminId:null,
       editingBatchLabel:false, batchLabelText:'',
+      viewOffset:0, rosterSearch:'', logSearch:'', logShiftFilter:'all', logHidePending:false,
+      markingAllAbsent:false, confirmMarkAllAbsent:false,
+      personHistoryId:null, personHistoryRows:[], personHistoryLoading:false,
+      realtimeLive:false,
     });
   };
 
@@ -1248,7 +1252,7 @@ class AppComponent extends DCLogic {
       attendanceCache: b.is_live ? {} : {...s.attendanceCache, ...batchAttMap},
       noReportDays,
       noReportDaysCache: cachedNrd?s.noReportDaysCache:{...s.noReportDaysCache,[b.id]:noReportDays},
-      batchLoading:false, rosterSearch:'', peopleStatsLoaded:false,
+      batchLoading:false, rosterSearch:'', logSearch:'', confirmMarkAllAbsent:false, peopleStatsLoaded:false,
     }));
     this.loadPeopleStats();
   };
