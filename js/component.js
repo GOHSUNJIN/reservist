@@ -732,9 +732,9 @@ class AppComponent extends DCLogic {
     const _permMsg=isInApp
       ?`Location is blocked inside ${inAppName}.\n\n${inAppName}'s browser cannot access GPS.\n\nFix: tap ··· or the share icon → "Open in Safari" (iPhone) or "Open in Chrome" (Android), then try again there.`
       :isIOS
-      ?'Location is blocked for this site.\n\n⚠️ Using Private Browsing? Safari blocks location in private tabs - switch to a normal tab.\n\nOtherwise:\n1. iPhone Settings → Privacy & Security → Location Services → your browser → "While Using App"\n2. In Safari: tap "aA" in address bar → Website Settings → Location → Allow\n\nThen tap Reload below.'
+      ?'Location is blocked for this site.\n\n⚠️ Using Private Browsing? Safari blocks location in private tabs. Switch to a normal tab.\n\nOtherwise:\n1. iPhone Settings → Privacy & Security → Location Services → your browser → "While Using App"\n2. In Safari: tap "aA" in address bar → Website Settings → Location → Allow\n\nThen tap Reload below.'
       :isAndroid
-      ?'Location is blocked for this site.\n\n⚠️ Using Incognito? Location is often blocked in private tabs - switch to a normal tab.\n\nOtherwise:\n1. Tap the 🔒 icon in your address bar → Permissions → Location → Allow\n2. Browser Settings → Site Settings → Location → this site → Allow\n3. Phone Settings → Apps → [your browser] → Permissions → Location → Allow\n\nThen tap Reload below.'
+      ?'Location is blocked for this site.\n\n⚠️ Using Incognito? Location is often blocked in private tabs. Switch to a normal tab.\n\nOtherwise:\n1. Tap the 🔒 icon in your address bar → Permissions → Location → Allow\n2. Browser Settings → Site Settings → Location → this site → Allow\n3. Phone Settings → Apps → [your browser] → Permissions → Location → Allow\n\nThen tap Reload below.'
       :'Location blocked.\n\n⚠️ Using a private/incognito tab? Switch to a normal tab.\n\nOtherwise allow Location via the 🔒 lock icon in your address bar, then tap Reload below.';
     // GPS unavailable (code 2) - hardware couldn't get a fix
     const _unavailMsg=retries>=2
@@ -743,7 +743,7 @@ class AppComponent extends DCLogic {
     // Timeout (code 3) - got the hardware but fix took too long
     const _timeoutMsg=retries>=2
       ?'GPS keeps timing out.\n\n• Move to an open area with clear sky view\n• Turn Location off and back on in Settings\n• Try restarting your phone\n• Contact your supervisor if this continues'
-      :'GPS timed out - took more than 15 seconds.\n\n• Move to an open area or near a window\n• Make sure Location Services is on in Settings\n• Try again in a few seconds';
+      :'GPS timed out after 15 seconds.\n\n• Move to an open area or near a window\n• Make sure Location Services is on in Settings\n• Try again in a few seconds';
     navigator.geolocation.getCurrentPosition(
       pos=>{
         clearTimeout(this._locSlowTimer);
@@ -1363,7 +1363,7 @@ class AppComponent extends DCLogic {
     if(!lateReasonText.trim()) return;
     this.setState({lateReasonSubmitting:true});
     if(!demo){
-      if(!isOnline){ this._toast('No connection - reason not saved. Try again when online.','error'); this.setState({lateReasonSubmitting:false}); return; }
+      if(!isOnline){ this._toast('No connection. Reason not saved. Try again when online.','error'); this.setState({lateReasonSubmitting:false}); return; }
       const today=Utils.dateKey(this.baseDate());
       const {error} = await DB.attendance.submitLateReason(currentUserId, today, lateReasonText.trim());
       if(error){ this._toast('Failed to save reason. Try again.','error'); this.setState({lateReasonSubmitting:false}); return; }
@@ -1647,8 +1647,8 @@ class AppComponent extends DCLogic {
     let suShift=s.suShift;
     if((suShift==='AM'&&amFull)||(suShift==='PM'&&pmFull)) suShift='OFFICE';
     const shiftOptions=[
-      {value:'AM', disabled:amFull, selected:suShift==='AM', label:amFull?'AM shift (0830-1530) - Taken':'AM shift (0830-1530) ('+amCount+'/2)'},
-      {value:'PM', disabled:pmFull, selected:suShift==='PM', label:pmFull?'PM shift (1530-2230) - Taken':'PM shift (1530-2230) ('+pmCount+'/2)'},
+      {value:'AM', disabled:amFull, selected:suShift==='AM', label:amFull?'AM shift (0830-1530) (Taken)':'AM shift (0830-1530) ('+amCount+'/2)'},
+      {value:'PM', disabled:pmFull, selected:suShift==='PM', label:pmFull?'PM shift (1530-2230) (Taken)':'PM shift (1530-2230) ('+pmCount+'/2)'},
       {value:'OFFICE', disabled:false, selected:suShift==='OFFICE', label:'Office (0900-1800)'},
     ];
     const tb=a=>`flex:1;padding:11px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;${a?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`;
@@ -1670,8 +1670,8 @@ class AppComponent extends DCLogic {
       doLogin:this.doLogin, demoReservist:this.demoReservist, demoAdmin:this.demoAdmin,
       suName:s.suName, suContact:s.suContact, suShift, shiftOptions, suPassword:s.suPassword,
       amFull, pmFull, amCount, pmCount,
-      amShiftLabel:amFull?'AM shift (0830-1530) - Taken':'AM shift (0830-1530) ('+amCount+'/2)',
-      pmShiftLabel:pmFull?'PM shift (1530-2230) - Taken':'PM shift (1530-2230) ('+pmCount+'/2)',
+      amShiftLabel:amFull?'AM shift (0830-1530) (Taken)':'AM shift (0830-1530) ('+amCount+'/2)',
+      pmShiftLabel:pmFull?'PM shift (1530-2230) (Taken)':'PM shift (1530-2230) ('+pmCount+'/2)',
       onSuName:this.onSuName, onSuContact:this.onSuContact, onSuShift:this.onSuShift, onSuShiftSelect:this.onSuShiftSelect, onSuPassword:this.onSuPassword,
       doSignup:this.doSignup,
       intakeLabel, intakeRange:intakeRangeFull, intakeRangeFull,
@@ -1767,14 +1767,14 @@ class AppComponent extends DCLogic {
     const accStr=s.locAccuracy!=null?' · ±'+s.locAccuracy+'m GPS':'';
     const poorAcc=s.locAccuracy!=null&&s.locAccuracy>150;
     const slowMsg=s.locRetryCount>=2
-      ?'Still locating - GPS signal is very weak. Move outside to an open area, then try again.'
+      ?'Still locating. GPS signal is very weak. Move outside to an open area, then try again.'
       :'Taking longer than usual. Try stepping near a window or outside.';
     if(locVerified){
-      const warnAcc=poorAcc?' (low accuracy - try again outdoors for a better reading)':'';
+      const warnAcc=poorAcc?' (low accuracy; try again outdoors for a better reading)':'';
       gLocBorder=poorAcc?'#f0e2c2':'#cfe6d8';gLocCardBg=poorAcc?'#fdf6e9':'#f5faf7';gLocBadgeBg=poorAcc?'#f7efdc':'#e7f3ec';gLocBadgeColor=poorAcc?'#b9791a':'#1f8a5b';
       gLocMsg=s.locDistance+' m from '+hqName+', on-site'+accStr+warnAcc;gLocMsgColor=poorAcc?'#b9791a':'#1f8a5b';
     }
-    else if(locOutOfRange){gLocBorder='#f1d3cf';gLocCardBg='#fbeeec';gLocBadgeBg='#f7e4e1';gLocBadgeColor='#c0392b';const veryPoorAcc=s.locAccuracy!=null&&s.locAccuracy>300;gLocMsg=veryPoorAcc?('GPS signal too weak to verify your location (±'+s.locAccuracy+'m).\n\nStep outside to an open area with clear sky and try again.'):s.locDistance+' m away - you must be at '+hqName+' to check in'+accStr+(poorAcc?'\n\nNote: GPS accuracy is low (±'+s.locAccuracy+'m). If you are on-site, move outside and try again.':'');gLocMsgColor='#c0392b';}
+    else if(locOutOfRange){gLocBorder='#f1d3cf';gLocCardBg='#fbeeec';gLocBadgeBg='#f7e4e1';gLocBadgeColor='#c0392b';const veryPoorAcc=s.locAccuracy!=null&&s.locAccuracy>300;gLocMsg=veryPoorAcc?('GPS signal too weak to verify your location (±'+s.locAccuracy+'m).\n\nStep outside to an open area with clear sky and try again.'):s.locDistance+' m away. You must be at '+hqName+' to check in.'+accStr+(poorAcc?'\n\nNote: GPS accuracy is low (±'+s.locAccuracy+'m). If you are on-site, move outside and try again.':'');gLocMsgColor='#c0392b';}
     else if(locGpsError){gLocBorder='#f0e2c2';gLocCardBg='#fdf6e9';gLocBadgeBg='#f7efdc';gLocBadgeColor='#b9791a';gLocMsg=s.locGpsMsg||'Location unavailable. Check permissions and try again.';gLocMsgColor='#b9791a';}
     else if(locLocating){gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor=accent;gLocMsg=s.locSlow?slowMsg:'Locating you via GPS...';gLocMsgColor='#8a94a3';}
     else{gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor='#8a94a3';gLocMsg='Tap "Locate me" to verify your location.';gLocMsgColor='#8a94a3';}
@@ -1816,7 +1816,7 @@ class AppComponent extends DCLogic {
         stepColor:done||isActive?'#fff':'#8a94a3',
         connectorBg:done?'#1f8a5b':'#eceef2',
         rowPadBot:done?'8px':'16px',
-        subLabel:win?win[0]+' - '+win[1]:'',
+        subLabel:win?win[0]+' to '+win[1]:'',
         btnLabel,
         onStart:this.startPhaseGps(pd.key),
         onSubmit:this.doPhase(pd.key),
@@ -1854,7 +1854,7 @@ class AppComponent extends DCLogic {
     if(rec.p3) _waTimes.push('BACK '+rec.p3);
     if(rec.p4) _waTimes.push('OUT '+rec.p4);
     const waMsg=status==='present'
-      ?`✅ ${me.name} - ${Utils.shiftLabel(me.shift)}\n${_waTimes.join(' · ')}`
+      ?`✅ ${me.name} | ${Utils.shiftLabel(me.shift)}\n${_waTimes.join(' · ')}`
       :status==='mc'
       ?`🤒 ${me.name} is on MC today (${Utils.shiftLabel(me.shift)}).`
       :'';
@@ -2057,8 +2057,6 @@ class AppComponent extends DCLogic {
     const totalRecorded=statMyPresent+statMyMc+statMyMissed;
     const attendanceRate=cycleDone>0?Math.round((statMyPresent+statMyMc)/cycleDone*100):null;
     const attendanceRateText=attendanceRate!==null?attendanceRate+'%':'-';
-    let attendanceStreak=0;
-    for(const row of myHistory){ if(row.status==='present'||row.status==='mc') attendanceStreak++; else break; }
     const showAttendanceSummary=totalRecorded>0||cycleDone>0;
     const cycleNotStarted=!!(activeBatch&&today<activeBatch.start_date);
     const cycleStartsLabel=activeBatch?Utils.fmtLong(new Date(activeBatch.start_date+'T00:00:00')):'';
@@ -2067,7 +2065,7 @@ class AppComponent extends DCLogic {
     const pagedHistory=myHistory.slice(0,page*PAGE);
     const historyHasMore=myHistory.length>page*PAGE;
     const historyRemaining=myHistory.length-pagedHistory.length;
-    return {myHistory:pagedHistory,historyHasMore,historyRemaining,showMoreHistory:this.showMoreHistory,statMyPresent,statMyMc,statMyMissed,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:pagedHistory.length===0,totalRecorded,attendanceRate,attendanceRateText,attendanceStreak,showAttendanceSummary,cycleNotStarted,cycleStartsLabel};
+    return {myHistory:pagedHistory,historyHasMore,historyRemaining,showMoreHistory:this.showMoreHistory,statMyPresent,statMyMc,statMyMissed,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:pagedHistory.length===0,totalRecorded,attendanceRate,attendanceRateText,showAttendanceSummary,cycleNotStarted,cycleStartsLabel};
   }
 
   _buildBriefings(s, accent){
@@ -2177,7 +2175,7 @@ class AppComponent extends DCLogic {
     const activeCycleLabel=activeBatch?.label||'No cycle';
     const _abs=activeBatch?new Date(activeBatch.start_date+'T00:00:00'):null;
     const _abe=activeBatch?new Date(activeBatch.end_date+'T00:00:00'):null;
-    const activeCycleRange=_abs&&_abe?Utils.fmtShort(_abs)+' - '+Utils.fmtShort(_abe):'';
+    const activeCycleRange=_abs&&_abe?Utils.fmtShort(_abs)+' to '+Utils.fmtShort(_abe):'';
     const viewOffset=s.viewOffset||0, viewDate=this.dateForOffset(viewOffset), viewIsToday=viewOffset===0, viewReportDay=Utils.isReportDay(viewDate);
     const viewDateKey=Utils.dateKey(viewDate);
     const viewMap=viewIsToday?s.attendance:(s.attendanceCache?.[viewDateKey]||{});
@@ -2207,7 +2205,7 @@ class AppComponent extends DCLogic {
     const present=roster.filter(r=>r.label==='Present').length, mc=roster.filter(r=>r.label==='On MC').length, pending=roster.filter(r=>r.label==='Pending').length, absent=roster.filter(r=>r.label==='Absent').length, total=roster.length;
     const snapshotLastLine=viewIsToday?('⏳ Pending ('+pending+'): '+(roster.filter(r=>r.label==='Pending').map(r=>r.name).join(', ')||'(none)')):('❌ Absent ('+absent+'): '+(roster.filter(r=>r.label==='Absent').map(r=>r.name).join(', ')||'(none)'));
     const _orgN=this.props.orgName||'Ops Security';
-    const snapshotLines=['📋 *'+_orgN+' - '+Utils.fmtMed(viewDate)+'*','✅ Present ('+present+'): '+(roster.filter(r=>r.label==='Present').map(r=>r.name).join(', ')||'(none)'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.label==='On MC').map(r=>r.name).join(', ')||'(none)'),snapshotLastLine];
+    const snapshotLines=['📋 *'+_orgN+', '+Utils.fmtMed(viewDate)+'*','✅ Present ('+present+'): '+(roster.filter(r=>r.label==='Present').map(r=>r.name).join(', ')||'(none)'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.label==='On MC').map(r=>r.name).join(', ')||'(none)'),snapshotLastLine];
     const snapshotLink='https://api.whatsapp.com/send?text='+encodeURIComponent(snapshotLines.join('\n'));
     const shiftCutoff=Utils.LATE_CUTOFF;
     const logRows=activeMembers.map(p=>{
@@ -2279,7 +2277,7 @@ class AppComponent extends DCLogic {
     const editTargetIsLive=!!activeBatch?.is_live;
     const _ebs=activeBatch?new Date(activeBatch.start_date+'T00:00:00'):null;
     const _ebe=activeBatch?new Date(activeBatch.end_date+'T00:00:00'):null;
-    const editTargetRange=_ebs&&_ebe?(Utils.fmtShort(_ebs)+' - '+Utils.fmtShort(_ebe)+' '+_ebs.getFullYear()):'';
+    const editTargetRange=_ebs&&_ebe?(Utils.fmtShort(_ebs)+' to '+Utils.fmtShort(_ebe)+' '+_ebs.getFullYear()):'';
     const editTargetIsPast=!!(activeBatch&&activeBatch.end_date<todayForChips&&!activeBatch.is_live);
     const editTargetStatus=editTargetIsLive?'LIVE':editTargetIsPast?'PAST':'UPCOMING';
     const _sortedBatches=[...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
@@ -2369,8 +2367,8 @@ class AppComponent extends DCLogic {
       newBatchDate:s.newBatchDate,onNewBatchDate:this.onNewBatchDate,createBatch:this.createBatch,batchCreating:s.batchCreating,
       npName:s.npName, npContact:s.npContact, npShift, npPassword:s.npPassword,
       npAmFull, npPmFull, npAmCount, npPmCount,
-      npAmLabel:npAmFull?'AM shift (0830-1530) - Taken':'AM shift (0830-1530) ('+npAmCount+'/2)',
-      npPmLabel:npPmFull?'PM shift (1530-2230) - Taken':'PM shift (1530-2230) ('+npPmCount+'/2)',
+      npAmLabel:npAmFull?'AM shift (0830-1530) (Taken)':'AM shift (0830-1530) ('+npAmCount+'/2)',
+      npPmLabel:npPmFull?'PM shift (1530-2230) (Taken)':'PM shift (1530-2230) ('+npPmCount+'/2)',
       onNpName:this.onNpName, onNpContact:this.onNpContact, onNpShift:this.onNpShift, onNpPassword:this.onNpPassword, addPerson:this.addPerson,
       mealActive:!!(activeBatch?.meal_active), toggleMealActive:this.toggleMealActive,
       mealToggleTrackBg:activeBatch?.meal_active?accent:'#39435a',
