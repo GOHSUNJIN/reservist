@@ -2308,7 +2308,7 @@ class AppComponent extends DCLogic {
       askMarkAllAbsent:this.askMarkAllAbsent, markAllAbsent:this.markAllAbsent,
       cancelMarkAllAbsent:this.cancelMarkAllAbsent,
       markingAllAbsent:s.markingAllAbsent, confirmMarkAllAbsent:s.confirmMarkAllAbsent, notConfirmMarkAllAbsent:!s.confirmMarkAllAbsent,
-      markAllAbsentStyle:`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid #f7e4e1;background:#fff;color:#c0392b;opacity:${s.markingAllAbsent?'0.45':'1'};flex-shrink:0;`,
+      markAllAbsentStyle:`padding:5px 8px;border-radius:7px;cursor:pointer;border:1px solid #f7e4e1;background:#fff;color:#c0392b;opacity:${s.markingAllAbsent?'0.45':'1'};display:flex;align-items:center;flex-shrink:0;`,
       markAllAbsentConfirmStyle:`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:700;cursor:pointer;border:none;background:#c0392b;color:#fff;`,
       toggleLogHidePending:this.toggleLogHidePending, logHidePending, logHidePendingStyle,
       logHidePendingLabel:logHidePending?'Show pending':'Hide pending',
