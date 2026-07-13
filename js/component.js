@@ -298,6 +298,11 @@ class AppComponent extends DCLogic {
   async _onDateChange(newDate){
     if(!this.state.authed || this.state.demo) return;
     if(this.state.role==='admin'){
+      const {attendanceDate:yesterday, attendance:yesterdayAtt, personnel, noReportDays} = this.state;
+      if(yesterday && Utils.isReportDay(new Date(yesterday+'T00:00:00')) && !noReportDays.has(yesterday)){
+        const pending = personnel.filter(p=>{ const r=yesterdayAtt[p.id]; return !r||r.status==='pending'; });
+        if(pending.length) await Promise.all(pending.map(p=>DB.attendance.upsert(p.id, yesterday, 'absent', {}).catch(()=>{})));
+      }
       let batches = await DB.batches.list().catch(()=>this.state.batches);
       batches = await this._ensureLiveBatch(batches, newDate);
       const liveIdx = batches.findIndex(b=>b.is_live);
@@ -1287,7 +1292,7 @@ class AppComponent extends DCLogic {
     if(idx===-1){this.setState({batchLoading:false});return;}
     await this.setBatch(idx)();
     const targetOff=Math.round((new Date(batchJumpDate+'T00:00:00')-this.baseDate())/86400000);
-    this.setState({viewOffset:targetOff});
+    this.setState({viewOffset:targetOff, batchJumpDate});
   };
 
   setStatus = (id, status) => async () => {
@@ -2291,7 +2296,7 @@ class AppComponent extends DCLogic {
     const filteredLogRows=logSearch?pendingFiltered.filter(r=>r.name.toLowerCase().includes(logSearch)):pendingFiltered;
     const pendingCount=logRows.filter(r=>r.label==='Pending').length;
     const _fBtn=(f,accent)=>`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid ${logShiftFilter===f?accent:'#d4d9e2'};background:${logShiftFilter===f?accent:'#fff'};color:${logShiftFilter===f?'#fff':'#5c6678'};`;
-    const logHidePendingStyle=`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid ${logHidePending?'#d4d9e2':'#d4d9e2'};background:${logHidePending?'#f6f8fa':'#fff'};color:#5c6678;`;
+    const logHidePendingStyle=`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid ${logHidePending?'#c5cff5':'#d4d9e2'};background:${logHidePending?'#eef1fc':'#fff'};color:${logHidePending?'#2f5fd0':'#5c6678'};`;
     const lateRows=viewIsToday?logRows.filter(r=>r.isLate):[];
     const lateCount=lateRows.length;
     const lateNames=lateRows.map(r=>r.name).join(', ');
