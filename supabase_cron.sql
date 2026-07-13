@@ -37,7 +37,7 @@ SELECT cron.schedule(
     ),
     report_day AS (
       SELECT d FROM yesterday
-      WHERE EXTRACT(DOW FROM d) BETWEEN 1 AND 5  -- Mon–Fri only
+      WHERE EXTRACT(DOW FROM d) BETWEEN 1 AND 5  -- Mon-Fri only
         AND NOT EXISTS (SELECT 1 FROM no_report_days WHERE date = d)
     )
     INSERT INTO attendance (personnel_id, date, status)

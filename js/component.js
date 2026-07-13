@@ -247,7 +247,7 @@ class AppComponent extends DCLogic {
       this._myAttendanceChannel = DB.realtime.subscribeMyAttendance(me.id, (row) => {
         const todayKey = Utils.dateKey(this.baseDate());
         if(row.date === todayKey){
-          // Merge with existing — Supabase realtime may send partial rows (only changed columns)
+          // Merge with existing - Supabase realtime may send partial rows (only changed columns)
           this.setState(s=>{
             const existing=s.attendance[s.currentUserId]||{};
             const incoming=DB.attendance._toEntry(row);
@@ -270,10 +270,10 @@ class AppComponent extends DCLogic {
       });
     }
     if(!this.state.demo) DB.auth.syncDisplayName(me.name).catch(()=>{});
-    // Session expiry warning — show 5 min before typical 1-hour Supabase JWT expiry
+    // Session expiry warning - show 5 min before typical 1-hour Supabase JWT expiry
     if(this._sessionWarnTimer) clearTimeout(this._sessionWarnTimer);
     this._sessionWarnTimer = setTimeout(()=>{ if(this.state.authed) this.setState({sessionExpiring:true}); }, 55*60*1000);
-    // Add to Home Screen nudge — 30-second delay, at most once per day
+    // Add to Home Screen nudge - 30-second delay, at most once per day
     setTimeout(()=>{ if(this._shouldShowA2hs()){ localStorage.setItem('a2hs_seen',Date.now().toString()); this.setState({showA2hs:true, a2hsIsIos:/iP(hone|od|ad)/.test(navigator.userAgent||'')}); } }, 30000);
     this._resetIdleTimer();
   }
@@ -325,7 +325,7 @@ class AppComponent extends DCLogic {
       await DB.batches.activate(current.id).catch(()=>{});
       return DB.batches.list().catch(()=>batches);
     }
-    // No batch covers today — create batches forward until one does (handles large test-date jumps)
+    // No batch covers today - create batches forward until one does (handles large test-date jumps)
     let sorted = [...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
     let lastCreated = null;
     for(let attempt=0; attempt<20; attempt++){
@@ -345,7 +345,7 @@ class AppComponent extends DCLogic {
         if(data?.id) await DB.personnel.assignBatch(data.id).catch(()=>{});
         break;
       }
-      // Still haven't reached today — keep creating
+      // Still haven't reached today - keep creating
       if(startStr>today) break; // gap period: next batch starts after today, stop
     }
     return DB.batches.list().catch(()=>sorted);
@@ -375,7 +375,7 @@ class AppComponent extends DCLogic {
     if(prevLiveId){
       await DB.batches.activate(prevLiveId).catch(()=>{});
     } else {
-      // No batch was live before creating forward batches — re-derive from date range
+      // No batch was live before creating forward batches - re-derive from date range
       const fresh = await DB.batches.list().catch(()=>sorted);
       return this._ensureLiveBatch(fresh);
     }
@@ -728,22 +728,22 @@ class AppComponent extends DCLogic {
     const ua=navigator.userAgent||'';
     const isIOS=/iP(hone|od|ad)/.test(ua), isAndroid=/Android/.test(ua);
     const {detected:isInApp, name:inAppName} = this._detectInAppBrowser();
-    // Permission denied — in-app browser takes priority, then private mode, then settings
+    // Permission denied - in-app browser takes priority, then private mode, then settings
     const _permMsg=isInApp
       ?`Location is blocked inside ${inAppName}.\n\n${inAppName}'s browser cannot access GPS.\n\nFix: tap ··· or the share icon → "Open in Safari" (iPhone) or "Open in Chrome" (Android), then try again there.`
       :isIOS
-      ?'Location is blocked for this site.\n\n⚠️ Using Private Browsing? Safari blocks location in private tabs — switch to a normal tab.\n\nOtherwise:\n1. iPhone Settings → Privacy & Security → Location Services → your browser → "While Using App"\n2. In Safari: tap "aA" in address bar → Website Settings → Location → Allow\n\nThen tap Reload below.'
+      ?'Location is blocked for this site.\n\n⚠️ Using Private Browsing? Safari blocks location in private tabs - switch to a normal tab.\n\nOtherwise:\n1. iPhone Settings → Privacy & Security → Location Services → your browser → "While Using App"\n2. In Safari: tap "aA" in address bar → Website Settings → Location → Allow\n\nThen tap Reload below.'
       :isAndroid
-      ?'Location is blocked for this site.\n\n⚠️ Using Incognito? Location is often blocked in private tabs — switch to a normal tab.\n\nOtherwise:\n1. Tap the 🔒 icon in your address bar → Permissions → Location → Allow\n2. Browser Settings → Site Settings → Location → this site → Allow\n3. Phone Settings → Apps → [your browser] → Permissions → Location → Allow\n\nThen tap Reload below.'
+      ?'Location is blocked for this site.\n\n⚠️ Using Incognito? Location is often blocked in private tabs - switch to a normal tab.\n\nOtherwise:\n1. Tap the 🔒 icon in your address bar → Permissions → Location → Allow\n2. Browser Settings → Site Settings → Location → this site → Allow\n3. Phone Settings → Apps → [your browser] → Permissions → Location → Allow\n\nThen tap Reload below.'
       :'Location blocked.\n\n⚠️ Using a private/incognito tab? Switch to a normal tab.\n\nOtherwise allow Location via the 🔒 lock icon in your address bar, then tap Reload below.';
-    // GPS unavailable (code 2) — hardware couldn't get a fix
+    // GPS unavailable (code 2) - hardware couldn't get a fix
     const _unavailMsg=retries>=2
       ?'GPS still unavailable after several tries.\n\nAdditional steps:\n• Turn Location Services off and back on in phone Settings\n• Restart your phone\n• Contact your supervisor if the issue persists'
       :'GPS signal unavailable.\n\n• Step outside or move near a window\n• Make sure Airplane mode is off\n• Turn Location Services off and back on, then try again';
-    // Timeout (code 3) — got the hardware but fix took too long
+    // Timeout (code 3) - got the hardware but fix took too long
     const _timeoutMsg=retries>=2
       ?'GPS keeps timing out.\n\n• Move to an open area with clear sky view\n• Turn Location off and back on in Settings\n• Try restarting your phone\n• Contact your supervisor if this continues'
-      :'GPS timed out — took more than 15 seconds.\n\n• Move to an open area or near a window\n• Make sure Location Services is on in Settings\n• Try again in a few seconds';
+      :'GPS timed out - took more than 15 seconds.\n\n• Move to an open area or near a window\n• Make sure Location Services is on in Settings\n• Try again in a few seconds';
     navigator.geolocation.getCurrentPosition(
       pos=>{
         clearTimeout(this._locSlowTimer);
@@ -794,7 +794,7 @@ class AppComponent extends DCLogic {
     this.setState({phaseSubmitting:true});
     const _now = testTime ? (()=>{const d=new Date();const[h,m]=testTime.split(':').map(Number);d.setHours(h,m,0,0);return d;})() : new Date();
     const time = Utils.hhmm(_now);
-    // Late detection — only on p1 check-in
+    // Late detection - only on p1 check-in
     if(key==='p1'){
       const me=this.state.me; const shift=me?.shift||'AM';
       const cutoff=Utils.LATE_CUTOFF[shift]||'08:30';
@@ -1101,7 +1101,7 @@ class AppComponent extends DCLogic {
   _subscribeRealtime(dateStr){
     if(this.state.demo) return;
     const ch=DB.realtime.subscribeAttendance(dateStr, row=>{
-      // Merge with existing — Supabase realtime may send partial rows (only changed columns)
+      // Merge with existing - Supabase realtime may send partial rows (only changed columns)
       this.setState(s=>{
         const existing=s.attendance[row.personnel_id]||{};
         const incoming=DB.attendance._toEntry(row);
@@ -1151,7 +1151,7 @@ class AppComponent extends DCLogic {
     const date=Utils.dateKey(this.dateForOffset(off));
     const {batches}=this.state;
     const curIdx=this.state.activeBatchIdx||0;
-    // Prefer the batch whose reporting window (start→end_date) covers the date —
+    // Prefer the batch whose reporting window (start→end_date) covers the date -
     // this handles overlap where the next batch's reporting days start before the
     // previous batch's dekit date (e.g. B1 Jul starts Jun 30, B2 Jun dekit Jul 1).
     let ni=batches.findIndex((b,i)=>i!==curIdx&&date>=b.start_date&&date<=b.end_date);
@@ -1222,7 +1222,7 @@ class AppComponent extends DCLogic {
       const lastBatch=sorted[sorted.length-1];
       const lastEnd=lastBatch?.dekit_date||lastBatch?.end_date||'';
       if(batchJumpDate>lastEnd){
-        // Target is beyond all existing batches — create until covered + 3 ahead
+        // Target is beyond all existing batches - create until covered + 3 ahead
         batches=await this._ensureLiveBatch(batches, batchJumpDate);
         batches=await this._ensureForwardBatches(batches);
         this.setState({batches});
@@ -1363,7 +1363,7 @@ class AppComponent extends DCLogic {
     if(!lateReasonText.trim()) return;
     this.setState({lateReasonSubmitting:true});
     if(!demo){
-      if(!isOnline){ this._toast('No connection — reason not saved. Try again when online.','error'); this.setState({lateReasonSubmitting:false}); return; }
+      if(!isOnline){ this._toast('No connection - reason not saved. Try again when online.','error'); this.setState({lateReasonSubmitting:false}); return; }
       const today=Utils.dateKey(this.baseDate());
       const {error} = await DB.attendance.submitLateReason(currentUserId, today, lateReasonText.trim());
       if(error){ this._toast('Failed to save reason. Try again.','error'); this.setState({lateReasonSubmitting:false}); return; }
@@ -1767,14 +1767,14 @@ class AppComponent extends DCLogic {
     const accStr=s.locAccuracy!=null?' · ±'+s.locAccuracy+'m GPS':'';
     const poorAcc=s.locAccuracy!=null&&s.locAccuracy>150;
     const slowMsg=s.locRetryCount>=2
-      ?'Still locating — GPS signal is very weak. Move outside to an open area, then try again.'
+      ?'Still locating - GPS signal is very weak. Move outside to an open area, then try again.'
       :'Taking longer than usual. Try stepping near a window or outside.';
     if(locVerified){
-      const warnAcc=poorAcc?' (low accuracy — try again outdoors for a better reading)':'';
+      const warnAcc=poorAcc?' (low accuracy - try again outdoors for a better reading)':'';
       gLocBorder=poorAcc?'#f0e2c2':'#cfe6d8';gLocCardBg=poorAcc?'#fdf6e9':'#f5faf7';gLocBadgeBg=poorAcc?'#f7efdc':'#e7f3ec';gLocBadgeColor=poorAcc?'#b9791a':'#1f8a5b';
       gLocMsg=s.locDistance+' m from '+hqName+', on-site'+accStr+warnAcc;gLocMsgColor=poorAcc?'#b9791a':'#1f8a5b';
     }
-    else if(locOutOfRange){gLocBorder='#f1d3cf';gLocCardBg='#fbeeec';gLocBadgeBg='#f7e4e1';gLocBadgeColor='#c0392b';const veryPoorAcc=s.locAccuracy!=null&&s.locAccuracy>300;gLocMsg=veryPoorAcc?('GPS signal too weak to verify your location (±'+s.locAccuracy+'m).\n\nStep outside to an open area with clear sky and try again.'):s.locDistance+' m away — you must be at '+hqName+' to check in'+accStr+(poorAcc?'\n\nNote: GPS accuracy is low (±'+s.locAccuracy+'m). If you are on-site, move outside and try again.':'');gLocMsgColor='#c0392b';}
+    else if(locOutOfRange){gLocBorder='#f1d3cf';gLocCardBg='#fbeeec';gLocBadgeBg='#f7e4e1';gLocBadgeColor='#c0392b';const veryPoorAcc=s.locAccuracy!=null&&s.locAccuracy>300;gLocMsg=veryPoorAcc?('GPS signal too weak to verify your location (±'+s.locAccuracy+'m).\n\nStep outside to an open area with clear sky and try again.'):s.locDistance+' m away - you must be at '+hqName+' to check in'+accStr+(poorAcc?'\n\nNote: GPS accuracy is low (±'+s.locAccuracy+'m). If you are on-site, move outside and try again.':'');gLocMsgColor='#c0392b';}
     else if(locGpsError){gLocBorder='#f0e2c2';gLocCardBg='#fdf6e9';gLocBadgeBg='#f7efdc';gLocBadgeColor='#b9791a';gLocMsg=s.locGpsMsg||'Location unavailable. Check permissions and try again.';gLocMsgColor='#b9791a';}
     else if(locLocating){gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor=accent;gLocMsg=s.locSlow?slowMsg:'Locating you via GPS...';gLocMsgColor='#8a94a3';}
     else{gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor='#8a94a3';gLocMsg='Tap "Locate me" to verify your location.';gLocMsgColor='#8a94a3';}
@@ -1816,7 +1816,7 @@ class AppComponent extends DCLogic {
         stepColor:done||isActive?'#fff':'#8a94a3',
         connectorBg:done?'#1f8a5b':'#eceef2',
         rowPadBot:done?'8px':'16px',
-        subLabel:win?win[0]+' – '+win[1]:'',
+        subLabel:win?win[0]+' - '+win[1]:'',
         btnLabel,
         onStart:this.startPhaseGps(pd.key),
         onSubmit:this.doPhase(pd.key),
@@ -1843,7 +1843,7 @@ class AppComponent extends DCLogic {
       };
     });
     const allDone=phases.every(ph=>ph.done);
-    const summaryP1=rec.p1||'–', summaryP2=rec.p2||'–', summaryP3=rec.p3||'–', summaryP4=rec.p4||'–';
+    const summaryP1=rec.p1||'-', summaryP2=rec.p2||'-', summaryP3=rec.p3||'-', summaryP4=rec.p4||'-';
     const shiftStart={AM:'08:30',PM:'15:30',OFFICE:'09:00'}[shift]||'08:30';
     const [_sc,_sm]=shiftStart.split(':').map(Number);
     const _lateMs=rec.p1?(()=>{const[h,m]=rec.p1.split(':').map(Number);return(h*60+m)-(_sc*60+_sm);})():0;
@@ -1854,7 +1854,7 @@ class AppComponent extends DCLogic {
     if(rec.p3) _waTimes.push('BACK '+rec.p3);
     if(rec.p4) _waTimes.push('OUT '+rec.p4);
     const waMsg=status==='present'
-      ?`✅ ${me.name} — ${Utils.shiftLabel(me.shift)}\n${_waTimes.join(' · ')}`
+      ?`✅ ${me.name} - ${Utils.shiftLabel(me.shift)}\n${_waTimes.join(' · ')}`
       :status==='mc'
       ?`🤒 ${me.name} is on MC today (${Utils.shiftLabel(me.shift)}).`
       :'';
@@ -2056,7 +2056,7 @@ class AppComponent extends DCLogic {
     // Performance summary
     const totalRecorded=statMyPresent+statMyMc+statMyMissed;
     const attendanceRate=cycleDone>0?Math.round((statMyPresent+statMyMc)/cycleDone*100):null;
-    const attendanceRateText=attendanceRate!==null?attendanceRate+'%':'—';
+    const attendanceRateText=attendanceRate!==null?attendanceRate+'%':'-';
     let attendanceStreak=0;
     for(const row of myHistory){ if(row.status==='present'||row.status==='mc') attendanceStreak++; else break; }
     const showAttendanceSummary=totalRecorded>0||cycleDone>0;
@@ -2158,7 +2158,7 @@ class AppComponent extends DCLogic {
     });
     const activeChips=allChips.filter(c=>!c.isPast);
     const archivedChips=allChips.filter(c=>c.isPast);
-    // Cycle picker — grouped by year, active first then upcoming nearest→furthest then past most-recent→oldest
+    // Cycle picker - grouped by year, active first then upcoming nearest→furthest then past most-recent→oldest
     const _pickerYearMap={};
     allChips.forEach((c,i)=>{
       const yr=batches[i]?.start_date?.slice(0,4)||'';
@@ -2177,7 +2177,7 @@ class AppComponent extends DCLogic {
     const activeCycleLabel=activeBatch?.label||'No cycle';
     const _abs=activeBatch?new Date(activeBatch.start_date+'T00:00:00'):null;
     const _abe=activeBatch?new Date(activeBatch.end_date+'T00:00:00'):null;
-    const activeCycleRange=_abs&&_abe?Utils.fmtShort(_abs)+' – '+Utils.fmtShort(_abe):'';
+    const activeCycleRange=_abs&&_abe?Utils.fmtShort(_abs)+' - '+Utils.fmtShort(_abe):'';
     const viewOffset=s.viewOffset||0, viewDate=this.dateForOffset(viewOffset), viewIsToday=viewOffset===0, viewReportDay=Utils.isReportDay(viewDate);
     const viewDateKey=Utils.dateKey(viewDate);
     const viewMap=viewIsToday?s.attendance:(s.attendanceCache?.[viewDateKey]||{});
@@ -2207,7 +2207,7 @@ class AppComponent extends DCLogic {
     const present=roster.filter(r=>r.label==='Present').length, mc=roster.filter(r=>r.label==='On MC').length, pending=roster.filter(r=>r.label==='Pending').length, absent=roster.filter(r=>r.label==='Absent').length, total=roster.length;
     const snapshotLastLine=viewIsToday?('⏳ Pending ('+pending+'): '+(roster.filter(r=>r.label==='Pending').map(r=>r.name).join(', ')||'(none)')):('❌ Absent ('+absent+'): '+(roster.filter(r=>r.label==='Absent').map(r=>r.name).join(', ')||'(none)'));
     const _orgN=this.props.orgName||'Ops Security';
-    const snapshotLines=['📋 *'+_orgN+' — '+Utils.fmtMed(viewDate)+'*','✅ Present ('+present+'): '+(roster.filter(r=>r.label==='Present').map(r=>r.name).join(', ')||'(none)'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.label==='On MC').map(r=>r.name).join(', ')||'(none)'),snapshotLastLine];
+    const snapshotLines=['📋 *'+_orgN+' - '+Utils.fmtMed(viewDate)+'*','✅ Present ('+present+'): '+(roster.filter(r=>r.label==='Present').map(r=>r.name).join(', ')||'(none)'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.label==='On MC').map(r=>r.name).join(', ')||'(none)'),snapshotLastLine];
     const snapshotLink='https://api.whatsapp.com/send?text='+encodeURIComponent(snapshotLines.join('\n'));
     const shiftCutoff=Utils.LATE_CUTOFF;
     const logRows=activeMembers.map(p=>{
@@ -2226,7 +2226,7 @@ class AppComponent extends DCLogic {
         lateReason, showLateReason,
         welfareNote:r.welfareNote||'', showWelfareNote:!!(r.welfareNote),
         showNoGps: !!(r.gpsBypassed),
-        p1:r.p1||'–', p2:r.p2||'–', p3:r.p3||'–', p4:r.p4||'–',
+        p1:r.p1||'-', p2:r.p2||'-', p3:r.p3||'-', p4:r.p4||'-',
         p1Color:r.p1?(isLate?'#c0392b':'#161f30'):'#c2c8d2',
         p2Color:r.p2?'#161f30':'#c2c8d2',
         p3Color:r.p3?'#161f30':'#c2c8d2',
@@ -2279,7 +2279,7 @@ class AppComponent extends DCLogic {
     const editTargetIsLive=!!activeBatch?.is_live;
     const _ebs=activeBatch?new Date(activeBatch.start_date+'T00:00:00'):null;
     const _ebe=activeBatch?new Date(activeBatch.end_date+'T00:00:00'):null;
-    const editTargetRange=_ebs&&_ebe?(Utils.fmtShort(_ebs)+' – '+Utils.fmtShort(_ebe)+' '+_ebs.getFullYear()):'';
+    const editTargetRange=_ebs&&_ebe?(Utils.fmtShort(_ebs)+' - '+Utils.fmtShort(_ebe)+' '+_ebs.getFullYear()):'';
     const editTargetIsPast=!!(activeBatch&&activeBatch.end_date<todayForChips&&!activeBatch.is_live);
     const editTargetStatus=editTargetIsLive?'LIVE':editTargetIsPast?'PAST':'UPCOMING';
     const _sortedBatches=[...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
@@ -2321,7 +2321,7 @@ class AppComponent extends DCLogic {
         const mm=Utils.meta(r.status);
         const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
         const d=new Date(r.date+'T00:00:00');
-        return {dateLabel:W[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,color:mm.color,bg:mm.bg,p1:r.check_in_time?r.check_in_time.slice(0,5):'–',p4:r.work_end_time?r.work_end_time.slice(0,5):'–'};
+        return {dateLabel:W[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,color:mm.color,bg:mm.bg,p1:r.check_in_time?r.check_in_time.slice(0,5):'-',p4:r.work_end_time?r.work_end_time.slice(0,5):'-'};
       }),
       noPersonHistory:!(s.personHistoryRows||[]).length&&!s.personHistoryLoading,
       closePersonHistory:this.closePersonHistory,
@@ -2395,7 +2395,7 @@ class AppComponent extends DCLogic {
       hasPendingLeaves:(s.pendingLeaves||[]).length>0,
       pendingLeavesLoaded:s.pendingLeavesLoaded,
       batchTotalPresent, batchTotalMc, batchTotalAbsent,
-      batchAvgPct:batchAvgPct!==null?batchAvgPct+'%':'—',
+      batchAvgPct:batchAvgPct!==null?batchAvgPct+'%':'-',
       showBatchStats:s.peopleStatsLoaded,
       isSuperAdmin:s.isSuperAdmin,
       adminsList:(s.adminsList||[]).map(a=>({
