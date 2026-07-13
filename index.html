@@ -257,7 +257,7 @@
             </div>
             </sc-if>
 
-            <!-- Pending request — check-in blocked -->
+            <!-- Pending request - check-in blocked -->
             <sc-if value="{{ hasPendingRequest }}" hint-placeholder-val="">
             <div>
               <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
@@ -313,7 +313,7 @@
                   <!-- Active GPS phase -->
                   <sc-if value="{{ ph.isActive }}" hint-placeholder-val="{{ true }}">
                     <sc-if value="{{ ph.lateActive }}" hint-placeholder-val="">
-                      <div style="background:#fdf6e9;border:1px solid #f0e2c2;border-radius:8px;padding:7px 10px;margin-top:8px;font-size:11.5px;color:#b9791a;font-weight:500;">Outside the window — will be marked late</div>
+                      <div style="background:#fdf6e9;border:1px solid #f0e2c2;border-radius:8px;padding:7px 10px;margin-top:8px;font-size:11.5px;color:#b9791a;font-weight:500;">Outside the window - will be marked late</div>
                     </sc-if>
                     <sc-if value="{{ ph.needsGps }}" hint-placeholder-val="">
                       <sc-if value="{{ ph.gpsStarted }}" hint-placeholder-val="">
@@ -401,7 +401,7 @@
               </sc-if>
 
               <sc-if value="{{ isLate }}" hint-placeholder-val="">
-                <div style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:#f7efdc;color:#b9791a;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>Late — shift started {{ lateShiftStart }}</div>
+                <div style="display:inline-flex;align-items:center;gap:6px;margin-top:10px;background:#f7efdc;color:#b9791a;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>Late - shift started {{ lateShiftStart }}</div>
               </sc-if>
 
               <div style="border-top:1px solid #f0f2f6;margin-top:16px;padding-top:14px;display:flex;gap:8px;">
@@ -1124,7 +1124,7 @@
                 <sc-if value="{{ row.showNoGps }}" hint-placeholder-val="">
                   <div style="display:flex;align-items:center;gap:6px;margin-top:6px;margin-left:46px;">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"></path><line x1="12" y1="21" x2="12" y2="24"></line><line x1="3" y1="3" x2="21" y2="21"></line></svg>
-                    <span style="font-size:11px;font-weight:600;color:#b9791a;">No GPS — checked in without location</span>
+                    <span style="font-size:11px;font-weight:600;color:#b9791a;">No GPS - checked in without location</span>
                   </div>
                 </sc-if>
               </div>
@@ -1462,7 +1462,7 @@
           <div style="font-size:17px;font-weight:700;color:#161f30;">Why were you late?</div>
           <button onClick="{{ skipLateReason }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
-        <p style="font-size:13px;color:#5c6678;margin:0 0 14px;line-height:1.5;">You checked in more than an hour late. Please provide a brief reason — it will be visible to the admin.</p>
+        <p style="font-size:13px;color:#5c6678;margin:0 0 14px;line-height:1.5;">You checked in more than an hour late. Please provide a brief reason - it will be visible to the admin.</p>
         <textarea onInput="{{ onLateReasonText }}" value="{{ lateReasonText }}" placeholder="e.g. Traffic jam on CTE, arrived at 09:45" style="width:100%;height:90px;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>
         <button onClick="{{ submitLateReason }}" style="width:100%;margin-top:12px;padding:13px;background:#2f5fd0;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;">Submit reason</button>
         <button onClick="{{ skipLateReason }}" style="width:100%;margin-top:8px;padding:11px;background:none;border:none;font-size:13px;font-weight:600;color:#8a94a3;cursor:pointer;">Skip for now</button>
@@ -1478,7 +1478,7 @@
           <div style="font-size:17px;font-weight:700;color:#161f30;">Daily note</div>
           <button onClick="{{ closeWelfareNote }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
-        <p style="font-size:13px;color:#5c6678;margin:0 0 14px;line-height:1.5;">Add a brief note for today — visible to your supervisor.</p>
+        <p style="font-size:13px;color:#5c6678;margin:0 0 14px;line-height:1.5;">Add a brief note for today - visible to your supervisor.</p>
         <textarea onInput="{{ onWelfareNoteText }}" value="{{ welfareNoteText }}" placeholder="e.g. Feeling unwell but reporting. Slight headache." style="width:100%;height:90px;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>
         <button onClick="{{ submitWelfareNote }}" disabled="{{ welfareNoteSaving }}" style="width:100%;margin-top:12px;padding:13px;background:{{ accent }};border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ welfareNoteSaving ? 0.6 : 1 }};">Save note</button>
         <button onClick="{{ closeWelfareNote }}" style="width:100%;margin-top:8px;padding:11px;background:none;border:none;font-size:13px;font-weight:600;color:#8a94a3;cursor:pointer;">Cancel</button>
@@ -1572,7 +1572,7 @@
                 <div style="flex:1;min-width:0;">
                   <div style="font-size:13px;font-weight:500;color:#161f30;">{{ hr.dateLabel }}</div>
                 </div>
-                <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a94a3;white-space:nowrap;">{{ hr.p1 }} – {{ hr.p4 }}</div>
+                <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a94a3;white-space:nowrap;">{{ hr.p1 }} - {{ hr.p4 }}</div>
               </div>
             </sc-for>
             <sc-if value="{{ noPersonHistory }}" hint-placeholder-val="">
@@ -1594,7 +1594,7 @@
         </div>
         <button onClick="{{ dismissA2hs }}" style="background:none;border:none;cursor:pointer;color:#8a94a3;padding:4px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
-      <p style="font-size:13px;color:#5c6678;line-height:1.55;margin:0 0 14px;">Install Ops Reservist on your home screen for one-tap access — no App Store needed.</p>
+      <p style="font-size:13px;color:#5c6678;line-height:1.55;margin:0 0 14px;">Install Ops Reservist on your home screen for one-tap access - no App Store needed.</p>
       <sc-if value="{{ a2hsIsIos }}" hint-placeholder-val="{{ true }}">
       <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;font-size:13px;color:#36404f;line-height:1.75;">
         1. Tap the <strong>Share</strong> button <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:middle;display:inline-block;"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"></path><polyline points="16 6 12 2 8 6"></polyline><line x1="12" y1="2" x2="12" y2="15"></line></svg> at the bottom of Safari<br>
