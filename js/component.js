@@ -1286,6 +1286,8 @@ class AppComponent extends DCLogic {
     }
     if(idx===-1){this.setState({batchLoading:false});return;}
     await this.setBatch(idx)();
+    const targetOff=Math.round((new Date(batchJumpDate+'T00:00:00')-this.baseDate())/86400000);
+    this.setState({viewOffset:targetOff});
   };
 
   setStatus = (id, status) => async () => {
@@ -1502,11 +1504,15 @@ class AppComponent extends DCLogic {
   };
 
   loadPeopleStats = async () => {
-    const {batches,activeBatchIdx,personnel,demo,batchMembersCache}=this.state;
+    const {batches,activeBatchIdx,personnel,demo,batchMembersCache,attendance}=this.state;
     const batch=batches[activeBatchIdx||0];
     if(!batch||demo) return;
     const members=batch.is_live?personnel:(batchMembersCache[batch.id]||[]);
     const allAtt=await DB.attendance.getForBatch(batch.start_date,batch.dekit_date||batch.end_date).catch(()=>({}));
+    if(batch.is_live){
+      const todayKey=Utils.dateKey(this.baseDate());
+      allAtt[todayKey]={...(allAtt[todayKey]||{}),...attendance};
+    }
     const stats={};
     for(const p of members){
       let present=0,mc=0,absent=0;
@@ -2358,7 +2364,7 @@ class AppComponent extends DCLogic {
       pendingCount,
       logSearch:s.logSearch||'', onLogSearch:this.onLogSearch, clearLogSearch:this.clearLogSearch, hasLogSearch:!!(s.logSearch),
       personHistoryOpen:!!s.personHistoryId,
-      personHistoryName:(s.personnel.find(p=>p.id===s.personHistoryId)||{}).name||'',
+      personHistoryName:([...s.personnel,...(s.batchMembersCache[activeBatch?.id]||[])].find(p=>p.id===s.personHistoryId)||{}).name||'',
       personHistoryLoading:s.personHistoryLoading,
       personHistoryRows:(s.personHistoryRows||[]).slice(0,100).map(r=>{
         const mm=Utils.meta(r.status);

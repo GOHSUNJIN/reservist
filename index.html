@@ -131,9 +131,9 @@
   <div style="flex:1;display:flex;flex-direction:column;min-height:0;background:#f6f7f9;position:relative;">
 
     <div style="flex:0 0 auto;background:#fff;border-bottom:1px solid #e8ecf2;box-shadow:0 1px 10px rgba(20,30,50,.07);padding:14px 18px;display:flex;align-items:center;justify-content:space-between;z-index:10;">
-      <div>
-        <div style="font-size:11px;color:#8a94a3;letter-spacing:.04em;">{{ headerKicker }}</div>
-        <div style="font-size:18px;font-weight:700;color:#161f30;line-height:1.1;">{{ tabTitle }}</div>
+      <div style="display:flex;align-items:baseline;gap:5px;">
+        <div style="font-size:18px;font-weight:700;color:#161f30;">{{ tabTitle }}</div>
+        <div style="font-size:11px;color:#8a94a3;letter-spacing:.04em;">· {{ headerKicker }}</div>
       </div>
       <div style="display:flex;align-items:center;gap:10px;">
         <div onClick="{{ headerChipClick }}" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
