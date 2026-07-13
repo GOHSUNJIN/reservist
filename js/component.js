@@ -58,7 +58,6 @@ class AppComponent extends DCLogic {
     myPendingRequest: null,
     pendingLeaves: [], pendingLeavesLoaded: false,
     shiftChangeOpen: false, shiftChangeNew: 'AM', shiftChangeReason: '',
-    notifGranted: false,
     adminNotifGranted: false,
     myLeaveHistory: [], myLeaveHistoryLoaded: false,
     welfareNoteOpen: false, welfareNoteText: '', welfareNoteSaving: false,
@@ -140,7 +139,6 @@ class AppComponent extends DCLogic {
     if(this._sessionWarnTimer) clearTimeout(this._sessionWarnTimer);
     if(this._idleWarnTimer) clearTimeout(this._idleWarnTimer);
     if(this._idleLogoutTimer) clearTimeout(this._idleLogoutTimer);
-    if(this._reminderTimer) clearTimeout(this._reminderTimer);
     clearInterval(this._t);
     this._unsubscribeRealtime();
     document.removeEventListener('visibilitychange', this._onVisibilityChange);
@@ -244,11 +242,6 @@ class AppComponent extends DCLogic {
       if(isSuperAdmin) setTimeout(()=>this.loadAdmins(), 0);
     }
     if(role==='reservist'){
-      // Restore pre-shift reminders if browser permission is still granted from a previous session
-      if(typeof Notification !== 'undefined' && Notification.permission === 'granted'){
-        this.setState({notifGranted:true});
-        this._scheduleReminder();
-      }
       DB.leaves.myPending(me.id).then(req=>this.setState({myPendingRequest:req})).catch(()=>{});
       DB.leaves.myHistory(me.id).then(hist=>this.setState({myLeaveHistory:hist,myLeaveHistoryLoaded:true})).catch(()=>{});
       this._myAttendanceChannel = DB.realtime.subscribeMyAttendance(me.id, (row) => {
@@ -300,7 +293,7 @@ class AppComponent extends DCLogic {
     if(this.state.role==='admin'){
       const {attendanceDate:yesterday, attendance:yesterdayAtt, personnel, noReportDays} = this.state;
       if(yesterday && Utils.isReportDay(new Date(yesterday+'T00:00:00')) && !noReportDays.has(yesterday)){
-        const pending = personnel.filter(p=>{ const r=yesterdayAtt[p.id]; return !r||r.status==='pending'; });
+        const pending = personnel.filter(p=>{ const r=yesterdayAtt[p.id]; return p.role==='reservist'&&(!r||r.status==='pending'); });
         if(pending.length) await Promise.all(pending.map(p=>DB.attendance.upsert(p.id, yesterday, 'absent', {}).catch(()=>{})));
       }
       let batches = await DB.batches.list().catch(()=>this.state.batches);
@@ -460,7 +453,6 @@ class AppComponent extends DCLogic {
     if(this._idleWarnTimer) clearTimeout(this._idleWarnTimer);
     if(this._idleLogoutTimer) clearTimeout(this._idleLogoutTimer);
     if(this._sessionWarnTimer) clearTimeout(this._sessionWarnTimer);
-    if(this._reminderTimer) clearTimeout(this._reminderTimer);
     this._unsubscribeRealtime();
     if(!this.state.demo) await DB.auth.logout();
     this.setState({
@@ -700,34 +692,6 @@ class AppComponent extends DCLogic {
     } else {
       this._toast('Notification permission denied.','error');
     }
-  };
-
-  // ── Reminders ─────────────────────────────────────────────────────────────
-  requestReminders = async () => {
-    if(!('Notification' in window)){ this._toast('Notifications not supported on this browser.','error'); return; }
-    const perm=await Notification.requestPermission();
-    if(perm==='granted'){
-      this.setState({notifGranted:true});
-      this._scheduleReminder();
-      this._toast('Reminders enabled!');
-    } else {
-      this._toast('Notification permission denied.','error');
-    }
-  };
-  _scheduleReminder = () => {
-    const me=this.cur(); if(!me) return;
-    const shift=me.shift||'AM';
-    const times={AM:'08:00',PM:'15:00',OFFICE:'08:45'};
-    const [h,m]=(times[shift]||'08:00').split(':').map(Number);
-    const fire=new Date(); fire.setHours(h,m,0,0);
-    if(fire<=new Date()) fire.setDate(fire.getDate()+1);
-    if(this._reminderTimer) clearTimeout(this._reminderTimer);
-    this._reminderTimer=setTimeout(()=>{
-      if(this.state.notifGranted&&!this.state.demo){
-        new Notification('Time to check in!',{body:`${Utils.shiftLabel(shift)} shift starts soon. Open the app to check in.`,icon:'./icon.svg'});
-      }
-      this._scheduleReminder();
-    },fire-new Date());
   };
 
   // ── Check-in ──────────────────────────────────────────────────────────────
@@ -1095,22 +1059,6 @@ class AppComponent extends DCLogic {
   onTestTimeInput = e => this.setState({testTimeInput:e.target.value});
   setTestTime = () => { const t=this.state.testTimeInput; if(!t) return; this.setState({testTime:t}); };
   clearTestTime = () => this.setState({testTime:null, testTimeInput:''});
-
-  exportMyCsv = () => {
-    const {history, me} = this.state;
-    if(!history.length){ this._toast('No attendance records to export.','error'); return; }
-    const tk = s => s ? s.slice(0,5) : '';
-    const rows = [['Date','Status','Check In','Lunch Out','Work Return','Work End','Late Reason']];
-    for(const r of history){
-      rows.push([r.date, r.status||'', tk(r.check_in_time), tk(r.lunch_out_time), tk(r.work_return_time), tk(r.work_end_time), r.late_reason||'']);
-    }
-    const csv = rows.map(r=>r.map(v=>'"'+String(v).replace(/"/g,'""')+'"').join(',')).join('\n');
-    const blob = new Blob([csv],{type:'text/csv'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href=url; a.download=(me?.name||'attendance').replace(/\s+/g,'_')+'_attendance.csv'; a.click();
-    URL.revokeObjectURL(url);
-  };
 
   // ── Export CSV ────────────────────────────────────────────────────────────
   exportCsv = async () => {
@@ -1782,7 +1730,6 @@ class AppComponent extends DCLogic {
       shiftChangeIsAm:true, shiftChangeIsPm:false, shiftChangeIsOffice:false,
       onShiftChangeAm:()=>{}, onShiftChangePm:()=>{}, onShiftChangeOffice:()=>{},
       onShiftChangeReason:()=>{}, submitShiftChange:()=>{}, closeShiftChange:()=>{},
-      notifGranted:false, requestReminders:()=>{},
     };
     const rec=this.myRec(), status=rec.status||'pending', m=Utils.meta(status);
     const todayD=this.dateForOffset(0);
@@ -1967,7 +1914,6 @@ class AppComponent extends DCLogic {
       onShiftChangeAm:this.onShiftChangeNew('AM'), onShiftChangePm:this.onShiftChangeNew('PM'), onShiftChangeOffice:this.onShiftChangeNew('OFFICE'),
       shiftChangeIsAm:s.shiftChangeNew==='AM', shiftChangeIsPm:s.shiftChangeNew==='PM', shiftChangeIsOffice:s.shiftChangeNew==='OFFICE',
       onShiftChangeReason:this.onShiftChangeReason, submitShiftChange:this.submitShiftChange, closeShiftChange:this.closeShiftChange,
-      notifGranted:s.notifGranted, requestReminders:this.requestReminders,
       welfareNote:rec.welfareNote||'', hasWelfareNote:!!(rec.welfareNote),
       welfareNoteBtnLabel:rec.welfareNote?'Edit daily note':'Add a note for today',
       canAddWelfareNote:!outOfCycle&&!noRep&&Utils.isReportDay(todayD),
@@ -2121,7 +2067,7 @@ class AppComponent extends DCLogic {
     const pagedHistory=myHistory.slice(0,page*PAGE);
     const historyHasMore=myHistory.length>page*PAGE;
     const historyRemaining=myHistory.length-pagedHistory.length;
-    return {myHistory:pagedHistory,historyHasMore,historyRemaining,showMoreHistory:this.showMoreHistory,statMyPresent,statMyMc,statMyMissed,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:pagedHistory.length===0,totalRecorded,attendanceRate,attendanceRateText,attendanceStreak,showAttendanceSummary,cycleNotStarted,cycleStartsLabel,exportMyCsv:this.exportMyCsv,canExportHistory:s.history.length>0};
+    return {myHistory:pagedHistory,historyHasMore,historyRemaining,showMoreHistory:this.showMoreHistory,statMyPresent,statMyMc,statMyMissed,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:pagedHistory.length===0,totalRecorded,attendanceRate,attendanceRateText,attendanceStreak,showAttendanceSummary,cycleNotStarted,cycleStartsLabel};
   }
 
   _buildBriefings(s, accent){
@@ -2295,8 +2241,8 @@ class AppComponent extends DCLogic {
     const pendingFiltered=logHidePending?shiftFiltered.filter(r=>r.label!=='Pending'):shiftFiltered;
     const filteredLogRows=logSearch?pendingFiltered.filter(r=>r.name.toLowerCase().includes(logSearch)):pendingFiltered;
     const pendingCount=logRows.filter(r=>r.label==='Pending').length;
-    const _fBtn=(f,accent)=>`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid ${logShiftFilter===f?accent:'#d4d9e2'};background:${logShiftFilter===f?accent:'#fff'};color:${logShiftFilter===f?'#fff':'#5c6678'};`;
-    const logHidePendingStyle=`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid ${logHidePending?'#c5cff5':'#d4d9e2'};background:${logHidePending?'#eef1fc':'#fff'};color:${logHidePending?'#2f5fd0':'#5c6678'};`;
+    const _fBtn=(f,accent)=>`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${logShiftFilter===f?accent:'#d4d9e2'};background:${logShiftFilter===f?accent:'#fff'};color:${logShiftFilter===f?'#fff':'#5c6678'};`;
+    const logHidePendingStyle=`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${logHidePending?'#c5cff5':'#d4d9e2'};background:${logHidePending?'#eef1fc':'#fff'};color:${logHidePending?'#2f5fd0':'#5c6678'};`;
     const lateRows=viewIsToday?logRows.filter(r=>r.isLate):[];
     const lateCount=lateRows.length;
     const lateNames=lateRows.map(r=>r.name).join(', ');
@@ -2362,7 +2308,7 @@ class AppComponent extends DCLogic {
       askMarkAllAbsent:this.askMarkAllAbsent, markAllAbsent:this.markAllAbsent,
       cancelMarkAllAbsent:this.cancelMarkAllAbsent,
       markingAllAbsent:s.markingAllAbsent, confirmMarkAllAbsent:s.confirmMarkAllAbsent, notConfirmMarkAllAbsent:!s.confirmMarkAllAbsent,
-      markAllAbsentStyle:`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid #f7e4e1;background:#fff;color:#c0392b;opacity:${s.markingAllAbsent?'0.45':'1'};`,
+      markAllAbsentStyle:`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid #f7e4e1;background:#fff;color:#c0392b;opacity:${s.markingAllAbsent?'0.45':'1'};flex-shrink:0;`,
       markAllAbsentConfirmStyle:`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:700;cursor:pointer;border:none;background:#c0392b;color:#fff;`,
       toggleLogHidePending:this.toggleLogHidePending, logHidePending, logHidePendingStyle,
       logHidePendingLabel:logHidePending?'Show pending':'Hide pending',

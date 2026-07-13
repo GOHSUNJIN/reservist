@@ -38,17 +38,19 @@ SELECT cron.schedule(
     report_day AS (
       SELECT d FROM yesterday
       WHERE EXTRACT(DOW FROM d) BETWEEN 1 AND 5  -- Mon–Fri only
-        AND NOT EXISTS (SELECT 1 FROM no_report_days WHERE date = (SELECT d FROM yesterday))
+        AND NOT EXISTS (SELECT 1 FROM no_report_days WHERE date = d)
     )
     INSERT INTO attendance (personnel_id, date, status)
     SELECT p.id, r.d, 'absent'
     FROM personnel p
     CROSS JOIN report_day r
     WHERE p.is_active = true
+      AND p.role = 'reservist'
       AND NOT EXISTS (
         SELECT 1 FROM attendance a
         WHERE a.personnel_id = p.id AND a.date = r.d
-      );
+      )
+    ON CONFLICT (personnel_id, date) DO NOTHING;
   $$
 );
 
