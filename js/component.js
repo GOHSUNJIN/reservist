@@ -816,6 +816,7 @@ class AppComponent extends DCLogic {
       locStatus:needsGps?'idle':s.locStatus,
       locPhase:needsGps?null:s.locPhase,
       phaseSubmitting:false,
+      showLateWarning:key==='p1'?false:s.showLateWarning,
     }));
     this._haptic();
     const _phaseToasts={p1:'Checked in',p2:'Break recorded',p3:'Returned',p4:'Checked out'};
@@ -1303,7 +1304,15 @@ class AppComponent extends DCLogic {
     } else {
       this.setState(s=>{const c={...(s.attendanceCache?.[viewDateKey]||{})};for(const p of pending) c[p.id]={...(c[p.id]||{}),status:'absent'};return{attendanceCache:{...s.attendanceCache,[viewDateKey]:c}};});
     }
-    if(!demo) await Promise.all(pending.map(p=>DB.attendance.upsert(p.id,viewDateKey,'absent',{}).catch(()=>{})));
+    if(!demo){
+      const results=await Promise.all(pending.map(p=>DB.attendance.upsert(p.id,viewDateKey,'absent',{}).catch(e=>({error:e}))));
+      const failed=results.filter(r=>r?.error).length;
+      if(failed){
+        this.setState({markingAllAbsent:false});
+        this._toast(failed+' save'+(failed>1?'s':'')+' failed. Check your connection.','error');
+        return;
+      }
+    }
     this.setState({markingAllAbsent:false});
     this._toast(pending.length+' member'+(pending.length>1?'s':'')+' marked absent.');
   };
