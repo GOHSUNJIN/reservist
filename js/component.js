@@ -1896,6 +1896,7 @@ class AppComponent extends DCLogic {
       lateReasonOpen:s.lateReasonOpen, lateReasonText:s.lateReasonText,
       onLateReasonText:this.onLateReasonText, submitLateReason:this.submitLateReason,
       skipLateReason:this.skipLateReason, lateReasonSubmitting:s.lateReasonSubmitting,
+      lateReasonEmpty:!(s.lateReasonText||'').trim(),
       batchLabel, dekitCountdown, batchRange, showBatchInfo:!!activeBatch,
       whatsappLink, showWaShare,
       isOffline:!s.isOnline, offlinePending:s.offlinePending, offlineQueueCount:this._offlineQueues?.length||0,
