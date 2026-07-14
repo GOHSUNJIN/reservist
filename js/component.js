@@ -65,6 +65,7 @@ class AppComponent extends DCLogic {
     adminsList: [], adminsLoaded: false,
     npAdminName: '', npAdminContact: '', npAdminPassword: '',
     confirmDeactivateAdminId: null,
+    promoteAdminId: '', confirmPromoteAdminId: null,
     logSearch: '',
     personHistoryId: null, personHistoryRows: [], personHistoryLoading: false,
     realtimeLive: false,
@@ -483,6 +484,7 @@ class AppComponent extends DCLogic {
       welfareNoteOpen:false, welfareNoteText:'', welfareNoteSaving:false,
       isSuperAdmin:false, adminsList:[], adminsLoaded:false,
       npAdminName:'', npAdminContact:'', npAdminPassword:'', confirmDeactivateAdminId:null,
+      promoteAdminId:'', confirmPromoteAdminId:null,
       editingBatchLabel:false, batchLabelText:'',
       viewOffset:0, rosterSearch:'', logSearch:'', logShiftFilter:'all',
       markingAllAbsent:false, confirmMarkAllAbsent:false,
@@ -572,6 +574,31 @@ class AppComponent extends DCLogic {
     if(!this.state.demo) await DB.personnel.deactivate(id).catch(()=>{});
     this.setState(s=>({adminsList:s.adminsList.filter(a=>a.id!==id)}));
     this._toast('Admin removed.');
+  };
+
+  onPromoteAdminId = e => this.setState({promoteAdminId:e.target.value, confirmPromoteAdminId:null});
+
+  askPromoteAdmin = () => {
+    const {promoteAdminId} = this.state;
+    if(!promoteAdminId){ this._toast('Select a person to promote.','error'); return; }
+    this.setState({confirmPromoteAdminId:promoteAdminId});
+  };
+
+  cancelPromoteAdmin = () => this.setState({confirmPromoteAdminId:null});
+
+  confirmPromoteAdmin = async () => {
+    const {confirmPromoteAdminId, personnel, demo} = this.state;
+    if(!confirmPromoteAdminId) return;
+    const person = personnel.find(p=>p.id===confirmPromoteAdminId);
+    if(!person) return;
+    this.setState({confirmPromoteAdminId:null, promoteAdminId:''});
+    if(!demo){
+      const {error} = await DB.personnel.promoteToAdmin(confirmPromoteAdminId).catch(e=>({error:e}));
+      if(error){ this._toast('Failed to promote. Try again.','error'); return; }
+    }
+    this.setState(s=>({personnel:s.personnel.filter(p=>p.id!==confirmPromoteAdminId)}));
+    await this.loadAdmins();
+    this._toast(person.name+' promoted to admin.');
   };
 
   loadPendingLeaves = async () => {
@@ -2422,6 +2449,13 @@ class AppComponent extends DCLogic {
       npAdminContact:s.npAdminContact, onNpAdminContact:this.onNpAdminContact,
       npAdminPassword:s.npAdminPassword, onNpAdminPassword:this.onNpAdminPassword,
       addAdmin:this.addAdmin,
+      reservistsList:(s.personnel||[]).filter(p=>p.is_active!==false&&(p.role||'reservist')==='reservist').map(p=>({id:p.id,name:p.name,contact:p.contact||''})),
+      promoteAdminId:s.promoteAdminId, onPromoteAdminId:this.onPromoteAdminId,
+      promoteAdminTarget:(s.personnel||[]).find(p=>p.id===s.promoteAdminId)||null,
+      confirmPromoteAdminId:s.confirmPromoteAdminId,
+      askPromoteAdmin:this.askPromoteAdmin,
+      cancelPromoteAdmin:this.cancelPromoteAdmin,
+      confirmPromoteAdmin:this.confirmPromoteAdmin,
     };
   }
 
