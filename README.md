@@ -13,8 +13,7 @@ A mobile-first PWA for managing NS reservist attendance. Built with Supabase (au
 - Leave/absence requests submitted to admin for review
 - Shift change requests
 - Daily calendar view with cycle progress
-- Pre-shift notification reminders (browser Notifications API) — restored automatically on page reload
-- Attendance history with rate and streak stats, personal CSV export
+- Attendance history with attendance rate stat
 - Account management (name, password, avatar)
 - Signups on the last day of a cycle are automatically enrolled in the next cycle
 
@@ -22,10 +21,13 @@ A mobile-first PWA for managing NS reservist attendance. Built with Supabase (au
 - Live attendance roster with realtime updates (reservists only, admins excluded)
 - Mark present / MC / absent per person — preserves original check-in time on status changes
 - Time log with late check-in detection, reason display, GPS bypass indicator, welfare notes
+- Log search and shift filter (All / AM / PM / Office)
+- Pending entries hidden from today's log; past dates show absent for anyone with no record
 - Day navigation (past attendance, future roster)
 - No-reporting day toggle (per date)
 - WhatsApp snapshot share
 - Personnel management (add, remove, notes, shift change)
+- People tab with per-person attendance stats (present / MC / absent) across the full cycle, counting all report days
 - Batch/cycle management with auto-creation (8 cycles pre-created ahead on every login)
 - CSV attendance export per batch
 - Pending leave and shift change request review (approve / decline) with reviewer audit trail
@@ -36,6 +38,15 @@ A mobile-first PWA for managing NS reservist attendance. Built with Supabase (au
 - All admin capabilities
 - Create and remove admin accounts from the People tab
 - Identified by "Master" header label
+
+---
+
+## Auto-absent
+
+Reservists who never clock in on a report day are automatically marked absent via two mechanisms:
+
+1. **Client-side** — when the date changes (midnight), the app marks any reservist still on `pending` status for the previous day as absent.
+2. **Server-side** — a `pg_cron` job runs daily at 00:05 SGT and inserts `absent` records for any active reservist with no attendance entry for the previous weekday. See `supabase_cron.sql`.
 
 ---
 
@@ -154,6 +165,7 @@ Files named by `personnel.id`. Public bucket.
      FOR ALL TO authenticated USING (true) WITH CHECK (true);
    ```
 4. Create a public storage bucket named `avatars`.
+5. Run `supabase_cron.sql` in the SQL editor to enable the auto-absent cron job (requires the `pg_cron` extension, enabled by default on Supabase Pro).
 
 **Full schema:**
 
