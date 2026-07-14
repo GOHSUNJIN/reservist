@@ -1457,23 +1457,29 @@ class AppComponent extends DCLogic {
   };
 
   loadPeopleStats = async () => {
-    const {batches,activeBatchIdx,personnel,demo,batchMembersCache,attendance}=this.state;
+    const {batches,activeBatchIdx,personnel,demo,batchMembersCache,attendance,noReportDays}=this.state;
     const batch=batches[activeBatchIdx||0];
     if(!batch||demo) return;
     const members=batch.is_live?personnel:(batchMembersCache[batch.id]||[]);
     const allAtt=await DB.attendance.getForBatch(batch.start_date,batch.dekit_date||batch.end_date).catch(()=>({}));
-    if(batch.is_live){
-      const todayKey=Utils.dateKey(this.baseDate());
-      allAtt[todayKey]={...(allAtt[todayKey]||{}),...attendance};
+    const today=Utils.dateKey(this.baseDate());
+    if(batch.is_live) allAtt[today]={...(allAtt[today]||{}),...attendance};
+    // Enumerate all report days in the batch up to today
+    const batchEnd=batch.dekit_date||batch.end_date;
+    const ceiling=batchEnd<today?batchEnd:today;
+    const reportDays=[];
+    for(let d=new Date(batch.start_date+'T00:00:00'),end=new Date(ceiling+'T00:00:00');d<=end;d=new Date(d.getTime()+86400000)){
+      const dk=Utils.dateKey(d);
+      if(Utils.isReportDay(d)&&!noReportDays.has(dk)) reportDays.push(dk);
     }
     const stats={};
     for(const p of members){
       let present=0,mc=0,absent=0;
-      for(const dateMap of Object.values(allAtt)){
-        const rec=dateMap[p.id];
+      for(const dk of reportDays){
+        const rec=allAtt[dk]?.[p.id];
         if(rec?.status==='present') present++;
         else if(rec?.status==='mc') mc++;
-        else if(rec?.status==='absent') absent++;
+        else if(dk<today||rec?.status==='absent') absent++; // past with no record = absent; explicit absent today counts too
       }
       const total=present+mc+absent;
       stats[p.id]={present,mc,absent,total,pct:total?Math.round(present/total*100):null};
@@ -2209,7 +2215,7 @@ class AppComponent extends DCLogic {
     const snapshotLink='https://api.whatsapp.com/send?text='+encodeURIComponent(snapshotLines.join('\n'));
     const shiftCutoff=Utils.LATE_CUTOFF;
     const logRows=activeMembers.map(p=>{
-      const r=viewMap[p.id]||{status:'pending'}, mm=Utils.meta(r.status);
+      const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent'}, mm=Utils.meta(r.status);
       const cutoff=shiftCutoff[p.shift||'AM'];
       const [_cc,_ccm]=cutoff.split(':').map(Number);
       const _lm=r.p1?(()=>{const[h,m]=r.p1.split(':').map(Number);return(h*60+m)-(_cc*60+_ccm);})():0;
