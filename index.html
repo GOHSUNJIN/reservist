@@ -960,13 +960,13 @@
             <button onClick="{{ nextDay }}" style="width:34px;height:34px;border-radius:9px;background:#222c3d;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#cdd4df" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
           </div>
           <sc-if value="{{ viewShowReporting }}" hint-placeholder-val="">
-          <div style="position:relative;margin-bottom:0;">
+          <div style="position:relative;margin-bottom:10px;">
             <input value="{{ rosterSearch }}" onInput="{{ onRosterSearch }}" placeholder="Search name..." style="width:100%;padding:10px 38px 10px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:16px;background:#fff;outline:none;box-sizing:border-box;" />
             <sc-if value="{{ hasRosterSearch }}" hint-placeholder-val="">
               <button onClick="{{ clearRosterSearch }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#8a94a3;padding:4px;display:flex;align-items:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
             </sc-if>
           </div>
-          <div style="display:flex;align-items:center;gap:7px;margin-bottom:11px;">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
             <span style="font-size:10px;font-weight:600;color:#9aa3b2;letter-spacing:.08em;font-family:'IBM Plex Mono',monospace;flex:0 0 auto;">SORT BY</span>
             <button onClick="{{ setRosterSortShift }}" style="{{ rosterSortShiftStyle }}">Shift order</button>
             <button onClick="{{ setRosterSortName }}" style="{{ rosterSortNameStyle }}">A to Z</button>
