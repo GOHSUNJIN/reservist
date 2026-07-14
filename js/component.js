@@ -32,7 +32,7 @@ class AppComponent extends DCLogic {
     acctSaving: false,
     locPhase: null, locSlow: false, locAccuracy: null, locPermErr: false, locRetryCount: 0,
     isInAppBrowser: false, inAppBrowserName: '',
-    batchLoading: false, batchCreating: false, markingAllAbsent: false, confirmMarkAllAbsent: false, logShiftFilter: 'all', logHidePending: false,
+    batchLoading: false, batchCreating: false, markingAllAbsent: false, confirmMarkAllAbsent: false, logShiftFilter: 'all',
     editingNoteId: null, editingNoteText: '',
     batchJumpDate: Utils.dateKey(new Date()),
     toast: null,
@@ -484,7 +484,7 @@ class AppComponent extends DCLogic {
       isSuperAdmin:false, adminsList:[], adminsLoaded:false,
       npAdminName:'', npAdminContact:'', npAdminPassword:'', confirmDeactivateAdminId:null,
       editingBatchLabel:false, batchLabelText:'',
-      viewOffset:0, rosterSearch:'', logSearch:'', logShiftFilter:'all', logHidePending:false,
+      viewOffset:0, rosterSearch:'', logSearch:'', logShiftFilter:'all',
       markingAllAbsent:false, confirmMarkAllAbsent:false,
       personHistoryId:null, personHistoryRows:[], personHistoryLoading:false,
       realtimeLive:false,
@@ -1307,8 +1307,6 @@ class AppComponent extends DCLogic {
     this.setState({markingAllAbsent:false});
     this._toast(pending.length+' member'+(pending.length>1?'s':'')+' marked absent.');
   };
-  toggleLogHidePending = () => this.setState(s=>({logHidePending:!s.logHidePending}));
-
   addPerson = async () => {
     const {npName,npContact,npShift,npPassword,batches,activeBatchIdx,demo,personnel,batchMembersCache}=this.state;
     if(!npName.trim()){ this._toast('Name is required.','error'); return; }
@@ -2240,14 +2238,12 @@ class AppComponent extends DCLogic {
       };
     });
     const logShiftFilter=s.logShiftFilter||'all';
-    const logHidePending=!!s.logHidePending;
     const logSearch=(s.logSearch||'').toLowerCase().trim();
     const shiftFiltered=logShiftFilter==='all'?logRows:logRows.filter(r=>r.shift===logShiftFilter);
-    const pendingFiltered=logHidePending?shiftFiltered.filter(r=>r.label!=='Pending'):shiftFiltered;
+    const pendingFiltered=viewIsToday?shiftFiltered.filter(r=>r.label!=='Pending'):shiftFiltered;
     const filteredLogRows=logSearch?pendingFiltered.filter(r=>r.name.toLowerCase().includes(logSearch)):pendingFiltered;
     const pendingCount=logRows.filter(r=>r.label==='Pending').length;
     const _fBtn=(f,accent)=>`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${logShiftFilter===f?accent:'#d4d9e2'};background:${logShiftFilter===f?accent:'#fff'};color:${logShiftFilter===f?'#fff':'#5c6678'};`;
-    const logHidePendingStyle=`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${logHidePending?'#c5cff5':'#d4d9e2'};background:${logHidePending?'#eef1fc':'#fff'};color:${logHidePending?'#2f5fd0':'#5c6678'};`;
     const lateRows=viewIsToday?logRows.filter(r=>r.isLate):[];
     const lateCount=lateRows.length;
     const lateNames=lateRows.map(r=>r.name).join(', ');
@@ -2315,8 +2311,6 @@ class AppComponent extends DCLogic {
       markingAllAbsent:s.markingAllAbsent, confirmMarkAllAbsent:s.confirmMarkAllAbsent, notConfirmMarkAllAbsent:!s.confirmMarkAllAbsent,
       markAllAbsentStyle:`padding:5px 8px;border-radius:7px;cursor:pointer;border:1px solid #f7e4e1;background:#fff;color:#c0392b;opacity:${s.markingAllAbsent?'0.45':'1'};display:flex;align-items:center;flex-shrink:0;`,
       markAllAbsentConfirmStyle:`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:700;cursor:pointer;border:none;background:#c0392b;color:#fff;`,
-      toggleLogHidePending:this.toggleLogHidePending, logHidePending, logHidePendingStyle,
-      logHidePendingLabel:logHidePending?'Show pending':'Hide pending',
       pendingCount,
       logSearch:s.logSearch||'', onLogSearch:this.onLogSearch, clearLogSearch:this.clearLogSearch, hasLogSearch:!!(s.logSearch),
       personHistoryOpen:!!s.personHistoryId,
