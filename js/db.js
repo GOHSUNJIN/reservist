@@ -116,6 +116,13 @@ const DB = {
       return data || [];
     },
 
+    async promoteToAdmin(personnelId) {
+      const { data, error } = await _db.from('personnel')
+        .update({ role: 'admin', shift: null, batch_id: null })
+        .eq('id', personnelId).select().maybeSingle();
+      return { data, error };
+    },
+
     async carryOver(toBatchId) {
       const { error } = await _db.from('personnel')
         .update({ batch_id: toBatchId })
