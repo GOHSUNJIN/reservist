@@ -2140,7 +2140,7 @@ class AppComponent extends DCLogic {
   _buildAdmin(s, accent){
     const batches=s.batches, activeBatchIdx=s.activeBatchIdx||0, activeBatch=batches[activeBatchIdx];
     const activeMembers=(activeBatch?.is_live?s.personnel.filter(p=>p.batch_id===activeBatch.id):(s.batchMembersCache?.[activeBatch?.id]||[])).filter(p=>(p.role||'reservist')==='reservist');
-    const {am:npAmCount,pm:npPmCount}=this._shiftSlotCounts(s.personnel);
+    const {am:npAmCount,pm:npPmCount}=this._shiftSlotCounts(activeMembers);
     const npAmFull=npAmCount>=2, npPmFull=npPmCount>=2;
     let npShift=s.npShift;
     if((npShift==='AM'&&npAmFull)||(npShift==='PM'&&npPmFull)) npShift='OFFICE';
