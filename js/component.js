@@ -1829,7 +1829,7 @@ class AppComponent extends DCLogic {
         stepColor:done||isActive?'#fff':'#8a94a3',
         connectorBg:done?'#1f8a5b':'#eceef2',
         rowPadBot:done?'8px':'16px',
-        subLabel:win?win[0]+' to '+win[1]:'',
+        subLabel:win?(pd.key==='p4'?'From '+win[0]:win[0]+' to '+win[1]):'',
         btnLabel,
         onStart:this.startPhaseGps(pd.key),
         onSubmit:this.doPhase(pd.key),
