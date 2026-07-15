@@ -2049,7 +2049,7 @@ class AppComponent extends DCLogic {
     const _dc='#c2c8d2';
 
     // Today row
-    const todayRow=(status!=='pending'&&Utils.isReportDay(todayD)&&!this.isNoReport(0))
+    const todayRow=(Utils.isReportDay(todayD)&&!this.isNoReport(0))
       ?[{date:Utils.fmtMed(todayD)+', Today',dateKey:today,shift:Utils.shiftLabel(me.shift),status,
          p1:rec.p1||'-',p2:rec.p2||'-',p3:rec.p3||'-',p4:rec.p4||'-',
          p1Color:_tc(rec.p1,'#161f30',_dc),p2Color:_tc(rec.p2,'#161f30',_dc),p3Color:_tc(rec.p3,'#161f30',_dc),p4Color:_tc(rec.p4,'#161f30',_dc),
