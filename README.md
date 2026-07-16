@@ -15,212 +15,172 @@ Ops Reservist provides full end-to-end attendance accountability for reservist c
 ## Operational Capabilities
 
 ### For Reservists
-- **4-phase GPS check-in** — Check in to work, log lunch departure, return, and end of shift. Each phase is timestamped to the minute.
-- **Geofence verification** — GPS confirms the reservist is physically present at the designated location within a configurable radius (default 200 m). Distance is recorded for audit.
-- **Leave and MC requests** — Submitted digitally and routed to the supervisor for approval. Reservists are notified of the outcome.
-- **Shift change requests** — Submitted with reason; approved or rejected by the supervisor.
-- **Attendance history** — Each reservist can view their own record across the full cycle, including present/MC/absent counts and attendance rate.
-- **Works offline** — Check-in actions are queued locally and synced automatically when connectivity is restored.
+- **4-phase check-in** — Reservists log four checkpoints throughout the day: check in to work, lunch departure, return from lunch, and end of shift. Each is timestamped to the minute.
+- **GPS location verification** — The phone's GPS confirms the reservist is physically present at the designated location before the check-in is accepted. The distance from HQ is recorded. The system can be configured for any GPS radius (default: 200 m).
+- **MC and leave requests** — Submitted digitally through the app and sent directly to the supervisor for approval. No phone calls or messages needed.
+- **Shift change requests** — Submitted with a written reason and reviewed by the supervisor.
+- **Attendance history** — Each reservist can see their own record for the full cycle, including total days present, MC, and absent, plus their attendance rate.
+- **Works without internet** — If the reservist loses connection during check-in, the action is saved on the phone and submitted automatically once connectivity is restored.
 
 ### For Supervisors / Admins
-- **Live attendance roster** — Real-time updates as reservists check in. No manual refreshing required.
-- **One-tap status override** — Mark any individual as Present, MC, or Absent directly from the roster. Original check-in timestamps are preserved.
-- **Late check-in detection** — The system automatically flags anyone who checks in more than one hour past shift start. Reason is captured and displayed.
-- **Daily time log** — Full shift log per person including all four phases, GPS distance, late reason, and welfare notes. Searchable and filterable by shift.
-- **Leave request queue** — Pending MC and absence requests are surfaced for review. Approved or declined with reviewer name and timestamp logged.
-- **Welfare notes** — Supervisors can attach a daily welfare note to any individual, visible across the roster and log.
-- **No-reporting day management** — Toggle specific dates as non-reporting (public holidays, stand-down days) to prevent false absents.
-- **WhatsApp snapshot** — One-tap share of the day's attendance summary to the unit group chat.
-- **CSV export** — Full attendance data per cycle exported as a spreadsheet for archiving or further reporting.
-- **Cycle management** — Create and label reporting cycles (Tuesday to Monday, 13 days). Up to 8 future cycles are pre-created automatically. Equipment return (dekit) date is tracked per cycle.
-- **Meal allowance toggle** — Enable or disable meal allowance tracking per cycle.
+- **Live attendance board** — Updates in real time as reservists check in. No refreshing required. The supervisor always sees the current picture.
+- **Manual status override** — If a reservist cannot use the app, the supervisor can manually mark them as Present, MC, or Absent. The original check-in time is preserved if one was recorded.
+- **Late check-in alerts** — Anyone who checks in more than one hour after shift start is automatically flagged. Their written reason is displayed alongside the flag.
+- **Full daily time log** — A complete record of every individual's four check-in phases for the day, including GPS distance, any late reason, and welfare notes. Can be searched by name and filtered by shift.
+- **Leave request inbox** — All pending MC and absence requests appear in one place for the supervisor to approve or decline. Every decision is logged with the reviewer's name and the time it was made.
+- **Welfare notes** — Supervisors can write a private daily note against any individual (e.g. medical concerns, welfare follow-up). Visible on the roster and time log.
+- **Non-reporting day control** — Mark any date as a non-reporting day (public holidays, stand-down). The system will not count those days against personnel.
+- **WhatsApp attendance summary** — One tap sends the day's attendance summary to the unit group chat.
+- **Spreadsheet export** — Full attendance data for any cycle can be exported as a CSV file for record-keeping or further analysis.
+- **Cycle management** — Create and label reporting cycles. The system automatically prepares the next 8 cycles on every login so the supervisor never has to scramble before a new intake.
+- **Meal allowance tracking** — Enable or disable meal allowance per cycle.
 
 ### For Master / Command Level
 - All supervisor capabilities.
-- **Admin account management** — Create, promote, and remove supervisor accounts without requiring database access.
-- **Promote existing accounts** — Convert a reservist account to an admin account directly from the interface.
-- Identified with a **Master** label in the interface.
+- **Manage supervisor accounts** — Create new supervisor accounts, remove them, or promote an existing reservist account to supervisor, all from within the app. No technical access required.
+- Displayed with a **Master** label in the interface.
 
 ---
 
 ## Accountability and Audit Trail
 
-- Every check-in is timestamped and GPS-verified. Distance from HQ is recorded in metres.
-- Late arrivals are flagged automatically. Reasons are submitted by the reservist and stored.
-- GPS bypass (used when GPS fails) is logged with a visible indicator in the time log.
-- Leave approvals log the reviewer's name and the exact time the decision was made.
-- Absent records are written automatically at midnight for any reservist who did not check in, via both a client-side trigger and a scheduled server-side job — preventing gaps in the record.
-- All data is stored in a managed PostgreSQL database with no manual entry required.
+Every action in the system is recorded and cannot be silently changed:
+
+- Every check-in carries a timestamp and the GPS distance from HQ at the time of check-in.
+- Late arrivals are flagged automatically with no supervisor input required. The reservist must submit a written reason.
+- If GPS verification is bypassed (e.g. GPS failure), this is permanently marked in the log with a visible indicator.
+- All leave and MC approvals record who approved them and when.
+- **Absences are written automatically.** If a reservist does not check in by midnight, the system marks them absent on its own — through two independent processes (one on the app, one on the server) to ensure no gaps occur even if the supervisor is offline. See [Auto-Absent](#auto-absent).
+- Data is stored in a managed cloud database. Nothing relies on a local file or a spreadsheet that can be accidentally deleted or edited.
 
 ---
 
 ## Access Control
 
-Three role tiers with clearly separated permissions:
+The system uses three permission levels. Each tier can only see and do what they are supposed to:
 
-| Role | Access |
-|---|---|
-| Reservist | Personal check-in, leave requests, attendance history |
-| Admin (Supervisor) | Full roster management, attendance control, leave approval |
-| Master (Command) | All admin access plus account creation and admin management |
+| Role | Who | What they can access |
+|---|---|---|
+| Reservist | NS personnel | Their own check-in, leave requests, attendance history |
+| Admin | Supervisors / staff officers | Full roster and attendance management, leave approval, personnel records |
+| Master | Command level | Everything Admin can do, plus managing all supervisor accounts |
 
-Accounts are identified by Singapore mobile number. Sessions expire on browser close for security. All data access requires authentication.
+Accounts are tied to Singapore mobile numbers. All sessions expire when the browser is closed. Idle sessions time out automatically after 20 minutes.
 
 ---
 
 ## No Installation Required
 
-Ops Reservist is a Progressive Web App (PWA). Reservists access it by navigating to the URL in any mobile browser. It can be added to the home screen for one-tap access, behaving like a native app without going through an app store.
+Ops Reservist runs directly in the phone's browser. Personnel access it through a URL — the same way they would open any website. It can be saved to the home screen for one-tap access, where it behaves exactly like a downloaded app, but without needing to go through the App Store or Google Play.
 
-| What you need | What you don't need |
+| What is needed | What is not needed |
 |---|---|
-| A smartphone with a browser | App Store / Play Store installation |
-| Internet connection (for sync) | Dedicated hardware or terminals |
-| A phone number and password | VPN or corporate network access |
-| | IT department involvement per user |
+| Any smartphone with a browser | App Store or Google Play installation |
+| An internet connection (for live sync) | Dedicated devices or terminals |
+| A phone number and password | VPN or special network access |
+| | IT setup for each individual user |
 
 ---
 
-## Data and Infrastructure
+## How the System is Built
 
-| Layer | Technology |
+This section explains the technical architecture for those who need to understand it. Plain-language notes are included alongside each component.
+
+### Components at a Glance
+
+| Component | Technology | What it does |
+|---|---|---|
+| The app itself | Vanilla JavaScript | The code that runs in the browser. No third-party framework is required, which means fewer points of failure and no licensing costs. |
+| Database | Supabase (PostgreSQL) | Where all personnel records, attendance, and leave requests are stored. Managed, hosted, and automatically backed up in the cloud. |
+| Login / accounts | Supabase Auth | Handles all password security. Passwords are never stored in plain text — they are encrypted by the authentication service. |
+| Live updates | Supabase Realtime | Pushes attendance changes to all connected supervisors instantly, without anyone needing to refresh the page. |
+| Profile photos | Supabase Storage | Profile pictures are stored in the cloud, isolated per user. |
+| Hosting | Vercel | Where the app is served from. Deployed globally on a content delivery network (CDN), meaning the app loads quickly regardless of network conditions. Zero server maintenance required. |
+| Offline support | Service worker | A background component that caches the app and queues check-in actions when there is no internet connection. |
+
+### Data Storage
+
+All data is stored in a structured cloud database (PostgreSQL). Think of it as a set of linked spreadsheets where every row is a record and every column is a specific piece of information — but with strict rules to prevent duplicate or corrupt data, and with access control so that only authenticated users can read it.
+
+The database has five tables:
+
+**Personnel** — one row per person.
+
+| Field | What it stores |
 |---|---|
-| Frontend | Vanilla JavaScript (no framework dependency) |
-| Database | Supabase (PostgreSQL) — managed, hosted, auto-backed up |
-| Authentication | Supabase Auth — session-based, no passwords stored in plain text |
-| Realtime | Supabase Realtime — live roster updates pushed to all connected supervisors |
-| File Storage | Supabase Storage — profile photos, isolated per user |
-| Hosting | Vercel — static deployment, global CDN, zero server maintenance |
-| PWA | Service worker with versioned cache, offline queue |
+| Name | Full name |
+| Contact | Phone number (used as login) |
+| Shift | AM, PM, or Office |
+| Role | Reservist, Admin, or Master |
+| Cycle | Which reporting cycle they belong to |
+| Active | Whether the account is currently active |
+| Notes | Supervisor notes on the person |
 
-All data is stored in Singapore-region cloud infrastructure. No data is held on any individual's device beyond what is cached for offline operation.
+**Cycles (Batches)** — one row per reporting cycle.
 
----
-
-## Roles and Permissions Detail
-
-| Feature | Reservist | Admin | Master |
-|---|---|---|---|
-| GPS check-in (4 phases) | ✓ | — | — |
-| Submit MC / leave / shift change | ✓ | ✓ | ✓ |
-| View own attendance history | ✓ | ✓ | ✓ |
-| Live roster with realtime updates | — | ✓ | ✓ |
-| Override attendance status | — | ✓ | ✓ |
-| Approve / decline leave requests | — | ✓ | ✓ |
-| Add / remove personnel | — | ✓ | ✓ |
-| Welfare notes | — | ✓ | ✓ |
-| CSV export | — | ✓ | ✓ |
-| Create / manage cycles | — | ✓ | ✓ |
-| Create / remove admin accounts | — | — | ✓ |
-| Promote reservist to admin | — | — | ✓ |
-
----
-
-## Cycle Structure
-
-Reporting cycles run Tuesday to Monday (13 reporting days). Equipment return (dekit) falls on the following Wednesday.
-
-| Milestone | Day |
+| Field | What it stores |
 |---|---|
-| Cycle start | Tuesday |
-| Cycle end (last reporting day) | Monday (+13 days) |
-| Dekit date | Wednesday (+15 days) |
+| Label | e.g. "Cycle 15/2026" |
+| Start date | First reporting day (Tuesday) |
+| End date | Last reporting day (Monday, 13 days later) |
+| Dekit date | Equipment return day (Wednesday after end) |
+| Live | Whether this is the currently active cycle |
+| Meal allowance | Whether meal allowance applies this cycle |
 
-Reservists who sign up on the last day of a cycle are automatically enrolled in the next one.
+**Attendance** — one row per person per day.
 
----
-
-## Database Schema
-
-### `personnel`
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid PK | |
-| auth_id | uuid | references auth.users |
-| name | text | |
-| contact | text | phone number |
-| shift | text | AM / PM / OFFICE — NULL for admin/superadmin |
-| role | text | reservist / admin / superadmin |
-| batch_id | uuid FK | references batches — NULL for admin/superadmin |
-| is_active | boolean | |
-| notes | text | |
-| deactivated_at | timestamptz | |
-
-### `batches`
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid PK | |
-| label | text | e.g. "Cycle 15/2026" |
-| start_date | date | first reporting day |
-| end_date | date | last reporting day |
-| dekit_date | date | equipment return day |
-| is_live | boolean | only one active at a time |
-| meal_active | boolean | meal allowance toggle |
-
-### `attendance`
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid PK | |
-| personnel_id | uuid FK | |
-| date | date | |
-| status | text | present / mc / absent |
-| check_in_time | time | phase 1 |
-| lunch_out_time | time | phase 2 |
-| work_return_time | time | phase 3 |
-| work_end_time | time | phase 4 |
-| gps_distance_m | integer | metres from HQ at check-in |
-| work_return_dist | integer | metres from HQ at return |
-| late_reason | text | submitted by reservist if late |
-| gps_bypassed | boolean | flagged if GPS override was used |
-| welfare_note | text | supervisor note for that day |
-
-### `no_report_days`
-| Column | Type |
+| Field | What it stores |
 |---|---|
-| date | date PK |
+| Status | Present, MC, or Absent |
+| Check-in time | Phase 1 timestamp |
+| Lunch out time | Phase 2 timestamp |
+| Return time | Phase 3 timestamp |
+| End of shift time | Phase 4 timestamp |
+| GPS distance (in) | Metres from HQ at check-in |
+| GPS distance (return) | Metres from HQ at return |
+| Late reason | Written reason if late by over an hour |
+| GPS bypassed | Flagged true if GPS override was used |
+| Welfare note | Supervisor's note for that day |
 
-### `leave_requests`
-| Column | Type | Notes |
-|---|---|---|
-| id | uuid PK | |
-| personnel_id | uuid FK | |
-| date | date | |
-| type | text | personal / mc / shift_change / other |
-| reason | text | |
-| requested_shift | text | for shift change requests |
-| status | text | pending / approved / rejected |
-| created_at | timestamptz | |
-| reviewed_by | text | name of approving admin |
-| reviewed_at | timestamptz | |
+**No-reporting days** — a list of dates where no attendance is expected (public holidays, stand-down days).
+
+**Leave requests** — one row per request.
+
+| Field | What it stores |
+|---|---|
+| Type | MC, personal leave, shift change, or other |
+| Date requested | The date the leave is for |
+| Reason | Written reason from the reservist |
+| Status | Pending, Approved, or Rejected |
+| Reviewed by | Name of the supervisor who actioned it |
+| Reviewed at | Timestamp of the decision |
+
+### Auto-Absent
+
+Reservists who do not check in on a reporting day are marked absent automatically. Two independent processes handle this so that the record is complete regardless of circumstances:
+
+1. **In the app** — when the clock ticks past midnight, the app immediately marks anyone still showing as unchecked for the previous day.
+2. **On the server** — a scheduled task runs at 00:05 SGT every day and writes absent records for any active reservist with no entry for the previous weekday. This runs independently of whether any supervisor or reservist has the app open.
 
 ---
 
-## Auto-Absent
+## Setup Guide
 
-Reservists who do not check in on a reporting day are automatically marked absent via two independent mechanisms:
+> This section is for the person deploying and configuring the system. It requires basic familiarity with running commands in a terminal.
 
-1. **Client-side** — when the date rolls over at midnight, the app marks any reservist still on `pending` status for the previous day as absent.
-2. **Server-side** — a scheduled database job (`pg_cron`) runs at 00:05 SGT and inserts absent records for any reservist with no entry for the previous weekday. See `supabase_cron.sql`.
+### Step 1 — Set up the database
 
-This ensures no gaps in the attendance record regardless of whether the supervisor is online.
-
----
-
-## Setup
-
-### 1. Supabase project
-
-1. Create a new Supabase project.
-2. Run the table migrations below in the SQL editor.
-3. Enable Row Level Security on all tables:
+1. Create a free account at [supabase.com](https://supabase.com) and start a new project.
+2. In the project's SQL editor, paste and run the schema below. This creates all five tables.
+3. Set access rules so that logged-in users can read and write data:
    ```sql
    CREATE POLICY "authenticated" ON <table>
      FOR ALL TO authenticated USING (true) WITH CHECK (true);
    ```
-4. Create a public storage bucket named `avatars`.
-5. Run `supabase_cron.sql` to enable the auto-absent job (requires `pg_cron`, enabled by default on Supabase Pro).
+4. Create a public storage bucket named `avatars` (for profile photos).
+5. Run `supabase_cron.sql` to enable the automatic absent job. (Requires the `pg_cron` extension, which is on by default for Supabase Pro projects.)
 
-**Full schema:**
+**Full database schema:**
 
 ```sql
 CREATE TABLE personnel (
@@ -282,19 +242,19 @@ CREATE TABLE leave_requests (
 );
 ```
 
-### 2. Create the master account
+### Step 2 — Create the master account
 
-Sign up via the app login screen, then promote via SQL:
+Sign up through the app's login screen using your phone number. Then run this one-time command in the Supabase SQL editor to elevate that account to Master level:
 
 ```sql
 UPDATE personnel SET role = 'superadmin' WHERE contact = '<your_contact>';
 ```
 
-Subsequent admin accounts are created entirely within the app — no further SQL access required.
+After this, all supervisor accounts are managed entirely within the app. No further database access is needed for day-to-day administration.
 
-### 3. Configure the app
+### Step 3 — Configure the app
 
-Edit the `<x-dc>` tag near the top of `index.html`:
+Open `index.html` and edit the configuration block near the top. This is where the unit name, HQ location, and other settings are set:
 
 ```html
 <x-dc
@@ -308,16 +268,16 @@ Edit the `<x-dc>` tag near the top of `index.html`:
 >
 ```
 
-| Prop | Description |
+| Setting | What it controls |
 |---|---|
-| `accent` | Brand colour (hex) |
+| `accent` | The app's main colour (in hex colour code) |
 | `org-name` | Unit name shown in the app header |
-| `hq-name` | Location name shown in GPS messages |
-| `hq-lat` / `hq-lon` | HQ coordinates for geofencing |
-| `hq-range` | GPS geofence radius in metres (default 200) |
-| `wa-group-link` | WhatsApp group link for status sharing |
+| `hq-name` | Location name shown in GPS check-in messages |
+| `hq-lat` / `hq-lon` | The GPS coordinates of HQ (latitude and longitude) |
+| `hq-range` | How far from HQ (in metres) a check-in is accepted |
+| `wa-group-link` | The unit WhatsApp group link, for the share button |
 
-Add your Supabase credentials in `index.html`:
+Also add the Supabase project credentials (found in the Supabase project settings):
 
 ```html
 <script>
@@ -326,29 +286,33 @@ Add your Supabase credentials in `index.html`:
 </script>
 ```
 
-### 4. Deploy
+### Step 4 — Deploy
 
-No build step required. Deploy the repo root to any static host:
+No compilation or build process is required. The app is plain files that are uploaded directly. Deploy with:
 
 ```bash
 vercel --prod
 ```
 
+This publishes the app to a live URL on Vercel's global network. The app is then accessible from any browser worldwide via that URL.
+
 ---
 
-## Local Development
+## Local Testing
+
+To run the app locally before deploying:
 
 ```bash
 npx serve .
 ```
 
-No bundler or Node runtime required.
+This starts a local web server. Open the address shown in the terminal in a browser to use the app on your own machine.
 
 ---
 
-## Auth
+## Login and Session Security
 
-- Accounts use Singapore mobile numbers as identifiers (stored as synthetic emails internally).
-- Reservist accounts are created by admins via the People tab, or by self-signup.
-- Admin accounts are created by the master account within the app.
-- Sessions use `sessionStorage` and expire on tab close. Idle sessions time out after 20 minutes.
+- Every account is identified by a Singapore mobile number. Internally this is converted to a unique email format so the standard authentication system can handle it.
+- Reservist accounts can be created by an admin through the People tab, or by the reservist themselves via self-signup on the login screen.
+- Supervisor accounts are created by the Master account from within the app.
+- Sessions are stored in the browser's temporary memory (not permanently on the device) and expire automatically when the browser tab is closed. If the app is left idle for 20 minutes, the session also expires and the user must log in again.
