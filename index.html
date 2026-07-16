@@ -1479,7 +1479,7 @@
         </div>
         <p style="font-size:13px;color:#5c6678;margin:0 0 14px;line-height:1.5;">You checked in more than an hour late. Please provide a brief reason. It will be visible to the admin.</p>
         <textarea onInput="{{ onLateReasonText }}" value="{{ lateReasonText }}" placeholder="e.g. Traffic jam on CTE, arrived at 09:45" style="width:100%;height:90px;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>
-        <button onClick="{{ submitLateReason }}" style="width:100%;margin-top:12px;padding:13px;background:{{ lateReasonEmpty || lateReasonSubmitting ? '#8aaae0' : '#2f5fd0' }};border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;pointer-events:{{ lateReasonEmpty || lateReasonSubmitting ? 'none' : 'auto' }};">{{ lateReasonSubmitting ? 'Submitting…' : 'Submit reason' }}</button>
+        <button onClick="{{ submitLateReason }}" style="width:100%;margin-top:12px;padding:13px;background:{{ lateReasonBtnBg }};border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;pointer-events:{{ lateReasonBtnPE }};">{{ lateReasonSubmitting ? 'Submitting…' : 'Submit reason' }}</button>
         <button onClick="{{ skipLateReason }}" style="width:100%;margin-top:8px;padding:11px;background:none;border:none;font-size:13px;font-weight:600;color:#8a94a3;cursor:pointer;">Skip for now</button>
       </div>
     </div>
