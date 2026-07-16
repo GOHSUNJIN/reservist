@@ -55,6 +55,21 @@ Every action in the system is recorded and cannot be silently changed:
 
 ---
 
+## Data Privacy — No Sensitive Data Stored
+
+Ops Reservist is designed to collect only what is operationally necessary. No sensitive personal data is stored:
+
+- **No NRIC, rank, or service details** — accounts require only a name, phone number, and password.
+- **No location history** — GPS is used solely at the moment of check-in to verify proximity to HQ. The exact coordinates of the reservist are never recorded; only the distance from HQ in metres is stored.
+- **No device data** — the app does not collect device identifiers, browser fingerprints, or any information about the reservist's phone.
+- **Passwords are never stored in plain text** — all passwords are encrypted by the authentication service before storage. Even administrators cannot view a user's password.
+- **Profile photos are optional** — avatars are stored only if the user chooses to upload one, and can be removed at any time.
+- **Sessions leave no permanent trace** — login sessions are held in the browser's temporary memory and are erased when the tab is closed or after 20 minutes of inactivity.
+
+The only personal data held in the system is: name, phone number, shift assignment, and attendance records. This is the minimum required to operate an attendance tracking system.
+
+---
+
 ## Access Control
 
 The system uses three permission levels. Each tier can only see and do what they are supposed to:
