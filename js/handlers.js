@@ -1084,9 +1084,11 @@ const Handlers = {
     this._toast('Meal allowance forms '+(next?'activated':'paused')+'.');
   },
 
-  openCyclePicker:  function() { this.setState({cyclePickerOpen:true, cyclePickerYear:null}); },
-  closeCyclePicker: function() { this.setState({cyclePickerOpen:false, cyclePickerYear:null}); },
-  setCyclePickerYear: function(yr) { this.setState(s=>({cyclePickerYear:s.cyclePickerYear===yr?null:yr})); },
+  openCyclePicker:    function() { this.setState({cyclePickerOpen:true, cyclePickerYear:null, cyclePickerPage:1}); },
+  closeCyclePicker:   function() { this.setState({cyclePickerOpen:false, cyclePickerYear:null, cyclePickerPage:1}); },
+  setCyclePickerYear: function(yr) { this.setState(s=>({cyclePickerYear:s.cyclePickerYear===yr?null:yr, cyclePickerPage:1})); },
+  cyclePickerNext: function() { this.setState(s=>({cyclePickerPage:s.cyclePickerPage+1})); },
+  cyclePickerPrev: function() { this.setState(s=>({cyclePickerPage:Math.max(1,s.cyclePickerPage-1)})); },
 
   toggleNoReporting: async function() {
     const off=this.state.viewOffset, d=this.dateForOffset(off);
