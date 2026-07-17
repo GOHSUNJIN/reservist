@@ -752,6 +752,7 @@ const Builders = {
       roster, filteredRoster:sortedFiltered, logRows:filteredLogRows, logRowsEmpty:filteredLogRows.length===0, logDateLabel,
       timesEditP1:s.timesEditP1||'', timesEditP2:s.timesEditP2||'', timesEditP3:s.timesEditP3||'', timesEditP4:s.timesEditP4||'',
       timesEditSaving:s.timesEditSaving||false,
+      ...(()=>{const _iStyle=k=>{const err=s.timesEditErrField===k;return`width:100%;padding:8px 10px;border:1.5px solid ${err?'#c0392b':'#d4d9e2'};border-radius:8px;font-size:13px;font-family:'IBM Plex Mono',monospace;outline:none;background:${err?'#fff5f5':'#f6f8fa'};box-sizing:border-box;color:#161f30;`;};return{timesEditP1Style:_iStyle('p1'),timesEditP2Style:_iStyle('p2'),timesEditP3Style:_iStyle('p3'),timesEditP4Style:_iStyle('p4')};})(),
       onTimesP1:this.onTimesP1, onTimesP2:this.onTimesP2, onTimesP3:this.onTimesP3, onTimesP4:this.onTimesP4,
       saveTimesEdit:this.saveTimesEdit, closeTimesEdit:this.closeTimesEdit,
       setLogFilterAll:this.setLogShiftFilter('all'), setLogFilterAm:this.setLogShiftFilter('AM'),
@@ -772,7 +773,9 @@ const Builders = {
         const mm=Utils.meta(r.status);
         const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
         const d=new Date(r.date+'T00:00:00');
-        return {dateLabel:W[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,color:mm.color,bg:mm.bg,p1:r.check_in_time?r.check_in_time.slice(0,5):'-',p4:r.work_end_time?r.work_end_time.slice(0,5):'-'};
+        const editLog=r.edit_log||[];
+        const latestEdit=editLog.length?editLog[editLog.length-1]:null;
+        return {dateLabel:W[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,color:mm.color,bg:mm.bg,p1:r.check_in_time?r.check_in_time.slice(0,5):'-',p4:r.work_end_time?r.work_end_time.slice(0,5):'-',adminCorrected:editLog.length>0,editedBy:latestEdit?.by||''};
       }),
       noPersonHistory:!(s.personHistoryRows||[]).length&&!s.personHistoryLoading,
       closePersonHistory:this.closePersonHistory,

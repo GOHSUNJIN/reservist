@@ -1182,19 +1182,19 @@
                     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px;">
                       <div>
                         <div style="font-size:10px;font-weight:600;color:#8a94a3;margin-bottom:5px;">Check-in <span style="color:#c0392b;">*</span></div>
-                        <input type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="{{ timesEditP1 }}" onInput="{{ onTimesP1 }}" style="width:100%;padding:8px 10px;border:1.5px solid #d4d9e2;border-radius:8px;font-size:13px;font-family:'IBM Plex Mono',monospace;outline:none;background:#f6f8fa;box-sizing:border-box;color:#161f30;" />
+                        <input type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="{{ timesEditP1 }}" onInput="{{ onTimesP1 }}" style="{{ timesEditP1Style }}" />
                       </div>
                       <div>
                         <div style="font-size:10px;font-weight:600;color:#8a94a3;margin-bottom:5px;">{{ row.p2FormLabel }} out</div>
-                        <input type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="{{ timesEditP2 }}" onInput="{{ onTimesP2 }}" style="width:100%;padding:8px 10px;border:1.5px solid #d4d9e2;border-radius:8px;font-size:13px;font-family:'IBM Plex Mono',monospace;outline:none;background:#f6f8fa;box-sizing:border-box;color:#161f30;" />
+                        <input type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="{{ timesEditP2 }}" onInput="{{ onTimesP2 }}" style="{{ timesEditP2Style }}" />
                       </div>
                       <div>
                         <div style="font-size:10px;font-weight:600;color:#8a94a3;margin-bottom:5px;">{{ row.p3Label }}</div>
-                        <input type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="{{ timesEditP3 }}" onInput="{{ onTimesP3 }}" style="width:100%;padding:8px 10px;border:1.5px solid #d4d9e2;border-radius:8px;font-size:13px;font-family:'IBM Plex Mono',monospace;outline:none;background:#f6f8fa;box-sizing:border-box;color:#161f30;" />
+                        <input type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="{{ timesEditP3 }}" onInput="{{ onTimesP3 }}" style="{{ timesEditP3Style }}" />
                       </div>
                       <div>
                         <div style="font-size:10px;font-weight:600;color:#8a94a3;margin-bottom:5px;">Check-out</div>
-                        <input type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="{{ timesEditP4 }}" onInput="{{ onTimesP4 }}" style="width:100%;padding:8px 10px;border:1.5px solid #d4d9e2;border-radius:8px;font-size:13px;font-family:'IBM Plex Mono',monospace;outline:none;background:#f6f8fa;box-sizing:border-box;color:#161f30;" />
+                        <input type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="{{ timesEditP4 }}" onInput="{{ onTimesP4 }}" style="{{ timesEditP4Style }}" />
                       </div>
                     </div>
                     <div style="display:flex;gap:8px;">
@@ -1782,6 +1782,12 @@
                 <span class="badge" style="color:{{ hr.color }};background:{{ hr.bg }};flex:0 0 auto;">{{ hr.label }}</span>
                 <div style="flex:1;min-width:0;">
                   <div style="font-size:13px;font-weight:500;color:#161f30;">{{ hr.dateLabel }}</div>
+                  <sc-if value="{{ hr.adminCorrected }}" hint-placeholder-val="">
+                    <div style="display:flex;align-items:center;gap:4px;margin-top:2px;">
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#8a94a3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                      <span style="font-size:11px;color:#8a94a3;">Corrected by {{ hr.editedBy }}</span>
+                    </div>
+                  </sc-if>
                 </div>
                 <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a94a3;white-space:nowrap;">{{ hr.p1 }} to {{ hr.p4 }}</div>
               </div>

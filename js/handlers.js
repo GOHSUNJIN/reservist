@@ -366,7 +366,7 @@ const Handlers = {
       acctPwError:'', acctPwSuccess:'', acctNameError:'', acctNameSuccess:'', acctSaving:false,
       locPhase:null, batchLoading:false, batchCreating:false,
       editingNoteId:null, editingNoteText:'',
-      timesEditId:null, timesEditP1:'', timesEditP2:'', timesEditP3:'', timesEditP4:'', timesEditSaving:false,
+      timesEditId:null, timesEditP1:'', timesEditP2:'', timesEditP3:'', timesEditP4:'', timesEditSaving:false, timesEditErrField:null,
       batchJumpDate:Utils.dateKey(new Date()),
       toast:null, rosterSort:'shift', newBatchDate:'',
       peopleStats:{}, peopleStatsLoaded:false, confirmDeactivateId:null, showArchivedBatches:false, cyclePickerOpen:false,
@@ -972,7 +972,7 @@ const Handlers = {
   },
 
   closeTimesEdit: function() {
-    this.setState({ timesEditId: null, timesEditP1: '', timesEditP2: '', timesEditP3: '', timesEditP4: '' });
+    this.setState({ timesEditId: null, timesEditP1: '', timesEditP2: '', timesEditP3: '', timesEditP4: '', timesEditErrField: null });
   },
 
   _fmtTimeInput: function(raw) {
@@ -980,29 +980,32 @@ const Handlers = {
     if(digits.length<=2) return digits;
     return digits.slice(0,2)+':'+digits.slice(2);
   },
-  onTimesP1: function(e) { this.setState({ timesEditP1: this._fmtTimeInput(e.target.value) }); },
-  onTimesP2: function(e) { this.setState({ timesEditP2: this._fmtTimeInput(e.target.value) }); },
-  onTimesP3: function(e) { this.setState({ timesEditP3: this._fmtTimeInput(e.target.value) }); },
-  onTimesP4: function(e) { this.setState({ timesEditP4: this._fmtTimeInput(e.target.value) }); },
+  onTimesP1: function(e) { this.setState({ timesEditP1: this._fmtTimeInput(e.target.value), timesEditErrField: null }); },
+  onTimesP2: function(e) { this.setState({ timesEditP2: this._fmtTimeInput(e.target.value), timesEditErrField: null }); },
+  onTimesP3: function(e) { this.setState({ timesEditP3: this._fmtTimeInput(e.target.value), timesEditErrField: null }); },
+  onTimesP4: function(e) { this.setState({ timesEditP4: this._fmtTimeInput(e.target.value), timesEditErrField: null }); },
 
   saveTimesEdit: async function() {
     const { timesEditId, timesEditP1, timesEditP2, timesEditP3, timesEditP4, viewOffset, demo } = this.state;
     if (!timesEditId) return;
     const validTime = t => !t || /^([01]\d|2[0-3]):[0-5]\d$/.test(t);
-    if (!timesEditP1) { this._toast('Check-in time is required.', 'error'); return; }
-    if (!validTime(timesEditP1)||!validTime(timesEditP2)||!validTime(timesEditP3)||!validTime(timesEditP4)) { this._toast('Times must be in HH:MM format (24h).', 'error'); return; }
     const _toMins = t => { if(!t) return null; const [h,m]=t.split(':').map(Number); return h*60+m; };
     const _editPerson = (this.state.roster||[]).find(p=>p.id===timesEditId);
     const _isPM = _editPerson?.shift==='PM';
     const _p2Label = _isPM ? 'Dinner out' : 'Lunch out';
     const _p3Label = _isPM ? 'Return from dinner' : 'Return from lunch';
-    const _slots = [{t:timesEditP1,label:'Check-in'},{t:timesEditP2||null,label:_p2Label},{t:timesEditP3||null,label:_p3Label},{t:timesEditP4||null,label:'Check-out'}];
+    if (!timesEditP1) { this.setState({timesEditErrField:'p1'}); this._toast('Check-in time is required.', 'error'); return; }
+    for (const [key,val] of [['p1',timesEditP1],['p2',timesEditP2],['p3',timesEditP3],['p4',timesEditP4]]) {
+      if (val && !validTime(val)) { this.setState({timesEditErrField:key}); this._toast('Times must be in HH:MM format (24h).','error'); return; }
+    }
+    if (timesEditP3 && !timesEditP2) { this.setState({timesEditErrField:'p2'}); this._toast(`${_isPM?'Dinner':'Lunch'} out time is required when recording a return.`,'error'); return; }
+    const _slots = [{t:timesEditP1,label:'Check-in',key:'p1'},{t:timesEditP2||null,label:_p2Label,key:'p2'},{t:timesEditP3||null,label:_p3Label,key:'p3'},{t:timesEditP4||null,label:'Check-out',key:'p4'}];
     let _prevMins=null, _prevLabel='';
-    for(const s of _slots){
-      const m=_toMins(s.t);
+    for(const sl of _slots){
+      const m=_toMins(sl.t);
       if(m===null) continue;
-      if(_prevMins!==null && m<=_prevMins){ this._toast(`${s.label} must be after ${_prevLabel}.`,'error'); return; }
-      _prevMins=m; _prevLabel=s.label;
+      if(_prevMins!==null && m<=_prevMins){ this.setState({timesEditErrField:sl.key}); this._toast(`${sl.label} must be after ${_prevLabel}.`,'error'); return; }
+      _prevMins=m; _prevLabel=sl.label;
     }
     const base = this.baseDate();
     const d = new Date(base.getFullYear(), base.getMonth(), base.getDate() + (viewOffset || 0));
@@ -1141,7 +1144,6 @@ const Handlers = {
     }
     const todayKey=Utils.dateKey(this.baseDate());
     const fmtDate=d=>{const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return d.getDate()+' '+mo[d.getMonth()];};
-    const statusCode=s=>s==='present'?'P':s==='mc'?'MC':s==='absent'?'A':'-';
     const shiftLabel=s=>s==='AM'?'AM (0830-1530)':s==='PM'?'PM (1530-2230)':s==='OFFICE'?'Office (0900-1800)':s||'-';
     const metaRows=[
       ['"Cycle"','"'+batch.label+'"'],
@@ -1151,16 +1153,14 @@ const Handlers = {
     ];
     const header=['"Name"','"Contact"','"Shift"',...dates.map(d=>'"'+fmtDate(d)+'"'),'"Present"','"MC"','"Absent"','"Attendance %"'];
     const rows=members.map(p=>{
-      const statuses=dates.map(d=>{
-        const dk=Utils.dateKey(d);
-        const map=dk===todayKey?attendance:(attCache[dk]||{});
-        return (map[p.id]?.status)||'absent';
-      });
+      const dayEntries=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return map[p.id]||null;});
+      const statuses=dayEntries.map(e=>e?.status||'absent');
       const pres=statuses.filter(s=>s==='present').length;
       const mc=statuses.filter(s=>s==='mc').length;
       const abs=statuses.filter(s=>s==='absent').length;
       const pct=dates.length>0?Math.round(pres/dates.length*100)+'%':'-';
-      return ['"'+p.name.replace(/"/g,'""')+'"','"'+p.contact+'"','"'+shiftLabel(p.shift)+'"',...statuses.map(statusCode),pres,mc,abs,'"'+pct+'"'].join(',');
+      const cells=dayEntries.map(e=>{const code=e?.status==='present'?'P':e?.status==='mc'?'MC':e?.status==='absent'?'A':'-';return(code==='P'&&e?.editLog?.length>0)?'P*':code;});
+      return ['"'+p.name.replace(/"/g,'""')+'"','"'+p.contact+'"','"'+shiftLabel(p.shift)+'"',...cells,pres,mc,abs,'"'+pct+'"'].join(',');
     });
     const totPres=rows.reduce((a,r,i)=>{const p=members[i];const st=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return (map[p.id]?.status)||'absent';});return a+st.filter(s=>s==='present').length;},0);
     const totMc=rows.reduce((a,r,i)=>{const p=members[i];const st=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return (map[p.id]?.status)||'absent';});return a+st.filter(s=>s==='mc').length;},0);
@@ -1168,7 +1168,7 @@ const Handlers = {
     const totDays=members.length*dates.length;
     const totPct=totDays>0?Math.round(totPres/totDays*100)+'%':'-';
     const summaryRow=['"TOTAL"','""','""',...dates.map(()=>'""'),totPres,totMc,totAbs,'"'+totPct+'"'].join(',');
-    const legend=['"Legend: P = Present, MC = Medical Certificate, A = Absent"'];
+    const legend=['"Legend: P = Present, P* = Present (admin-corrected times), MC = Medical Certificate, A = Absent"'];
     const csv='﻿'+[...metaRows.map(r=>r.join(',')),header.join(','),...rows,'',summaryRow,'',legend].join('\n');
     const a=document.createElement('a');
     a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);

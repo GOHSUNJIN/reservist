@@ -52,7 +52,7 @@ const makeInitialState = () => ({
   historyPage: 1,
   sessionExpiring: false,
   idleWarning: false,
-  timesEditId: null, timesEditP1: '', timesEditP2: '', timesEditP3: '', timesEditP4: '', timesEditSaving: false,
+  timesEditId: null, timesEditP1: '', timesEditP2: '', timesEditP3: '', timesEditP4: '', timesEditSaving: false, timesEditErrField: null,
   showA2hs: false, a2hsIsIos: false,
   forgotPasswordOpen: false,
   showLateWarning: false,
