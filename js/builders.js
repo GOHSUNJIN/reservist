@@ -867,7 +867,9 @@ const Builders = {
         const promoteFilteredList=filtered.map(p=>{
           const b=(s.batches||[]).find(b=>b.id===p.batch_id);
           const initials=p.name.trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
-          return {id:p.id,name:p.name,contact:p.contact||'',batchLabel:b?b.label:'',initials,
+          const av=(s.avatars||{})[p.id];
+          const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
+          return {id:p.id,name:p.name,contact:p.contact||'',batchLabel:b?b.label:'',initials,avatarStyle,
             onSelect:()=>this.setState({promoteAdminId:p.id,confirmPromoteAdminId:null,promoteSearch:''})};
         });
         return {promoteFilteredList, promoteListEmpty:promoteFilteredList.length===0};
