@@ -512,6 +512,8 @@ const Handlers = {
   onPromoteSearch:     function(e) { this.setState({promoteSearch:e.target.value, promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null, promoteListPage:1}); },
   onPromoteSearchKeyDown: function(e) { if(e.key==='Enter') e.target.blur(); },
   togglePromoteShowAll: function() { this.setState(s=>({promoteShowAllCycles:!s.promoteShowAllCycles, promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null, promoteSearch:'', promoteListPage:1})); },
+  setPromoteCurrentCycle: function() { if(this.state.promoteShowAllCycles) this.setState({promoteShowAllCycles:false, promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null, promoteSearch:'', promoteListPage:1}); },
+  setPromoteAllCycles:    function() { if(!this.state.promoteShowAllCycles) this.setState({promoteShowAllCycles:true,  promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null, promoteSearch:'', promoteListPage:1}); },
   clearPromoteSelection: function() { this.setState({promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null, promoteSearch:''}); },
   promoteNextPage: function() { this.setState(s=>({promoteListPage:s.promoteListPage+1})); },
   promotePrevPage: function() { this.setState(s=>({promoteListPage:Math.max(1,s.promoteListPage-1)})); },
