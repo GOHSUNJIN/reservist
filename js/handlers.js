@@ -34,8 +34,24 @@ const Handlers = {
       return;
     }
     if(!me.is_active){
-      await DB.auth.logout();
-      this.setState({authed:false,loading:false,authError:'Your account has been deactivated. Please contact your supervisor.'});
+      // Check if a re-enrollment request is already pending
+      const existingReq = await DB.signupRequests.getByContact(me.contact).catch(()=>null);
+      if(existingReq?.status==='pending'){
+        await DB.auth.logout();
+        this.setState({authed:false,loading:false,authError:'Your re-enrollment request is pending supervisor approval. You will be notified once it is approved.'});
+        return;
+      }
+      // Auto-submit a re-enrollment request so the supervisor sees it in the Requests tab
+      const batches = this.state.batches.length ? this.state.batches : await DB.batches.list().catch(()=>[]);
+      const liveBatch = batches.find(b=>b.is_live);
+      if(liveBatch){
+        await DB.signupRequests.create({authId:user.id, name:me.name, contact:me.contact, shift:me.shift||'AM', batchId:liveBatch.id}).catch(()=>{});
+        await DB.auth.logout();
+        this.setState({authed:false,loading:false,authError:'Your account is inactive for this cycle. A re-enrollment request has been sent to your supervisor — you will be able to log in once they approve it.'});
+      } else {
+        await DB.auth.logout();
+        this.setState({authed:false,loading:false,authError:'Your account is inactive and there is no active cycle to enroll into. Please contact your supervisor.'});
+      }
       return;
     }
     const cachedAvatar = localStorage.getItem('avatar_'+me.id);
