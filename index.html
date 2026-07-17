@@ -1134,6 +1134,7 @@
                     <div style="font-size:11.5px;color:#8a94a3;">{{ row.shiftLabel }}</div>
                   </div>
                   <span class="badge" style="color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
+                  <button onClick="{{ row.onEditTimes }}" style="-webkit-appearance:none;padding:4px 9px;background:#f0f2f7;border:1px solid #e3e6ec;border-radius:7px;font-size:11px;font-weight:600;color:#5c6678;cursor:pointer;flex:0 0 auto;">Edit</button>
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-left:46px;">
                   <div style="background:#f6f8fa;border-radius:7px;padding:5px 7px;">
@@ -1141,11 +1142,11 @@
                     <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:{{ row.p1Color }};">{{ row.p1 }}</div>
                   </div>
                   <div style="background:#f6f8fa;border-radius:7px;padding:5px 7px;">
-                    <div style="font-size:9px;font-weight:700;color:#9aa3b2;letter-spacing:.05em;margin-bottom:3px;">LUNCH</div>
+                    <div style="font-size:9px;font-weight:700;color:#9aa3b2;letter-spacing:.05em;margin-bottom:3px;">{{ row.p2Label }}</div>
                     <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:{{ row.p2Color }};">{{ row.p2 }}</div>
                   </div>
                   <div style="background:#f6f8fa;border-radius:7px;padding:5px 7px;">
-                    <div style="font-size:9px;font-weight:700;color:#9aa3b2;letter-spacing:.05em;margin-bottom:3px;">RETURN</div>
+                    <div style="font-size:9px;font-weight:700;color:#9aa3b2;letter-spacing:.05em;margin-bottom:3px;">BACK</div>
                     <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:{{ row.p3Color }};">{{ row.p3 }}</div>
                   </div>
                   <div style="background:#f6f8fa;border-radius:7px;padding:5px 7px;">
@@ -1153,6 +1154,33 @@
                     <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:{{ row.p4Color }};">{{ row.p4 }}</div>
                   </div>
                 </div>
+                <sc-if value="{{ row.isTimesEditing }}" hint-placeholder-val="">
+                  <div style="margin-top:10px;margin-left:46px;padding:12px;background:#f0f2f7;border-radius:10px;border:1px solid #e3e6ec;">
+                    <div style="font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.05em;margin-bottom:8px;">EDIT TIMES</div>
+                    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:10px;">
+                      <div>
+                        <div style="font-size:9px;font-weight:700;color:#9aa3b2;letter-spacing:.05em;margin-bottom:4px;">IN *</div>
+                        <input type="time" value="{{ timesEditP1 }}" onInput="{{ onTimesP1 }}" style="width:100%;padding:6px 4px;border:1px solid #d4d9e2;border-radius:6px;font-size:11px;font-family:'IBM Plex Mono',monospace;outline:none;background:#fff;box-sizing:border-box;" />
+                      </div>
+                      <div>
+                        <div style="font-size:9px;font-weight:700;color:#9aa3b2;letter-spacing:.05em;margin-bottom:4px;">{{ row.p2Label }}</div>
+                        <input type="time" value="{{ timesEditP2 }}" onInput="{{ onTimesP2 }}" style="width:100%;padding:6px 4px;border:1px solid #d4d9e2;border-radius:6px;font-size:11px;font-family:'IBM Plex Mono',monospace;outline:none;background:#fff;box-sizing:border-box;" />
+                      </div>
+                      <div>
+                        <div style="font-size:9px;font-weight:700;color:#9aa3b2;letter-spacing:.05em;margin-bottom:4px;">BACK</div>
+                        <input type="time" value="{{ timesEditP3 }}" onInput="{{ onTimesP3 }}" style="width:100%;padding:6px 4px;border:1px solid #d4d9e2;border-radius:6px;font-size:11px;font-family:'IBM Plex Mono',monospace;outline:none;background:#fff;box-sizing:border-box;" />
+                      </div>
+                      <div>
+                        <div style="font-size:9px;font-weight:700;color:#9aa3b2;letter-spacing:.05em;margin-bottom:4px;">OUT</div>
+                        <input type="time" value="{{ timesEditP4 }}" onInput="{{ onTimesP4 }}" style="width:100%;padding:6px 4px;border:1px solid #d4d9e2;border-radius:6px;font-size:11px;font-family:'IBM Plex Mono',monospace;outline:none;background:#fff;box-sizing:border-box;" />
+                      </div>
+                    </div>
+                    <div style="display:flex;gap:7px;">
+                      <button onClick="{{ saveTimesEdit }}" style="-webkit-appearance:none;flex:1;padding:8px;background:#161f30;color:#fff;border:none;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;">Save</button>
+                      <button onClick="{{ closeTimesEdit }}" style="-webkit-appearance:none;padding:8px 14px;background:#fff;border:1px solid #d4d9e2;border-radius:8px;font-size:12.5px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
+                    </div>
+                  </div>
+                </sc-if>
                 <sc-if value="{{ row.showLateReason }}" hint-placeholder-val="">
                   <div style="display:flex;align-items:flex-start;gap:7px;margin-top:8px;margin-left:46px;padding:8px 10px;background:#fbeeec;border-radius:8px;">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:1px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>

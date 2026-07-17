@@ -664,6 +664,9 @@ const Builders = {
         p3Color:r.p3?'#161f30':'#c2c8d2',
         p4Color:r.p4?'#161f30':'#c2c8d2',
         avatarStyle, shift:p.shift||'AM',
+        p2Label:p.shift==='PM'?'DIN':'LCH',
+        isTimesEditing:s.timesEditId===p.id,
+        onEditTimes:this.openTimesEdit(p.id),
       };
     });
     const logShiftFilter=s.logShiftFilter||'all';
@@ -738,6 +741,10 @@ const Builders = {
       showArchivedBatches:s.showArchivedBatches,
       toggleArchivedBatches:()=>this.setState(s=>({showArchivedBatches:!s.showArchivedBatches})),
       roster, filteredRoster:sortedFiltered, logRows:filteredLogRows, logRowsEmpty:filteredLogRows.length===0, logDateLabel,
+      timesEditP1:s.timesEditP1||'', timesEditP2:s.timesEditP2||'', timesEditP3:s.timesEditP3||'', timesEditP4:s.timesEditP4||'',
+      timesEditSaving:s.timesEditSaving||false,
+      onTimesP1:this.onTimesP1, onTimesP2:this.onTimesP2, onTimesP3:this.onTimesP3, onTimesP4:this.onTimesP4,
+      saveTimesEdit:this.saveTimesEdit, closeTimesEdit:this.closeTimesEdit,
       setLogFilterAll:this.setLogShiftFilter('all'), setLogFilterAm:this.setLogShiftFilter('AM'),
       setLogFilterPm:this.setLogShiftFilter('PM'), setLogFilterOffice:this.setLogShiftFilter('OFFICE'),
       logFilterAllStyle:_fBtn('all',accent), logFilterAmStyle:_fBtn('AM',accent),

@@ -237,6 +237,21 @@ const DB = {
       return { error };
     },
 
+    async setTimes(personnelId, dateStr, { p1, p2, p3, p4 }) {
+      const payload = { status: p1 ? 'present' : 'absent', gps_bypassed: true };
+      payload.check_in_time    = p1 ? p1 + ':00' : null;
+      payload.lunch_out_time   = p2 ? p2 + ':00' : null;
+      payload.work_return_time = p3 ? p3 + ':00' : null;
+      payload.work_end_time    = p4 ? p4 + ':00' : null;
+      const existingId = await this._findRow(personnelId, dateStr);
+      if (existingId) {
+        const { error } = await _db.from('attendance').update(payload).eq('id', existingId);
+        return { error };
+      }
+      const { error } = await _db.from('attendance').insert({ personnel_id: personnelId, date: dateStr, ...payload });
+      return { error };
+    },
+
     async saveWelfareNote(personnelId, dateStr, note) {
       const existingId = await this._findRow(personnelId, dateStr);
       if (existingId) {
