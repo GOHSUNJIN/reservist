@@ -975,15 +975,22 @@ const Handlers = {
     this.setState({ timesEditId: null, timesEditP1: '', timesEditP2: '', timesEditP3: '', timesEditP4: '' });
   },
 
-  onTimesP1: function(e) { this.setState({ timesEditP1: e.target.value }); },
-  onTimesP2: function(e) { this.setState({ timesEditP2: e.target.value }); },
-  onTimesP3: function(e) { this.setState({ timesEditP3: e.target.value }); },
-  onTimesP4: function(e) { this.setState({ timesEditP4: e.target.value }); },
+  _fmtTimeInput: function(raw) {
+    const digits = raw.replace(/\D/g,'').slice(0,4);
+    if(digits.length<=2) return digits;
+    return digits.slice(0,2)+':'+digits.slice(2);
+  },
+  onTimesP1: function(e) { this.setState({ timesEditP1: this._fmtTimeInput(e.target.value) }); },
+  onTimesP2: function(e) { this.setState({ timesEditP2: this._fmtTimeInput(e.target.value) }); },
+  onTimesP3: function(e) { this.setState({ timesEditP3: this._fmtTimeInput(e.target.value) }); },
+  onTimesP4: function(e) { this.setState({ timesEditP4: this._fmtTimeInput(e.target.value) }); },
 
   saveTimesEdit: async function() {
     const { timesEditId, timesEditP1, timesEditP2, timesEditP3, timesEditP4, viewOffset, demo } = this.state;
     if (!timesEditId) return;
+    const validTime = t => !t || /^([01]\d|2[0-3]):[0-5]\d$/.test(t);
     if (!timesEditP1) { this._toast('Check-in time is required.', 'error'); return; }
+    if (!validTime(timesEditP1)||!validTime(timesEditP2)||!validTime(timesEditP3)||!validTime(timesEditP4)) { this._toast('Times must be in HH:MM format (24h).', 'error'); return; }
     const base = this.baseDate();
     const d = new Date(base.getFullYear(), base.getMonth(), base.getDate() + (viewOffset || 0));
     const dateKey = Utils.dateKey(d);
