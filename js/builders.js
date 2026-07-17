@@ -88,6 +88,7 @@ const Builders = {
       loginBtnLabel:s.loading?'Logging in…':'Log in',
       signupBtnLabel:s.loading?'Creating account…':'Create account',
       onLoginNric:this.onLoginContact, onLoginPassword:this.onLoginPassword,
+      onLoginNricKeyDown:this.onLoginContactKeyDown,
       doLogin:this.doLogin, demoReservist:this.demoReservist, demoAdmin:this.demoAdmin,
       suName:s.suName, suContact:s.suContact, suShift, shiftOptions, suPassword:s.suPassword,
       amFull, pmFull, amCount, pmCount,
