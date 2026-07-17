@@ -244,15 +244,20 @@ const DB = {
       payload.lunch_out_time   = p2 ? p2 + ':00' : null;
       payload.work_return_time = p3 ? p3 + ':00' : null;
       payload.work_end_time    = p4 ? p4 + ':00' : null;
-      const { data: existing } = await _db.from('attendance').select('id, edit_log').eq('personnel_id', personnelId).eq('date', dateStr).maybeSingle();
-      const prevLog = Array.isArray(existing?.edit_log) ? existing.edit_log : [];
-      payload.edit_log = [...prevLog, { by: editorName, at: new Date().toISOString() }];
-      if (existing?.id) {
-        const { error } = await _db.from('attendance').update(payload).eq('id', existing.id);
-        return { error, editLog: payload.edit_log };
+      const { data: existing, error: fetchErr } = await _db.from('attendance').select('id, edit_log').eq('personnel_id', personnelId).eq('date', dateStr).maybeSingle();
+      let editLog = [];
+      if (!fetchErr) {
+        const prevLog = Array.isArray(existing?.edit_log) ? existing.edit_log : [];
+        editLog = [...prevLog, { by: editorName, at: new Date().toISOString() }];
+        payload.edit_log = editLog;
+      }
+      const rowId = existing?.id || (!fetchErr ? null : await this._findRow(personnelId, dateStr));
+      if (rowId) {
+        const { error } = await _db.from('attendance').update(payload).eq('id', rowId);
+        return { error, editLog };
       }
       const { error } = await _db.from('attendance').insert({ personnel_id: personnelId, date: dateStr, ...payload });
-      return { error, editLog: payload.edit_log };
+      return { error, editLog };
     },
 
     async saveWelfareNote(personnelId, dateStr, note) {
