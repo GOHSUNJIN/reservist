@@ -298,13 +298,6 @@ const Handlers = {
     this.setState({loading:true, authError:''});
     const {user,error} = await DB.auth.signup(cleanContact, suPassword, suName.trim());
     if(error||!user){ this.setState({loading:false, authError:error?.message||'Signup failed. Try a different contact or password.'}); return; }
-    const existing = await DB.personnel.findByContact(cleanContact);
-    if(existing){
-      await DB.personnel.linkAuth(existing.id, user.id);
-      await this._afterLogin(user);
-      this.setState({suName:'', suContact:'', suPassword:''});
-      return;
-    }
     const {error:reqErr} = await DB.signupRequests.create({authId:user.id, name:suName.trim(), contact:cleanContact, shift, batchId:activeBatch.id});
     if(reqErr){
       await DB.auth.logout();
@@ -430,12 +423,20 @@ const Handlers = {
       const reviewerName = me?.name || null;
       const {error:approveErr} = await DB.signupRequests.approve(id, reviewerName);
       if(approveErr){ this._toast('Failed to approve. Try again.','error'); return; }
-      const {data:newPerson, error:addErr} = await DB.personnel.add({authId:req.auth_id, name:req.name, contact:req.contact, shift:req.shift, batchId:req.batch_id});
-      if(addErr){ this._toast('Approved but failed to create personnel record. Try again.','error'); return; }
+      // If admin pre-added this person, link auth to existing record; otherwise create new
+      const existing = await DB.personnel.findByContact(req.contact).catch(()=>null);
+      let finalPerson = existing;
+      if(existing){
+        await DB.personnel.linkAuth(existing.id, req.auth_id);
+      } else {
+        const {data:newPerson, error:addErr} = await DB.personnel.add({authId:req.auth_id, name:req.name, contact:req.contact, shift:req.shift, batchId:req.batch_id});
+        if(addErr){ this._toast('Approved but failed to create personnel record. Try again.','error'); return; }
+        finalPerson = newPerson;
+      }
       this.setState(s=>({
         pendingSignups:s.pendingSignups.filter(r=>r.id!==id),
         approvedSignups:[{...req,status:'approved',reviewed_by:reviewerName,reviewed_at:new Date().toISOString()},...s.approvedSignups],
-        personnel:newPerson?[...s.personnel,newPerson]:s.personnel,
+        personnel:finalPerson&&!existing?[...s.personnel,finalPerson]:s.personnel,
       }));
       this._toast(req.name+' approved and added to the roster.');
     };
