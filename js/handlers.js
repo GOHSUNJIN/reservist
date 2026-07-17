@@ -392,7 +392,13 @@ const Handlers = {
   // ── Form handlers ──────────────────────────────────────────────────────
   onLoginContact:  function(e) { this.setState({loginContact:e.target.value}); },
   onLoginPassword: function(e) { this.setState({loginPassword:e.target.value}); },
-  onPwKeyDown:     function(e) { this.setState({capsLock:!!e.getModifierState('CapsLock')}); },
+  onPwKeyDown:     function(e) {
+    this.setState({capsLock:!!e.getModifierState('CapsLock')});
+    if(e.key==='Enter' && this.state.authMode==='login') this.doLogin();
+  },
+  onLoginContactKeyDown: function(e) {
+    if(e.key==='Enter' && this.state.authMode==='login') this.doLogin();
+  },
   onSuName:        function(e) { this.setState({suName:e.target.value}); },
   onSuContact:     function(e) { this.setState({suContact:e.target.value}); },
   onSuShift:       function(e) { this.setState({suShift:e.target.value}); },
