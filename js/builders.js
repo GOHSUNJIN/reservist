@@ -917,13 +917,18 @@ const Builders = {
       askPromoteAdmin:this.askPromoteAdmin,
       cancelPromoteAdmin:this.cancelPromoteAdmin,
       confirmPromoteAdmin:this.confirmPromoteAdmin,
-      pendingSignups:s.pendingSignups.map(r=>{
-        const b=(s.batches||[]).find(b=>b.id===r.batch_id);
-        const initials=r.name.trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
-        return {id:r.id,name:r.name,contact:r.contact,shift:r.shift,batchLabel:b?b.label:'',initials,
-          createdAt:r.created_at?new Date(r.created_at).toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'}):'',
-          onApprove:this.approveSignup(r.id), onReject:this.rejectSignup(r.id)};
-      }),
+      pendingSignups:(()=>{
+        const approvedContacts=new Set((s.approvedSignups||[]).map(a=>(a.contact||'').replace(/[\s-]/g,'')));
+        return s.pendingSignups.map(r=>{
+          const b=(s.batches||[]).find(b=>b.id===r.batch_id);
+          const initials=r.name.trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
+          const isReactivation=approvedContacts.has((r.contact||'').replace(/[\s-]/g,''));
+          return {id:r.id,name:r.name,contact:r.contact,shift:r.shift,batchLabel:b?b.label:'',initials,
+            createdAt:r.created_at?new Date(r.created_at).toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'}):'',
+            isReactivation, isNew:!isReactivation,
+            onApprove:this.approveSignup(r.id), onReject:this.rejectSignup(r.id)};
+        });
+      })(),
       hasPendingSignups:s.pendingSignups.length>0,
       pendingSignupCount:s.pendingSignups.length,
       // People sub-tabs
