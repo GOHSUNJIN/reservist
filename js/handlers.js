@@ -995,11 +995,14 @@ const Handlers = {
     const d = new Date(base.getFullYear(), base.getMonth(), base.getDate() + (viewOffset || 0));
     const dateKey = Utils.dateKey(d);
     this.setState({ timesEditSaving: true });
+    let savedEditLog = [];
     if (!demo) {
-      const { error } = await DB.attendance.setTimes(timesEditId, dateKey, { p1: timesEditP1, p2: timesEditP2||null, p3: timesEditP3||null, p4: timesEditP4||null });
+      const { error, editLog } = await DB.attendance.setTimes(timesEditId, dateKey, { p1: timesEditP1, p2: timesEditP2||null, p3: timesEditP3||null, p4: timesEditP4||null }, this.cur()?.name || 'Admin');
       if (error) { this.setState({ timesEditSaving: false }); this._toast('Failed to save. Try again.', 'error'); return; }
+      savedEditLog = editLog || [];
     }
-    const entry = { ...((this.state.attendanceCache[dateKey] || this.state.attendance)[timesEditId] || {}), status: 'present', p1: timesEditP1||null, p2: timesEditP2||null, p3: timesEditP3||null, p4: timesEditP4||null, gpsBypassed: true };
+    const prevEntry = (this.state.attendanceCache[dateKey] || this.state.attendance)[timesEditId] || {};
+    const entry = { ...prevEntry, status: 'present', p1: timesEditP1||null, p2: timesEditP2||null, p3: timesEditP3||null, p4: timesEditP4||null, gpsBypassed: true, editLog: savedEditLog };
     if (viewOffset === 0) {
       this.setState(s => ({ attendance: { ...s.attendance, [timesEditId]: entry }, timesEditId: null, timesEditSaving: false, timesEditP1: '', timesEditP2: '', timesEditP3: '', timesEditP4: '' }));
     } else {

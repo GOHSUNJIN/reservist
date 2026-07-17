@@ -165,6 +165,7 @@ const DB = {
         lateReason: r.late_reason || null,
         welfareNote: r.welfare_note || null,
         gpsBypassed: r.gps_bypassed || false,
+        editLog: r.edit_log || [],
       };
     },
 
@@ -237,19 +238,21 @@ const DB = {
       return { error };
     },
 
-    async setTimes(personnelId, dateStr, { p1, p2, p3, p4 }) {
+    async setTimes(personnelId, dateStr, { p1, p2, p3, p4 }, editorName) {
       const payload = { status: p1 ? 'present' : 'absent', gps_bypassed: true };
       payload.check_in_time    = p1 ? p1 + ':00' : null;
       payload.lunch_out_time   = p2 ? p2 + ':00' : null;
       payload.work_return_time = p3 ? p3 + ':00' : null;
       payload.work_end_time    = p4 ? p4 + ':00' : null;
-      const existingId = await this._findRow(personnelId, dateStr);
-      if (existingId) {
-        const { error } = await _db.from('attendance').update(payload).eq('id', existingId);
-        return { error };
+      const { data: existing } = await _db.from('attendance').select('id, edit_log').eq('personnel_id', personnelId).eq('date', dateStr).maybeSingle();
+      const prevLog = Array.isArray(existing?.edit_log) ? existing.edit_log : [];
+      payload.edit_log = [...prevLog, { by: editorName, at: new Date().toISOString() }];
+      if (existing?.id) {
+        const { error } = await _db.from('attendance').update(payload).eq('id', existing.id);
+        return { error, editLog: payload.edit_log };
       }
       const { error } = await _db.from('attendance').insert({ personnel_id: personnelId, date: dateStr, ...payload });
-      return { error };
+      return { error, editLog: payload.edit_log };
     },
 
     async saveWelfareNote(personnelId, dateStr, note) {
