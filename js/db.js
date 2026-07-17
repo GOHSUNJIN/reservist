@@ -92,6 +92,15 @@ const DB = {
       return { error };
     },
 
+    async reactivate(personnelId, { batchId, shift, authId } = {}) {
+      const updates = { is_active: true, deactivated_at: null };
+      if (batchId !== undefined) updates.batch_id = batchId;
+      if (shift !== undefined) updates.shift = shift;
+      if (authId !== undefined) updates.auth_id = authId;
+      const { data, error } = await _db.from('personnel').update(updates).eq('id', personnelId).select().maybeSingle();
+      return { data, error };
+    },
+
     async updateName(personnelId, name) {
       const { data, error } = await _db.from('personnel').update({ name }).eq('id', personnelId).select().maybeSingle();
       return { data, error };
