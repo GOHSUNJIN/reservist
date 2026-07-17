@@ -257,6 +257,20 @@ CREATE TABLE leave_requests (
 );
 ```
 
+CREATE TABLE signup_requests (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  auth_id UUID NOT NULL,
+  name TEXT NOT NULL,
+  contact TEXT NOT NULL,
+  shift TEXT NOT NULL,
+  batch_id UUID REFERENCES batches(id),
+  status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
+  reviewed_by TEXT,
+  reviewed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+```
+
 ### Step 2 — Create the master account
 
 Sign up through the app's login screen using your phone number. Then run this one-time command in the Supabase SQL editor to elevate that account to Master level:
