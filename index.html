@@ -1372,7 +1372,7 @@
             <input value="{{ npContact }}" onInput="{{ onNpContact }}" placeholder="Contact number (9xxx xxxx)" type="tel" inputmode="numeric" autocomplete="off" class="field" style="margin-bottom:10px;" />
             <select value="{{ npShift }}" onChange="{{ onNpShift }}" class="field" style="margin-bottom:10px;"><option value="AM" disabled="{{ npAmFull }}">{{ npAmLabel }}</option><option value="PM" disabled="{{ npPmFull }}">{{ npPmLabel }}</option><option value="OFFICE">Office (0900-1800)</option></select>
             <input value="{{ npPassword }}" onInput="{{ onNpPassword }}" placeholder="Password (min 6 chars)" type="password" class="field" style="margin-bottom:10px;" />
-            <div style="font-size:11.5px;color:#8a94a3;margin-bottom:12px;line-height:1.5;">The reservist will log in with their contact number and this password.</div>
+            <div style="font-size:11.5px;color:#8a94a3;margin-bottom:12px;line-height:1.5;">Password is only needed for new personnel. For returning reservists, leave it blank — they will use their previous password.</div>
             <button onClick="{{ addPerson }}" style="width:100%;padding:12px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;">Add to roster</button>
           </div>
           </sc-if>
