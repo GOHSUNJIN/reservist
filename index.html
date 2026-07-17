@@ -728,7 +728,11 @@
               <button onClick="{{ showMoreHistory }}" style="width:100%;padding:14px 16px;background:none;border:none;border-top:1px solid #f2f4f7;font-size:13px;font-weight:600;color:#2f5fd0;cursor:pointer;">Show {{ historyRemaining }} more</button>
             </sc-if>
             <sc-if value="{{ historyEmpty }}" hint-placeholder-val="">
-              <div style="padding:28px 16px;text-align:center;color:#8a94a3;font-size:13px;">No attendance records yet for this cycle.</div>
+              <div style="padding:36px 16px;text-align:center;">
+                <div style="width:44px;height:44px;border-radius:50%;background:#f0f2f5;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="3" x2="8" y2="6"/><line x1="16" y1="3" x2="16" y2="6"/></svg></div>
+                <div style="font-size:14px;font-weight:600;color:#5c6678;margin-bottom:4px;">No records yet</div>
+                <div style="font-size:12.5px;color:#9aa3b2;">Your attendance will appear here once you start checking in.</div>
+              </div>
             </sc-if>
           </div>
         </div>
@@ -1035,7 +1039,18 @@
             </div>
           </sc-for>
           <sc-if value="{{ noSearchResults }}" hint-placeholder-val="">
-            <div style="padding:28px 16px;text-align:center;color:#8a94a3;font-size:13px;">No results for "{{ rosterSearch }}".</div>
+            <div style="padding:36px 20px;text-align:center;">
+              <div style="width:44px;height:44px;border-radius:50%;background:#f0f2f5;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+              <div style="font-size:14px;font-weight:600;color:#5c6678;margin-bottom:4px;">No results</div>
+              <div style="font-size:12.5px;color:#9aa3b2;">No one matches "{{ rosterSearch }}".</div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ rosterEmpty }}" hint-placeholder-val="">
+            <div style="padding:36px 20px;text-align:center;">
+              <div style="width:44px;height:44px;border-radius:50%;background:#f0f2f5;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+              <div style="font-size:14px;font-weight:600;color:#5c6678;margin-bottom:4px;">No one on the roster</div>
+              <div style="font-size:12.5px;color:#9aa3b2;">Add personnel in the People tab to get started.</div>
+            </div>
           </sc-if>
           </sc-if>
           <sc-if value="{{ viewNoReporting }}" hint-placeholder-val="">
@@ -1244,7 +1259,11 @@
           </div>
           </sc-if>
           <sc-if value="{{ !hasPendingRequests }}" hint-placeholder-val="">
-            <div style="text-align:center;padding:40px 20px;color:#9aa3b2;font-size:14px;">No pending requests</div>
+            <div style="padding:40px 20px;text-align:center;">
+              <div style="width:44px;height:44px;border-radius:50%;background:#f0f2f5;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div style="font-size:14px;font-weight:600;color:#5c6678;margin-bottom:4px;">All clear</div>
+              <div style="font-size:12.5px;color:#9aa3b2;">No pending signups or leave requests.</div>
+            </div>
           </sc-if>
           </sc-if>
 
@@ -1330,6 +1349,13 @@
                 </sc-if>
               </div>
             </sc-for>
+            <sc-if value="{{ personnelListEmpty }}" hint-placeholder-val="">
+              <div style="padding:36px 20px;text-align:center;">
+                <div style="width:44px;height:44px;border-radius:50%;background:#f0f2f5;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/><line x1="20" y1="8" x2="20" y2="14"/></svg></div>
+                <div style="font-size:14px;font-weight:600;color:#5c6678;margin-bottom:4px;">No one added yet</div>
+                <div style="font-size:12.5px;color:#9aa3b2;">Use the form below to add personnel to this cycle.</div>
+              </div>
+            </sc-if>
           </div>
           <div class="card" style="padding:14px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
             <div style="flex:1;">
@@ -1717,7 +1743,11 @@
               </div>
             </sc-for>
             <sc-if value="{{ noPersonHistory }}" hint-placeholder-val="">
-              <div style="padding:28px;text-align:center;color:#8a94a3;font-size:13px;">No attendance records.</div>
+              <div style="padding:36px 16px;text-align:center;">
+                <div style="width:40px;height:40px;border-radius:50%;background:#f0f2f5;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="3" x2="8" y2="6"/><line x1="16" y1="3" x2="16" y2="6"/></svg></div>
+                <div style="font-size:13.5px;font-weight:600;color:#5c6678;margin-bottom:3px;">No records</div>
+                <div style="font-size:12px;color:#9aa3b2;">No past attendance found for this person.</div>
+              </div>
             </sc-if>
           </sc-if>
         </div>

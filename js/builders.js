@@ -769,6 +769,7 @@ const Builders = {
       retrySync:this.retrySync,
       markAllPresent:this.markAllPresent, pendingCount, markAllPresenting:s.markAllPresenting,
       noSearchResults:!!search&&sortedFiltered.length===0,
+      rosterEmpty:!search&&roster.length===0,
       filteredCount:search?sortedFiltered.length:0, showFilteredCount:!!search&&sortedFiltered.length>0,
       statPresent:present, statMc:mc, statPending:pending, statTotal:total,
       lateCount, lateNames, showLateAlert, lateAlertLabel,
@@ -815,6 +816,7 @@ const Builders = {
           showApprovedBy:!!approvedBy,
         };
       }),
+      personnelListEmpty:activeMembers.length===0,
       cancelDeactivatePerson:this.cancelDeactivatePerson,
       confirmDeactivatePerson:this.confirmDeactivatePerson,
       rosterSort:s.rosterSort,
