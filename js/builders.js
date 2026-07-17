@@ -658,13 +658,7 @@ const Builders = {
         lateReason, showLateReason,
         welfareNote:r.welfareNote||'', showWelfareNote:!!(r.welfareNote),
         showNoGps: !!(r.gpsBypassed),
-        editLog: (r.editLog||[]).slice().reverse().map(e => {
-          const d=new Date(e.at);
-          const sg=new Date(d.getTime()+8*3600*1000);
-          const hh=String(sg.getUTCHours()).padStart(2,'0'),mm2=String(sg.getUTCMinutes()).padStart(2,'0');
-          const day=sg.getUTCDate(),mon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][sg.getUTCMonth()];
-          return {by:e.by||'Admin',timeLabel:`${hh}:${mm2}, ${day} ${mon}`};
-        }),
+        editLog: (()=>{const log=r.editLog||[];if(!log.length)return[];const e=log[log.length-1];const d=new Date(e.at);const sg=new Date(d.getTime()+8*3600*1000);const hh=String(sg.getUTCHours()).padStart(2,'0'),mm2=String(sg.getUTCMinutes()).padStart(2,'0');const day=sg.getUTCDate(),mon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][sg.getUTCMonth()];return[{by:e.by||'Admin',timeLabel:`${hh}:${mm2}, ${day} ${mon}`}];})(),
         showEditLog: !!(r.editLog&&r.editLog.length),
         p1:r.p1||'-', p2:r.p2||'-', p3:r.p3||'-', p4:r.p4||'-',
         p1Color:r.p1?(isLate?'#c0392b':'#161f30'):'#c2c8d2',
