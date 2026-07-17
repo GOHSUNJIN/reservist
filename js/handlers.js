@@ -47,7 +47,7 @@ const Handlers = {
       if(liveBatch){
         await DB.signupRequests.create({authId:user.id, name:me.name, contact:me.contact, shift:me.shift||'AM', batchId:liveBatch.id}).catch(()=>{});
         await DB.auth.logout();
-        this.setState({authed:false,loading:false,authError:'Your account is inactive for this cycle. A re-enrollment request has been sent to your supervisor — you will be able to log in once they approve it.'});
+        this.setState({authed:false,loading:false,authError:'Your account is inactive for this cycle. A re-enrollment request has been sent to your supervisor. You will be able to log in once they approve it.'});
       } else {
         await DB.auth.logout();
         this.setState({authed:false,loading:false,authError:'Your account is inactive and there is no active cycle to enroll into. Please contact your supervisor.'});
@@ -313,10 +313,10 @@ const Handlers = {
     if(error||!user){
       const alreadyReg = error?.message?.toLowerCase().includes('already registered') || error?.message?.toLowerCase().includes('user already registered');
       if(alreadyReg){
-        // Returning reservist — try logging in with provided credentials
+        // Returning reservist: try logging in with provided credentials
         const {user:retUser, error:loginErr} = await DB.auth.login(cleanContact, suPassword);
         if(loginErr||!retUser){
-          this.setState({loading:false, authError:'This contact is already registered. If you are a returning reservist, use your previous password — or ask your supervisor to re-enroll you directly.'});
+          this.setState({loading:false, authError:'This contact is already registered. If you are a returning reservist, use your previous password. Otherwise, ask your supervisor to re-enroll you directly.'});
           return;
         }
         signupUser = retUser;
@@ -469,7 +469,7 @@ const Handlers = {
       const wasInactive = existing && !existing.is_active;
       if(existing){
         if(!existing.is_active){
-          // Returning reservist — reactivate and assign to the requested batch
+          // Returning reservist: reactivate and assign to the requested batch
           const {data:reactivated} = await DB.personnel.reactivate(existing.id, {batchId:req.batch_id, shift:req.shift, authId:req.auth_id});
           finalPerson = reactivated || existing;
         } else {
@@ -1349,7 +1349,7 @@ const Handlers = {
       // Check for an existing record (may be inactive from a previous cycle)
       const existingRecord = await DB.personnel.findByContact(cleanContact).catch(()=>null);
       if(existingRecord && !existingRecord.is_active){
-        // Returning reservist — reactivate and reassign; no new password needed
+        // Returning reservist: reactivate and reassign; no new password needed
         const {data:reactivated,error:reactErr} = await DB.personnel.reactivate(existingRecord.id, {batchId:activeBatch?.id, shift});
         if(reactErr||!reactivated){ this._toast('Failed to re-enroll. Try again.','error'); return; }
         if(addedName !== existingRecord.name) await DB.personnel.updateName(existingRecord.id, addedName).catch(()=>{});
@@ -1360,7 +1360,7 @@ const Handlers = {
       if(existingRecord && existingRecord.is_active){
         this._toast('This contact is already registered.','error'); return;
       }
-      // New person — password required to create their account
+      // New person: password required to create their account
       if(!npPassword.trim()){ this._toast('Password is required for new personnel.','error'); return; }
       if(npPassword.length<6){ this._toast('Password must be at least 6 characters.','error'); return; }
       let authId=null;

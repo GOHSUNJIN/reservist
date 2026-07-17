@@ -1218,6 +1218,12 @@
                   <div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ sr.name }}</div>
                   <div style="font-size:11.5px;color:#8a94a3;">{{ sr.contact }} · {{ sr.shift }} · {{ sr.batchLabel }}</div>
                 </div>
+                <sc-if value="{{ sr.isReactivation }}" hint-placeholder-val="">
+                  <span style="flex:0 0 auto;font-size:10px;font-weight:700;background:#fdf6e9;color:#b9791a;border:1px solid #f0e2c2;padding:3px 8px;border-radius:20px;">Returning</span>
+                </sc-if>
+                <sc-if value="{{ sr.isNew }}" hint-placeholder-val="">
+                  <span style="flex:0 0 auto;font-size:10px;font-weight:700;background:#f1f8f4;color:#1f8a5b;border:1px solid #cfe6d8;padding:3px 8px;border-radius:20px;">New</span>
+                </sc-if>
               </div>
               <div style="font-size:11px;color:#9aa3b2;margin-bottom:8px;">Requested {{ sr.createdAt }}</div>
               <div style="display:flex;gap:8px;">
@@ -1372,7 +1378,7 @@
             <input value="{{ npContact }}" onInput="{{ onNpContact }}" placeholder="Contact number (9xxx xxxx)" type="tel" inputmode="numeric" autocomplete="off" class="field" style="margin-bottom:10px;" />
             <select value="{{ npShift }}" onChange="{{ onNpShift }}" class="field" style="margin-bottom:10px;"><option value="AM" disabled="{{ npAmFull }}">{{ npAmLabel }}</option><option value="PM" disabled="{{ npPmFull }}">{{ npPmLabel }}</option><option value="OFFICE">Office (0900-1800)</option></select>
             <input value="{{ npPassword }}" onInput="{{ onNpPassword }}" placeholder="Password (min 6 chars)" type="password" class="field" style="margin-bottom:10px;" />
-            <div style="font-size:11.5px;color:#8a94a3;margin-bottom:12px;line-height:1.5;">Password is only needed for new personnel. For returning reservists, leave it blank — they will use their previous password.</div>
+            <div style="font-size:11.5px;color:#8a94a3;margin-bottom:12px;line-height:1.5;">Password is only needed for new personnel. For returning reservists, leave it blank. They will use their previous password.</div>
             <button onClick="{{ addPerson }}" style="width:100%;padding:12px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;">Add to roster</button>
           </div>
           </sc-if>
@@ -1619,7 +1625,7 @@
           </div>
           <div style="flex:1;min-width:0;padding-top:2px;">
             <div style="font-size:16px;font-weight:700;color:#161f30;line-height:1.2;">Late check-in</div>
-            <div style="font-size:12.5px;color:#5c6678;margin-top:4px;line-height:1.45;">You checked in more than an hour late. Give a brief reason — your admin will see it.</div>
+            <div style="font-size:12.5px;color:#5c6678;margin-top:4px;line-height:1.45;">You checked in more than an hour late. Give a brief reason. Your admin will see it.</div>
           </div>
         </div>
         <textarea onInput="{{ onLateReasonText }}" value="{{ lateReasonText }}" placeholder="e.g. Traffic jam on CTE, arrived at 09:45" style="width:100%;height:90px;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>

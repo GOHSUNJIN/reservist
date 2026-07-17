@@ -38,7 +38,7 @@ const Utils = {
     return 'Cycle '+(num||1)+'/'+startDate.slice(0,4);
   },
 
-  // Fallback if API is unavailable — auto-updated via loadHolidays()
+  // Fallback if API is unavailable; auto-updated via loadHolidays()
   SG_HOLIDAYS:{
     '2025-01-01':"New Year's Day",'2025-01-29':'Chinese New Year','2025-01-30':'Chinese New Year',
     '2025-03-31':'Hari Raya Puasa','2025-04-18':'Good Friday','2025-05-01':'Labour Day',
