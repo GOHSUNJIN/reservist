@@ -630,7 +630,7 @@ const Builders = {
       if(sortKey==='status'){const ord={present:0,mc:1,pending:2,absent:3};return (ord[a.status]??4)-(ord[b.status]??4);}
       const so={AM:0,PM:1,OFFICE:2};return (so[a.shift]??3)-(so[b.shift]??3);
     });
-    const _sb='flex:1;padding:7px 4px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;transition:background .15s,color .15s;';
+    const _sb='flex:1;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;white-space:nowrap;transition:background .15s,color .15s;';
     const _sa=_sb+'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.12);';
     const _si=_sb+'background:transparent;color:#8a94a3;';
     const rosterSortShiftStyle=sortKey==='shift'?_sa:_si;
