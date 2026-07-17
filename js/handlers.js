@@ -347,7 +347,7 @@ const Handlers = {
       welfareNoteOpen:false, welfareNoteText:'', welfareNoteSaving:false,
       isSuperAdmin:false, adminsList:[], adminsLoaded:false,
       npAdminName:'', npAdminContact:'', npAdminPassword:'', confirmDeactivateAdminId:null,
-      promoteAdminId:'', confirmPromoteAdminId:null, promoteSearch:'', promoteShowAllCycles:false,
+      promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null, promoteSearch:'', promoteShowAllCycles:false,
       editingBatchLabel:false, batchLabelText:'',
       viewOffset:0, rosterSearch:'', logSearch:'', logShiftFilter:'all',
       markingAllAbsent:false, confirmMarkAllAbsent:false,
@@ -501,10 +501,10 @@ const Handlers = {
   },
 
   onPromoteAdminId:    function(e) { this.setState({promoteAdminId:e.target.value, confirmPromoteAdminId:null}); },
-  onPromoteSearch:     function(e) { this.setState({promoteSearch:e.target.value, promoteAdminId:'', confirmPromoteAdminId:null}); },
+  onPromoteSearch:     function(e) { this.setState({promoteSearch:e.target.value, promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null}); },
   onPromoteSearchKeyDown: function(e) { if(e.key==='Enter') e.target.blur(); },
-  togglePromoteShowAll: function() { this.setState(s=>({promoteShowAllCycles:!s.promoteShowAllCycles, promoteAdminId:'', confirmPromoteAdminId:null, promoteSearch:''})); },
-  clearPromoteSelection: function() { this.setState({promoteAdminId:'', confirmPromoteAdminId:null, promoteSearch:''}); },
+  togglePromoteShowAll: function() { this.setState(s=>({promoteShowAllCycles:!s.promoteShowAllCycles, promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null, promoteSearch:''})); },
+  clearPromoteSelection: function() { this.setState({promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null, promoteSearch:''}); },
 
   askPromoteAdmin: function() {
     const {promoteAdminId} = this.state;
@@ -519,7 +519,7 @@ const Handlers = {
     if(!confirmPromoteAdminId) return;
     const person = personnel.find(p=>p.id===confirmPromoteAdminId);
     if(!person) return;
-    this.setState({confirmPromoteAdminId:null, promoteAdminId:'', promoteSearch:''});
+    this.setState({confirmPromoteAdminId:null, promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', promoteSearch:''});
     if(!demo){
       const {error} = await DB.personnel.promoteToAdmin(confirmPromoteAdminId).catch(e=>({error:e}));
       if(error){ this._toast('Failed to promote. Try again.','error'); return; }

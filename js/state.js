@@ -67,7 +67,7 @@ const makeInitialState = () => ({
   adminsList: [], adminsLoaded: false,
   npAdminName: '', npAdminContact: '', npAdminPassword: '',
   confirmDeactivateAdminId: null,
-  promoteAdminId: '', confirmPromoteAdminId: null, promoteSearch: '', promoteShowAllCycles: false,
+  promoteAdminId: '', promoteAdminName: '', promoteAdminContact: '', confirmPromoteAdminId: null, promoteSearch: '', promoteShowAllCycles: false,
   signupPending: false,
   pendingSignups: [], pendingSignupsLoaded: false,
   approvedSignups: [],
