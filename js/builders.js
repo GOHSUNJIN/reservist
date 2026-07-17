@@ -847,7 +847,7 @@ const Builders = {
       onPromoteSearch:this.onPromoteSearch, onPromoteSearchKeyDown:this.onPromoteSearchKeyDown,
       promoteShowAllCycles:s.promoteShowAllCycles, togglePromoteShowAll:this.togglePromoteShowAll,
       promoteShowAllLabel:s.promoteShowAllCycles?'Current cycle':'All cycles',
-      promoteAdminTarget:(s.personnel||[]).find(p=>p.id===s.promoteAdminId)||null,
+      promoteAdminTarget:s.promoteAdminId?{id:s.promoteAdminId,name:s.promoteAdminName||'',contact:s.promoteAdminContact||''}:null,
       clearPromoteSelection:this.clearPromoteSelection,
       ...((pab=>{
         const all=(s.personnel||[]).filter(p=>p.is_active!==false&&(p.role||'reservist')==='reservist');
@@ -860,7 +860,7 @@ const Builders = {
           const av=(s.avatars||{})[p.id];
           const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
           return {id:p.id,name:p.name,contact:p.contact||'',batchLabel:b?b.label:'',initials,avatarStyle,
-            onSelect:()=>this.setState({promoteAdminId:p.id,confirmPromoteAdminId:null,promoteSearch:''})};
+            onSelect:()=>this.setState({promoteAdminId:p.id,promoteAdminName:p.name,promoteAdminContact:p.contact||'',confirmPromoteAdminId:null,promoteSearch:''})};
         });
         return {promoteFilteredList, promoteListEmpty:promoteFilteredList.length===0};
       })(this._liveBatch(s.batches))),
