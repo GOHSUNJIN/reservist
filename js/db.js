@@ -350,6 +350,50 @@ const DB = {
     },
   },
 
+  // ── Signup requests ──────────────────────────────────────────────────────
+  signupRequests: {
+    async create({ authId, name, contact, shift, batchId }) {
+      const { data, error } = await _db.from('signup_requests')
+        .insert({ auth_id: authId, name, contact, shift, batch_id: batchId, status: 'pending' })
+        .select().maybeSingle();
+      return { data, error };
+    },
+
+    async getByAuthId(authId) {
+      const { data } = await _db.from('signup_requests').select('*').eq('auth_id', authId).maybeSingle();
+      return data || null;
+    },
+
+    async getByContact(contact) {
+      const { data } = await _db.from('signup_requests').select('*').eq('contact', contact).order('created_at', { ascending: false }).limit(1).maybeSingle();
+      return data || null;
+    },
+
+    async listPending() {
+      const { data } = await _db.from('signup_requests').select('*').eq('status', 'pending').order('created_at');
+      return data || [];
+    },
+
+    async listApproved() {
+      const { data } = await _db.from('signup_requests').select('*').eq('status', 'approved').order('reviewed_at', { ascending: false });
+      return data || [];
+    },
+
+    async approve(id, reviewerName) {
+      const { data, error } = await _db.from('signup_requests')
+        .update({ status: 'approved', reviewed_by: reviewerName, reviewed_at: new Date().toISOString() })
+        .eq('id', id).select().maybeSingle();
+      return { data, error };
+    },
+
+    async reject(id, reviewerName) {
+      const { error } = await _db.from('signup_requests')
+        .update({ status: 'rejected', reviewed_by: reviewerName, reviewed_at: new Date().toISOString() })
+        .eq('id', id);
+      return { error };
+    },
+  },
+
   // ── Realtime ──────────────────────────────────────────────────────────────
   realtime: {
     subscribeAttendance(dateStr, onUpdate) {
@@ -377,6 +421,8 @@ const DB = {
       return _db.channel('admin-new-requests')
         .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'leave_requests' },
           payload => { if (payload.new) onNew(payload.new); })
+        .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'signup_requests' },
+          payload => { if (payload.new) onNew({ _type: 'signup', ...payload.new }); })
         .subscribe();
     },
 

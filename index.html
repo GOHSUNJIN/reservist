@@ -17,6 +17,9 @@
 <script src="./js/config.js"></script>
 <script src="./js/utils.js"></script>
 <script src="./js/db.js"></script>
+<script src="./js/state.js"></script>
+<script src="./js/handlers.js"></script>
+<script src="./js/builders.js"></script>
 <script src="./js/component.js"></script>
 </head>
 <body>
@@ -55,10 +58,23 @@
         <div style="background:#f1f8f4;border:1px solid #cfe6d8;border-radius:11px;padding:13px 15px;font-size:13px;color:#1f8a5b;font-weight:600;margin-bottom:18px;">Your account has been deactivated. Thank you for your service.</div>
       </sc-if>
 
+      <sc-if value="{{ signupPending }}" hint-placeholder-val="">
+        <div style="text-align:center;padding:24px 0 8px;">
+          <div style="width:56px;height:56px;border-radius:50%;background:#eef3fc;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2f5fd0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div style="font-size:18px;font-weight:700;color:#161f30;margin-bottom:8px;">Request submitted</div>
+          <div style="font-size:13.5px;color:#5c6678;line-height:1.55;margin-bottom:24px;">Your signup has been sent to an admin for approval. You will be able to log in once your account is approved.</div>
+          <button onClick="{{ dismissSignupPending }}" style="-webkit-appearance:none;width:100%;padding:14px;background:#2f5fd0;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;">Back to log in</button>
+        </div>
+      </sc-if>
+
+      <sc-if value="{{ !signupPending }}" hint-placeholder-val="{{ true }}">
       <div style="display:flex;gap:4px;background:#e7eaef;padding:4px;border-radius:11px;margin-bottom:24px;">
         <button onClick="{{ goLogin }}" style="{{ loginTabStyle }}">Log in</button>
         <button onClick="{{ goSignup }}" style="{{ signupTabStyle }}">Sign up</button>
       </div>
+      </sc-if>
 
       <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
       <div>
@@ -72,7 +88,7 @@
         <sc-if value="{{ authError }}" hint-placeholder-val="">
           <div style="color:#c0392b;font-size:13px;margin-bottom:6px;">{{ authError }}</div>
         </sc-if>
-        <button onClick="{{ doLogin }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:12px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoading ? 0.6 : 1 }};">{{ loginBtnLabel }}</button>
+        <button onClick="{{ doLogin }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:12px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoadingOpacity }};">{{ loginBtnLabel }}</button>
         <div style="text-align:center;margin-top:14px;">
           <button onClick="{{ openForgotPassword }}" style="background:none;border:none;color:#8a94a3;font-size:13px;cursor:pointer;text-decoration:underline;padding:0;">Forgot password?</button>
         </div>
@@ -118,7 +134,7 @@
         <sc-if value="{{ authError }}" hint-placeholder-val="">
           <div style="color:#c0392b;font-size:13px;margin-top:12px;">{{ authError }}</div>
         </sc-if>
-        <button onClick="{{ doSignup }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:18px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoading ? 0.6 : 1 }};">{{ signupBtnLabel }}</button>
+        <button onClick="{{ doSignup }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:18px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoadingOpacity }};">{{ signupBtnLabel }}</button>
 
       </div>
       </sc-if>
@@ -282,7 +298,7 @@
               <div style="display:flex;gap:14px;">
                 <!-- Step indicator + connector line -->
                 <div style="display:flex;flex-direction:column;align-items:center;width:34px;flex:0 0 auto;">
-                  <div style="width:34px;height:34px;border-radius:50%;background:{{ ph.stepBg }};color:{{ ph.stepColor }};font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:{{ ph.done ? '0 0 0 3px #d4ede0' : ph.isActive ? '0 0 0 3px #dbe6fa' : 'none' }};">
+                  <div style="width:34px;height:34px;border-radius:50%;background:{{ ph.stepBg }};color:{{ ph.stepColor }};font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:0 0 auto;box-shadow:{{ ph.stepShadow }};">
                     <sc-if value="{{ ph.done }}" hint-placeholder-val="">
                       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                     </sc-if>
@@ -1136,6 +1152,31 @@
         <!-- ===== ADMIN: PEOPLE ===== -->
         <sc-if value="{{ tabPeople }}" hint-placeholder-val="">
         <div>
+          <!-- Pending signup requests -->
+          <sc-if value="{{ hasPendingSignups }}" hint-placeholder-val="">
+          <div class="card-flush" style="margin-bottom:14px;">
+            <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
+              <span style="font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">PENDING SIGNUPS</span>
+              <span style="background:#c0392b;color:#fff;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:20px;">{{ pendingSignupCount }}</span>
+            </div>
+            <sc-for list="{{ pendingSignups }}" as="sr">
+            <div style="padding:12px 16px;border-bottom:1px solid #f2f4f7;">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <div style="width:36px;height:36px;border-radius:50%;background:#eceef2;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#5c6678;flex:0 0 auto;">{{ sr.initials }}</div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ sr.name }}</div>
+                  <div style="font-size:11.5px;color:#8a94a3;">{{ sr.contact }} · {{ sr.shift }} · {{ sr.batchLabel }}</div>
+                </div>
+              </div>
+              <div style="font-size:11px;color:#9aa3b2;margin-bottom:8px;">Requested {{ sr.createdAt }}</div>
+              <div style="display:flex;gap:8px;">
+                <button onClick="{{ sr.onReject }}" style="-webkit-appearance:none;flex:1;padding:9px;background:#fff;border:1px solid #e3e6ec;color:#c0392b;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Reject</button>
+                <button onClick="{{ sr.onApprove }}" style="-webkit-appearance:none;flex:2;padding:9px;background:#161f30;border:none;color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Approve</button>
+              </div>
+            </div>
+            </sc-for>
+          </div>
+          </sc-if>
           <!-- Pending leave/shift-change requests -->
           <sc-if value="{{ hasPendingLeaves }}" hint-placeholder-val="">
           <div class="card-flush" style="margin-bottom:14px;">
@@ -1208,6 +1249,7 @@
                   <div style="flex:1;min-width:0;">
                     <div style="font-size:14px;font-weight:600;color:#161f30;">{{ p.name }}</div>
                     <div style="font-size:11.5px;color:#8a94a3;">{{ p.contact }}</div>
+                    <sc-if value="{{ p.showApprovedBy }}" hint-placeholder-val=""><div style="font-size:10.5px;color:#1f8a5b;margin-top:2px;font-weight:600;">✓ Approved by {{ p.approvedBy }}</div></sc-if>
                     <sc-if value="{{ p.notes }}" hint-placeholder-val=""><div style="font-size:11.5px;color:#5c6678;margin-top:2px;font-style:italic;">{{ p.notes }}</div></sc-if>
                     <sc-if value="{{ p.showStats }}" hint-placeholder-val="">
                     <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;">
@@ -1293,24 +1335,48 @@
 
           <div class="card" style="padding:18px;margin-bottom:14px;">
             <h2 style="font-size:15px;font-weight:700;margin:0 0 4px;color:#161f30;">Promote to admin</h2>
-            <div style="font-size:12px;color:#8a94a3;margin-bottom:14px;">Convert an existing reservist account into an admin account. Their shift and batch will be cleared.</div>
-            <select value="{{ promoteAdminId }}" onChange="{{ onPromoteAdminId }}" class="field" style="margin-bottom:10px;">
-              <option value="">Select reservist…</option>
-              <sc-for list="{{ reservistsList }}" as="r">
-                <option value="{{ r.id }}">{{ r.name }} · {{ r.contact }}</option>
-              </sc-for>
-            </select>
-            <sc-if value="{{ !confirmPromoteAdminId }}">
-              <button onClick="{{ askPromoteAdmin }}" style="width:100%;padding:12px;background:#161f30;color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;">Promote to admin</button>
-            </sc-if>
-            <sc-if value="{{ confirmPromoteAdminId }}">
-              <div style="background:#fdf6e9;border:1px solid #f0e2c2;border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
-                <span style="font-size:12.5px;color:#7a5000;font-weight:500;">Promote {{ promoteAdminTarget.name }} to admin?</span>
-                <div style="display:flex;gap:7px;">
-                  <button onClick="{{ cancelPromoteAdmin }}" style="padding:5px 11px;background:#fff;border:1px solid #d4d9e2;color:#5c6678;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">Cancel</button>
-                  <button onClick="{{ confirmPromoteAdmin }}" style="padding:5px 11px;background:#161f30;border:none;color:#fff;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">Confirm</button>
-                </div>
+            <div style="font-size:12px;color:#8a94a3;margin-bottom:12px;">Convert an existing reservist into an admin. Their shift and batch will be cleared.</div>
+            <sc-if value="{{ !promoteAdminId }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
+                <input value="{{ promoteSearch }}" onInput="{{ onPromoteSearch }}" placeholder="Search by name or number…" style="flex:1;padding:9px 12px;border:1px solid #d4d9e2;border-radius:9px;font-size:14px;outline:none;background:#f6f8fa;" />
+                <button onClick="{{ togglePromoteShowAll }}" style="-webkit-appearance:none;padding:8px 10px;background:#f0f2f5;border:none;border-radius:8px;font-size:11px;font-weight:600;color:#5c6678;cursor:pointer;white-space:nowrap;flex-shrink:0;">{{ promoteShowAllLabel }}</button>
               </div>
+              <div style="border:1px solid #e8ebf0;border-radius:9px;overflow:hidden;max-height:220px;overflow-y:auto;">
+                <sc-if value="{{ promoteListEmpty }}" hint-placeholder-val="">
+                  <div style="padding:20px;text-align:center;font-size:13px;color:#9aa3b2;">No reservists found</div>
+                </sc-if>
+                <sc-for list="{{ promoteFilteredList }}" as="pr">
+                  <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #f0f2f5;cursor:pointer;" onClick="{{ pr.onSelect }}">
+                    <div style="width:32px;height:32px;border-radius:50%;background:#eceef2;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#5c6678;flex:0 0 auto;">{{ pr.initials }}</div>
+                    <div style="flex:1;min-width:0;">
+                      <div style="font-size:13.5px;font-weight:600;color:#161f30;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ pr.name }}</div>
+                      <div style="font-size:11.5px;color:#8a94a3;">{{ pr.contact }}{{ pr.batchLabel ? ' · ' + pr.batchLabel : '' }}</div>
+                    </div>
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c4c9d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><polyline points="9 18 15 12 9 6"/></svg>
+                  </div>
+                </sc-for>
+              </div>
+            </sc-if>
+            <sc-if value="{{ promoteAdminId }}" hint-placeholder-val="">
+              <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#eef3fc;border:1px solid #d7e2f7;border-radius:9px;margin-bottom:10px;">
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ promoteAdminTarget ? promoteAdminTarget.name : '' }}</div>
+                  <div style="font-size:12px;color:#5c6678;">{{ promoteAdminTarget ? promoteAdminTarget.contact : '' }}</div>
+                </div>
+                <button onClick="{{ clearPromoteSelection }}" style="-webkit-appearance:none;background:none;border:none;color:#8a94a3;cursor:pointer;font-size:12px;font-weight:600;padding:4px 8px;">Change</button>
+              </div>
+              <sc-if value="{{ !confirmPromoteAdminId }}">
+                <button onClick="{{ askPromoteAdmin }}" style="-webkit-appearance:none;width:100%;padding:12px;background:#161f30;color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;">Promote to admin</button>
+              </sc-if>
+              <sc-if value="{{ confirmPromoteAdminId }}">
+                <div style="background:#fdf6e9;border:1px solid #f0e2c2;border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                  <span style="font-size:12.5px;color:#7a5000;font-weight:500;">Promote {{ promoteAdminTarget ? promoteAdminTarget.name : '' }} to admin?</span>
+                  <div style="display:flex;gap:7px;">
+                    <button onClick="{{ cancelPromoteAdmin }}" style="-webkit-appearance:none;padding:5px 11px;background:#fff;border:1px solid #d4d9e2;color:#5c6678;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">Cancel</button>
+                    <button onClick="{{ confirmPromoteAdmin }}" style="-webkit-appearance:none;padding:5px 11px;background:#161f30;border:none;color:#fff;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">Confirm</button>
+                  </div>
+                </div>
+              </sc-if>
             </sc-if>
           </div>
 
@@ -1357,7 +1423,7 @@
       <button onClick="{{ goOverview }}" class="nav-btn" style="color:{{ cOverview }};"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="{{ cOverview }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg><span>Overview</span><div style="width:18px;height:3px;border-radius:1.5px;background:{{ ntOverview }};transition:background .15s;"></div></button>
       <button onClick="{{ goRoster }}" class="nav-btn" style="color:{{ cRoster }};"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="{{ cRoster }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><circle cx="3.5" cy="6" r="1.2"></circle><circle cx="3.5" cy="12" r="1.2"></circle><circle cx="3.5" cy="18" r="1.2"></circle></svg><span>Roster</span><div style="width:18px;height:3px;border-radius:1.5px;background:{{ ntRoster }};transition:background .15s;"></div></button>
       <button onClick="{{ goLog }}" class="nav-btn" style="color:{{ cLog }};"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="{{ cLog }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>Log</span><div style="width:18px;height:3px;border-radius:1.5px;background:{{ ntLog }};transition:background .15s;"></div></button>
-      <button onClick="{{ goPeople }}" class="nav-btn" style="color:{{ cPeople }};"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="{{ cPeople }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 20a5.5 5.5 0 0 1 11 0"></path><path d="M16 5.5a3 3 0 0 1 0 5.8"></path><path d="M18 14.5a5.5 5.5 0 0 1 3 5"></path></svg><span>People</span><div style="width:18px;height:3px;border-radius:1.5px;background:{{ ntPeople }};transition:background .15s;"></div></button>
+      <button onClick="{{ goPeople }}" class="nav-btn" style="color:{{ cPeople }};position:relative;"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="{{ cPeople }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 20a5.5 5.5 0 0 1 11 0"></path><path d="M16 5.5a3 3 0 0 1 0 5.8"></path><path d="M18 14.5a5.5 5.5 0 0 1 3 5"></path></svg><sc-if value="{{ hasPendingSignups }}" hint-placeholder-val=""><div style="position:absolute;top:0;right:8px;width:8px;height:8px;border-radius:50%;background:#c0392b;border:1.5px solid #fff;"></div></sc-if><span>People</span><div style="width:18px;height:3px;border-radius:1.5px;background:{{ ntPeople }};transition:background .15s;"></div></button>
     </div>
     </sc-if>
 
@@ -1402,7 +1468,7 @@
           <input value="{{ acctNameEdit }}" onInput="{{ onAcctNameEdit }}" placeholder="Enter display name" style="width:100%;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:15px;background:#f6f8fa;outline:none;" />
           <sc-if value="{{ acctNameError }}" hint-placeholder-val=""><div style="color:#c0392b;font-size:12.5px;margin-top:6px;">{{ acctNameError }}</div></sc-if>
           <sc-if value="{{ acctNameSuccess }}" hint-placeholder-val=""><div style="color:#1f8a5b;font-size:12.5px;margin-top:6px;">{{ acctNameSuccess }}</div></sc-if>
-          <button onClick="{{ saveAcctName }}" disabled="{{ acctSaving }}" style="width:100%;padding:11px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;opacity:{{ acctSaving ? 0.6 : 1 }};">Save name</button>
+          <button onClick="{{ saveAcctName }}" disabled="{{ acctSaving }}" style="width:100%;padding:11px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;opacity:{{ acctSavingOpacity }};">Save name</button>
         </div>
         </sc-if>
 
@@ -1431,7 +1497,7 @@
           <sc-if value="{{ capsLock }}" hint-placeholder-val=""><div style="font-size:12px;color:#b9791a;margin-top:5px;">⇪ Caps Lock is on</div></sc-if>
           <sc-if value="{{ acctPwError }}" hint-placeholder-val=""><div style="color:#c0392b;font-size:12.5px;margin-top:6px;">{{ acctPwError }}</div></sc-if>
           <sc-if value="{{ acctPwSuccess }}" hint-placeholder-val=""><div style="color:#1f8a5b;font-size:12.5px;margin-top:6px;">{{ acctPwSuccess }}</div></sc-if>
-          <button onClick="{{ saveAcctPw }}" disabled="{{ acctSaving }}" style="width:100%;padding:11px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;opacity:{{ acctSaving ? 0.6 : 1 }};">Update password</button>
+          <button onClick="{{ saveAcctPw }}" disabled="{{ acctSaving }}" style="width:100%;padding:11px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;opacity:{{ acctSavingOpacity }};">Update password</button>
         </div>
 
         <sc-if value="{{ isReservistRole }}" hint-placeholder-val="">
@@ -1472,15 +1538,27 @@
     <!-- ===== LATE REASON MODAL ===== -->
     <sc-if value="{{ lateReasonOpen }}" hint-placeholder-val="">
     <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
-      <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 36px;box-shadow:0 -8px 32px rgba(20,30,50,.18);">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-          <div style="font-size:17px;font-weight:700;color:#161f30;">Why were you late?</div>
-          <button onClick="{{ skipLateReason }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:22px 20px 34px;box-shadow:0 -8px 32px rgba(20,30,50,.18);">
+        <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">
+          <div style="width:42px;height:42px;border-radius:50%;background:#fef3e2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div style="flex:1;min-width:0;padding-top:2px;">
+            <div style="font-size:16px;font-weight:700;color:#161f30;line-height:1.2;">Late check-in</div>
+            <div style="font-size:12.5px;color:#5c6678;margin-top:4px;line-height:1.45;">You checked in more than an hour late. Give a brief reason — your admin will see it.</div>
+          </div>
         </div>
-        <p style="font-size:13px;color:#5c6678;margin:0 0 14px;line-height:1.5;">You checked in more than an hour late. Please provide a brief reason. It will be visible to the admin.</p>
         <textarea onInput="{{ onLateReasonText }}" value="{{ lateReasonText }}" placeholder="e.g. Traffic jam on CTE, arrived at 09:45" style="width:100%;height:90px;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>
-        <button onClick="{{ submitLateReason }}" style="width:100%;margin-top:12px;padding:13px;background:{{ lateReasonBtnBg }};border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;pointer-events:{{ lateReasonBtnPE }};">{{ lateReasonSubmitting ? 'Submitting…' : 'Submit reason' }}</button>
-        <button onClick="{{ skipLateReason }}" style="width:100%;margin-top:8px;padding:11px;background:none;border:none;font-size:13px;font-weight:600;color:#8a94a3;cursor:pointer;">Skip for now</button>
+        <sc-if value="{{ lateReasonReady }}" hint-placeholder-val="">
+          <button onClick="{{ submitLateReason }}" style="-webkit-appearance:none;display:block;width:100%;margin-top:12px;padding:14px;background:#2f5fd0;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;text-align:center;box-sizing:border-box;line-height:1;">Submit reason</button>
+        </sc-if>
+        <sc-if value="{{ lateReasonSubmitting }}" hint-placeholder-val="">
+          <div style="display:block;width:100%;margin-top:12px;padding:14px;background:#7a9ed8;border-radius:11px;font-size:15px;font-weight:700;color:#fff;text-align:center;box-sizing:border-box;line-height:1;">Submitting…</div>
+        </sc-if>
+        <sc-if value="{{ lateReasonEmpty }}" hint-placeholder-val="{{ true }}">
+          <div style="display:block;width:100%;margin-top:12px;padding:14px;background:#eaedf5;border-radius:11px;font-size:15px;font-weight:700;color:#a0aabe;text-align:center;box-sizing:border-box;line-height:1;">Submit reason</div>
+        </sc-if>
+        <button onClick="{{ skipLateReason }}" style="-webkit-appearance:none;display:block;width:100%;margin-top:8px;padding:12px;background:none;border:none;font-size:13px;font-weight:600;color:#8a94a3;cursor:pointer;text-align:center;">Skip for now</button>
       </div>
     </div>
     </sc-if>
@@ -1495,7 +1573,7 @@
         </div>
         <p style="font-size:13px;color:#5c6678;margin:0 0 14px;line-height:1.5;">Add a brief note for today. Your supervisor will be able to see it.</p>
         <textarea onInput="{{ onWelfareNoteText }}" value="{{ welfareNoteText }}" placeholder="e.g. Feeling unwell but reporting. Slight headache." style="width:100%;height:90px;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>
-        <button onClick="{{ submitWelfareNote }}" disabled="{{ welfareNoteSaving }}" style="width:100%;margin-top:12px;padding:13px;background:{{ accent }};border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ welfareNoteSaving ? 0.6 : 1 }};">Save note</button>
+        <button onClick="{{ submitWelfareNote }}" disabled="{{ welfareNoteSaving }}" style="width:100%;margin-top:12px;padding:13px;background:{{ accent }};border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ welfareNoteSavingOpacity }};">Save note</button>
         <button onClick="{{ closeWelfareNote }}" style="width:100%;margin-top:8px;padding:11px;background:none;border:none;font-size:13px;font-weight:600;color:#8a94a3;cursor:pointer;">Cancel</button>
       </div>
     </div>
