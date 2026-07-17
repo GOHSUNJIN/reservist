@@ -1423,7 +1423,10 @@ const Handlers = {
     const {batches,activeBatchIdx,demo,batchMembersCache,personnel,noAvatarIds}=this.state;
     if(demo) return;
     const batch=batches[activeBatchIdx||0];
-    const members=batch?.is_live?personnel:(batchMembersCache[batch?.id]||[]);
+    const batchMembers=batch?.is_live?personnel:(batchMembersCache[batch?.id]||[]);
+    // Also include all personnel so promote-to-admin list and other cross-cycle views show avatars
+    const memberSet=new Set(batchMembers.map(p=>p.id));
+    const members=[...batchMembers,...(personnel||[]).filter(p=>!memberSet.has(p.id))];
     const noAvSet=noAvatarIds||new Set();
     const ids=members.map(p=>p.id).filter(id=>!this.state.avatars[id]&&!noAvSet.has(id));
     if(!ids.length) return;
