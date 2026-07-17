@@ -392,6 +392,10 @@ const Handlers = {
       personHistoryId:null, personHistoryRows:[], personHistoryLoading:false,
       signupPending:false,
       pendingSignups:[], pendingSignupsLoaded:false, approvedSignups:[],
+      selectedSignupIds:[],
+      rejectLeaveId:null, rejectLeaveReason:'',
+      waPreviewOpen:false, waPreviewText:'',
+      logNoteId:null, logNoteText:'',
       realtimeLive:false,
     });
   },
@@ -497,9 +501,59 @@ const Handlers = {
       const me = this.cur();
       const {error} = await DB.signupRequests.reject(id, me?.name||null);
       if(error){ this._toast('Failed to reject. Try again.','error'); return; }
-      this.setState(s=>({pendingSignups:s.pendingSignups.filter(r=>r.id!==id)}));
+      this.setState(s=>({pendingSignups:s.pendingSignups.filter(r=>r.id!==id), selectedSignupIds:s.selectedSignupIds.filter(x=>x!==id)}));
       this._toast(req.name+"'s signup was rejected.");
     };
+  },
+
+  toggleSignupSelect: function(id) {
+    return () => this.setState(s => {
+      const ids = s.selectedSignupIds;
+      return { selectedSignupIds: ids.includes(id) ? ids.filter(x=>x!==id) : [...ids, id] };
+    });
+  },
+
+  approveSelected: async function() {
+    const { selectedSignupIds, pendingSignups, demo } = this.state;
+    if(!selectedSignupIds.length) return;
+    const me = this.cur();
+    const reviewerName = me?.name || null;
+    const toApprove = pendingSignups.filter(r => selectedSignupIds.includes(r.id));
+    let count = 0;
+    for(const req of toApprove) {
+      if(demo) {
+        this.setState(s=>({
+          pendingSignups:s.pendingSignups.filter(r=>r.id!==req.id),
+          approvedSignups:[{...req,status:'approved',reviewed_by:reviewerName,reviewed_at:new Date().toISOString()},...s.approvedSignups],
+        }));
+        count++;
+        continue;
+      }
+      const {error:approveErr} = await DB.signupRequests.approve(req.id, reviewerName);
+      if(approveErr) continue;
+      const existing = await DB.personnel.findByContact(req.contact).catch(()=>null);
+      const wasInactive = existing && !existing.is_active;
+      let finalPerson = existing;
+      if(existing) {
+        if(!existing.is_active) {
+          const {data:reactivated} = await DB.personnel.reactivate(existing.id, {batchId:req.batch_id, shift:req.shift, authId:req.auth_id});
+          finalPerson = reactivated || existing;
+        } else {
+          await DB.personnel.linkAuth(existing.id, req.auth_id);
+        }
+      } else {
+        const {data:newPerson} = await DB.personnel.add({authId:req.auth_id, name:req.name, contact:req.contact, shift:req.shift, batchId:req.batch_id});
+        finalPerson = newPerson;
+      }
+      this.setState(s=>({
+        pendingSignups:s.pendingSignups.filter(r=>r.id!==req.id),
+        approvedSignups:[{...req,status:'approved',reviewed_by:reviewerName,reviewed_at:new Date().toISOString()},...s.approvedSignups],
+        personnel:finalPerson&&(!existing||wasInactive)?[...s.personnel,finalPerson]:s.personnel,
+      }));
+      count++;
+    }
+    this.setState({selectedSignupIds:[]});
+    if(count) this._toast(count+' signup'+(count>1?'s':'')+' approved.');
   },
 
   // ── Superadmin: admin management ───────────────────────────────────────
@@ -619,15 +673,27 @@ const Handlers = {
   },
 
   rejectLeave: function(id) {
-    return async () => {
-      if(!this.state.demo) {
-        const me = this.cur();
-        const reviewMeta = { reviewed_by: me?.name || null, reviewed_at: new Date().toISOString() };
-        await DB.leaves.updateStatus(id, 'rejected', reviewMeta).catch(()=>{});
+    return () => this.setState({rejectLeaveId: id, rejectLeaveReason: ''});
+  },
+
+  cancelRejectLeave: function() { this.setState({rejectLeaveId: null, rejectLeaveReason: ''}); },
+  onRejectLeaveReason: function(e) { this.setState({rejectLeaveReason: e.target.value}); },
+
+  confirmRejectLeave: async function() {
+    const { rejectLeaveId, rejectLeaveReason, demo } = this.state;
+    if(!rejectLeaveId) return;
+    if(!demo) {
+      const me = this.cur();
+      const reviewMeta = { reviewed_by: me?.name || null, reviewed_at: new Date().toISOString(), rejection_reason: rejectLeaveReason.trim() || null };
+      const { error } = await DB.leaves.updateStatus(rejectLeaveId, 'rejected', reviewMeta).catch(()=>({error:true}));
+      if(error) {
+        const fallback = { reviewed_by: me?.name || null, reviewed_at: new Date().toISOString() };
+        await DB.leaves.updateStatus(rejectLeaveId, 'rejected', fallback).catch(()=>{});
       }
-      this._toast('Request declined.');
-      this.loadPendingLeaves();
-    };
+    }
+    this.setState({rejectLeaveId: null, rejectLeaveReason: ''});
+    this._toast('Request declined.');
+    this.loadPendingLeaves();
   },
 
   openLeaveRequest: function(date) { return () => this.setState({leaveOpen:true, leaveDate:date, leaveType:'mc', leaveReason:''}); },
@@ -687,6 +753,46 @@ const Handlers = {
       welfareNoteOpen:false, welfareNoteSaving:false,
     }));
     this._toast('Note saved.');
+  },
+
+  // ── Admin: welfare note per person in Log ─────────────────────────────
+  openLogNote: function(id, text) { return () => this.setState({logNoteId:id, logNoteText:text||''}); },
+  closeLogNote: function() { this.setState({logNoteId:null, logNoteText:''}); },
+  onLogNoteText: function(e) { this.setState({logNoteText:e.target.value}); },
+
+  saveLogNote: async function() {
+    const {logNoteId, logNoteText, viewOffset, demo} = this.state;
+    if(!logNoteId) return;
+    const d = new Date(this.baseDate());
+    d.setDate(d.getDate() + (viewOffset||0));
+    const dateKey = Utils.dateKey(d);
+    if(!demo) {
+      const {error} = await DB.attendance.saveWelfareNote(logNoteId, dateKey, logNoteText.trim()).catch(e=>({error:e}));
+      if(error){ this._toast('Failed to save note.','error'); return; }
+    }
+    const today = Utils.dateKey(this.baseDate());
+    if(dateKey === today) {
+      this.setState(s=>({
+        attendance:{...s.attendance,[logNoteId]:{...(s.attendance[logNoteId]||{}),welfareNote:logNoteText.trim()}},
+        logNoteId:null, logNoteText:'',
+      }));
+    } else {
+      this.setState(s=>({
+        attendanceCache:{...s.attendanceCache,[dateKey]:{...(s.attendanceCache[dateKey]||{}),[logNoteId]:{...(s.attendanceCache[dateKey]?.[logNoteId]||{}),welfareNote:logNoteText.trim()}}},
+        logNoteId:null, logNoteText:'',
+      }));
+    }
+    this._toast('Note saved.');
+  },
+
+  // ── WhatsApp snapshot preview/edit ────────────────────────────────────
+  closeWaPreview: function() { this.setState({waPreviewOpen:false, waPreviewText:''}); },
+  onWaPreviewText: function(e) { this.setState({waPreviewText:e.target.value}); },
+  sendWaPreview: function() {
+    const {waPreviewText} = this.state;
+    const link = 'https://api.whatsapp.com/send?text='+encodeURIComponent(waPreviewText);
+    window.open(link, '_blank', 'noopener');
+    this.setState({waPreviewOpen:false, waPreviewText:''});
   },
 
   // ── Admin notifications ────────────────────────────────────────────────
