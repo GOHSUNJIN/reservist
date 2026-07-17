@@ -1289,9 +1289,9 @@
               </sc-if>
             </div>
             <sc-for list="{{ pendingSignups }}" as="sr">
-            <div style="padding:12px 16px;border-bottom:1px solid #f2f4f7;background:{{ sr.isSelected ? '#f6f8fa' : '#fff' }};">
+            <div style="padding:12px 16px;border-bottom:1px solid #f2f4f7;background:{{ sr.cardBg }};">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-                <div onClick="{{ sr.onToggleSelect }}" style="width:20px;height:20px;border-radius:5px;border:2px solid {{ sr.isSelected ? '#161f30' : '#c8cdd6' }};background:{{ sr.isSelected ? '#161f30' : '#fff' }};display:flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer;">
+                <div onClick="{{ sr.onToggleSelect }}" style="width:20px;height:20px;border-radius:5px;border:2px solid {{ sr.checkBorder }};background:{{ sr.checkBg }};display:flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer;">
                   <sc-if value="{{ sr.isSelected }}" hint-placeholder-val="">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   </sc-if>

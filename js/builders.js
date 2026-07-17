@@ -948,10 +948,14 @@ const Builders = {
           const b=(s.batches||[]).find(b=>b.id===r.batch_id);
           const initials=r.name.trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
           const isReactivation=approvedContacts.has((r.contact||'').replace(/[\s-]/g,''));
+          const isSelected=(s.selectedSignupIds||[]).includes(r.id);
           return {id:r.id,name:r.name,contact:r.contact,shift:r.shift,batchLabel:b?b.label:'',initials,
             createdAt:r.created_at?new Date(r.created_at).toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'}):'',
             isReactivation, isNew:!isReactivation,
-            isSelected:(s.selectedSignupIds||[]).includes(r.id),
+            isSelected,
+            cardBg:isSelected?'#f0f2f7':'#fff',
+            checkBorder:isSelected?'#161f30':'#c8cdd6',
+            checkBg:isSelected?'#161f30':'#fff',
             onToggleSelect:this.toggleSignupSelect(r.id),
             onApprove:this.approveSignup(r.id), onReject:this.rejectSignup(r.id)};
         });
