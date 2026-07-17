@@ -1364,9 +1364,10 @@
             <h2 style="font-size:15px;font-weight:700;margin:0 0 4px;color:#161f30;">Promote to admin</h2>
             <div style="font-size:12px;color:#8a94a3;margin-bottom:12px;">Convert an existing reservist into an admin. Their shift and batch will be cleared.</div>
             <sc-if value="{{ !promoteAdminId }}" hint-placeholder-val="{{ true }}">
-              <div style="display:flex;gap:8px;align-items:center;margin-bottom:8px;">
-                <input value="{{ promoteSearch }}" onInput="{{ onPromoteSearch }}" onKeyDown="{{ onPromoteSearchKeyDown }}" placeholder="Search by name or number…" style="flex:1;padding:9px 12px;border:1px solid #d4d9e2;border-radius:9px;font-size:14px;outline:none;background:#f6f8fa;" />
-                <button onClick="{{ togglePromoteShowAll }}" style="-webkit-appearance:none;padding:8px 10px;background:#f0f2f5;border:none;border-radius:8px;font-size:11px;font-weight:600;color:#5c6678;cursor:pointer;white-space:nowrap;flex-shrink:0;">{{ promoteShowAllLabel }}</button>
+              <input value="{{ promoteSearch }}" onInput="{{ onPromoteSearch }}" onKeyDown="{{ onPromoteSearchKeyDown }}" placeholder="Search by name or number…" style="width:100%;padding:9px 12px;border:1px solid #d4d9e2;border-radius:9px;font-size:14px;outline:none;background:#f6f8fa;margin-bottom:8px;" />
+              <div style="display:flex;background:#eef0f4;border-radius:8px;padding:3px;margin-bottom:8px;">
+                <button onClick="{{ setPromoteCurrentCycle }}" style="{{ promoteFilterCurrentStyle }}">Current cycle</button>
+                <button onClick="{{ setPromoteAllCycles }}" style="{{ promoteFilterAllStyle }}">All cycles</button>
               </div>
               <div style="border:1px solid #e8ebf0;border-radius:9px;overflow:hidden;">
                 <sc-if value="{{ promoteListEmpty }}" hint-placeholder-val="">
@@ -1394,8 +1395,8 @@
             <sc-if value="{{ promoteAdminId }}" hint-placeholder-val="">
               <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#eef3fc;border:1px solid #d7e2f7;border-radius:9px;margin-bottom:10px;">
                 <div style="flex:1;min-width:0;">
-                  <div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ promoteAdminTarget ? promoteAdminTarget.name : '' }}</div>
-                  <div style="font-size:12px;color:#5c6678;">{{ promoteAdminTarget ? promoteAdminTarget.contact : '' }}</div>
+                  <div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ promoteAdminTargetName }}</div>
+                  <div style="font-size:12px;color:#5c6678;">{{ promoteAdminTargetContact }}</div>
                 </div>
                 <button onClick="{{ clearPromoteSelection }}" style="-webkit-appearance:none;background:none;border:none;color:#8a94a3;cursor:pointer;font-size:12px;font-weight:600;padding:4px 8px;">Change</button>
               </div>
@@ -1404,7 +1405,7 @@
               </sc-if>
               <sc-if value="{{ confirmPromoteAdminId }}">
                 <div style="background:#fdf6e9;border:1px solid #f0e2c2;border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
-                  <span style="font-size:12.5px;color:#7a5000;font-weight:500;">Promote {{ promoteAdminTarget ? promoteAdminTarget.name : '' }} to admin?</span>
+                  <span style="font-size:12.5px;color:#7a5000;font-weight:500;">Promote {{ promoteAdminTargetName }} to admin?</span>
                   <div style="display:flex;gap:7px;">
                     <button onClick="{{ cancelPromoteAdmin }}" style="-webkit-appearance:none;padding:5px 11px;background:#fff;border:1px solid #d4d9e2;color:#5c6678;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">Cancel</button>
                     <button onClick="{{ confirmPromoteAdmin }}" style="-webkit-appearance:none;padding:5px 11px;background:#161f30;border:none;color:#fff;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;">Confirm</button>

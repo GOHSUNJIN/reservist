@@ -845,10 +845,19 @@ const Builders = {
       addAdmin:this.addAdmin,
       promoteAdminId:s.promoteAdminId, promoteSearch:s.promoteSearch,
       onPromoteSearch:this.onPromoteSearch, onPromoteSearchKeyDown:this.onPromoteSearchKeyDown,
-      promoteShowAllCycles:s.promoteShowAllCycles, togglePromoteShowAll:this.togglePromoteShowAll,
-      promoteShowAllLabel:s.promoteShowAllCycles?'Current cycle':'All cycles',
-      promoteAdminTarget:s.promoteAdminId?{id:s.promoteAdminId,name:s.promoteAdminName||'',contact:s.promoteAdminContact||''}:null,
+      promoteShowAllCycles:s.promoteShowAllCycles,
+      setPromoteCurrentCycle:this.setPromoteCurrentCycle, setPromoteAllCycles:this.setPromoteAllCycles,
+      promoteAdminTargetName:s.promoteAdminId?(s.promoteAdminName||''):'',
+      promoteAdminTargetContact:s.promoteAdminId?(s.promoteAdminContact||''):'',
       clearPromoteSelection:this.clearPromoteSelection,
+      ...(()=>{
+        const segActive='flex:1;padding:5px 8px;background:#fff;border:none;border-radius:6px;font-size:12px;font-weight:600;color:#161f30;cursor:pointer;box-shadow:0 1px 2px rgba(0,0,0,.1);';
+        const segInactive='flex:1;padding:5px 8px;background:transparent;border:none;border-radius:6px;font-size:12px;font-weight:500;color:#8a94a3;cursor:pointer;';
+        return {
+          promoteFilterCurrentStyle:!s.promoteShowAllCycles?segActive:segInactive,
+          promoteFilterAllStyle:s.promoteShowAllCycles?segActive:segInactive,
+        };
+      })(),
       promoteNextPage:this.promoteNextPage, promotePrevPage:this.promotePrevPage,
       ...((pab=>{
         const PROMOTE_PAGE_SIZE=8;
