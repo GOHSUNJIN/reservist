@@ -1322,8 +1322,6 @@ const Handlers = {
     if(!cleanContact){ this._toast('Contact number is required.','error'); return; }
     if(!/^[689]\d{7}$/.test(cleanContact)){ this._toast('Contact must be an 8-digit Singapore number.','error'); return; }
     if(personnel.some(p=>p.contact.replace(/[\s-]/g,'')===cleanContact)){ this._toast('This contact is already on the roster.','error'); return; }
-    if(!npPassword.trim()){ this._toast('Password is required.','error'); return; }
-    if(npPassword.length<6){ this._toast('Password must be at least 6 characters.','error'); return; }
     const activeBatch=batches[activeBatchIdx||0];
     const {am:bAm,pm:bPm}=this._shiftSlotCounts(personnel);
     if(npShift==='AM'&&bAm>=2){ this._toast('AM shift is full (2/2). Select PM or Office.','error'); return; }
@@ -1335,7 +1333,7 @@ const Handlers = {
       // Check for an existing record (may be inactive from a previous cycle)
       const existingRecord = await DB.personnel.findByContact(cleanContact).catch(()=>null);
       if(existingRecord && !existingRecord.is_active){
-        // Returning reservist — reactivate and reassign to current batch
+        // Returning reservist — reactivate and reassign; no new password needed
         const {data:reactivated,error:reactErr} = await DB.personnel.reactivate(existingRecord.id, {batchId:activeBatch?.id, shift});
         if(reactErr||!reactivated){ this._toast('Failed to re-enroll. Try again.','error'); return; }
         if(addedName !== existingRecord.name) await DB.personnel.updateName(existingRecord.id, addedName).catch(()=>{});
@@ -1346,6 +1344,9 @@ const Handlers = {
       if(existingRecord && existingRecord.is_active){
         this._toast('This contact is already registered.','error'); return;
       }
+      // New person — password required to create their account
+      if(!npPassword.trim()){ this._toast('Password is required for new personnel.','error'); return; }
+      if(npPassword.length<6){ this._toast('Password must be at least 6 characters.','error'); return; }
       let authId=null;
       const {user,error}=await DB.auth.createUserAsAdmin(cleanContact,npPassword,addedName);
       if(error||!user){ this._toast('Account creation failed: '+(error?.message||'Try again.'),'error'); return; }
