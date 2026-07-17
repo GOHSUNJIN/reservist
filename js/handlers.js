@@ -288,7 +288,22 @@ const Handlers = {
     const shift = this._capShift(suShift||'AM', members);
     this.setState({loading:true, authError:''});
     const {user,error} = await DB.auth.signup(cleanContact, suPassword, suName.trim());
-    if(error||!user){ this.setState({loading:false, authError:error?.message||'Signup failed. Try a different contact or password.'}); return; }
+    let signupUser = user;
+    if(error||!user){
+      const alreadyReg = error?.message?.toLowerCase().includes('already registered') || error?.message?.toLowerCase().includes('user already registered');
+      if(alreadyReg){
+        // Returning reservist — try logging in with provided credentials
+        const {user:retUser, error:loginErr} = await DB.auth.login(cleanContact, suPassword);
+        if(loginErr||!retUser){
+          this.setState({loading:false, authError:'This contact is already registered. If you are a returning reservist, use your previous password — or ask your supervisor to re-enroll you directly.'});
+          return;
+        }
+        signupUser = retUser;
+      } else {
+        this.setState({loading:false, authError:error?.message||'Signup failed. Try a different contact or password.'});
+        return;
+      }
+    }
     // Check for existing requests now that the user is authenticated
     const existingReq = await DB.signupRequests.getByContact(cleanContact).catch(()=>null);
     if(existingReq?.status==='pending'){
@@ -301,7 +316,7 @@ const Handlers = {
       this.setState({loading:false, authError:'Your previous signup request was not approved. Contact your supervisor.'});
       return;
     }
-    const {error:reqErr} = await DB.signupRequests.create({authId:user.id, name:suName.trim(), contact:cleanContact, shift, batchId:activeBatch.id});
+    const {error:reqErr} = await DB.signupRequests.create({authId:signupUser.id, name:suName.trim(), contact:cleanContact, shift, batchId:activeBatch.id});
     if(reqErr){
       await DB.auth.logout();
       this.setState({loading:false, authError:'Signup failed: '+(reqErr.message||'database error. Check Supabase grants.')});
@@ -430,8 +445,15 @@ const Handlers = {
       // If admin pre-added this person, link auth to existing record; otherwise create new
       const existing = await DB.personnel.findByContact(req.contact).catch(()=>null);
       let finalPerson = existing;
+      const wasInactive = existing && !existing.is_active;
       if(existing){
-        await DB.personnel.linkAuth(existing.id, req.auth_id);
+        if(!existing.is_active){
+          // Returning reservist — reactivate and assign to the requested batch
+          const {data:reactivated} = await DB.personnel.reactivate(existing.id, {batchId:req.batch_id, shift:req.shift, authId:req.auth_id});
+          finalPerson = reactivated || existing;
+        } else {
+          await DB.personnel.linkAuth(existing.id, req.auth_id);
+        }
       } else {
         const {data:newPerson, error:addErr} = await DB.personnel.add({authId:req.auth_id, name:req.name, contact:req.contact, shift:req.shift, batchId:req.batch_id});
         if(addErr){ this._toast('Approved but failed to create personnel record. Try again.','error'); return; }
@@ -440,7 +462,7 @@ const Handlers = {
       this.setState(s=>({
         pendingSignups:s.pendingSignups.filter(r=>r.id!==id),
         approvedSignups:[{...req,status:'approved',reviewed_by:reviewerName,reviewed_at:new Date().toISOString()},...s.approvedSignups],
-        personnel:finalPerson&&!existing?[...s.personnel,finalPerson]:s.personnel,
+        personnel:finalPerson&&(!existing||wasInactive)?[...s.personnel,finalPerson]:s.personnel,
       }));
       this._toast(req.name+' approved and added to the roster.');
     };
@@ -1305,6 +1327,20 @@ const Handlers = {
     const contact=cleanContact;
     const addedName=npName.trim();
     if(!demo){
+      // Check for an existing record (may be inactive from a previous cycle)
+      const existingRecord = await DB.personnel.findByContact(cleanContact).catch(()=>null);
+      if(existingRecord && !existingRecord.is_active){
+        // Returning reservist — reactivate and reassign to current batch
+        const {data:reactivated,error:reactErr} = await DB.personnel.reactivate(existingRecord.id, {batchId:activeBatch?.id, shift});
+        if(reactErr||!reactivated){ this._toast('Failed to re-enroll. Try again.','error'); return; }
+        if(addedName !== existingRecord.name) await DB.personnel.updateName(existingRecord.id, addedName).catch(()=>{});
+        this.setState(s=>({personnel:[...s.personnel,{...reactivated,name:addedName}],npName:'',npContact:'',npShift:'AM',npPassword:'',rosterSearch:''}));
+        this._toast(addedName+' re-enrolled on the roster.');
+        return;
+      }
+      if(existingRecord && existingRecord.is_active){
+        this._toast('This contact is already registered.','error'); return;
+      }
       let authId=null;
       const {user,error}=await DB.auth.createUserAsAdmin(cleanContact,npPassword,addedName);
       if(error||!user){ this._toast('Account creation failed: '+(error?.message||'Try again.'),'error'); return; }
