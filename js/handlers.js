@@ -991,6 +991,17 @@ const Handlers = {
     const validTime = t => !t || /^([01]\d|2[0-3]):[0-5]\d$/.test(t);
     if (!timesEditP1) { this._toast('Check-in time is required.', 'error'); return; }
     if (!validTime(timesEditP1)||!validTime(timesEditP2)||!validTime(timesEditP3)||!validTime(timesEditP4)) { this._toast('Times must be in HH:MM format (24h).', 'error'); return; }
+    const _toMins = t => { if(!t) return null; const [h,m]=t.split(':').map(Number); return h*60+m; };
+    const _editPerson = (this.state.roster||[]).find(p=>p.id===timesEditId);
+    const _p2Label = _editPerson?.shift==='PM' ? 'Dinner out' : 'Lunch out';
+    const _slots = [{t:timesEditP1,label:'Check-in'},{t:timesEditP2||null,label:_p2Label},{t:timesEditP3||null,label:'Return'},{t:timesEditP4||null,label:'Check-out'}];
+    let _prevMins=null, _prevLabel='';
+    for(const s of _slots){
+      const m=_toMins(s.t);
+      if(m===null) continue;
+      if(_prevMins!==null && m<=_prevMins){ this._toast(`${s.label} must be after ${_prevLabel}.`,'error'); return; }
+      _prevMins=m; _prevLabel=s.label;
+    }
     const base = this.baseDate();
     const d = new Date(base.getFullYear(), base.getMonth(), base.getDate() + (viewOffset || 0));
     const dateKey = Utils.dateKey(d);
