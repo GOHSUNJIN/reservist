@@ -16,7 +16,7 @@ const DB = {
 
     async signup(contact, password, name) {
       const { data, error } = await _db.auth.signUp({ email: this._email(contact), password,
-        options: { emailRedirectTo: null, data: name ? { display_name: name } : undefined } });
+        options: { data: name ? { display_name: name } : undefined } });
       return { user: data?.user || null, error };
     },
 
