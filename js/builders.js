@@ -673,6 +673,7 @@ const Builders = {
         p4Color:r.p4?'#161f30':'#c2c8d2',
         avatarStyle, shift:p.shift||'AM',
         p2Label:p.shift==='PM'?'DIN':'LCH',
+        p3Label:p.shift==='PM'?'Return (dinner)':'Return (lunch)',
         isTimesEditing:s.timesEditId===p.id,
         onEditTimes:this.openTimesEdit(p.id),
       };

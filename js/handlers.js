@@ -993,8 +993,10 @@ const Handlers = {
     if (!validTime(timesEditP1)||!validTime(timesEditP2)||!validTime(timesEditP3)||!validTime(timesEditP4)) { this._toast('Times must be in HH:MM format (24h).', 'error'); return; }
     const _toMins = t => { if(!t) return null; const [h,m]=t.split(':').map(Number); return h*60+m; };
     const _editPerson = (this.state.roster||[]).find(p=>p.id===timesEditId);
-    const _p2Label = _editPerson?.shift==='PM' ? 'Dinner out' : 'Lunch out';
-    const _slots = [{t:timesEditP1,label:'Check-in'},{t:timesEditP2||null,label:_p2Label},{t:timesEditP3||null,label:'Return'},{t:timesEditP4||null,label:'Check-out'}];
+    const _isPM = _editPerson?.shift==='PM';
+    const _p2Label = _isPM ? 'Dinner out' : 'Lunch out';
+    const _p3Label = _isPM ? 'Return from dinner' : 'Return from lunch';
+    const _slots = [{t:timesEditP1,label:'Check-in'},{t:timesEditP2||null,label:_p2Label},{t:timesEditP3||null,label:_p3Label},{t:timesEditP4||null,label:'Check-out'}];
     let _prevMins=null, _prevLabel='';
     for(const s of _slots){
       const m=_toMins(s.t);
