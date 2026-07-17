@@ -1152,7 +1152,22 @@
         <!-- ===== ADMIN: PEOPLE ===== -->
         <sc-if value="{{ tabPeople }}" hint-placeholder-val="">
         <div>
-          <!-- Pending signup requests -->
+          <!-- Sub-tab strip -->
+          <div style="display:flex;gap:4px;margin-bottom:14px;background:#eef0f4;border-radius:11px;padding:4px;">
+            <button onClick="{{ setPeopleTabRequests }}" style="{{ ptRequestsStyle }}">
+              Requests
+              <sc-if value="{{ hasPendingRequests }}" hint-placeholder-val="">
+                <span style="display:inline-block;background:#c0392b;color:#fff;font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;margin-left:4px;vertical-align:middle;">{{ pendingTotalCount }}</span>
+              </sc-if>
+            </button>
+            <button onClick="{{ setPeopleTabRoster }}" style="{{ ptRosterStyle }}">Roster</button>
+            <sc-if value="{{ isSuperAdmin }}" hint-placeholder-val="">
+              <button onClick="{{ setPeopleTabAdmins }}" style="{{ ptAdminsStyle }}">Admins</button>
+            </sc-if>
+          </div>
+
+          <!-- ── REQUESTS sub-tab ── -->
+          <sc-if value="{{ ptRequests }}" hint-placeholder-val="">
           <sc-if value="{{ hasPendingSignups }}" hint-placeholder-val="">
           <div class="card-flush" style="margin-bottom:14px;">
             <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
@@ -1177,7 +1192,6 @@
             </sc-for>
           </div>
           </sc-if>
-          <!-- Pending leave/shift-change requests -->
           <sc-if value="{{ hasPendingLeaves }}" hint-placeholder-val="">
           <div class="card-flush" style="margin-bottom:14px;">
             <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
@@ -1205,8 +1219,13 @@
             </sc-for>
           </div>
           </sc-if>
+          <sc-if value="{{ !hasPendingRequests }}" hint-placeholder-val="">
+            <div style="text-align:center;padding:40px 20px;color:#9aa3b2;font-size:14px;">No pending requests</div>
+          </sc-if>
+          </sc-if>
 
-
+          <!-- ── ROSTER sub-tab ── -->
+          <sc-if value="{{ ptRoster }}" hint-placeholder-val="">
           <div style="background:#131a27;border-radius:16px;padding:16px 18px;color:#fff;margin-bottom:14px;">
             <sc-if value="{{ !editingBatchLabel }}" hint-placeholder-val="">
               <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
@@ -1288,8 +1307,6 @@
               </div>
             </sc-for>
           </div>
-
-
           <div class="card" style="padding:14px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
             <div style="flex:1;">
               <div style="font-size:13px;font-weight:600;color:#161f30;">Meal allowance forms</div>
@@ -1299,8 +1316,19 @@
               <span style="position:absolute;top:3px;left:{{ mealToggleKnobX }};width:22px;height:22px;border-radius:50%;background:#fff;transition:left .15s;"></span>
             </div>
           </div>
+          <div class="card" style="padding:18px;margin-bottom:14px;">
+            <h2 style="font-size:15px;font-weight:700;margin:0 0 14px;color:#161f30;">Add personnel</h2>
+            <input value="{{ npName }}" onInput="{{ onNpName }}" placeholder="Full name" class="field" style="margin-bottom:10px;" />
+            <input value="{{ npContact }}" onInput="{{ onNpContact }}" placeholder="Contact number (9xxx xxxx)" type="tel" inputmode="numeric" autocomplete="off" class="field" style="margin-bottom:10px;" />
+            <select value="{{ npShift }}" onChange="{{ onNpShift }}" class="field" style="margin-bottom:10px;"><option value="AM" disabled="{{ npAmFull }}">{{ npAmLabel }}</option><option value="PM" disabled="{{ npPmFull }}">{{ npPmLabel }}</option><option value="OFFICE">Office (0900-1800)</option></select>
+            <input value="{{ npPassword }}" onInput="{{ onNpPassword }}" placeholder="Password (min 6 chars)" type="password" class="field" style="margin-bottom:10px;" />
+            <div style="font-size:11.5px;color:#8a94a3;margin-bottom:12px;line-height:1.5;">The reservist will log in with their contact number and this password.</div>
+            <button onClick="{{ addPerson }}" style="width:100%;padding:12px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;">Add to roster</button>
+          </div>
+          </sc-if>
 
-          <sc-if value="{{ isSuperAdmin }}">
+          <!-- ── ADMINS sub-tab (superadmin only) ── -->
+          <sc-if value="{{ ptAdmins }}" hint-placeholder-val="">
           <div class="card-flush" style="margin-bottom:14px;">
             <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;justify-content:space-between;">
               <span class="section-label">ADMIN ACCOUNTS</span>
@@ -1332,7 +1360,6 @@
             </div>
             </sc-for>
           </div>
-
           <div class="card" style="padding:18px;margin-bottom:14px;">
             <h2 style="font-size:15px;font-weight:700;margin:0 0 4px;color:#161f30;">Promote to admin</h2>
             <div style="font-size:12px;color:#8a94a3;margin-bottom:12px;">Convert an existing reservist into an admin. Their shift and batch will be cleared.</div>
@@ -1341,7 +1368,7 @@
                 <input value="{{ promoteSearch }}" onInput="{{ onPromoteSearch }}" onKeyDown="{{ onPromoteSearchKeyDown }}" placeholder="Search by name or number…" style="flex:1;padding:9px 12px;border:1px solid #d4d9e2;border-radius:9px;font-size:14px;outline:none;background:#f6f8fa;" />
                 <button onClick="{{ togglePromoteShowAll }}" style="-webkit-appearance:none;padding:8px 10px;background:#f0f2f5;border:none;border-radius:8px;font-size:11px;font-weight:600;color:#5c6678;cursor:pointer;white-space:nowrap;flex-shrink:0;">{{ promoteShowAllLabel }}</button>
               </div>
-              <div style="border:1px solid #e8ebf0;border-radius:9px;overflow:hidden;max-height:220px;overflow-y:auto;">
+              <div style="border:1px solid #e8ebf0;border-radius:9px;overflow:hidden;">
                 <sc-if value="{{ promoteListEmpty }}" hint-placeholder-val="">
                   <div style="padding:20px;text-align:center;font-size:13px;color:#9aa3b2;">No reservists found</div>
                 </sc-if>
@@ -1355,6 +1382,13 @@
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c4c9d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><polyline points="9 18 15 12 9 6"/></svg>
                   </div>
                 </sc-for>
+                <sc-if value="{{ promoteShowPagination }}" hint-placeholder-val="">
+                  <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-top:1px solid #eef0f4;background:#f9fafb;">
+                    <button onClick="{{ promotePrevPage }}" style="-webkit-appearance:none;padding:5px 12px;background:#fff;border:1px solid #d4d9e2;border-radius:7px;font-size:12px;font-weight:600;color:{{ promoteHasPrev ? '#161f30' : '#c4c9d4' }};cursor:{{ promoteHasPrev ? 'pointer' : 'default' }};">Prev</button>
+                    <span style="font-size:12px;color:#8a94a3;">{{ promotePageInfo }}</span>
+                    <button onClick="{{ promoteNextPage }}" style="-webkit-appearance:none;padding:5px 12px;background:#fff;border:1px solid #d4d9e2;border-radius:7px;font-size:12px;font-weight:600;color:{{ promoteHasNext ? '#161f30' : '#c4c9d4' }};cursor:{{ promoteHasNext ? 'pointer' : 'default' }};">Next</button>
+                  </div>
+                </sc-if>
               </div>
             </sc-if>
             <sc-if value="{{ promoteAdminId }}" hint-placeholder-val="">
@@ -1379,7 +1413,6 @@
               </sc-if>
             </sc-if>
           </div>
-
           <div class="card" style="padding:18px;margin-bottom:14px;">
             <h2 style="font-size:15px;font-weight:700;margin:0 0 4px;color:#161f30;">Add admin</h2>
             <div style="font-size:12px;color:#8a94a3;margin-bottom:14px;">Admin accounts have full roster and attendance control. No shift assignment needed.</div>
@@ -1390,16 +1423,6 @@
             <button onClick="{{ addAdmin }}" style="width:100%;padding:12px;background:#161f30;color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;">Add admin</button>
           </div>
           </sc-if>
-
-          <div class="card" style="padding:18px;margin-bottom:14px;">
-            <h2 style="font-size:15px;font-weight:700;margin:0 0 14px;color:#161f30;">Add personnel</h2>
-            <input value="{{ npName }}" onInput="{{ onNpName }}" placeholder="Full name" class="field" style="margin-bottom:10px;" />
-            <input value="{{ npContact }}" onInput="{{ onNpContact }}" placeholder="Contact number (9xxx xxxx)" type="tel" inputmode="numeric" autocomplete="off" class="field" style="margin-bottom:10px;" />
-            <select value="{{ npShift }}" onChange="{{ onNpShift }}" class="field" style="margin-bottom:10px;"><option value="AM" disabled="{{ npAmFull }}">{{ npAmLabel }}</option><option value="PM" disabled="{{ npPmFull }}">{{ npPmLabel }}</option><option value="OFFICE">Office (0900-1800)</option></select>
-            <input value="{{ npPassword }}" onInput="{{ onNpPassword }}" placeholder="Password (min 6 chars)" type="password" class="field" style="margin-bottom:10px;" />
-            <div style="font-size:11.5px;color:#8a94a3;margin-bottom:12px;line-height:1.5;">The reservist will log in with their contact number and this password.</div>
-            <button onClick="{{ addPerson }}" style="width:100%;padding:12px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;">Add to roster</button>
-          </div>
 
         </div>
         </sc-if>
@@ -1423,7 +1446,7 @@
       <button onClick="{{ goOverview }}" class="nav-btn" style="color:{{ cOverview }};"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="{{ cOverview }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg><span>Overview</span><div style="width:18px;height:3px;border-radius:1.5px;background:{{ ntOverview }};transition:background .15s;"></div></button>
       <button onClick="{{ goRoster }}" class="nav-btn" style="color:{{ cRoster }};"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="{{ cRoster }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><circle cx="3.5" cy="6" r="1.2"></circle><circle cx="3.5" cy="12" r="1.2"></circle><circle cx="3.5" cy="18" r="1.2"></circle></svg><span>Roster</span><div style="width:18px;height:3px;border-radius:1.5px;background:{{ ntRoster }};transition:background .15s;"></div></button>
       <button onClick="{{ goLog }}" class="nav-btn" style="color:{{ cLog }};"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="{{ cLog }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>Log</span><div style="width:18px;height:3px;border-radius:1.5px;background:{{ ntLog }};transition:background .15s;"></div></button>
-      <button onClick="{{ goPeople }}" class="nav-btn" style="color:{{ cPeople }};position:relative;"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="{{ cPeople }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 20a5.5 5.5 0 0 1 11 0"></path><path d="M16 5.5a3 3 0 0 1 0 5.8"></path><path d="M18 14.5a5.5 5.5 0 0 1 3 5"></path></svg><sc-if value="{{ hasPendingSignups }}" hint-placeholder-val=""><div style="position:absolute;top:0;right:8px;width:8px;height:8px;border-radius:50%;background:#c0392b;border:1.5px solid #fff;"></div></sc-if><span>People</span><div style="width:18px;height:3px;border-radius:1.5px;background:{{ ntPeople }};transition:background .15s;"></div></button>
+      <button onClick="{{ goPeople }}" class="nav-btn" style="color:{{ cPeople }};position:relative;"><svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="{{ cPeople }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 20a5.5 5.5 0 0 1 11 0"></path><path d="M16 5.5a3 3 0 0 1 0 5.8"></path><path d="M18 14.5a5.5 5.5 0 0 1 3 5"></path></svg><sc-if value="{{ hasPendingRequests }}" hint-placeholder-val=""><div style="position:absolute;top:0;right:8px;width:8px;height:8px;border-radius:50%;background:#c0392b;border:1.5px solid #fff;"></div></sc-if><span>People</span><div style="width:18px;height:3px;border-radius:1.5px;background:{{ ntPeople }};transition:background .15s;"></div></button>
     </div>
     </sc-if>
 
