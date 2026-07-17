@@ -829,7 +829,7 @@
             </sc-for>
           </div>
           </sc-if>
-          <div class="scroll" style="overflow-y:auto;flex:1;padding-bottom:env(safe-area-inset-bottom,16px);">
+          <div style="overflow-y:auto;flex:1;">
             <sc-for list="{{ cyclePickerGroups }}" as="grp" hint-placeholder-count="2">
               <div style="padding:10px 18px 4px;font-size:11px;font-weight:700;color:#8a94a3;letter-spacing:.08em;font-family:'IBM Plex Mono',monospace;background:#f6f8fa;border-bottom:1px solid #eef0f4;">{{ grp.year }}</div>
               <sc-for list="{{ grp.cycles }}" as="c" hint-placeholder-count="3">
@@ -848,6 +848,13 @@
               </sc-for>
             </sc-for>
           </div>
+          <sc-if value="{{ cyclePickerShowPagination }}" hint-placeholder-val="">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-top:1px solid #eef0f4;background:#fff;flex:0 0 auto;padding-bottom:max(10px,env(safe-area-inset-bottom,10px));">
+            <button onClick="{{ cyclePickerPrev }}" style="-webkit-appearance:none;padding:7px 18px;background:#f0f2f5;border:none;border-radius:8px;font-size:13px;font-weight:600;color:{{ cyclePickerHasPrev ? '#161f30' : '#c4c9d4' }};cursor:{{ cyclePickerHasPrev ? 'pointer' : 'default' }};">Prev</button>
+            <span style="font-size:12px;color:#8a94a3;">{{ cyclePickerPageInfo }}</span>
+            <button onClick="{{ cyclePickerNext }}" style="-webkit-appearance:none;padding:7px 18px;background:#f0f2f5;border:none;border-radius:8px;font-size:13px;font-weight:600;color:{{ cyclePickerHasNext ? '#161f30' : '#c4c9d4' }};cursor:{{ cyclePickerHasNext ? 'pointer' : 'default' }};">Next</button>
+          </div>
+          </sc-if>
         </div>
         </sc-if>
 

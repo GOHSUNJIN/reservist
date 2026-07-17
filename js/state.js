@@ -44,7 +44,7 @@ const makeInitialState = () => ({
   peopleStats: {}, peopleStatsLoaded: false,
   confirmDeactivateId: null,
   showArchivedBatches: false,
-  cyclePickerOpen: false, cyclePickerYear: null,
+  cyclePickerOpen: false, cyclePickerYear: null, cyclePickerPage: 1,
   attendanceDate: null,
   noReportDaysCache: {},
   markAllPresenting: false,
