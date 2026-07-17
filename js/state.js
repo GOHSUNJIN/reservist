@@ -26,7 +26,7 @@ const makeInitialState = () => ({
   now: new Date(), demo: false,
   isOnline: typeof navigator !== 'undefined' ? navigator.onLine : true,
   offlinePending: false,
-  testDate: null, testDateInput: '', testTime: null, testTimeInput: '', phaseSubmitting: false,
+  phaseSubmitting: false,
   acctNameEdit: '',
   acctPwCurrent: '', acctPwNew: '', acctPwConfirm: '',
   acctPwError: '', acctPwSuccess: '', capsLock: false,
