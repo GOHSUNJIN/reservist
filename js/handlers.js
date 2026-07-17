@@ -347,7 +347,8 @@ const Handlers = {
       welfareNoteOpen:false, welfareNoteText:'', welfareNoteSaving:false,
       isSuperAdmin:false, adminsList:[], adminsLoaded:false,
       npAdminName:'', npAdminContact:'', npAdminPassword:'', confirmDeactivateAdminId:null,
-      promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null, promoteSearch:'', promoteShowAllCycles:false,
+      promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null, promoteSearch:'', promoteShowAllCycles:false, promoteListPage:1,
+      peopleTab:'requests',
       editingBatchLabel:false, batchLabelText:'',
       viewOffset:0, rosterSearch:'', logSearch:'', logShiftFilter:'all',
       markingAllAbsent:false, confirmMarkAllAbsent:false,
@@ -494,17 +495,26 @@ const Handlers = {
   confirmDeactivateAdmin: async function() {
     const id = this.state.confirmDeactivateAdminId;
     if(!id) return;
+    const admin = (this.state.adminsList||[]).find(a=>a.id===id);
     this.setState({confirmDeactivateAdminId:null});
-    if(!this.state.demo) await DB.personnel.deactivate(id).catch(()=>{});
-    this.setState(s=>({adminsList:s.adminsList.filter(a=>a.id!==id)}));
-    this._toast('Admin removed.');
+    if(!this.state.demo){
+      const {error} = await DB.personnel.demoteToReservist(id).catch(e=>({error:e}));
+      if(error){ this._toast('Failed to remove admin. Try again.','error'); return; }
+    }
+    this.setState(s=>({
+      adminsList: s.adminsList.filter(a=>a.id!==id),
+      personnel: admin ? [...s.personnel, {...admin, role:'reservist', batch_id:null, shift:null}] : s.personnel,
+    }));
+    this._toast((admin?.name||'Admin')+' removed and returned to reservist pool.');
   },
 
   onPromoteAdminId:    function(e) { this.setState({promoteAdminId:e.target.value, confirmPromoteAdminId:null}); },
-  onPromoteSearch:     function(e) { this.setState({promoteSearch:e.target.value, promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null}); },
+  onPromoteSearch:     function(e) { this.setState({promoteSearch:e.target.value, promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null, promoteListPage:1}); },
   onPromoteSearchKeyDown: function(e) { if(e.key==='Enter') e.target.blur(); },
-  togglePromoteShowAll: function() { this.setState(s=>({promoteShowAllCycles:!s.promoteShowAllCycles, promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null, promoteSearch:''})); },
+  togglePromoteShowAll: function() { this.setState(s=>({promoteShowAllCycles:!s.promoteShowAllCycles, promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null, promoteSearch:'', promoteListPage:1})); },
   clearPromoteSelection: function() { this.setState({promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null, promoteSearch:''}); },
+  promoteNextPage: function() { this.setState(s=>({promoteListPage:s.promoteListPage+1})); },
+  promotePrevPage: function() { this.setState(s=>({promoteListPage:Math.max(1,s.promoteListPage-1)})); },
 
   askPromoteAdmin: function() {
     const {promoteAdminId} = this.state;

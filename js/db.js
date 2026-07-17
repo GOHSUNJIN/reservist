@@ -116,6 +116,13 @@ const DB = {
       return data || [];
     },
 
+    async demoteToReservist(personnelId) {
+      const { error } = await _db.from('personnel')
+        .update({ role: 'reservist', batch_id: null, shift: null })
+        .eq('id', personnelId);
+      return { error };
+    },
+
     async promoteToAdmin(personnelId) {
       const { data, error } = await _db.from('personnel')
         .update({ role: 'admin', shift: null, batch_id: null })

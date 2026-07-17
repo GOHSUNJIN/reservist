@@ -849,12 +849,14 @@ const Builders = {
       promoteShowAllLabel:s.promoteShowAllCycles?'Current cycle':'All cycles',
       promoteAdminTarget:s.promoteAdminId?{id:s.promoteAdminId,name:s.promoteAdminName||'',contact:s.promoteAdminContact||''}:null,
       clearPromoteSelection:this.clearPromoteSelection,
+      promoteNextPage:this.promoteNextPage, promotePrevPage:this.promotePrevPage,
       ...((pab=>{
+        const PROMOTE_PAGE_SIZE=8;
         const all=(s.personnel||[]).filter(p=>p.is_active!==false&&(p.role||'reservist')==='reservist');
         const base=s.promoteShowAllCycles?all:all.filter(p=>pab&&p.batch_id===pab.id);
         const q=(s.promoteSearch||'').toLowerCase().trim();
         const filtered=q?base.filter(p=>p.name.toLowerCase().includes(q)||(p.contact||'').includes(q)):base;
-        const promoteFilteredList=filtered.map(p=>{
+        const allRows=filtered.map(p=>{
           const b=(s.batches||[]).find(b=>b.id===p.batch_id);
           const initials=p.name.trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
           const av=(s.avatars||{})[p.id];
@@ -862,7 +864,16 @@ const Builders = {
           return {id:p.id,name:p.name,contact:p.contact||'',batchLabel:b?b.label:'',initials,avatarStyle,
             onSelect:()=>this.setState({promoteAdminId:p.id,promoteAdminName:p.name,promoteAdminContact:p.contact||'',confirmPromoteAdminId:null,promoteSearch:''})};
         });
-        return {promoteFilteredList, promoteListEmpty:promoteFilteredList.length===0};
+        const promoteTotalPages=Math.max(1,Math.ceil(allRows.length/PROMOTE_PAGE_SIZE));
+        const safePage=Math.min(s.promoteListPage||1,promoteTotalPages);
+        const promoteFilteredList=allRows.slice((safePage-1)*PROMOTE_PAGE_SIZE, safePage*PROMOTE_PAGE_SIZE);
+        return {
+          promoteFilteredList, promoteListEmpty:allRows.length===0,
+          promoteListPage:safePage, promoteTotalPages,
+          promoteHasPrev:safePage>1, promoteHasNext:safePage<promoteTotalPages,
+          promoteShowPagination:promoteTotalPages>1,
+          promotePageInfo:`${safePage} / ${promoteTotalPages}`,
+        };
       })(this._liveBatch(s.batches))),
       confirmPromoteAdminId:s.confirmPromoteAdminId,
       askPromoteAdmin:this.askPromoteAdmin,
@@ -877,6 +888,25 @@ const Builders = {
       }),
       hasPendingSignups:s.pendingSignups.length>0,
       pendingSignupCount:s.pendingSignups.length,
+      // People sub-tabs
+      ...(()=>{
+        const tab=s.peopleTab||'requests';
+        const pendingTotal=s.pendingSignups.length+(s.pendingLeaves||[]).length;
+        const ptBtn=(active)=>active
+          ?'flex:1;padding:8px 4px;background:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;color:#161f30;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.1);'
+          :'flex:1;padding:8px 4px;background:transparent;border:none;font-size:13px;font-weight:500;color:#8a94a3;cursor:pointer;';
+        return {
+          ptRequests:tab==='requests', ptRoster:tab==='roster', ptAdmins:tab==='admins',
+          setPeopleTabRequests:()=>this.setState({peopleTab:'requests'}),
+          setPeopleTabRoster:()=>this.setState({peopleTab:'roster'}),
+          setPeopleTabAdmins:()=>this.setState({peopleTab:'admins'}),
+          ptRequestsStyle:ptBtn(tab==='requests'),
+          ptRosterStyle:ptBtn(tab==='roster'),
+          ptAdminsStyle:ptBtn(tab==='admins'),
+          pendingTotalCount:pendingTotal,
+          hasPendingRequests:pendingTotal>0,
+        };
+      })(),
     };
   },
 
