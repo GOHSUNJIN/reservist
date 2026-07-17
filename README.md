@@ -21,23 +21,26 @@ Ops Reservist provides full end-to-end attendance accountability for reservist c
 - **Shift change requests** — Submitted with a written reason and reviewed by the supervisor.
 - **Attendance history** — Each reservist can see their own record for the full cycle, including total days present, MC, and absent, plus their attendance rate.
 - **Works without internet** — If the reservist loses connection during check-in, the action is saved on the phone and submitted automatically once connectivity is restored.
+- **Returning reservist re-enrollment** — When a reservist from a previous cycle logs in after their account has been deactivated, the app automatically sends a re-enrollment request to the supervisor. No manual coordination required. The reservist sees a confirmation and can log in once the supervisor approves.
 
 ### For Supervisors / Admins
 - **Live attendance board** — Updates in real time as reservists check in. No refreshing required. The supervisor always sees the current picture.
-- **Manual status override** — If a reservist cannot use the app, the supervisor can manually mark them as Present, MC, or Absent. The original check-in time is preserved if one was recorded.
+- **Manual status override** — If a reservist cannot use the app, the supervisor can manually mark them as Present, MC, or Absent.
+- **Manual time correction** — Any reservist's check-in times for any day can be edited directly from the Log tab. The supervisor keys in the correct times in 24-hour format across all four phases. Corrected records are flagged in the database as admin-entered. This covers cases where the reservist had a technical issue and could not check in themselves.
 - **Late check-in alerts** — Anyone who checks in more than one hour after shift start is automatically flagged. Their written reason is displayed alongside the flag.
 - **Full daily time log** — A complete record of every individual's four check-in phases for the day, including GPS distance, any late reason, and welfare notes. Can be searched by name and filtered by shift.
-- **Leave request inbox** — All pending MC and absence requests appear in one place for the supervisor to approve or decline. Every decision is logged with the reviewer's name and the time it was made.
+- **Unified requests inbox** — All pending signup requests, MC, leave, and shift change requests appear in one place under the Requests tab. Each request is labelled New or Returning so the supervisor knows at a glance whether they are onboarding a first-timer or re-enrolling someone from a previous cycle.
+- **Personnel roster** — Full list of the current cycle's reservists with attendance stats, notes, and history per person.
 - **Welfare notes** — Supervisors can write a private daily note against any individual (e.g. medical concerns, welfare follow-up). Visible on the roster and time log.
 - **Non-reporting day control** — Mark any date as a non-reporting day (public holidays, stand-down). The system will not count those days against personnel.
 - **WhatsApp attendance summary** — One tap sends the day's attendance summary to the unit group chat.
-- **Spreadsheet export** — Full attendance data for any cycle can be exported as a CSV file for record-keeping or further analysis.
+- **Spreadsheet export** — Full attendance data for any cycle can be exported as a CSV file for record-keeping or further analysis. Includes per-person attendance rates and a summary row.
 - **Cycle management** — Create and label reporting cycles. The system automatically prepares the next 8 cycles on every login so the supervisor never has to scramble before a new intake.
 - **Meal allowance tracking** — Enable or disable meal allowance per cycle.
 
 ### For Master / Command Level
 - All supervisor capabilities.
-- **Manage supervisor accounts** — Create new supervisor accounts, remove them, or promote an existing reservist account to supervisor, all from within the app. No technical access required.
+- **Manage supervisor accounts** — Create new supervisor accounts, remove them, or promote an existing reservist to supervisor directly within the app. No technical access required. Demoted supervisors return to the reservist pool automatically.
 - Displayed with a **Master** label in the interface.
 
 ---
@@ -49,9 +52,25 @@ Every action in the system is recorded and cannot be silently changed:
 - Every check-in carries a timestamp and the GPS distance from HQ at the time of check-in.
 - Late arrivals are flagged automatically with no supervisor input required. The reservist must submit a written reason.
 - If GPS verification is bypassed (e.g. GPS failure), this is permanently marked in the log with a visible indicator.
+- If a supervisor manually corrects a reservist's times, the record is flagged as admin-entered in the database.
 - All leave and MC approvals record who approved them and when.
 - **Absences are written automatically.** If a reservist does not check in by midnight, the system marks them absent on its own — through two independent processes (one on the app, one on the server) to ensure no gaps occur even if the supervisor is offline. See [Auto-Absent](#auto-absent).
 - Data is stored in a managed cloud database. Nothing relies on a local file or a spreadsheet that can be accidentally deleted or edited.
+
+---
+
+## Returning Reservist Workflow
+
+When a reservist's account is deactivated at the end of a cycle, their login credentials are preserved but access is blocked. If they return for a new cycle:
+
+1. The reservist logs in with their existing phone number and password.
+2. The app detects the inactive account and automatically submits a re-enrollment request on their behalf.
+3. The supervisor sees the request in the Requests tab, labelled **Returning**, and approves it with one tap.
+4. The reservist's account is reactivated and assigned to the current cycle. They can log in immediately.
+
+No manual coordination, no new account creation, no password reset needed.
+
+If the supervisor adds a returning reservist manually via the roster (e.g. the reservist does not self-enroll), the system detects the existing inactive record and reactivates it without creating a new account. The password field can be left blank in this case.
 
 ---
 
@@ -77,7 +96,7 @@ The system uses three permission levels. Each tier can only see and do what they
 | Role | Who | What they can access |
 |---|---|---|
 | Reservist | NS personnel | Their own check-in, leave requests, attendance history |
-| Admin | Supervisors / staff officers | Full roster and attendance management, leave approval, personnel records |
+| Admin | Supervisors / staff officers | Full roster and attendance management, leave approval, personnel records, manual time correction |
 | Master | Command level | Everything Admin can do, plus managing all supervisor accounts |
 
 Accounts are tied to Singapore mobile numbers. All sessions expire when the browser is closed. Idle sessions time out automatically after 20 minutes.
@@ -117,7 +136,7 @@ This section explains the technical architecture for those who need to understan
 
 All data is stored in a structured cloud database (PostgreSQL). Think of it as a set of linked spreadsheets where every row is a record and every column is a specific piece of information — but with strict rules to prevent duplicate or corrupt data, and with access control so that only authenticated users can read it.
 
-The database has five tables:
+The database has six tables:
 
 **Personnel** — one row per person.
 
@@ -154,7 +173,7 @@ The database has five tables:
 | GPS distance (in) | Metres from HQ at check-in |
 | GPS distance (return) | Metres from HQ at return |
 | Late reason | Written reason if late by over an hour |
-| GPS bypassed | Flagged true if GPS override was used |
+| GPS bypassed | Flagged true if GPS override or admin correction was used |
 | Welfare note | Supervisor's note for that day |
 
 **No-reporting days** — a list of dates where no attendance is expected (public holidays, stand-down days).
@@ -169,6 +188,17 @@ The database has five tables:
 | Status | Pending, Approved, or Rejected |
 | Reviewed by | Name of the supervisor who actioned it |
 | Reviewed at | Timestamp of the decision |
+
+**Signup requests** — one row per enrollment request, including returning reservist re-enrollment.
+
+| Field | What it stores |
+|---|---|
+| Name | Name submitted at signup |
+| Contact | Phone number |
+| Shift | Requested shift |
+| Cycle | Which cycle they are enrolling into |
+| Status | Pending, Approved, or Rejected |
+| Reviewed by | Name of the supervisor who actioned it |
 
 ### Auto-Absent
 
@@ -186,7 +216,7 @@ Reservists who do not check in on a reporting day are marked absent automaticall
 ### Step 1 — Set up the database
 
 1. Create a free account at [supabase.com](https://supabase.com) and start a new project.
-2. In the project's SQL editor, paste and run the schema below. This creates all five tables.
+2. In the project's SQL editor, paste and run the schema below. This creates all six tables.
 3. Set access rules so that logged-in users can read and write data:
    ```sql
    CREATE POLICY "authenticated" ON <table>
@@ -255,7 +285,6 @@ CREATE TABLE leave_requests (
   reviewed_by TEXT,
   reviewed_at TIMESTAMPTZ
 );
-```
 
 CREATE TABLE signup_requests (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -343,5 +372,6 @@ This starts a local web server. Open the address shown in the terminal in a brow
 
 - Every account is identified by a Singapore mobile number. Internally this is converted to a unique email format so the standard authentication system can handle it.
 - Reservist accounts can be created by an admin through the People tab, or by the reservist themselves via self-signup on the login screen.
+- Returning reservists who log in after deactivation automatically trigger a re-enrollment request without needing to create a new account.
 - Supervisor accounts are created by the Master account from within the app.
 - Sessions are stored in the browser's temporary memory (not permanently on the device) and expire automatically when the browser tab is closed. If the app is left idle for 20 minutes, the session also expires and the user must log in again.
