@@ -498,6 +498,7 @@ const Handlers = {
 
   onPromoteAdminId:    function(e) { this.setState({promoteAdminId:e.target.value, confirmPromoteAdminId:null}); },
   onPromoteSearch:     function(e) { this.setState({promoteSearch:e.target.value, promoteAdminId:'', confirmPromoteAdminId:null}); },
+  onPromoteSearchKeyDown: function(e) { if(e.key==='Enter') e.target.blur(); },
   togglePromoteShowAll: function() { this.setState(s=>({promoteShowAllCycles:!s.promoteShowAllCycles, promoteAdminId:'', confirmPromoteAdminId:null, promoteSearch:''})); },
   clearPromoteSelection: function() { this.setState({promoteAdminId:'', confirmPromoteAdminId:null, promoteSearch:''}); },
 
@@ -751,10 +752,10 @@ const Handlers = {
   doPhase: function(key) {
     return async () => {
       if(this.state.phaseSubmitting) return;
-      const {locStatus,locDistance,locPhase,currentUserId,demo,isOnline,testTime} = this.state;
+      const {locStatus,locDistance,locPhase,currentUserId,demo,isOnline} = this.state;
       if(locStatus!=='verified'||locPhase!==key) return;
       this.setState({phaseSubmitting:true});
-      const _now = testTime ? (()=>{const d=new Date();const[h,m]=testTime.split(':').map(Number);d.setHours(h,m,0,0);return d;})() : new Date();
+      const _now = new Date();
       const time = Utils.hhmm(_now);
       if(key==='p1'){
         const me=this.state.me; const shift=me?.shift||'AM';
@@ -793,9 +794,9 @@ const Handlers = {
   doPhaseBypass: function(key) {
     return async () => {
       if(this.state.phaseSubmitting) return;
-      const {currentUserId,demo,isOnline,testTime} = this.state;
+      const {currentUserId,demo,isOnline} = this.state;
       this.setState({phaseSubmitting:true});
-      const _now = testTime ? (()=>{const d=new Date();const[h,m]=testTime.split(':').map(Number);d.setHours(h,m,0,0);return d;})() : new Date();
+      const _now = new Date();
       const time = Utils.hhmm(_now);
       if(key==='p1'){
         const me=this.state.me; const shift=me?.shift||'AM';
@@ -856,6 +857,7 @@ const Handlers = {
 
   // ── Log search ─────────────────────────────────────────────────────────
   onLogSearch:   function(e) { this.setState({logSearch:e.target.value}); },
+  onLogSearchKeyDown: function(e) { if(e.key==='Enter') e.target.blur(); },
   clearLogSearch: function() { this.setState({logSearch:''}); },
 
   // ── Toast ──────────────────────────────────────────────────────────────
@@ -918,7 +920,13 @@ const Handlers = {
   cancelDelete: function() { this.setState({confirmDelete:false}); },
 
   deleteAccount: async function() {
-    if(!this.state.demo) await DB.personnel.deactivate(this.state.currentUserId);
+    if(!this.state.isOnline && !this.state.demo){
+      this._toast('No connection. Cannot delete account while offline.','error'); return;
+    }
+    if(!this.state.demo){
+      const {error} = await DB.personnel.deactivate(this.state.currentUserId).catch(e=>({error:e}));
+      if(error){ this._toast('Failed to delete account. Please try again.','error'); return; }
+    }
     await DB.auth.logout();
     this.setState({authed:false,role:null,authMode:'login',accountOpen:false,confirmDelete:false,accountDeleted:true,loginContact:'',loginPassword:'',demo:false});
   },
@@ -933,12 +941,20 @@ const Handlers = {
       if(!this.state.demo){
         DB.storage.uploadAvatar(uid, f)
           .then(({error})=>{
-            if(!error){
+            if(error){
+              localStorage.removeItem('avatar_'+uid);
+              this.setState(s=>{const av={...s.avatars};delete av[uid];const noAv=new Set(s.noAvatarIds||[]);noAv.add(uid);return{avatars:av,noAvatarIds:noAv};});
+              this._toast('Photo upload failed. Please try again.','error');
+            } else {
               const url=DB.storage.getAvatarUrl(uid)+'?t='+Date.now();
               if(url){ localStorage.setItem('avatar_'+uid, url); this.setState(s=>({avatars:{...s.avatars,[uid]:url}})); }
             }
           })
-          .catch(()=>{});
+          .catch(()=>{
+            localStorage.removeItem('avatar_'+uid);
+            this.setState(s=>{const av={...s.avatars};delete av[uid];const noAv=new Set(s.noAvatarIds||[]);noAv.add(uid);return{avatars:av,noAvatarIds:noAv};});
+            this._toast('Photo upload failed. Please try again.','error');
+          });
       }
     };
     r.readAsDataURL(f);
@@ -983,51 +999,6 @@ const Handlers = {
     }
     this.setState({acctSaving:false, acctPwSuccess:'Password updated.', acctPwCurrent:'', acctPwNew:'', acctPwConfirm:''});
   },
-
-  // ── Test date override ─────────────────────────────────────────────────
-  onTestDateInput: function(e) { this.setState({testDateInput:e.target.value}); },
-
-  setTestDate: async function() {
-    const d = this.state.testDateInput;
-    if(!d) return;
-    this.setState({testDate:d, viewOffset:0});
-    if(this.state.role==='admin'&&!this.state.demo){
-      let batches = await DB.batches.list().catch(()=>this.state.batches);
-      batches = await this._ensureLiveBatch(batches, d);
-      const liveIdx = batches.findIndex(b=>b.is_live);
-      this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0});
-    }
-    if(this.state.role==='reservist'&&!this.state.demo){
-      const [att, hist] = await Promise.all([
-        DB.attendance.getForDate(d).catch(()=>({})),
-        DB.attendance.getHistory(this.state.currentUserId, d).catch(()=>[]),
-      ]);
-      this.setState({attendance:att, attendanceDate:d, history:hist});
-    }
-  },
-
-  clearTestDate: async function() {
-    this.setState({testDate:null, testDateInput:'', viewOffset:0});
-    if(this.state.role==='admin'&&!this.state.demo){
-      let batches = await DB.batches.list().catch(()=>this.state.batches);
-      batches = await this._ensureLiveBatch(batches, Utils.dateKey(new Date()));
-      const liveIdx = batches.findIndex(b=>b.is_live);
-      this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0});
-    }
-    if(this.state.role==='reservist'&&!this.state.demo){
-      const today = Utils.dateKey(new Date());
-      const [att, hist] = await Promise.all([
-        DB.attendance.getForDate(today).catch(()=>({})),
-        DB.attendance.getHistory(this.state.currentUserId).catch(()=>[]),
-      ]);
-      this.setState({attendance:att, attendanceDate:today, history:hist});
-    }
-  },
-
-  // ── Test time override ─────────────────────────────────────────────────
-  onTestTimeInput: function(e) { this.setState({testTimeInput:e.target.value}); },
-  setTestTime:  function() { const t=this.state.testTimeInput; if(!t) return; this.setState({testTime:t}); },
-  clearTestTime: function() { this.setState({testTime:null, testTimeInput:''}); },
 
   // ── Export CSV ─────────────────────────────────────────────────────────
   exportCsv: async function() {
@@ -1313,6 +1284,7 @@ const Handlers = {
   },
 
   onRosterSearch:   function(e) { this.setState({rosterSearch:e.target.value}); },
+  onRosterSearchKeyDown: function(e) { if(e.key==='Enter') e.target.blur(); },
   clearRosterSearch: function() { this.setState({rosterSearch:''}); },
   retrySync: function() { if(this.state.isOnline) this._onOnline(); },
 
@@ -1536,10 +1508,7 @@ const Handlers = {
   },
 
   // ── Helpers ────────────────────────────────────────────────────────────
-  baseDate: function() {
-    if(this.state.testDate){ return new Date(this.state.testDate+'T00:00:00'); }
-    const d=new Date(); d.setHours(0,0,0,0); return d;
-  },
+  baseDate: function() { const d=new Date(); d.setHours(0,0,0,0); return d; },
 
   dateForOffset: function(off) { return Utils.addDays(this.baseDate(), off); },
 

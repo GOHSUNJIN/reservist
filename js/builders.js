@@ -144,7 +144,6 @@ const Builders = {
       batchLabel:'', dekitCountdown:'', batchRange:'', showBatchInfo:false,
       whatsappLink:'', showWaShare:false,
       isOffline:!s.isOnline, offlinePending:s.offlinePending,
-      hasTestDate:false, testDate:'', testDateInput:'', onTestDateInput:()=>{}, setTestDate:()=>{}, clearTestDate:()=>{},
       hasPendingRequest:false, pendingRequestLabel:'', pendingRequestDate:'',
       isAbsent:false,
       openLeaveRequest:()=>{}, leaveOpen:false, leaveDate:'', leaveType:'personal', leaveReason:'',
@@ -204,8 +203,8 @@ const Builders = {
     else{gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor='#8a94a3';gLocMsg='Tap "Locate me" to verify your location.';gLocMsgColor='#8a94a3';}
 
     const shift=me.shift||'AM';
-    const now=s.testTime?(()=>{const d=new Date(s.now);const[h,m]=s.testTime.split(':').map(Number);d.setHours(h,m,0,0);return d;})():s.now;
-    const testMode=!!s.testDate||s.demo;
+    const now=s.now;
+    const testMode=s.demo;
     const phaseDefs=[
       {key:'p1',num:1,label:'Check in to work',needsGps:true,depends:null},
       {key:'p2',num:2,label:shift==='PM'?'Dinner break':'Lunch break',needsGps:true,depends:'p1'},
@@ -294,7 +293,7 @@ const Builders = {
     const batchRange=activeBatch?(Utils.fmtShort(new Date(activeBatch.start_date+'T00:00:00'))+' to '+Utils.fmtShort(new Date(activeBatch.end_date+'T00:00:00'))):'';
     return {
       todayLong:Utils.fmtLong(this.baseDate()),
-      clock:s.testDate?'--:--':s.testTime?s.testTime:Utils.hhmm(s.now),
+      clock:Utils.hhmm(s.now),
       myShiftLabel:Utils.shiftLabel(me.shift), myShiftWindow:Utils.shiftWindow(me.shift),
       myStatusLabel:outOfCycle?outOfCycleTitle:noRep?'No reporting':m.label,
       myStatusColor:outOfCycle?'#8a94a3':noRep?accent:m.color,
@@ -323,12 +322,6 @@ const Builders = {
       isOffline:!s.isOnline, offlinePending:s.offlinePending, offlineQueueCount:this._offlineQueues?.length||0,
       retrySync:this.retrySync, refreshPage:this.refreshPage,
       isInAppBrowser:s.isInAppBrowser, inAppBrowserName:s.inAppBrowserName,
-      hasTestDate:!!s.testDate, testDate:s.testDate||'',
-      testDateInput:s.testDateInput, onTestDateInput:this.onTestDateInput,
-      setTestDate:this.setTestDate, clearTestDate:this.clearTestDate,
-      hasTestTime:!!s.testTime, testTime:s.testTime||'',
-      testTimeInput:s.testTimeInput, onTestTimeInput:this.onTestTimeInput,
-      setTestTime:this.setTestTime, clearTestTime:this.clearTestTime,
       openLeaveRequest:this.openLeaveRequest(Utils.dateKey(this.baseDate())),
       leaveOpen:s.leaveOpen, leaveDate:s.leaveDate, leaveType:s.leaveType, leaveReason:s.leaveReason,
       onLeaveDate:this.onLeaveDate,
@@ -732,7 +725,7 @@ const Builders = {
       markAllAbsentStyle:`padding:5px 8px;border-radius:7px;cursor:pointer;border:1px solid #f7e4e1;background:#fff;color:#c0392b;opacity:${s.markingAllAbsent?'0.45':'1'};display:flex;align-items:center;flex-shrink:0;`,
       markAllAbsentConfirmStyle:`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:700;cursor:pointer;border:none;background:#c0392b;color:#fff;`,
       pendingCount,
-      logSearch:s.logSearch||'', onLogSearch:this.onLogSearch, clearLogSearch:this.clearLogSearch, hasLogSearch:!!(s.logSearch),
+      logSearch:s.logSearch||'', onLogSearch:this.onLogSearch, onLogSearchKeyDown:this.onLogSearchKeyDown, clearLogSearch:this.clearLogSearch, hasLogSearch:!!(s.logSearch),
       personHistoryOpen:!!s.personHistoryId,
       personHistoryName:([...s.personnel,...(s.batchMembersCache[activeBatch?.id]||[])].find(p=>p.id===s.personHistoryId)||{}).name||'',
       personHistoryLoading:s.personHistoryLoading,
@@ -749,7 +742,7 @@ const Builders = {
       realtimeLiveColor:s.realtimeLive?'#1f8a5b':'#c0392b',
       realtimeLiveLabel:s.realtimeLive?'● LIVE':'● Reconnecting',
       showRealtimeBadge:!!s.realtimeChannel,
-      rosterSearch:s.rosterSearch, onRosterSearch:this.onRosterSearch, hasRosterSearch:!!search, clearRosterSearch:this.clearRosterSearch,
+      rosterSearch:s.rosterSearch, onRosterSearch:this.onRosterSearch, onRosterSearchKeyDown:this.onRosterSearchKeyDown, hasRosterSearch:!!search, clearRosterSearch:this.clearRosterSearch,
       retrySync:this.retrySync,
       markAllPresent:this.markAllPresent, pendingCount, markAllPresenting:s.markAllPresenting,
       noSearchResults:!!search&&sortedFiltered.length===0,
@@ -817,9 +810,6 @@ const Builders = {
       mealToggleKnobX:activeBatch?.meal_active?'25px':'3px',
       batchLoading:s.batchLoading,
       exportCsv:this.exportCsv,
-      testDate:s.testDate, testDateInput:s.testDateInput,
-      onTestDateInput:this.onTestDateInput, setTestDate:this.setTestDate, clearTestDate:this.clearTestDate,
-      hasTestDate:!!s.testDate,
       batchJumpDate:s.batchJumpDate, onBatchJumpDate:this.onBatchJumpDate, jumpToDate:this.jumpToDate,
       pendingLeaves:(s.pendingLeaves||[]).map(l=>({
         id:l.id, reason:l.reason||'',
@@ -854,7 +844,7 @@ const Builders = {
       npAdminPassword:s.npAdminPassword, onNpAdminPassword:this.onNpAdminPassword,
       addAdmin:this.addAdmin,
       promoteAdminId:s.promoteAdminId, promoteSearch:s.promoteSearch,
-      onPromoteSearch:this.onPromoteSearch,
+      onPromoteSearch:this.onPromoteSearch, onPromoteSearchKeyDown:this.onPromoteSearchKeyDown,
       promoteShowAllCycles:s.promoteShowAllCycles, togglePromoteShowAll:this.togglePromoteShowAll,
       promoteShowAllLabel:s.promoteShowAllCycles?'Current cycle':'All cycles',
       promoteAdminTarget:(s.personnel||[]).find(p=>p.id===s.promoteAdminId)||null,

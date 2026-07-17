@@ -18,10 +18,8 @@ class AppComponent extends DCLogic {
     this._t = setInterval(()=>{
       const newNow = new Date();
       this.setState({now:newNow});
-      if(!this.state.testDate){
-        const newDate = Utils.dateKey(newNow);
-        if(newDate !== this._lastDate){ this._lastDate = newDate; this._onDateChange(newDate); }
-      }
+      const newDate = Utils.dateKey(newNow);
+      if(newDate !== this._lastDate){ this._lastDate = newDate; this._onDateChange(newDate); }
       if(this.state.role==='admin' && this.state.realtimeChannel){
         const live = this.state.realtimeChannel.state === 'joined';
         if(live !== this.state.realtimeLive) this.setState({realtimeLive:live});
@@ -65,10 +63,8 @@ class AppComponent extends DCLogic {
         const elapsed = Date.now() - this._lastActiveAt;
         if(elapsed >= 20*60*1000){ this._toast('Logged out due to inactivity.'); this.logout(); return; }
         else if(elapsed >= 18*60*1000){ this.setState({idleWarning:true}); }
-        if(!this.state.testDate){
-          const newDate = Utils.dateKey(new Date());
-          if(newDate !== this._lastDate){ this._lastDate = newDate; this._onDateChange(newDate); }
-        }
+        const newDate = Utils.dateKey(new Date());
+        if(newDate !== this._lastDate){ this._lastDate = newDate; this._onDateChange(newDate); }
         if(this._offlineQueues.length && navigator.onLine) this._onOnline();
       }
     };
