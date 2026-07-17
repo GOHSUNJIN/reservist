@@ -486,9 +486,9 @@ const Builders = {
     const activeBatch=s.batches[s.activeBatchIdx||0];
     const mealActive=!!(activeBatch?.meal_active);
     const ROLES={
-      AM:{title:'AM Shift',window:'0830 to 1530, Lunch 1200-1430',items:['MOPs for CNB testing must exit via the same route they entered.','MOPs must not loiter around the area.','Escort contractors around the building when required.','Assist with Red Teaming exercises if needed.']},
-      PM:{title:'PM Shift',window:'1530 to 2230, Dinner 1630-1830',items:['Same duties as AM shift.','May leave early if CNB confirms no more reporting.'],note:'Fridays: stay till 1800 only. May move to canteen after 1630. Update WhatsApp when leaving DHQ or if on MC.'},
-      OFFICE:{title:'Office Hours',window:'0900 to 1800, Lunch 1200-1400',items:['Escort contractors when required.','Assist with Red Teaming exercises if needed.']},
+      AM:{title:'AM Shift',window:'0830 to 1530, Lunch 1200 to 1430',items:['MOPs for CNB testing must exit via the same route they entered.','MOPs must not loiter around the area.','Escort contractors around the building when required.','Assist with Red Teaming exercises if needed.']},
+      PM:{title:'PM Shift',window:'1530 to 2230, Dinner 1630 to 1830',items:['Same duties as AM shift.','May leave early if CNB confirms no more reporting.'],note:'Fridays: stay till 1800 only. May move to canteen after 1630. Update WhatsApp when leaving DHQ or if on MC.'},
+      OFFICE:{title:'Office Hours',window:'0900 to 1800, Lunch 1200 to 1400',items:['Escort contractors when required.','Assist with Red Teaming exercises if needed.']},
     };
     const me=this.cur(), myShift=me?.shift||'AM';
     const tab=s.rolesTab||myShift, active=ROLES[tab], mine=ROLES[myShift];
