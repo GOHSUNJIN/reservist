@@ -672,8 +672,7 @@ const Builders = {
     const logShiftFilter=s.logShiftFilter||'all';
     const logSearch=(s.logSearch||'').toLowerCase().trim();
     const shiftFiltered=logShiftFilter==='all'?logRows:logRows.filter(r=>r.shift===logShiftFilter);
-    const pendingFiltered=viewIsToday?shiftFiltered.filter(r=>r.label!=='Pending'):shiftFiltered;
-    const filteredLogRows=logSearch?pendingFiltered.filter(r=>r.name.toLowerCase().includes(logSearch)):pendingFiltered;
+    const filteredLogRows=logSearch?shiftFiltered.filter(r=>r.name.toLowerCase().includes(logSearch)):shiftFiltered;
     const pendingCount=logRows.filter(r=>r.label==='Pending').length;
     const _fBtn=(f,accent)=>`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${logShiftFilter===f?accent:'#d4d9e2'};background:${logShiftFilter===f?accent:'#fff'};color:${logShiftFilter===f?'#fff':'#5c6678'};`;
     const lateRows=viewIsToday?logRows.filter(r=>r.isLate):[];
