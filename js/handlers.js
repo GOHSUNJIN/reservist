@@ -366,6 +366,7 @@ const Handlers = {
       acctPwError:'', acctPwSuccess:'', acctNameError:'', acctNameSuccess:'', acctSaving:false,
       locPhase:null, batchLoading:false, batchCreating:false,
       editingNoteId:null, editingNoteText:'',
+      timesEditId:null, timesEditP1:'', timesEditP2:'', timesEditP3:'', timesEditP4:'', timesEditSaving:false,
       batchJumpDate:Utils.dateKey(new Date()),
       toast:null, rosterSort:'shift', newBatchDate:'',
       peopleStats:{}, peopleStatsLoaded:false, confirmDeactivateId:null, showArchivedBatches:false, cyclePickerOpen:false,
@@ -957,6 +958,47 @@ const Handlers = {
       editingNoteId: null, editingNoteText: '',
     }));
     this._toast('Note saved.');
+  },
+
+  openTimesEdit: function(id) {
+    return () => {
+      const s = this.state;
+      const base = this.baseDate();
+      const d = new Date(base.getFullYear(), base.getMonth(), base.getDate() + (s.viewOffset || 0));
+      const dateKey = Utils.dateKey(d);
+      const rec = (s.attendanceCache[dateKey] || s.attendance)[id] || {};
+      this.setState({ timesEditId: id, timesEditP1: rec.p1||'', timesEditP2: rec.p2||'', timesEditP3: rec.p3||'', timesEditP4: rec.p4||'' });
+    };
+  },
+
+  closeTimesEdit: function() {
+    this.setState({ timesEditId: null, timesEditP1: '', timesEditP2: '', timesEditP3: '', timesEditP4: '' });
+  },
+
+  onTimesP1: function(e) { this.setState({ timesEditP1: e.target.value }); },
+  onTimesP2: function(e) { this.setState({ timesEditP2: e.target.value }); },
+  onTimesP3: function(e) { this.setState({ timesEditP3: e.target.value }); },
+  onTimesP4: function(e) { this.setState({ timesEditP4: e.target.value }); },
+
+  saveTimesEdit: async function() {
+    const { timesEditId, timesEditP1, timesEditP2, timesEditP3, timesEditP4, viewOffset, demo } = this.state;
+    if (!timesEditId) return;
+    if (!timesEditP1) { this._toast('Check-in time is required.', 'error'); return; }
+    const base = this.baseDate();
+    const d = new Date(base.getFullYear(), base.getMonth(), base.getDate() + (viewOffset || 0));
+    const dateKey = Utils.dateKey(d);
+    this.setState({ timesEditSaving: true });
+    if (!demo) {
+      const { error } = await DB.attendance.setTimes(timesEditId, dateKey, { p1: timesEditP1, p2: timesEditP2||null, p3: timesEditP3||null, p4: timesEditP4||null });
+      if (error) { this.setState({ timesEditSaving: false }); this._toast('Failed to save. Try again.', 'error'); return; }
+    }
+    const entry = { ...((this.state.attendanceCache[dateKey] || this.state.attendance)[timesEditId] || {}), status: 'present', p1: timesEditP1||null, p2: timesEditP2||null, p3: timesEditP3||null, p4: timesEditP4||null, gpsBypassed: true };
+    if (viewOffset === 0) {
+      this.setState(s => ({ attendance: { ...s.attendance, [timesEditId]: entry }, timesEditId: null, timesEditSaving: false, timesEditP1: '', timesEditP2: '', timesEditP3: '', timesEditP4: '' }));
+    } else {
+      this.setState(s => ({ attendanceCache: { ...s.attendanceCache, [dateKey]: { ...(s.attendanceCache[dateKey]||{}), [timesEditId]: entry } }, timesEditId: null, timesEditSaving: false, timesEditP1: '', timesEditP2: '', timesEditP3: '', timesEditP4: '' }));
+    }
+    this._toast('Times updated.');
   },
 
   changeShift: function(id) {
