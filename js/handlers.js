@@ -1032,7 +1032,16 @@ const Handlers = {
       attCache={...attCache,...allAtt};
     }
     const todayKey=Utils.dateKey(this.baseDate());
-    const header=['Name','Contact','Shift',...dates.map(d=>Utils.fmtShort(d)),'Present','MC','Absent'].join(',');
+    const fmtDate=d=>{const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return d.getDate()+' '+mo[d.getMonth()];};
+    const statusCode=s=>s==='present'?'P':s==='mc'?'MC':s==='absent'?'A':'-';
+    const shiftLabel=s=>s==='AM'?'AM (0830-1530)':s==='PM'?'PM (1530-2230)':s==='OFFICE'?'Office (0900-1800)':s||'-';
+    const metaRows=[
+      ['"Cycle"','"'+batch.label+'"'],
+      ['"Period"','"'+fmtDate(start)+' – '+fmtDate(end)+'"'],
+      ['"Exported"','"'+fmtDate(new Date())+'"'],
+      [],
+    ];
+    const header=['"Name"','"Contact"','"Shift"',...dates.map(d=>'"'+fmtDate(d)+'"'),'"Present"','"MC"','"Absent"','"Attendance %"'];
     const rows=members.map(p=>{
       const statuses=dates.map(d=>{
         const dk=Utils.dateKey(d);
@@ -1042,12 +1051,20 @@ const Handlers = {
       const pres=statuses.filter(s=>s==='present').length;
       const mc=statuses.filter(s=>s==='mc').length;
       const abs=statuses.filter(s=>s==='absent').length;
-      return ['"'+p.name+'"',p.contact,p.shift,...statuses,pres,mc,abs].join(',');
+      const pct=dates.length>0?Math.round(pres/dates.length*100)+'%':'-';
+      return ['"'+p.name.replace(/"/g,'""')+'"','"'+p.contact+'"','"'+shiftLabel(p.shift)+'"',...statuses.map(statusCode),pres,mc,abs,'"'+pct+'"'].join(',');
     });
-    const csv=[header,...rows].join('\n');
+    const totPres=rows.reduce((a,r,i)=>{const p=members[i];const st=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return (map[p.id]?.status)||'absent';});return a+st.filter(s=>s==='present').length;},0);
+    const totMc=rows.reduce((a,r,i)=>{const p=members[i];const st=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return (map[p.id]?.status)||'absent';});return a+st.filter(s=>s==='mc').length;},0);
+    const totAbs=rows.reduce((a,r,i)=>{const p=members[i];const st=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return (map[p.id]?.status)||'absent';});return a+st.filter(s=>s==='absent').length;},0);
+    const totDays=members.length*dates.length;
+    const totPct=totDays>0?Math.round(totPres/totDays*100)+'%':'-';
+    const summaryRow=['"TOTAL"','""','""',...dates.map(()=>'""'),totPres,totMc,totAbs,'"'+totPct+'"'].join(',');
+    const legend=['"Legend: P = Present, MC = Medical Certificate, A = Absent"'];
+    const csv='﻿'+[...metaRows.map(r=>r.join(',')),header.join(','),...rows,'',summaryRow,'',legend].join('\n');
     const a=document.createElement('a');
     a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-    a.download=(batch.label.replace(/\s+/g,'_')||'batch')+'_attendance.csv';
+    a.download=(batch.label.replace(/[\s/]+/g,'_')||'batch')+'_attendance.csv';
     a.click();
   },
 
