@@ -274,15 +274,6 @@ const Handlers = {
     if(suPassword.length < 6){ this.setState({authError:'Password must be at least 6 characters.'}); return; }
     const cleanContact = suContact.replace(/[\s-]/g,'');
     if(!/^[689]\d{7}$/.test(cleanContact)){ this.setState({authError:'Contact must be an 8-digit Singapore number.'}); return; }
-    const existingReq = await DB.signupRequests.getByContact(cleanContact).catch(()=>null);
-    if(existingReq?.status==='pending'){
-      this.setState({authError:'A signup request for this number is already pending admin approval.'});
-      return;
-    }
-    if(existingReq?.status==='rejected'){
-      this.setState({authError:'Your previous signup request was not approved. Contact your supervisor.'});
-      return;
-    }
     const today = Utils.dateKey(this.baseDate());
     const sortedBatches = [...this.state.batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
     const liveBatch = sortedBatches.find(b=>today>=b.start_date&&today<=b.end_date) || this._liveBatch();
@@ -298,6 +289,18 @@ const Handlers = {
     this.setState({loading:true, authError:''});
     const {user,error} = await DB.auth.signup(cleanContact, suPassword, suName.trim());
     if(error||!user){ this.setState({loading:false, authError:error?.message||'Signup failed. Try a different contact or password.'}); return; }
+    // Check for existing requests now that the user is authenticated
+    const existingReq = await DB.signupRequests.getByContact(cleanContact).catch(()=>null);
+    if(existingReq?.status==='pending'){
+      await DB.auth.logout();
+      this.setState({loading:false, authError:'A signup request for this number is already pending admin approval.'});
+      return;
+    }
+    if(existingReq?.status==='rejected'){
+      await DB.auth.logout();
+      this.setState({loading:false, authError:'Your previous signup request was not approved. Contact your supervisor.'});
+      return;
+    }
     const {error:reqErr} = await DB.signupRequests.create({authId:user.id, name:suName.trim(), contact:cleanContact, shift, batchId:activeBatch.id});
     if(reqErr){
       await DB.auth.logout();
