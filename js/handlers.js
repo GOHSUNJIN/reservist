@@ -33,6 +33,11 @@ const Handlers = {
       }
       return;
     }
+    if(!me.is_active){
+      await DB.auth.logout();
+      this.setState({authed:false,loading:false,authError:'Your account has been deactivated. Please contact your supervisor.'});
+      return;
+    }
     const cachedAvatar = localStorage.getItem('avatar_'+me.id);
     if(cachedAvatar && cachedAvatar !== 'REMOVED'){
       this.setState(s=>({avatars:{...s.avatars,[me.id]:cachedAvatar}}));
