@@ -576,15 +576,28 @@ const Builders = {
       if(!_pickerYearMap[yr]) _pickerYearMap[yr]=[];
       _pickerYearMap[yr].push({...c, onPick:()=>{ this.closeCyclePicker(); c.onClick(); }});
     });
-    const cyclePickerGroups=Object.keys(_pickerYearMap).sort((a,b)=>b-a).map(yr=>({
+    const allPickerYears=Object.keys(_pickerYearMap).sort((a,b)=>b-a);
+    const activePickerYear=s.cyclePickerYear||null;
+    const cyclePickerYears=allPickerYears.map(yr=>({
       year:yr,
-      cycles:[..._pickerYearMap[yr]].sort((a,b)=>{
-        if(a.isActive) return -1; if(b.isActive) return 1;
-        if(!a.isPast&&!b.isPast) return a.startDate>b.startDate?1:-1;
-        if(a.isPast&&b.isPast) return a.startDate>b.startDate?-1:1;
-        return a.isPast?1:-1;
-      }),
+      isSelected:yr===activePickerYear,
+      style:yr===activePickerYear
+        ?'-webkit-appearance:none;padding:5px 14px;background:#161f30;border:none;border-radius:20px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;'
+        :'-webkit-appearance:none;padding:5px 14px;background:#f0f2f5;border:none;border-radius:20px;font-size:12px;font-weight:600;color:#5c6678;cursor:pointer;',
+      onSelect:()=>this.setCyclePickerYear(yr),
     }));
+    const cyclePickerGroups=allPickerYears
+      .filter(yr=>!activePickerYear||yr===activePickerYear)
+      .map(yr=>({
+        year:yr,
+        cycles:[..._pickerYearMap[yr]].sort((a,b)=>{
+          if(a.isActive) return -1; if(b.isActive) return 1;
+          if(!a.isPast&&!b.isPast) return a.startDate>b.startDate?1:-1;
+          if(a.isPast&&b.isPast) return a.startDate>b.startDate?-1:1;
+          return a.isPast?1:-1;
+        }),
+      }));
+    const showCycleYearFilter=allPickerYears.length>1;
     const activeCycleLabel=activeBatch?.label||'No cycle';
     const _abs=activeBatch?new Date(activeBatch.start_date+'T00:00:00'):null;
     const _abe=activeBatch?new Date(activeBatch.end_date+'T00:00:00'):null;
@@ -710,6 +723,7 @@ const Builders = {
     return {
       activeChips, archivedChips, archivedCount:archivedChips.length,
       cyclePickerGroups, cyclePickerOpen:s.cyclePickerOpen,
+      cyclePickerYears, showCycleYearFilter, setCyclePickerYear:this.setCyclePickerYear,
       openCyclePicker:this.openCyclePicker, closeCyclePicker:this.closeCyclePicker,
       activeCycleLabel, activeCycleRange,
       showArchivedBatches:s.showArchivedBatches,
