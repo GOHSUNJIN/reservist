@@ -1566,6 +1566,7 @@ const Handlers = {
   dismissLateWarning:  function() { this.setState({showLateWarning:false}); },
   onLateReasonText:    function(e) { this.setState({lateReasonText:e.target.value}); },
   skipLateReason:      function() { this.setState({lateReasonOpen:false,lateReasonText:''}); },
+  openLateReason:      function() { this.setState({lateReasonOpen:true,lateReasonText:this.myRec()?.lateReason||''}); },
 
   submitLateReason: async function() {
     const {lateReasonText,currentUserId,demo,isOnline} = this.state;

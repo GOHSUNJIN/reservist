@@ -311,6 +311,12 @@ const Builders = {
       phases, allDone,
       summaryP1, summaryP2, summaryP3, summaryP4,
       isLate, lateShiftStart:shiftStart,
+      canAddLateReason:isLate&&!rec.lateReason&&status==='present'&&!outOfCycle&&!noRep,
+      hasLateReason:isLate&&!!rec.lateReason,
+      lateReasonDisplayText:rec.lateReason||'',
+      openLateReason:this.openLateReason,
+      lateReasonModalTitle:rec.lateReason?'Edit late reason':'Late check-in',
+      lateReasonModalSub:rec.lateReason?'Update your reason for the late check-in.':'You checked in more than an hour late. Give a brief reason. Your admin will see it.',
       showLateWarning:s.showLateWarning, dismissLateWarning:this.dismissLateWarning,
       lateReasonOpen:s.lateReasonOpen, lateReasonText:s.lateReasonText,
       onLateReasonText:this.onLateReasonText, submitLateReason:this.submitLateReason,
@@ -651,13 +657,15 @@ const Builders = {
       const isLate=r.status==='present'&&_lm>=60;
       const lateReason=r.lateReason||'';
       const showLateReason=isLate&&!!lateReason;
+      const showNoLateReason=isLate&&!lateReason;
       const av=s.avatars[p.id]||'';
       const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
       return {
         id:p.id, name:p.name, initials:Utils.initials(p.name), shiftLabel:Utils.shiftLabel(p.shift),
         label:mm.label, color:mm.color, bg:mm.bg, isLate,
-        lateReason, showLateReason,
+        lateReason, showLateReason, showNoLateReason,
         welfareNote:r.welfareNote||'', showWelfareNote:!!(r.welfareNote),
+        logNoteIconColor:r.welfareNote?'#1f8a5b':'#5c6678',
         isEditingLogNote:s.logNoteId===p.id,
         onEditLogNote:this.openLogNote(p.id, r.welfareNote||''),
         showNoGps: !!(r.gpsBypassed),
