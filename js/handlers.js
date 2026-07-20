@@ -393,6 +393,7 @@ const Handlers = {
       signupPending:false,
       pendingSignups:[], pendingSignupsLoaded:false, approvedSignups:[],
       selectedSignupIds:[],
+      signupSearch:'',
       rejectLeaveId:null, rejectLeaveReason:'',
       waPreviewOpen:false, waPreviewText:'',
       logNoteId:null, logNoteText:'',
@@ -1025,6 +1026,9 @@ const Handlers = {
   onLogSearch:   function(e) { this.setState({logSearch:e.target.value}); },
   onLogSearchKeyDown: function(e) { if(e.key==='Enter') e.target.blur(); },
   clearLogSearch: function() { this.setState({logSearch:''}); },
+
+  onSignupSearch:   function(e) { this.setState({signupSearch:e.target.value}); },
+  clearSignupSearch: function() { this.setState({signupSearch:''}); },
 
   // ── Toast ──────────────────────────────────────────────────────────────
   _toast: function(msg, type='success') {
