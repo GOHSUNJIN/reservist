@@ -864,7 +864,8 @@ const Builders = {
       batchLoading:s.batchLoading,
       exportCsv:this.exportCsv,
       batchJumpDate:s.batchJumpDate, onBatchJumpDate:this.onBatchJumpDate, jumpToDate:this.jumpToDate,
-      pendingLeaves:(s.pendingLeaves||[]).map(l=>({
+      leaveSearch:s.leaveSearch||'', onLeaveSearch:this.onLeaveSearch, clearLeaveSearch:this.clearLeaveSearch, hasLeaveSearch:!!(s.leaveSearch||'').trim(),
+      pendingLeaves:(()=>{const _lq=(s.leaveSearch||'').toLowerCase().trim();const _lb=_lq?(s.pendingLeaves||[]).filter(l=>(l.personnel?.name||'').toLowerCase().includes(_lq)||(l.personnel?.contact||'').includes(_lq)):(s.pendingLeaves||[]);return _lb.map(l=>({
         id:l.id, reason:l.reason||'',
         personName:l.personnel?.name||'Unknown',
         initials:Utils.initials(l.personnel?.name||'?'),
@@ -882,7 +883,7 @@ const Builders = {
         onRejectLeaveReason:this.onRejectLeaveReason,
         confirmRejectLeave:this.confirmRejectLeave,
         cancelRejectLeave:this.cancelRejectLeave,
-      })),
+      }));})(),
       pendingLeavesCount:(s.pendingLeaves||[]).length,
       hasPendingLeaves:(s.pendingLeaves||[]).length>0,
       pendingLeavesLoaded:s.pendingLeavesLoaded,
