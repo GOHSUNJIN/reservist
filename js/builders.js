@@ -950,9 +950,12 @@ const Builders = {
       askPromoteAdmin:this.askPromoteAdmin,
       cancelPromoteAdmin:this.cancelPromoteAdmin,
       confirmPromoteAdmin:this.confirmPromoteAdmin,
+      signupSearch:s.signupSearch||'', onSignupSearch:this.onSignupSearch, clearSignupSearch:this.clearSignupSearch, hasSignupSearch:!!(s.signupSearch||'').trim(),
       pendingSignups:(()=>{
         const approvedContacts=new Set((s.approvedSignups||[]).map(a=>(a.contact||'').replace(/[\s-]/g,'')));
-        return s.pendingSignups.map(r=>{
+        const _sq=(s.signupSearch||'').toLowerCase().trim();
+        const _base=_sq?s.pendingSignups.filter(r=>r.name.toLowerCase().includes(_sq)||(r.contact||'').includes(_sq)):s.pendingSignups;
+        return _base.map(r=>{
           const b=(s.batches||[]).find(b=>b.id===r.batch_id);
           const initials=r.name.trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
           const isReactivation=approvedContacts.has((r.contact||'').replace(/[\s-]/g,''));
