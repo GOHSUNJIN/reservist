@@ -393,7 +393,7 @@ const Handlers = {
       signupPending:false,
       pendingSignups:[], pendingSignupsLoaded:false, approvedSignups:[],
       selectedSignupIds:[],
-      signupSearch:'',
+      signupSearch:'', leaveSearch:'',
       rejectLeaveId:null, rejectLeaveReason:'',
       waPreviewOpen:false, waPreviewText:'',
       logNoteId:null, logNoteText:'',
@@ -1029,6 +1029,8 @@ const Handlers = {
 
   onSignupSearch:   function(e) { this.setState({signupSearch:e.target.value}); },
   clearSignupSearch: function() { this.setState({signupSearch:''}); },
+  onLeaveSearch:    function(e) { this.setState({leaveSearch:e.target.value}); },
+  clearLeaveSearch:  function() { this.setState({leaveSearch:''}); },
 
   // ── Toast ──────────────────────────────────────────────────────────────
   _toast: function(msg, type='success') {

@@ -74,7 +74,7 @@ const makeInitialState = () => ({
   pendingSignups: [], pendingSignupsLoaded: false,
   approvedSignups: [],
   selectedSignupIds: [],
-  signupSearch: '',
+  signupSearch: '', leaveSearch: '',
   rejectLeaveId: null, rejectLeaveReason: '',
   waPreviewOpen: false, waPreviewText: '',
   logNoteId: null, logNoteText: '',

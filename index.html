@@ -1354,6 +1354,13 @@
               <span style="font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">PENDING REQUESTS</span>
               <span style="background:#c0392b;color:#fff;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:20px;">{{ pendingLeavesCount }}</span>
             </div>
+            <div style="padding:10px 14px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" placeholder="Search by name or contact" value="{{ leaveSearch }}" onInput="{{ onLeaveSearch }}" style="flex:1;border:none;outline:none;font-size:13px;color:#161f30;background:transparent;min-width:0;" />
+              <sc-if value="{{ hasLeaveSearch }}" hint-placeholder-val="">
+                <button onClick="{{ clearLeaveSearch }}" style="-webkit-appearance:none;background:none;border:none;padding:2px;cursor:pointer;display:flex;align-items:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+              </sc-if>
+            </div>
             <sc-for list="{{ pendingLeaves }}" as="lr" hint-placeholder-count="2">
             <div style="padding:12px 16px;border-bottom:1px solid #f2f4f7;">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
