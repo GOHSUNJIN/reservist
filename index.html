@@ -931,6 +931,7 @@
         <!-- ===== ADMIN: OVERVIEW ===== -->
         <sc-if value="{{ tabOverview }}" hint-placeholder-val="">
         <div>
+          <!-- Date nav -->
           <div onTouchStart="{{ onDaySwipeStart }}" onTouchEnd="{{ onDaySwipeEnd }}" style="background:#131a27;border-radius:16px;padding:11px 12px;color:#fff;display:flex;align-items:center;gap:9px;margin-bottom:14px;">
             <button onClick="{{ prevDay }}" style="width:34px;height:34px;border-radius:9px;background:#222c3d;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#cdd4df" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
             <div style="flex:1;text-align:center;min-width:0;">
@@ -943,36 +944,37 @@
             <button onClick="{{ nextDay }}" style="width:34px;height:34px;border-radius:9px;background:#222c3d;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#cdd4df" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
           </div>
 
+          <!-- Pending requests -->
           <sc-if value="{{ hasPendingLeaves }}" hint-placeholder-val="">
           <div class="card-flush" style="margin-bottom:14px;">
-            <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
-              <span style="font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">PENDING REQUESTS</span>
+            <div style="padding:11px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
+              <span style="font-size:11.5px;font-weight:700;color:#8a94a3;letter-spacing:.06em;">PENDING REQUESTS</span>
               <span style="background:#c0392b;color:#fff;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:20px;">{{ pendingLeavesCount }}</span>
             </div>
             <sc-for list="{{ pendingLeaves }}" as="lr" hint-placeholder-count="2">
             <div style="padding:12px 16px;border-bottom:1px solid #f2f4f7;">
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px;">
-                <div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ lr.personName }}</div>
-                <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:#f0f2f7;color:#5c6678;">{{ lr.typeLabel }}</span>
+              <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
+                <div style="font-size:13.5px;font-weight:600;color:#161f30;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ lr.personName }}</div>
+                <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:{{ lr.typeBg }};color:{{ lr.typeColor }};border:1px solid {{ lr.typeBorder }};white-space:nowrap;flex:0 0 auto;">{{ lr.typeLabel }}</span>
               </div>
               <div style="font-size:12px;color:#8a94a3;margin-bottom:4px;">{{ lr.dateLabel }}<sc-if value="{{ lr.showRequestedShift }}" hint-placeholder-val=""> · Requesting {{ lr.requestedShiftLabel }}</sc-if></div>
               <sc-if value="{{ lr.reason }}" hint-placeholder-val="">
-                <div style="font-size:12px;color:#5c6678;font-style:italic;margin-bottom:6px;">"{{ lr.reason }}"</div>
+                <div style="font-size:12px;color:#5c6678;font-style:italic;margin-bottom:5px;">"{{ lr.reason }}"</div>
               </sc-if>
               <sc-if value="{{ lr.isRejectOpen }}" hint-placeholder-val="">
-                <div style="margin-top:8px;padding:10px 12px;background:#fbeeec;border:1px solid #f1d3cf;border-radius:9px;">
-                  <div style="font-size:11px;font-weight:600;color:#8a94a3;letter-spacing:.06em;margin-bottom:6px;">DECLINE REASON (OPTIONAL)</div>
-                  <textarea onInput="{{ lr.onRejectLeaveReason }}" value="{{ lr.rejectLeaveReason }}" placeholder="e.g. No leave balance" style="width:100%;height:60px;padding:8px 10px;border:1px solid #f1d3cf;border-radius:7px;font-family:inherit;font-size:13px;resize:none;outline:none;box-sizing:border-box;background:#fff;" rows="2"></textarea>
+                <div style="margin-top:7px;padding:10px 12px;background:#fbeeec;border:1px solid #f1d3cf;border-radius:9px;">
+                  <div style="font-size:11px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:6px;">DECLINE REASON (OPTIONAL)</div>
+                  <textarea onInput="{{ lr.onRejectLeaveReason }}" value="{{ lr.rejectLeaveReason }}" placeholder="e.g. No leave balance" style="width:100%;height:56px;padding:8px 10px;border:1px solid #f1d3cf;border-radius:7px;font-family:inherit;font-size:13px;resize:none;outline:none;box-sizing:border-box;background:#fff;" rows="2"></textarea>
                   <div style="display:flex;gap:7px;margin-top:7px;">
-                    <button onClick="{{ lr.cancelRejectLeave }}" style="flex:1;padding:7px;background:#fff;border:1px solid #e3e6ec;border-radius:8px;font-size:12px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
-                    <button onClick="{{ lr.confirmRejectLeave }}" style="flex:1;padding:7px;background:#c0392b;border:none;border-radius:8px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;">Confirm decline</button>
+                    <button onClick="{{ lr.cancelRejectLeave }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #e3e6ec;border-radius:8px;font-size:12px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
+                    <button onClick="{{ lr.confirmRejectLeave }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#c0392b;border:none;border-radius:8px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;">Confirm decline</button>
                   </div>
                 </div>
               </sc-if>
               <sc-if value="{{ !lr.isRejectOpen }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;gap:7px;margin-top:6px;">
-                <button onClick="{{ lr.onApprove }}" style="flex:1;padding:7px;background:#f1f8f4;border:1px solid #cfe6d8;border-radius:8px;font-size:12.5px;font-weight:600;color:#1f8a5b;cursor:pointer;">Approve</button>
-                <button onClick="{{ lr.onReject }}" style="flex:1;padding:7px;background:#fbeeec;border:1px solid #f1d3cf;border-radius:8px;font-size:12.5px;font-weight:600;color:#c0392b;cursor:pointer;">Decline</button>
+                <button onClick="{{ lr.onApprove }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#f1f8f4;border:1px solid #cfe6d8;border-radius:8px;font-size:12.5px;font-weight:600;color:#1f8a5b;cursor:pointer;">Approve</button>
+                <button onClick="{{ lr.onReject }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fbeeec;border:1px solid #f1d3cf;border-radius:8px;font-size:12.5px;font-weight:600;color:#c0392b;cursor:pointer;">Decline</button>
               </div>
               </sc-if>
             </div>
@@ -980,102 +982,124 @@
           </div>
           </sc-if>
 
-          <sc-if value="{{ showRepToggle }}" hint-placeholder-val="{{ true }}">
-          <div class="card" style="padding:14px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
-            <div style="flex:1;"><div style="font-size:13px;font-weight:600;color:#161f30;">No-reporting day</div><div style="font-size:11.5px;color:#8a94a3;margin-top:2px;">{{ noRepMsg }}</div></div>
-            <div onClick="{{ toggleNoReporting }}" style="width:50px;height:28px;border-radius:20px;background:{{ noRepTrackBg }};position:relative;cursor:pointer;flex:0 0 auto;opacity:{{ repToggleOpacity }};pointer-events:{{ repTogglePE }};">
-              <span style="position:absolute;top:3px;left:{{ noRepKnobX }};width:22px;height:22px;border-radius:50%;background:#fff;"></span>
-            </div>
-          </div>
-          </sc-if>
-          <button onClick="{{ openNoReportBulk }}" style="-webkit-appearance:none;display:flex;align-items:center;gap:12px;padding:13px 15px;background:#fff;border:1px solid #e3e6ec;border-radius:13px;margin-bottom:14px;box-shadow:0 1px 3px rgba(20,30,50,.04);width:100%;text-align:left;cursor:pointer;">
-            <div style="width:40px;height:40px;border-radius:11px;background:#f0f2f7;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="5"/><line x1="16" y1="2" x2="16" y2="5"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
-            </div>
-            <div style="flex:1;min-width:0;">
-              <div style="font-size:13.5px;font-weight:600;color:#161f30;">Set no-report days</div>
-              <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;">Add multiple dates at once</div>
-            </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8cdd7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </button>
-
+          <!-- Report day: stats + roster -->
           <sc-if value="{{ viewShowReporting }}" hint-placeholder-val="{{ true }}">
           <div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:14px;">
-            <div class="card" style="padding:16px;border-top:3px solid #1f8a5b;"><div class="mono-num" style="font-size:26px;color:#1f8a5b;">{{ vPresent }}</div><div style="font-size:12px;color:#8a94a3;margin-top:2px;">{{ vPresentLabel }}</div></div>
-            <div class="card" style="padding:16px;border-top:3px solid #b9791a;"><div class="mono-num" style="font-size:26px;color:#b9791a;">{{ vMc }}</div><div style="font-size:12px;color:#8a94a3;margin-top:2px;">On MC</div></div>
-            <div class="card" style="padding:16px;border-top:3px solid {{ vThirdColor }};"><div class="mono-num" style="font-size:26px;color:{{ vThirdColor }};">{{ vThirdVal }}</div><div style="font-size:12px;color:#8a94a3;margin-top:2px;">{{ vThirdLabel }}</div></div>
-            <div class="card" style="padding:16px;border-top:3px solid #d4d9e2;"><div class="mono-num" style="font-size:26px;color:#161f30;">{{ vTotal }}</div><div style="font-size:12px;color:#8a94a3;margin-top:2px;">Total roster</div></div>
-          </div>
-
-          <sc-if value="{{ showLateAlert }}" hint-placeholder-val="">
-          <div style="background:#fdf6e9;border:1px solid #f0e2c2;border-radius:12px;padding:12px 15px;margin-bottom:12px;display:flex;align-items:center;gap:10px;">
-            <div style="width:36px;height:36px;border-radius:50%;background:#f7efdc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg></div>
-            <div style="flex:1;min-width:0;">
-              <div style="font-size:13px;font-weight:700;color:#b9791a;">{{ lateAlertLabel }}</div>
-              <div style="font-size:12px;color:#8a6d2a;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ lateNames }}</div>
-            </div>
-          </div>
-          </sc-if>
-
-          <!-- Broadcast notice button -->
-          <button onClick="{{ openBroadcast }}" style="-webkit-appearance:none;display:flex;align-items:center;gap:12px;padding:13px 15px;background:#fff;border:1px solid #e3e6ec;border-radius:13px;margin-bottom:12px;box-shadow:0 1px 3px rgba(20,30,50,.04);width:100%;text-align:left;cursor:pointer;">
-            <div style="width:40px;height:40px;border-radius:11px;background:#eef3fc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2f5fd0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3z"/><line x1="12" y1="20" x2="12" y2="20.01"/></svg>
-            </div>
-            <div style="flex:1;min-width:0;">
-              <div style="font-size:13.5px;font-weight:600;color:#161f30;">Post notice to reservists</div>
-              <div style="font-size:11.5px;color:{{ broadcastSubColor }};margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ broadcastSubText }}</div>
-            </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8cdd7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </button>
-
-          <sc-if value="{{ showSnapshot }}" hint-placeholder-val="">
-          <button onClick="{{ openWaPreview }}" style="-webkit-appearance:none;display:flex;align-items:center;gap:12px;padding:13px 15px;background:#fff;border:1px solid #e3e6ec;border-radius:13px;text-decoration:none;margin-bottom:12px;box-shadow:0 1px 3px rgba(20,30,50,.04);width:100%;text-align:left;cursor:pointer;">
-            <div style="width:40px;height:40px;border-radius:11px;background:#25d366;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-            </div>
-            <div style="flex:1;min-width:0;">
-              <div style="font-size:13.5px;font-weight:600;color:#161f30;">Share roll call</div>
-              <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;white-space:nowrap;">Edit and send via WhatsApp</div>
-            </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8cdd7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-          </button>
-          </sc-if>
-          <div class="card-flush">
-            <div style="padding:13px 16px;border-bottom:1px solid #eef0f4;display:flex;justify-content:space-between;align-items:center;">
-              <div style="display:flex;align-items:center;gap:7px;">
-                <span style="font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">{{ viewListHeader }}</span>
-                <sc-if value="{{ viewIsToday }}" hint-placeholder-val="">
-                  <span style="background:#e7f3ec;color:#1f8a5b;font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:7px;letter-spacing:.06em;display:flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;border-radius:50%;background:#1f8a5b;display:inline-block;"></span>LIVE</span>
-                </sc-if>
+            <!-- Compact stat bar -->
+            <div style="background:#fff;border:1px solid #e3e6ec;border-radius:14px;display:flex;margin-bottom:12px;overflow:hidden;">
+              <div style="flex:1;padding:13px 8px;text-align:center;border-right:1px solid #f0f2f5;">
+                <div class="mono-num" style="font-size:24px;color:#1f8a5b;">{{ vPresent }}</div>
+                <div style="font-size:11px;color:#8a94a3;margin-top:2px;">{{ vPresentLabel }}</div>
               </div>
-              <span style="font-size:11.5px;color:{{ viewPercentColor }};font-weight:600;">{{ viewPercentText }}</span>
+              <div style="flex:1;padding:13px 8px;text-align:center;border-right:1px solid #f0f2f5;">
+                <div class="mono-num" style="font-size:24px;color:#b9791a;">{{ vMc }}</div>
+                <div style="font-size:11px;color:#8a94a3;margin-top:2px;">On MC</div>
+              </div>
+              <div style="flex:1;padding:13px 8px;text-align:center;border-right:1px solid #f0f2f5;">
+                <div class="mono-num" style="font-size:24px;color:{{ vThirdColor }};">{{ vThirdVal }}</div>
+                <div style="font-size:11px;color:#8a94a3;margin-top:2px;">{{ vThirdLabel }}</div>
+              </div>
+              <div style="flex:1;padding:13px 8px;text-align:center;">
+                <div class="mono-num" style="font-size:24px;color:#161f30;">{{ vTotal }}</div>
+                <div style="font-size:11px;color:#8a94a3;margin-top:2px;">Total</div>
+              </div>
             </div>
-            <sc-for list="{{ viewRoster }}" as="row" hint-placeholder-count="6">
-              <div class="row-item" style="flex-wrap:wrap;">
-                <div style="display:flex;align-items:center;gap:12px;width:100%;">
-                  <div class="avatar-md" style="{{ row.avatarStyle }}">{{ row.initials }}</div>
-                  <div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div><div style="font-size:11.5px;color:#8a94a3;">{{ row.shiftLabel }}</div></div>
-                  <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a94a3;">{{ row.timeText }}</span>
-                  <span class="badge" style="color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
+
+            <!-- Late check-in alert -->
+            <sc-if value="{{ showLateAlert }}" hint-placeholder-val="">
+            <div style="background:#fdf6e9;border:1px solid #f0e2c2;border-radius:12px;padding:11px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;">
+              <div style="width:34px;height:34px;border-radius:50%;background:#f7efdc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg></div>
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13px;font-weight:700;color:#b9791a;">{{ lateAlertLabel }}</div>
+                <div style="font-size:12px;color:#8a6d2a;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ lateNames }}</div>
+              </div>
+            </div>
+            </sc-if>
+
+            <!-- Live roster -->
+            <div class="card-flush" style="margin-bottom:14px;">
+              <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;justify-content:space-between;align-items:center;">
+                <div style="display:flex;align-items:center;gap:7px;">
+                  <span style="font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">{{ viewListHeader }}</span>
+                  <sc-if value="{{ viewIsToday }}" hint-placeholder-val="">
+                    <span style="background:#e7f3ec;color:#1f8a5b;font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:7px;letter-spacing:.06em;display:flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;border-radius:50%;background:#1f8a5b;display:inline-block;"></span>LIVE</span>
+                  </sc-if>
                 </div>
-                <sc-if value="{{ row.showWelfareNote }}" hint-placeholder-val="">
-                  <div style="width:100%;margin-top:5px;padding-left:46px;font-size:11.5px;color:#3a6b4f;font-style:italic;">{{ row.welfareNote }}</div>
-                </sc-if>
+                <span style="font-size:11.5px;color:{{ viewPercentColor }};font-weight:600;">{{ viewPercentText }}</span>
               </div>
-            </sc-for>
-          </div>
+              <sc-for list="{{ viewRoster }}" as="row" hint-placeholder-count="6">
+                <div class="row-item" style="flex-wrap:wrap;">
+                  <div style="display:flex;align-items:center;gap:12px;width:100%;">
+                    <div class="avatar-md" style="{{ row.avatarStyle }}">{{ row.initials }}</div>
+                    <div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div><div style="font-size:11.5px;color:#8a94a3;">{{ row.shiftLabel }}</div></div>
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a94a3;">{{ row.timeText }}</span>
+                    <span class="badge" style="color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
+                  </div>
+                  <sc-if value="{{ row.showWelfareNote }}" hint-placeholder-val="">
+                    <div style="width:100%;margin-top:5px;padding-left:46px;font-size:11.5px;color:#3a6b4f;font-style:italic;">{{ row.welfareNote }}</div>
+                  </sc-if>
+                </div>
+              </sc-for>
+            </div>
+
+            <!-- Communication actions -->
+            <div class="card-flush" style="margin-bottom:14px;">
+              <button onClick="{{ openBroadcast }}" style="-webkit-appearance:none;width:100%;padding:14px 16px;background:transparent;border:none;border-bottom:1px solid #f0f2f5;cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;">
+                <div style="width:36px;height:36px;border-radius:10px;background:#eef3fc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2f5fd0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3z"/><line x1="12" y1="20" x2="12" y2="20.01"/></svg>
+                </div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:13.5px;font-weight:600;color:#161f30;">Post notice</div>
+                  <div style="font-size:11.5px;color:{{ broadcastSubColor }};margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ broadcastSubText }}</div>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c4c9d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </button>
+              <sc-if value="{{ showSnapshot }}" hint-placeholder-val="">
+              <button onClick="{{ openWaPreview }}" style="-webkit-appearance:none;width:100%;padding:14px 16px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;">
+                <div style="width:36px;height:36px;border-radius:10px;background:#e9faf2;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                </div>
+                <div style="flex:1;min-width:0;">
+                  <div style="font-size:13.5px;font-weight:600;color:#161f30;">Share roll call</div>
+                  <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;">Edit and send via WhatsApp</div>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c4c9d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </button>
+              </sc-if>
+            </div>
           </div>
           </sc-if>
 
+          <!-- No-reporting day placeholder -->
           <sc-if value="{{ viewNoReporting }}" hint-placeholder-val="">
-          <div style="background:#fff;border:1px solid #e3e6ec;border-radius:18px;padding:32px 22px;text-align:center;margin-top:14px;">
+          <div style="background:#fff;border:1px solid #e3e6ec;border-radius:18px;padding:32px 22px;text-align:center;margin-bottom:14px;">
             <div style="width:54px;height:54px;border-radius:50%;background:#f0f2f7;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#8a94a3" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="8" y1="3" x2="8" y2="6"></line><line x1="16" y1="3" x2="16" y2="6"></line></svg></div>
             <h2 style="font-size:18px;font-weight:700;margin:0 0 6px;color:#161f30;">No reporting</h2>
             <p style="font-size:13px;color:#5c6678;margin:0;line-height:1.5;text-wrap:pretty;">{{ viewNoRepReason }}</p>
           </div>
           </sc-if>
+
+          <!-- Schedule utilities -->
+          <div class="card-flush">
+            <sc-if value="{{ showRepToggle }}" hint-placeholder-val="{{ true }}">
+            <div style="padding:14px 16px;border-bottom:1px solid #f0f2f5;display:flex;justify-content:space-between;align-items:center;gap:12px;">
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13.5px;font-weight:600;color:#161f30;">No-reporting day</div>
+                <div style="font-size:12px;color:#8a94a3;margin-top:1px;">{{ noRepMsg }}</div>
+              </div>
+              <div onClick="{{ toggleNoReporting }}" style="width:50px;height:28px;border-radius:20px;background:{{ noRepTrackBg }};position:relative;cursor:pointer;flex:0 0 auto;opacity:{{ repToggleOpacity }};pointer-events:{{ repTogglePE }};">
+                <span style="position:absolute;top:3px;left:{{ noRepKnobX }};width:22px;height:22px;border-radius:50%;background:#fff;transition:left .15s;"></span>
+              </div>
+            </div>
+            </sc-if>
+            <button onClick="{{ openNoReportBulk }}" style="-webkit-appearance:none;width:100%;padding:14px 16px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left;">
+              <div style="flex:1;min-width:0;">
+                <div style="font-size:13.5px;font-weight:600;color:#161f30;">Set no-report days</div>
+                <div style="font-size:12px;color:#8a94a3;margin-top:1px;">Add multiple dates at once</div>
+              </div>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c4c9d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            </button>
+          </div>
         </div>
         </sc-if>
 
