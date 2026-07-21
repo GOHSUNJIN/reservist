@@ -272,6 +272,9 @@ const Builders = {
     const [_sc,_sm]=shiftStart.split(':').map(Number);
     const _lateMs=rec.p1?(()=>{const[h,m]=rec.p1.split(':').map(Number);return(h*60+m)-(_sc*60+_sm);})():0;
     const isLate=_lateMs>=60;
+    const incompletePastRec=s.history.find(r=>r.status==='present'&&(!r.lunch_out_time||!r.work_return_time||!r.work_end_time));
+    const hasIncompletePast=!!incompletePastRec;
+    const incompletePastDate=hasIncompletePast?Utils.fmtMed(new Date(incompletePastRec.date+'T00:00:00')):'';
     const _waTimes=[];
     if(rec.p1) _waTimes.push('IN '+rec.p1);
     if(rec.p2) _waTimes.push('LUNCH '+rec.p2);
@@ -311,6 +314,7 @@ const Builders = {
       phases, allDone,
       summaryP1, summaryP2, summaryP3, summaryP4,
       isLate, lateShiftStart:shiftStart,
+      hasIncompletePast, incompletePastDate,
       canAddLateReason:isLate&&!rec.lateReason&&status==='present'&&!outOfCycle&&!noRep,
       hasLateReason:isLate&&!!rec.lateReason,
       lateReasonDisplayText:rec.lateReason||'',
@@ -439,15 +443,22 @@ const Builders = {
          p1Color:_tc(rec.p1,'#161f30',_dc),p2Color:_tc(rec.p2,'#161f30',_dc),p3Color:_tc(rec.p3,'#161f30',_dc),p4Color:_tc(rec.p4,'#161f30',_dc),
          showTimes:status==='present',lateReason:rec.lateReason||'',showLateReason:!!(rec.lateReason),...Utils.meta(status)}]:[];
 
+    const _nc='#b9791a'; // amber for unrecorded slots
     const histKeys=new Set(s.history.map(r=>r.date));
     const histRows=s.history.map(r=>{
       const d=new Date(r.date+'T00:00:00');
       const tk=s=>s?s.slice(0,5):null;
       const p1=tk(r.check_in_time),p2=tk(r.lunch_out_time),p3=tk(r.work_return_time),p4=tk(r.work_end_time);
+      const isPresent=r.status==='present';
+      const hasIncompleteTimes=isPresent&&(!p2||!p3||!p4);
       return {date:Utils.fmtMed(d),dateKey:r.date,shift:Utils.shiftLabel(me.shift),status:r.status,
-        p1:p1||'-',p2:p2||'-',p3:p3||'-',p4:p4||'-',
-        p1Color:_tc(p1,'#161f30',_dc),p2Color:_tc(p2,'#161f30',_dc),p3Color:_tc(p3,'#161f30',_dc),p4Color:_tc(p4,'#161f30',_dc),
-        showTimes:r.status==='present',lateReason:r.late_reason||'',showLateReason:!!(r.late_reason),...Utils.meta(r.status)};
+        p1:p1||'-',
+        p2:p2||(isPresent?'–':'-'), p3:p3||(isPresent?'–':'-'), p4:p4||(isPresent?'–':'-'),
+        p1Color:_tc(p1,'#161f30',_dc),
+        p2Color:p2?'#161f30':(isPresent?_nc:_dc),
+        p3Color:p3?'#161f30':(isPresent?_nc:_dc),
+        p4Color:p4?'#161f30':(isPresent?_nc:_dc),
+        showTimes:isPresent,hasIncompleteTimes,lateReason:r.late_reason||'',showLateReason:!!(r.late_reason),...Utils.meta(r.status)};
     });
 
     const missedRows=[];
