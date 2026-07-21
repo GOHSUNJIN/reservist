@@ -926,8 +926,15 @@
               <button onClick="{{ dismissHandover }}" style="background:none;border:none;cursor:pointer;font-size:11.5px;font-weight:600;color:#b9791a;padding:2px 6px;">Dismiss</button>
             </div>
             <sc-for list="{{ handoverItems }}" as="ci">
-              <div style="display:flex;align-items:center;gap:9px;margin-bottom:6px;">
-                <span style="font-size:13px;font-weight:700;color:{{ ci.doneColor }};flex:0 0 auto;">{{ ci.doneIcon }}</span>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <sc-if value="{{ ci.done }}" hint-placeholder-val="">
+                  <div style="width:18px;height:18px;border-radius:50%;background:#1f8a5b;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+                    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ !ci.done }}" hint-placeholder-val="{{ true }}">
+                  <div style="width:18px;height:18px;border-radius:50%;border:2px solid #c49a3a;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"></div>
+                </sc-if>
                 <span style="font-size:12.5px;color:{{ ci.doneColor }};">{{ ci.label }}</span>
               </div>
             </sc-for>
@@ -991,9 +998,16 @@
             </div>
           </div>
           </sc-if>
-          <div style="margin-bottom:14px;text-align:right;">
-            <button onClick="{{ openNoReportBulk }}" style="background:none;border:none;cursor:pointer;font-size:12px;font-weight:600;color:#5c6678;text-decoration:underline;text-underline-offset:2px;padding:0;">Set multiple no-report days</button>
-          </div>
+          <button onClick="{{ openNoReportBulk }}" style="-webkit-appearance:none;display:flex;align-items:center;gap:12px;padding:13px 15px;background:#fff;border:1px solid #e3e6ec;border-radius:13px;margin-bottom:14px;box-shadow:0 1px 3px rgba(20,30,50,.04);width:100%;text-align:left;cursor:pointer;">
+            <div style="width:40px;height:40px;border-radius:11px;background:#f0f2f7;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="2" x2="8" y2="5"/><line x1="16" y1="2" x2="16" y2="5"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="12" y2="17"/></svg>
+            </div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13.5px;font-weight:600;color:#161f30;">Set no-report days</div>
+              <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;">Add multiple dates at once</div>
+            </div>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c8cdd7" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+          </button>
 
           <sc-if value="{{ viewShowReporting }}" hint-placeholder-val="{{ true }}">
           <div>
@@ -1507,7 +1521,10 @@
               <span style="font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">PERSONNEL</span>
               <div style="display:flex;align-items:center;gap:8px;">
                 <span style="font-size:12px;color:#8a94a3;">{{ statTotal }} on roster</span>
-                <button onClick="{{ openBulkAdd }}" title="Bulk add" style="padding:4px 9px;border-radius:7px;border:1px solid #d4d9e2;background:#f6f8fa;cursor:pointer;font-size:11px;font-weight:600;color:#5c6678;">Bulk</button>
+                <button onClick="{{ openBulkAdd }}" title="Bulk add" style="padding:4px 9px;border-radius:7px;border:1px solid #d4d9e2;background:#f6f8fa;cursor:pointer;font-size:11px;font-weight:600;color:#5c6678;display:inline-flex;align-items:center;gap:4px;">
+                  <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/><line x1="20" y1="8" x2="20" y2="14"/></svg>
+                  Bulk
+                </button>
                 <button onClick="{{ toggleAddPersonnel }}" title="Add personnel" style="width:26px;height:26px;border-radius:50%;background:{{ addPersonnelBtnBg }};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto;padding:0;">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="{{ addPersonnelBtnStroke }}" stroke-width="2.8" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 </button>
@@ -1533,16 +1550,13 @@
                   </div>
                   <span class="badge" style="background:#eef0f4;color:#5c6678;">{{ p.shiftLabel }}</span>
                 </div>
-                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:9px;">
-                  <button onClick="{{ p.onViewHistory }}" style="padding:7px 0;background:#fff;border:1px solid #d4d9e2;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:#5c6678;">History</button>
-                  <button onClick="{{ p.onEditNote }}" style="padding:7px 0;background:#fff;border:1px solid #d4d9e2;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:#5c6678;">Note</button>
+                <div style="display:flex;gap:6px;margin-top:9px;">
+                  <button onClick="{{ p.onViewHistory }}" style="flex:1;padding:7px 0;background:#fff;border:1px solid #d4d9e2;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:#5c6678;">History</button>
+                  <button onClick="{{ p.onEditNote }}" style="flex:1;padding:7px 0;background:#fff;border:1px solid #d4d9e2;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:#5c6678;">Note</button>
                   <sc-if value="{{ p.canResetPw }}" hint-placeholder-val="">
-                    <button onClick="{{ p.onResetPw }}" style="padding:7px 0;background:#fff;border:1px solid #d4d9e2;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:#5c6678;">Reset PW</button>
+                    <button onClick="{{ p.onResetPw }}" style="flex:1;padding:7px 0;background:#fff;border:1px solid #d4d9e2;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:#5c6678;">Reset PW</button>
                   </sc-if>
-                  <sc-if value="{{ !p.canResetPw }}" hint-placeholder-val="{{ true }}">
-                    <div></div>
-                  </sc-if>
-                  <button onClick="{{ p.onAskDeactivate }}" style="padding:7px 0;background:#fbeeec;border:1px solid #f1d3cf;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:#c0392b;">Remove</button>
+                  <button onClick="{{ p.onAskDeactivate }}" style="flex:1;padding:7px 0;background:#fbeeec;border:1px solid #f1d3cf;border-radius:8px;cursor:pointer;font-size:12px;font-weight:600;color:#c0392b;">Remove</button>
                 </div>
                 <sc-if value="{{ p.isEditingNote }}" hint-placeholder-val="">
                   <div style="margin-top:10px;">
