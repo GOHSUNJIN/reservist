@@ -15,6 +15,11 @@ const BriefingsBuilders = {
       key,label,isMyShift:key===myShift,onClick:this.setRolesTab(key),
       style:`flex:1;padding:8px 4px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;${tab===key?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':key===myShift?`background:rgba(47,95,208,.07);color:${accent};`:'background:transparent;color:#8a94a3;'}`,
     }));
+    const briefTab=s.briefTab||'info';
+    const briefTabs=[{key:'info',label:'Info'},{key:'history',label:'Leave History'}].map(t=>({
+      ...t, onClick:this.setBriefTab(t.key),
+      style:`flex:1;padding:8px 4px;border:none;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;${briefTab===t.key?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`,
+    }));
     const waGroupUrl=this.props.waGroupLink||'';
     return {
       roleTabs, roleTitle:active.title, roleWindow:active.window, roleItems:active.items, roleNote:active.note||'',
@@ -40,6 +45,7 @@ const BriefingsBuilders = {
         'Bring hardcopies of any MCs taken.',
         'Update WhatsApp once all PNSMEN have arrived.',
       ],
+      briefTabs, briefTabInfo:briefTab==='info', briefTabHistory:briefTab==='history',
       waGroupUrl, showWaGroup:!!waGroupUrl,
       teamMembers: me?.batch_id ? s.personnel
         .filter(p=>p.batch_id===me.batch_id&&p.id!==s.currentUserId&&(p.role||'reservist')==='reservist')
@@ -58,6 +64,8 @@ const BriefingsBuilders = {
         statusColor:r.status==='approved'?'#1f8a5b':r.status==='rejected'?'#c0392b':'#b9791a',
         statusBg:r.status==='approved'?'#e7f3ec':r.status==='rejected'?'#f7e4e1':'#fdf6e9',
         reason:r.reason||'',
+        rejectionReason:r.rejection_reason||'',
+        showRejectionReason:!!(r.rejection_reason&&r.status==='rejected'),
         reviewedBy:r.reviewed_by||'',
         showReviewedBy:!!(r.reviewed_by&&r.status!=='pending'),
       })),
