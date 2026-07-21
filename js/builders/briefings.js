@@ -16,7 +16,7 @@ const BriefingsBuilders = {
       style:`flex:1;padding:8px 4px;border:none;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;${tab===key?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':key===myShift?`background:rgba(47,95,208,.07);color:${accent};`:'background:transparent;color:#8a94a3;'}`,
     }));
     const briefTab=s.briefTab||'info';
-    const briefTabs=[{key:'info',label:'Info'},{key:'history',label:'Leave History'}].map(t=>({
+    const briefTabs=[{key:'info',label:'Info'},{key:'history',label:'Requests'}].map(t=>({
       ...t, onClick:this.setBriefTab(t.key),
       style:`flex:1;padding:8px 4px;border:none;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;${briefTab===t.key?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`,
     }));
