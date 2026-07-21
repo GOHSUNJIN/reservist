@@ -103,7 +103,7 @@ const InitHandlers = {
       tab: role==='admin'?'overview':'checkin',
       currentUserId: me.id,
       me, personnel, batches, activeBatchIdx,
-      attendance, noReportDays, history, attendanceDate: today,
+      attendance, noReportDays, history, attendanceDate: today, historyLoaded: true,
       authError:'', loading:false, accountDeleted:false, demo:false, isSuperAdmin,
     });
     if(role==='admin'){
@@ -177,7 +177,7 @@ const InitHandlers = {
         DB.attendance.getForDate(newDate).catch(()=>({})),
         DB.attendance.getHistory(this.state.currentUserId).catch(()=>[]),
       ]);
-      this.setState({attendance:att, attendanceDate:newDate, history:hist});
+      this.setState({attendance:att, attendanceDate:newDate, history:hist, historyLoaded:true});
     }
   },
 

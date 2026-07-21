@@ -49,7 +49,7 @@ const makeInitialState = () => ({
   noReportDaysCache: {},
   markAllPresenting: false,
   editingBatchLabel: false, batchLabelText: '',
-  historyPage: 1, historyExpandedDates: [], briefTab: 'info',
+  historyPage: 1, historyExpandedDates: [], briefTab: 'info', historyLoaded: false,
   missedNoteOpen: false, missedNoteDateKey: null, missedNoteText: '',
   sessionExpiring: false,
   idleWarning: false,

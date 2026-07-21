@@ -47,6 +47,21 @@ const RequestHandlers = {
     };
   },
 
+  cancelLeaveRequest: function(id) {
+    return async () => {
+      const {demo} = this.state;
+      if(!demo && id && id !== 'demo') {
+        const {error} = await DB.leaves.cancel(id).catch(()=>({error:true}));
+        if(error){ this._toast('Failed to cancel. Try again.','error'); return; }
+      }
+      this.setState(s=>({
+        myPendingRequest: s.myPendingRequest?.id===id ? null : s.myPendingRequest,
+        myLeaveHistory: s.myLeaveHistory.map(r=>r.id===id?{...r,status:'cancelled'}:r),
+      }));
+      this._toast('Request cancelled.');
+    };
+  },
+
   rejectSignup: function(id) {
     return async () => {
       const req = this.state.pendingSignups.find(r=>r.id===id);

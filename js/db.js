@@ -379,6 +379,11 @@ const DB = {
       return data || null;
     },
 
+    async cancel(id) {
+      const { error } = await _db.from('leave_requests').update({ status: 'cancelled' }).eq('id', id).eq('status', 'pending');
+      return { error };
+    },
+
     async myHistory(personnelId) {
       const { data } = await _db.from('leave_requests')
         .select('*').eq('personnel_id', personnelId)
