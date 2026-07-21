@@ -67,7 +67,9 @@ const BriefingsBuilders = {
         rejectionReason:r.rejection_reason||'',
         showRejectionReason:!!(r.rejection_reason&&r.status==='rejected'),
         reviewedBy:r.reviewed_by||'',
-        showReviewedBy:!!(r.reviewed_by&&r.status!=='pending'),
+        showReviewedBy:!!(r.reviewed_by&&r.status!=='pending'&&r.status!=='cancelled'),
+        canCancel:r.status==='pending',
+        onCancel:this.cancelLeaveRequest(r.id),
       })),
       showLeaveHistory:s.myLeaveHistory.length>0, myLeaveHistoryLoaded:s.myLeaveHistoryLoaded,
     };

@@ -36,7 +36,7 @@ const MiscHandlers = {
       attendanceCache = await DB.attendance.getForBatch(activeBatch.start_date, activeBatch.end_date).catch(()=>({}));
     }
     const noReportDaysCache = activeBatch ? {[activeBatch.id]: noReportDays} : {};
-    this.setState({batches, activeBatchIdx, attendance, noReportDays, history, attendanceCache, noReportDaysCache});
+    this.setState({batches, activeBatchIdx, attendance, noReportDays, history, attendanceCache, noReportDaysCache, historyLoaded:true});
   },
 
   // ── Navigation ─────────────────────────────────────────────────────────

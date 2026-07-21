@@ -306,9 +306,10 @@
                   <p style="font-size:13px;color:#8a94a3;margin:2px 0 0;">Awaiting admin review</p>
                 </div>
               </div>
-              <div style="background:#fdf6e9;border:1px solid #f0e2c2;border-radius:11px;padding:13px 15px;font-size:13px;color:#6b4f1e;line-height:1.6;">
+              <div style="background:#fdf6e9;border:1px solid #f0e2c2;border-radius:11px;padding:13px 15px;font-size:13px;color:#6b4f1e;line-height:1.6;margin-bottom:10px;">
                 Your <strong>{{ pendingRequestLabel }}</strong> request for <strong>{{ pendingRequestDate }}</strong> is pending approval. Check-in is paused until the admin reviews it.
               </div>
+              <button onClick="{{ onCancelPendingRequest }}" style="-webkit-appearance:none;width:100%;padding:10px;background:none;border:1px solid #e3e6ec;border-radius:9px;font-size:13px;font-weight:600;color:#8a94a3;cursor:pointer;">Withdraw request</button>
             </div>
             </sc-if>
 
@@ -754,8 +755,11 @@
                   <sc-if value="{{ rh.showReviewedBy }}" hint-placeholder-val="">
                     <div style="font-size:11px;color:#aab0bc;margin-top:1px;">by {{ rh.reviewedBy }}</div>
                   </sc-if>
+                  <sc-if value="{{ rh.canCancel }}" hint-placeholder-val="">
+                    <button onClick="{{ rh.onCancel }}" style="-webkit-appearance:none;margin-top:6px;padding:5px 10px;background:none;border:1px solid #e3e6ec;border-radius:7px;font-size:11px;font-weight:600;color:#8a94a3;cursor:pointer;">Withdraw</button>
+                  </sc-if>
                 </div>
-                <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;color:{{ rh.statusColor }};background:{{ rh.statusBg }};white-space:nowrap;flex:0 0 auto;">{{ rh.statusLabel }}</span>
+                <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;color:{{ rh.statusColor }};background:{{ rh.statusBg }};white-space:nowrap;flex:0 0 auto;align-self:flex-start;">{{ rh.statusLabel }}</span>
               </div>
             </div>
             </sc-for>
@@ -778,6 +782,13 @@
         <!-- ===== ATTENDANCE ===== -->
         <sc-if value="{{ tabAttendance }}" hint-placeholder-val="">
         <div>
+          <sc-if value="{{ !historyLoaded }}" hint-placeholder-val="">
+            <div style="display:flex;align-items:center;justify-content:center;padding:60px 16px;gap:10px;">
+              <div style="width:18px;height:18px;border:2.5px solid #e3e6ec;border-top-color:{{ accent }};border-radius:50%;animation:spin .7s linear infinite;"></div>
+              <span style="font-size:13px;color:#9aa3b2;">Loading attendance...</span>
+            </div>
+          </sc-if>
+          <sc-if value="{{ historyLoaded }}" hint-placeholder-val="{{ true }}">
           <!-- Stats + progress combined card -->
           <div class="card" style="overflow:hidden;margin-bottom:14px;">
             <div style="display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid #f0f2f5;">
@@ -895,6 +906,7 @@
               </div>
             </sc-if>
           </div>
+          </sc-if><!-- end historyLoaded -->
         </div>
         </sc-if>
 
