@@ -1445,29 +1445,28 @@
               </sc-if>
             </div>
             <sc-for list="{{ pendingSignups }}" as="sr">
-            <div style="padding:12px 16px;border-bottom:1px solid #f2f4f7;background:{{ sr.cardBg }};">
+            <div style="padding:10px 16px;border-bottom:1px solid #f2f4f7;background:{{ sr.cardBg }};">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
                 <div onClick="{{ sr.onToggleSelect }}" style="width:20px;height:20px;border-radius:5px;border:2px solid {{ sr.checkBorder }};background:{{ sr.checkBg }};display:flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer;">
                   <sc-if value="{{ sr.isSelected }}" hint-placeholder-val="">
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
                   </sc-if>
                 </div>
-                <div style="width:36px;height:36px;border-radius:50%;background:#eceef2;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#5c6678;flex:0 0 auto;">{{ sr.initials }}</div>
+                <div style="width:34px;height:34px;border-radius:50%;background:#eceef2;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#5c6678;flex:0 0 auto;">{{ sr.initials }}</div>
                 <div style="flex:1;min-width:0;">
-                  <div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ sr.name }}</div>
-                  <div style="font-size:11.5px;color:#8a94a3;">{{ sr.contact }} · {{ sr.shift }} · {{ sr.batchLabel }}</div>
+                  <div style="font-size:13px;font-weight:600;color:#161f30;">{{ sr.name }}</div>
+                  <div style="font-size:11px;color:#8a94a3;margin-top:1px;">{{ sr.contact }} · {{ sr.shift }} · {{ sr.batchLabel }} · {{ sr.createdAt }}</div>
                 </div>
                 <sc-if value="{{ sr.isReactivation }}" hint-placeholder-val="">
-                  <span style="flex:0 0 auto;font-size:10px;font-weight:700;background:#fdf6e9;color:#b9791a;border:1px solid #f0e2c2;padding:3px 8px;border-radius:20px;">Returning</span>
+                  <span style="flex:0 0 auto;font-size:10px;font-weight:700;background:#fdf6e9;color:#b9791a;border:1px solid #f0e2c2;padding:2px 7px;border-radius:20px;">Returning</span>
                 </sc-if>
                 <sc-if value="{{ sr.isNew }}" hint-placeholder-val="">
-                  <span style="flex:0 0 auto;font-size:10px;font-weight:700;background:#f1f8f4;color:#1f8a5b;border:1px solid #cfe6d8;padding:3px 8px;border-radius:20px;">New</span>
+                  <span style="flex:0 0 auto;font-size:10px;font-weight:700;background:#f1f8f4;color:#1f8a5b;border:1px solid #cfe6d8;padding:2px 7px;border-radius:20px;">New</span>
                 </sc-if>
               </div>
-              <div style="font-size:11px;color:#9aa3b2;margin-bottom:8px;">Requested {{ sr.createdAt }}</div>
               <div style="display:flex;gap:8px;">
-                <button onClick="{{ sr.onReject }}" style="-webkit-appearance:none;flex:1;padding:9px;background:#fff;border:1px solid #e3e6ec;color:#c0392b;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Reject</button>
-                <button onClick="{{ sr.onApprove }}" style="-webkit-appearance:none;flex:2;padding:9px;background:#161f30;border:none;color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Approve</button>
+                <button onClick="{{ sr.onReject }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #e3e6ec;color:#c0392b;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;">Reject</button>
+                <button onClick="{{ sr.onApprove }}" style="-webkit-appearance:none;flex:2;padding:7px;background:#161f30;border:none;color:#fff;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;">Approve</button>
               </div>
             </div>
             </sc-for>
@@ -1490,22 +1489,21 @@
               </sc-if>
             </div>
             <sc-for list="{{ pendingLeaves }}" as="lr" hint-placeholder-count="2">
-            <div style="padding:12px 16px;border-bottom:1px solid #f2f4f7;opacity:{{ lr.isExpired ? '0.65' : '1' }};">
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="padding:10px 16px;border-bottom:1px solid #f2f4f7;opacity:{{ lr.isExpired ? '0.65' : '1' }};">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:7px;">
                 <div class="avatar-sm" style="flex:0 0 auto;">{{ lr.initials }}</div>
                 <div style="flex:1;min-width:0;">
-                  <div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ lr.personName }}</div>
-                  <div style="font-size:11.5px;color:#8a94a3;">{{ lr.personShift }} · {{ lr.dateLabel }} · <span style="color:{{ lr.isExpired ? '#c0392b' : '#a0a8b4' }};">{{ lr.timeAgo }}</span></div>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <span style="font-size:13px;font-weight:600;color:#161f30;">{{ lr.personName }}</span>
+                    <sc-if value="{{ lr.isExpired }}" hint-placeholder-val=""><span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;background:#f2f4f7;color:#8a94a3;border:1px solid #d4d9e2;white-space:nowrap;">Expired</span></sc-if>
+                  </div>
+                  <div style="font-size:11px;color:#8a94a3;margin-top:1px;">{{ lr.personShift }} · {{ lr.dateLabel }}<sc-if value="{{ lr.showRequestedShift }}" hint-placeholder-val=""> → <strong style="color:#5c6678;">{{ lr.requestedShiftLabel }}</strong></sc-if> · <span style="color:{{ lr.isExpired ? '#c0392b' : '#a0a8b4' }};">{{ lr.timeAgo }}</span></div>
+                  <sc-if value="{{ lr.reason }}" hint-placeholder-val="">
+                    <div style="font-size:11px;color:#9aa3b2;font-style:italic;margin-top:1px;">"{{ lr.reason }}"</div>
+                  </sc-if>
                 </div>
-                <sc-if value="{{ lr.isExpired }}" hint-placeholder-val=""><span style="font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:20px;background:#f2f4f7;color:#8a94a3;border:1px solid #d4d9e2;white-space:nowrap;flex:0 0 auto;">Expired</span></sc-if>
-                <span style="font-size:11px;font-weight:600;background:{{ lr.typeBg }};color:{{ lr.typeColor }};border:1px solid {{ lr.typeBorder }};padding:3px 8px;border-radius:20px;white-space:nowrap;flex:0 0 auto;">{{ lr.typeLabel }}</span>
+                <span style="font-size:10.5px;font-weight:600;background:{{ lr.typeBg }};color:{{ lr.typeColor }};border:1px solid {{ lr.typeBorder }};padding:2px 7px;border-radius:20px;white-space:nowrap;flex:0 0 auto;">{{ lr.typeLabel }}</span>
               </div>
-              <sc-if value="{{ lr.showRequestedShift }}" hint-placeholder-val="">
-                <div style="font-size:12px;color:#5c6678;margin-bottom:4px;padding-left:46px;">Requesting: <strong>{{ lr.requestedShiftLabel }}</strong></div>
-              </sc-if>
-              <sc-if value="{{ lr.reason }}" hint-placeholder-val="">
-                <div style="font-size:12px;color:#8a94a3;font-style:italic;margin-bottom:6px;padding-left:46px;">"{{ lr.reason }}"</div>
-              </sc-if>
               <sc-if value="{{ lr.isRejectOpen }}" hint-placeholder-val="">
                 <div style="margin-top:8px;padding:10px 12px;background:#fbeeec;border:1px solid #f1d3cf;border-radius:9px;">
                   <div style="font-size:11px;font-weight:600;color:#8a94a3;letter-spacing:.06em;margin-bottom:6px;">DECLINE REASON (OPTIONAL)</div>
@@ -1518,8 +1516,8 @@
               </sc-if>
               <sc-if value="{{ !lr.isRejectOpen }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;gap:8px;margin-top:4px;">
-                <button onClick="{{ lr.onReject }}" style="-webkit-appearance:none;flex:1;padding:9px;background:#fff;border:1px solid #e3e6ec;color:#c0392b;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Decline</button>
-                <button onClick="{{ lr.onApprove }}" style="-webkit-appearance:none;flex:2;padding:9px;background:#161f30;border:none;color:#fff;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;">Approve</button>
+                <button onClick="{{ lr.onReject }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #e3e6ec;color:#c0392b;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;">Decline</button>
+                <button onClick="{{ lr.onApprove }}" style="-webkit-appearance:none;flex:2;padding:7px;background:#161f30;border:none;color:#fff;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;">Approve</button>
               </div>
               </sc-if>
             </div>
