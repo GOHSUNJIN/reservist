@@ -13,8 +13,8 @@ const AccountBuilders = {
     return {
       accountOpen:s.accountOpen,
       closeAccount:this.closeAccount, askDelete:this.askDelete, cancelDelete:this.cancelDelete, deleteAccount:this.deleteAccount,
-      confirmDelete:s.confirmDelete, deleteIdle:!s.confirmDelete,
-      acctNric:'', acctContact:me.contact||'-',
+      confirmDelete:s.confirmDelete,
+      acctContact:me.contact||'-',
       onAvatarFile:this.onAvatarFile,
       headerAvatarBg:avatarUrl?('url("'+avatarUrl+'")') :'none',
       headerNoAvatar:!avatarUrl,
@@ -33,6 +33,8 @@ const AccountBuilders = {
       adminNotifGranted:s.adminNotifGranted, requestAdminNotifs:this.requestAdminNotifs,
       helpOpen:s.helpOpen, openHelp:this.openHelp, closeHelp:this.closeHelp,
       dekitDateFull:acctDekit?Utils.fmtMed(acctDekit):'',
+      changePwOpen:s.changePwOpen, openChangePw:this.openChangePw, closeChangePw:this.closeChangePw,
+      changeNameOpen:s.changeNameOpen, openChangeName:this.openChangeName, closeChangeName:this.closeChangeName,
     };
   },
 
