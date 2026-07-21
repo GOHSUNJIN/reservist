@@ -398,6 +398,11 @@ const Handlers = {
       waPreviewOpen:false, waPreviewText:'',
       logNoteId:null, logNoteText:'',
       realtimeLive:false,
+      resetPwId:null, resetPwNew:'', resetPwSaving:false,
+      broadcastOpen:false, broadcastText:'', broadcastSaving:false,
+      bulkAddOpen:false, bulkAddText:'', bulkAddParsed:[], bulkAddStep:'input', bulkAddAdding:false,
+      noReportBulkOpen:false, noReportBulkText:'',
+      helpOpen:false,
     });
   },
 
@@ -1848,5 +1853,133 @@ const Handlers = {
     if(want==='AM'&&am>=2) return 'OFFICE';
     if(want==='PM'&&pm>=2) return 'OFFICE';
     return want;
+  },
+
+  // ── Admin: password reset ─────────────────────────────────────────────
+  openResetPw: function(id) { return () => this.setState({resetPwId:id, resetPwNew:'', resetPwSaving:false}); },
+  closeResetPw: function() { this.setState({resetPwId:null, resetPwNew:''}); },
+  onResetPwNew: function(e) { this.setState({resetPwNew:e.target.value}); },
+  submitResetPw: async function() {
+    const {resetPwId, resetPwNew, personnel, demo} = this.state;
+    if(!resetPwId) return;
+    if(!resetPwNew || resetPwNew.length < 6) { this._toast('Password must be at least 6 characters.', 'error'); return; }
+    if(demo) { this._toast('Cannot reset passwords in demo mode.', 'error'); return; }
+    const p = personnel.find(x=>x.id===resetPwId);
+    if(!p?.auth_id) { this._toast('No login account linked to this person.', 'error'); return; }
+    this.setState({resetPwSaving:true});
+    const {error} = await DB.auth.adminResetPassword(p.auth_id, resetPwNew);
+    this.setState({resetPwSaving:false});
+    if(error) { this._toast('Failed to reset password.', 'error'); return; }
+    this._toast((p.name||'Person')+"'s password has been reset.");
+    this.setState({resetPwId:null, resetPwNew:''});
+  },
+
+  // ── Admin: broadcast notice ───────────────────────────────────────────
+  openBroadcast: function() {
+    const batch = this.state.batches[this.state.activeBatchIdx||0];
+    this.setState({broadcastOpen:true, broadcastText:batch?.notice_text||''});
+  },
+  closeBroadcast: function() { this.setState({broadcastOpen:false, broadcastText:''}); },
+  onBroadcastText: function(e) { this.setState({broadcastText:e.target.value}); },
+  saveBroadcast: async function() {
+    const {batches, activeBatchIdx, broadcastText, demo} = this.state;
+    const batch = batches[activeBatchIdx||0]; if(!batch) return;
+    if(demo) { this._toast('Cannot post notices in demo mode.', 'error'); return; }
+    this.setState({broadcastSaving:true});
+    const text = broadcastText.trim();
+    const {error} = await DB.batches.updateNotice(batch.id, text);
+    this.setState({broadcastSaving:false});
+    if(error) { this._toast('Failed to save notice.', 'error'); return; }
+    this.setState(s=>({batches:s.batches.map(b=>b.id===batch.id?{...b,notice_text:text||null}:b), broadcastOpen:false}));
+    this._toast(text ? 'Notice posted to all reservists.' : 'Notice cleared.');
+  },
+
+  // ── Admin: bulk add personnel ─────────────────────────────────────────
+  openBulkAdd: function() { this.setState({bulkAddOpen:true, bulkAddText:'', bulkAddParsed:[], bulkAddStep:'input', bulkAddAdding:false}); },
+  closeBulkAdd: function() { this.setState({bulkAddOpen:false, bulkAddText:'', bulkAddParsed:[], bulkAddStep:'input', bulkAddAdding:false}); },
+  onBulkAddText: function(e) { this.setState({bulkAddText:e.target.value}); },
+  parseBulkAdd: function() {
+    const lines = (this.state.bulkAddText||'').split('\n').map(l=>l.trim()).filter(Boolean);
+    const parsed = lines.map(line=>{
+      const parts = line.split(',').map(p=>p.trim());
+      const name = parts[0]||'';
+      const contact = (parts[1]||'').replace(/[\s-]/g,'');
+      const shiftRaw = (parts[2]||'AM').toUpperCase().replace(/\s/g,'');
+      const shift = ['AM','PM','OFFICE'].includes(shiftRaw)?shiftRaw:'AM';
+      const valid = name.length>1 && contact.length>=6;
+      return {name, contact, shift, valid};
+    });
+    this.setState({bulkAddParsed:parsed, bulkAddStep:'preview'});
+  },
+  confirmBulkAdd: async function() {
+    const {bulkAddParsed, batches, activeBatchIdx, demo} = this.state;
+    const batch = batches[activeBatchIdx||0];
+    if(!batch) { this._toast('No active batch.', 'error'); return; }
+    const valid = bulkAddParsed.filter(r=>r.valid);
+    if(!valid.length) return;
+    if(demo) { this._toast('Cannot add personnel in demo mode.', 'error'); return; }
+    this.setState({bulkAddAdding:true});
+    let added=0, skipped=0, failed=0;
+    for(const r of valid){
+      const existing = await DB.personnel.findByContact(r.contact).catch(()=>null);
+      if(existing){
+        if(!existing.is_active){
+          const {error} = await DB.personnel.reactivate(existing.id,{batchId:batch.id,shift:r.shift});
+          error ? failed++ : added++;
+        } else { skipped++; }
+        continue;
+      }
+      const {error} = await DB.personnel.add({name:r.name,contact:r.contact,shift:r.shift,batchId:batch.id});
+      error ? failed++ : added++;
+    }
+    const personnel = await DB.personnel.list().catch(()=>this.state.personnel);
+    this.setState({personnel, bulkAddAdding:false});
+    this.closeBulkAdd();
+    const msg = [added?added+' added':'', skipped?skipped+' already active':'', failed?failed+' failed':''].filter(Boolean).join(', ');
+    this._toast(msg||'Done.', failed?'error':undefined);
+  },
+
+  // ── Admin: bulk no-report days ────────────────────────────────────────
+  openNoReportBulk: function() { this.setState({noReportBulkOpen:true, noReportBulkText:''}); },
+  closeNoReportBulk: function() { this.setState({noReportBulkOpen:false, noReportBulkText:''}); },
+  onNoReportBulkText: function(e) { this.setState({noReportBulkText:e.target.value}); },
+  applyNoReportBulk: async function() {
+    const {noReportBulkText, batches, activeBatchIdx, demo} = this.state;
+    const batch = batches[activeBatchIdx||0]; if(!batch) return;
+    if(demo) { this._toast('Cannot set no-report days in demo mode.', 'error'); return; }
+    const raw = noReportBulkText.replace(/\n/g,',').split(',').map(s=>s.trim()).filter(Boolean);
+    const batchEnd = batch.dekit_date||batch.end_date;
+    const dates = [];
+    for(const s of raw){
+      let dk = null;
+      if(/^\d{4}-\d{2}-\d{2}$/.test(s)) dk = s;
+      else if(/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}$/.test(s)){
+        const parts = s.split(/[\/\-]/);
+        dk = parts[2]+'-'+parts[1].padStart(2,'0')+'-'+parts[0].padStart(2,'0');
+      }
+      if(dk && dk>=batch.start_date && dk<=batchEnd) dates.push(dk);
+    }
+    if(!dates.length){ this._toast('No valid dates found. Use dd/mm/yyyy format.', 'error'); return; }
+    let added=0;
+    for(const dk of dates){
+      if(!this.state.noReportDays.has(dk)){
+        await DB.noReportDays.ensure(dk).catch(()=>{});
+        added++;
+      }
+    }
+    const nrd = await DB.noReportDays.list(batch.start_date, batchEnd).catch(()=>this.state.noReportDays);
+    this.setState({noReportDays:nrd, noReportBulkOpen:false, noReportBulkText:''});
+    this._toast(added+' no-report day'+(added!==1?'s':'')+' added.');
+  },
+
+  // ── Help ──────────────────────────────────────────────────────────────
+  openHelp: function() { this.setState({helpOpen:true}); },
+  closeHelp: function() { this.setState({helpOpen:false}); },
+
+  // ── Handover checklist ────────────────────────────────────────────────
+  dismissHandover: function() {
+    const batch = this.state.batches[this.state.activeBatchIdx||0];
+    if(batch) localStorage.setItem('handover_'+batch.id, '1');
+    this.setState({});
   },
 };

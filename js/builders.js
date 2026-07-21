@@ -355,6 +355,9 @@ const Builders = {
       openWelfareNote:this.openWelfareNote, closeWelfareNote:this.closeWelfareNote,
       welfareNoteOpen:s.welfareNoteOpen, welfareNoteText:s.welfareNoteText, welfareNoteSaving:s.welfareNoteSaving, welfareNoteSavingOpacity:s.welfareNoteSaving?0.6:1,
       onWelfareNoteText:this.onWelfareNoteText, submitWelfareNote:this.submitWelfareNote,
+      // Broadcast notice for reservist
+      batchNotice:(()=>{const b=s.batches.find(x=>x.id===me?.batch_id); return b?.notice_text||'';})(),
+      hasBatchNotice:!!(()=>{const b=s.batches.find(x=>x.id===me?.batch_id); return b?.notice_text;})(),
     };
   },
 
@@ -858,6 +861,8 @@ const Builders = {
           onViewHistory:this.openPersonHistory(p.id),
           approvedBy,
           showApprovedBy:!!approvedBy,
+          onResetPw:this.openResetPw(p.id),
+          canResetPw:!!p.auth_id,
         };
       }),
       personnelListEmpty:activeMembers.length===0,
@@ -885,6 +890,59 @@ const Builders = {
       mealToggleKnobX:activeBatch?.meal_active?'25px':'3px',
       batchLoading:s.batchLoading,
       exportCsv:this.exportCsv,
+      // Feature: admin password reset
+      resetPwOpen:s.resetPwId!==null,
+      resetPwPersonName:(s.personnel.find(p=>p.id===s.resetPwId)||{}).name||'',
+      resetPwNew:s.resetPwNew||'', resetPwSaving:s.resetPwSaving,
+      resetPwSavingOpacity:s.resetPwSaving?0.6:1,
+      resetPwBtnLabel:s.resetPwSaving?'Resetting...':'Reset password',
+      onResetPwNew:this.onResetPwNew, submitResetPw:this.submitResetPw, closeResetPw:this.closeResetPw,
+      // Feature: broadcast notice
+      broadcastOpen:s.broadcastOpen, broadcastText:s.broadcastText||'', broadcastSaving:s.broadcastSaving,
+      broadcastSavingOpacity:s.broadcastSaving?0.6:1,
+      broadcastBtnLabel:s.broadcastSaving?'Saving...':'Post notice',
+      openBroadcast:this.openBroadcast, closeBroadcast:this.closeBroadcast,
+      onBroadcastText:this.onBroadcastText, saveBroadcast:this.saveBroadcast,
+      activeBatchNotice:activeBatch?.notice_text||'', hasActiveBatchNotice:!!(activeBatch?.notice_text),
+      broadcastSubColor:activeBatch?.notice_text?'#2f5fd0':'#8a94a3',
+      broadcastSubText:activeBatch?.notice_text||'No active notice',
+      // Feature: bulk add
+      bulkAddOpen:s.bulkAddOpen, bulkAddText:s.bulkAddText||'',
+      bulkAddIsInput:s.bulkAddStep==='input', bulkAddIsPreview:s.bulkAddStep==='preview',
+      bulkAddAdding:s.bulkAddAdding,
+      bulkAddAddingOpacity:s.bulkAddAdding?0.6:1,
+      ...(()=>{
+        const _parsed=(s.bulkAddParsed||[]).map(r=>({...r,validColor:r.valid?'#1f8a5b':'#c0392b',validLabel:r.valid?'OK':'Skip',shiftDisplay:r.shift||'AM'}));
+        const _vc=_parsed.filter(r=>r.valid).length;
+        return {
+          bulkAddParsed:_parsed,
+          bulkAddValidCount:_vc,
+          bulkAddTotal:_parsed.length,
+          bulkAddHasValid:_vc>0,
+          bulkAddBtnLabel:s.bulkAddAdding?'Adding...':('Add '+_vc+' personnel'),
+        };
+      })(),
+      openBulkAdd:this.openBulkAdd, closeBulkAdd:this.closeBulkAdd,
+      onBulkAddText:this.onBulkAddText, parseBulkAdd:this.parseBulkAdd, confirmBulkAdd:this.confirmBulkAdd,
+      // Feature: bulk no-report days
+      noReportBulkOpen:s.noReportBulkOpen, noReportBulkText:s.noReportBulkText||'',
+      openNoReportBulk:this.openNoReportBulk, closeNoReportBulk:this.closeNoReportBulk,
+      onNoReportBulkText:this.onNoReportBulkText, applyNoReportBulk:this.applyNoReportBulk,
+      // Feature: handover checklist
+      ...(()=>{
+        const lb=batches.find(b=>b.is_live);
+        if(!lb) return {showHandover:false,handoverItems:[],handoverDone:true};
+        const dismissed=!!localStorage.getItem('handover_'+lb.id);
+        if(dismissed) return {showHandover:false,handoverItems:[],handoverDone:true};
+        const items=[
+          {label:'Personnel added to this cycle',done:(s.personnel||[]).filter(p=>p.batch_id===lb.id&&p.is_active!==false).length>0},
+          {label:'No-report days configured',done:(s.noReportDays||new Set()).size>0},
+          {label:'Dekit date set',done:!!lb.dekit_date},
+        ];
+        const allDone=items.every(i=>i.done);
+        return {showHandover:!allDone,handoverItems:items.map(i=>({...i,doneColor:i.done?'#1f8a5b':'#8a94a3',doneIcon:i.done?'✓':'○'})),handoverDone:allDone};
+      })(),
+      dismissHandover:this.dismissHandover,
       batchJumpDate:s.batchJumpDate, onBatchJumpDate:this.onBatchJumpDate, jumpToDate:this.jumpToDate,
       leaveSearch:s.leaveSearch||'', onLeaveSearch:this.onLeaveSearch, clearLeaveSearch:this.clearLeaveSearch, hasLeaveSearch:!!(s.leaveSearch||'').trim(),
       pendingLeaves:(()=>{const _lq=(s.leaveSearch||'').toLowerCase().trim();const _lb=_lq?(s.pendingLeaves||[]).filter(l=>(l.personnel?.name||'').toLowerCase().includes(_lq)||(l.personnel?.contact||'').includes(_lq)):(s.pendingLeaves||[]);return _lb.map(l=>({
@@ -1052,6 +1110,8 @@ const Builders = {
       acctSaving:s.acctSaving, acctSavingOpacity:s.acctSaving?0.6:1, capsLock:!!s.capsLock, onPwKeyDown:this.onPwKeyDown,
       acctDekitCountdown, acctShowDekit,
       adminNotifGranted:s.adminNotifGranted, requestAdminNotifs:this.requestAdminNotifs,
+      helpOpen:s.helpOpen, openHelp:this.openHelp, closeHelp:this.closeHelp,
+      dekitDateFull:acctDekit?Utils.fmtMed(acctDekit):'',
     };
   },
 };

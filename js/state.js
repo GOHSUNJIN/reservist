@@ -81,4 +81,9 @@ const makeInitialState = () => ({
   logSearch: '',
   personHistoryId: null, personHistoryRows: [], personHistoryLoading: false,
   realtimeLive: false,
+  resetPwId: null, resetPwNew: '', resetPwSaving: false,
+  broadcastOpen: false, broadcastText: '', broadcastSaving: false,
+  bulkAddOpen: false, bulkAddText: '', bulkAddParsed: [], bulkAddStep: 'input', bulkAddAdding: false,
+  noReportBulkOpen: false, noReportBulkText: '',
+  helpOpen: false,
 });
