@@ -48,6 +48,11 @@ const DB = {
       return await _db.auth.admin.deleteUser(userId);
     },
 
+    async adminResetPassword(authId, newPassword) {
+      const { data, error } = await _db.auth.admin.updateUserById(authId, { password: newPassword });
+      return { data, error };
+    },
+
     async createUserAsAdmin(contact, password, name) {
       const { data: sd } = await _db.auth.getSession();
       const session = sd?.session;
@@ -303,6 +308,12 @@ const DB = {
     async updateLabel(batchId, label) {
       await _db.from('batches').update({ label }).eq('id', batchId);
     },
+
+    // Requires: ALTER TABLE batches ADD COLUMN notice_text TEXT DEFAULT NULL;
+    async updateNotice(batchId, text) {
+      const { data, error } = await _db.from('batches').update({ notice_text: text || null }).eq('id', batchId).select().maybeSingle();
+      return { data, error };
+    },
   },
 
   // ── No-report days ────────────────────────────────────────────────────────
@@ -322,6 +333,11 @@ const DB = {
       }
       await _db.from('no_report_days').insert({ date: dateStr });
       return true;
+    },
+
+    async ensure(dateStr) {
+      const { data } = await _db.from('no_report_days').select('date').eq('date', dateStr).maybeSingle();
+      if (!data) await _db.from('no_report_days').insert({ date: dateStr });
     },
   },
 
