@@ -778,36 +778,46 @@
         <!-- ===== ATTENDANCE ===== -->
         <sc-if value="{{ tabAttendance }}" hint-placeholder-val="">
         <div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-            <div class="stat-card" style="border-top:3px solid #1f8a5b;"><div class="mono-num" style="color:#1f8a5b;">{{ statMyPresent }}</div><div style="font-size:11px;color:#8a94a3;margin-top:2px;">Present</div></div>
-            <div class="stat-card" style="border-top:3px solid #b9791a;"><div class="mono-num" style="color:#b9791a;">{{ statMyMc }}</div><div style="font-size:11px;color:#8a94a3;margin-top:2px;">MC</div></div>
-            <div class="stat-card" style="border-top:3px solid #c0392b;"><div class="mono-num" style="color:#c0392b;">{{ statMyMissed }}</div><div style="font-size:11px;color:#8a94a3;margin-top:2px;">Missed</div></div>
-            <div class="stat-card" style="border-top:3px solid #d4d9e2;"><div class="mono-num" style="color:#161f30;">{{ statMyDays }}</div><div style="font-size:11px;color:#8a94a3;margin-top:2px;">Logged</div></div>
-          </div>
-          <sc-if value="{{ showAttendanceSummary }}" hint-placeholder-val="">
-          <div class="card" style="padding:17px 18px;margin-bottom:14px;">
-            <div style="font-size:11px;font-weight:600;color:#9aa3b2;letter-spacing:.07em;margin-bottom:13px;">YOUR PERFORMANCE</div>
-            <div>
-              <div style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;color:#1f8a5b;line-height:1;">{{ attendanceRateText }}</div>
-              <div style="font-size:11.5px;color:#8a94a3;margin-top:4px;">attendance rate</div>
-            </div>
-          </div>
-          </sc-if>
-          <sc-if value="{{ cycleNotStarted }}">
-            <div class="card" style="padding:14px 16px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
-              <div style="font-size:22px;">📅</div>
-              <div>
-                <div style="font-size:13px;font-weight:700;color:#161f30;">Cycle not started yet</div>
-                <div style="font-size:12px;color:#8a94a3;margin-top:2px;">Reporting begins {{ cycleStartsLabel }}. Nothing to do yet.</div>
+          <!-- Stats + progress combined card -->
+          <div class="card" style="overflow:hidden;margin-bottom:14px;">
+            <div style="display:grid;grid-template-columns:repeat(4,1fr);border-bottom:1px solid #f0f2f5;">
+              <div style="padding:13px 8px;text-align:center;border-right:1px solid #f0f2f5;">
+                <div style="font-size:20px;font-weight:700;color:#1f8a5b;line-height:1;">{{ statMyPresent }}</div>
+                <div style="font-size:10.5px;color:#8a94a3;margin-top:3px;">Present</div>
+              </div>
+              <div style="padding:13px 8px;text-align:center;border-right:1px solid #f0f2f5;">
+                <div style="font-size:20px;font-weight:700;color:#b9791a;line-height:1;">{{ statMyMc }}</div>
+                <div style="font-size:10.5px;color:#8a94a3;margin-top:3px;">MC</div>
+              </div>
+              <div style="padding:13px 8px;text-align:center;border-right:1px solid #f0f2f5;">
+                <div style="font-size:20px;font-weight:700;color:#c0392b;line-height:1;">{{ statMyMissed }}</div>
+                <div style="font-size:10.5px;color:#8a94a3;margin-top:3px;">Missed</div>
+              </div>
+              <div style="padding:13px 8px;text-align:center;">
+                <div style="font-size:20px;font-weight:700;color:#161f30;line-height:1;">{{ statMyDays }}</div>
+                <div style="font-size:10.5px;color:#8a94a3;margin-top:3px;">Logged</div>
               </div>
             </div>
-          </sc-if>
-          <sc-if value="{{ !cycleNotStarted }}">
-            <div class="card" style="padding:16px;margin-bottom:14px;">
-              <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:8px;"><span style="color:#8a94a3;font-weight:600;letter-spacing:.04em;">CYCLE PROGRESS</span><span style="color:#161f30;font-weight:600;">{{ cycleDone }} of {{ cycleTotal }} days</span></div>
-              <div style="height:8px;border-radius:6px;background:#eef0f4;overflow:hidden;"><div style="height:100%;width:{{ cyclePct }}%;background:{{ accent }};border-radius:6px;"></div></div>
-            </div>
-          </sc-if>
+            <sc-if value="{{ cycleNotStarted }}" hint-placeholder-val="">
+              <div style="padding:13px 15px;display:flex;align-items:center;gap:9px;">
+                <div style="font-size:18px;">📅</div>
+                <div style="font-size:12px;color:#8a94a3;">Reporting begins {{ cycleStartsLabel }}.</div>
+              </div>
+            </sc-if>
+            <sc-if value="{{ !cycleNotStarted }}" hint-placeholder-val="">
+              <div style="padding:12px 15px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
+                  <span style="font-size:11.5px;color:#8a94a3;">Attendance rate</span>
+                  <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:#1f8a5b;">{{ attendanceRateText }}</span>
+                </div>
+                <div style="height:6px;border-radius:6px;background:#eef0f4;overflow:hidden;"><div style="height:100%;width:{{ cyclePct }}%;background:{{ accent }};border-radius:6px;"></div></div>
+                <div style="display:flex;justify-content:space-between;margin-top:5px;">
+                  <span style="font-size:10.5px;color:#b0b7c3;">Cycle progress</span>
+                  <span style="font-size:10.5px;color:#8a94a3;font-weight:600;">{{ cycleDone }} of {{ cycleTotal }} days</span>
+                </div>
+              </div>
+            </sc-if>
+          </div>
           <div class="card-flush">
             <div style="padding:14px 16px;border-bottom:1px solid #eef0f4;font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">SHIFT HISTORY</div>
             <sc-if value="{{ historyTruncated }}" hint-placeholder-val="">
@@ -816,7 +826,11 @@
             <sc-for list="{{ myHistory }}" as="row" hint-placeholder-count="6">
               <div style="padding:12px 13px 12px 13px;border-bottom:1px solid #f2f4f7;border-left:3px solid {{ row.color }};">
                 <div onClick="{{ row.onToggleExpand }}" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:{{ row.showTimes ? '9px' : '0' }};{{ row.hasExpandToggle ? 'cursor:pointer;' : '' }}">
-                  <div><div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ row.date }}</div><div style="font-size:11.5px;color:#8a94a3;margin-top:1px;">{{ row.shift }}</div></div>
+                  <div>
+                    <div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ row.date }}</div>
+                    <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;">{{ row.shift }}</div>
+                    <sc-if value="{{ row.showTimingWarning }}" hint-placeholder-val=""><div style="font-size:10.5px;color:#b9791a;font-weight:500;margin-top:2px;">Times not logged — contact supervisor</div></sc-if>
+                  </div>
                   <div style="display:flex;align-items:center;gap:7px;flex:0 0 auto;">
                     <span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:20px;color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
                     <sc-if value="{{ row.hasExpandToggle }}" hint-placeholder-val="">
@@ -855,6 +869,18 @@
                     <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:1px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
                     <div style="font-size:11.5px;color:#c0392b;font-weight:500;line-height:1.4;">Late reason: {{ row.lateReason }}</div>
                   </div>
+                </sc-if>
+                <sc-if value="{{ row.isMissedRow }}" hint-placeholder-val="">
+                  <sc-if value="{{ row.showMissedNote }}" hint-placeholder-val="">
+                    <div style="margin-top:8px;background:#f6f8fa;border-radius:8px;padding:8px 10px;display:flex;align-items:flex-start;gap:8px;">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#8a94a3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:2px;"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                      <div style="flex:1;font-size:11.5px;color:#5c6678;line-height:1.4;">{{ row.missedNote }}</div>
+                      <button onClick="{{ row.onOpenMissedNote }}" style="font-size:10.5px;color:#2f5fd0;font-weight:600;background:none;border:none;cursor:pointer;padding:0;flex:0 0 auto;">Edit</button>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ !row.showMissedNote }}" hint-placeholder-val="">
+                    <button onClick="{{ row.onOpenMissedNote }}" style="-webkit-appearance:none;margin-top:8px;width:100%;padding:8px 10px;background:none;border:1px dashed #d0d5de;border-radius:8px;font-size:11.5px;color:#9aa3b2;font-weight:500;cursor:pointer;text-align:left;box-sizing:border-box;">+ Add a note for this absence</button>
+                  </sc-if>
                 </sc-if>
               </div>
             </sc-for>
@@ -2064,6 +2090,31 @@
           <div style="display:block;width:100%;margin-top:12px;padding:14px;background:#eaedf5;border-radius:11px;font-size:15px;font-weight:700;color:#a0aabe;text-align:center;box-sizing:border-box;line-height:1;">Submit reason</div>
         </sc-if>
         <button onClick="{{ skipLateReason }}" style="-webkit-appearance:none;display:block;width:100%;margin-top:8px;padding:12px;background:none;border:none;font-size:13px;font-weight:600;color:#8a94a3;cursor:pointer;text-align:center;">Skip for now</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ===== MISSED NOTE MODAL ===== -->
+    <sc-if value="{{ missedNoteOpen }}" hint-placeholder-val="">
+    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
+      <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:22px 20px 34px;box-shadow:0 -8px 32px rgba(20,30,50,.18);">
+        <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">
+          <div style="width:42px;height:42px;border-radius:50%;background:#f0f2f5;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+          </div>
+          <div style="flex:1;min-width:0;padding-top:2px;">
+            <div style="font-size:16px;font-weight:700;color:#161f30;line-height:1.2;">Note for missed day</div>
+            <div style="font-size:12.5px;color:#5c6678;margin-top:4px;line-height:1.45;">Write a brief explanation for your absence. This is visible to your supervisor.</div>
+          </div>
+        </div>
+        <textarea onInput="{{ onMissedNoteText }}" value="{{ missedNoteText }}" placeholder="e.g. Was on annual leave, forgot to inform in advance" style="width:100%;height:90px;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>
+        <sc-if value="{{ missedNoteReady }}" hint-placeholder-val="">
+          <button onClick="{{ saveMissedNote }}" style="-webkit-appearance:none;display:block;width:100%;margin-top:12px;padding:14px;background:#2f5fd0;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;text-align:center;box-sizing:border-box;line-height:1;">Save note</button>
+        </sc-if>
+        <sc-if value="{{ !missedNoteReady }}" hint-placeholder-val="{{ true }}">
+          <div style="display:block;width:100%;margin-top:12px;padding:14px;background:#eaedf5;border-radius:11px;font-size:15px;font-weight:700;color:#a0aabe;text-align:center;box-sizing:border-box;line-height:1;">Save note</div>
+        </sc-if>
+        <button onClick="{{ closeMissedNote }}" style="-webkit-appearance:none;display:block;width:100%;margin-top:8px;padding:12px;background:none;border:none;font-size:13px;font-weight:600;color:#8a94a3;cursor:pointer;text-align:center;">Cancel</button>
       </div>
     </div>
     </sc-if>

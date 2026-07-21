@@ -235,6 +235,29 @@ const RequestHandlers = {
     this._toast('Note saved.');
   },
 
+  // ── Missed day note ───────────────────────────────────────────────────
+  openMissedNote: function(dateKey, existingText) { return () => this.setState({missedNoteOpen:true, missedNoteDateKey:dateKey, missedNoteText:existingText||''}); },
+  closeMissedNote: function() { this.setState({missedNoteOpen:false, missedNoteDateKey:null, missedNoteText:''}); },
+  onMissedNoteText: function(e) { this.setState({missedNoteText:e.target.value}); },
+
+  saveMissedNote: async function() {
+    const {missedNoteDateKey, missedNoteText, currentUserId, demo} = this.state;
+    if(!missedNoteDateKey) return;
+    const note = missedNoteText.trim();
+    if(!demo) {
+      const {error} = await DB.attendance.saveMissedNote(currentUserId, missedNoteDateKey, note).catch(e=>({error:e}));
+      if(error) { this._toast('Failed to save note.','error'); return; }
+    }
+    this.setState(s=>{
+      const idx=s.history.findIndex(r=>r.date===missedNoteDateKey);
+      const newHistory=idx>=0
+        ?s.history.map((r,i)=>i===idx?{...r,welfare_note:note}:r)
+        :[...s.history,{date:missedNoteDateKey,status:'missed',welfare_note:note,check_in_time:null,lunch_out_time:null,work_return_time:null,work_end_time:null,late_reason:null}];
+      return {history:newHistory, missedNoteOpen:false, missedNoteDateKey:null, missedNoteText:''};
+    });
+    this._toast('Note saved.');
+  },
+
   // ── Admin log note per person ─────────────────────────────────────────
   openLogNote: function(id, text) { return () => this.setState({logNoteId:id, logNoteText:text||''}); },
   closeLogNote: function() { this.setState({logNoteId:null, logNoteText:''}); },

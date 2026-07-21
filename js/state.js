@@ -50,6 +50,7 @@ const makeInitialState = () => ({
   markAllPresenting: false,
   editingBatchLabel: false, batchLabelText: '',
   historyPage: 1, historyExpandedDates: [], briefTab: 'info',
+  missedNoteOpen: false, missedNoteDateKey: null, missedNoteText: '',
   sessionExpiring: false,
   idleWarning: false,
   timesEditId: null, timesEditP1: '', timesEditP2: '', timesEditP3: '', timesEditP4: '', timesEditSaving: false, timesEditErrField: null,
