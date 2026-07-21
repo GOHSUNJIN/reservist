@@ -1,10 +1,14 @@
 // ── Account and profile handlers ──────────────────────────────────────────
 const AccountHandlers = {
 
-  headerChipClick: function() { this.setState({accountOpen:true, acctNameEdit:this.cur()?.name||''}); },
-  closeAccount: function() { this.setState({accountOpen:false, confirmDelete:false, acctPwError:'', acctPwSuccess:'', acctNameError:'', acctNameSuccess:''}); },
+  headerChipClick: function() { this.setState({accountOpen:true}); },
+  closeAccount: function() { this.setState({accountOpen:false, confirmDelete:false, changePwOpen:false, changeNameOpen:false, acctPwError:'', acctPwSuccess:'', acctNameError:'', acctNameSuccess:''}); },
   askDelete:    function() { this.setState({confirmDelete:true}); },
   cancelDelete: function() { this.setState({confirmDelete:false}); },
+  openChangePw:   function() { this.setState({changePwOpen:true, acctPwCurrent:'', acctPwNew:'', acctPwConfirm:'', acctPwError:'', acctPwSuccess:''}); },
+  closeChangePw:  function() { this.setState({changePwOpen:false, acctPwError:'', acctPwSuccess:''}); },
+  openChangeName: function() { this.setState({changeNameOpen:true, acctNameEdit:this.cur()?.name||'', acctNameError:'', acctNameSuccess:''}); },
+  closeChangeName:function() { this.setState({changeNameOpen:false, acctNameError:'', acctNameSuccess:''}); },
 
   deleteAccount: async function() {
     if(!this.state.isOnline && !this.state.demo){
@@ -68,7 +72,8 @@ const AccountHandlers = {
       const {error} = await DB.personnel.updateName(this.state.currentUserId, name).catch(e=>({error:e}));
       if(error){ this.setState({acctSaving:false, acctNameError:'Failed to save. Try again.'}); return; }
     }
-    this.setState(s=>({acctSaving:false, acctNameSuccess:'Name updated.', me:{...s.me, name}}));
+    this.setState(s=>({acctSaving:false, changeNameOpen:false, me:{...s.me, name}}));
+    this._toast('Display name updated.');
   },
 
   saveAcctPw: async function() {
@@ -83,7 +88,8 @@ const AccountHandlers = {
       const {error} = await DB.auth.updatePassword(acctPwNew).catch(e=>({error:e}));
       if(error){ this.setState({acctSaving:false, acctPwError:'Failed to update password. Try again.'}); return; }
     }
-    this.setState({acctSaving:false, acctPwSuccess:'Password updated.', acctPwCurrent:'', acctPwNew:'', acctPwConfirm:''});
+    this.setState({acctSaving:false, changePwOpen:false, acctPwCurrent:'', acctPwNew:'', acctPwConfirm:''});
+    this._toast('Password updated.');
   },
 
   requestAdminNotifs: async function() {

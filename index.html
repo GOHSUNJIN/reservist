@@ -1677,88 +1677,136 @@
         <button onClick="{{ closeAccount }}" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#36404f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
         <div style="font-size:18px;font-weight:700;color:#161f30;">My account</div>
       </div>
-      <div style="padding:22px 18px 40px;">
-        <div style="display:flex;align-items:center;gap:14px;margin-bottom:20px;">
-          <label style="position:relative;width:64px;height:64px;flex:0 0 auto;cursor:pointer;display:block;">
-            <div style="width:64px;height:64px;border-radius:50%;background:#161f30;background-image:{{ acctAvatarBg }};background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:600;color:#fff;"><sc-if value="{{ acctNoAvatar }}" hint-placeholder-val="{{ true }}">{{ userInitials }}</sc-if></div>
-            <span style="position:absolute;right:-2px;bottom:-2px;width:24px;height:24px;border-radius:50%;background:{{ accent }};border:2px solid #f6f7f9;display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="6" x2="12" y2="18"></line><line x1="6" y1="12" x2="18" y2="12"></line></svg></span>
-            <input onChange="{{ onAvatarFile }}" type="file" accept="image/*" style="display:none;" />
-          </label>
-          <div>
-            <div style="font-size:18px;font-weight:700;color:#161f30;">{{ userName }}</div>
-            <div style="font-size:13px;color:#8a94a3;">Tap photo to change</div>
-            <button onClick="{{ removeAvatar }}" style="margin-top:5px;font-size:12px;color:#c0392b;background:none;border:none;cursor:pointer;padding:0;display:block;">Remove photo</button>
-          </div>
-        </div>
 
-        <div class="card-flush" style="margin-bottom:14px;">
+      <!-- Profile hero -->
+      <div style="display:flex;flex-direction:column;align-items:center;padding:28px 18px 20px;">
+        <label style="position:relative;cursor:pointer;display:block;margin-bottom:12px;">
+          <div style="width:80px;height:80px;border-radius:50%;background:#161f30;background-image:{{ acctAvatarBg }};background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:600;color:#fff;"><sc-if value="{{ acctNoAvatar }}" hint-placeholder-val="{{ true }}">{{ userInitials }}</sc-if></div>
+          <span style="position:absolute;right:-1px;bottom:-1px;width:26px;height:26px;border-radius:50%;background:{{ accent }};border:2.5px solid #f6f7f9;display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
+          <input onChange="{{ onAvatarFile }}" type="file" accept="image/*" style="display:none;" />
+        </label>
+        <div style="font-size:19px;font-weight:700;color:#161f30;text-align:center;">{{ userName }}</div>
+        <sc-if value="{{ isAdmin }}" hint-placeholder-val="">
+          <div style="font-size:12.5px;color:#8a94a3;margin-top:3px;">Supervisor</div>
+        </sc-if>
+        <sc-if value="{{ isReservistRole }}" hint-placeholder-val="">
+          <div style="font-size:12.5px;color:#8a94a3;margin-top:3px;">{{ myShiftLabel }}</div>
+        </sc-if>
+        <sc-if value="{{ acctHasAvatar }}" hint-placeholder-val="">
+          <button onClick="{{ removeAvatar }}" style="-webkit-appearance:none;margin-top:8px;font-size:12px;color:#c0392b;background:none;border:none;cursor:pointer;padding:0;">Remove photo</button>
+        </sc-if>
+      </div>
+
+      <div style="padding:0 18px 36px;">
+        <!-- Info rows -->
+        <div class="card-flush" style="margin-bottom:12px;">
           <div class="detail-row"><span style="color:#8a94a3;">Contact</span><span style="font-weight:600;color:#161f30;">{{ acctContact }}</span></div>
           <sc-if value="{{ isReservistRole }}" hint-placeholder-val="">
-          <div class="detail-row"><span style="color:#8a94a3;">Shift pattern</span><span style="font-weight:600;color:#161f30;">{{ myShiftLabel }}</span></div>
-          <div class="detail-row"><span style="color:#8a94a3;">Deployment cycle</span><span style="font-weight:600;color:#161f30;">{{ cycleStart }} to {{ cycleEnd }}</span></div>
-          <sc-if value="{{ acctShowDekit }}" hint-placeholder-val="">
-          <div style="padding:13px 16px;display:flex;justify-content:space-between;font-size:13.5px;border-bottom:none;"><span style="color:#8a94a3;">Time to dekit</span><span style="font-weight:600;color:#161f30;">{{ acctDekitCountdown }}</span></div>
-          </sc-if>
+            <div class="detail-row"><span style="color:#8a94a3;">Shift</span><span style="font-weight:600;color:#161f30;">{{ myShiftLabel }}</span></div>
+            <div class="detail-row" style="{{ acctShowDekit ? '' : 'border-bottom:none;' }}"><span style="color:#8a94a3;">Cycle</span><span style="font-weight:600;color:#161f30;">{{ cycleStart }} to {{ cycleEnd }}</span></div>
+            <sc-if value="{{ acctShowDekit }}" hint-placeholder-val="">
+              <div style="padding:12px 16px;display:flex;justify-content:space-between;font-size:13.5px;"><span style="color:#8a94a3;">Dekit</span><span style="font-weight:600;color:#161f30;">{{ acctDekitCountdown }}</span></div>
+            </sc-if>
           </sc-if>
           <sc-if value="{{ isAdmin }}" hint-placeholder-val="">
-          <div style="padding:13px 16px;display:flex;justify-content:space-between;font-size:13.5px;"><span style="color:#8a94a3;">Role</span><span style="font-weight:600;color:#161f30;">Supervisor</span></div>
+            <div style="padding:12px 16px;display:flex;justify-content:space-between;font-size:13.5px;"><span style="color:#8a94a3;">Role</span><span style="font-weight:600;color:#161f30;">Supervisor</span></div>
           </sc-if>
         </div>
 
-        <sc-if value="{{ isAdmin }}" hint-placeholder-val="">
-        <div class="card" style="padding:16px;margin-bottom:14px;">
-          <div class="section-label" style="margin-bottom:10px;">DISPLAY NAME</div>
-          <input value="{{ acctNameEdit }}" onInput="{{ onAcctNameEdit }}" placeholder="Enter display name" style="width:100%;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:15px;background:#f6f8fa;outline:none;" />
-          <sc-if value="{{ acctNameError }}" hint-placeholder-val=""><div style="color:#c0392b;font-size:12.5px;margin-top:6px;">{{ acctNameError }}</div></sc-if>
-          <sc-if value="{{ acctNameSuccess }}" hint-placeholder-val=""><div style="color:#1f8a5b;font-size:12.5px;margin-top:6px;">{{ acctNameSuccess }}</div></sc-if>
-          <button onClick="{{ saveAcctName }}" disabled="{{ acctSaving }}" style="width:100%;padding:11px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;opacity:{{ acctSavingOpacity }};">Save name</button>
-        </div>
-        </sc-if>
-
-        <div class="card" style="padding:16px;margin-bottom:14px;">
-          <div class="section-label" style="margin-bottom:10px;">CHANGE PASSWORD</div>
-          <input value="{{ acctPwCurrent }}" onInput="{{ onAcctPwCurrent }}" onKeyDown="{{ onPwKeyDown }}" type="password" autocomplete="current-password" placeholder="Current password" style="width:100%;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:15px;background:#f6f8fa;outline:none;margin-bottom:8px;" />
-          <input value="{{ acctPwNew }}" onInput="{{ onAcctPwNew }}" onKeyDown="{{ onPwKeyDown }}" type="password" autocomplete="new-password" placeholder="New password (min 6 chars)" style="width:100%;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:15px;background:#f6f8fa;outline:none;margin-bottom:8px;" />
-          <input value="{{ acctPwConfirm }}" onInput="{{ onAcctPwConfirm }}" onKeyDown="{{ onPwKeyDown }}" type="password" autocomplete="new-password" placeholder="Confirm new password" style="width:100%;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:15px;background:#f6f8fa;outline:none;" />
-          <sc-if value="{{ capsLock }}" hint-placeholder-val=""><div style="font-size:12px;color:#b9791a;margin-top:5px;">⇪ Caps Lock is on</div></sc-if>
-          <sc-if value="{{ acctPwError }}" hint-placeholder-val=""><div style="color:#c0392b;font-size:12.5px;margin-top:6px;">{{ acctPwError }}</div></sc-if>
-          <sc-if value="{{ acctPwSuccess }}" hint-placeholder-val=""><div style="color:#1f8a5b;font-size:12.5px;margin-top:6px;">{{ acctPwSuccess }}</div></sc-if>
-          <button onClick="{{ saveAcctPw }}" disabled="{{ acctSaving }}" style="width:100%;padding:11px;background:{{ accent }};color:#fff;border:none;border-radius:9px;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;opacity:{{ acctSavingOpacity }};">Update password</button>
-        </div>
-
-        <sc-if value="{{ isReservistRole }}" hint-placeholder-val="">
-        <div style="background:#eef3fc;border:1px solid #d7e2f7;border-radius:14px;padding:14px 16px;font-size:12.5px;color:#3a4a66;line-height:1.55;margin-bottom:18px;">Your account is deactivated automatically on your dekit day ({{ dekitDateFull }}). You can also deactivate it now if your cycle has ended.</div>
-        </sc-if>
-
-        <sc-if value="{{ isReservistRole }}" hint-placeholder-val="">
-        <sc-if value="{{ confirmDelete }}" hint-placeholder-val="">
-          <div style="background:#fbeeec;border:1px solid #f1d3cf;border-radius:14px;padding:16px;">
-            <div style="font-size:14px;font-weight:700;color:#c0392b;margin-bottom:6px;">Deactivate your account?</div>
-            <p style="font-size:13px;color:#8a5650;margin:0 0 14px;line-height:1.5;">Your attendance history is preserved for supervisor records. You will not be able to log in again.</p>
-            <div style="display:flex;gap:10px;">
-              <button onClick="{{ deleteAccount }}" style="flex:1;padding:12px;background:#c0392b;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;">Deactivate</button>
-              <button onClick="{{ cancelDelete }}" style="padding:12px 18px;background:#fff;border:1px solid #d4d9e2;border-radius:10px;font-size:14px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
+        <!-- Settings rows -->
+        <div class="card-flush" style="margin-bottom:12px;">
+          <sc-if value="{{ isAdmin }}" hint-placeholder-val="">
+          <button onClick="{{ openChangeName }}" style="-webkit-appearance:none;width:100%;padding:14px 16px;background:transparent;border:none;border-bottom:1px solid #f0f2f5;cursor:pointer;display:flex;align-items:center;justify-content:space-between;text-align:left;">
+            <div>
+              <div style="font-size:13.5px;font-weight:600;color:#161f30;">Display name</div>
+              <div style="font-size:12px;color:#8a94a3;margin-top:1px;">{{ userName }}</div>
             </div>
-          </div>
-        </sc-if>
-        <sc-if value="{{ deleteIdle }}" hint-placeholder-val="{{ true }}">
-          <button onClick="{{ askDelete }}" style="width:100%;padding:13px;background:#fff;border:1px solid #f1d3cf;border-radius:11px;font-size:14px;font-weight:600;color:#c0392b;cursor:pointer;margin-bottom:10px;">Deactivate my account</button>
-        </sc-if>
-        </sc-if>
-        <!-- Help & FAQ -->
-        <div class="card-flush" style="margin-bottom:14px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c4c9d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+          </sc-if>
+          <button onClick="{{ openChangePw }}" style="-webkit-appearance:none;width:100%;padding:14px 16px;background:transparent;border:none;border-bottom:1px solid #f0f2f5;cursor:pointer;display:flex;align-items:center;justify-content:space-between;text-align:left;">
+            <div style="font-size:13.5px;font-weight:600;color:#161f30;">Change password</div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c4c9d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
           <button onClick="{{ openHelp }}" style="-webkit-appearance:none;width:100%;padding:14px 16px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;text-align:left;">
-            <div style="display:flex;align-items:center;gap:10px;">
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
-              <span style="font-size:13.5px;font-weight:600;color:#161f30;">Help &amp; FAQ</span>
-            </div>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+            <div style="font-size:13.5px;font-weight:600;color:#161f30;">Help &amp; FAQ</div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c4c9d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
         </div>
-        <button onClick="{{ logout }}" style="width:100%;padding:13px;background:#fff;border:1px solid #d4d9e2;border-radius:11px;font-size:14px;font-weight:600;color:#36404f;cursor:pointer;">Log out</button>
-        <div style="display:flex;align-items:center;justify-content:center;gap:6px;margin-top:14px;">
+
+        <!-- Danger zone (reservist only) -->
+        <sc-if value="{{ isReservistRole }}" hint-placeholder-val="">
+        <div class="card-flush" style="margin-bottom:16px;">
+          <button onClick="{{ askDelete }}" style="-webkit-appearance:none;width:100%;padding:14px 16px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;text-align:left;">
+            <div style="font-size:13.5px;font-weight:600;color:#c0392b;">Deactivate account</div>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f1a39b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+          </button>
+        </div>
+        </sc-if>
+
+        <button onClick="{{ logout }}" style="-webkit-appearance:none;width:100%;padding:13px;background:#fff;border:1px solid #e3e6ec;border-radius:11px;font-size:14px;font-weight:600;color:#36404f;cursor:pointer;margin-bottom:14px;">Log out</button>
+        <div style="display:flex;align-items:center;justify-content:center;gap:6px;">
           <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
           <span style="font-size:11.5px;color:#9aa3b2;">Your data is encrypted and stored securely.</span>
+        </div>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ===== CHANGE PASSWORD SHEET ===== -->
+    <sc-if value="{{ changePwOpen }}" hint-placeholder-val="">
+    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:100;display:flex;align-items:flex-end;">
+      <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:22px 20px 34px;box-shadow:0 -8px 32px rgba(20,30,50,.18);box-sizing:border-box;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+          <div style="font-size:16px;font-weight:700;color:#161f30;">Change password</div>
+          <button onClick="{{ closeChangePw }}" style="width:32px;height:32px;border-radius:50%;background:#f0f2f5;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <input value="{{ acctPwCurrent }}" onInput="{{ onAcctPwCurrent }}" onKeyDown="{{ onPwKeyDown }}" type="password" autocomplete="current-password" placeholder="Current password" class="field" style="margin-bottom:10px;" />
+        <input value="{{ acctPwNew }}" onInput="{{ onAcctPwNew }}" onKeyDown="{{ onPwKeyDown }}" type="password" autocomplete="new-password" placeholder="New password (min 6 chars)" class="field" style="margin-bottom:10px;" />
+        <input value="{{ acctPwConfirm }}" onInput="{{ onAcctPwConfirm }}" onKeyDown="{{ onPwKeyDown }}" type="password" autocomplete="new-password" placeholder="Confirm new password" class="field" />
+        <sc-if value="{{ capsLock }}" hint-placeholder-val=""><div style="font-size:12px;color:#b9791a;margin-top:6px;">⇪ Caps Lock is on</div></sc-if>
+        <sc-if value="{{ acctPwError }}" hint-placeholder-val=""><div style="color:#c0392b;font-size:12.5px;margin-top:6px;">{{ acctPwError }}</div></sc-if>
+        <button onClick="{{ saveAcctPw }}" disabled="{{ acctSaving }}" style="-webkit-appearance:none;width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;margin-top:14px;opacity:{{ acctSavingOpacity }};">Update password</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ===== CHANGE NAME SHEET (admin) ===== -->
+    <sc-if value="{{ changeNameOpen }}" hint-placeholder-val="">
+    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:100;display:flex;align-items:flex-end;">
+      <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:22px 20px 34px;box-shadow:0 -8px 32px rgba(20,30,50,.18);box-sizing:border-box;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+          <div style="font-size:16px;font-weight:700;color:#161f30;">Display name</div>
+          <button onClick="{{ closeChangeName }}" style="width:32px;height:32px;border-radius:50%;background:#f0f2f5;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <input value="{{ acctNameEdit }}" onInput="{{ onAcctNameEdit }}" placeholder="Enter display name" class="field" />
+        <sc-if value="{{ acctNameError }}" hint-placeholder-val=""><div style="color:#c0392b;font-size:12.5px;margin-top:6px;">{{ acctNameError }}</div></sc-if>
+        <button onClick="{{ saveAcctName }}" disabled="{{ acctSaving }}" style="-webkit-appearance:none;width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;margin-top:14px;opacity:{{ acctSavingOpacity }};">Save name</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ===== DEACTIVATE CONFIRM SHEET (reservist) ===== -->
+    <sc-if value="{{ confirmDelete }}" hint-placeholder-val="">
+    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:100;display:flex;align-items:flex-end;">
+      <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:22px 20px 34px;box-shadow:0 -8px 32px rgba(20,30,50,.18);box-sizing:border-box;">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
+          <div style="font-size:16px;font-weight:700;color:#c0392b;">Deactivate account</div>
+          <button onClick="{{ cancelDelete }}" style="width:32px;height:32px;border-radius:50%;background:#f0f2f5;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </button>
+        </div>
+        <p style="font-size:13.5px;color:#5c6678;margin:0 0 6px;line-height:1.55;">Your attendance history is preserved for supervisor records. You will not be able to log in again.</p>
+        <sc-if value="{{ dekitDateFull }}" hint-placeholder-val="">
+          <p style="font-size:12px;color:#8a94a3;margin:0 0 20px;line-height:1.5;">Your account is deactivated automatically on your dekit day ({{ dekitDateFull }}).</p>
+        </sc-if>
+        <div style="display:flex;gap:10px;">
+          <button onClick="{{ deleteAccount }}" style="-webkit-appearance:none;flex:1;padding:13px;background:#c0392b;color:#fff;border:none;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;">Deactivate</button>
+          <button onClick="{{ cancelDelete }}" style="-webkit-appearance:none;padding:13px 20px;background:#fff;border:1px solid #d4d9e2;border-radius:11px;font-size:14px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
         </div>
       </div>
     </div>
