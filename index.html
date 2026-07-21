@@ -7,6 +7,7 @@
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%234d79e8'/%3E%3Cstop offset='1' stop-color='%231e45c4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpolyline points='7.5,17 13,22.5 24.5,10' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
 <link rel="stylesheet" href="./css/styles.css">
 <link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./apple-touch-icon.png">
 <meta name="theme-color" content="#2f5fd0">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -1319,6 +1320,9 @@
 
           <!-- ── REQUESTS sub-tab ── -->
           <sc-if value="{{ ptRequests }}" hint-placeholder-val="">
+          <sc-if value="{{ !pendingSignupsLoaded }}" hint-placeholder-val="">
+            <div style="padding:28px 16px;text-align:center;"><div style="width:20px;height:20px;border:2.5px solid #eceef2;border-top-color:#8a94a3;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto;"></div></div>
+          </sc-if>
           <sc-if value="{{ hasPendingSignups }}" hint-placeholder-val="">
           <div class="card-flush" style="margin-bottom:14px;">
             <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
@@ -1363,6 +1367,9 @@
             </div>
             </sc-for>
           </div>
+          </sc-if>
+          <sc-if value="{{ !pendingLeavesLoaded }}" hint-placeholder-val="">
+            <div style="padding:28px 16px;text-align:center;"><div style="width:20px;height:20px;border:2.5px solid #eceef2;border-top-color:#8a94a3;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto;"></div></div>
           </sc-if>
           <sc-if value="{{ hasPendingLeaves }}" hint-placeholder-val="">
           <div class="card-flush" style="margin-bottom:14px;">
@@ -1766,12 +1773,32 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
+        <sc-if value="{{ showReenrollConfirm }}" hint-placeholder-val="">
+          <div style="background:#fdf6e9;border:1px solid #f0e2c2;border-radius:13px;padding:16px;">
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:12px;">
+              <div style="width:36px;height:36px;border-radius:50%;background:#f7efdc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+              </div>
+              <div>
+                <div style="font-size:13.5px;font-weight:700;color:#7a5000;">Returning reservist found</div>
+                <div style="font-size:12px;color:#9a7a2a;margin-top:2px;">{{ reenrollName }} has a previous account.</div>
+              </div>
+            </div>
+            <div style="font-size:12.5px;color:#7a5000;line-height:1.5;margin-bottom:14px;">Re-enrolling will restore their existing account and attendance history. Their previous password will be kept.</div>
+            <div style="display:flex;gap:8px;">
+              <button onClick="{{ confirmReenroll }}" style="-webkit-appearance:none;flex:1;padding:11px;background:#b9791a;color:#fff;border:none;border-radius:9px;font-size:13.5px;font-weight:700;cursor:pointer;">Re-enroll {{ reenrollName }}</button>
+              <button onClick="{{ cancelReenroll }}" style="-webkit-appearance:none;padding:11px 16px;background:#fff;border:1px solid #d4d9e2;border-radius:9px;font-size:13.5px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
+            </div>
+          </div>
+        </sc-if>
+        <sc-if value="{{ showAddForm }}" hint-placeholder-val="{{ true }}">
         <input value="{{ npName }}" onInput="{{ onNpName }}" placeholder="Full name" class="field" style="margin-bottom:10px;" />
         <input value="{{ npContact }}" onInput="{{ onNpContact }}" placeholder="Contact number (9xxx xxxx)" type="tel" inputmode="numeric" autocomplete="off" class="field" style="margin-bottom:10px;" />
         <select value="{{ npShift }}" onChange="{{ onNpShift }}" class="field" style="margin-bottom:10px;"><option value="AM" disabled="{{ npAmFull }}">{{ npAmLabel }}</option><option value="PM" disabled="{{ npPmFull }}">{{ npPmLabel }}</option><option value="OFFICE">Office (0900-1800)</option></select>
         <input value="{{ npPassword }}" onInput="{{ onNpPassword }}" placeholder="Password (min 6 chars)" type="password" class="field" style="margin-bottom:10px;" />
-        <div style="font-size:11.5px;color:#8a94a3;margin-bottom:14px;line-height:1.5;">Password is only needed for new personnel. For returning reservists, leave it blank — they will use their previous password.</div>
+        <div style="font-size:11.5px;color:#8a94a3;margin-bottom:14px;line-height:1.5;">Password is only needed for new personnel. For returning reservists, leave it blank. They will use their previous password.</div>
         <button onClick="{{ addPerson }}" style="-webkit-appearance:none;display:block;width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;text-align:center;box-sizing:border-box;line-height:1;">Add to roster</button>
+        </sc-if>
       </div>
     </div>
     </sc-if>
@@ -1892,6 +1919,7 @@
           <div style="font-size:17px;font-weight:700;color:#161f30;">Request shift change</div>
           <button onClick="{{ closeShiftChange }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
+        <sc-if value="{{ showShiftChangeForm }}" hint-placeholder-val="{{ true }}">
         <p style="font-size:13px;color:#5c6678;margin:0 0 16px;line-height:1.5;">Request to change your assigned shift. The admin will review and approve or decline.</p>
         <div style="margin-bottom:12px;">
           <div style="font-size:11.5px;font-weight:600;color:#8a94a3;letter-spacing:.06em;margin-bottom:6px;">REQUESTED SHIFT</div>
@@ -1905,11 +1933,26 @@
           </div>
         </div>
         <div style="margin-bottom:16px;">
-          <div style="font-size:11.5px;font-weight:600;color:#8a94a3;letter-spacing:.06em;margin-bottom:6px;">REASON (OPTIONAL)</div>
+          <div style="font-size:11.5px;font-weight:600;color:#8a94a3;letter-spacing:.06em;margin-bottom:6px;">REASON</div>
           <textarea onInput="{{ onShiftChangeReason }}" value="{{ shiftChangeReason }}" placeholder="Why do you need this shift change?" style="width:100%;height:72px;padding:10px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>
         </div>
-        <button onClick="{{ submitShiftChange }}" style="width:100%;padding:13px;background:{{ accent }};border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;">Send request</button>
+        <button onClick="{{ submitShiftChange }}" style="width:100%;padding:13px;background:{{ accent }};border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;">Review request</button>
         <button onClick="{{ closeShiftChange }}" style="width:100%;margin-top:8px;padding:11px;background:none;border:none;font-size:13px;font-weight:600;color:#8a94a3;cursor:pointer;">Cancel</button>
+        </sc-if>
+        <sc-if value="{{ shiftChangeConfirming }}" hint-placeholder-val="">
+        <div style="background:#f6f8fa;border-radius:13px;padding:16px;margin-bottom:16px;">
+          <div style="font-size:11.5px;font-weight:600;color:#8a94a3;letter-spacing:.06em;margin-bottom:10px;">SHIFT CHANGE SUMMARY</div>
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+            <span style="flex:1;padding:9px;background:#fff;border:1px solid #e3e6ec;border-radius:9px;font-size:13px;font-weight:600;color:#5c6678;text-align:center;">{{ currentShiftLabel }}</span>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8a94a3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            <span style="flex:1;padding:9px;background:{{ accent }};border:none;border-radius:9px;font-size:13px;font-weight:700;color:#fff;text-align:center;">{{ requestedShiftLabel }}</span>
+          </div>
+          <div style="font-size:12.5px;color:#5c6678;line-height:1.5;font-style:italic;">"{{ shiftChangeReason }}"</div>
+        </div>
+        <div style="font-size:12.5px;color:#8a94a3;margin-bottom:14px;line-height:1.5;text-align:center;">Your admin will be notified and will approve or decline this request.</div>
+        <button onClick="{{ submitShiftChange }}" style="width:100%;padding:13px;background:{{ accent }};border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;">Confirm and send</button>
+        <button onClick="{{ backShiftChange }}" style="width:100%;margin-top:8px;padding:11px;background:none;border:none;font-size:13px;font-weight:600;color:#8a94a3;cursor:pointer;">Back</button>
+        </sc-if>
       </div>
     </div>
     </sc-if>

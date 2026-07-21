@@ -44,6 +44,10 @@ const DB = {
       return { session: data?.session || null, error };
     },
 
+    async deleteUser(userId) {
+      return await _db.auth.admin.deleteUser(userId);
+    },
+
     async createUserAsAdmin(contact, password, name) {
       const { data: sd } = await _db.auth.getSession();
       const session = sd?.session;
@@ -421,7 +425,7 @@ const DB = {
     async approve(id, reviewerName) {
       const { data, error } = await _db.from('signup_requests')
         .update({ status: 'approved', reviewed_by: reviewerName, reviewed_at: new Date().toISOString() })
-        .eq('id', id).select().maybeSingle();
+        .eq('id', id).eq('status', 'pending').select().maybeSingle();
       return { data, error };
     },
 
