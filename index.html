@@ -445,6 +445,23 @@
                     <div style="font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:700;color:#161f30;">{{ summaryP4 }}</div>
                   </div>
                 </div>
+                <sc-if value="{{ isLate }}" hint-placeholder-val="">
+                <div style="border-top:1px solid #f7efdc;background:#fdfaf5;padding:11px 16px;">
+                  <div style="display:flex;align-items:center;gap:8px;">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                    <span style="font-size:12.5px;font-weight:600;color:#b9791a;flex:1;">Late since {{ lateShiftStart }}</span>
+                    <sc-if value="{{ canAddLateReason }}" hint-placeholder-val="">
+                      <button onClick="{{ openLateReason }}" style="-webkit-appearance:none;font-size:12px;font-weight:600;color:#b9791a;background:none;border:1px solid #f0e2c2;border-radius:7px;padding:3px 10px;cursor:pointer;">Add reason</button>
+                    </sc-if>
+                    <sc-if value="{{ hasLateReason }}" hint-placeholder-val="">
+                      <button onClick="{{ openLateReason }}" style="-webkit-appearance:none;font-size:12px;font-weight:600;color:#b9791a;background:none;border:1px solid #f0e2c2;border-radius:7px;padding:3px 10px;cursor:pointer;">Edit</button>
+                    </sc-if>
+                  </div>
+                  <sc-if value="{{ hasLateReason }}" hint-placeholder-val="">
+                    <div style="font-size:12.5px;color:#8a6b24;margin-top:6px;font-style:italic;">{{ lateReasonDisplayText }}</div>
+                  </sc-if>
+                </div>
+                </sc-if>
               </div>
               </sc-if>
 
@@ -456,6 +473,7 @@
                 </div>
               </sc-if>
 
+              <sc-if value="{{ !allDone }}" hint-placeholder-val="">
               <sc-if value="{{ isLate }}" hint-placeholder-val="">
                 <div style="display:flex;align-items:center;gap:8px;margin-top:10px;flex-wrap:wrap;">
                   <div style="display:inline-flex;align-items:center;gap:6px;background:#f7efdc;color:#b9791a;padding:5px 11px;border-radius:20px;font-size:12px;font-weight:600;"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>Late since {{ lateShiftStart }}</div>
@@ -467,7 +485,6 @@
                   </sc-if>
                 </div>
               </sc-if>
-
               <sc-if value="{{ hasLateReason }}" hint-placeholder-val="">
                 <div style="margin-top:8px;padding:10px 12px;background:#fbeeec;border:1px solid #f1d3cf;border-radius:10px;display:flex;align-items:flex-start;gap:9px;">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:2px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
@@ -477,6 +494,7 @@
                   </div>
                   <button onClick="{{ openLateReason }}" style="-webkit-appearance:none;padding:4px 10px;background:none;border:1px solid #f1d3cf;border-radius:7px;font-size:12px;font-weight:600;color:#c0392b;cursor:pointer;">Edit</button>
                 </div>
+              </sc-if>
               </sc-if>
 
               <div style="border-top:1px solid #f0f2f6;margin-top:16px;padding-top:14px;display:flex;gap:8px;">
