@@ -186,7 +186,7 @@ const CheckinBuilders = {
       };
     });
     const allDone=phases.every(ph=>ph.done);
-    const summaryP1=rec.p1||'-', summaryP2=rec.p2||'-', summaryP3=rec.p3||'-', summaryP4=rec.p4||'-';
+    const summaryP1=rec.p1||'-', summaryP2=rec.p2||'-', summaryP3=rec.p3||'-', summaryP4=rec.p4||'-', summaryP2Label=shift==='PM'?'DINNER':'LUNCH';
     const shiftStart={AM:'08:30',PM:'15:30',OFFICE:'09:00'}[shift]||'08:30';
     const [_sc,_sm]=shiftStart.split(':').map(Number);
     const _lateMs=rec.p1?(()=>{const[h,m]=rec.p1.split(':').map(Number);return(h*60+m)-(_sc*60+_sm);})():0;
@@ -236,7 +236,7 @@ const CheckinBuilders = {
       showPhases:!outOfCycle&&!noRep&&status!=='mc'&&status!=='absent'&&!(s.myPendingRequest&&!pendingRequestExpired&&s.myPendingRequest.date===todayKey&&status!=='present'),
       outOfCycle, outOfCycleTitle, outOfCycleSub,
       phases, allDone,
-      summaryP1, summaryP2, summaryP3, summaryP4,
+      summaryP1, summaryP2, summaryP3, summaryP4, summaryP2Label,
       isLate, lateShiftStart:shiftStart,
       hasIncompletePast, incompletePastDate,
       canAddLateReason:isLate&&!rec.lateReason&&status==='present'&&!outOfCycle&&!noRep,
