@@ -359,7 +359,7 @@ const AdminBuilders = {
       onNoReportBulkText:this.onNoReportBulkText, applyNoReportBulk:this.applyNoReportBulk,
       batchJumpDate:s.batchJumpDate, onBatchJumpDate:this.onBatchJumpDate, jumpToDate:this.jumpToDate,
       leaveSearch:s.leaveSearch||'', onLeaveSearch:this.onLeaveSearch, clearLeaveSearch:this.clearLeaveSearch, hasLeaveSearch:!!(s.leaveSearch||'').trim(),
-      pendingLeaves:(()=>{const _lq=(s.leaveSearch||'').toLowerCase().trim();const _lb=_lq?(s.pendingLeaves||[]).filter(l=>(l.personnel?.name||'').toLowerCase().includes(_lq)||(l.personnel?.contact||'').includes(_lq)):(s.pendingLeaves||[]);return _lb.map(l=>({
+      pendingLeaves:(()=>{const _lq=(s.leaveSearch||'').toLowerCase().trim();const _lb=_lq?(s.pendingLeaves||[]).filter(l=>(l.personnel?.name||'').toLowerCase().includes(_lq)||(l.personnel?.contact||'').includes(_lq)):(s.pendingLeaves||[]);const _nowMs=Date.now(),_2d=172800000;return _lb.map(l=>{const _ms=l.created_at?_nowMs-new Date(l.created_at).getTime():0,_h=Math.floor(_ms/3600000),_d=Math.floor(_h/24),isExpired=_ms>_2d,timeAgo=!l.created_at?'':_h<1?'Just now':_h<24?_h+' hr'+(_h!==1?'s':'')+' ago':_d+' day'+(_d!==1?'s':'')+' ago';return({
         id:l.id, reason:l.reason||'',
         personName:l.personnel?.name||'Unknown',
         initials:Utils.initials(l.personnel?.name||'?'),
@@ -377,7 +377,8 @@ const AdminBuilders = {
         onRejectLeaveReason:this.onRejectLeaveReason,
         confirmRejectLeave:this.confirmRejectLeave,
         cancelRejectLeave:this.cancelRejectLeave,
-      }));})(),
+        timeAgo, isExpired,
+      });});})(),
       pendingLeavesCount:(s.pendingLeaves||[]).length,
       hasPendingLeaves:(s.pendingLeaves||[]).length>0,
       pendingLeavesLoaded:s.pendingLeavesLoaded,
