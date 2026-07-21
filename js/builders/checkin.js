@@ -113,9 +113,8 @@ const CheckinBuilders = {
       ?'Still locating. GPS signal is very weak. Move outside to an open area, then try again.'
       :'Taking longer than usual. Try stepping near a window or outside.';
     if(locVerified){
-      const warnAcc=poorAcc?' (low accuracy; try again outdoors for a better reading)':'';
-      gLocBorder=poorAcc?'#f0e2c2':'#cfe6d8';gLocCardBg=poorAcc?'#fdf6e9':'#f5faf7';gLocBadgeBg=poorAcc?'#f7efdc':'#e7f3ec';gLocBadgeColor=poorAcc?'#b9791a':'#1f8a5b';
-      gLocMsg=s.locDistance+' m from '+hqName+', on-site'+accStr+warnAcc;gLocMsgColor=poorAcc?'#b9791a':'#1f8a5b';
+      gLocBorder='#cfe6d8';gLocCardBg='#f5faf7';gLocBadgeBg='#e7f3ec';gLocBadgeColor='#1f8a5b';
+      gLocMsg=s.locDistance+' m from '+hqName+', on-site'+accStr;gLocMsgColor='#1f8a5b';
     }
     else if(locOutOfRange){gLocBorder='#f1d3cf';gLocCardBg='#fbeeec';gLocBadgeBg='#f7e4e1';gLocBadgeColor='#c0392b';const veryPoorAcc=s.locAccuracy!=null&&s.locAccuracy>300;const badFix=s.locDistance!=null&&s.locDistance>50000;gLocMsg=(veryPoorAcc||badFix)?('GPS signal too weak to verify your location'+(s.locAccuracy!=null?' (±'+s.locAccuracy+'m)':'')+'. Step outside to an open area with clear sky and try again.'):s.locDistance+' m away. You must be at '+hqName+' to check in.'+accStr+(poorAcc?'\n\nNote: GPS accuracy is low (±'+s.locAccuracy+'m). If you are on-site, move outside and try again.':'');gLocMsgColor='#c0392b';}
     else if(locGpsError){gLocBorder='#f0e2c2';gLocCardBg='#fdf6e9';gLocBadgeBg='#f7efdc';gLocBadgeColor='#b9791a';gLocMsg=s.locGpsMsg||'Location unavailable. Check permissions and try again.';gLocMsgColor='#b9791a';}
