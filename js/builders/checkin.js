@@ -214,6 +214,10 @@ const CheckinBuilders = {
     const dekitDaysLeft=dekit?Math.round((dekit-todayMid)/86400000):null;
     const dekitCountdown=dekitDaysLeft===null?'':dekitDaysLeft===0?'Return equipment today':dekitDaysLeft>0?`${dekitDaysLeft} day${dekitDaysLeft!==1?'s':''} to dekit`:'Cycle complete';
     const batchRange=activeBatch?(Utils.fmtShort(new Date(activeBatch.start_date+'T00:00:00'))+' to '+Utils.fmtShort(new Date(activeBatch.end_date+'T00:00:00'))):'';
+    const _pendMs=s.myPendingRequest?.created_at?Date.now()-new Date(s.myPendingRequest.created_at).getTime():0;
+    const pendingRequestExpired=!!(s.myPendingRequest&&_pendMs>172800000);
+    const _pendH=Math.floor(_pendMs/3600000),_pendD=Math.floor(_pendH/24);
+    const pendingRequestTimeAgo=s.myPendingRequest?.created_at?(_pendH<1?'Just now':_pendH<24?_pendH+' hr'+(_pendH!==1?'s':'')+' ago':_pendD+' day'+(_pendD!==1?'s':'')+' ago'):'';
     return {
       todayLong:Utils.fmtLong(this.baseDate()),
       clock:Utils.hhmm(s.now),
@@ -226,10 +230,11 @@ const CheckinBuilders = {
       phName:Utils.holidayName(todayD)||(isOffDay?'Reservists do not report on weekends.':'No CNB reporting today.'),
       isMc:!outOfCycle&&status==='mc'&&!noRep,
       isAbsent:!outOfCycle&&status==='absent'&&!noRep,
-      hasPendingRequest:!outOfCycle&&!noRep&&status!=='mc'&&status!=='absent'&&!!(s.myPendingRequest&&s.myPendingRequest.date===todayKey&&status!=='present'),
+      hasPendingRequest:!outOfCycle&&!noRep&&status!=='mc'&&status!=='absent'&&!!(s.myPendingRequest&&!pendingRequestExpired&&s.myPendingRequest.date===todayKey&&status!=='present'),
       pendingRequestLabel:s.myPendingRequest?.type==='mc'?'MC':s.myPendingRequest?.type==='shift_change'?'shift change':'absence',
       pendingRequestDate:s.myPendingRequest?.date?Utils.fmtMed(new Date(s.myPendingRequest.date+'T00:00:00')):'',
-      showPhases:!outOfCycle&&!noRep&&status!=='mc'&&status!=='absent'&&!(s.myPendingRequest&&s.myPendingRequest.date===todayKey&&status!=='present'),
+      pendingRequestExpired:!outOfCycle&&!noRep&&pendingRequestExpired, pendingRequestTimeAgo,
+      showPhases:!outOfCycle&&!noRep&&status!=='mc'&&status!=='absent'&&!(s.myPendingRequest&&!pendingRequestExpired&&s.myPendingRequest.date===todayKey&&status!=='present'),
       outOfCycle, outOfCycleTitle, outOfCycleSub,
       phases, allDone,
       summaryP1, summaryP2, summaryP3, summaryP4,

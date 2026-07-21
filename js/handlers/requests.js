@@ -176,7 +176,12 @@ const RequestHandlers = {
 
   submitLeaveRequest: async function() {
     const {currentUserId, leaveDate, leaveType, leaveReason, demo, myPendingRequest, myLeaveHistory} = this.state;
-    if(myPendingRequest){ this._toast('You already have a pending request.','error'); return; }
+    const _pendExpired=myPendingRequest?.created_at&&(Date.now()-new Date(myPendingRequest.created_at).getTime())>172800000;
+    if(myPendingRequest&&!_pendExpired){ this._toast('You already have a pending request.','error'); return; }
+    if(myPendingRequest&&_pendExpired&&!demo){
+      await DB.leaves.updateStatus(myPendingRequest.id,'rejected',{reviewed_by:'System',rejection_reason:'Auto-expired after 2 days'}).catch(()=>{});
+      this.setState({myPendingRequest:null});
+    }
     if(!leaveDate){ this._toast('Please select a date.','error'); return; }
     if(leaveDate < Utils.dateKey(this.baseDate())){ this._toast('Cannot submit a request for a past date.','error'); return; }
     if((myLeaveHistory||[]).some(h=>h.date===leaveDate)){ this._toast('You already submitted a request for this date.','error'); return; }
