@@ -194,15 +194,18 @@ const CheckinBuilders = {
     const incompletePastRec=s.history.find(r=>r.status==='present'&&(!r.lunch_out_time||!r.work_return_time||!r.work_end_time));
     const hasIncompletePast=!!incompletePastRec;
     const incompletePastDate=hasIncompletePast?Utils.fmtMed(new Date(incompletePastRec.date+'T00:00:00')):'';
+    const _waDate=Utils.fmtMed(this.baseDate());
+    const _waBreakLabel=shift==='PM'?'DINNER':'LUNCH';
     const _waTimes=[];
-    if(rec.p1) _waTimes.push('IN '+rec.p1);
-    if(rec.p2) _waTimes.push('LUNCH '+rec.p2);
-    if(rec.p3) _waTimes.push('BACK '+rec.p3);
-    if(rec.p4) _waTimes.push('OUT '+rec.p4);
+    if(rec.p1) _waTimes.push('IN  '+rec.p1);
+    if(rec.p2) _waTimes.push(_waBreakLabel+'  '+rec.p2);
+    if(rec.p3) _waTimes.push('BACK  '+rec.p3);
+    if(rec.p4) _waTimes.push('OUT  '+rec.p4);
+    const _waLateNote=isLate?' · Late check-in':'';
     const waMsg=status==='present'
-      ?`✅ ${me.name} | ${Utils.shiftLabel(me.shift)}\n${_waTimes.join(' · ')}`
+      ?`✅ *${me.name}* | ${Utils.shiftLabel(me.shift)}\n${_waDate}${_waLateNote}\n\n${_waTimes.join('  ·  ')}`
       :status==='mc'
-      ?`🤒 ${me.name} is on MC today (${Utils.shiftLabel(me.shift)}).`
+      ?`🤒 *${me.name}* — On MC today\n${Utils.shiftLabel(me.shift)}  ·  ${_waDate}`
       :'';
     const whatsappLink=waMsg?'https://api.whatsapp.com/send?text='+encodeURIComponent(waMsg):'';
     const showWaShare=!!(status==='present'||status==='mc');
