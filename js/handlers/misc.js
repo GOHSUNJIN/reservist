@@ -69,6 +69,15 @@ const MiscHandlers = {
 
   showMoreHistory: function() { this.setState(s=>({historyPage:(s.historyPage||1)+1})); },
 
+  toggleHistoryExpand: function(dateKey) {
+    return () => this.setState(s=>{
+      const a=[...(s.historyExpandedDates||[])];
+      const i=a.indexOf(dateKey);
+      if(i>=0) a.splice(i,1); else a.push(dateKey);
+      return {historyExpandedDates:a};
+    });
+  },
+
   // ── Help ──────────────────────────────────────────────────────────────
   openHelp: function() { this.setState({helpOpen:true}); },
   closeHelp: function() { this.setState({helpOpen:false}); },
