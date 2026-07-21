@@ -928,21 +928,6 @@ const Builders = {
       noReportBulkOpen:s.noReportBulkOpen, noReportBulkText:s.noReportBulkText||'',
       openNoReportBulk:this.openNoReportBulk, closeNoReportBulk:this.closeNoReportBulk,
       onNoReportBulkText:this.onNoReportBulkText, applyNoReportBulk:this.applyNoReportBulk,
-      // Feature: handover checklist
-      ...(()=>{
-        const lb=batches.find(b=>b.is_live);
-        if(!lb) return {showHandover:false,handoverItems:[],handoverDone:true};
-        const dismissed=!!localStorage.getItem('handover_'+lb.id);
-        if(dismissed) return {showHandover:false,handoverItems:[],handoverDone:true};
-        const items=[
-          {label:'Personnel added to this cycle',done:(s.personnel||[]).filter(p=>p.batch_id===lb.id&&p.is_active!==false).length>0},
-          {label:'No-report days configured',done:(s.noReportDays||new Set()).size>0},
-          {label:'Dekit date set',done:!!lb.dekit_date},
-        ];
-        const allDone=items.every(i=>i.done);
-        return {showHandover:!allDone,handoverItems:items.map(i=>({...i,doneColor:i.done?'#1f8a5b':'#8a94a3',doneIcon:i.done?'✓':'○'})),handoverDone:allDone};
-      })(),
-      dismissHandover:this.dismissHandover,
       batchJumpDate:s.batchJumpDate, onBatchJumpDate:this.onBatchJumpDate, jumpToDate:this.jumpToDate,
       leaveSearch:s.leaveSearch||'', onLeaveSearch:this.onLeaveSearch, clearLeaveSearch:this.clearLeaveSearch, hasLeaveSearch:!!(s.leaveSearch||'').trim(),
       pendingLeaves:(()=>{const _lq=(s.leaveSearch||'').toLowerCase().trim();const _lb=_lq?(s.pendingLeaves||[]).filter(l=>(l.personnel?.name||'').toLowerCase().includes(_lq)||(l.personnel?.contact||'').includes(_lq)):(s.pendingLeaves||[]);return _lb.map(l=>({
@@ -971,6 +956,8 @@ const Builders = {
       batchAvgPct:batchAvgPct!==null?batchAvgPct+'%':'-',
       showBatchStats:s.peopleStatsLoaded,
       isSuperAdmin:s.isSuperAdmin,
+      addAdminOpen:s.addAdminOpen, toggleAddAdmin:this.toggleAddAdmin,
+      promoteAdminOpen:s.promoteAdminOpen, togglePromoteAdmin:this.togglePromoteAdmin,
       adminsList:(s.adminsList||[]).map(a=>({
         id:a.id, name:a.name, contact:a.contact||'',
         roleLabel:a.role==='superadmin'?'Master':'Admin',
