@@ -278,6 +278,16 @@ const DB = {
       const { error } = await _db.from('attendance').insert({ personnel_id: personnelId, date: dateStr, status: 'absent', welfare_note: note });
       return { error };
     },
+
+    async saveMissedNote(personnelId, dateStr, note) {
+      const existingId = await this._findRow(personnelId, dateStr);
+      if (existingId) {
+        const { error } = await _db.from('attendance').update({ welfare_note: note }).eq('id', existingId);
+        return { error };
+      }
+      const { error } = await _db.from('attendance').insert({ personnel_id: personnelId, date: dateStr, status: 'missed', welfare_note: note });
+      return { error };
+    },
   },
 
   // ── Batches ───────────────────────────────────────────────────────────────
