@@ -371,11 +371,13 @@ const CheckinBuilders = {
     const _tc=(v,c1,c0)=>v?c1:c0;
     const _dc='#c2c8d2';
 
+    const _exDates=s.historyExpandedDates||[];
     const todayRow=(Utils.isReportDay(todayD)&&!this.isNoReport(0))
       ?[{date:Utils.fmtMed(todayD)+', Today',dateKey:today,shift:Utils.shiftLabel(me.shift),status,
          p1:rec.p1||'-',p2:rec.p2||'-',p3:rec.p3||'-',p4:rec.p4||'-',
          p1Color:_tc(rec.p1,'#161f30',_dc),p2Color:_tc(rec.p2,'#161f30',_dc),p3Color:_tc(rec.p3,'#161f30',_dc),p4Color:_tc(rec.p4,'#161f30',_dc),
-         showTimes:status==='present',lateReason:rec.lateReason||'',showLateReason:!!(rec.lateReason),...Utils.meta(status)}]:[];
+         hasExpandToggle:status==='present',isExpanded:_exDates.includes(today),onToggleExpand:this.toggleHistoryExpand(today),
+         showTimes:status==='present'&&_exDates.includes(today),lateReason:rec.lateReason||'',showLateReason:!!(rec.lateReason)&&_exDates.includes(today),...Utils.meta(status)}]:[];
 
     const _nc='#b9791a'; // amber for unrecorded slots
     const histKeys=new Set(s.history.map(r=>r.date));
@@ -385,6 +387,7 @@ const CheckinBuilders = {
       const p1=tk(r.check_in_time),p2=tk(r.lunch_out_time),p3=tk(r.work_return_time),p4=tk(r.work_end_time);
       const isPresent=r.status==='present';
       const hasIncompleteTimes=isPresent&&(!p2||!p3||!p4);
+      const _rowEx=_exDates.includes(r.date);
       return {date:Utils.fmtMed(d),dateKey:r.date,shift:Utils.shiftLabel(me.shift),status:r.status,
         p1:p1||'-',
         p2:p2||(isPresent?'–':'-'), p3:p3||(isPresent?'–':'-'), p4:p4||(isPresent?'–':'-'),
@@ -392,7 +395,8 @@ const CheckinBuilders = {
         p2Color:p2?'#161f30':(isPresent?_nc:_dc),
         p3Color:p3?'#161f30':(isPresent?_nc:_dc),
         p4Color:p4?'#161f30':(isPresent?_nc:_dc),
-        showTimes:isPresent,hasIncompleteTimes,lateReason:r.late_reason||'',showLateReason:!!(r.late_reason),...Utils.meta(r.status)};
+        hasExpandToggle:isPresent,isExpanded:_rowEx,onToggleExpand:this.toggleHistoryExpand(r.date),
+        showTimes:isPresent&&_rowEx,hasIncompleteTimes:hasIncompleteTimes&&_rowEx,lateReason:r.late_reason||'',showLateReason:!!(r.late_reason)&&_rowEx,...Utils.meta(r.status)};
     });
 
     const missedRows=[];
@@ -402,7 +406,8 @@ const CheckinBuilders = {
         const dk=Utils.dateKey(d);
         if(Utils.isReportDay(d)&&dk<=activeBatch.end_date&&!Utils.holidayName(d)&&!s.noReportDays.has(dk)&&!histKeys.has(dk)){
           missedRows.push({date:Utils.fmtMed(d),dateKey:dk,shift:Utils.shiftLabel(me.shift),status:'missed',
-            p1:'-',p2:'-',p3:'-',p4:'-',p1Color:_dc,p2Color:_dc,p3Color:_dc,p4Color:_dc,showTimes:false,...Utils.meta('missed')});
+            p1:'-',p2:'-',p3:'-',p4:'-',p1Color:_dc,p2Color:_dc,p3Color:_dc,p4Color:_dc,
+            showTimes:false,hasExpandToggle:false,isExpanded:false,onToggleExpand:()=>{},...Utils.meta('missed')});
         }
       }
     }
