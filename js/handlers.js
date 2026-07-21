@@ -378,7 +378,7 @@ const Handlers = {
       pendingLeaves:[], pendingLeavesLoaded:false,
       leaveOpen:false, leaveDate:'', leaveType:'mc', leaveReason:'',
       myPendingRequest:null,
-      shiftChangeOpen:false, shiftChangeNew:'AM', shiftChangeReason:'',
+      shiftChangeOpen:false, shiftChangeNew:'AM', shiftChangeReason:'', shiftChangeConfirming:false,
       adminNotifGranted:false,
       myLeaveHistory:[], myLeaveHistoryLoaded:false,
       welfareNoteOpen:false, welfareNoteText:'', welfareNoteSaving:false,
@@ -393,7 +393,7 @@ const Handlers = {
       signupPending:false,
       pendingSignups:[], pendingSignupsLoaded:false, approvedSignups:[],
       selectedSignupIds:[],
-      signupSearch:'', leaveSearch:'', addPersonnelOpen:false,
+      signupSearch:'', leaveSearch:'', addPersonnelOpen:false, npReenrollRecord:null,
       rejectLeaveId:null, rejectLeaveReason:'',
       waPreviewOpen:false, waPreviewText:'',
       logNoteId:null, logNoteText:'',
@@ -443,7 +443,7 @@ const Handlers = {
   onSuShift:       function(e) { this.setState({suShift:e.target.value}); },
   onSuShiftSelect: function(v) { return () => this.setState({suShift:v}); },
   onSuPassword:    function(e) { this.setState({suPassword:e.target.value}); },
-  toggleAddPersonnel: function() { this.setState(s=>({addPersonnelOpen:!s.addPersonnelOpen})); },
+  toggleAddPersonnel: function() { this.setState(s=>({addPersonnelOpen:!s.addPersonnelOpen,npReenrollRecord:null})); },
   onNpName:        function(e) { this.setState({npName:e.target.value}); },
   onNpContact:     function(e) { this.setState({npContact:e.target.value}); },
   onNpShift:       function(e) { this.setState({npShift:e.target.value}); },
@@ -468,8 +468,9 @@ const Handlers = {
       if(!req) return;
       const me = this.cur();
       const reviewerName = me?.name || null;
-      const {error:approveErr} = await DB.signupRequests.approve(id, reviewerName);
+      const {data:approvedRow, error:approveErr} = await DB.signupRequests.approve(id, reviewerName);
       if(approveErr){ this._toast('Failed to approve. Try again.','error'); return; }
+      if(!approvedRow){ this.setState(s=>({pendingSignups:s.pendingSignups.filter(r=>r.id!==id)})); this._toast('Already approved by another admin.','error'); return; }
       // If admin pre-added this person, link auth to existing record; otherwise create new
       const existing = await DB.personnel.findByContact(req.contact).catch(()=>null);
       let finalPerson = existing;
@@ -705,10 +706,11 @@ const Handlers = {
   onLeaveReason: function(e) { this.setState({leaveReason:e.target.value}); },
 
   submitLeaveRequest: async function() {
-    const {currentUserId, leaveDate, leaveType, leaveReason, demo, myPendingRequest} = this.state;
+    const {currentUserId, leaveDate, leaveType, leaveReason, demo, myPendingRequest, myLeaveHistory} = this.state;
     if(myPendingRequest){ this._toast('You already have a pending request.','error'); return; }
     if(!leaveDate){ this._toast('Please select a date.','error'); return; }
     if(leaveDate < Utils.dateKey(this.baseDate())){ this._toast('Cannot submit a request for a past date.','error'); return; }
+    if((myLeaveHistory||[]).some(h=>h.date===leaveDate)){ this._toast('You already submitted a request for this date.','error'); return; }
     if(!demo){
       const {data, error} = await DB.leaves.request(currentUserId, leaveDate, leaveType, leaveReason).catch(e=>({error:e}));
       if(error){ this._toast('Failed to submit request.','error'); return; }
@@ -721,20 +723,22 @@ const Handlers = {
   },
 
   // ── Shift change requests ──────────────────────────────────────────────
-  openShiftChange: function() { const me=this.cur(); this.setState({shiftChangeOpen:true,shiftChangeNew:me?.shift||'AM',shiftChangeReason:''}); },
-  closeShiftChange: function() { this.setState({shiftChangeOpen:false}); },
-  onShiftChangeNew: function(v) { return () => this.setState({shiftChangeNew:v}); },
+  openShiftChange: function() { const me=this.cur(); this.setState({shiftChangeOpen:true,shiftChangeNew:me?.shift||'AM',shiftChangeReason:'',shiftChangeConfirming:false}); },
+  closeShiftChange: function() { this.setState({shiftChangeOpen:false,shiftChangeConfirming:false}); },
+  onShiftChangeNew: function(v) { return () => this.setState({shiftChangeNew:v,shiftChangeConfirming:false}); },
   onShiftChangeReason: function(e) { this.setState({shiftChangeReason:e.target.value}); },
+  backShiftChange: function() { this.setState({shiftChangeConfirming:false}); },
 
   submitShiftChange: async function() {
-    const {currentUserId,shiftChangeNew,shiftChangeReason,demo}=this.state;
+    const {currentUserId,shiftChangeNew,shiftChangeReason,demo,shiftChangeConfirming}=this.state;
     if(!shiftChangeReason.trim()){ this._toast('Please provide a reason for the shift change.','error'); return; }
+    if(!shiftChangeConfirming){ this.setState({shiftChangeConfirming:true}); return; }
     if(!demo){
       const {error}=await DB.leaves.request(currentUserId,Utils.dateKey(this.baseDate()),'shift_change',shiftChangeReason,shiftChangeNew).catch(e=>({error:e}));
-      if(error){ this._toast('Failed to send request.','error'); return; }
+      if(error){ this._toast('Failed to send request.','error'); this.setState({shiftChangeConfirming:false}); return; }
     }
     this._toast('Shift change request sent.');
-    this.setState({shiftChangeOpen:false});
+    this.setState({shiftChangeOpen:false,shiftChangeConfirming:false});
   },
 
   // ── Welfare note ───────────────────────────────────────────────────────
@@ -1510,50 +1514,57 @@ const Handlers = {
   },
 
   addPerson: async function() {
-    const {npName,npContact,npShift,npPassword,batches,activeBatchIdx,demo,personnel,batchMembersCache}=this.state;
+    const {npName,npContact,npShift,npPassword,batches,activeBatchIdx,demo,personnel}=this.state;
     if(!npName.trim()){ this._toast('Name is required.','error'); return; }
     const cleanContact=npContact.replace(/[\s-]/g,'');
     if(!cleanContact){ this._toast('Contact number is required.','error'); return; }
     if(!/^[689]\d{7}$/.test(cleanContact)){ this._toast('Contact must be an 8-digit Singapore number.','error'); return; }
     if(personnel.some(p=>p.contact.replace(/[\s-]/g,'')===cleanContact)){ this._toast('This contact is already on the roster.','error'); return; }
     const activeBatch=batches[activeBatchIdx||0];
+    if(!activeBatch){ this._toast('No active batch selected. Create a batch first.','error'); return; }
     const {am:bAm,pm:bPm}=this._shiftSlotCounts(personnel);
     if(npShift==='AM'&&bAm>=2){ this._toast('AM shift is full (2/2). Select PM or Office.','error'); return; }
     if(npShift==='PM'&&bPm>=2){ this._toast('PM shift is full (2/2). Select AM or Office.','error'); return; }
-    const shift=npShift;
-    const contact=cleanContact;
-    const addedName=npName.trim();
     if(!demo){
-      // Check for an existing record (may be inactive from a previous cycle)
       const existingRecord = await DB.personnel.findByContact(cleanContact).catch(()=>null);
       if(existingRecord && !existingRecord.is_active){
-        // Returning reservist: reactivate and reassign; no new password needed
-        const {data:reactivated,error:reactErr} = await DB.personnel.reactivate(existingRecord.id, {batchId:activeBatch?.id, shift});
-        if(reactErr||!reactivated){ this._toast('Failed to re-enroll. Try again.','error'); return; }
-        if(addedName !== existingRecord.name) await DB.personnel.updateName(existingRecord.id, addedName).catch(()=>{});
-        this.setState(s=>({personnel:[...s.personnel,{...reactivated,name:addedName}],npName:'',npContact:'',npShift:'AM',npPassword:'',rosterSearch:''}));
-        this._toast(addedName+' re-enrolled on the roster.');
+        this.setState({npReenrollRecord:existingRecord});
         return;
       }
       if(existingRecord && existingRecord.is_active){
         this._toast('This contact is already registered.','error'); return;
       }
-      // New person: password required to create their account
       if(!npPassword.trim()){ this._toast('Password is required for new personnel.','error'); return; }
       if(npPassword.length<6){ this._toast('Password must be at least 6 characters.','error'); return; }
-      let authId=null;
-      const {user,error}=await DB.auth.createUserAsAdmin(cleanContact,npPassword,addedName);
+      const {user,error}=await DB.auth.createUserAsAdmin(cleanContact,npPassword,npName.trim());
       if(error||!user){ this._toast('Account creation failed: '+(error?.message||'Try again.'),'error'); return; }
-      authId=user.id;
-      const {data,error:addErr}=await DB.personnel.add({authId,name:addedName,contact,shift,batchId:activeBatch?.id});
-      if(addErr||!data){ this._toast('Failed to add. Try again.','error'); return; }
-      this.setState(s=>({personnel:[...s.personnel,data],npName:'',npContact:'',npShift:'AM',npPassword:'',rosterSearch:''}));
+      const {data,error:addErr}=await DB.personnel.add({authId:user.id,name:npName.trim(),contact:cleanContact,shift:npShift,batchId:activeBatch.id});
+      if(addErr||!data){
+        await DB.auth.deleteUser(user.id).catch(()=>{});
+        this._toast('Failed to add to roster. Try again.','error'); return;
+      }
+      this.setState(s=>({personnel:[...s.personnel,data],npName:'',npContact:'',npShift:'AM',npPassword:'',rosterSearch:'',addPersonnelOpen:false}));
     } else {
       const id='demo-'+Date.now();
-      this.setState(s=>({personnel:[...s.personnel,{id,name:addedName,contact,shift,role:'reservist',batch_id:activeBatch?.id,is_active:true}],npName:'',npContact:'',npShift:'AM',npPassword:'',rosterSearch:''}));
+      this.setState(s=>({personnel:[...s.personnel,{id,name:npName.trim(),contact:cleanContact,shift:npShift,role:'reservist',batch_id:activeBatch.id,is_active:true}],npName:'',npContact:'',npShift:'AM',npPassword:'',rosterSearch:'',addPersonnelOpen:false}));
     }
-    this._toast(addedName+' added to roster.');
+    this._toast(npName.trim()+' added to roster.');
   },
+
+  confirmReenroll: async function() {
+    const {npName,npShift,batches,activeBatchIdx,npReenrollRecord}=this.state;
+    if(!npReenrollRecord) return;
+    const activeBatch=batches[activeBatchIdx||0];
+    const addedName=npName.trim();
+    const {data:reactivated,error:reactErr}=await DB.personnel.reactivate(npReenrollRecord.id,{batchId:activeBatch?.id,shift:npShift});
+    if(reactErr||!reactivated){ this._toast('Failed to re-enroll. Try again.','error'); return; }
+    if(addedName&&addedName!==npReenrollRecord.name) await DB.personnel.updateName(npReenrollRecord.id,addedName).catch(()=>{});
+    const finalName=addedName||npReenrollRecord.name;
+    this.setState(s=>({personnel:[...s.personnel,{...reactivated,name:finalName}],npName:'',npContact:'',npShift:'AM',npPassword:'',npReenrollRecord:null,rosterSearch:'',addPersonnelOpen:false}));
+    this._toast(finalName+' re-enrolled on the roster.');
+  },
+
+  cancelReenroll: function() { this.setState({npReenrollRecord:null}); },
 
   onRosterSearch:   function(e) { this.setState({rosterSearch:e.target.value}); },
   onRosterSearchKeyDown: function(e) { if(e.key==='Enter') e.target.blur(); },
@@ -1563,7 +1574,16 @@ const Handlers = {
   refreshSessionNow: async function() {
     this.setState({sessionExpiring:false});
     if(this._sessionWarnTimer) clearTimeout(this._sessionWarnTimer);
-    try { await DB.auth.refreshSession(); } catch(e){}
+    let refreshFailed = false;
+    try {
+      const {session, error} = await DB.auth.refreshSession();
+      if(error || !session) refreshFailed = true;
+    } catch(e) { refreshFailed = true; }
+    if(refreshFailed) {
+      await DB.auth.logout().catch(()=>{});
+      this.setState({authed:false,role:null,authMode:'login',loading:false,authError:'Your session has expired. Please log in again.'});
+      return;
+    }
     this._sessionWarnTimer = setTimeout(()=>{ if(this.state.authed) this.setState({sessionExpiring:true}); }, 55*60*1000);
   },
 
@@ -1611,17 +1631,24 @@ const Handlers = {
     const activeBatch=batches[activeBatchIdx||0];
     const activeMembers=(activeBatch?.is_live?this.state.personnel.filter(p=>p.batch_id===activeBatch.id):(batchMembersCache?.[activeBatch?.id]||[])).filter(p=>(p.role||'reservist')==='reservist');
     const pending=activeMembers.filter(p=>!viewMap[p.id]?.status||viewMap[p.id]?.status==='absent');
+    if(!pending.length){ this.setState({markAllPresenting:false}); return; }
     const p1=Utils.hhmm(new Date());
     const updates={};
+    let failed=0;
     await Promise.all(pending.map(async p=>{
       updates[p.id]={status:'present',p1};
-      if(!this.state.demo) await DB.attendance.upsert(p.id,viewDateKey,'present',{time:p1}).catch(()=>{});
+      if(!this.state.demo){
+        const {error}=await DB.attendance.upsert(p.id,viewDateKey,'present',{time:p1}).catch(e=>({error:e}));
+        if(error) failed++;
+      }
     }));
     if(viewIsToday){
       this.setState(s=>({attendance:{...s.attendance,...updates},markAllPresenting:false}));
     } else {
       this.setState(s=>({attendanceCache:{...s.attendanceCache,[viewDateKey]:{...(s.attendanceCache?.[viewDateKey]||{}),...updates}},markAllPresenting:false}));
     }
+    if(failed) this._toast(failed+' save'+(failed>1?'s':'')+' failed. Check your connection.','error');
+    else this._toast(pending.length+' member'+(pending.length>1?'s':'')+' marked present.');
   },
 
   refreshPage: async function() {

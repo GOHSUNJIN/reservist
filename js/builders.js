@@ -130,6 +130,7 @@ const Builders = {
       tabOverview:s.tab==='overview', tabRoster:s.tab==='roster', tabLog:s.tab==='log', tabPeople:s.tab==='people',
       pendingSignupCount:s.pendingSignups.length,
       hasPendingSignups:s.pendingSignups.length>0,
+      pendingSignupsLoaded:!!(s.pendingSignupsLoaded),
     };
   },
 
@@ -343,6 +344,10 @@ const Builders = {
       onShiftChangeAm:this.onShiftChangeNew('AM'), onShiftChangePm:this.onShiftChangeNew('PM'), onShiftChangeOffice:this.onShiftChangeNew('OFFICE'),
       shiftChangeIsAm:s.shiftChangeNew==='AM', shiftChangeIsPm:s.shiftChangeNew==='PM', shiftChangeIsOffice:s.shiftChangeNew==='OFFICE',
       onShiftChangeReason:this.onShiftChangeReason, submitShiftChange:this.submitShiftChange, closeShiftChange:this.closeShiftChange,
+      shiftChangeConfirming:!!(s.shiftChangeConfirming), showShiftChangeForm:!(s.shiftChangeConfirming),
+      backShiftChange:this.backShiftChange,
+      currentShiftLabel:Utils.shiftLabel(this.cur()?.shift||'AM'),
+      requestedShiftLabel:Utils.shiftLabel(s.shiftChangeNew||'AM'),
       welfareNote:rec.welfareNote||'', hasWelfareNote:!!(rec.welfareNote),
       welfareNoteBtnLabel:rec.welfareNote?'Edit daily note':'Add a note for today',
       canAddWelfareNote:s.role==='admin'&&!outOfCycle&&!noRep&&Utils.isReportDay(todayD),
@@ -871,6 +876,9 @@ const Builders = {
       addPersonnelOpen:!!(s.addPersonnelOpen), toggleAddPersonnel:this.toggleAddPersonnel,
       addPersonnelBtnBg:s.addPersonnelOpen?'#161f30':'#eceef2',
       addPersonnelBtnStroke:s.addPersonnelOpen?'#fff':'#5c6678',
+      showReenrollConfirm:!!(s.npReenrollRecord), showAddForm:!(s.npReenrollRecord),
+      reenrollName:s.npReenrollRecord?.name||'',
+      confirmReenroll:this.confirmReenroll, cancelReenroll:this.cancelReenroll,
       onNpName:this.onNpName, onNpContact:this.onNpContact, onNpShift:this.onNpShift, onNpPassword:this.onNpPassword, addPerson:this.addPerson,
       mealActive:!!(activeBatch?.meal_active), toggleMealActive:this.toggleMealActive,
       mealToggleTrackBg:activeBatch?.meal_active?accent:'#39435a',
@@ -987,6 +995,7 @@ const Builders = {
         });
       })(),
       hasPendingSignups:s.pendingSignups.length>0,
+      pendingSignupsLoaded:!!(s.pendingSignupsLoaded),
       pendingSignupCount:s.pendingSignups.length,
       selectedSignupCount:(s.selectedSignupIds||[]).length,
       hasSelectedSignups:(s.selectedSignupIds||[]).length>0,
