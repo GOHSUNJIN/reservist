@@ -499,6 +499,16 @@
             </sc-if>
           </div>
 
+          <sc-if value="{{ hasIncompletePast }}" hint-placeholder-val="">
+          <div style="background:#fdf6e9;border:1px solid #f0e2c2;border-radius:14px;padding:14px 16px;margin-top:14px;display:flex;align-items:flex-start;gap:10px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:1px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            <div>
+              <div style="font-size:13.5px;font-weight:600;color:#8a6d2a;margin-bottom:3px;">Unrecorded times from {{ incompletePastDate }}</div>
+              <div style="font-size:12.5px;color:#9a7a2a;line-height:1.5;">Some check-in times were not recorded for that day. Let your supervisor know to update them manually.</div>
+            </div>
+          </div>
+          </sc-if>
+
           <div style="background:#fff;border:1px solid #e3e6ec;border-radius:18px;padding:18px;margin-top:14px;">
             <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px;">
               <div style="font-size:13px;font-weight:700;color:#161f30;">Your deployment cycle</div>
@@ -744,6 +754,12 @@
                     <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:{{ row.p4Color }};">{{ row.p4 }}</div>
                   </div>
                 </div>
+                </sc-if>
+                <sc-if value="{{ row.hasIncompleteTimes }}" hint-placeholder-val="">
+                  <div style="margin-top:6px;padding:7px 9px;background:#fdf6e9;border:1px solid #f0e2c2;border-radius:7px;display:flex;align-items:center;gap:7px;">
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                    <div style="font-size:11.5px;color:#8a6d2a;font-weight:500;line-height:1.4;">Some times were not recorded. Ask your supervisor to update them.</div>
+                  </div>
                 </sc-if>
                 <sc-if value="{{ row.showLateReason }}" hint-placeholder-val="">
                   <div style="margin-top:6px;padding:6px 9px;background:#fbeeec;border-radius:7px;display:flex;align-items:flex-start;gap:6px;">
