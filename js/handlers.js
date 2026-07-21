@@ -574,6 +574,9 @@ const Handlers = {
   onNpAdminContact:  function(e) { this.setState({npAdminContact:e.target.value}); },
   onNpAdminPassword: function(e) { this.setState({npAdminPassword:e.target.value}); },
 
+  toggleAddAdmin: function() { this.setState(s=>({addAdminOpen:!s.addAdminOpen, npAdminName:'', npAdminContact:'', npAdminPassword:''})); },
+  togglePromoteAdmin: function() { this.setState(s=>({promoteAdminOpen:!s.promoteAdminOpen, promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null, promoteSearch:'', promoteListPage:1})); },
+
   addAdmin: async function() {
     const {npAdminName, npAdminContact, npAdminPassword, adminsList, demo} = this.state;
     if(!npAdminName.trim()){ this._toast('Name is required.','error'); return; }
@@ -591,7 +594,7 @@ const Handlers = {
       if(addErr){ this._toast('Account created but roster entry failed.','error'); return; }
       await this.loadAdmins();
     }
-    this.setState({npAdminName:'', npAdminContact:'', npAdminPassword:''});
+    this.setState({npAdminName:'', npAdminContact:'', npAdminPassword:'', addAdminOpen:false});
     this._toast(npAdminName.trim() + ' added as admin.');
   },
 
@@ -642,7 +645,7 @@ const Handlers = {
       const {error} = await DB.personnel.promoteToAdmin(confirmPromoteAdminId).catch(e=>({error:e}));
       if(error){ this._toast('Failed to promote. Try again.','error'); return; }
     }
-    this.setState(s=>({personnel:s.personnel.filter(p=>p.id!==confirmPromoteAdminId)}));
+    this.setState(s=>({personnel:s.personnel.filter(p=>p.id!==confirmPromoteAdminId), promoteAdminOpen:false}));
     await this.loadAdmins();
     this._toast(person.name+' promoted to admin.');
   },
