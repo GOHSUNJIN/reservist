@@ -5,7 +5,11 @@ class AppComponent extends DCLogic {
   constructor(...args) {
     super(...args);
     this._touchStartX = null;
-    for (const methods of [Handlers, Builders]) {
+    for (const methods of [
+      InitHandlers, AuthHandlers, CheckinHandlers, RequestHandlers,
+      PeopleHandlers, BatchHandlers, RosterHandlers, AccountHandlers, MiscHandlers,
+      AuthBuilders, NavBuilders, CheckinBuilders, BriefingsBuilders, AdminBuilders, AccountBuilders,
+    ]) {
       for (const [key, fn] of Object.entries(methods)) {
         if (typeof fn === 'function') this[key] = fn.bind(this);
       }
