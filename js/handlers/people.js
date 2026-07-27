@@ -209,7 +209,7 @@ const PeopleHandlers = {
   onMemberSearchStatus: function(v) { return () => this.setState({memberSearchStatus:v, confirmDeleteMemberId:null}); },
 
   openMemberSearch: async function() {
-    this.setState({memberSearchOpen:true, memberSearchLoaded:false, memberSearchText:'', memberSearchList:[], memberSearchStatus:'all', confirmDeleteMemberId:null});
+    this.setState({memberSearchOpen:true, memberSearchLoaded:false, memberSearchText:'', memberSearchList:[], memberSearchStatus:'all', memberSearchSelected:[], confirmDeleteMemberId:null, confirmBulkDelete:false});
     if(!this.state.demo){
       const data = await DB.personnel.listAll().catch(()=>[]);
       this.setState({memberSearchList:data, memberSearchLoaded:true});
@@ -218,7 +218,7 @@ const PeopleHandlers = {
     }
   },
   closeMemberSearch: function() { this.setState({memberSearchOpen:false, memberSearchText:'', confirmDeleteMemberId:null}); },
-  onMemberSearchText: function(e) { this.setState({memberSearchText:e.target.value, confirmDeleteMemberId:null}); },
+  onMemberSearchText: function(e) { this.setState({memberSearchText:e.target.value, confirmDeleteMemberId:null, memberSearchSelected:[], confirmBulkDelete:false}); },
   askDeleteMember: function(id) { return () => this.setState({confirmDeleteMemberId:id}); },
   cancelDeleteMember: function() { this.setState({confirmDeleteMemberId:null}); },
   confirmDeleteMember: async function() {
@@ -239,6 +239,52 @@ const PeopleHandlers = {
       return {memberSearchList, personnel, batchMembersCache, deletingMember:false, confirmDeleteMemberId:null};
     });
     this._toast((person?.name||'Member')+' permanently deleted.');
+  },
+
+  toggleMemberSelect: function(id) { return () => this.setState(s=>{ const sel=s.memberSearchSelected; const next=sel.includes(id)?sel.filter(x=>x!==id):[...sel,id]; return {memberSearchSelected:next,confirmBulkDelete:false,confirmDeleteMemberId:null}; }); },
+  clearMemberSelect: function() { this.setState({memberSearchSelected:[],confirmBulkDelete:false}); },
+  askBulkDelete: function() { this.setState({confirmBulkDelete:true}); },
+  cancelBulkDelete: function() { this.setState({confirmBulkDelete:false}); },
+  executeBulkDelete: async function() {
+    const {memberSearchSelected,memberSearchList,demo}=this.state;
+    if(!memberSearchSelected.length) return;
+    this.setState({bulkDeleting:true});
+    if(!demo){
+      for(const id of memberSearchSelected){
+        const person=memberSearchList.find(p=>p.id===id);
+        await DB.personnel.deletePermanently(id,person?.auth_id||null).catch(()=>{});
+      }
+    }
+    const ids=new Set(memberSearchSelected);
+    this.setState(prev=>{
+      const memberSearchList=prev.memberSearchList.filter(p=>!ids.has(p.id));
+      const personnel=prev.personnel.filter(p=>!ids.has(p.id));
+      const batchMembersCache={...prev.batchMembersCache};
+      Object.keys(batchMembersCache).forEach(k=>{batchMembersCache[k]=(batchMembersCache[k]||[]).filter(p=>!ids.has(p.id));});
+      return {memberSearchList,personnel,batchMembersCache,memberSearchSelected:[],confirmBulkDelete:false,bulkDeleting:false};
+    });
+    this._toast(memberSearchSelected.length+' member'+(memberSearchSelected.length!==1?'s':'')+' permanently deleted.');
+  },
+
+  exportPersonHistory: function() {
+    const s=this.state;
+    const allPeople=[...s.personnel,...Object.values(s.batchMembersCache).flat()];
+    const name=(allPeople.find(p=>p.id===s.personHistoryId)||{}).name||'Member';
+    const rows=s.personHistoryRows||[];
+    const xe=t=>String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const sc=(sid,v)=>`<Cell ss:StyleID="${sid}"><Data ss:Type="String">${xe(v)}</Data></Cell>`;
+    const styles=`<Style ss:ID="ttl"><Font ss:Bold="1" ss:Size="13"/></Style><Style ss:ID="hdr"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#2c3e50" ss:Pattern="Solid"/></Style><Style ss:ID="dat"><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e8eaed"/></Borders></Style><Style ss:ID="s_present"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#27ae60"/><Interior ss:Color="#eafaf1" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e8eaed"/></Borders></Style><Style ss:ID="s_mc"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#e67e22"/><Interior ss:Color="#fef9e7" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e8eaed"/></Borders></Style><Style ss:ID="s_absent"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#c0392b"/><Interior ss:Color="#fdedec" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e8eaed"/></Borders></Style><Style ss:ID="s_other"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#5c6678"/><Interior ss:Color="#f0f2f5" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e8eaed"/></Borders></Style><Style ss:ID="tim"><Alignment ss:Horizontal="Center"/><Font ss:FontName="IBM Plex Mono" ss:Size="10.5"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e8eaed"/></Borders></Style>`;
+    const dataRows=rows.map(r=>{
+      const sid='s_'+(r.label==='Present'?'present':r.label==='On MC'?'mc':r.label==='Absent'?'absent':'other');
+      return `<Row ss:Height="22">${sc('dat',r.dateLabel)}${sc(sid,r.label)}${sc('tim',r.p1)}${sc('tim',r.p4)}${sc('dat',r.adminCorrected?'Corrected by '+r.editedBy:'')}</Row>`;
+    }).join('');
+    const xml=`<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Styles>${styles}</Styles><Worksheet ss:Name="History"><Table><Column ss:Width="150"/><Column ss:Width="80"/><Column ss:Width="70"/><Column ss:Width="70"/><Column ss:Width="130"/><Row ss:Height="28"><Cell ss:MergeAcross="4" ss:StyleID="ttl"><Data ss:Type="String">${xe(name+' - Attendance History')}</Data></Cell></Row><Row ss:Height="24">${sc('hdr','Date')}${sc('hdr','Status')}${sc('hdr','In')}${sc('hdr','Out')}${sc('hdr','Notes')}</Row>${dataRows}</Table></Worksheet></Workbook>`;
+    const blob=new Blob([xml],{type:'application/vnd.ms-excel;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url;a.download=name.replace(/\s+/g,'_')+'_history.xls';
+    document.body.appendChild(a);a.click();
+    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},1000);
   },
 
   openResetPw: function(id) { return () => this.setState({resetPwId:id, resetPwNew:'', resetPwSaving:false}); },

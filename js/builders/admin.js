@@ -71,7 +71,7 @@ const AdminBuilders = {
       const phaseLine=_phaseParts.join('  ·  ');
       const showPhaseLine=r.status==='present'&&_phaseParts.length>0;
       const _pct=s.peopleStats[p.id]?.pct??null;
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent'),onShiftChange:this.changeShift(p.id),cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0,
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent'),onShiftChange:this.changeShift(p.id),onViewHistory:this.openPersonHistory(p.id),cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0,
         lowAttendance:s.peopleStatsLoaded&&_pct!==null&&_pct<75,
         statPctText:s.peopleStatsLoaded&&_pct!==null?(_pct+'%'):''};
     });
@@ -248,6 +248,10 @@ const AdminBuilders = {
       noPersonHistory:!(s.personHistoryRows||[]).length&&!s.personHistoryLoading,
       closePersonHistory:this.closePersonHistory,
       memberSearchOpen:s.memberSearchOpen, openMemberSearch:this.openMemberSearch, closeMemberSearch:this.closeMemberSearch,
+      exportPersonHistory:this.exportPersonHistory,
+      memberSelectedCount:s.memberSearchSelected.length, hasMemberSelection:s.memberSearchSelected.length>0,
+      confirmBulkDeleteOpen:s.confirmBulkDelete, bulkDeleting:s.bulkDeleting,
+      askBulkDelete:this.askBulkDelete, cancelBulkDelete:this.cancelBulkDelete, executeBulkDelete:this.executeBulkDelete, clearMemberSelect:this.clearMemberSelect,
       onMemberSearchText:this.onMemberSearchText, memberSearchText:s.memberSearchText||'',
       memberSearchLoaded:s.memberSearchLoaded, deletingMember:s.deletingMember,
       confirmDeleteMemberId:s.confirmDeleteMemberId,
@@ -278,6 +282,7 @@ const AdminBuilders = {
             statusLabel:_mLabel(p), statusColor:_mColor(p), statusBg:_mBg(p),
             batchLabel, shiftLabel:Utils.shiftLabel(p.shift),
             isConfirming, onAskDelete:this.askDeleteMember(p.id),
+            isSelected:s.memberSearchSelected.includes(p.id), onToggleSelect:this.toggleMemberSelect(p.id),
           };
         });
       })(),
