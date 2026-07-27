@@ -1326,20 +1326,23 @@
             <button onClick="{{ nextDay }}" style="width:34px;height:34px;border-radius:9px;background:#222c3d;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#cdd4df" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
           </div>
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-            <div style="display:flex;align-items:center;gap:7px;">
-              <div style="font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">{{ logDateLabel }}</div>
+            <div style="display:flex;align-items:center;gap:6px;">
+              <span style="font-size:11px;font-weight:700;color:#8a94a3;letter-spacing:.07em;text-transform:uppercase;">{{ logDateLabel }}</span>
               <sc-if value="{{ showRealtimeBadge }}" hint-placeholder-val="">
-                <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;background:{{ realtimeLiveBg }};color:{{ realtimeLiveColor }};font-family:'IBM Plex Mono',monospace;letter-spacing:.04em;">{{ realtimeLiveLabel }}</span>
+                <span style="font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:{{ realtimeLiveBg }};color:{{ realtimeLiveColor }};font-family:'IBM Plex Mono',monospace;letter-spacing:.05em;">{{ realtimeLiveLabel }}</span>
               </sc-if>
             </div>
-            <button onClick="{{ exportPrint }}" style="padding:7px 13px;background:#fff;border:1px solid #d4d9e2;border-radius:8px;font-size:12px;font-weight:600;color:#36404f;cursor:pointer;display:flex;align-items:center;gap:5px;">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
-              Print Report
-            </button>
-            <button onClick="{{ exportCsv }}" style="padding:7px 13px;background:#fff;border:1px solid #d4d9e2;border-radius:8px;font-size:12px;font-weight:600;color:#36404f;cursor:pointer;display:flex;align-items:center;gap:5px;">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
-              Export CSV
-            </button>
+            <div style="display:flex;align-items:center;gap:2px;background:#f0f2f5;border-radius:10px;padding:3px;">
+              <button onClick="{{ exportPrint }}" title="Print Report" style="display:flex;align-items:center;gap:5px;padding:6px 11px;background:transparent;border:none;border-radius:8px;font-size:12px;font-weight:600;color:#36404f;cursor:pointer;white-space:nowrap;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+                Print
+              </button>
+              <div style="width:1px;height:16px;background:#d8dce6;flex-shrink:0;"></div>
+              <button onClick="{{ exportCsv }}" title="Export CSV" style="display:flex;align-items:center;gap:5px;padding:6px 11px;background:transparent;border:none;border-radius:8px;font-size:12px;font-weight:600;color:#36404f;cursor:pointer;white-space:nowrap;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+                CSV
+              </button>
+            </div>
           </div>
           <sc-if value="{{ viewShowReporting }}" hint-placeholder-val="">
           <div style="position:relative;margin-bottom:10px;">

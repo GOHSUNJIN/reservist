@@ -41,22 +41,17 @@ const AdminBuilders = {
         :'-webkit-appearance:none;padding:5px 14px;background:#f0f2f5;border:none;border-radius:20px;font-size:12px;font-weight:600;color:#5c6678;cursor:pointer;',
       onSelect:()=>this.setCyclePickerYear(yr),
     }));
-    const CYCLE_PAGE_SIZE=8;
     const sortCycles=(arr)=>[...arr].sort((a,b)=>{
       if(a.isActive) return -1; if(b.isActive) return 1;
       if(!a.isPast&&!b.isPast) return a.startDate>b.startDate?1:-1;
       if(a.isPast&&b.isPast) return a.startDate>b.startDate?-1:1;
       return a.isPast?1:-1;
     });
-    const filteredYears=allPickerYears.filter(yr=>!activePickerYear||yr===activePickerYear);
-    const flatCycles=filteredYears.flatMap(yr=>sortCycles(_pickerYearMap[yr]).map(c=>({...c,year:yr})));
-    const cycleTotalPages=Math.max(1,Math.ceil(flatCycles.length/CYCLE_PAGE_SIZE));
+    const cycleTotalPages=Math.max(1,allPickerYears.length);
     const safeCyclePage=Math.min(s.cyclePickerPage||1,cycleTotalPages);
-    const pagedCycles=flatCycles.slice((safeCyclePage-1)*CYCLE_PAGE_SIZE, safeCyclePage*CYCLE_PAGE_SIZE);
-    const regrouped={};
-    pagedCycles.forEach(c=>{ if(!regrouped[c.year]) regrouped[c.year]=[]; regrouped[c.year].push(c); });
-    const cyclePickerGroups=Object.keys(regrouped).sort((a,b)=>b-a).map(yr=>({year:yr,cycles:regrouped[yr]}));
-    const showCycleYearFilter=allPickerYears.length>1;
+    const currentPickerYear=allPickerYears[safeCyclePage-1];
+    const cyclePickerGroups=currentPickerYear?[{year:currentPickerYear,cycles:sortCycles(_pickerYearMap[currentPickerYear])}]:[];
+    const showCycleYearFilter=false;
     const cyclePickerHasPrev=safeCyclePage>1, cyclePickerHasNext=safeCyclePage<cycleTotalPages;
     const cyclePickerShowPagination=cycleTotalPages>1;
     const cyclePickerPageInfo=`${safeCyclePage} / ${cycleTotalPages}`;

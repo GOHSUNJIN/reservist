@@ -129,7 +129,8 @@ const BatchHandlers = {
   exportPrint: async function() {
     const {batches,activeBatchIdx,batchMembersCache,personnel,attendance,noReportDays,demo}=this.state;
     const batch=batches[activeBatchIdx||0]; if(!batch) return;
-    const members=batch.is_live?personnel:(batchMembersCache[batch.id]||[]);
+    const allMembers=batch.is_live?personnel:(batchMembersCache[batch.id]||[]);
+    const members=allMembers.filter(p=>p.role==='reservist'&&p.batch_id===batch.id);
     const start=new Date(batch.start_date+'T00:00:00'), end=new Date(batch.end_date+'T00:00:00');
     const dates=[];
     for(let d=new Date(start);d<=end;d=Utils.addDays(d,1)){
@@ -152,12 +153,12 @@ const BatchHandlers = {
       const statuses=entries.map(e=>e?.status||'absent');
       const pres=statuses.filter(s=>s==='present').length;
       const mc=statuses.filter(s=>s==='mc').length;
-      const abs=statuses.filter(s=>s==='absent').length+statuses.filter(s=>s==='missed').length;
+      const abs=statuses.filter(s=>s==='absent'||s==='missed').length;
       const pct=dates.length>0?Math.round(pres/dates.length*100):0;
       const cells=entries.map(e=>{
         if(!e||!e.status||e.status==='absent'||e.status==='missed') return {code:'A',cls:'A'};
         if(e.status==='mc') return {code:'MC',cls:'MC'};
-        return {code: e.editLog?.length>0?'P*':'P', cls: e.editLog?.length>0?'Ps':'P'};
+        return {code:e.editLog?.length>0?'P*':'P', cls:e.editLog?.length>0?'Ps':'P'};
       });
       return {name:p.name, shift:p.shift||'-', cells, pres, mc, abs, pct};
     });
@@ -174,7 +175,7 @@ const BatchHandlers = {
       const dayCells=r.cells.map(c=>`<td class="${c.cls}">${c.code}</td>`).join('');
       const pctColor=r.pct>=80?'#2e7d32':r.pct>=60?'#e65100':'#c62828';
       return `<tr>
-        <td class="name">${r.name}</td>
+        <td class="name">${r.name.replace(/</g,'&lt;')}</td>
         <td class="shift">${r.shift}</td>
         ${dayCells}
         <td class="tot">${r.pres}</td>
@@ -184,61 +185,24 @@ const BatchHandlers = {
       </tr>`;
     }).join('');
 
-    const html=`<!DOCTYPE html><html><head><meta charset="utf-8">
-<title>${batch.label} — Attendance Report</title>
-<style>
-  @page{size:A4 landscape;margin:12mm 10mm;}
-  *{box-sizing:border-box;}
-  body{font-family:Arial,sans-serif;font-size:10.5px;color:#1a1a1a;margin:0;padding:0;}
-  .hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid ${accent};}
-  .hdr-left h1{font-size:17px;margin:0 0 3px;color:${accent};}
-  .hdr-left p{margin:0;font-size:11px;color:#555;}
-  .hdr-right{text-align:right;font-size:10px;color:#777;}
-  .stats{display:flex;gap:10px;margin-bottom:14px;}
-  .stat{flex:1;border:1px solid #e0e0e0;border-radius:5px;padding:7px 10px;}
-  .stat-val{font-size:18px;font-weight:700;}
-  .stat-label{font-size:9px;color:#777;text-transform:uppercase;letter-spacing:.04em;}
-  .stat.green .stat-val{color:#2e7d32;}
-  .stat.amber .stat-val{color:#e65100;}
-  .stat.red .stat-val{color:#c62828;}
-  .stat.blue .stat-val{color:#1565c0;}
-  table{border-collapse:collapse;width:100%;}
-  th,td{border:1px solid #d0d0d0;padding:3px 5px;text-align:center;white-space:nowrap;}
-  th{background:#f0f2f5;font-size:9.5px;font-weight:700;}
-  td.name{text-align:left;font-weight:600;min-width:110px;}
-  td.shift{text-align:left;color:#555;min-width:35px;}
-  td.tot{font-weight:700;}
-  td.mc{color:#e65100;}
-  td.ab{color:#c62828;}
-  .P{background:#e8f5e9;color:#2e7d32;font-weight:700;}
-  .Ps{background:#c8e6c9;color:#1b5e20;font-weight:700;}
-  .MC{background:#fff8e1;color:#e65100;font-weight:700;}
-  .A{background:#fce4ec;color:#c62828;}
-  .total-row td{background:#f0f2f5;font-weight:700;border-top:2px solid #bbb;}
-  .legend{margin-top:10px;font-size:9px;color:#777;}
-  .no-print{margin-bottom:10px;}
-  @media print{.no-print{display:none;}}
-</style>
-</head><body>
-<div class="no-print">
-  <button onclick="window.print()" style="padding:7px 16px;background:${accent};color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Print / Save as PDF</button>
-</div>
-<div class="hdr">
-  <div class="hdr-left">
-    <h1>${batch.label} — Attendance Report</h1>
-    <p>${orgName} &nbsp;·&nbsp; ${fmtDate(start)} – ${fmtDate(end)} ${end.getFullYear()} &nbsp;·&nbsp; ${dates.length} reporting day${dates.length!==1?'s':''} &nbsp;·&nbsp; ${members.length} personnel</p>
+    const reportInner=`
+<div class="rpt-hdr">
+  <div>
+    <div class="rpt-title">${batch.label} — Attendance Report</div>
+    <div class="rpt-sub">${orgName} &nbsp;·&nbsp; ${fmtDate(start)} – ${fmtDate(end)} ${end.getFullYear()} &nbsp;·&nbsp; ${dates.length} reporting day${dates.length!==1?'s':''} &nbsp;·&nbsp; ${members.length} personnel</div>
   </div>
-  <div class="hdr-right">Generated ${exportedOn}</div>
+  <div class="rpt-gen">Generated ${exportedOn}</div>
 </div>
 <div class="stats">
   <div class="stat green"><div class="stat-val">${totPres}</div><div class="stat-label">Attendances</div></div>
   <div class="stat blue"><div class="stat-val">${totMc}</div><div class="stat-label">MC / Leave</div></div>
   <div class="stat red"><div class="stat-val">${totAbs}</div><div class="stat-label">Absences</div></div>
-  <div class="stat ${totPct>=80?'green':totPct>=60?'amber':'red'}"><div class="stat-val">${totPct}%</div><div class="stat-label">Overall Attendance</div></div>
+  <div class="stat ${totPct>=80?'green':totPct>=60?'amber':'red'}"><div class="stat-val">${totPct}%</div><div class="stat-label">Overall Rate</div></div>
 </div>
+<div style="overflow-x:auto;">
 <table>
   <thead><tr>
-    <th style="text-align:left;">Name</th>
+    <th style="text-align:left;position:sticky;left:0;background:#f0f2f5;z-index:1;">Name</th>
     <th style="text-align:left;">Shift</th>
     ${headCols}
     <th>P</th><th>MC</th><th>A</th><th>Rate</th>
@@ -253,12 +217,87 @@ const BatchHandlers = {
     </tr>
   </tbody>
 </table>
-<div class="legend">P = Present &nbsp;|&nbsp; P* = Present (admin-corrected) &nbsp;|&nbsp; MC = Medical / Leave &nbsp;|&nbsp; A = Absent / Missed</div>
-</body></html>`;
+</div>
+<div class="legend">P = Present &nbsp;·&nbsp; P* = Present (admin-corrected) &nbsp;·&nbsp; MC = Medical / Leave &nbsp;·&nbsp; A = Absent / Missed</div>`;
 
-    const w=window.open('','_blank'); if(!w) return;
-    w.document.write(html);
-    w.document.close();
+    const printCss=`<style id="print-report-css">
+      @media print {
+        body>*:not(#rpt-overlay){display:none!important;}
+        #rpt-overlay{position:static!important;background:none!important;padding:0!important;display:block!important;}
+        .rpt-modal{box-shadow:none!important;border-radius:0!important;max-height:none!important;overflow:visible!important;width:100%!important;}
+        .rpt-toolbar{display:none!important;}
+        .rpt-body{overflow:visible!important;padding:0!important;}
+        @page{size:A4 landscape;margin:12mm 10mm;}
+      }
+    </style>`;
+
+    document.getElementById('rpt-overlay')?.remove();
+    document.getElementById('print-report-css')?.remove();
+    document.head.insertAdjacentHTML('beforeend', printCss);
+
+    const overlay=document.createElement('div');
+    overlay.id='rpt-overlay';
+    overlay.style.cssText='position:fixed;inset:0;z-index:9999;background:rgba(15,20,35,0.6);display:flex;align-items:flex-end;justify-content:center;padding:0;';
+    overlay.innerHTML=`
+<style>
+  #rpt-overlay *{box-sizing:border-box;font-family:Arial,sans-serif;}
+  .rpt-modal{background:#fff;border-radius:18px 18px 0 0;width:100%;max-width:100%;max-height:92vh;display:flex;flex-direction:column;box-shadow:0 -8px 40px rgba(0,0,0,0.22);}
+  .rpt-toolbar{display:flex;align-items:center;justify-content:space-between;padding:14px 18px 12px;border-bottom:1px solid #eceef3;flex-shrink:0;gap:10px;}
+  .rpt-toolbar-left{display:flex;flex-direction:column;gap:2px;min-width:0;}
+  .rpt-toolbar-title{font-size:14px;font-weight:700;color:#1a2233;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .rpt-toolbar-sub{font-size:11px;color:#7d899b;}
+  .rpt-toolbar-actions{display:flex;align-items:center;gap:6px;flex-shrink:0;}
+  .rpt-btn-print{padding:8px 16px;background:${accent};color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;gap:6px;white-space:nowrap;}
+  .rpt-btn-close{width:34px;height:34px;border-radius:9px;background:#f0f2f5;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .rpt-body{overflow-y:auto;overflow-x:hidden;padding:16px 18px 24px;flex:1;min-height:0;}
+  .rpt-hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid ${accent};}
+  .rpt-title{font-size:15px;font-weight:700;color:${accent};margin-bottom:2px;}
+  .rpt-sub{font-size:11px;color:#555;}
+  .rpt-gen{font-size:10px;color:#999;text-align:right;white-space:nowrap;}
+  .stats{display:flex;gap:8px;margin-bottom:14px;}
+  .stat{flex:1;border:1px solid #e8edf3;border-radius:8px;padding:8px 10px;}
+  .stat-val{font-size:20px;font-weight:700;line-height:1.1;}
+  .stat-label{font-size:9px;color:#8a94a3;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;}
+  .stat.green .stat-val{color:#2e7d32;} .stat.amber .stat-val{color:#e65100;} .stat.red .stat-val{color:#c62828;} .stat.blue .stat-val{color:#1565c0;}
+  table{border-collapse:collapse;width:100%;font-size:11px;}
+  th,td{border:1px solid #dde2ea;padding:4px 6px;text-align:center;white-space:nowrap;}
+  th{background:#f5f7fa;font-size:10px;font-weight:700;color:#36404f;}
+  td.name{text-align:left;font-weight:600;color:#1a2233;}
+  td.shift{text-align:left;color:#7d899b;font-size:10px;}
+  td.tot{font-weight:700;color:#1a2233;}
+  td.mc{color:#e65100;} td.ab{color:#c62828;}
+  .P{background:#e8f5e9;color:#2e7d32;font-weight:700;}
+  .Ps{background:#c8e6c9;color:#1b5e20;font-weight:700;}
+  .MC{background:#fff8e1;color:#e65100;font-weight:700;}
+  .A{color:#9aa3b2;}
+  .total-row td{background:#f5f7fa;font-weight:700;border-top:2px solid #c8d0dc;}
+  .legend{margin-top:10px;font-size:10px;color:#9aa3b2;}
+</style>
+<div class="rpt-modal">
+  <div class="rpt-toolbar">
+    <div class="rpt-toolbar-left">
+      <div class="rpt-toolbar-title">${batch.label} — Attendance Report</div>
+      <div class="rpt-toolbar-sub">${members.length} personnel · ${dates.length} reporting days</div>
+    </div>
+    <div class="rpt-toolbar-actions">
+      <button class="rpt-btn-print" id="rpt-print-btn">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+        Print / Save PDF
+      </button>
+      <button class="rpt-btn-close" id="rpt-close-btn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+    </div>
+  </div>
+  <div class="rpt-body">${reportInner}</div>
+</div>`;
+
+    document.body.appendChild(overlay);
+
+    const close=()=>{ overlay.remove(); document.getElementById('print-report-css')?.remove(); };
+    overlay.addEventListener('click',e=>{ if(e.target===overlay) close(); });
+    document.getElementById('rpt-close-btn').addEventListener('click', close);
+    document.getElementById('rpt-print-btn').addEventListener('click', ()=>window.print());
   },
 
   openBroadcast: function() {
