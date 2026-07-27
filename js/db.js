@@ -311,6 +311,11 @@ const DB = {
       await _db.from('batches').update({ is_live: true }).eq('id', batchId);
     },
 
+    async remove(batchId) {
+      const { error } = await _db.from('batches').delete().eq('id', batchId);
+      return { error };
+    },
+
     async setMealActive(batchId, active) {
       await _db.from('batches').update({ meal_active: active }).eq('id', batchId);
     },
@@ -381,6 +386,14 @@ const DB = {
 
     async cancel(id) {
       const { error } = await _db.from('leave_requests').update({ status: 'cancelled' }).eq('id', id).eq('status', 'pending');
+      return { error };
+    },
+
+    async cancelStalePending(cutoffDate) {
+      const { error } = await _db.from('leave_requests')
+        .update({ status: 'cancelled' })
+        .eq('status', 'pending')
+        .lt('date', cutoffDate);
       return { error };
     },
 

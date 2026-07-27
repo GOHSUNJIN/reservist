@@ -1332,6 +1332,10 @@
                 <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;background:{{ realtimeLiveBg }};color:{{ realtimeLiveColor }};font-family:'IBM Plex Mono',monospace;letter-spacing:.04em;">{{ realtimeLiveLabel }}</span>
               </sc-if>
             </div>
+            <button onClick="{{ exportPrint }}" style="padding:7px 13px;background:#fff;border:1px solid #d4d9e2;border-radius:8px;font-size:12px;font-weight:600;color:#36404f;cursor:pointer;display:flex;align-items:center;gap:5px;">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+              Print Report
+            </button>
             <button onClick="{{ exportCsv }}" style="padding:7px 13px;background:#fff;border:1px solid #d4d9e2;border-radius:8px;font-size:12px;font-weight:600;color:#36404f;cursor:pointer;display:flex;align-items:center;gap:5px;">
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
               Export CSV
@@ -2425,7 +2429,7 @@
             </div>
             <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;margin-bottom:6px;">
               <div style="font-size:13.5px;font-weight:600;color:#161f30;margin-bottom:5px;">How do I export attendance?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>Log</strong> tab and tap <strong>Export CSV</strong>. A spreadsheet will download with the full cycle attendance record including per-person totals.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>Log</strong> tab. Tap <strong>Print Report</strong> for a formatted printable summary (opens in a new tab — use Print or Save as PDF). Tap <strong>Export CSV</strong> for a raw spreadsheet download with per-person totals.</div>
             </div>
             <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;margin-bottom:6px;">
               <div style="font-size:13.5px;font-weight:600;color:#161f30;margin-bottom:5px;">How do I post a notice to reservists?</div>

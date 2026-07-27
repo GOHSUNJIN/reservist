@@ -318,7 +318,7 @@ const AdminBuilders = {
       mealToggleTrackBg:activeBatch?.meal_active?accent:'#39435a',
       mealToggleKnobX:activeBatch?.meal_active?'25px':'3px',
       batchLoading:s.batchLoading,
-      exportCsv:this.exportCsv,
+      exportCsv:this.exportCsv, exportPrint:this.exportPrint,
       // Feature: admin password reset
       resetPwOpen:s.resetPwId!==null,
       resetPwPersonName:(s.personnel.find(p=>p.id===s.resetPwId)||{}).name||'',

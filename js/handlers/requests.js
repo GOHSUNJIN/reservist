@@ -128,6 +128,10 @@ const RequestHandlers = {
   loadPendingLeaves: async function() {
     const {demo}=this.state;
     if(demo) return;
+    const liveBatch = this._liveBatch(this.state.batches);
+    if(liveBatch?.start_date) {
+      await DB.leaves.cancelStalePending(liveBatch.start_date).catch(()=>{});
+    }
     const data=await DB.leaves.listPending().catch(()=>[]);
     this.setState({pendingLeaves:data,pendingLeavesLoaded:true});
   },
