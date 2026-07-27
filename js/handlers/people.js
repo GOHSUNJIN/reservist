@@ -206,8 +206,10 @@ const PeopleHandlers = {
     this._toast((person?.name||'Member')+' permanently deleted.');
   },
 
+  onMemberSearchStatus: function(v) { return () => this.setState({memberSearchStatus:v, confirmDeleteMemberId:null}); },
+
   openMemberSearch: async function() {
-    this.setState({memberSearchOpen:true, memberSearchLoaded:false, memberSearchText:'', memberSearchList:[], confirmDeleteMemberId:null});
+    this.setState({memberSearchOpen:true, memberSearchLoaded:false, memberSearchText:'', memberSearchList:[], memberSearchStatus:'all', confirmDeleteMemberId:null});
     if(!this.state.demo){
       const data = await DB.personnel.listAll().catch(()=>[]);
       this.setState({memberSearchList:data, memberSearchLoaded:true});

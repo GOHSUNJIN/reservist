@@ -252,9 +252,19 @@ const AdminBuilders = {
       memberSearchLoaded:s.memberSearchLoaded, deletingMember:s.deletingMember,
       confirmDeleteMemberId:s.confirmDeleteMemberId,
       cancelDeleteMember:this.cancelDeleteMember, confirmDeleteMember:this.confirmDeleteMember,
+      setMemberStatusAll:this.onMemberSearchStatus('all'), setMemberStatusActive:this.onMemberSearchStatus('active'), setMemberStatusInactive:this.onMemberSearchStatus('inactive'),
+      ...(()=>{
+        const mf=s.memberSearchStatus||'all';
+        const _msBtn=f=>`padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid ${mf===f?accent:'#d4d9e2'};background:${mf===f?accent:'#fff'};color:${mf===f?'#fff':'#5c6678'};white-space:nowrap;`;
+        return {memberStatusAllStyle:_msBtn('all'),memberStatusActiveStyle:_msBtn('active'),memberStatusInactiveStyle:_msBtn('inactive')};
+      })(),
       memberSearchRows:(()=>{
         const q=(s.memberSearchText||'').toLowerCase().trim();
-        const rows=q?s.memberSearchList.filter(p=>p.name.toLowerCase().includes(q)||(p.contact||'').toLowerCase().includes(q)):s.memberSearchList;
+        const mf=s.memberSearchStatus||'all';
+        let rows=s.memberSearchList;
+        if(q) rows=rows.filter(p=>p.name.toLowerCase().includes(q)||(p.contact||'').toLowerCase().includes(q));
+        if(mf==='active') rows=rows.filter(p=>p.is_active);
+        if(mf==='inactive') rows=rows.filter(p=>!p.is_active);
         return rows.map(p=>{
           const batch=(s.batches||[]).find(b=>b.id===p.batch_id);
           const batchLabel=batch?(batch.label||Utils.dateKey(new Date(batch.start_date)).slice(0,7)):'No cycle';
@@ -268,7 +278,15 @@ const AdminBuilders = {
           };
         });
       })(),
-      memberSearchEmpty:s.memberSearchLoaded&&(()=>{const q=(s.memberSearchText||'').trim();const rows=q?s.memberSearchList.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())||(p.contact||'').toLowerCase().includes(q.toLowerCase())):s.memberSearchList;return rows.length===0;})(),
+      memberSearchEmpty:s.memberSearchLoaded&&(()=>{
+        const q=(s.memberSearchText||'').toLowerCase().trim();
+        const mf=s.memberSearchStatus||'all';
+        let rows=s.memberSearchList;
+        if(q) rows=rows.filter(p=>p.name.toLowerCase().includes(q)||(p.contact||'').toLowerCase().includes(q));
+        if(mf==='active') rows=rows.filter(p=>p.is_active);
+        if(mf==='inactive') rows=rows.filter(p=>!p.is_active);
+        return rows.length===0;
+      })(),
       realtimeLive:s.realtimeLive,
       realtimeLiveBg:s.realtimeLive?'#e7f3ec':'#f7e4e1',
       realtimeLiveColor:s.realtimeLive?'#1f8a5b':'#c0392b',
