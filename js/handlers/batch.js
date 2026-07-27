@@ -95,30 +95,29 @@ const BatchHandlers = {
     }
     const todayKey=Utils.dateKey(this.baseDate());
     const fmtDate=d=>{const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return d.getDate()+' '+mo[d.getMonth()];};
-    const shiftLabel=s=>s==='AM'?'AM (0830-1530)':s==='PM'?'PM (1530-2230)':s==='OFFICE'?'Office (0900-1800)':s||'-';
     const metaRows=[
       ['"Cycle"','"'+batch.label+'"'],
       ['"Period"','"'+fmtDate(start)+' – '+fmtDate(end)+'"'],
       ['"Exported"','"'+fmtDate(new Date())+'"'],
       [],
     ];
-    const header=['"Name"','"Contact"','"Shift"',...dates.map(d=>'"'+fmtDate(d)+'"'),'"Present"','"MC"','"Absent"','"Attendance %"'];
+    const header=['"Name"','"Shift"',...dates.map(d=>'"'+fmtDate(d)+'"'),'"Present"','"MC"','"Absent"','"Attendance %"'];
     const rows=members.map(p=>{
       const dayEntries=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return map[p.id]||null;});
       const statuses=dayEntries.map(e=>e?.status||'absent');
       const pres=statuses.filter(s=>s==='present').length;
       const mc=statuses.filter(s=>s==='mc').length;
-      const abs=statuses.filter(s=>s==='absent').length;
+      const abs=statuses.filter(s=>s==='absent'||s==='missed').length;
       const pct=dates.length>0?Math.round(pres/dates.length*100)+'%':'-';
-      const cells=dayEntries.map(e=>{const code=e?.status==='present'?'P':e?.status==='mc'?'MC':e?.status==='absent'?'A':'-';return(code==='P'&&e?.editLog?.length>0)?'P*':code;});
-      return ['"'+p.name.replace(/"/g,'""')+'"','"'+p.contact+'"','"'+shiftLabel(p.shift)+'"',...cells,pres,mc,abs,'"'+pct+'"'].join(',');
+      const cells=dayEntries.map(e=>{const code=e?.status==='present'?'P':e?.status==='mc'?'MC':(e?.status==='absent'||e?.status==='missed')?'A':'-';return(code==='P'&&e?.editLog?.length>0)?'P*':code;});
+      return ['"'+p.name.replace(/"/g,'""')+'"','"'+(p.shift||'-')+'"',...cells,pres,mc,abs,'"'+pct+'"'].join(',');
     });
-    const totPres=rows.reduce((a,r,i)=>{const p=members[i];const st=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return (map[p.id]?.status)||'absent';});return a+st.filter(s=>s==='present').length;},0);
-    const totMc=rows.reduce((a,r,i)=>{const p=members[i];const st=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return (map[p.id]?.status)||'absent';});return a+st.filter(s=>s==='mc').length;},0);
-    const totAbs=rows.reduce((a,r,i)=>{const p=members[i];const st=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return (map[p.id]?.status)||'absent';});return a+st.filter(s=>s==='absent').length;},0);
+    const totPres=members.reduce((a,p)=>{const st=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return(map[p.id]?.status)||'absent';});return a+st.filter(s=>s==='present').length;},0);
+    const totMc=members.reduce((a,p)=>{const st=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return(map[p.id]?.status)||'absent';});return a+st.filter(s=>s==='mc').length;},0);
+    const totAbs=members.reduce((a,p)=>{const st=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return(map[p.id]?.status)||'absent';});return a+st.filter(s=>s==='absent'||s==='missed').length;},0);
     const totDays=members.length*dates.length;
     const totPct=totDays>0?Math.round(totPres/totDays*100)+'%':'-';
-    const summaryRow=['"TOTAL"','""','""',...dates.map(()=>'""'),totPres,totMc,totAbs,'"'+totPct+'"'].join(',');
+    const summaryRow=['"TOTAL"','""',...dates.map(()=>'""'),totPres,totMc,totAbs,'"'+totPct+'"'].join(',');
     const legend=['"Legend: P = Present, P* = Present (admin-corrected times), MC = Medical Certificate, A = Absent"'];
     const csv='﻿'+[...metaRows.map(r=>r.join(',')),header.join(','),...rows,'',summaryRow,'',legend].join('\n');
     const a=document.createElement('a');
