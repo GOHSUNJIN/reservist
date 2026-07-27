@@ -124,21 +124,22 @@ const BatchHandlers = {
     const f='font-family:Arial,sans-serif;font-size:10pt;';
     const border='border:1px solid #d0d8e4;';
     const pad='padding:5px 8px;';
+    const txt='mso-number-format:"\\@";';
     const cellSt=cls=>{
-      const base=f+border+pad+'text-align:center;font-weight:700;';
+      const base=f+border+pad+'text-align:center;font-weight:700;'+txt;
       if(cls==='P')  return base+'background:#d4edda;color:#155724;';
       if(cls==='Ps') return base+'background:#b8dac4;color:#0d3d1a;';
       if(cls==='MC') return base+'background:#fff3cd;color:#856404;';
       if(cls==='A')  return base+'background:#f8d7da;color:#721c24;';
-      return f+border+pad+'text-align:center;color:#b0b8c4;font-weight:400;';
+      return f+border+pad+'text-align:center;color:#b0b8c4;font-weight:400;'+txt;
     };
     const pctColor=n=>n==null?'#555':n>=80?'#155724':n>=60?'#856404':'#721c24';
-    const hdrSt=`${f}${border}${pad}background:${accent};color:#fff;font-weight:700;text-align:center;`;
-    const hdrNameSt=`${f}${border}${pad}background:${accent};color:#fff;font-weight:700;text-align:left;`;
-    const totSt=`${f}${border}${pad}background:#edf0f5;font-weight:700;text-align:center;border-top:2px solid #b0b8cc;`;
-    const metaSt=`${f}padding:3px 6px;`;
+    const hdrSt=`${f}${border}${pad}background:${accent};color:#fff;font-weight:700;text-align:center;white-space:nowrap;${txt}`;
+    const hdrNameSt=`${f}${border}${pad}background:${accent};color:#fff;font-weight:700;text-align:left;white-space:nowrap;${txt}`;
+    const totSt=`${f}${border}${pad}background:#edf0f5;font-weight:700;text-align:center;border-top:2px solid #b0b8cc;${txt}`;
+    const metaSt=`${f}padding:3px 6px;${txt}`;
 
-    const colgroup=`<col style="width:160px"><col style="width:48px">${dates.map(()=>'<col style="width:44px">').join('')}<col style="width:58px"><col style="width:46px"><col style="width:58px"><col style="width:70px">`;
+    const colgroup=`<col style="width:180px"><col style="width:55px">${dates.map(()=>'<col style="width:72px">').join('')}<col style="width:72px"><col style="width:55px"><col style="width:72px"><col style="width:65px">`;
     const span=2+dates.length+4;
 
     const metaSection=`
@@ -150,7 +151,7 @@ const BatchHandlers = {
     const headerRow=`<tr>
       <th style="${hdrNameSt}">Name</th>
       <th style="${hdrSt}">Shift</th>
-      ${dates.map(d=>`<th style="${hdrSt}">${fmtDay(d)}<br>${fmtDate(d)}</th>`).join('')}
+      ${dates.map(d=>`<th style="${hdrSt}">${fmtDay(d)} ${fmtDate(d)}</th>`).join('')}
       <th style="${hdrSt}">Present</th><th style="${hdrSt}">MC</th><th style="${hdrSt}">Absent</th><th style="${hdrSt}">Rate</th>
     </tr>`;
 
