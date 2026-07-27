@@ -168,7 +168,8 @@ const RosterHandlers = {
   clearRosterSearch: function() { this.setState({rosterSearch:''}); },
 
   setRosterSort:    function(key) { return () => this.setState({rosterSort:key}); },
-  setLogShiftFilter: function(f) { return () => this.setState({logShiftFilter:f}); },
+  setLogShiftFilter:  function(f) { return () => this.setState({logShiftFilter:f}); },
+  setLogStatusFilter: function(f) { return () => this.setState({logStatusFilter:f}); },
 
   onLogSearch:   function(e) { this.setState({logSearch:e.target.value}); },
   onLogSearchKeyDown: function(e) { if(e.key==='Enter') e.target.blur(); },

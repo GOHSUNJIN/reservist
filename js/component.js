@@ -54,6 +54,7 @@ class AppComponent extends DCLogic {
         if(!failed.length){ this.setState({offlinePending:false}); }
         else { this._toast('Some check-ins failed to sync. Tap Retry.','error'); }
       }
+      if(this.state.authed && !this.state.demo) this.refreshPage().catch(()=>{});
     };
     this._onOffline = () => this.setState({isOnline:false});
     window.addEventListener('online', this._onOnline);
@@ -69,7 +70,8 @@ class AppComponent extends DCLogic {
         else if(elapsed >= 18*60*1000){ this.setState({idleWarning:true}); }
         const newDate = Utils.dateKey(new Date());
         if(newDate !== this._lastDate){ this._lastDate = newDate; this._onDateChange(newDate); }
-        if(this._offlineQueues.length && navigator.onLine) this._onOnline();
+        if(this._offlineQueues.length && navigator.onLine){ this._onOnline(); }
+        else if(elapsed >= 5*60*1000 && navigator.onLine && !this.state.demo && !this.state.realtimeLive){ this.refreshPage().catch(()=>{}); }
       }
     };
     document.addEventListener('visibilitychange', this._onVisibilityChange);
