@@ -247,6 +247,28 @@ const AdminBuilders = {
       }),
       noPersonHistory:!(s.personHistoryRows||[]).length&&!s.personHistoryLoading,
       closePersonHistory:this.closePersonHistory,
+      memberSearchOpen:s.memberSearchOpen, openMemberSearch:this.openMemberSearch, closeMemberSearch:this.closeMemberSearch,
+      onMemberSearchText:this.onMemberSearchText, memberSearchText:s.memberSearchText||'',
+      memberSearchLoaded:s.memberSearchLoaded, deletingMember:s.deletingMember,
+      confirmDeleteMemberId:s.confirmDeleteMemberId,
+      cancelDeleteMember:this.cancelDeleteMember, confirmDeleteMember:this.confirmDeleteMember,
+      memberSearchRows:(()=>{
+        const q=(s.memberSearchText||'').toLowerCase().trim();
+        const rows=q?s.memberSearchList.filter(p=>p.name.toLowerCase().includes(q)||(p.contact||'').toLowerCase().includes(q)):s.memberSearchList;
+        return rows.map(p=>{
+          const batch=(s.batches||[]).find(b=>b.id===p.batch_id);
+          const batchLabel=batch?(batch.label||Utils.dateKey(new Date(batch.start_date)).slice(0,7)):'No cycle';
+          const isConfirming=s.confirmDeleteMemberId===p.id;
+          return {
+            id:p.id, name:p.name, contact:p.contact||'', initials:Utils.initials(p.name),
+            isActive:p.is_active, statusLabel:p.is_active?'Active':'Inactive',
+            statusColor:p.is_active?'#1f8a5b':'#8a94a3', statusBg:p.is_active?'#e7f3ec':'#f0f2f5',
+            batchLabel, shiftLabel:Utils.shiftLabel(p.shift),
+            isConfirming, onAskDelete:this.askDeleteMember(p.id),
+          };
+        });
+      })(),
+      memberSearchEmpty:s.memberSearchLoaded&&(()=>{const q=(s.memberSearchText||'').trim();const rows=q?s.memberSearchList.filter(p=>p.name.toLowerCase().includes(q.toLowerCase())||(p.contact||'').toLowerCase().includes(q.toLowerCase())):s.memberSearchList;return rows.length===0;})(),
       realtimeLive:s.realtimeLive,
       realtimeLiveBg:s.realtimeLive?'#e7f3ec':'#f7e4e1',
       realtimeLiveColor:s.realtimeLive?'#1f8a5b':'#c0392b',
