@@ -34,7 +34,7 @@ const makeInitialState = () => ({
   acctSaving: false,
   locPhase: null, locSlow: false, locAccuracy: null, locPermErr: false, locRetryCount: 0,
   isInAppBrowser: false, inAppBrowserName: '',
-  batchLoading: false, batchCreating: false, markingAllAbsent: false, confirmMarkAllAbsent: false, logShiftFilter: 'all',
+  batchLoading: false, batchCreating: false, markingAllAbsent: false, confirmMarkAllAbsent: false, logShiftFilter: 'all', logStatusFilter: 'all',
   editingNoteId: null, editingNoteText: '',
   batchJumpDate: Utils.dateKey(new Date()),
   toast: null,

@@ -70,7 +70,10 @@ const AdminBuilders = {
       const _phaseParts=[r.p1?'IN '+r.p1:null,r.p2?((p.shift==='PM'?'DIN ':'LCH ')+r.p2):null,r.p3?'BACK '+r.p3:null,r.p4?'OUT '+r.p4:null].filter(Boolean);
       const phaseLine=_phaseParts.join('  ·  ');
       const showPhaseLine=r.status==='present'&&_phaseParts.length>0;
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent'),onShiftChange:this.changeShift(p.id),cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0};
+      const _pct=s.peopleStats[p.id]?.pct??null;
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:this.setStatus(p.id,'present'),markMc:this.setStatus(p.id,'mc'),markAbsent:this.setStatus(p.id,'absent'),onShiftChange:this.changeShift(p.id),cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0,
+        lowAttendance:s.peopleStatsLoaded&&_pct!==null&&_pct<75,
+        statPctText:s.peopleStatsLoaded&&_pct!==null?(_pct+'%'):''};
     });
     const search=(s.rosterSearch||'').toLowerCase();
     const filteredRoster=roster.filter(r=>!search||r.name.toLowerCase().includes(search));
@@ -128,11 +131,20 @@ const AdminBuilders = {
       };
     });
     const logShiftFilter=s.logShiftFilter||'all';
+    const logStatusFilter=s.logStatusFilter||'all';
     const logSearch=(s.logSearch||'').toLowerCase().trim();
-    const shiftFiltered=logShiftFilter==='all'?logRows:logRows.filter(r=>r.shift===logShiftFilter);
+    const statusFiltered=logStatusFilter==='all'?logRows:logRows.filter(r=>{
+      if(logStatusFilter==='present') return r.label==='Present';
+      if(logStatusFilter==='mc') return r.label==='On MC';
+      if(logStatusFilter==='absent') return r.label==='Absent';
+      if(logStatusFilter==='pending') return r.label==='Pending';
+      return true;
+    });
+    const shiftFiltered=logShiftFilter==='all'?statusFiltered:statusFiltered.filter(r=>r.shift===logShiftFilter);
     const filteredLogRows=logSearch?shiftFiltered.filter(r=>r.name.toLowerCase().includes(logSearch)):shiftFiltered;
     const pendingCount=logRows.filter(r=>r.label==='Pending').length;
     const _fBtn=(f,accent)=>`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${logShiftFilter===f?accent:'#d4d9e2'};background:${logShiftFilter===f?accent:'#fff'};color:${logShiftFilter===f?'#fff':'#5c6678'};`;
+    const _fSBtn=(f)=>`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${logStatusFilter===f?accent:'#d4d9e2'};background:${logStatusFilter===f?accent:'#fff'};color:${logStatusFilter===f?'#fff':'#5c6678'};`;
     const lateRows=viewIsToday?logRows.filter(r=>r.isLate):[];
     const lateCount=lateRows.length;
     const lateNames=lateRows.map(r=>r.name).join(', ');
@@ -207,6 +219,10 @@ const AdminBuilders = {
       setLogFilterPm:this.setLogShiftFilter('PM'), setLogFilterOffice:this.setLogShiftFilter('OFFICE'),
       logFilterAllStyle:_fBtn('all',accent), logFilterAmStyle:_fBtn('AM',accent),
       logFilterPmStyle:_fBtn('PM',accent), logFilterOfficeStyle:_fBtn('OFFICE',accent),
+      setLogStatusAll:this.setLogStatusFilter('all'), setLogStatusPresent:this.setLogStatusFilter('present'),
+      setLogStatusMc:this.setLogStatusFilter('mc'), setLogStatusAbsent:this.setLogStatusFilter('absent'), setLogStatusPending:this.setLogStatusFilter('pending'),
+      logStatusAllStyle:_fSBtn('all'), logStatusPresentStyle:_fSBtn('present'),
+      logStatusMcStyle:_fSBtn('mc'), logStatusAbsentStyle:_fSBtn('absent'), logStatusPendingStyle:_fSBtn('pending'),
       askMarkAllAbsent:this.askMarkAllAbsent, markAllAbsent:this.markAllAbsent,
       cancelMarkAllAbsent:this.cancelMarkAllAbsent,
       markingAllAbsent:s.markingAllAbsent, confirmMarkAllAbsent:s.confirmMarkAllAbsent, notConfirmMarkAllAbsent:!s.confirmMarkAllAbsent,
