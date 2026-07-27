@@ -2353,8 +2353,9 @@
           </div>
           <div style="display:flex;gap:6px;">
             <button onClick="{{ setMemberStatusAll }}" style="{{ memberStatusAllStyle }}">All</button>
-            <button onClick="{{ setMemberStatusActive }}" style="{{ memberStatusActiveStyle }}">Active</button>
-            <button onClick="{{ setMemberStatusInactive }}" style="{{ memberStatusInactiveStyle }}">Inactive</button>
+            <button onClick="{{ setMemberStatusActive }}" style="{{ memberStatusActiveStyle }}">Current</button>
+            <button onClick="{{ setMemberStatusInactive }}" style="{{ memberStatusInactiveStyle }}">Past</button>
+            <button onClick="{{ setMemberStatusRemoved }}" style="{{ memberStatusRemovedStyle }}">Removed</button>
           </div>
         </div>
         <div style="overflow-y:auto;flex:1;padding:6px 0 24px;">

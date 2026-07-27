@@ -252,39 +252,43 @@ const AdminBuilders = {
       memberSearchLoaded:s.memberSearchLoaded, deletingMember:s.deletingMember,
       confirmDeleteMemberId:s.confirmDeleteMemberId,
       cancelDeleteMember:this.cancelDeleteMember, confirmDeleteMember:this.confirmDeleteMember,
-      setMemberStatusAll:this.onMemberSearchStatus('all'), setMemberStatusActive:this.onMemberSearchStatus('active'), setMemberStatusInactive:this.onMemberSearchStatus('inactive'),
+      setMemberStatusAll:this.onMemberSearchStatus('all'), setMemberStatusActive:this.onMemberSearchStatus('current'), setMemberStatusInactive:this.onMemberSearchStatus('past'), setMemberStatusRemoved:this.onMemberSearchStatus('removed'),
       ...(()=>{
         const mf=s.memberSearchStatus||'all';
         const _msBtn=f=>`padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid ${mf===f?accent:'#d4d9e2'};background:${mf===f?accent:'#fff'};color:${mf===f?'#fff':'#5c6678'};white-space:nowrap;`;
-        return {memberStatusAllStyle:_msBtn('all'),memberStatusActiveStyle:_msBtn('active'),memberStatusInactiveStyle:_msBtn('inactive')};
+        return {memberStatusAllStyle:_msBtn('all'),memberStatusActiveStyle:_msBtn('current'),memberStatusInactiveStyle:_msBtn('past'),memberStatusRemovedStyle:_msBtn('removed')};
       })(),
       memberSearchRows:(()=>{
+        const liveBatchId=(s.batches||[]).find(b=>b.is_live)?.id||null;
+        const _mStatus=p=>!p.is_active?'removed':p.batch_id===liveBatchId?'current':'past';
+        const _mLabel=p=>!p.is_active?'Removed':p.batch_id===liveBatchId?'Current':'Past';
+        const _mColor=p=>!p.is_active?'#8a94a3':p.batch_id===liveBatchId?'#1f8a5b':'#b9791a';
+        const _mBg=p=>!p.is_active?'#f0f2f5':p.batch_id===liveBatchId?'#e7f3ec':'#fff8ec';
         const q=(s.memberSearchText||'').toLowerCase().trim();
         const mf=s.memberSearchStatus||'all';
         let rows=s.memberSearchList;
         if(q) rows=rows.filter(p=>p.name.toLowerCase().includes(q)||(p.contact||'').toLowerCase().includes(q));
-        if(mf==='active') rows=rows.filter(p=>p.is_active);
-        if(mf==='inactive') rows=rows.filter(p=>!p.is_active);
+        if(mf!=='all') rows=rows.filter(p=>_mStatus(p)===mf);
         return rows.map(p=>{
           const batch=(s.batches||[]).find(b=>b.id===p.batch_id);
           const batchLabel=batch?(batch.label||Utils.dateKey(new Date(batch.start_date)).slice(0,7)):'No cycle';
           const isConfirming=s.confirmDeleteMemberId===p.id;
           return {
             id:p.id, name:p.name, contact:p.contact||'', initials:Utils.initials(p.name),
-            isActive:p.is_active, statusLabel:p.is_active?'Active':'Inactive',
-            statusColor:p.is_active?'#1f8a5b':'#8a94a3', statusBg:p.is_active?'#e7f3ec':'#f0f2f5',
+            statusLabel:_mLabel(p), statusColor:_mColor(p), statusBg:_mBg(p),
             batchLabel, shiftLabel:Utils.shiftLabel(p.shift),
             isConfirming, onAskDelete:this.askDeleteMember(p.id),
           };
         });
       })(),
       memberSearchEmpty:s.memberSearchLoaded&&(()=>{
+        const liveBatchId=(s.batches||[]).find(b=>b.is_live)?.id||null;
+        const _mStatus=p=>!p.is_active?'removed':p.batch_id===liveBatchId?'current':'past';
         const q=(s.memberSearchText||'').toLowerCase().trim();
         const mf=s.memberSearchStatus||'all';
         let rows=s.memberSearchList;
         if(q) rows=rows.filter(p=>p.name.toLowerCase().includes(q)||(p.contact||'').toLowerCase().includes(q));
-        if(mf==='active') rows=rows.filter(p=>p.is_active);
-        if(mf==='inactive') rows=rows.filter(p=>!p.is_active);
+        if(mf!=='all') rows=rows.filter(p=>_mStatus(p)===mf);
         return rows.length===0;
       })(),
       realtimeLive:s.realtimeLive,
