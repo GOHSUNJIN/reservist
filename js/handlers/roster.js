@@ -219,7 +219,7 @@ const RosterHandlers = {
     if (!timesEditId) return;
     const validTime = t => !t || /^([01]\d|2[0-3]):[0-5]\d$/.test(t);
     const _toMins = t => { if(!t) return null; const [h,m]=t.split(':').map(Number); return h*60+m; };
-    const _editPerson = (this.state.roster||[]).find(p=>p.id===timesEditId);
+    const _editPerson = (this.state.personnel||[]).find(p=>p.id===timesEditId);
     const _isPM = _editPerson?.shift==='PM';
     const _p2Label = _isPM ? 'Dinner out' : 'Lunch out';
     const _p3Label = _isPM ? 'Return from dinner' : 'Return from lunch';

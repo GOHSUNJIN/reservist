@@ -19,6 +19,7 @@ Ops Reservist provides full end-to-end attendance accountability for reservist c
 - **GPS location verification** — The phone's GPS confirms the reservist is physically present at the designated location before the check-in is accepted. The distance from HQ is recorded. The system can be configured for any GPS radius (default: 200 m).
 - **MC and leave requests** — Submitted digitally through the app and sent directly to the supervisor for approval. No phone calls or messages needed.
 - **Shift change requests** — Submitted with a written reason and reviewed by the supervisor.
+- **Withdraw requests** — A pending leave, MC, or shift change request can be cancelled by the reservist before the supervisor has acted on it. Available from both the check-in tab and the Requests history in the Info tab.
 - **Attendance history** — Each reservist can see their own record for the full cycle, including total days present, MC, and absent, plus their attendance rate.
 - **Works without internet** — If the reservist loses connection during check-in, the action is saved on the phone and submitted automatically once connectivity is restored.
 - **Returning reservist re-enrollment** — When a reservist from a previous cycle logs in after their account has been deactivated, the app automatically sends a re-enrollment request to the supervisor. No manual coordination required. The reservist sees a confirmation and can log in once the supervisor approves.
@@ -27,11 +28,12 @@ Ops Reservist provides full end-to-end attendance accountability for reservist c
 - **Live attendance board** — Updates in real time as reservists check in. No refreshing required. The supervisor always sees the current picture.
 - **Manual status override** — If a reservist cannot use the app, the supervisor can manually mark them as Present, MC, or Absent.
 - **Manual time correction** — Any reservist's check-in times for any day can be edited directly from the Log tab. The supervisor keys in the correct times in 24-hour format across all four phases. Corrected records are flagged in the database as admin-entered. This covers cases where the reservist had a technical issue and could not check in themselves.
-- **Late check-in alerts** — Anyone who checks in more than one hour after shift start is automatically flagged. Their written reason is displayed alongside the flag.
+- **Late check-in alerts** — Anyone who checks in more than 30 minutes after shift start sees a timing warning. Those more than one hour late are automatically flagged and must submit a written reason, which is displayed alongside the flag.
 - **Full daily time log** — A complete record of every individual's four check-in phases for the day, including GPS distance, any late reason, and welfare notes. Can be searched by name and filtered by shift.
 - **Unified requests inbox** — All pending signup requests, MC, leave, and shift change requests appear in one place under the Requests tab. Each request is labelled New or Returning so the supervisor knows at a glance whether they are onboarding a first-timer or re-enrolling someone from a previous cycle.
 - **Personnel roster** — Full list of the current cycle's reservists with attendance stats, notes, and history per person.
 - **Welfare notes** — Supervisors can write a private daily note against any individual (e.g. medical concerns, welfare follow-up). Visible on the roster and time log.
+- **Missed attendance notes** — For reservists who did not report without an approved leave, supervisors can add an inline note directly from the attendance history view.
 - **Non-reporting day control** — Mark any date as a non-reporting day (public holidays, stand-down). The system will not count those days against personnel.
 - **WhatsApp attendance summary** — One tap sends the day's attendance summary to the unit group chat.
 - **Spreadsheet export** — Full attendance data for any cycle can be exported as a CSV file for record-keeping or further analysis. Includes per-person attendance rates and a summary row.
@@ -165,7 +167,7 @@ The database has six tables:
 
 | Field | What it stores |
 |---|---|
-| Status | Present, MC, or Absent |
+| Status | Present, MC, Absent, or Missed |
 | Check-in time | Phase 1 timestamp |
 | Lunch out time | Phase 2 timestamp |
 | Return time | Phase 3 timestamp |
@@ -174,7 +176,8 @@ The database has six tables:
 | GPS distance (return) | Metres from HQ at return |
 | Late reason | Written reason if late by over an hour |
 | GPS bypassed | Flagged true if GPS override or admin correction was used |
-| Welfare note | Supervisor's note for that day |
+| Welfare note | Supervisor's note for that day (also used for missed-attendance notes) |
+| Edit log | JSON list of admin edits, each with editor name and timestamp |
 
 **No-reporting days** — a list of dates where no attendance is expected (public holidays, stand-down days).
 
@@ -185,7 +188,7 @@ The database has six tables:
 | Type | MC, personal leave, shift change, or other |
 | Date requested | The date the leave is for |
 | Reason | Written reason from the reservist |
-| Status | Pending, Approved, or Rejected |
+| Status | Pending, Approved, Rejected, or Cancelled |
 | Reviewed by | Name of the supervisor who actioned it |
 | Reviewed at | Timestamp of the decision |
 
@@ -249,14 +252,15 @@ CREATE TABLE batches (
   end_date DATE NOT NULL,
   dekit_date DATE,
   is_live BOOLEAN NOT NULL DEFAULT false,
-  meal_active BOOLEAN NOT NULL DEFAULT false
+  meal_active BOOLEAN NOT NULL DEFAULT false,
+  notice_text TEXT
 );
 
 CREATE TABLE attendance (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   personnel_id UUID REFERENCES personnel(id) ON DELETE CASCADE,
   date DATE NOT NULL,
-  status TEXT NOT NULL DEFAULT 'absent',
+  status TEXT NOT NULL DEFAULT 'absent' CHECK (status IN ('present', 'absent', 'mc', 'missed')),
   check_in_time TIME,
   lunch_out_time TIME,
   work_return_time TIME,
@@ -266,6 +270,7 @@ CREATE TABLE attendance (
   late_reason TEXT,
   gps_bypassed BOOLEAN DEFAULT false,
   welfare_note TEXT,
+  edit_log JSONB DEFAULT '[]',
   UNIQUE(personnel_id, date)
 );
 
@@ -299,7 +304,6 @@ CREATE TABLE signup_requests (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
-
 ### Step 2 — Create the master account
 
 Sign up through the app's login screen using your phone number. Then run this one-time command in the Supabase SQL editor to elevate that account to Master level:

@@ -126,6 +126,141 @@ const BatchHandlers = {
     a.click();
   },
 
+  exportPrint: async function() {
+    const {batches,activeBatchIdx,batchMembersCache,personnel,attendance,noReportDays,demo}=this.state;
+    const batch=batches[activeBatchIdx||0]; if(!batch) return;
+    const members=batch.is_live?personnel:(batchMembersCache[batch.id]||[]);
+    const start=new Date(batch.start_date+'T00:00:00'), end=new Date(batch.end_date+'T00:00:00');
+    const dates=[];
+    for(let d=new Date(start);d<=end;d=Utils.addDays(d,1)){
+      if(Utils.isReportDay(d)&&!Utils.holidayName(d)&&!noReportDays.has(Utils.dateKey(d))) dates.push(new Date(d));
+    }
+    let attCache=this.state.attendanceCache;
+    if(!demo){
+      const allAtt=await DB.attendance.getForBatch(batch.start_date,batch.end_date).catch(()=>({}));
+      attCache={...attCache,...allAtt};
+    }
+    const todayKey=Utils.dateKey(this.baseDate());
+    const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const fmtDate=d=>d.getDate()+' '+MO[d.getMonth()];
+    const fmtDay=d=>{const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];return days[d.getDay()];};
+    const orgName=this.props.orgName||'Ops Security';
+    const accent=this.props.accent||'#2f5fd0';
+
+    const rowData=members.map(p=>{
+      const entries=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return map[p.id]||null;});
+      const statuses=entries.map(e=>e?.status||'absent');
+      const pres=statuses.filter(s=>s==='present').length;
+      const mc=statuses.filter(s=>s==='mc').length;
+      const abs=statuses.filter(s=>s==='absent').length+statuses.filter(s=>s==='missed').length;
+      const pct=dates.length>0?Math.round(pres/dates.length*100):0;
+      const cells=entries.map(e=>{
+        if(!e||!e.status||e.status==='absent'||e.status==='missed') return {code:'A',cls:'A'};
+        if(e.status==='mc') return {code:'MC',cls:'MC'};
+        return {code: e.editLog?.length>0?'P*':'P', cls: e.editLog?.length>0?'Ps':'P'};
+      });
+      return {name:p.name, shift:p.shift||'-', cells, pres, mc, abs, pct};
+    });
+
+    const totPres=rowData.reduce((a,r)=>a+r.pres,0);
+    const totMc=rowData.reduce((a,r)=>a+r.mc,0);
+    const totAbs=rowData.reduce((a,r)=>a+r.abs,0);
+    const totDays=members.length*dates.length;
+    const totPct=totDays>0?Math.round(totPres/totDays*100):0;
+    const exportedOn=fmtDate(new Date())+' '+new Date().getFullYear();
+
+    const headCols=dates.map(d=>`<th>${fmtDay(d)}<br><span style="font-weight:400;font-size:9px;">${fmtDate(d)}</span></th>`).join('');
+    const bodyRows=rowData.map(r=>{
+      const dayCells=r.cells.map(c=>`<td class="${c.cls}">${c.code}</td>`).join('');
+      const pctColor=r.pct>=80?'#2e7d32':r.pct>=60?'#e65100':'#c62828';
+      return `<tr>
+        <td class="name">${r.name}</td>
+        <td class="shift">${r.shift}</td>
+        ${dayCells}
+        <td class="tot">${r.pres}</td>
+        <td class="tot mc">${r.mc}</td>
+        <td class="tot ab">${r.abs}</td>
+        <td class="tot" style="color:${pctColor};font-weight:700;">${r.pct}%</td>
+      </tr>`;
+    }).join('');
+
+    const html=`<!DOCTYPE html><html><head><meta charset="utf-8">
+<title>${batch.label} — Attendance Report</title>
+<style>
+  @page{size:A4 landscape;margin:12mm 10mm;}
+  *{box-sizing:border-box;}
+  body{font-family:Arial,sans-serif;font-size:10.5px;color:#1a1a1a;margin:0;padding:0;}
+  .hdr{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;padding-bottom:10px;border-bottom:2px solid ${accent};}
+  .hdr-left h1{font-size:17px;margin:0 0 3px;color:${accent};}
+  .hdr-left p{margin:0;font-size:11px;color:#555;}
+  .hdr-right{text-align:right;font-size:10px;color:#777;}
+  .stats{display:flex;gap:10px;margin-bottom:14px;}
+  .stat{flex:1;border:1px solid #e0e0e0;border-radius:5px;padding:7px 10px;}
+  .stat-val{font-size:18px;font-weight:700;}
+  .stat-label{font-size:9px;color:#777;text-transform:uppercase;letter-spacing:.04em;}
+  .stat.green .stat-val{color:#2e7d32;}
+  .stat.amber .stat-val{color:#e65100;}
+  .stat.red .stat-val{color:#c62828;}
+  .stat.blue .stat-val{color:#1565c0;}
+  table{border-collapse:collapse;width:100%;}
+  th,td{border:1px solid #d0d0d0;padding:3px 5px;text-align:center;white-space:nowrap;}
+  th{background:#f0f2f5;font-size:9.5px;font-weight:700;}
+  td.name{text-align:left;font-weight:600;min-width:110px;}
+  td.shift{text-align:left;color:#555;min-width:35px;}
+  td.tot{font-weight:700;}
+  td.mc{color:#e65100;}
+  td.ab{color:#c62828;}
+  .P{background:#e8f5e9;color:#2e7d32;font-weight:700;}
+  .Ps{background:#c8e6c9;color:#1b5e20;font-weight:700;}
+  .MC{background:#fff8e1;color:#e65100;font-weight:700;}
+  .A{background:#fce4ec;color:#c62828;}
+  .total-row td{background:#f0f2f5;font-weight:700;border-top:2px solid #bbb;}
+  .legend{margin-top:10px;font-size:9px;color:#777;}
+  .no-print{margin-bottom:10px;}
+  @media print{.no-print{display:none;}}
+</style>
+</head><body>
+<div class="no-print">
+  <button onclick="window.print()" style="padding:7px 16px;background:${accent};color:#fff;border:none;border-radius:6px;font-size:13px;font-weight:600;cursor:pointer;">Print / Save as PDF</button>
+</div>
+<div class="hdr">
+  <div class="hdr-left">
+    <h1>${batch.label} — Attendance Report</h1>
+    <p>${orgName} &nbsp;·&nbsp; ${fmtDate(start)} – ${fmtDate(end)} ${end.getFullYear()} &nbsp;·&nbsp; ${dates.length} reporting day${dates.length!==1?'s':''} &nbsp;·&nbsp; ${members.length} personnel</p>
+  </div>
+  <div class="hdr-right">Generated ${exportedOn}</div>
+</div>
+<div class="stats">
+  <div class="stat green"><div class="stat-val">${totPres}</div><div class="stat-label">Attendances</div></div>
+  <div class="stat blue"><div class="stat-val">${totMc}</div><div class="stat-label">MC / Leave</div></div>
+  <div class="stat red"><div class="stat-val">${totAbs}</div><div class="stat-label">Absences</div></div>
+  <div class="stat ${totPct>=80?'green':totPct>=60?'amber':'red'}"><div class="stat-val">${totPct}%</div><div class="stat-label">Overall Attendance</div></div>
+</div>
+<table>
+  <thead><tr>
+    <th style="text-align:left;">Name</th>
+    <th style="text-align:left;">Shift</th>
+    ${headCols}
+    <th>P</th><th>MC</th><th>A</th><th>Rate</th>
+  </tr></thead>
+  <tbody>
+    ${bodyRows}
+    <tr class="total-row">
+      <td class="name" colspan="2">TOTAL</td>
+      ${dates.map(()=>'<td></td>').join('')}
+      <td>${totPres}</td><td class="mc">${totMc}</td><td class="ab">${totAbs}</td>
+      <td style="color:${totPct>=80?'#2e7d32':totPct>=60?'#e65100':'#c62828'};font-weight:700;">${totPct}%</td>
+    </tr>
+  </tbody>
+</table>
+<div class="legend">P = Present &nbsp;|&nbsp; P* = Present (admin-corrected) &nbsp;|&nbsp; MC = Medical / Leave &nbsp;|&nbsp; A = Absent / Missed</div>
+</body></html>`;
+
+    const w=window.open('','_blank'); if(!w) return;
+    w.document.write(html);
+    w.document.close();
+  },
+
   openBroadcast: function() {
     const batch = this.state.batches[this.state.activeBatchIdx||0];
     this.setState({broadcastOpen:true, broadcastText:batch?.notice_text||''});
