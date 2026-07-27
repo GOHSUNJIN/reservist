@@ -263,6 +263,11 @@ const RequestHandlers = {
     const {missedNoteDateKey, missedNoteText, currentUserId, demo} = this.state;
     if(!missedNoteDateKey) return;
     const note = missedNoteText.trim();
+    const hasExisting = this.state.history.some(r=>r.date===missedNoteDateKey);
+    if(!note && !hasExisting) {
+      this.setState({missedNoteOpen:false, missedNoteDateKey:null, missedNoteText:''});
+      return;
+    }
     if(!demo) {
       const {error} = await DB.attendance.saveMissedNote(currentUserId, missedNoteDateKey, note).catch(e=>({error:e}));
       if(error) { this._toast('Failed to save note.','error'); return; }
@@ -274,7 +279,7 @@ const RequestHandlers = {
         :[...s.history,{date:missedNoteDateKey,status:'missed',welfare_note:note,check_in_time:null,lunch_out_time:null,work_return_time:null,work_end_time:null,late_reason:null}];
       return {history:newHistory, missedNoteOpen:false, missedNoteDateKey:null, missedNoteText:''};
     });
-    this._toast('Note saved.');
+    this._toast(note ? 'Note saved.' : 'Note cleared.');
   },
 
   // ── Admin log note per person ─────────────────────────────────────────

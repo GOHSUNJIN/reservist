@@ -2135,12 +2135,7 @@
           </div>
         </div>
         <textarea onInput="{{ onMissedNoteText }}" value="{{ missedNoteText }}" placeholder="e.g. Was on annual leave, forgot to inform in advance" style="width:100%;height:90px;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>
-        <sc-if value="{{ missedNoteReady }}" hint-placeholder-val="">
-          <button onClick="{{ saveMissedNote }}" style="-webkit-appearance:none;display:block;width:100%;margin-top:12px;padding:14px;background:#2f5fd0;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;text-align:center;box-sizing:border-box;line-height:1;">Save note</button>
-        </sc-if>
-        <sc-if value="{{ !missedNoteReady }}" hint-placeholder-val="{{ true }}">
-          <div style="display:block;width:100%;margin-top:12px;padding:14px;background:#eaedf5;border-radius:11px;font-size:15px;font-weight:700;color:#a0aabe;text-align:center;box-sizing:border-box;line-height:1;">Save note</div>
-        </sc-if>
+        <button onClick="{{ saveMissedNote }}" style="-webkit-appearance:none;display:block;width:100%;margin-top:12px;padding:14px;background:#2f5fd0;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;text-align:center;box-sizing:border-box;line-height:1;">Save note</button>
         <button onClick="{{ closeMissedNote }}" style="-webkit-appearance:none;display:block;width:100%;margin-top:8px;padding:12px;background:none;border:none;font-size:13px;font-weight:600;color:#8a94a3;cursor:pointer;text-align:center;">Cancel</button>
       </div>
     </div>
