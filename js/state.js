@@ -83,6 +83,7 @@ const makeInitialState = () => ({
   personHistoryId: null, personHistoryRows: [], personHistoryLoading: false,
   confirmWipeHistoryId: null, wipingHistory: false,
   memberSearchOpen: false, memberSearchText: '', memberSearchList: [], memberSearchLoaded: false,
+  memberSearchStatus: 'all',
   confirmDeleteMemberId: null, deletingMember: false,
   realtimeLive: false,
   resetPwId: null, resetPwNew: '', resetPwSaving: false,
