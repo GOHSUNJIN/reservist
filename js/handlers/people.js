@@ -187,10 +187,23 @@ const PeopleHandlers = {
   confirmWipeHistory: async function() {
     const id = this.state.confirmWipeHistoryId;
     if(!id) return;
+    const s = this.state;
+    const allLoaded = [...s.personnel, ...Object.values(s.batchMembersCache).flat()];
+    const person = allLoaded.find(p=>p.id===id);
+    const authId = person?.auth_id || null;
+    const batchId = s.batches[s.activeBatchIdx||0]?.id;
     this.setState({wipingHistory:true});
-    await DB.attendance.wipeAll(id).catch(()=>{});
-    this.setState({wipingHistory:false, confirmWipeHistoryId:null, personHistoryRows:[], personHistoryId:null});
-    this._toast('All history wiped.');
+    if(!s.demo){
+      const {error} = await DB.personnel.deletePermanently(id, authId).catch(()=>({error:true}));
+      if(error){ this._toast('Delete failed. Check your connection.','error'); this.setState({wipingHistory:false}); return; }
+    }
+    this.setState(prev=>{
+      const personnel = prev.personnel.filter(p=>p.id!==id);
+      const batchMembersCache = {...prev.batchMembersCache};
+      Object.keys(batchMembersCache).forEach(k=>{ batchMembersCache[k]=(batchMembersCache[k]||[]).filter(p=>p.id!==id); });
+      return {personnel,batchMembersCache,wipingHistory:false,confirmWipeHistoryId:null,personHistoryId:null,personHistoryRows:[]};
+    });
+    this._toast((person?.name||'Member')+' permanently deleted.');
   },
 
   openResetPw: function(id) { return () => this.setState({resetPwId:id, resetPwNew:'', resetPwSaving:false}); },

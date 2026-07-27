@@ -101,6 +101,15 @@ const DB = {
       return { error };
     },
 
+    async deletePermanently(personnelId, authId) {
+      await _db.from('leave_requests').delete().eq('personnel_id', personnelId);
+      await _db.from('attendance').delete().eq('personnel_id', personnelId);
+      await _db.storage.from('avatars').remove([personnelId]).catch(()=>{});
+      const { error } = await _db.from('personnel').delete().eq('id', personnelId);
+      if (authId) await _db.auth.admin.deleteUser(authId).catch(()=>{});
+      return { error };
+    },
+
     async reactivate(personnelId, { batchId, shift, authId } = {}) {
       const updates = { is_active: true, deactivated_at: null };
       if (batchId !== undefined) updates.batch_id = batchId;
