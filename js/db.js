@@ -75,6 +75,11 @@ const DB = {
       return data || [];
     },
 
+    async listAll() {
+      const { data } = await _db.from('personnel').select('*').eq('role','reservist').order('name');
+      return data || [];
+    },
+
     async get(authId) {
       const { data } = await _db.from('personnel').select('*').eq('auth_id', authId).maybeSingle();
       return data || null;

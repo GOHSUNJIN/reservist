@@ -206,6 +206,39 @@ const PeopleHandlers = {
     this._toast((person?.name||'Member')+' permanently deleted.');
   },
 
+  openMemberSearch: async function() {
+    this.setState({memberSearchOpen:true, memberSearchLoaded:false, memberSearchText:'', memberSearchList:[], confirmDeleteMemberId:null});
+    if(!this.state.demo){
+      const data = await DB.personnel.listAll().catch(()=>[]);
+      this.setState({memberSearchList:data, memberSearchLoaded:true});
+    } else {
+      this.setState({memberSearchLoaded:true});
+    }
+  },
+  closeMemberSearch: function() { this.setState({memberSearchOpen:false, memberSearchText:'', confirmDeleteMemberId:null}); },
+  onMemberSearchText: function(e) { this.setState({memberSearchText:e.target.value, confirmDeleteMemberId:null}); },
+  askDeleteMember: function(id) { return () => this.setState({confirmDeleteMemberId:id}); },
+  cancelDeleteMember: function() { this.setState({confirmDeleteMemberId:null}); },
+  confirmDeleteMember: async function() {
+    const {confirmDeleteMemberId, memberSearchList, demo} = this.state;
+    if(!confirmDeleteMemberId) return;
+    const person = memberSearchList.find(p=>p.id===confirmDeleteMemberId);
+    const authId = person?.auth_id||null;
+    this.setState({deletingMember:true});
+    if(!demo){
+      const {error} = await DB.personnel.deletePermanently(confirmDeleteMemberId, authId).catch(()=>({error:true}));
+      if(error){ this._toast('Delete failed. Check your connection.','error'); this.setState({deletingMember:false}); return; }
+    }
+    this.setState(prev=>{
+      const memberSearchList = prev.memberSearchList.filter(p=>p.id!==confirmDeleteMemberId);
+      const personnel = prev.personnel.filter(p=>p.id!==confirmDeleteMemberId);
+      const batchMembersCache = {...prev.batchMembersCache};
+      Object.keys(batchMembersCache).forEach(k=>{ batchMembersCache[k]=(batchMembersCache[k]||[]).filter(p=>p.id!==confirmDeleteMemberId); });
+      return {memberSearchList, personnel, batchMembersCache, deletingMember:false, confirmDeleteMemberId:null};
+    });
+    this._toast((person?.name||'Member')+' permanently deleted.');
+  },
+
   openResetPw: function(id) { return () => this.setState({resetPwId:id, resetPwNew:'', resetPwSaving:false}); },
   closeResetPw: function() { this.setState({resetPwId:null, resetPwNew:''}); },
   onResetPwNew: function(e) { this.setState({resetPwNew:e.target.value}); },
