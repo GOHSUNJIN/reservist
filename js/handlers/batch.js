@@ -81,7 +81,8 @@ const BatchHandlers = {
   exportCsv: async function() {
     const {batches,activeBatchIdx,batchMembersCache,personnel,attendance,noReportDays,demo}=this.state;
     const batch=batches[activeBatchIdx||0]; if(!batch) return;
-    const members=batch.is_live?personnel:(batchMembersCache[batch.id]||[]);
+    const allMembers=batch.is_live?personnel:(batchMembersCache[batch.id]||[]);
+    const members=allMembers.filter(p=>p.role==='reservist'&&p.batch_id===batch.id);
     const start=new Date(batch.start_date+'T00:00:00'), end=new Date(batch.end_date+'T00:00:00');
     const dates=[];
     for(let d=new Date(start);d<=end;d=Utils.addDays(d,1)){
