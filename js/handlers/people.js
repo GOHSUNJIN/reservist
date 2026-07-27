@@ -180,7 +180,18 @@ const PeopleHandlers = {
     };
   },
 
-  closePersonHistory: function() { this.setState({personHistoryId:null, personHistoryRows:[], personHistoryLoading:false}); },
+  closePersonHistory: function() { this.setState({personHistoryId:null, personHistoryRows:[], personHistoryLoading:false, confirmWipeHistoryId:null}); },
+
+  askWipeHistory: function() { this.setState({confirmWipeHistoryId:this.state.personHistoryId}); },
+  cancelWipeHistory: function() { this.setState({confirmWipeHistoryId:null}); },
+  confirmWipeHistory: async function() {
+    const id = this.state.confirmWipeHistoryId;
+    if(!id) return;
+    this.setState({wipingHistory:true});
+    await DB.attendance.wipeAll(id).catch(()=>{});
+    this.setState({wipingHistory:false, confirmWipeHistoryId:null, personHistoryRows:[], personHistoryId:null});
+    this._toast('All history wiped.');
+  },
 
   openResetPw: function(id) { return () => this.setState({resetPwId:id, resetPwNew:'', resetPwSaving:false}); },
   closeResetPw: function() { this.setState({resetPwId:null, resetPwNew:''}); },

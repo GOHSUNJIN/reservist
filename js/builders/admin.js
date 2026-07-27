@@ -215,6 +215,7 @@ const AdminBuilders = {
       ...(()=>{const _iStyle=k=>{const err=s.timesEditErrField===k;return`width:100%;padding:8px 10px;border:1.5px solid ${err?'#c0392b':'#d4d9e2'};border-radius:8px;font-size:13px;font-family:'IBM Plex Mono',monospace;outline:none;background:${err?'#fff5f5':'#f6f8fa'};box-sizing:border-box;color:#161f30;`;};return{timesEditP1Style:_iStyle('p1'),timesEditP2Style:_iStyle('p2'),timesEditP3Style:_iStyle('p3'),timesEditP4Style:_iStyle('p4')};})(),
       onTimesP1:this.onTimesP1, onTimesP2:this.onTimesP2, onTimesP3:this.onTimesP3, onTimesP4:this.onTimesP4,
       saveTimesEdit:this.saveTimesEdit, closeTimesEdit:this.closeTimesEdit,
+      logShiftFilter:s.logShiftFilter||'all', onLogShiftChange:this.onLogShiftChange,
       setLogFilterAll:this.setLogShiftFilter('all'), setLogFilterAm:this.setLogShiftFilter('AM'),
       setLogFilterPm:this.setLogShiftFilter('PM'), setLogFilterOffice:this.setLogShiftFilter('OFFICE'),
       logFilterAllStyle:_fBtn('all',accent), logFilterAmStyle:_fBtn('AM',accent),
@@ -233,6 +234,9 @@ const AdminBuilders = {
       personHistoryOpen:!!s.personHistoryId,
       personHistoryName:([...s.personnel,...(s.batchMembersCache[activeBatch?.id]||[])].find(p=>p.id===s.personHistoryId)||{}).name||'',
       personHistoryLoading:s.personHistoryLoading,
+      confirmWipeHistoryOpen:!!(s.confirmWipeHistoryId&&s.confirmWipeHistoryId===s.personHistoryId),
+      wipingHistory:s.wipingHistory,
+      askWipeHistory:this.askWipeHistory, confirmWipeHistory:this.confirmWipeHistory, cancelWipeHistory:this.cancelWipeHistory,
       personHistoryRows:(s.personHistoryRows||[]).slice(0,100).map(r=>{
         const mm=Utils.meta(r.status);
         const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
