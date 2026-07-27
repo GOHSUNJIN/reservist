@@ -205,7 +205,7 @@ const CheckinBuilders = {
     const waMsg=status==='present'
       ?`✅ *${me.name}* | ${Utils.shiftLabel(me.shift)}\n${_waDate}${_waLateNote}\n\n${_waTimes.join('  ·  ')}`
       :status==='mc'
-      ?`🤒 *${me.name}* — On MC today\n${Utils.shiftLabel(me.shift)}  ·  ${_waDate}`
+      ?`🤒 *${me.name}* - On MC today\n${Utils.shiftLabel(me.shift)}  ·  ${_waDate}`
       :'';
     const whatsappLink=waMsg?'https://api.whatsapp.com/send?text='+encodeURIComponent(waMsg):'';
     const showWaShare=!!(status==='present'||status==='mc');
@@ -400,11 +400,12 @@ const CheckinBuilders = {
         p2Color:p2?'#161f30':(isPresent?_nc:_dc),
         p3Color:p3?'#161f30':(isPresent?_nc:_dc),
         p4Color:p4?'#161f30':(isPresent?_nc:_dc),
-        hasExpandToggle:isPresent,isExpanded:_rowEx,onToggleExpand:this.toggleHistoryExpand(r.date),
+        hasExpandToggle:isPresent||isMissed,isExpanded:_rowEx,
+        onToggleExpand:isMissed?this.openMissedNote(r.date,r.welfare_note||''):this.toggleHistoryExpand(r.date),
         showTimes:isPresent&&_rowEx,hasIncompleteTimes:hasIncompleteTimes&&_rowEx,
         showTimingWarning:isPresent&&(!p2||!p3||!p4),
         lateReason:r.late_reason||'',showLateReason:!!(r.late_reason)&&_rowEx,
-        isMissedRow:isMissed,missedNote:r.welfare_note||'',showMissedNote:isMissed&&!!(r.welfare_note),
+        isMissedRow:isMissed,missedNote:r.welfare_note||'',showMissedNote:false,
         onOpenMissedNote:isMissed?this.openMissedNote(r.date,r.welfare_note||''):()=>{},
         ...Utils.meta(r.status)};
     });
@@ -417,7 +418,7 @@ const CheckinBuilders = {
         if(Utils.isReportDay(d)&&dk<=activeBatch.end_date&&!Utils.holidayName(d)&&!s.noReportDays.has(dk)&&!histKeys.has(dk)){
           missedRows.push({date:Utils.fmtMed(d),dateKey:dk,shift:Utils.shiftLabel(me.shift),status:'missed',
             p1:'-',p2:'-',p3:'-',p4:'-',p1Color:_dc,p2Color:_dc,p3Color:_dc,p4Color:_dc,
-            showTimes:false,hasExpandToggle:false,isExpanded:false,onToggleExpand:()=>{},showTimingWarning:false,
+            showTimes:false,hasExpandToggle:true,isExpanded:false,onToggleExpand:this.openMissedNote(dk,''),showTimingWarning:false,
             isMissedRow:true,missedNote:'',showMissedNote:false,onOpenMissedNote:this.openMissedNote(dk,''),
             ...Utils.meta('missed')});
         }
