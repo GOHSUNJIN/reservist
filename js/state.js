@@ -81,6 +81,7 @@ const makeInitialState = () => ({
   logNoteId: null, logNoteText: '',
   logSearch: '',
   personHistoryId: null, personHistoryRows: [], personHistoryLoading: false,
+  confirmWipeHistoryId: null, wipingHistory: false,
   realtimeLive: false,
   resetPwId: null, resetPwNew: '', resetPwSaving: false,
   broadcastOpen: false, broadcastText: '', broadcastSaving: false,
