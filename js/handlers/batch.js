@@ -94,36 +94,98 @@ const BatchHandlers = {
       attCache={...attCache,...allAtt};
     }
     const todayKey=Utils.dateKey(this.baseDate());
-    const fmtDate=d=>{const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];return d.getDate()+' '+mo[d.getMonth()];};
-    const metaRows=[
-      ['"Cycle"','"'+batch.label+'"'],
-      ['"Period"','"'+fmtDate(start)+' – '+fmtDate(end)+'"'],
-      ['"Exported"','"'+fmtDate(new Date())+'"'],
-      [],
-    ];
-    const header=['"Name"','"Shift"',...dates.map(d=>'"'+fmtDate(d)+'"'),'"Present"','"MC"','"Absent"','"Attendance %"'];
-    const rows=members.map(p=>{
-      const dayEntries=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return map[p.id]||null;});
-      const statuses=dayEntries.map(e=>e?.status||'absent');
+    const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const fmtDate=d=>d.getDate()+' '+MO[d.getMonth()];
+    const fmtDay=d=>DAYS[d.getDay()];
+    const accent=this.props.accent||'#2f5fd0';
+
+    const rowData=members.map(p=>{
+      const entries=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return map[p.id]||null;});
+      const statuses=entries.map(e=>e?.status||null);
       const pres=statuses.filter(s=>s==='present').length;
       const mc=statuses.filter(s=>s==='mc').length;
       const abs=statuses.filter(s=>s==='absent'||s==='missed').length;
-      const pct=dates.length>0?Math.round(pres/dates.length*100)+'%':'-';
-      const cells=dayEntries.map(e=>{const code=e?.status==='present'?'P':e?.status==='mc'?'MC':(e?.status==='absent'||e?.status==='missed')?'A':'-';return(code==='P'&&e?.editLog?.length>0)?'P*':code;});
-      return ['"'+p.name.replace(/"/g,'""')+'"','"'+(p.shift||'-')+'"',...cells,pres,mc,abs,'"'+pct+'"'].join(',');
+      const pct=dates.length>0?Math.round(pres/dates.length*100):null;
+      const cells=entries.map(e=>{
+        if(!e?.status||e.status==='absent'||e.status==='missed') return e?.status?{code:'A',cls:'A'}:{code:'-',cls:'-'};
+        if(e.status==='mc') return {code:'MC',cls:'MC'};
+        return {code:e.editLog?.length>0?'P*':'P', cls:e.editLog?.length>0?'Ps':'P'};
+      });
+      return {name:p.name, shift:p.shift||'-', cells, pres, mc, abs, pct};
     });
-    const totPres=members.reduce((a,p)=>{const st=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return(map[p.id]?.status)||'absent';});return a+st.filter(s=>s==='present').length;},0);
-    const totMc=members.reduce((a,p)=>{const st=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return(map[p.id]?.status)||'absent';});return a+st.filter(s=>s==='mc').length;},0);
-    const totAbs=members.reduce((a,p)=>{const st=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return(map[p.id]?.status)||'absent';});return a+st.filter(s=>s==='absent'||s==='missed').length;},0);
+
+    const totPres=rowData.reduce((a,r)=>a+r.pres,0);
+    const totMc=rowData.reduce((a,r)=>a+r.mc,0);
+    const totAbs=rowData.reduce((a,r)=>a+r.abs,0);
     const totDays=members.length*dates.length;
-    const totPct=totDays>0?Math.round(totPres/totDays*100)+'%':'-';
-    const summaryRow=['"TOTAL"','""',...dates.map(()=>'""'),totPres,totMc,totAbs,'"'+totPct+'"'].join(',');
-    const legend=['"Legend: P = Present, P* = Present (admin-corrected times), MC = Medical Certificate, A = Absent"'];
-    const csv='﻿'+[...metaRows.map(r=>r.join(',')),header.join(','),...rows,'',summaryRow,'',legend].join('\n');
+    const totPct=totDays>0?Math.round(totPres/totDays*100):null;
+
+    const f='font-family:Arial,sans-serif;font-size:10pt;';
+    const border='border:1px solid #d0d8e4;';
+    const pad='padding:5px 8px;';
+    const cellSt=cls=>{
+      const base=f+border+pad+'text-align:center;font-weight:700;';
+      if(cls==='P')  return base+'background:#d4edda;color:#155724;';
+      if(cls==='Ps') return base+'background:#b8dac4;color:#0d3d1a;';
+      if(cls==='MC') return base+'background:#fff3cd;color:#856404;';
+      if(cls==='A')  return base+'background:#f8d7da;color:#721c24;';
+      return f+border+pad+'text-align:center;color:#b0b8c4;font-weight:400;';
+    };
+    const pctColor=n=>n==null?'#555':n>=80?'#155724':n>=60?'#856404':'#721c24';
+    const hdrSt=`${f}${border}${pad}background:${accent};color:#fff;font-weight:700;text-align:center;`;
+    const hdrNameSt=`${f}${border}${pad}background:${accent};color:#fff;font-weight:700;text-align:left;`;
+    const totSt=`${f}${border}${pad}background:#edf0f5;font-weight:700;text-align:center;border-top:2px solid #b0b8cc;`;
+    const metaSt=`${f}padding:3px 6px;`;
+
+    const colgroup=`<col style="width:160px"><col style="width:48px">${dates.map(()=>'<col style="width:44px">').join('')}<col style="width:58px"><col style="width:46px"><col style="width:58px"><col style="width:70px">`;
+    const span=2+dates.length+4;
+
+    const metaSection=`
+      <tr><td style="${metaSt}color:#777;font-weight:700;">Cycle</td><td colspan="${span-1}" style="${metaSt}">${batch.label}</td></tr>
+      <tr><td style="${metaSt}color:#777;font-weight:700;">Period</td><td colspan="${span-1}" style="${metaSt}">${fmtDate(start)} – ${fmtDate(end)} ${end.getFullYear()}</td></tr>
+      <tr><td style="${metaSt}color:#777;font-weight:700;">Exported</td><td colspan="${span-1}" style="${metaSt}">${fmtDate(new Date())} ${new Date().getFullYear()}</td></tr>
+      <tr><td colspan="${span}"></td></tr>`;
+
+    const headerRow=`<tr>
+      <th style="${hdrNameSt}">Name</th>
+      <th style="${hdrSt}">Shift</th>
+      ${dates.map(d=>`<th style="${hdrSt}">${fmtDay(d)}<br>${fmtDate(d)}</th>`).join('')}
+      <th style="${hdrSt}">Present</th><th style="${hdrSt}">MC</th><th style="${hdrSt}">Absent</th><th style="${hdrSt}">Rate</th>
+    </tr>`;
+
+    const dataRows=rowData.map((r,i)=>{
+      const rowBg=i%2===0?'#ffffff':'#f5f7fb';
+      const baseSt=`${f}${border}${pad}background:${rowBg};`;
+      return `<tr>
+        <td style="${baseSt}font-weight:600;text-align:left;">${r.name.replace(/&/g,'&amp;').replace(/</g,'&lt;')}</td>
+        <td style="${baseSt}text-align:center;color:#5c6678;">${r.shift}</td>
+        ${r.cells.map(c=>`<td style="${cellSt(c.cls)}">${c.code}</td>`).join('')}
+        <td style="${baseSt}text-align:center;font-weight:700;color:#155724;">${r.pres}</td>
+        <td style="${baseSt}text-align:center;font-weight:700;color:#856404;">${r.mc}</td>
+        <td style="${baseSt}text-align:center;font-weight:700;color:#721c24;">${r.abs}</td>
+        <td style="${baseSt}text-align:center;font-weight:700;color:${pctColor(r.pct)};">${r.pct!=null?r.pct+'%':'-'}</td>
+      </tr>`;
+    }).join('');
+
+    const totalRow=`<tr>
+      <td style="${totSt}text-align:left;" colspan="2">TOTAL</td>
+      ${dates.map(()=>`<td style="${totSt}"></td>`).join('')}
+      <td style="${totSt}color:#155724;">${totPres}</td>
+      <td style="${totSt}color:#856404;">${totMc}</td>
+      <td style="${totSt}color:#721c24;">${totAbs}</td>
+      <td style="${totSt}color:${pctColor(totPct)};">${totPct!=null?totPct+'%':'-'}</td>
+    </tr>`;
+
+    const legendRow=`<tr><td colspan="${span}" style="${f}padding:8px 6px 2px;color:#999;font-size:9pt;">P = Present &nbsp;|&nbsp; P* = Present (admin-corrected) &nbsp;|&nbsp; MC = Medical / Leave &nbsp;|&nbsp; A = Absent</td></tr>`;
+
+    const html=`<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40"><head><meta charset="UTF-8"></head><body><table border="0" cellspacing="0" cellpadding="0"><colgroup>${colgroup}</colgroup>${metaSection}${headerRow}${dataRows}${totalRow}<tr></tr>${legendRow}</table></body></html>`;
+
+    const blob=new Blob(['﻿'+html],{type:'application/vnd.ms-excel;charset=utf-8'});
+    const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
-    a.href='data:text/csv;charset=utf-8,'+encodeURIComponent(csv);
-    a.download=(batch.label.replace(/[\s/]+/g,'_')||'batch')+'_attendance.csv';
-    a.click();
+    a.href=url; a.download=(batch.label.replace(/[\s/]+/g,'_')||'batch')+'_attendance.xls'; a.click();
+    URL.revokeObjectURL(url);
   },
 
   exportPrint: async function() {
