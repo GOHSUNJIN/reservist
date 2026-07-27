@@ -139,13 +139,15 @@ const BatchHandlers = {
     const totSt=`${f}${border}${pad}background:#edf0f5;font-weight:700;text-align:center;border-top:2px solid #b0b8cc;${txt}`;
     const metaSt=`${f}padding:3px 6px;${txt}`;
 
-    const colgroup=`<col style="width:180px"><col style="width:55px">${dates.map(()=>'<col style="width:72px">').join('')}<col style="width:72px"><col style="width:55px"><col style="width:72px"><col style="width:65px">`;
+    const colgroup=`<col style="width:180px"><col style="width:55px">${dates.map(()=>'<col style="width:88px">').join('')}<col style="width:75px"><col style="width:50px"><col style="width:75px"><col style="width:65px">`;
     const span=2+dates.length+4;
+    const now=new Date();
+    const exportedStr=`${fmtDay(now)} ${fmtDate(now)} ${now.getFullYear()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
 
     const metaSection=`
       <tr><td style="${metaSt}color:#777;font-weight:700;">Cycle</td><td colspan="${span-1}" style="${metaSt}">${batch.label}</td></tr>
       <tr><td style="${metaSt}color:#777;font-weight:700;">Period</td><td colspan="${span-1}" style="${metaSt}">${fmtDate(start)} – ${fmtDate(end)} ${end.getFullYear()}</td></tr>
-      <tr><td style="${metaSt}color:#777;font-weight:700;">Exported</td><td colspan="${span-1}" style="${metaSt}">${fmtDate(new Date())} ${new Date().getFullYear()}</td></tr>
+      <tr><td style="${metaSt}color:#777;font-weight:700;">Exported</td><td colspan="${span-1}" style="${metaSt}">${exportedStr}</td></tr>
       <tr><td colspan="${span}"></td></tr>`;
 
     const headerRow=`<tr>
