@@ -371,14 +371,19 @@ const CheckinBuilders = {
 
     const _tc=(v,c1,c0)=>v?c1:c0;
     const _dc='#c2c8d2';
+    const _myShift=me.shift||'AM';
+    const _pw=key=>{const w=Utils.phaseWindow(_myShift,key);return w?w[0]:'-';};
+    const _p2WinLabel=_myShift==='PM'?'DINNER':'LUNCH';
 
     const _exDates=s.historyExpandedDates||[];
     const todayRow=(Utils.isReportDay(todayD)&&!this.isNoReport(0))
       ?[{date:Utils.fmtMed(todayD)+', Today',dateKey:today,shift:Utils.shiftLabel(me.shift),status,
          p1:rec.p1||'-',p2:rec.p2||'-',p3:rec.p3||'-',p4:rec.p4||'-',
          p1Color:_tc(rec.p1,'#161f30',_dc),p2Color:_tc(rec.p2,'#161f30',_dc),p3Color:_tc(rec.p3,'#161f30',_dc),p4Color:_tc(rec.p4,'#161f30',_dc),
-         hasExpandToggle:status==='present',isExpanded:_exDates.includes(today),onToggleExpand:this.toggleHistoryExpand(today),
+         hasExpandToggle:status==='present'||status==='pending',isExpanded:_exDates.includes(today),onToggleExpand:this.toggleHistoryExpand(today),
          showTimes:status==='present'&&_exDates.includes(today),lateReason:rec.lateReason||'',showLateReason:!!(rec.lateReason)&&_exDates.includes(today),
+         showPendingTimes:status==='pending'&&_exDates.includes(today),
+         p1Win:_pw('p1'),p2Win:_pw('p2'),p3Win:_pw('p3'),p4Win:_pw('p4'),p2WinLabel:_p2WinLabel,
          isMissedRow:false,showMissedNote:false,missedNote:'',onOpenMissedNote:()=>{},
          showTimingWarning:status==='present'&&(!rec.p2||!rec.p3||!rec.p4),
          ...Utils.meta(status)}]:[];
