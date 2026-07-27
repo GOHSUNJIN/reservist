@@ -822,10 +822,11 @@
                   <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:#1f8a5b;">{{ attendanceRateText }}</span>
                 </div>
                 <div style="height:6px;border-radius:6px;background:#eef0f4;overflow:hidden;"><div style="height:100%;width:{{ cyclePct }}%;background:{{ accent }};border-radius:6px;"></div></div>
-                <div style="display:flex;justify-content:space-between;margin-top:5px;">
+                <div style="display:flex;justify-content:space-between;align-items:center;margin-top:7px;">
                   <span style="font-size:10.5px;color:#b0b7c3;">Cycle progress</span>
                   <span style="font-size:10.5px;color:#8a94a3;font-weight:600;">{{ cycleDone }} of {{ cycleTotal }} days</span>
                 </div>
+                <sc-if value="{{ streak }}"><div style="display:flex;align-items:center;gap:5px;margin-top:6px;"><span style="font-size:11px;">🔥</span><span style="font-size:11px;font-weight:600;color:#b9791a;">{{ streakLabel }}</span></div></sc-if>
               </div>
             </sc-if>
           </div>
@@ -1265,7 +1266,7 @@
           </sc-if>
           <sc-for list="{{ filteredRoster }}" as="row" hint-placeholder-count="6">
             <div style="{{ row.cardStyle }}">
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:9px;">
+              <div onClick="{{ row.onViewHistory }}" style="display:flex;align-items:center;gap:10px;margin-bottom:9px;cursor:pointer;">
                 <div class="avatar-sm" style="flex:0 0 auto;{{ row.avatarStyle }}">{{ row.initials }}</div>
                 <div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div><div style="font-size:11.5px;color:#8a94a3;">{{ row.shiftLabel }}</div></div>
                 <span class="badge" style="color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
@@ -2285,7 +2286,10 @@
             <div style="font-size:17px;font-weight:700;color:#161f30;">{{ personHistoryName }}</div>
             <div style="font-size:12px;color:#8a94a3;margin-top:2px;">Attendance history</div>
           </div>
-          <button onClick="{{ closePersonHistory }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          <div style="display:flex;align-items:center;gap:4px;">
+            <button onClick="{{ exportPersonHistory }}" style="background:none;border:none;cursor:pointer;padding:5px 8px;color:#5c6678;display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;border-radius:7px;border:1px solid #e3e6ec;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>XLS</button>
+            <button onClick="{{ closePersonHistory }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          </div>
         </div>
         <div style="overflow-y:auto;flex:1;padding:6px 0 24px;">
           <sc-if value="{{ personHistoryLoading }}" hint-placeholder-val="">
@@ -2370,6 +2374,9 @@
               <div style="padding:10px 20px;border-bottom:1px solid #f2f4f7;">
                 <sc-if value="{{ !m.isConfirming }}" hint-placeholder-val="">
                   <div style="display:flex;align-items:center;gap:10px;">
+                    <div onClick="{{ m.onToggleSelect }}" style="flex:0 0 auto;width:18px;height:18px;border-radius:4px;border:1.5px solid {{ m.isSelected ? '#3b5bdb' : '#c8cdd6' }};background:{{ m.isSelected ? '#3b5bdb' : '#fff' }};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                      <sc-if value="{{ m.isSelected }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></sc-if>
+                    </div>
                     <div class="avatar-sm" style="flex:0 0 auto;font-size:11px;">{{ m.initials }}</div>
                     <div style="flex:1;min-width:0;">
                       <div style="font-size:13px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ m.name }}</div>
@@ -2393,6 +2400,29 @@
             </sc-for>
           </sc-if>
         </div>
+        <sc-if value="{{ hasMemberSelection }}" hint-placeholder-val="">
+        <div style="padding:12px 20px 28px;border-top:1px solid #f0f2f6;flex:0 0 auto;">
+          <sc-if value="{{ !confirmBulkDeleteOpen }}" hint-placeholder-val="">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+              <span style="font-size:13px;color:#5c6678;font-weight:500;">{{ memberSelectedCount }} selected</span>
+              <div style="display:flex;gap:7px;">
+                <button onClick="{{ clearMemberSelect }}" style="padding:8px 14px;border-radius:8px;border:1px solid #d4d9e2;background:#fff;color:#5c6678;font-size:12.5px;font-weight:600;cursor:pointer;">Clear</button>
+                <button onClick="{{ askBulkDelete }}" style="padding:8px 14px;border-radius:8px;border:none;background:#c0392b;color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;">Delete {{ memberSelectedCount }}</button>
+              </div>
+            </div>
+          </sc-if>
+          <sc-if value="{{ confirmBulkDeleteOpen }}" hint-placeholder-val="">
+            <div style="background:#fff5f5;border:1px solid #f0d5d2;border-radius:10px;padding:13px 15px;">
+              <div style="font-size:13px;font-weight:600;color:#c0392b;margin-bottom:3px;">Delete {{ memberSelectedCount }} members permanently?</div>
+              <div style="font-size:12px;color:#8a94a3;margin-bottom:11px;">All records, leave history, and login accounts will be removed.</div>
+              <div style="display:flex;gap:8px;">
+                <button onClick="{{ cancelBulkDelete }}" style="flex:1;padding:8px;border-radius:8px;border:1px solid #d4d9e2;background:#fff;color:#5c6678;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+                <button onClick="{{ executeBulkDelete }}" style="flex:1;padding:8px;border-radius:8px;border:none;background:#c0392b;color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ bulkDeleting ? '0.55' : '1' }};">{{ bulkDeleting ? 'Deleting…' : 'Yes, delete all' }}</button>
+              </div>
+            </div>
+          </sc-if>
+        </div>
+        </sc-if>
       </div>
     </div>
     </sc-if>
