@@ -2353,8 +2353,13 @@
           </div>
           <div style="position:relative;margin-bottom:10px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input value="{{ memberSearchText }}" onInput="{{ onMemberSearchText }}" placeholder="Search by name or contact…" style="width:100%;padding:9px 12px 9px 32px;border:1px solid #d4d9e2;border-radius:9px;font-size:13px;background:#f6f8fa;outline:none;box-sizing:border-box;" />
+            <input value="{{ memberSearchText }}" onInput="{{ onMemberSearchText }}" placeholder="Search by name, contact or cycle…" style="width:100%;padding:9px 12px 9px 32px;border:1px solid #d4d9e2;border-radius:9px;font-size:13px;background:#f6f8fa;outline:none;box-sizing:border-box;" />
           </div>
+          <select value="{{ memberSearchCycle }}" onChange="{{ onMemberSearchCycle }}" style="width:100%;padding:8px 10px;border:1px solid #d4d9e2;border-radius:9px;font-size:12.5px;font-weight:500;color:#36404f;background:#fff;outline:none;cursor:pointer;margin-bottom:8px;box-sizing:border-box;">
+            <sc-for list="{{ memberCycleOptions }}" as="opt">
+              <option value="{{ opt.value }}">{{ opt.label }}</option>
+            </sc-for>
+          </select>
           <div style="display:flex;gap:6px;">
             <button onClick="{{ setMemberStatusAll }}" style="{{ memberStatusAllStyle }}">All</button>
             <button onClick="{{ setMemberStatusActive }}" style="{{ memberStatusActiveStyle }}">Current</button>
