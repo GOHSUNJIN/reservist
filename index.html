@@ -507,7 +507,7 @@
               <sc-if value="{{ hasLateReason }}" hint-placeholder-val="">
                 <div style="margin-top:8px;padding:10px 12px;background:#fbeeec;border:1px solid #f1d3cf;border-radius:10px;display:flex;align-items:flex-start;gap:9px;">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:2px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                  <div style="flex:1;min-width:0;">
+                  <div class="flex-fill">
                     <div style="font-size:10px;font-weight:700;color:#c0392b;letter-spacing:.06em;margin-bottom:3px;">LATE REASON</div>
                     <div style="font-size:13px;color:#c0392b;line-height:1.45;">{{ lateReasonDisplayText }}</div>
                   </div>
@@ -613,7 +613,7 @@
             </sc-if>
             <div style="display:flex;align-items:center;gap:10px;margin-top:14px;padding:12px 14px;background:#f6f8fa;border-radius:11px;">
               <div style="width:38px;height:38px;border-radius:9px;background:{{ accent }};display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;font-weight:700;line-height:1;flex:0 0 auto;"><span style="font-size:8px;font-weight:600;opacity:.85;">{{ dekitMonth }}</span><span style="font-size:15px;">{{ dekitDay }}</span></div>
-              <div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;color:#161f30;">{{ dekitLabel }}</div><div style="font-size:11.5px;color:#8a94a3;text-wrap:pretty;">{{ dekitSub }}</div></div>
+              <div class="flex-fill"><div style="font-size:13px;font-weight:600;color:#161f30;">{{ dekitLabel }}</div><div style="font-size:11.5px;color:#8a94a3;text-wrap:pretty;">{{ dekitSub }}</div></div>
             </div>
             <div style="display:flex;flex-wrap:nowrap;gap:10px;margin-top:12px;">
               <div style="display:flex;align-items:center;gap:5px;font-size:11px;color:#8a94a3;white-space:nowrap;"><span style="width:10px;height:10px;border-radius:3px;background:{{ accent }};flex:0 0 auto;"></span>Today</div>
@@ -738,9 +738,9 @@
             <sc-for list="{{ teamMembers }}" as="tm" hint-placeholder-count="3">
             <div class="row-item">
               <div class="avatar-sm">{{ tm.initials }}</div>
-              <div style="flex:1;min-width:0;">
+              <div class="flex-fill">
                 <div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ tm.name }}</div>
-                <div style="font-size:11.5px;color:#8a94a3;">{{ tm.shiftLabel }} · {{ tm.contact }}</div>
+                <div class="text-hint">{{ tm.shiftLabel }} · {{ tm.contact }}</div>
               </div>
               <a href="{{ tm.waLink }}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#e8f8ef;flex:0 0 auto;text-decoration:none;">
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
@@ -759,7 +759,7 @@
             <sc-for list="{{ leaveHistoryItems }}" as="rh" hint-placeholder-count="3">
             <div style="padding:12px 15px;border-bottom:1px solid #f2f4f7;">
               <div style="display:flex;align-items:flex-start;gap:10px;">
-                <div style="flex:1;min-width:0;">
+                <div class="flex-fill">
                   <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;">
                     <span style="font-size:13px;font-weight:600;color:#161f30;">{{ rh.typeLabel }}</span>
                     <span style="font-size:11px;color:#8a94a3;font-weight:500;">· {{ rh.dateLabel }}</span>
@@ -788,7 +788,7 @@
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
               </div>
               <div style="font-size:14px;font-weight:600;color:#5c6678;margin-bottom:4px;">No requests yet</div>
-              <div style="font-size:12.5px;color:#9aa3b2;">MC, leave, and shift change requests will appear here.</div>
+              <div class="text-muted">MC, leave, and shift change requests will appear here.</div>
             </div>
             </sc-if>
           </div>
@@ -836,7 +836,7 @@
             <sc-if value="{{ !cycleNotStarted }}" hint-placeholder-val="">
               <div style="padding:12px 15px;">
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:7px;">
-                  <span style="font-size:11.5px;color:#8a94a3;">Attendance rate</span>
+                  <span class="text-hint">Attendance rate</span>
                   <span style="font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:700;color:#1f8a5b;">{{ attendanceRateText }}</span>
                 </div>
                 <div style="height:6px;border-radius:6px;background:#eef0f4;overflow:hidden;"><div style="height:100%;width:{{ cyclePct }}%;background:{{ accent }};border-radius:6px;"></div></div>
@@ -929,7 +929,7 @@
               <div style="padding:36px 16px;text-align:center;">
                 <div style="width:44px;height:44px;border-radius:50%;background:#f0f2f5;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="3" x2="8" y2="6"/><line x1="16" y1="3" x2="16" y2="6"/></svg></div>
                 <div style="font-size:14px;font-weight:600;color:#5c6678;margin-bottom:4px;">No records yet</div>
-                <div style="font-size:12.5px;color:#9aa3b2;">Your attendance will appear here once you start checking in.</div>
+                <div class="text-muted">Your attendance will appear here once you start checking in.</div>
               </div>
             </sc-if>
           </div>
@@ -1143,7 +1143,7 @@
             <sc-if value="{{ showLateAlert }}" hint-placeholder-val="">
             <div style="background:#fdf6e9;border:1px solid #f0e2c2;border-radius:12px;padding:11px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;">
               <div style="width:34px;height:34px;border-radius:50%;background:#f7efdc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg></div>
-              <div style="flex:1;min-width:0;">
+              <div class="flex-fill">
                 <div style="font-size:13px;font-weight:700;color:#b9791a;">{{ lateAlertLabel }}</div>
                 <div style="font-size:12px;color:#8a6d2a;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ lateNames }}</div>
               </div>
@@ -1154,7 +1154,7 @@
             <div class="card-flush" style="margin-bottom:14px;">
               <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;justify-content:space-between;align-items:center;">
                 <div style="display:flex;align-items:center;gap:7px;">
-                  <span style="font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">{{ viewListHeader }}</span>
+                  <span class="text-label">{{ viewListHeader }}</span>
                   <sc-if value="{{ viewIsToday }}" hint-placeholder-val="">
                     <span style="background:#e7f3ec;color:#1f8a5b;font-size:9.5px;font-weight:700;padding:2px 6px;border-radius:7px;letter-spacing:.06em;display:flex;align-items:center;gap:4px;"><span style="width:5px;height:5px;border-radius:50%;background:#1f8a5b;display:inline-block;"></span>LIVE</span>
                   </sc-if>
@@ -1165,7 +1165,7 @@
                 <div class="row-item" style="flex-wrap:wrap;">
                   <div style="display:flex;align-items:center;gap:12px;width:100%;">
                     <div class="avatar-md" style="{{ row.avatarStyle }}">{{ row.initials }}</div>
-                    <div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div><div style="font-size:11.5px;color:#8a94a3;">{{ row.shiftLabel }}</div></div>
+                    <div class="flex-fill"><div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div><div class="text-hint">{{ row.shiftLabel }}</div></div>
                     <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a94a3;">{{ row.timeText }}</span>
                     <span class="badge" style="color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
                   </div>
@@ -1182,7 +1182,7 @@
                 <div style="width:36px;height:36px;border-radius:10px;background:#eef3fc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2f5fd0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3z"/><line x1="12" y1="20" x2="12" y2="20.01"/></svg>
                 </div>
-                <div style="flex:1;min-width:0;">
+                <div class="flex-fill">
                   <div style="font-size:13.5px;font-weight:600;color:#161f30;">Post notice</div>
                   <div style="font-size:11.5px;color:{{ broadcastSubColor }};margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ broadcastSubText }}</div>
                 </div>
@@ -1193,7 +1193,7 @@
                 <div style="width:36px;height:36px;border-radius:10px;background:#e9faf2;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="#25d366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                 </div>
-                <div style="flex:1;min-width:0;">
+                <div class="flex-fill">
                   <div style="font-size:13.5px;font-weight:600;color:#161f30;">Share roll call</div>
                   <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;">Edit and send via WhatsApp</div>
                 </div>
@@ -1217,7 +1217,7 @@
           <div class="card-flush">
             <sc-if value="{{ showRepToggle }}" hint-placeholder-val="{{ true }}">
             <div style="padding:14px 16px;border-bottom:1px solid #f0f2f5;display:flex;justify-content:space-between;align-items:center;gap:12px;">
-              <div style="flex:1;min-width:0;">
+              <div class="flex-fill">
                 <div style="font-size:13.5px;font-weight:600;color:#161f30;">No-reporting day</div>
                 <div style="font-size:12px;color:#8a94a3;margin-top:1px;">{{ noRepMsg }}</div>
               </div>
@@ -1227,7 +1227,7 @@
             </div>
             </sc-if>
             <button onClick="{{ openNoReportBulk }}" style="-webkit-appearance:none;width:100%;padding:14px 16px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left;">
-              <div style="flex:1;min-width:0;">
+              <div class="flex-fill">
                 <div style="font-size:13.5px;font-weight:600;color:#161f30;">Set no-report days</div>
                 <div style="font-size:12px;color:#8a94a3;margin-top:1px;">Add multiple dates at once</div>
               </div>
@@ -1286,7 +1286,7 @@
             <div style="{{ row.cardStyle }}">
               <div onClick="{{ row.onViewHistory }}" style="display:flex;align-items:center;gap:10px;margin-bottom:9px;cursor:pointer;">
                 <div class="avatar-sm" style="flex:0 0 auto;{{ row.avatarStyle }}">{{ row.initials }}</div>
-                <div style="flex:1;min-width:0;"><div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div><div style="font-size:11.5px;color:#8a94a3;">{{ row.shiftLabel }}</div></div>
+                <div class="flex-fill"><div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div><div class="text-hint">{{ row.shiftLabel }}</div></div>
                 <span class="badge" style="color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
               </div>
               <sc-if value="{{ row.lowAttendance }}" hint-placeholder-val="">
@@ -1322,14 +1322,14 @@
             <div style="padding:36px 20px;text-align:center;">
               <div style="width:44px;height:44px;border-radius:50%;background:#f0f2f5;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
               <div style="font-size:14px;font-weight:600;color:#5c6678;margin-bottom:4px;">No results</div>
-              <div style="font-size:12.5px;color:#9aa3b2;">No one matches "{{ rosterSearch }}".</div>
+              <div class="text-muted">No one matches "{{ rosterSearch }}".</div>
             </div>
           </sc-if>
           <sc-if value="{{ rosterEmpty }}" hint-placeholder-val="">
             <div style="padding:36px 20px;text-align:center;">
               <div style="width:44px;height:44px;border-radius:50%;background:#f0f2f5;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
               <div style="font-size:14px;font-weight:600;color:#5c6678;margin-bottom:4px;">No one on the roster</div>
-              <div style="font-size:12.5px;color:#9aa3b2;">Add personnel in the People tab to get started.</div>
+              <div class="text-muted">Add personnel in the People tab to get started.</div>
             </div>
           </sc-if>
           </sc-if>
@@ -1405,16 +1405,16 @@
               <div style="padding:36px 20px;text-align:center;">
                 <div style="width:44px;height:44px;border-radius:50%;background:#f0f2f5;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
                 <div style="font-size:14px;font-weight:600;color:#5c6678;margin-bottom:4px;">No records yet</div>
-                <div style="font-size:12.5px;color:#9aa3b2;">No personnel on the roster for this day.</div>
+                <div class="text-muted">No personnel on the roster for this day.</div>
               </div>
             </sc-if>
             <sc-for list="{{ logRows }}" as="row" hint-placeholder-count="6">
               <div style="padding:11px 14px;border-bottom:1px solid #f2f4f7;">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
                   <div class="avatar-sm" style="{{ row.avatarStyle }}">{{ row.initials }}</div>
-                  <div style="flex:1;min-width:0;">
+                  <div class="flex-fill">
                     <div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div>
-                    <div style="font-size:11.5px;color:#8a94a3;">{{ row.shiftLabel }}</div>
+                    <div class="text-hint">{{ row.shiftLabel }}</div>
                   </div>
                   <span class="badge" style="color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
                   <button onClick="{{ row.onEditLogNote }}" style="-webkit-appearance:none;padding:4px 7px;background:#f0f2f7;border:1px solid #e3e6ec;border-radius:7px;cursor:pointer;flex:0 0 auto;color:{{ row.logNoteIconColor }};" title="Add note for reservist"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></button>
@@ -1548,12 +1548,12 @@
           <!-- ── REQUESTS sub-tab ── -->
           <sc-if value="{{ ptRequests }}" hint-placeholder-val="">
           <sc-if value="{{ !pendingSignupsLoaded }}" hint-placeholder-val="">
-            <div style="padding:28px 16px;text-align:center;"><div style="width:20px;height:20px;border:2.5px solid #eceef2;border-top-color:#8a94a3;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto;"></div></div>
+            <div style="padding:28px 16px;text-align:center;"><div class="spinner"></div></div>
           </sc-if>
           <sc-if value="{{ hasPendingSignups }}" hint-placeholder-val="">
           <div class="card-flush" style="margin-bottom:14px;">
             <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
-              <span style="font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">PENDING SIGNUPS</span>
+              <span class="text-label">PENDING SIGNUPS</span>
               <span style="background:#c0392b;color:#fff;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:20px;">{{ pendingSignupCount }}</span>
               <sc-if value="{{ hasSelectedSignups }}" hint-placeholder-val="">
                 <button onClick="{{ onApproveSelected }}" style="-webkit-appearance:none;margin-left:auto;padding:6px 12px;background:#161f30;border:none;color:#fff;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Approve selected ({{ selectedSignupCount }})</button>
@@ -1575,7 +1575,7 @@
                   </sc-if>
                 </div>
                 <div style="width:34px;height:34px;border-radius:50%;background:#eceef2;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#5c6678;flex:0 0 auto;">{{ sr.initials }}</div>
-                <div style="flex:1;min-width:0;">
+                <div class="flex-fill">
                   <div style="font-size:13px;font-weight:600;color:#161f30;">{{ sr.name }}</div>
                   <div style="font-size:11px;color:#8a94a3;margin-top:1px;">{{ sr.contact }} · {{ sr.shift }} · {{ sr.batchLabel }} · {{ sr.createdAt }}</div>
                 </div>
@@ -1595,12 +1595,12 @@
           </div>
           </sc-if>
           <sc-if value="{{ !pendingLeavesLoaded }}" hint-placeholder-val="">
-            <div style="padding:28px 16px;text-align:center;"><div style="width:20px;height:20px;border:2.5px solid #eceef2;border-top-color:#8a94a3;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto;"></div></div>
+            <div style="padding:28px 16px;text-align:center;"><div class="spinner"></div></div>
           </sc-if>
           <sc-if value="{{ hasPendingLeaves }}" hint-placeholder-val="">
           <div class="card-flush" style="margin-bottom:14px;">
             <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
-              <span style="font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">PENDING REQUESTS</span>
+              <span class="text-label">PENDING REQUESTS</span>
               <span style="background:#c0392b;color:#fff;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:20px;">{{ pendingLeavesCount }}</span>
             </div>
             <div style="padding:10px 14px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
@@ -1617,7 +1617,7 @@
                   <sc-if value="{{ lr.isSelected }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></sc-if>
                 </div>
                 <div class="avatar-sm" style="flex:0 0 auto;">{{ lr.initials }}</div>
-                <div style="flex:1;min-width:0;">
+                <div class="flex-fill">
                   <div style="display:flex;align-items:center;gap:6px;">
                     <span style="font-size:13px;font-weight:600;color:#161f30;">{{ lr.personName }}</span>
                     <sc-if value="{{ lr.isExpired }}" hint-placeholder-val=""><span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;background:#f2f4f7;color:#8a94a3;border:1px solid #d4d9e2;white-space:nowrap;">Expired</span></sc-if>
@@ -1677,7 +1677,7 @@
             <div style="padding:40px 20px;text-align:center;">
               <div style="width:44px;height:44px;border-radius:50%;background:#f0f2f5;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
               <div style="font-size:14px;font-weight:600;color:#5c6678;margin-bottom:4px;">All clear</div>
-              <div style="font-size:12.5px;color:#9aa3b2;">No pending signups or leave requests.</div>
+              <div class="text-muted">No pending signups or leave requests.</div>
             </div>
           </sc-if>
           </sc-if>
@@ -1687,7 +1687,7 @@
           <div style="background:#131a27;border-radius:16px;padding:16px 18px;color:#fff;margin-bottom:14px;">
             <sc-if value="{{ !editingBatchLabel }}" hint-placeholder-val="">
               <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
-                <div style="flex:1;min-width:0;">
+                <div class="flex-fill">
                   <div style="display:flex;align-items:center;gap:7px;margin-bottom:7px;">
                     <span style="font-size:10.5px;font-weight:700;letter-spacing:.07em;padding:3px 9px;border-radius:20px;background:{{ editTargetIsLive ? '#22c55e' : (editTargetStatus === 'PAST' ? 'rgba(255,255,255,.1)' : 'rgba(47,95,208,.5)') }};color:{{ editTargetIsLive ? '#fff' : (editTargetStatus === 'PAST' ? '#8a94a3' : '#a8c0f8') }};">{{ editTargetStatus }}</span>
                   </div>
@@ -1719,7 +1719,7 @@
           </div>
           <div class="card-flush" style="margin-bottom:14px;">
             <div style="padding:13px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;justify-content:space-between;">
-              <span style="font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em;">PERSONNEL</span>
+              <span class="text-label">PERSONNEL</span>
               <div style="display:flex;align-items:center;gap:8px;">
                 <span style="font-size:12px;color:#8a94a3;">{{ statTotal }} on roster</span>
                 <button onClick="{{ openBulkAdd }}" title="Bulk add" style="padding:4px 9px;border-radius:7px;border:1px solid #d4d9e2;background:#f6f8fa;cursor:pointer;font-size:11px;font-weight:600;color:#5c6678;display:inline-flex;align-items:center;gap:4px;">
@@ -1735,9 +1735,9 @@
               <div style="border-bottom:1px solid #f2f4f7;padding:12px 16px;">
                 <div style="display:flex;align-items:center;gap:12px;">
                   <div class="avatar-sm" style="{{ p.avatarStyle }}">{{ p.avatarInitials }}</div>
-                  <div style="flex:1;min-width:0;">
+                  <div class="flex-fill">
                     <div style="font-size:14px;font-weight:600;color:#161f30;">{{ p.name }}</div>
-                    <div style="font-size:11.5px;color:#8a94a3;">{{ p.contact }}</div>
+                    <div class="text-hint">{{ p.contact }}</div>
                     <sc-if value="{{ p.showApprovedBy }}" hint-placeholder-val=""><div style="font-size:10.5px;color:#1f8a5b;margin-top:2px;font-weight:600;">✓ Approved by {{ p.approvedBy }}</div></sc-if>
                     <sc-if value="{{ p.notes }}" hint-placeholder-val=""><div style="font-size:11.5px;color:#5c6678;margin-top:2px;font-style:italic;">{{ p.notes }}</div></sc-if>
                     <sc-if value="{{ p.showStats }}" hint-placeholder-val="">
@@ -1783,7 +1783,7 @@
               <div style="padding:36px 20px;text-align:center;">
                 <div style="width:44px;height:44px;border-radius:50%;background:#f0f2f5;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/><line x1="20" y1="8" x2="20" y2="14"/></svg></div>
                 <div style="font-size:14px;font-weight:600;color:#5c6678;margin-bottom:4px;">No one added yet</div>
-                <div style="font-size:12.5px;color:#9aa3b2;">Tap the + button above to add personnel to this cycle.</div>
+                <div class="text-muted">Tap the + button above to add personnel to this cycle.</div>
               </div>
             </sc-if>
           </div>
@@ -1809,9 +1809,9 @@
             <div class="row-item" style="flex-direction:column;align-items:stretch;gap:0;padding:10px 16px;">
               <div style="display:flex;align-items:center;gap:10px;">
                 <div class="avatar-md" style="background:#161f30;color:#fff;font-size:11px;flex:0 0 auto;">{{ adm.initials }}</div>
-                <div style="flex:1;min-width:0;">
+                <div class="flex-fill">
                   <div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ adm.name }}</div>
-                  <div style="font-size:11.5px;color:#8a94a3;">{{ adm.contact }} · <span style="color:{{ adm.isMaster ? '#b9791a' : '#5c6678' }};font-weight:600;">{{ adm.roleLabel }}</span></div>
+                  <div class="text-hint">{{ adm.contact }} · <span style="color:{{ adm.isMaster ? '#b9791a' : '#5c6678' }};font-weight:600;">{{ adm.roleLabel }}</span></div>
                 </div>
                 <sc-if value="{{ adm.canDeactivate }}">
                   <sc-if value="{{ !adm.isConfirming }}">
@@ -1836,7 +1836,7 @@
               <div style="width:40px;height:40px;border-radius:11px;background:#f0f2f7;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><polyline points="16 11 18 13 22 9"/></svg>
               </div>
-              <div style="flex:1;min-width:0;">
+              <div class="flex-fill">
                 <div style="font-size:13.5px;font-weight:600;color:#161f30;">Promote to admin</div>
                 <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;">Convert a reservist to an admin account</div>
               </div>
@@ -1846,7 +1846,7 @@
               <div style="width:40px;height:40px;border-radius:11px;background:#f0f2f7;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>
               </div>
-              <div style="flex:1;min-width:0;">
+              <div class="flex-fill">
                 <div style="font-size:13.5px;font-weight:600;color:#161f30;">Add admin</div>
                 <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;">Create a new admin account directly</div>
               </div>
@@ -2025,7 +2025,7 @@
 
     <!-- ===== ADD PERSONNEL SHEET ===== -->
     <sc-if value="{{ addPersonnelOpen }}" hint-placeholder-val="">
-    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
+    <div class="modal-overlay">
       <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:22px 20px 34px;box-shadow:0 -8px 32px rgba(20,30,50,.18);box-sizing:border-box;max-height:88vh;overflow-y:auto;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
           <div style="font-size:16px;font-weight:700;color:#161f30;">Add personnel</div>
@@ -2065,7 +2065,7 @@
 
     <!-- ===== ADD ADMIN POPUP ===== -->
     <sc-if value="{{ addAdminOpen }}" hint-placeholder-val="">
-    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
+    <div class="modal-overlay">
       <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:22px 20px 34px;box-shadow:0 -8px 32px rgba(20,30,50,.18);box-sizing:border-box;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
           <div style="font-size:16px;font-weight:700;color:#161f30;">Add admin</div>
@@ -2085,7 +2085,7 @@
 
     <!-- ===== PROMOTE ADMIN POPUP ===== -->
     <sc-if value="{{ promoteAdminOpen }}" hint-placeholder-val="">
-    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
+    <div class="modal-overlay">
       <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:22px 20px 34px;box-shadow:0 -8px 32px rgba(20,30,50,.18);box-sizing:border-box;max-height:88vh;overflow-y:auto;">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
           <div style="font-size:16px;font-weight:700;color:#161f30;">Promote to admin</div>
@@ -2107,9 +2107,9 @@
             <sc-for list="{{ promoteFilteredList }}" as="pr">
               <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:1px solid #f0f2f5;cursor:pointer;" onClick="{{ pr.onSelect }}">
                 <div style="width:32px;height:32px;border-radius:50%;background:#eceef2;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#5c6678;flex:0 0 auto;{{ pr.avatarStyle }}">{{ pr.initials }}</div>
-                <div style="flex:1;min-width:0;">
+                <div class="flex-fill">
                   <div style="font-size:13.5px;font-weight:600;color:#161f30;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">{{ pr.name }}</div>
-                  <div style="font-size:11.5px;color:#8a94a3;">{{ pr.contact }}{{ pr.batchLabel ? ' · ' + pr.batchLabel : '' }}</div>
+                  <div class="text-hint">{{ pr.contact }}{{ pr.batchLabel ? ' · ' + pr.batchLabel : '' }}</div>
                 </div>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c4c9d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><polyline points="9 18 15 12 9 6"/></svg>
               </div>
@@ -2125,7 +2125,7 @@
         </sc-if>
         <sc-if value="{{ promoteAdminId }}" hint-placeholder-val="">
           <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#eef3fc;border:1px solid #d7e2f7;border-radius:9px;margin-bottom:10px;">
-            <div style="flex:1;min-width:0;">
+            <div class="flex-fill">
               <div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ promoteAdminTargetName }}</div>
               <div style="font-size:12px;color:#5c6678;">{{ promoteAdminTargetContact }}</div>
             </div>
@@ -2161,7 +2161,7 @@
 
     <!-- ===== LATE REASON MODAL ===== -->
     <sc-if value="{{ lateReasonOpen }}" hint-placeholder-val="">
-    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
+    <div class="modal-overlay">
       <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:22px 20px 34px;box-shadow:0 -8px 32px rgba(20,30,50,.18);">
         <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">
           <div style="width:42px;height:42px;border-radius:50%;background:#fef3e2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -2189,7 +2189,7 @@
 
     <!-- ===== MISSED NOTE MODAL ===== -->
     <sc-if value="{{ missedNoteOpen }}" hint-placeholder-val="">
-    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
+    <div class="modal-overlay">
       <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:22px 20px 34px;box-shadow:0 -8px 32px rgba(20,30,50,.18);">
         <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">
           <div style="width:42px;height:42px;border-radius:50%;background:#f0f2f5;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
@@ -2209,14 +2209,14 @@
 
     <!-- ===== WHATSAPP PREVIEW MODAL ===== -->
     <sc-if value="{{ waPreviewOpen }}" hint-placeholder-val="">
-    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
+    <div class="modal-overlay">
       <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 36px;box-shadow:0 -8px 32px rgba(20,30,50,.18);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
           <div style="display:flex;align-items:center;gap:9px;">
             <div style="width:32px;height:32px;border-radius:9px;background:#25d366;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></div>
             <div style="font-size:17px;font-weight:700;color:#161f30;">Roll call message</div>
           </div>
-          <button onClick="{{ closeWaPreview }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          <button onClick="{{ closeWaPreview }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
         <p style="font-size:12.5px;color:#5c6678;margin:0 0 12px;line-height:1.5;">Edit the message before sending. Tap Send to open WhatsApp.</p>
         <textarea onInput="{{ onWaPreviewText }}" value="{{ waPreviewText }}" style="width:100%;height:160px;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;resize:none;outline:none;box-sizing:border-box;line-height:1.6;color:#161f30;" rows="6"></textarea>
@@ -2228,11 +2228,11 @@
 
     <!-- ===== WELFARE NOTE MODAL ===== -->
     <sc-if value="{{ welfareNoteOpen }}" hint-placeholder-val="">
-    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
+    <div class="modal-overlay">
       <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 36px;box-shadow:0 -8px 32px rgba(20,30,50,.18);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
           <div style="font-size:17px;font-weight:700;color:#161f30;">Daily note</div>
-          <button onClick="{{ closeWelfareNote }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          <button onClick="{{ closeWelfareNote }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
         <p style="font-size:13px;color:#5c6678;margin:0 0 14px;line-height:1.5;">Add a brief note for today. Your supervisor will be able to see it.</p>
         <textarea onInput="{{ onWelfareNoteText }}" value="{{ welfareNoteText }}" placeholder="e.g. Feeling unwell but reporting. Slight headache." style="width:100%;height:90px;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>
@@ -2244,11 +2244,11 @@
 
     <!-- ===== LEAVE REQUEST MODAL ===== -->
     <sc-if value="{{ leaveOpen }}" hint-placeholder-val="">
-    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
+    <div class="modal-overlay">
       <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 36px;box-shadow:0 -8px 32px rgba(20,30,50,.18);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
           <div style="font-size:17px;font-weight:700;color:#161f30;">Request absence</div>
-          <button onClick="{{ closeLeaveRequest }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          <button onClick="{{ closeLeaveRequest }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
         <p style="font-size:13px;color:#5c6678;margin:0 0 16px;line-height:1.5;">Submit an absence request for review by the admin. It does not automatically mark you absent.</p>
         <div style="margin-bottom:12px;">
@@ -2278,11 +2278,11 @@
 
     <!-- ===== SHIFT CHANGE MODAL ===== -->
     <sc-if value="{{ shiftChangeOpen }}" hint-placeholder-val="">
-    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
+    <div class="modal-overlay">
       <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 36px;box-shadow:0 -8px 32px rgba(20,30,50,.18);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
           <div style="font-size:17px;font-weight:700;color:#161f30;">Request shift change</div>
-          <button onClick="{{ closeShiftChange }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          <button onClick="{{ closeShiftChange }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
         <sc-if value="{{ showShiftChangeForm }}" hint-placeholder-val="{{ true }}">
         <p style="font-size:13px;color:#5c6678;margin:0 0 16px;line-height:1.5;">Request to change your assigned shift. The admin will review and approve or decline.</p>
@@ -2324,7 +2324,7 @@
 
     <!-- ===== PERSON HISTORY MODAL ===== -->
     <sc-if value="{{ personHistoryOpen }}" hint-placeholder-val="">
-    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
+    <div class="modal-overlay">
       <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 -8px 32px rgba(20,30,50,.18);">
         <div style="padding:20px 20px 14px;border-bottom:1px solid #f0f2f6;display:flex;justify-content:space-between;align-items:center;flex:0 0 auto;">
           <div>
@@ -2333,7 +2333,7 @@
           </div>
           <div style="display:flex;align-items:center;gap:4px;">
             <button onClick="{{ exportPersonHistory }}" style="background:none;border:none;cursor:pointer;padding:5px 8px;color:#5c6678;display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;border-radius:7px;border:1px solid #e3e6ec;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>XLS</button>
-            <button onClick="{{ closePersonHistory }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            <button onClick="{{ closePersonHistory }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
           </div>
         </div>
         <div style="overflow-y:auto;flex:1;padding:6px 0 24px;">
@@ -2344,7 +2344,7 @@
             <sc-for list="{{ personHistoryRows }}" as="hr">
               <div style="display:flex;align-items:center;gap:10px;padding:9px 20px;border-bottom:1px solid #f2f4f7;">
                 <span class="badge" style="color:{{ hr.color }};background:{{ hr.bg }};flex:0 0 auto;">{{ hr.label }}</span>
-                <div style="flex:1;min-width:0;">
+                <div class="flex-fill">
                   <div style="font-size:13px;font-weight:500;color:#161f30;">{{ hr.dateLabel }}</div>
                   <sc-if value="{{ hr.adminCorrected }}" hint-placeholder-val="">
                     <div style="display:flex;align-items:center;gap:4px;margin-top:2px;">
@@ -2389,12 +2389,12 @@
 
     <!-- ===== ADMIN: MEMBER SEARCH / DELETE MODAL ===== -->
     <sc-if value="{{ memberSearchOpen }}" hint-placeholder-val="">
-    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
-      <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 -8px 32px rgba(20,30,50,.18);">
+    <div class="modal-overlay">
+      <div class="sheet">
         <div style="padding:18px 20px 12px;border-bottom:1px solid #f0f2f6;flex:0 0 auto;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
             <div style="font-size:16px;font-weight:700;color:#161f30;">All Members</div>
-            <button onClick="{{ closeMemberSearch }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+            <button onClick="{{ closeMemberSearch }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
           </div>
           <div style="position:relative;margin-bottom:10px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -2414,11 +2414,11 @@
         </div>
         <div style="overflow-y:auto;flex:1;padding:6px 0 24px;">
           <sc-if value="{{ !memberSearchLoaded }}" hint-placeholder-val="">
-            <div style="padding:32px;text-align:center;"><div style="width:20px;height:20px;border:2.5px solid #eceef2;border-top-color:#8a94a3;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto;"></div></div>
+            <div style="padding:32px;text-align:center;"><div class="spinner"></div></div>
           </sc-if>
           <sc-if value="{{ memberSearchLoaded }}" hint-placeholder-val="">
             <sc-if value="{{ memberSearchEmpty }}" hint-placeholder-val="">
-              <div style="padding:36px 16px;text-align:center;font-size:13px;color:#9aa3b2;">No members found.</div>
+              <div class="empty-state">No members found.</div>
             </sc-if>
             <sc-for list="{{ memberSearchRows }}" as="m">
               <div style="padding:10px 20px;border-bottom:1px solid #f2f4f7;">
@@ -2428,9 +2428,9 @@
                       <sc-if value="{{ m.isSelected }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></sc-if>
                     </div>
                     <div class="avatar-sm" style="flex:0 0 auto;font-size:11px;">{{ m.initials }}</div>
-                    <div style="flex:1;min-width:0;">
+                    <div class="flex-fill">
                       <div style="font-size:13px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ m.name }}</div>
-                      <div style="font-size:11.5px;color:#8a94a3;">{{ m.shiftLabel }} · {{ m.batchLabel }}</div>
+                      <div class="text-hint">{{ m.shiftLabel }} · {{ m.batchLabel }}</div>
                     </div>
                     <span style="font-size:10.5px;font-weight:600;padding:2px 8px;border-radius:20px;color:{{ m.statusColor }};background:{{ m.statusBg }};flex:0 0 auto;">{{ m.statusLabel }}</span>
                     <button onClick="{{ m.onAskDelete }}" style="background:none;border:none;cursor:pointer;padding:5px;color:#c0392b;flex:0 0 auto;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
@@ -2486,14 +2486,14 @@
 
     <!-- ===== ADMIN: RESET PASSWORD MODAL ===== -->
     <sc-if value="{{ resetPwOpen }}" hint-placeholder-val="">
-    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
+    <div class="modal-overlay">
       <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 36px;box-shadow:0 -8px 32px rgba(20,30,50,.18);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
           <div>
             <div style="font-size:17px;font-weight:700;color:#161f30;">Reset password</div>
             <div style="font-size:12.5px;color:#8a94a3;margin-top:3px;">{{ resetPwPersonName }}</div>
           </div>
-          <button onClick="{{ closeResetPw }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          <button onClick="{{ closeResetPw }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
         <div style="font-size:11.5px;font-weight:600;color:#8a94a3;letter-spacing:.06em;margin-bottom:6px;">NEW TEMPORARY PASSWORD</div>
         <input type="password" value="{{ resetPwNew }}" onInput="{{ onResetPwNew }}" placeholder="Min. 6 characters" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:9px;font-size:15px;background:#f6f8fa;outline:none;box-sizing:border-box;margin-bottom:14px;" />
@@ -2506,11 +2506,11 @@
 
     <!-- ===== ADMIN: BROADCAST NOTICE MODAL ===== -->
     <sc-if value="{{ broadcastOpen }}" hint-placeholder-val="">
-    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
+    <div class="modal-overlay">
       <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 36px;box-shadow:0 -8px 32px rgba(20,30,50,.18);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
           <div style="font-size:17px;font-weight:700;color:#161f30;">Post notice</div>
-          <button onClick="{{ closeBroadcast }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          <button onClick="{{ closeBroadcast }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
         <p style="font-size:13px;color:#5c6678;margin:0 0 14px;line-height:1.5;">Type a message to show as a banner on every reservist's check-in screen. Leave blank to clear the current notice.</p>
         <textarea onInput="{{ onBroadcastText }}" value="{{ broadcastText }}" placeholder="e.g. Welfare test tomorrow. All to report by 0800." style="width:100%;height:90px;padding:12px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;margin-bottom:16px;" rows="4"></textarea>
@@ -2522,11 +2522,11 @@
 
     <!-- ===== ADMIN: NO-REPORT BULK MODAL ===== -->
     <sc-if value="{{ noReportBulkOpen }}" hint-placeholder-val="">
-    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
+    <div class="modal-overlay">
       <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 36px;box-shadow:0 -8px 32px rgba(20,30,50,.18);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
           <div style="font-size:17px;font-weight:700;color:#161f30;">Set no-report days</div>
-          <button onClick="{{ closeNoReportBulk }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          <button onClick="{{ closeNoReportBulk }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
         <p style="font-size:13px;color:#5c6678;margin:0 0 14px;line-height:1.5;">Enter dates separated by commas or one per line. Use dd/mm/yyyy or yyyy-mm-dd format.</p>
         <textarea onInput="{{ onNoReportBulkText }}" value="{{ noReportBulkText }}" placeholder="01/07/2026, 08/07/2026&#10;15/07/2026" style="width:100%;height:110px;padding:12px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:'IBM Plex Mono',monospace;font-size:13px;resize:none;outline:none;box-sizing:border-box;margin-bottom:16px;" rows="4"></textarea>
@@ -2538,11 +2538,11 @@
 
     <!-- ===== ADMIN: BULK ADD PERSONNEL MODAL ===== -->
     <sc-if value="{{ bulkAddOpen }}" hint-placeholder-val="">
-    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
+    <div class="modal-overlay">
       <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 34px;box-shadow:0 -8px 32px rgba(20,30,50,.18);box-sizing:border-box;max-height:88vh;overflow-y:auto;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
           <div style="font-size:17px;font-weight:700;color:#161f30;">Bulk add personnel</div>
-          <button onClick="{{ closeBulkAdd }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          <button onClick="{{ closeBulkAdd }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
         <sc-if value="{{ bulkAddIsInput }}" hint-placeholder-val="{{ true }}">
           <p style="font-size:13px;color:#5c6678;margin:0 0 12px;line-height:1.5;">One person per line: <strong>Name, Contact, Shift</strong>. Shift is optional and defaults to AM.</p>
@@ -2556,9 +2556,9 @@
             <sc-for list="{{ bulkAddParsed }}" as="br">
               <div style="display:flex;align-items:center;gap:10px;padding:9px 14px;border-bottom:1px solid #eef0f4;">
                 <span style="font-size:12px;font-weight:700;flex:0 0 auto;width:28px;color:{{ br.validColor }};">{{ br.validLabel }}</span>
-                <div style="flex:1;min-width:0;">
+                <div class="flex-fill">
                   <div style="font-size:13px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ br.name }}</div>
-                  <div style="font-size:11.5px;color:#8a94a3;">{{ br.contact }} · {{ br.shiftDisplay }}</div>
+                  <div class="text-hint">{{ br.contact }} · {{ br.shiftDisplay }}</div>
                 </div>
               </div>
             </sc-for>
@@ -2574,11 +2574,11 @@
 
     <!-- ===== HELP & FAQ MODAL ===== -->
     <sc-if value="{{ helpOpen }}" hint-placeholder-val="">
-    <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end;">
+    <div class="modal-overlay">
       <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;max-height:86vh;display:flex;flex-direction:column;box-shadow:0 -8px 32px rgba(20,30,50,.18);">
         <div style="padding:20px 20px 14px;border-bottom:1px solid #f0f2f6;display:flex;justify-content:space-between;align-items:center;flex:0 0 auto;">
           <div style="font-size:17px;font-weight:700;color:#161f30;">Help &amp; FAQ</div>
-          <button onClick="{{ closeHelp }}" style="background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+          <button onClick="{{ closeHelp }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
         <div style="overflow-y:auto;flex:1;padding:12px 20px 32px;">
           <sc-if value="{{ isReservistRole }}" hint-placeholder-val="{{ true }}">

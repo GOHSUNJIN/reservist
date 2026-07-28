@@ -74,3 +74,51 @@ button:active{transform:scale(.97);transition:transform .08s;}
 /* ── Toast ────────────────────────────────────────────────────────────────── */
 .toast-wrap{animation:fadeSlideDown .22s ease;}
 
+/* ── Extracted utility classes ─────────────────────────────────────────────── */
+
+/* Layout */
+.modal-overlay       { position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:300;display:flex;align-items:flex-end; }
+.flex-fill           { flex:1;min-width:0; }
+.flex-shrink-none    { flex:0 0 auto; }
+.flex-row            { display:flex;align-items:center; }
+.flex-row-between    { display:flex;align-items:center;justify-content:space-between; }
+.flex-col            { display:flex;flex-direction:column; }
+.gap-6               { gap:6px; }
+.gap-8               { gap:8px; }
+.gap-10              { gap:10px; }
+.gap-12              { gap:12px; }
+
+/* Typography */
+.text-label          { font-size:12px;font-weight:600;color:#8a94a3;letter-spacing:.06em; }
+.text-hint           { font-size:11.5px;color:#8a94a3; }
+.text-hint-sm        { font-size:11px;color:#8a94a3; }
+.text-muted          { font-size:12.5px;color:#9aa3b2; }
+.text-body           { font-size:13px;color:#5c6678;line-height:1.55; }
+.text-semibold       { font-size:13px;font-weight:600;color:#161f30; }
+.text-bold           { font-size:13.5px;font-weight:600;color:#161f30; }
+.text-title          { font-size:16px;font-weight:700;color:#161f30; }
+.text-title-lg       { font-size:17px;font-weight:700;color:#161f30; }
+
+/* Buttons */
+.btn-icon            { background:none;border:none;cursor:pointer;padding:4px;color:#8a94a3; }
+.btn-icon-sm         { background:none;border:none;cursor:pointer;padding:5px;color:#8a94a3; }
+
+/* Bottom sheets */
+.sheet               { width:100%;background:#fff;border-radius:20px 20px 0 0;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 -8px 32px rgba(20,30,50,.18); }
+.sheet-header        { padding:18px 20px 12px;border-bottom:1px solid #f0f2f6;flex:0 0 auto; }
+.sheet-body          { overflow-y:auto;flex:1; }
+
+/* Loading spinner */
+.spinner             { width:20px;height:20px;border:2.5px solid #eceef2;border-top-color:#8a94a3;border-radius:50%;animation:spin .7s linear infinite;margin:0 auto; }
+
+/* Empty state */
+.empty-state         { padding:36px 16px;text-align:center;font-size:13px;color:#9aa3b2; }
+.empty-state-lg      { padding:40px 20px;text-align:center; }
+
+/* Cards */
+.card-inset          { background:#f6f8fa;border-radius:11px;padding:13px 15px;margin-bottom:6px; }
+
+/* Dividers */
+.border-bottom       { border-bottom:1px solid #f2f4f7; }
+.border-bottom-light { border-bottom:1px solid #f0f2f6; }
+
