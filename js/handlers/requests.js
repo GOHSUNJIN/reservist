@@ -274,7 +274,10 @@ const RequestHandlers = {
   backShiftChange: function() { this.setState({shiftChangeConfirming:false}); },
 
   submitShiftChange: async function() {
-    const {currentUserId,shiftChangeNew,shiftChangeReason,demo,shiftChangeConfirming}=this.state;
+    const {currentUserId,shiftChangeNew,shiftChangeReason,demo,shiftChangeConfirming,myPendingRequest}=this.state;
+    const _me = this.cur();
+    if(shiftChangeNew === _me?.shift){ this._toast('You are already on '+shiftChangeNew+' shift.','error'); return; }
+    if(myPendingRequest){ this._toast('You already have a pending request. Wait for it to be reviewed first.','error'); return; }
     if(!shiftChangeReason.trim()){ this._toast('Please provide a reason for the shift change.','error'); return; }
     if(!shiftChangeConfirming){ this.setState({shiftChangeConfirming:true}); return; }
     if(!demo){

@@ -32,6 +32,10 @@ const AuthHandlers = {
     }
     const isLastDay = today === liveBatch.end_date;
     const nextBatch = isLastDay ? sortedBatches.find(b=>b.start_date>liveBatch.end_date) : null;
+    if(isLastDay && !nextBatch){
+      this.setState({authError:'Sign-ups for this cycle have closed. Please wait for the next cycle to open or contact your supervisor.'});
+      return;
+    }
     const activeBatch = nextBatch || liveBatch;
     const members = await DB.personnel.list(activeBatch.id).catch(()=>[]);
     const shift = this._capShift(suShift||'AM', members);
@@ -195,6 +199,7 @@ const AuthHandlers = {
     } catch(e) { refreshFailed = true; }
     if(refreshFailed) {
       await DB.auth.logout().catch(()=>{});
+      try { sessionStorage.removeItem('ops-auth'); } catch(e) {}
       this.setState({authed:false,role:null,authMode:'login',loading:false,authError:'Your session has expired. Please log in again.'});
       return;
     }

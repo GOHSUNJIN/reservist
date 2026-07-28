@@ -16,7 +16,7 @@ const InitHandlers = {
   },
 
   _afterLogin: async function(user) {
-    const me = await DB.personnel.get(user.id);
+    const me = await DB.personnel.get(user.id).catch(()=>null);
     if(!me){
       const req = await DB.signupRequests.getByAuthId(user.id).catch(()=>null);
       await DB.auth.logout();
