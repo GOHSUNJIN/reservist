@@ -27,7 +27,7 @@ const NavBuilders = {
       pendingSignupCount:s.pendingSignups.length,
       hasPendingSignups:s.pendingSignups.length>0,
       pendingSignupsLoaded:!!(s.pendingSignupsLoaded),
-      offlinePending:s.offlinePending,
+      offlinePending:s.offlinePending, offlineQueueCount:this._offlineQueues?.length||0,
     };
   },
 

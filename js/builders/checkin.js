@@ -256,6 +256,18 @@ const CheckinBuilders = {
       lateReasonEmpty:!(s.lateReasonText||'').trim(),
       lateReasonReady:!!(s.lateReasonText||'').trim()&&!s.lateReasonSubmitting,
       batchLabel, dekitCountdown, batchRange, showBatchInfo:!!activeBatch,
+      showCheckinReminder:!outOfCycle&&!noRep&&status==='pending'&&!s.demo&&(Utils.phaseInWindow(shift,'p1',now)||Utils.phaseWindowPast(shift,'p1',now)),
+      ...(()=>{
+        if(!myBatch) return {hasNextNoReportDay:false,nextNoReportLabel:''};
+        const tomorrow=Utils.addDays(todayD,1);
+        for(let d=new Date(tomorrow);Utils.dateKey(d)<=myBatch.end_date;d=Utils.addDays(d,1)){
+          const dk=Utils.dateKey(d);
+          if(Utils.isReportDay(d)&&!Utils.holidayName(d)&&s.noReportDays.has(dk)){
+            return {hasNextNoReportDay:true,nextNoReportLabel:Utils.fmtMed(d)};
+          }
+        }
+        return {hasNextNoReportDay:false,nextNoReportLabel:''};
+      })(),
       whatsappLink, showWaShare,
       isOffline:!s.isOnline, offlinePending:s.offlinePending, offlineQueueCount:this._offlineQueues?.length||0,
       retrySync:this.retrySync, refreshPage:this.refreshPage,
