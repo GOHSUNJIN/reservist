@@ -234,6 +234,8 @@ const RosterHandlers = {
       if (val && !validTime(val)) { this.setState({timesEditErrField:key}); this._toast('Times must be in HH:MM format (24h).','error'); return; }
     }
     if (timesEditP3 && !timesEditP2) { this.setState({timesEditErrField:'p2'}); this._toast(`${_isPM?'Dinner':'Lunch'} out time is required when recording a return.`,'error'); return; }
+    if (timesEditP4 && !timesEditP3) { this.setState({timesEditErrField:'p3'}); this._toast(`Return from ${_isPM?'dinner':'lunch'} time is required when recording checkout.`,'error'); return; }
+    if (timesEditP4 && !timesEditP2) { this.setState({timesEditErrField:'p2'}); this._toast(`${_isPM?'Dinner':'Lunch'} out time is required when recording checkout.`,'error'); return; }
     const _slots = [{t:timesEditP1,label:'Check-in',key:'p1'},{t:timesEditP2||null,label:_p2Label,key:'p2'},{t:timesEditP3||null,label:_p3Label,key:'p3'},{t:timesEditP4||null,label:'Check-out',key:'p4'}];
     let _prevMins=null, _prevLabel='';
     for(const sl of _slots){

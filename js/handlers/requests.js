@@ -295,6 +295,7 @@ const RequestHandlers = {
 
   submitWelfareNote: async function() {
     const {welfareNoteText, currentUserId, demo} = this.state;
+    if(welfareNoteText.trim().length > 1000){ this._toast('Note is too long (max 1000 characters).','error'); return; }
     this.setState({welfareNoteSaving:true});
     const today = Utils.dateKey(this.baseDate());
     if(!demo){

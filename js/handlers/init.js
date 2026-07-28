@@ -207,7 +207,7 @@ const InitHandlers = {
       const {start,end,dekit} = Utils.batchDatesFrom(nextTue);
       const startStr=Utils.dateKey(start), endStr=Utils.dateKey(end), dekitStr=Utils.dateKey(dekit);
       const sameYear = sorted.filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
-      const maxNum = sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0)),0);
+      const maxNum = sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0, 10)),0);
       const label = Utils.batchLabel(startStr, endStr, maxNum+1);
       const {data} = await DB.batches.create(label, startStr, endStr, dekitStr).catch(()=>({}));
       if(data){ sorted.push(data); }
@@ -236,7 +236,7 @@ const InitHandlers = {
       const {start,end,dekit} = Utils.batchDatesFrom(nextTue);
       const startStr=Utils.dateKey(start), endStr=Utils.dateKey(end), dekitStr=Utils.dateKey(dekit);
       const sameYear = sorted.filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
-      const maxNum = sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0)),0);
+      const maxNum = sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0, 10)),0);
       const label = Utils.batchLabel(startStr, endStr, maxNum+1);
       const {data} = await DB.batches.create(label, startStr, endStr, dekitStr).catch(()=>({}));
       if(data) sorted.push(data); else break;

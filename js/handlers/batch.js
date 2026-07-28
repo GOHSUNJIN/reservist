@@ -36,7 +36,7 @@ const BatchHandlers = {
     const {start:s,end:e,dekit:dk}=Utils.batchDatesFrom(start);
     const startStr=Utils.dateKey(s),endStr=Utils.dateKey(e),dekitStr=Utils.dateKey(dk);
     const sameYear=batches.filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
-    const maxNum=sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0)),0);
+    const maxNum=sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0, 10)),0);
     const label=Utils.batchLabel(startStr,endStr,maxNum+1);
     if(!demo){
       const {data,error}=await DB.batches.create(label,startStr,endStr,dekitStr);
@@ -83,6 +83,7 @@ const BatchHandlers = {
     const batch=batches[activeBatchIdx||0]; if(!batch) return;
     const allMembers=batch.is_live?personnel:(batchMembersCache[batch.id]||[]);
     const members=allMembers.filter(p=>p.role==='reservist'&&p.batch_id===batch.id);
+    if(!members.length){ this._toast('No reservists found in this cycle.','error'); return; }
     const start=new Date(batch.start_date+'T00:00:00'), end=new Date(batch.end_date+'T00:00:00');
     const dates=[];
     for(let d=new Date(start);d<=end;d=Utils.addDays(d,1)){
@@ -206,6 +207,7 @@ const BatchHandlers = {
     const batch=batches[activeBatchIdx||0]; if(!batch) return;
     const allMembers=batch.is_live?personnel:(batchMembersCache[batch.id]||[]);
     const members=allMembers.filter(p=>p.role==='reservist'&&p.batch_id===batch.id);
+    if(!members.length){ this._toast('No reservists found in this cycle.','error'); return; }
     const start=new Date(batch.start_date+'T00:00:00'), end=new Date(batch.end_date+'T00:00:00');
     const dates=[];
     for(let d=new Date(start);d<=end;d=Utils.addDays(d,1)){
@@ -448,7 +450,14 @@ const BatchHandlers = {
     const off=this.state.viewOffset, d=this.dateForOffset(off);
     if(!Utils.isReportDay(d)||Utils.holidayName(d)) return;
     const dk=Utils.dateKey(d);
-    const isNowOn = this.state.demo ? !this.state.noReportDays.has(dk) : await DB.noReportDays.toggle(dk);
+    let isNowOn;
+    if(this.state.demo){
+      isNowOn = !this.state.noReportDays.has(dk);
+    } else {
+      const {error:_nrErr, isOn} = await DB.noReportDays.toggle(dk);
+      if(_nrErr){ this._toast('Failed to update. Try again.','error'); return; }
+      isNowOn = isOn;
+    }
     const batchId=this.state.batches[this.state.activeBatchIdx||0]?.id;
     this.setState(s=>{
       const nd=new Set(s.noReportDays); isNowOn?nd.add(dk):nd.delete(dk);

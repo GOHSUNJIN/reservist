@@ -91,6 +91,10 @@ const CheckinHandlers = {
       const {locStatus,locDistance,locPhase,currentUserId,demo,isOnline,me} = this.state;
       if(locStatus!=='verified'||locPhase!==key) return;
       if(!demo && !me?.is_active){ this._toast('Your account has been deactivated. Please contact your supervisor.','error'); return; }
+      const _curRec = this.myRec();
+      const _prereq = {p2:'p1', p3:'p2', p4:'p3'};
+      const _prereqMsg = {p2:'Check in first.', p3:'Record your break out first.', p4:'Record your return before checking out.'};
+      if(_prereq[key] && !_curRec?.[_prereq[key]]){ this._toast(_prereqMsg[key],'error'); return; }
       this.setState({phaseSubmitting:true});
       const _now = new Date();
       const time = Utils.hhmm(_now);
@@ -122,7 +126,11 @@ const CheckinHandlers = {
           this._queuePush({type:'phase',id:currentUserId,date:today,key,time,dist:locDistance});
         } else {
           const {error:phErr} = await DB.attendance.logPhase(currentUserId, today, key, time, locDistance);
-          if(phErr) this._toast('Check-in saved locally but failed to sync. Check your connection.','error');
+          if(phErr){
+            const _meCheck = await DB.personnel.get(currentUserId).catch(()=>null);
+            if(!_meCheck){ this._toast('Your account no longer exists. Please contact your supervisor.','error'); this.logout(); return; }
+            this._toast('Check-in saved locally but failed to sync. Check your connection.','error');
+          }
         }
       }
     };

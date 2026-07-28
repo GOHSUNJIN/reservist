@@ -251,7 +251,7 @@ const DB = {
       if (bypassed) payload.gps_bypassed = true;
       const existingId = await this._findRow(personnelId, dateStr);
       if (existingId) {
-        const { error } = await _db.from('attendance').update(payload).eq('id', existingId);
+        const { error } = await _db.from('attendance').update(payload).eq('id', existingId).is(colMap[key], null);
         return { error };
       }
       const { error } = await _db.from('attendance').insert({ personnel_id: personnelId, date: dateStr, ...payload });
@@ -361,11 +361,11 @@ const DB = {
     async toggle(dateStr) {
       const { data } = await _db.from('no_report_days').select('date').eq('date', dateStr).maybeSingle();
       if (data) {
-        await _db.from('no_report_days').delete().eq('date', dateStr);
-        return false;
+        const { error } = await _db.from('no_report_days').delete().eq('date', dateStr);
+        return { error, isOn: false };
       }
-      await _db.from('no_report_days').insert({ date: dateStr });
-      return true;
+      const { error } = await _db.from('no_report_days').insert({ date: dateStr });
+      return { error, isOn: true };
     },
 
     async ensure(dateStr) {
