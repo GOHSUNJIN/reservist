@@ -279,10 +279,10 @@ const PeopleHandlers = {
       return `<Row ss:Height="22">${sc('dat',r.dateLabel)}${sc(sid,r.label)}${sc('tim',r.p1)}${sc('tim',r.p4)}${sc('dat',r.adminCorrected?'Corrected by '+r.editedBy:'')}</Row>`;
     }).join('');
     const xml=`<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Styles>${styles}</Styles><Worksheet ss:Name="History"><Table><Column ss:Width="150"/><Column ss:Width="80"/><Column ss:Width="70"/><Column ss:Width="70"/><Column ss:Width="130"/><Row ss:Height="28"><Cell ss:MergeAcross="4" ss:StyleID="ttl"><Data ss:Type="String">${xe(name+' - Attendance History')}</Data></Cell></Row><Row ss:Height="24">${sc('hdr','Date')}${sc('hdr','Status')}${sc('hdr','In')}${sc('hdr','Out')}${sc('hdr','Notes')}</Row>${dataRows}</Table></Worksheet></Workbook>`;
-    const blob=new Blob([xml],{type:'application/vnd.ms-excel;charset=utf-8'});
+    const blob=new Blob([xml],{type:'text/xml;charset=utf-8'});
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
-    a.href=url;a.download=name.replace(/\s+/g,'_')+'_history.xls';
+    a.href=url;a.download=name.replace(/\s+/g,'_')+'_history.xml';
     document.body.appendChild(a);a.click();
     setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},1000);
   },
