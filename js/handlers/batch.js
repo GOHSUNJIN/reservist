@@ -194,10 +194,10 @@ const BatchHandlers = {
 
     const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<?mso-application progid="Excel.Sheet"?>\n<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:o="urn:schemas-microsoft-com:office:office">\n${styles}\n<Worksheet ss:Name="Attendance"><Table ss:DefaultColumnWidth="60">\n${colDefs}\n${metaRows}\n${headerRow}\n${dataRows}\n${totalRow}\n${legendRow}\n</Table></Worksheet>\n</Workbook>`;
 
-    const blob=new Blob([xml],{type:'application/vnd.ms-excel;charset=utf-8'});
+    const blob=new Blob([xml],{type:'text/xml;charset=utf-8'});
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
-    a.href=url; a.download=(batch.label.replace(/[\s/]+/g,'_')||'batch')+'_attendance.xls'; a.click();
+    a.href=url; a.download=(batch.label.replace(/[\s/]+/g,'_')||'batch')+'_attendance.xml'; a.click();
     URL.revokeObjectURL(url);
   },
 
