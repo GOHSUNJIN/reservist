@@ -37,8 +37,14 @@ const AdminBatch = {
     }));
     const sortCycles=(arr)=>[...arr].sort((a,b)=>{
       if(a.isActive) return -1; if(b.isActive) return 1;
-      if(!a.isPast&&!b.isPast) return a.startDate>b.startDate?1:-1;
-      if(a.isPast&&b.isPast) return a.startDate>b.startDate?-1:1;
+      if(!a.isPast&&!b.isPast){
+        if(a.startDate!==b.startDate) return a.startDate>b.startDate?1:-1;
+        return a.id>b.id?1:-1;
+      }
+      if(a.isPast&&b.isPast){
+        if(a.startDate!==b.startDate) return a.startDate>b.startDate?-1:1;
+        return a.id>b.id?-1:1;
+      }
       return a.isPast?1:-1;
     });
     const cycleTotalPages=Math.max(1,allPickerYears.length);
