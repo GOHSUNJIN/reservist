@@ -21,6 +21,9 @@ Ops Reservist provides full end-to-end attendance accountability for reservist c
 - **Shift change requests** — Submitted with a written reason and reviewed by the supervisor.
 - **Withdraw requests** — A pending leave, MC, or shift change request can be cancelled by the reservist before the supervisor has acted on it. Available from both the check-in tab and the Requests history in the Info tab.
 - **Attendance history** — Each reservist can see their own record for the full cycle, including total days present, MC, and absent, plus their attendance rate.
+- **Check-in reminder** — A banner appears automatically when the check-in window for the current phase is open and the reservist has not yet checked in. Disappears once the phase is logged.
+- **Upcoming no-report day notice** — A banner on the check-in screen shows the next scheduled no-report day (public holiday or stand-down) so reservists know when the next off day is.
+- **Cycle notice board** — If a supervisor has posted a notice for the current cycle, it appears as a banner on the reservist's check-in screen for the duration of the cycle.
 - **Works without internet** — If the reservist loses connection during check-in, the action is saved on the phone and submitted automatically once connectivity is restored.
 - **Returning reservist re-enrollment** — When a reservist from a previous cycle logs in after their account has been deactivated, the app automatically sends a re-enrollment request to the supervisor. No manual coordination required. The reservist sees a confirmation and can log in once the supervisor approves.
 
@@ -31,10 +34,12 @@ Ops Reservist provides full end-to-end attendance accountability for reservist c
 - **Late check-in alerts** — Anyone who checks in more than 30 minutes after shift start sees a timing warning. Those more than one hour late are automatically flagged and must submit a written reason, which is displayed alongside the flag.
 - **Full daily time log** — A complete record of every individual's four check-in phases for the day, including GPS distance, any late reason, and welfare notes. Can be searched by name and filtered by shift.
 - **Unified requests inbox** — All pending signup requests, MC, leave, and shift change requests appear in one place under the Requests tab. Each request is labelled New or Returning so the supervisor knows at a glance whether they are onboarding a first-timer or re-enrolling someone from a previous cycle.
+- **Bulk leave actions** — Multiple pending leave requests can be selected and approved or rejected in a single action. Bulk rejection requires a written reason that is recorded against each rejected request.
 - **Personnel roster** — Full list of the current cycle's reservists with attendance stats, notes, and history per person.
 - **Welfare notes** — Supervisors can write a private daily note against any individual (e.g. medical concerns, welfare follow-up). Visible on the roster and time log.
 - **Missed attendance notes** — For reservists who did not report without an approved leave, supervisors can add an inline note directly from the attendance history view.
 - **Non-reporting day control** — Mark any date as a non-reporting day (public holidays, stand-down). The system will not count those days against personnel.
+- **Cycle notice board** — Post a short notice that appears as a banner on every reservist's check-in screen for the duration of the cycle. Used for schedule reminders, welfare messages, or administrative notices.
 - **WhatsApp attendance summary** — One tap sends the day's attendance summary to the unit group chat.
 - **Spreadsheet export** — Full attendance data for any cycle can be exported as a CSV file for record-keeping or further analysis. Includes per-person attendance rates and a summary row.
 - **Cycle management** — Create and label reporting cycles. The system automatically prepares the next 8 cycles on every login so the supervisor never has to scramble before a new intake.
@@ -134,6 +139,44 @@ This section explains the technical architecture for those who need to understan
 | Hosting | Vercel | Where the app is served from. Deployed globally on a content delivery network (CDN), meaning the app loads quickly regardless of network conditions. Zero server maintenance required. |
 | Offline support | Service worker | A background component that caches the app and queues check-in actions when there is no internet connection. |
 
+### Code Structure
+
+The JavaScript is split into two layers: **builders** (compute UI props from state) and **handlers** (write state, call the database). Each feature area has its own file so changes are isolated.
+
+```
+js/
+├── db.js               — All Supabase queries, one namespace per table (DB.auth, DB.personnel, DB.attendance, etc.)
+├── state.js            — Initial application state
+├── utils.js            — Date helpers, phase window logic, formatting
+├── component.js        — Component lifecycle and offline queue
+├── config.js           — Runtime configuration (org name, GPS coords, etc.)
+│
+├── builders/           — Pure functions: (state) → flat object of UI props
+│   ├── nav.js          — Navigation bar, offline queue badge
+│   ├── auth.js         — Login / signup screen
+│   ├── checkin.js      — Reservist check-in screen, phase tiles, banners
+│   ├── briefings.js    — Info tab (roles/shift info, leave request history)
+│   ├── account.js      — Account settings, profile photo
+│   └── admin/          — Admin view (split by area)
+│       ├── index.js    — Entry point: shared context + merges sub-builders
+│       ├── batch.js    — Cycle picker, batch management, meal toggle, broadcast
+│       ├── roster.js   — Attendance roster, time log, search, stats, notes
+│       └── people.js   — Personnel list, member search, leave inbox, signups
+│
+└── handlers/           — Event handlers: setState calls + DB writes
+    ├── auth.js         — Login, logout, signup, session management
+    ├── init.js         — App startup, realtime subscriptions, auto-absent
+    ├── checkin.js      — Phase submission, GPS, offline queue
+    ├── requests.js     — Leave approve/reject, bulk actions, note editing
+    ├── people.js       — Add/remove personnel, member search, bulk delete
+    ├── roster.js       — Manual override, time correction, no-report days
+    ├── batch.js        — Cycle CRUD, cycle picker, bulk add, broadcast
+    ├── account.js      — Profile photo, password change
+    └── misc.js         — Export CSV, WhatsApp share, miscellaneous
+```
+
+`support.js` is the compiled declarative component runtime (do not edit directly). `index.html` is the single-page template that wires all builders and handlers together.
+
 ### Data Storage
 
 All data is stored in a structured cloud database (PostgreSQL). Think of it as a set of linked spreadsheets where every row is a record and every column is a specific piece of information — but with strict rules to prevent duplicate or corrupt data, and with access control so that only authenticated users can read it.
@@ -162,6 +205,7 @@ The database has six tables:
 | Dekit date | Equipment return day (Wednesday after end) |
 | Live | Whether this is the currently active cycle |
 | Meal allowance | Whether meal allowance applies this cycle |
+| Notice | Text of the active cycle notice shown to reservists (blank if none) |
 
 **Attendance** — one row per person per day.
 
