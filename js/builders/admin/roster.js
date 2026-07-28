@@ -1,0 +1,207 @@
+// ── Admin Roster builder ───────────────────────────────────────────────────
+const AdminRoster = {
+
+  build: function(self, s, accent, ctx) {
+    const {activeBatch,activeMembers,viewOffset,viewDate,viewIsToday,viewReportDay,viewDateKey,viewMap,viewBlocked,isDekit,viewShowReporting,present,mc,pending,absent} = ctx;
+    const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const roster=activeMembers.map(p=>{
+      const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
+      const cardStyle='background:#fff;border:1px solid #e3e6ec;border-left:3px solid '+mm.color+';border-radius:12px;padding:11px 13px;';
+      const av=s.avatars[p.id]||'';
+      const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
+      const _phaseParts=[r.p1?'IN '+r.p1:null,r.p2?((p.shift==='PM'?'DIN ':'LCH ')+r.p2):null,r.p3?'BACK '+r.p3:null,r.p4?'OUT '+r.p4:null].filter(Boolean);
+      const phaseLine=_phaseParts.join('  ·  ');
+      const showPhaseLine=r.status==='present'&&_phaseParts.length>0;
+      const _pct=s.peopleStats[p.id]?.pct??null;
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:self.setStatus(p.id,'present'),markMc:self.setStatus(p.id,'mc'),markAbsent:self.setStatus(p.id,'absent'),onShiftChange:self.changeShift(p.id),onViewHistory:self.openPersonHistory(p.id),cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0,
+        lowAttendance:s.peopleStatsLoaded&&_pct!==null&&_pct<75,
+        statPctText:s.peopleStatsLoaded&&_pct!==null?(_pct+'%'):''};
+    });
+    const search=(s.rosterSearch||'').toLowerCase();
+    const filteredRoster=roster.filter(r=>!search||r.name.toLowerCase().includes(search));
+    const sortKey=s.rosterSort||'shift';
+    const sortedFiltered=[...filteredRoster].sort((a,b)=>{
+      if(sortKey==='name') return a.name.localeCompare(b.name);
+      if(sortKey==='status'){const ord={present:0,mc:1,pending:2,absent:3};return (ord[a.status]??4)-(ord[b.status]??4);}
+      const so={AM:0,PM:1,OFFICE:2};return (so[a.shift]??3)-(so[b.shift]??3);
+    });
+    const _sb='flex:1;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;white-space:nowrap;transition:background .15s,color .15s;';
+    const _sa=_sb+'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.12);';
+    const _si=_sb+'background:transparent;color:#8a94a3;';
+    const rosterSortShiftStyle=sortKey==='shift'?_sa:_si;
+    const rosterSortNameStyle=sortKey==='name'?_sa:_si;
+    const rosterSortStatusStyle=sortKey==='status'?_sa:_si;
+    const total=roster.length;
+    const snapshotLastLine=viewIsToday?('⏳ Pending ('+pending+'): '+(roster.filter(r=>r.label==='Pending').map(r=>r.name).join(', ')||'(none)')):('❌ Absent ('+absent+'): '+(roster.filter(r=>r.label==='Absent').map(r=>r.name).join(', ')||'(none)'));
+    const _orgN=self.props.orgName||'Ops Security';
+    const snapshotLines=['📋 *'+_orgN+', '+Utils.fmtMed(viewDate)+'*','✅ Present ('+present+'): '+(roster.filter(r=>r.label==='Present').map(r=>r.name).join(', ')||'(none)'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.label==='On MC').map(r=>r.name).join(', ')||'(none)'),snapshotLastLine];
+    const snapshotLink='https://api.whatsapp.com/send?text='+encodeURIComponent(snapshotLines.join('\n'));
+    const shiftCutoff=Utils.LATE_CUTOFF;
+    const logRows=activeMembers.map(p=>{
+      const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent'}, mm=Utils.meta(r.status);
+      const cutoff=shiftCutoff[p.shift||'AM'];
+      const [_cc,_ccm]=cutoff.split(':').map(Number);
+      const _lm=r.p1?(()=>{const[h,m]=r.p1.split(':').map(Number);return(h*60+m)-(_cc*60+_ccm);})():0;
+      const isLate=r.status==='present'&&_lm>=60;
+      const lateReason=r.lateReason||'';
+      const showLateReason=isLate&&!!lateReason;
+      const showNoLateReason=isLate&&!lateReason;
+      const av=s.avatars[p.id]||'';
+      const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
+      return {
+        id:p.id, name:p.name, initials:Utils.initials(p.name), shiftLabel:Utils.shiftLabel(p.shift),
+        label:mm.label, color:mm.color, bg:mm.bg, isLate,
+        lateReason, showLateReason, showNoLateReason,
+        welfareNote:r.welfareNote||'', showWelfareNote:!!(r.welfareNote),
+        logNoteIconColor:r.welfareNote?'#1f8a5b':'#5c6678',
+        isEditingLogNote:s.logNoteId===p.id,
+        onEditLogNote:self.openLogNote(p.id, r.welfareNote||''),
+        showNoGps: !!(r.gpsBypassed),
+        editLog: (()=>{const log=r.editLog||[];if(!log.length)return[];const e=log[log.length-1];const d=new Date(e.at);const sg=new Date(d.getTime()+8*3600*1000);const hh=String(sg.getUTCHours()).padStart(2,'0'),mm2=String(sg.getUTCMinutes()).padStart(2,'0');const day=sg.getUTCDate(),mon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][sg.getUTCMonth()];return[{by:e.by||'Admin',timeLabel:`${hh}:${mm2}, ${day} ${mon}`}];})(),
+        showEditLog: !!(r.editLog&&r.editLog.length),
+        p1:r.p1||'-', p2:r.p2||'-', p3:r.p3||'-', p4:r.p4||'-',
+        p1Color:r.p1?(isLate?'#c0392b':'#161f30'):'#c2c8d2',
+        p2Color:r.p2?'#161f30':'#c2c8d2',
+        p3Color:r.p3?'#161f30':'#c2c8d2',
+        p4Color:r.p4?'#161f30':'#c2c8d2',
+        avatarStyle, shift:p.shift||'AM',
+        p2Label:p.shift==='PM'?'DIN':'LCH',
+        p2FormLabel:p.shift==='PM'?'Dinner':'Lunch',
+        p3Label:p.shift==='PM'?'Return (dinner)':'Return (lunch)',
+        isTimesEditing:s.timesEditId===p.id,
+        onEditTimes:self.openTimesEdit(p.id),
+      };
+    });
+    const logShiftFilter=s.logShiftFilter||'all';
+    const logStatusFilter=s.logStatusFilter||'all';
+    const logSearch=(s.logSearch||'').toLowerCase().trim();
+    const statusFiltered=logStatusFilter==='all'?logRows:logRows.filter(r=>{
+      if(logStatusFilter==='present') return r.label==='Present';
+      if(logStatusFilter==='mc') return r.label==='On MC';
+      if(logStatusFilter==='absent') return r.label==='Absent';
+      if(logStatusFilter==='pending') return r.label==='Pending';
+      return true;
+    });
+    const shiftFiltered=logShiftFilter==='all'?statusFiltered:statusFiltered.filter(r=>r.shift===logShiftFilter);
+    const filteredLogRows=logSearch?shiftFiltered.filter(r=>r.name.toLowerCase().includes(logSearch)):shiftFiltered;
+    const pendingCount=logRows.filter(r=>r.label==='Pending').length;
+    const _fBtn=(f,accent)=>`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${logShiftFilter===f?accent:'#d4d9e2'};background:${logShiftFilter===f?accent:'#fff'};color:${logShiftFilter===f?'#fff':'#5c6678'};`;
+    const _fSBtn=(f)=>`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${logStatusFilter===f?accent:'#d4d9e2'};background:${logStatusFilter===f?accent:'#fff'};color:${logStatusFilter===f?'#fff':'#5c6678'};`;
+    const lateRows=viewIsToday?logRows.filter(r=>r.isLate):[];
+    const lateCount=lateRows.length;
+    const lateNames=lateRows.map(r=>r.name).join(', ');
+    const showLateAlert=viewIsToday&&lateCount>0;
+    const lateAlertLabel=lateCount===1?'1 late check-in':lateCount+' late check-ins';
+    const logDateLabel=viewIsToday?'TODAY\'S LOG':((WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()]).toUpperCase()+' LOG');
+    const dlabel=WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()];
+    const rel=viewOffset===0?'Today':viewOffset===-1?'Yesterday':viewOffset===1?'Tomorrow':'';
+    const viewDateLabel=(rel?rel+', ':'')+dlabel;
+    const viewHoliday=Utils.holidayName(viewDate);
+    const viewNoReporting=!viewShowReporting;
+    const viewDateSub=!viewReportDay?'Weekend, no reporting':viewHoliday?'Public holiday':isDekit?'Dekit day':viewBlocked?'No reporting, toggled off':viewOffset<0?'Past shift, recorded':viewOffset>0?'Scheduled':'Live now';
+    const viewNoRepReason=!viewReportDay?'This is a weekend. Reservists do not report on Saturdays or Sundays.':viewHoliday?(viewHoliday+' is a public holiday, so reservists are not required to report.'):isDekit?'Dekit day: reservists return equipment and submit forms. No regular reporting.':'This day is marked as a no-reporting day, so reservists are not required to report.';
+    const showRepToggle=viewReportDay&&!isDekit, repToggleLocked=!!viewHoliday, repToggleOn=viewBlocked;
+    const noRepMsg=viewHoliday?('Public holiday ('+viewHoliday+'). Auto no-reporting, locked.'):repToggleOn?'On. Reservists are not required to report this day.':'Off. Reservists report and check in as normal.';
+    const viewRoster=activeMembers.map(p=>{
+      const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
+      const av=s.avatars[p.id]||'';
+      const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:(r.status==='present'&&r.p1)?r.p1:'',avatarStyle,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote)};
+    });
+    const vPresent=viewRoster.filter(r=>r.label==='Present').length, vMc=viewRoster.filter(r=>r.label==='On MC').length, vAbsent=viewRoster.filter(r=>r.label==='Absent').length, vPending=viewRoster.filter(r=>r.label==='Pending').length, vTotal=viewRoster.length;
+    const vPercent=vTotal?Math.round((vPresent+vMc)/vTotal*100):0;
+    const viewListHeader=viewOffset<0?'ATTENDANCE RECORD':viewOffset>0?'SCHEDULED ROSTER':'LIVE STATUS';
+    const viewPercentText=viewOffset>0?(vTotal+' rostered'):(vPercent+'% reported');
+    const viewPercentColor=viewOffset>0?'#8a94a3':'#1f8a5b';
+    const vThirdLabel=viewOffset<0?'Absent':'Pending', vThirdVal=viewOffset<0?vAbsent:vPending, vThirdColor=viewOffset<0?'#c0392b':'#5c6678';
+
+    return {
+      roster, filteredRoster:sortedFiltered, logRows:filteredLogRows, logRowsEmpty:filteredLogRows.length===0, logDateLabel,
+      timesEditP1:s.timesEditP1||'', timesEditP2:s.timesEditP2||'', timesEditP3:s.timesEditP3||'', timesEditP4:s.timesEditP4||'',
+      timesEditSaving:s.timesEditSaving||false,
+      ...(()=>{const _iStyle=k=>{const err=s.timesEditErrField===k;return`width:100%;padding:8px 10px;border:1.5px solid ${err?'#c0392b':'#d4d9e2'};border-radius:8px;font-size:13px;font-family:'IBM Plex Mono',monospace;outline:none;background:${err?'#fff5f5':'#f6f8fa'};box-sizing:border-box;color:#161f30;`;};return{timesEditP1Style:_iStyle('p1'),timesEditP2Style:_iStyle('p2'),timesEditP3Style:_iStyle('p3'),timesEditP4Style:_iStyle('p4')};})(),
+      onTimesP1:self.onTimesP1, onTimesP2:self.onTimesP2, onTimesP3:self.onTimesP3, onTimesP4:self.onTimesP4,
+      saveTimesEdit:self.saveTimesEdit, closeTimesEdit:self.closeTimesEdit,
+      logShiftFilter:s.logShiftFilter||'all', onLogShiftChange:self.onLogShiftChange,
+      setLogFilterAll:self.setLogShiftFilter('all'), setLogFilterAm:self.setLogShiftFilter('AM'),
+      setLogFilterPm:self.setLogShiftFilter('PM'), setLogFilterOffice:self.setLogShiftFilter('OFFICE'),
+      logFilterAllStyle:_fBtn('all',accent), logFilterAmStyle:_fBtn('AM',accent),
+      logFilterPmStyle:_fBtn('PM',accent), logFilterOfficeStyle:_fBtn('OFFICE',accent),
+      setLogStatusAll:self.setLogStatusFilter('all'), setLogStatusPresent:self.setLogStatusFilter('present'),
+      setLogStatusMc:self.setLogStatusFilter('mc'), setLogStatusAbsent:self.setLogStatusFilter('absent'), setLogStatusPending:self.setLogStatusFilter('pending'),
+      logStatusAllStyle:_fSBtn('all'), logStatusPresentStyle:_fSBtn('present'),
+      logStatusMcStyle:_fSBtn('mc'), logStatusAbsentStyle:_fSBtn('absent'), logStatusPendingStyle:_fSBtn('pending'),
+      askMarkAllAbsent:self.askMarkAllAbsent, markAllAbsent:self.markAllAbsent,
+      cancelMarkAllAbsent:self.cancelMarkAllAbsent,
+      markingAllAbsent:s.markingAllAbsent, confirmMarkAllAbsent:s.confirmMarkAllAbsent, notConfirmMarkAllAbsent:!s.confirmMarkAllAbsent,
+      markAllAbsentStyle:`padding:6px 11px;border-radius:7px;cursor:pointer;border:1px solid #f7e4e1;background:#fff;color:#c0392b;opacity:${s.markingAllAbsent?'0.45':'1'};display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;flex-shrink:0;`,
+      markAllAbsentConfirmStyle:`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:700;cursor:pointer;border:none;background:#c0392b;color:#fff;`,
+      pendingCount,
+      logSearch:s.logSearch||'', onLogSearch:self.onLogSearch, onLogSearchKeyDown:self.onLogSearchKeyDown, clearLogSearch:self.clearLogSearch, hasLogSearch:!!(s.logSearch),
+      personHistoryOpen:!!s.personHistoryId,
+      personHistoryName:([...s.personnel,...(s.batchMembersCache[activeBatch?.id]||[])].find(p=>p.id===s.personHistoryId)||{}).name||'',
+      personHistoryLoading:s.personHistoryLoading,
+      confirmWipeHistoryOpen:!!(s.confirmWipeHistoryId&&s.confirmWipeHistoryId===s.personHistoryId),
+      wipingHistory:s.wipingHistory,
+      askWipeHistory:self.askWipeHistory, confirmWipeHistory:self.confirmWipeHistory, cancelWipeHistory:self.cancelWipeHistory,
+      personHistoryRows:(s.personHistoryRows||[]).slice(0,100).map(r=>{
+        const mm=Utils.meta(r.status);
+        const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        const d=new Date(r.date+'T00:00:00');
+        const editLog=r.edit_log||[];
+        const latestEdit=editLog.length?editLog[editLog.length-1]:null;
+        return {dateLabel:W[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,color:mm.color,bg:mm.bg,p1:r.check_in_time?r.check_in_time.slice(0,5):'-',p4:r.work_end_time?r.work_end_time.slice(0,5):'-',adminCorrected:editLog.length>0,editedBy:latestEdit?.by||''};
+      }),
+      noPersonHistory:!(s.personHistoryRows||[]).length&&!s.personHistoryLoading,
+      closePersonHistory:self.closePersonHistory,
+      exportPersonHistory:self.exportPersonHistory,
+      realtimeLive:s.realtimeLive,
+      realtimeLiveBg:s.realtimeLive?'#e7f3ec':'#f7e4e1',
+      realtimeLiveColor:s.realtimeLive?'#1f8a5b':'#c0392b',
+      realtimeLiveLabel:s.realtimeLive?'● LIVE':'● Reconnecting',
+      showRealtimeBadge:!!s.realtimeChannel,
+      rosterSearch:s.rosterSearch, onRosterSearch:self.onRosterSearch, onRosterSearchKeyDown:self.onRosterSearchKeyDown, hasRosterSearch:!!search, clearRosterSearch:self.clearRosterSearch,
+      retrySync:self.retrySync,
+      markAllPresent:self.markAllPresent, markAllPresenting:s.markAllPresenting,
+      noSearchResults:!!search&&sortedFiltered.length===0,
+      rosterEmpty:!search&&roster.length===0,
+      filteredCount:search?sortedFiltered.length:0, showFilteredCount:!!search&&sortedFiltered.length>0,
+      statPresent:present, statMc:mc, statPending:pending, statTotal:total,
+      lateCount, lateNames, showLateAlert, lateAlertLabel,
+      noRepMsg, toggleNoReporting:self.toggleNoReporting,
+      showRepToggle, repToggleLocked,
+      noRepTrackBg:repToggleOn?accent:'#39435a',
+      noRepKnobX:repToggleOn?'25px':'3px',
+      repToggleOpacity:repToggleLocked?'0.55':'1',
+      repTogglePE:repToggleLocked?'none':'auto',
+      prevDay:self.prevDay, nextDay:self.nextDay, goToday:self.goToday,
+      onDaySwipeStart:self.onDaySwipeStart, onDaySwipeEnd:self.onDaySwipeEnd,
+      snapshotLink, showSnapshot:viewShowReporting,
+      openWaPreview:()=>{ self.setState({waPreviewOpen:true,waPreviewText:snapshotLines.join('\n')}); },
+      waPreviewOpen:s.waPreviewOpen, waPreviewText:s.waPreviewText,
+      closeWaPreview:self.closeWaPreview, onWaPreviewText:self.onWaPreviewText, sendWaPreview:self.sendWaPreview,
+      editingNoteText:s.editingNoteText, onNoteText:self.onNoteText, saveNote:self.saveNote, closeNote:self.closeNote,
+      logNoteText:s.logNoteText, onLogNoteText:self.onLogNoteText, saveLogNote:self.saveLogNote, closeLogNote:self.closeLogNote,
+      refreshPage:self.refreshPage,
+      viewDateLabel, viewDateSub, viewIsToday, viewNotToday:!viewIsToday,
+      viewShowReporting, viewNoReporting, viewNoRepReason,
+      viewRoster, vPresent, vMc, vThirdVal, vThirdLabel, vThirdColor, vTotal,
+      vPresentLabel:'Checked in',
+      viewListHeader, viewPercentText, viewPercentColor,
+      rosterSort:s.rosterSort,
+      setRosterSortShift:self.setRosterSort('shift'),
+      setRosterSortName:self.setRosterSort('name'),
+      setRosterSortStatus:self.setRosterSort('status'),
+      rosterSortShiftStyle,rosterSortNameStyle,rosterSortStatusStyle,
+      // Feature: admin password reset
+      resetPwOpen:s.resetPwId!==null,
+      resetPwPersonName:(s.personnel.find(p=>p.id===s.resetPwId)||{}).name||'',
+      resetPwNew:s.resetPwNew||'', resetPwSaving:s.resetPwSaving,
+      resetPwSavingOpacity:s.resetPwSaving?0.6:1,
+      resetPwBtnLabel:s.resetPwSaving?'Resetting...':'Reset password',
+      onResetPwNew:self.onResetPwNew, submitResetPw:self.submitResetPw, closeResetPw:self.closeResetPw,
+    };
+  },
+
+};
