@@ -16,7 +16,7 @@ const makeInitialState = () => ({
   noReportDays: new Set(), history: [],
   batchMembersCache: {},
   // ui state
-  tab: 'checkin', rolesTab: 'PM',
+  tab: 'checkin', rolesTab: null,
   locStatus: 'idle', locDistance: null, locGpsMsg: '',
   accountOpen: false, confirmDelete: false,
   viewOffset: 0, avatars: {}, selectedCalOffset: null,
