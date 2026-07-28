@@ -140,9 +140,17 @@ const RequestHandlers = {
     return async () => {
       const leave = this.state.pendingLeaves.find(l => l.id === id);
       if(!this.state.demo && leave) {
+        if(leave.type === 'shift_change' && leave.requested_shift) {
+          const {am, pm} = this._shiftSlotCounts(this.state.personnel);
+          if((leave.requested_shift==='AM' && am>=2) || (leave.requested_shift==='PM' && pm>=2)){
+            this._toast(`${leave.requested_shift} shift is full (2/2). Cannot approve shift change.`,'error'); return;
+          }
+        }
         const me = this.cur();
         const reviewMeta = { reviewed_by: me?.name || null, reviewed_at: new Date().toISOString() };
-        const ops = [DB.leaves.updateStatus(id, 'approved', reviewMeta).catch(()=>{})];
+        const {data: updated} = await DB.leaves.updateStatus(id, 'approved', reviewMeta).catch(()=>({}));
+        if(!updated){ this._toast('Already processed by another admin.','error'); this.loadPendingLeaves(); return; }
+        const ops = [];
         if(leave.type === 'mc') {
           ops.push(DB.attendance.upsert(leave.personnel_id, leave.date, 'mc', {}).catch(()=>{}));
         } else if(leave.type === 'personal' || leave.type === 'other') {
@@ -154,7 +162,7 @@ const RequestHandlers = {
             }).catch(()=>{})
           );
         }
-        await Promise.all(ops);
+        if(ops.length) await Promise.all(ops);
         this._toast('Request approved.');
       }
       this.loadPendingLeaves();
@@ -244,7 +252,9 @@ const RequestHandlers = {
     }
     if(!leaveDate){ this._toast('Please select a date.','error'); return; }
     if(leaveDate < Utils.dateKey(this.baseDate())){ this._toast('Cannot submit a request for a past date.','error'); return; }
-    if((myLeaveHistory||[]).some(h=>h.date===leaveDate)){ this._toast('You already submitted a request for this date.','error'); return; }
+    const _myBatch = this.state.batches.find(b=>b.id===this.state.me?.batch_id);
+    if(_myBatch && (leaveDate < _myBatch.start_date || leaveDate > _myBatch.end_date)){ this._toast('The selected date is outside your current cycle.','error'); return; }
+    if((myLeaveHistory||[]).some(h=>h.date===leaveDate&&h.status!=='cancelled'&&h.status!=='rejected')){ this._toast('You already submitted a request for this date.','error'); return; }
     if(!demo){
       const {data, error} = await DB.leaves.request(currentUserId, leaveDate, leaveType, leaveReason).catch(e=>({error:e}));
       if(error){ this._toast('Failed to submit request.','error'); return; }

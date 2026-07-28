@@ -187,6 +187,7 @@ const PeopleHandlers = {
   confirmWipeHistory: async function() {
     const id = this.state.confirmWipeHistoryId;
     if(!id) return;
+    if(id === this.state.currentUserId){ this._toast('You cannot delete your own account.','error'); this.setState({confirmWipeHistoryId:null}); return; }
     const s = this.state;
     const allLoaded = [...s.personnel, ...Object.values(s.batchMembersCache).flat()];
     const person = allLoaded.find(p=>p.id===id);
@@ -223,8 +224,9 @@ const PeopleHandlers = {
   askDeleteMember: function(id) { return () => this.setState({confirmDeleteMemberId:id}); },
   cancelDeleteMember: function() { this.setState({confirmDeleteMemberId:null}); },
   confirmDeleteMember: async function() {
-    const {confirmDeleteMemberId, memberSearchList, demo} = this.state;
+    const {confirmDeleteMemberId, memberSearchList, demo, currentUserId} = this.state;
     if(!confirmDeleteMemberId) return;
+    if(confirmDeleteMemberId === currentUserId){ this._toast('You cannot delete your own account.','error'); this.setState({confirmDeleteMemberId:null}); return; }
     const person = memberSearchList.find(p=>p.id===confirmDeleteMemberId);
     const authId = person?.auth_id||null;
     this.setState({deletingMember:true});
@@ -247,16 +249,18 @@ const PeopleHandlers = {
   askBulkDelete: function() { this.setState({confirmBulkDelete:true}); },
   cancelBulkDelete: function() { this.setState({confirmBulkDelete:false}); },
   executeBulkDelete: async function() {
-    const {memberSearchSelected,memberSearchList,demo}=this.state;
-    if(!memberSearchSelected.length) return;
+    const {memberSearchSelected,memberSearchList,demo,currentUserId}=this.state;
+    const safeIds = memberSearchSelected.filter(id => id !== currentUserId);
+    if(!safeIds.length) return;
+    if(safeIds.length < memberSearchSelected.length) this._toast('Your own account was excluded from the deletion.','error');
     this.setState({bulkDeleting:true});
     if(!demo){
-      for(const id of memberSearchSelected){
+      for(const id of safeIds){
         const person=memberSearchList.find(p=>p.id===id);
         await DB.personnel.deletePermanently(id,person?.auth_id||null).catch(()=>{});
       }
     }
-    const ids=new Set(memberSearchSelected);
+    const ids=new Set(safeIds);
     this.setState(prev=>{
       const memberSearchList=prev.memberSearchList.filter(p=>!ids.has(p.id));
       const personnel=prev.personnel.filter(p=>!ids.has(p.id));
@@ -264,7 +268,7 @@ const PeopleHandlers = {
       Object.keys(batchMembersCache).forEach(k=>{batchMembersCache[k]=(batchMembersCache[k]||[]).filter(p=>!ids.has(p.id));});
       return {memberSearchList,personnel,batchMembersCache,memberSearchSelected:[],confirmBulkDelete:false,bulkDeleting:false};
     });
-    this._toast(memberSearchSelected.length+' member'+(memberSearchSelected.length!==1?'s':'')+' permanently deleted.');
+    this._toast(safeIds.length+' member'+(safeIds.length!==1?'s':'')+' permanently deleted.');
   },
 
   exportPersonHistory: function() {

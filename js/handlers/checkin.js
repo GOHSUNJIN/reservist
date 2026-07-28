@@ -22,10 +22,8 @@ const CheckinHandlers = {
     if(this._locSlowTimer) clearTimeout(this._locSlowTimer);
     this._locSlowTimer = setTimeout(()=>this.setState({locSlow:true}), 8000);
     if(!navigator.geolocation){
-      setTimeout(()=>{
-        clearTimeout(this._locSlowTimer);
-        this.setState({locStatus:'verified',locDistance:Math.round(18+Math.random()*72),locSlow:false});
-      },1200);
+      clearTimeout(this._locSlowTimer);
+      this.setState({locStatus:'gps_error',locDistance:null,locGpsMsg:'Location services are not available in this browser. Use the bypass option below if your supervisor has authorised it.',locSlow:false,locPermErr:false});
       return;
     }
     const ua=navigator.userAgent||'';
@@ -90,8 +88,9 @@ const CheckinHandlers = {
   doPhase: function(key) {
     return async () => {
       if(this.state.phaseSubmitting) return;
-      const {locStatus,locDistance,locPhase,currentUserId,demo,isOnline} = this.state;
+      const {locStatus,locDistance,locPhase,currentUserId,demo,isOnline,me} = this.state;
       if(locStatus!=='verified'||locPhase!==key) return;
+      if(!demo && !me?.is_active){ this._toast('Your account has been deactivated. Please contact your supervisor.','error'); return; }
       this.setState({phaseSubmitting:true});
       const _now = new Date();
       const time = Utils.hhmm(_now);
@@ -132,7 +131,8 @@ const CheckinHandlers = {
   doPhaseBypass: function(key) {
     return async () => {
       if(this.state.phaseSubmitting) return;
-      const {currentUserId,demo,isOnline} = this.state;
+      const {currentUserId,demo,isOnline,me} = this.state;
+      if(!demo && !me?.is_active){ this._toast('Your account has been deactivated. Please contact your supervisor.','error'); return; }
       this.setState({phaseSubmitting:true});
       const _now = new Date();
       const time = Utils.hhmm(_now);

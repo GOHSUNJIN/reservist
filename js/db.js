@@ -391,7 +391,7 @@ const DB = {
     },
 
     async updateStatus(id, status, meta = {}) {
-      const { data, error } = await _db.from('leave_requests').update({ status, ...meta }).eq('id', id).select().maybeSingle();
+      const { data, error } = await _db.from('leave_requests').update({ status, ...meta }).eq('id', id).eq('status', 'pending').select().maybeSingle();
       return { data, error };
     },
 
