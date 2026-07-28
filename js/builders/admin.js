@@ -262,6 +262,21 @@ const AdminBuilders = {
         const _msBtn=f=>`padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid ${mf===f?accent:'#d4d9e2'};background:${mf===f?accent:'#fff'};color:${mf===f?'#fff':'#5c6678'};white-space:nowrap;`;
         return {memberStatusAllStyle:_msBtn('all'),memberStatusActiveStyle:_msBtn('current'),memberStatusInactiveStyle:_msBtn('past'),memberStatusRemovedStyle:_msBtn('removed')};
       })(),
+      onMemberSearchCycle:this.onMemberSearchCycle, memberSearchCycle:s.memberSearchCycle||'all',
+      memberCycleOptions:(()=>{
+        const seen=new Set();
+        const opts=[{value:'all',label:'All cycles'}];
+        const liveBatchId=(s.batches||[]).find(b=>b.is_live)?.id||null;
+        if(liveBatchId) opts.push({value:liveBatchId,label:'Current cycle'});
+        s.memberSearchList.forEach(p=>{
+          if(p.batch_id&&p.batch_id!==liveBatchId&&!seen.has(p.batch_id)){
+            seen.add(p.batch_id);
+            const b=(s.batches||[]).find(x=>x.id===p.batch_id);
+            if(b) opts.push({value:p.batch_id,label:b.label||Utils.dateKey(new Date(b.start_date)).slice(0,7)});
+          }
+        });
+        return opts;
+      })(),
       memberSearchRows:(()=>{
         const liveBatchId=(s.batches||[]).find(b=>b.is_live)?.id||null;
         const _mStatus=p=>!p.is_active?'removed':p.batch_id===liveBatchId?'current':'past';
@@ -270,12 +285,14 @@ const AdminBuilders = {
         const _mBg=p=>!p.is_active?'#f0f2f5':p.batch_id===liveBatchId?'#e7f3ec':'#fff8ec';
         const q=(s.memberSearchText||'').toLowerCase().trim();
         const mf=s.memberSearchStatus||'all';
+        const mc=s.memberSearchCycle||'all';
+        const _getBatchLabel=p=>{const b=(s.batches||[]).find(x=>x.id===p.batch_id);return b?(b.label||Utils.dateKey(new Date(b.start_date)).slice(0,7)):'No cycle';};
         let rows=s.memberSearchList;
-        if(q) rows=rows.filter(p=>p.name.toLowerCase().includes(q)||(p.contact||'').toLowerCase().includes(q));
+        if(q) rows=rows.filter(p=>{const bl=_getBatchLabel(p).toLowerCase();return p.name.toLowerCase().includes(q)||(p.contact||'').toLowerCase().includes(q)||bl.includes(q);});
         if(mf!=='all') rows=rows.filter(p=>_mStatus(p)===mf);
+        if(mc!=='all') rows=rows.filter(p=>p.batch_id===mc);
         return rows.map(p=>{
-          const batch=(s.batches||[]).find(b=>b.id===p.batch_id);
-          const batchLabel=batch?(batch.label||Utils.dateKey(new Date(batch.start_date)).slice(0,7)):'No cycle';
+          const batchLabel=_getBatchLabel(p);
           const isConfirming=s.confirmDeleteMemberId===p.id;
           return {
             id:p.id, name:p.name, contact:p.contact||'', initials:Utils.initials(p.name),
@@ -289,11 +306,13 @@ const AdminBuilders = {
       memberSearchEmpty:s.memberSearchLoaded&&(()=>{
         const liveBatchId=(s.batches||[]).find(b=>b.is_live)?.id||null;
         const _mStatus=p=>!p.is_active?'removed':p.batch_id===liveBatchId?'current':'past';
+        const _getBatchLabel=p=>{const b=(s.batches||[]).find(x=>x.id===p.batch_id);return b?(b.label||Utils.dateKey(new Date(b.start_date)).slice(0,7)):'No cycle';};
         const q=(s.memberSearchText||'').toLowerCase().trim();
-        const mf=s.memberSearchStatus||'all';
+        const mf=s.memberSearchStatus||'all'; const mc=s.memberSearchCycle||'all';
         let rows=s.memberSearchList;
-        if(q) rows=rows.filter(p=>p.name.toLowerCase().includes(q)||(p.contact||'').toLowerCase().includes(q));
+        if(q) rows=rows.filter(p=>{const bl=_getBatchLabel(p).toLowerCase();return p.name.toLowerCase().includes(q)||(p.contact||'').toLowerCase().includes(q)||bl.includes(q);});
         if(mf!=='all') rows=rows.filter(p=>_mStatus(p)===mf);
+        if(mc!=='all') rows=rows.filter(p=>p.batch_id===mc);
         return rows.length===0;
       })(),
       realtimeLive:s.realtimeLive,
