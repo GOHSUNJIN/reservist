@@ -123,6 +123,7 @@ const AuthHandlers = {
       selectedSignupIds:[],
       signupSearch:'', leaveSearch:'', addPersonnelOpen:false, npReenrollRecord:null,
       rejectLeaveId:null, rejectLeaveReason:'',
+      leaveSelectedIds:[], confirmBulkLeaveReject:false, bulkLeaveRejectReason:'', bulkApprovingLeaves:false,
       waPreviewOpen:false, waPreviewText:'',
       logNoteId:null, logNoteText:'',
       realtimeLive:false,

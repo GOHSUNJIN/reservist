@@ -185,6 +185,47 @@ const RequestHandlers = {
     this.loadPendingLeaves();
   },
 
+  toggleLeaveSelect: function(id) { return () => this.setState(s=>{const ids=s.leaveSelectedIds||[];return {leaveSelectedIds:ids.includes(id)?ids.filter(x=>x!==id):[...ids,id]};});},
+  clearLeaveSelect: function() { this.setState({leaveSelectedIds:[],confirmBulkLeaveReject:false,bulkLeaveRejectReason:''}); },
+
+  bulkApproveLeaves: async function() {
+    const {leaveSelectedIds,pendingLeaves,demo}=this.state;
+    if(!leaveSelectedIds?.length) return;
+    this.setState({bulkApprovingLeaves:true});
+    if(!demo){
+      const me=this.cur(), reviewMeta={reviewed_by:me?.name||null,reviewed_at:new Date().toISOString()};
+      await Promise.all(leaveSelectedIds.map(async id=>{
+        const leave=pendingLeaves.find(l=>l.id===id);
+        const ops=[DB.leaves.updateStatus(id,'approved',reviewMeta).catch(()=>{})];
+        if(leave?.type==='mc') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'mc',{}).catch(()=>{}));
+        else if(leave?.type==='personal'||leave?.type==='other') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'absent',{}).catch(()=>{}));
+        else if(leave?.type==='shift_change'&&leave?.requested_shift) ops.push(DB.personnel.updateShift(leave.personnel_id,leave.requested_shift).then(({data})=>{if(data)this.setState(s=>({personnel:s.personnel.map(p=>p.id===leave.personnel_id?{...p,shift:data.shift}:p)}));}).catch(()=>{}));
+        await Promise.all(ops);
+      }));
+    }
+    const count=leaveSelectedIds.length;
+    this.setState({leaveSelectedIds:[],bulkApprovingLeaves:false});
+    this._toast(`${count} request${count!==1?'s':''} approved.`);
+    this.loadPendingLeaves();
+  },
+
+  askBulkLeaveReject: function() { this.setState({confirmBulkLeaveReject:true,bulkLeaveRejectReason:''}); },
+  cancelBulkLeaveReject: function() { this.setState({confirmBulkLeaveReject:false,bulkLeaveRejectReason:''}); },
+  onBulkLeaveRejectReason: function(e) { this.setState({bulkLeaveRejectReason:e.target.value}); },
+
+  executeBulkLeaveReject: async function() {
+    const {leaveSelectedIds,bulkLeaveRejectReason,demo}=this.state;
+    if(!leaveSelectedIds?.length) return;
+    if(!demo){
+      const me=this.cur(), reviewMeta={reviewed_by:me?.name||null,reviewed_at:new Date().toISOString(),rejection_reason:bulkLeaveRejectReason.trim()||null};
+      await Promise.all(leaveSelectedIds.map(id=>DB.leaves.updateStatus(id,'rejected',reviewMeta).catch(()=>{})));
+    }
+    const count=leaveSelectedIds.length;
+    this.setState({leaveSelectedIds:[],confirmBulkLeaveReject:false,bulkLeaveRejectReason:''});
+    this._toast(`${count} request${count!==1?'s':''} declined.`);
+    this.loadPendingLeaves();
+  },
+
   openLeaveRequest: function(date) { return () => this.setState({leaveOpen:true, leaveDate:date, leaveType:'mc', leaveReason:''}); },
   openLeave: function(date) { return () => this.setState({leaveOpen:true, leaveDate:date, leaveType:'mc', leaveReason:''}); },
   closeLeaveRequest: function() { this.setState({leaveOpen:false}); },
