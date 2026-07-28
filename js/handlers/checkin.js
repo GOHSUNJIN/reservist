@@ -119,7 +119,7 @@ const CheckinHandlers = {
       this._toast(_phaseToasts[key]||'Recorded');
       if(!demo){
         if(!isOnline){
-          this._queuePush({id:currentUserId,date:today,key,time,dist:locDistance});
+          this._queuePush({type:'phase',id:currentUserId,date:today,key,time,dist:locDistance});
         } else {
           const {error:phErr} = await DB.attendance.logPhase(currentUserId, today, key, time, locDistance);
           if(phErr) this._toast('Check-in saved locally but failed to sync. Check your connection.','error');
@@ -160,7 +160,7 @@ const CheckinHandlers = {
       this._toast(_phaseToasts[key]||'Recorded');
       if(!demo){
         if(!isOnline){
-          this._queuePush({id:currentUserId,date:today,key,time,dist:null,bypassed:true});
+          this._queuePush({type:'phase',id:currentUserId,date:today,key,time,dist:null,bypassed:true});
         } else {
           const {error:phErr} = await DB.attendance.logPhase(currentUserId, today, key, time, null, true);
           if(phErr) this._toast('Check-in saved locally but failed to sync. Check your connection.','error');

@@ -42,7 +42,7 @@ class AppComponent extends DCLogic {
         const failed = [];
         for(const pend of pending){
           let ok = true;
-          if(pend.key){
+          if(pend.type==='phase'||pend.key){
             await DB.attendance.logPhase(pend.id, pend.date, pend.key, pend.time, pend.dist, pend.bypassed||false).catch(()=>{ ok=false; });
           } else {
             await DB.attendance.upsert(pend.id, pend.date, pend.status, pend.extras).catch(()=>{ ok=false; });

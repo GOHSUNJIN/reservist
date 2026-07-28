@@ -455,7 +455,8 @@ const BatchHandlers = {
       const noReportDaysCache=batchId?{...s.noReportDaysCache,[batchId]:nd}:s.noReportDaysCache;
       return {noReportDays:nd,noReportDaysCache};
     });
-    this._toast('No reporting '+(isNowOn?'enabled':'disabled')+' for '+Utils.fmtShort(d)+'.');
+    const _existingAtt = !isNowOn && Object.keys((this.state.attendanceCache[dk]||this.state.attendance)||{}).length > 0;
+    this._toast('No reporting '+(isNowOn?'enabled':'disabled')+' for '+Utils.fmtShort(d)+'.'+(_existingAtt?' Existing attendance records for this date are kept in the database.':''));
   },
 
   onBatchJumpDate: function(e) { this.setState({batchJumpDate:e.target.value}); },

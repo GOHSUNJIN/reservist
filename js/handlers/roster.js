@@ -15,7 +15,7 @@ const RosterHandlers = {
       if(!this.state.demo){
         if(!this.state.isOnline){
           const isNewPresent=status==='present'&&!prev.p1;
-          this._queuePush({id,date:viewDateKey,status,extras:isNewPresent?{time:p1,dist:prev.p1dist}:{}});
+          this._queuePush({type:'status',id,date:viewDateKey,status,extras:isNewPresent?{time:p1,dist:prev.p1dist}:{}});
           this._haptic(40);
           const _sl={present:'Marked present (queued)',mc:'Marked MC (queued)',absent:'Marked absent (queued)'};
           this._toast(_sl[status]||'Queued');
@@ -151,6 +151,10 @@ const RosterHandlers = {
       return;
     }
     this.setState({viewOffset:off, logSearch:'', confirmMarkAllAbsent:false});
+    if(off === 0 && !this.state.demo && this.state.isOnline) {
+      const _today = Utils.dateKey(this.dateForOffset(0));
+      DB.attendance.getForDate(_today).then(att => { if(this.state.viewOffset === 0) this.setState({attendance:att}); }).catch(()=>{});
+    }
     this._loadDateAttendance(off);
   },
 
