@@ -2405,6 +2405,13 @@
             </sc-for>
           </sc-if>
         </div>
+        <sc-if value="{{ memberSearchTotalPages > 1 }}" hint-placeholder-val="">
+        <div style="padding:10px 20px;border-top:1px solid #f0f2f6;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;">
+          <button onClick="{{ memberSearchPagePrev }}" style="padding:6px 14px;border-radius:8px;border:1px solid #d4d9e2;background:#fff;color:#5c6678;font-size:12.5px;font-weight:600;cursor:pointer;opacity:{{ memberSearchHasPrev ? '1' : '0.35' }};" disabled="{{ !memberSearchHasPrev }}">Prev</button>
+          <span style="font-size:12.5px;color:#8a94a3;font-weight:500;">{{ memberSearchPageLabel }}</span>
+          <button onClick="{{ memberSearchPageNext }}" style="padding:6px 14px;border-radius:8px;border:1px solid #d4d9e2;background:#fff;color:#5c6678;font-size:12.5px;font-weight:600;cursor:pointer;opacity:{{ memberSearchHasNext ? '1' : '0.35' }};" disabled="{{ !memberSearchHasNext }}">Next</button>
+        </div>
+        </sc-if>
         <sc-if value="{{ hasMemberSelection }}" hint-placeholder-val="">
         <div style="padding:12px 20px 28px;border-top:1px solid #f0f2f6;flex:0 0 auto;">
           <sc-if value="{{ !confirmBulkDeleteOpen }}" hint-placeholder-val="">

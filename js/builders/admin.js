@@ -277,7 +277,8 @@ const AdminBuilders = {
         });
         return opts;
       })(),
-      memberSearchRows:(()=>{
+      ...(()=>{
+        const PAGE_SIZE=20;
         const liveBatchId=(s.batches||[]).find(b=>b.is_live)?.id||null;
         const _mStatus=p=>!p.is_active?'removed':p.batch_id===liveBatchId?'current':'past';
         const _mLabel=p=>!p.is_active?'Removed':p.batch_id===liveBatchId?'Current':'Past';
@@ -287,33 +288,33 @@ const AdminBuilders = {
         const mf=s.memberSearchStatus||'all';
         const mc=s.memberSearchCycle||'all';
         const _getBatchLabel=p=>{const b=(s.batches||[]).find(x=>x.id===p.batch_id);return b?(b.label||Utils.dateKey(new Date(b.start_date)).slice(0,7)):'No cycle';};
-        let rows=s.memberSearchList;
-        if(q) rows=rows.filter(p=>{const bl=_getBatchLabel(p).toLowerCase();return p.name.toLowerCase().includes(q)||(p.contact||'').toLowerCase().includes(q)||bl.includes(q);});
-        if(mf!=='all') rows=rows.filter(p=>_mStatus(p)===mf);
-        if(mc!=='all') rows=rows.filter(p=>p.batch_id===mc);
-        return rows.map(p=>{
-          const batchLabel=_getBatchLabel(p);
-          const isConfirming=s.confirmDeleteMemberId===p.id;
-          return {
-            id:p.id, name:p.name, contact:p.contact||'', initials:Utils.initials(p.name),
-            statusLabel:_mLabel(p), statusColor:_mColor(p), statusBg:_mBg(p),
-            batchLabel, shiftLabel:Utils.shiftLabel(p.shift),
-            isConfirming, onAskDelete:this.askDeleteMember(p.id),
-            isSelected:s.memberSearchSelected.includes(p.id), onToggleSelect:this.toggleMemberSelect(p.id),
-          };
-        });
-      })(),
-      memberSearchEmpty:s.memberSearchLoaded&&(()=>{
-        const liveBatchId=(s.batches||[]).find(b=>b.is_live)?.id||null;
-        const _mStatus=p=>!p.is_active?'removed':p.batch_id===liveBatchId?'current':'past';
-        const _getBatchLabel=p=>{const b=(s.batches||[]).find(x=>x.id===p.batch_id);return b?(b.label||Utils.dateKey(new Date(b.start_date)).slice(0,7)):'No cycle';};
-        const q=(s.memberSearchText||'').toLowerCase().trim();
-        const mf=s.memberSearchStatus||'all'; const mc=s.memberSearchCycle||'all';
-        let rows=s.memberSearchList;
-        if(q) rows=rows.filter(p=>{const bl=_getBatchLabel(p).toLowerCase();return p.name.toLowerCase().includes(q)||(p.contact||'').toLowerCase().includes(q)||bl.includes(q);});
-        if(mf!=='all') rows=rows.filter(p=>_mStatus(p)===mf);
-        if(mc!=='all') rows=rows.filter(p=>p.batch_id===mc);
-        return rows.length===0;
+        let filtered=s.memberSearchList;
+        if(q) filtered=filtered.filter(p=>{const bl=_getBatchLabel(p).toLowerCase();return p.name.toLowerCase().includes(q)||(p.contact||'').toLowerCase().includes(q)||bl.includes(q);});
+        if(mf!=='all') filtered=filtered.filter(p=>_mStatus(p)===mf);
+        if(mc!=='all') filtered=filtered.filter(p=>p.batch_id===mc);
+        const totalPages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE));
+        const page=Math.min(Math.max(1,s.memberSearchPage||1),totalPages);
+        const paged=filtered.slice((page-1)*PAGE_SIZE,page*PAGE_SIZE);
+        return {
+          memberSearchRows:paged.map(p=>{
+            const batchLabel=_getBatchLabel(p);
+            const isConfirming=s.confirmDeleteMemberId===p.id;
+            return {
+              id:p.id, name:p.name, contact:p.contact||'', initials:Utils.initials(p.name),
+              statusLabel:_mLabel(p), statusColor:_mColor(p), statusBg:_mBg(p),
+              batchLabel, shiftLabel:Utils.shiftLabel(p.shift),
+              isConfirming, onAskDelete:this.askDeleteMember(p.id),
+              isSelected:s.memberSearchSelected.includes(p.id), onToggleSelect:this.toggleMemberSelect(p.id),
+            };
+          }),
+          memberSearchEmpty:s.memberSearchLoaded&&filtered.length===0,
+          memberSearchPage:page, memberSearchTotalPages:totalPages,
+          memberSearchTotal:filtered.length,
+          memberSearchHasPrev:page>1, memberSearchHasNext:page<totalPages,
+          memberSearchPagePrev:()=>this.setState({memberSearchPage:Math.max(1,page-1)}),
+          memberSearchPageNext:()=>this.setState({memberSearchPage:Math.min(totalPages,page+1)}),
+          memberSearchPageLabel:`${page} / ${totalPages}`,
+        };
       })(),
       realtimeLive:s.realtimeLive,
       realtimeLiveBg:s.realtimeLive?'#e7f3ec':'#f7e4e1',
