@@ -69,6 +69,11 @@ const AuthHandlers = {
       this.setState({loading:false, authError:'Your previous signup request was not approved. Contact your supervisor.'});
       return;
     }
+    if(existingReq?.status==='approved' && existingReq.batch_id===activeBatch.id){
+      await DB.auth.logout();
+      this.setState({loading:false, authError:'You are already enrolled for this cycle. Please log in directly.'});
+      return;
+    }
     const {error:reqErr} = await DB.signupRequests.create({authId:signupUser.id, name:suName.trim(), contact:cleanContact, shift, batchId:activeBatch.id});
     if(reqErr){
       await DB.auth.logout();

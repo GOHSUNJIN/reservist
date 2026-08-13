@@ -45,12 +45,13 @@ const DB = {
     },
 
     async deleteUser(userId) {
-      return await _db.auth.admin.deleteUser(userId);
+      const { error } = await _db.rpc('delete_auth_user', { p_user_id: userId });
+      return { error };
     },
 
     async adminResetPassword(authId, newPassword) {
-      const { data, error } = await _db.auth.admin.updateUserById(authId, { password: newPassword });
-      return { data, error };
+      const { error } = await _db.rpc('admin_reset_password', { p_user_id: authId, p_new_password: newPassword });
+      return { data: !error, error };
     },
 
     async createUserAsAdmin(contact, password, name) {
@@ -111,7 +112,7 @@ const DB = {
       await _db.from('attendance').delete().eq('personnel_id', personnelId);
       await _db.storage.from('avatars').remove([personnelId]).catch(()=>{});
       const { error } = await _db.from('personnel').delete().eq('id', personnelId);
-      if (authId) await _db.auth.admin.deleteUser(authId).catch(()=>{});
+      if (authId) await _db.rpc('delete_auth_user', { p_user_id: authId }).catch(()=>{});
       return { error };
     },
 
