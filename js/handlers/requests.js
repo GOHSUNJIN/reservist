@@ -69,6 +69,7 @@ const RequestHandlers = {
       const me = this.cur();
       const {error} = await DB.signupRequests.reject(id, me?.name||null);
       if(error){ this._toast('Failed to reject. Try again.','error'); return; }
+      if(req.auth_id) await DB.auth.deleteUser(req.auth_id).catch(()=>{});
       this.setState(s=>({pendingSignups:s.pendingSignups.filter(r=>r.id!==id), selectedSignupIds:s.selectedSignupIds.filter(x=>x!==id)}));
       this._toast(req.name+"'s signup was rejected.");
     };
