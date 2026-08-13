@@ -92,7 +92,7 @@ const AuthHandlers = {
       locStatus:'idle', locDistance:null, locGpsMsg:'', locSlow:false, locAccuracy:null, locPermErr:false, locRetryCount:0,
       accountOpen:false, confirmDelete:false,
       personnel:[], attendance:{}, history:[], attendanceCache:{}, batchMembersCache:{}, attendanceDate:null,
-      batches:[], activeBatchIdx:0, noReportDays:new Set(), avatars:{}, selectedCalOffset:null, offlinePending:false,
+      noReportDays:new Set(), avatars:{}, selectedCalOffset:null, offlinePending:false,
       testDate:null, testDateInput:'', testTime:null, testTimeInput:'', phaseSubmitting:false,
       acctNameEdit:'', acctPwCurrent:'', acctPwNew:'', acctPwConfirm:'',
       acctPwError:'', acctPwSuccess:'', acctNameError:'', acctNameSuccess:'', acctSaving:false,
