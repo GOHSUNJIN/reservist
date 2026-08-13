@@ -91,6 +91,12 @@ const CheckinHandlers = {
       const {locStatus,locDistance,locPhase,currentUserId,demo,isOnline,me} = this.state;
       if(locStatus!=='verified'||locPhase!==key) return;
       if(!demo && !me?.is_active){ this._toast('Your account has been deactivated. Please contact your supervisor.','error'); return; }
+      if(!demo){
+        const _myBatch = this.state.batches.find(b=>b.id===me?.batch_id);
+        if(_myBatch && Utils.dateKey(this.baseDate()) > _myBatch.end_date){
+          this._toast('Your reporting period has ended.','error'); return;
+        }
+      }
       const _curRec = this.myRec();
       const _prereq = {p2:'p1', p3:'p2', p4:'p3'};
       const _prereqMsg = {p2:'Check in first.', p3:'Record your break out first.', p4:'Record your return before checking out.'};
@@ -141,6 +147,12 @@ const CheckinHandlers = {
       if(this.state.phaseSubmitting) return;
       const {currentUserId,demo,isOnline,me} = this.state;
       if(!demo && !me?.is_active){ this._toast('Your account has been deactivated. Please contact your supervisor.','error'); return; }
+      if(!demo){
+        const _myBatch = this.state.batches.find(b=>b.id===me?.batch_id);
+        if(_myBatch && Utils.dateKey(this.baseDate()) > _myBatch.end_date){
+          this._toast('Your reporting period has ended.','error'); return;
+        }
+      }
       this.setState({phaseSubmitting:true});
       const _now = new Date();
       const time = Utils.hhmm(_now);

@@ -163,11 +163,13 @@ const InitHandlers = {
       const {attendanceDate:yesterday, attendance:yesterdayAtt, personnel, noReportDays} = this.state;
       if(yesterday && Utils.isReportDay(new Date(yesterday+'T00:00:00')) && !noReportDays.has(yesterday)){
         const pendingLeaves = this.state.pendingLeaves || [];
+        const approvedLeaves = await DB.leaves.listApprovedForDate(yesterday).catch(()=>[]);
+        const approvedLeaveIds = new Set(approvedLeaves.map(l=>l.personnel_id));
         const pending = personnel.filter(p=>{
           const r = yesterdayAtt[p.id];
           if(p.role !== 'reservist') return false;
           if(r && r.status !== 'pending') return false;
-          // Don't auto-absent if a pending leave request covers this date
+          if(approvedLeaveIds.has(p.id)) return false;
           return !pendingLeaves.some(l => l.personnel_id === p.id && l.date === yesterday);
         });
         if(pending.length) await Promise.all(pending.map(p=>DB.attendance.upsert(p.id, yesterday, 'absent', {}).catch(()=>{})));

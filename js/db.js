@@ -421,6 +421,12 @@ const DB = {
         .order('created_at', { ascending: false }).limit(20);
       return data || [];
     },
+
+    async listApprovedForDate(date) {
+      const { data } = await _db.from('leave_requests')
+        .select('personnel_id').eq('date', date).eq('status', 'approved');
+      return data || [];
+    },
   },
 
   // ── Storage (MC files) ────────────────────────────────────────────────────
