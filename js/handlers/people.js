@@ -321,7 +321,7 @@ const PeopleHandlers = {
       const contact = (parts[1]||'').replace(/[\s-]/g,'');
       const shiftRaw = (parts[2]||'AM').toUpperCase().replace(/\s/g,'');
       const shift = ['AM','PM','OFFICE'].includes(shiftRaw)?shiftRaw:'AM';
-      const valid = name.length>1 && contact.length>=6;
+      const valid = name.length>1 && /^[689]\d{7}$/.test(contact);
       return {name, contact, shift, valid};
     });
     this.setState({bulkAddParsed:parsed, bulkAddStep:'preview'});
