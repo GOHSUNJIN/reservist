@@ -20,16 +20,14 @@ const AdminRoster = {
     });
     const search=(s.rosterSearch||'').toLowerCase();
     const filteredRoster=roster.filter(r=>!search||r.name.toLowerCase().includes(search));
-    const sortKey=s.rosterSort||'shift';
+    const sortKey=s.rosterSort||'name';
     const sortedFiltered=[...filteredRoster].sort((a,b)=>{
-      if(sortKey==='name') return a.name.localeCompare(b.name);
       if(sortKey==='status'){const ord={present:0,mc:1,pending:2,absent:3};return (ord[a.status]??4)-(ord[b.status]??4);}
-      return 0;
+      return a.name.localeCompare(b.name);
     });
     const _sb='flex:1;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;white-space:nowrap;transition:background .15s,color .15s;';
     const _sa=_sb+'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.12);';
     const _si=_sb+'background:transparent;color:#8a94a3;';
-    const rosterSortShiftStyle=sortKey==='shift'?_sa:_si;
     const rosterSortNameStyle=sortKey==='name'?_sa:_si;
     const rosterSortStatusStyle=sortKey==='status'?_sa:_si;
     const total=roster.length;
@@ -203,10 +201,9 @@ const AdminRoster = {
       vPresentLabel:'Checked in',
       viewListHeader, viewPercentText, viewPercentColor,
       rosterSort:s.rosterSort,
-      setRosterSortShift:self.setRosterSort('shift'),
       setRosterSortName:self.setRosterSort('name'),
       setRosterSortStatus:self.setRosterSort('status'),
-      rosterSortShiftStyle,rosterSortNameStyle,rosterSortStatusStyle,
+      rosterSortNameStyle,rosterSortStatusStyle,
       // Feature: admin password reset
       resetPwOpen:s.resetPwId!==null,
       resetPwPersonName:(s.personnel.find(p=>p.id===s.resetPwId)||{}).name||'',
