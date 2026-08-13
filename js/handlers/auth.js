@@ -122,7 +122,7 @@ const AuthHandlers = {
       promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null, promoteSearch:'', promoteShowAllCycles:false, promoteListPage:1,
       peopleTab:'requests',
       editingBatchLabel:false, batchLabelText:'',
-      viewOffset:0, rosterSearch:'', logSearch:'', logShiftFilter:'all',
+      viewOffset:0, rosterSearch:'', logSearch:'',
       markingAllAbsent:false, confirmMarkAllAbsent:false,
       personHistoryId:null, personHistoryRows:[], personHistoryLoading:false,
       signupPending:false,

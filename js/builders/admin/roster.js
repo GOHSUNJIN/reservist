@@ -89,7 +89,6 @@ const AdminRoster = {
         })(),
       };
     });
-    const logShiftFilter=s.logShiftFilter||'all';
     const logStatusFilter=s.logStatusFilter||'all';
     const logSearch=(s.logSearch||'').toLowerCase().trim();
     const statusFiltered=logStatusFilter==='all'?logRows:logRows.filter(r=>{
@@ -99,10 +98,8 @@ const AdminRoster = {
       if(logStatusFilter==='pending') return r.label==='Pending';
       return true;
     });
-    const shiftFiltered=logShiftFilter==='all'?statusFiltered:statusFiltered.filter(r=>r.shift===logShiftFilter);
-    const filteredLogRows=logSearch?shiftFiltered.filter(r=>r.name.toLowerCase().includes(logSearch)):shiftFiltered;
+    const filteredLogRows=logSearch?statusFiltered.filter(r=>r.name.toLowerCase().includes(logSearch)):statusFiltered;
     const pendingCount=logRows.filter(r=>r.label==='Pending').length;
-    const _fBtn=(f,accent)=>`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${logShiftFilter===f?accent:'#d4d9e2'};background:${logShiftFilter===f?accent:'#fff'};color:${logShiftFilter===f?'#fff':'#5c6678'};`;
     const _fSBtn=(f)=>`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${logStatusFilter===f?accent:'#d4d9e2'};background:${logStatusFilter===f?accent:'#fff'};color:${logStatusFilter===f?'#fff':'#5c6678'};`;
     const lateRows=viewIsToday?logRows.filter(r=>r.isLate):[];
     const lateCount=lateRows.length;
@@ -139,9 +136,6 @@ const AdminRoster = {
       ...(()=>{const _iStyle=k=>{const err=s.timesEditErrField===k;return`width:100%;padding:8px 10px;border:1.5px solid ${err?'#c0392b':'#d4d9e2'};border-radius:8px;font-size:13px;font-family:'IBM Plex Mono',monospace;outline:none;background:${err?'#fff5f5':'#f6f8fa'};box-sizing:border-box;color:#161f30;`;};return{timesEditP1Style:_iStyle('p1'),timesEditP2Style:_iStyle('p2'),timesEditP3Style:_iStyle('p3'),timesEditP4Style:_iStyle('p4')};})(),
       onTimesP1:self.onTimesP1, onTimesP2:self.onTimesP2, onTimesP3:self.onTimesP3, onTimesP4:self.onTimesP4,
       saveTimesEdit:self.saveTimesEdit, closeTimesEdit:self.closeTimesEdit,
-      logShiftFilter:s.logShiftFilter||'all', onLogShiftChange:self.onLogShiftChange,
-      setLogFilterAll:self.setLogShiftFilter('all'),
-      logFilterAllStyle:_fBtn('all',accent),
       setLogStatusAll:self.setLogStatusFilter('all'), setLogStatusPresent:self.setLogStatusFilter('present'),
       setLogStatusMc:self.setLogStatusFilter('mc'), setLogStatusAbsent:self.setLogStatusFilter('absent'), setLogStatusPending:self.setLogStatusFilter('pending'),
       logStatusAllStyle:_fSBtn('all'), logStatusPresentStyle:_fSBtn('present'),

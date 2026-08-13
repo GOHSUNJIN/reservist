@@ -117,7 +117,7 @@ const AccountHandlers = {
       } else {
         this.loadPendingLeaves();
         if(this.state.adminNotifGranted && typeof Notification !== 'undefined' && Notification.permission === 'granted'){
-          const typeMap = {mc:'MC',shift_change:'Shift Change',other:'Other',personal:'Personal Leave'};
+          const typeMap = {mc:'MC',other:'Other',personal:'Personal Leave'};
           new Notification('New request from personnel', {body:(typeMap[row.type]||row.type)+' request received.',icon:'./icon.svg'});
         }
       }
