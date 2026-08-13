@@ -26,6 +26,8 @@ const InitHandlers = {
         this.setState({authed:false,loading:false,authError:'Your account is pending admin approval. You will be able to log in once an admin approves your request.'});
       } else if(req?.status==='rejected'){
         this.setState({authed:false,loading:false,authError:'Your signup request was not approved. Please contact your supervisor.'});
+      } else if(req?.status==='approved'){
+        this.setState({authed:false,loading:false,authError:'Your signup was approved but your account setup is incomplete. Please contact your supervisor to fix this.'});
       } else {
         this.setState({authed:false,loading:false,authError:'Account setup incomplete. Please sign up again.'});
       }

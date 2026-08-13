@@ -57,10 +57,11 @@ const RequestHandlers = {
         if(addErr){ this._toast('Approved but failed to create personnel record. Try again.','error'); return; }
         finalPerson = newPerson;
       }
+      const freshPersonnel = await DB.personnel.list().catch(()=>null);
       this.setState(s=>({
         pendingSignups:s.pendingSignups.filter(r=>r.id!==id),
         approvedSignups:[{...req,status:'approved',reviewed_by:reviewerName,reviewed_at:new Date().toISOString()},...s.approvedSignups],
-        personnel:finalPerson&&(!existing||wasInactive)?[...s.personnel,finalPerson]:s.personnel,
+        ...(freshPersonnel ? {personnel:freshPersonnel} : finalPerson&&(!existing||wasInactive) ? {personnel:[...s.personnel,finalPerson]} : {}),
       }));
       this._toast(req.name+' approved and added to the roster.');
     };
@@ -137,11 +138,12 @@ const RequestHandlers = {
       this.setState(s=>({
         pendingSignups:s.pendingSignups.filter(r=>r.id!==req.id),
         approvedSignups:[{...req,status:'approved',reviewed_by:reviewerName,reviewed_at:new Date().toISOString()},...s.approvedSignups],
-        personnel:finalPerson&&(!existing||wasInactive)?[...s.personnel,finalPerson]:s.personnel,
+        ...(finalPerson&&(!existing||wasInactive) ? {personnel:[...s.personnel,finalPerson]} : {}),
       }));
       count++;
     }
-    this.setState({selectedSignupIds:[]});
+    const freshPersonnel = await DB.personnel.list().catch(()=>null);
+    this.setState(s=>({selectedSignupIds:[], ...(freshPersonnel?{personnel:freshPersonnel}:{})}));
     if(count) this._toast(count+' signup'+(count>1?'s':'')+' approved.');
   },
 
