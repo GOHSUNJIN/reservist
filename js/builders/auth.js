@@ -8,16 +8,6 @@ const AuthBuilders = {
     const isLastDay=!!(liveBatch&&today===liveBatch.end_date);
     const nextBatch=isLastDay?sortedBatches.find(b=>b.start_date>(liveBatch?.end_date||'')):null;
     const targetBatch=nextBatch||liveBatch;
-    const targetMembers=(s.personnel||[]).filter(p=>p.batch_id===targetBatch?.id&&(p.role||'reservist')==='reservist');
-    const {am:amCount, pm:pmCount}=this._shiftSlotCounts(targetMembers);
-    const amFull=amCount>=2, pmFull=pmCount>=2;
-    let suShift=s.suShift;
-    if((suShift==='AM'&&amFull)||(suShift==='PM'&&pmFull)) suShift='OFFICE';
-    const shiftOptions=[
-      {value:'AM', disabled:amFull, selected:suShift==='AM', label:amFull?'AM shift (0830-1530) (Taken)':'AM shift (0830-1530) ('+amCount+'/2)'},
-      {value:'PM', disabled:pmFull, selected:suShift==='PM', label:pmFull?'PM shift (1530-2230) (Taken)':'PM shift (1530-2230) ('+pmCount+'/2)'},
-      {value:'OFFICE', disabled:false, selected:suShift==='OFFICE', label:'Office (0900-1800)'},
-    ];
     const tb=a=>`flex:1;padding:11px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;${a?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`;
     const bs=targetBatch?new Date(targetBatch.start_date+'T00:00:00'):null;
     const be=targetBatch?new Date(targetBatch.end_date+'T00:00:00'):null;
@@ -36,11 +26,8 @@ const AuthBuilders = {
       onLoginNric:this.onLoginContact, onLoginPassword:this.onLoginPassword,
       onLoginNricKeyDown:this.onLoginContactKeyDown,
       doLogin:this.doLogin, demoReservist:this.demoReservist, demoAdmin:this.demoAdmin,
-      suName:s.suName, suContact:s.suContact, suShift, shiftOptions, suPassword:s.suPassword,
-      amFull, pmFull, amCount, pmCount,
-      amShiftLabel:amFull?'AM shift (0830-1530) (Taken)':'AM shift (0830-1530) ('+amCount+'/2)',
-      pmShiftLabel:pmFull?'PM shift (1530-2230) (Taken)':'PM shift (1530-2230) ('+pmCount+'/2)',
-      onSuName:this.onSuName, onSuContact:this.onSuContact, onSuShift:this.onSuShift, onSuShiftSelect:this.onSuShiftSelect, onSuPassword:this.onSuPassword,
+      suName:s.suName, suContact:s.suContact, suPassword:s.suPassword,
+      onSuName:this.onSuName, onSuContact:this.onSuContact, onSuPassword:this.onSuPassword,
       doSignup:this.doSignup,
       intakeLabel, intakeRange:intakeRangeFull, intakeRangeFull,
       signupIsNextCycle:isLastDay&&!!nextBatch,

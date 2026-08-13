@@ -142,12 +142,6 @@ const RequestHandlers = {
     return async () => {
       const leave = this.state.pendingLeaves.find(l => l.id === id);
       if(!this.state.demo && leave) {
-        if(leave.type === 'shift_change' && leave.requested_shift) {
-          const {am, pm} = this._shiftSlotCounts(this.state.personnel);
-          if((leave.requested_shift==='AM' && am>=2) || (leave.requested_shift==='PM' && pm>=2)){
-            this._toast(`${leave.requested_shift} shift is full (2/2). Cannot approve shift change.`,'error'); return;
-          }
-        }
         const me = this.cur();
         const reviewMeta = { reviewed_by: me?.name || null, reviewed_at: new Date().toISOString() };
         const {data: updated} = await DB.leaves.updateStatus(id, 'approved', reviewMeta).catch(()=>({}));
@@ -207,14 +201,6 @@ const RequestHandlers = {
       const me=this.cur(), reviewMeta={reviewed_by:me?.name||null,reviewed_at:new Date().toISOString()};
       await Promise.all(leaveSelectedIds.map(async id=>{
         const leave=pendingLeaves.find(l=>l.id===id);
-        if(leave?.type==='shift_change'&&leave?.requested_shift){
-          const {am,pm}=this._shiftSlotCounts(this.state.personnel);
-          if((leave.requested_shift==='AM'&&am>=2)||(leave.requested_shift==='PM'&&pm>=2)){
-            this._toast(`${leave.requested_shift} shift full — skipped ${leave.personnel?.name||'one request'}.`,'error');
-            skipped++;
-            return;
-          }
-        }
         const ops=[DB.leaves.updateStatus(id,'approved',reviewMeta).catch(()=>{})];
         if(leave?.type==='mc') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'mc',{}).catch(()=>{}));
         else if(leave?.type==='personal'||leave?.type==='other') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'absent',{}).catch(()=>{}));
@@ -275,28 +261,6 @@ const RequestHandlers = {
     }
     this._toast('Request submitted for approval.');
     this.setState({leaveOpen:false});
-  },
-
-  // ── Shift change requests ──────────────────────────────────────────────
-  openShiftChange: function() { const me=this.cur(); this.setState({shiftChangeOpen:true,shiftChangeNew:me?.shift||'AM',shiftChangeReason:'',shiftChangeConfirming:false}); },
-  closeShiftChange: function() { this.setState({shiftChangeOpen:false,shiftChangeConfirming:false}); },
-  onShiftChangeNew: function(v) { return () => this.setState({shiftChangeNew:v,shiftChangeConfirming:false}); },
-  onShiftChangeReason: function(e) { this.setState({shiftChangeReason:e.target.value}); },
-  backShiftChange: function() { this.setState({shiftChangeConfirming:false}); },
-
-  submitShiftChange: async function() {
-    const {currentUserId,shiftChangeNew,shiftChangeReason,demo,shiftChangeConfirming,myPendingRequest}=this.state;
-    const _me = this.cur();
-    if(shiftChangeNew === _me?.shift){ this._toast('You are already on '+shiftChangeNew+' shift.','error'); return; }
-    if(myPendingRequest){ this._toast('You already have a pending request. Wait for it to be reviewed first.','error'); return; }
-    if(!shiftChangeReason.trim()){ this._toast('Please provide a reason for the shift change.','error'); return; }
-    if(!shiftChangeConfirming){ this.setState({shiftChangeConfirming:true}); return; }
-    if(!demo){
-      const {error}=await DB.leaves.request(currentUserId,Utils.dateKey(this.baseDate()),'shift_change',shiftChangeReason,shiftChangeNew).catch(e=>({error:e}));
-      if(error){ this._toast('Failed to send request.','error'); this.setState({shiftChangeConfirming:false}); return; }
-    }
-    this._toast('Shift change request sent.');
-    this.setState({shiftChangeOpen:false,shiftChangeConfirming:false});
   },
 
   // ── Welfare note ───────────────────────────────────────────────────────

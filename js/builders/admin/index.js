@@ -4,9 +4,7 @@ const AdminBuilders = {
   _adminContext: function(s) {
     const batches=s.batches, activeBatchIdx=s.activeBatchIdx||0, activeBatch=batches[activeBatchIdx];
     const activeMembers=(activeBatch?.is_live?s.personnel.filter(p=>p.batch_id===activeBatch.id):(s.batchMembersCache?.[activeBatch?.id]||[])).filter(p=>(p.role||'reservist')==='reservist');
-    const {am:npAmCount,pm:npPmCount}=this._shiftSlotCounts(activeMembers);
-    const npAmFull=npAmCount>=2, npPmFull=npPmCount>=2;
-    let npShift=s.npShift; if((npShift==='AM'&&npAmFull)||(npShift==='PM'&&npPmFull)) npShift='OFFICE';
+    const npShift='OFFICE';
     const todayForChips=Utils.dateKey(this.baseDate());
     const viewOffset=s.viewOffset||0, viewDate=this.dateForOffset(viewOffset), viewIsToday=viewOffset===0, viewReportDay=Utils.isReportDay(viewDate);
     const viewDateKey=Utils.dateKey(viewDate);
@@ -29,7 +27,7 @@ const AdminBuilders = {
     const approvedByContact=new Map((s.approvedSignups||[]).map(r=>[r.contact,r.reviewed_by||'Admin']));
     return {
       batches,activeBatchIdx,activeBatch,activeMembers,
-      npAmCount,npPmCount,npAmFull,npPmFull,npShift,
+      npShift,
       todayForChips,
       viewOffset,viewDate,viewIsToday,viewReportDay,viewDateKey,viewMap,viewBlocked,isDekit,viewShowReporting,
       liveBatch,

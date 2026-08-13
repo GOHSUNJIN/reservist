@@ -2,7 +2,7 @@
 const AdminBatch = {
 
   build: function(self, s, accent, ctx) {
-    const {batches,activeBatchIdx,activeBatch,activeMembers,npAmCount,npPmCount,npAmFull,npPmFull,npShift,todayForChips,batchTotalPresent,batchTotalMc,batchTotalAbsent,batchAvgPct,liveBatch,approvedByContact} = ctx;
+    const {batches,activeBatchIdx,activeBatch,activeMembers,npShift,todayForChips,batchTotalPresent,batchTotalMc,batchTotalAbsent,batchAvgPct,liveBatch,approvedByContact} = ctx;
     const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const allChips=batches.map((b,i)=>{
@@ -96,9 +96,6 @@ const AdminBatch = {
       showBatchStats:s.peopleStatsLoaded,
       newBatchDate:s.newBatchDate,onNewBatchDate:self.onNewBatchDate,createBatch:self.createBatch,batchCreating:s.batchCreating,
       npName:s.npName, npContact:s.npContact, npShift, npPassword:s.npPassword,
-      npAmFull, npPmFull, npAmCount, npPmCount,
-      npAmLabel:npAmFull?'AM shift (0830-1530) (Taken)':'AM shift (0830-1530) ('+npAmCount+'/2)',
-      npPmLabel:npPmFull?'PM shift (1530-2230) (Taken)':'PM shift (1530-2230) ('+npPmCount+'/2)',
       addPersonnelOpen:!!(s.addPersonnelOpen), toggleAddPersonnel:self.toggleAddPersonnel,
       addPersonnelBtnBg:s.addPersonnelOpen?'#161f30':'#eceef2',
       addPersonnelBtnStroke:s.addPersonnelOpen?'#fff':'#5c6678',
@@ -126,7 +123,7 @@ const AdminBatch = {
       bulkAddAdding:s.bulkAddAdding,
       bulkAddAddingOpacity:s.bulkAddAdding?0.6:1,
       ...(()=>{
-        const _parsed=(s.bulkAddParsed||[]).map(r=>({...r,validColor:r.valid?'#1f8a5b':'#c0392b',validLabel:r.valid?'OK':'Skip',shiftDisplay:r.shift||'AM'}));
+        const _parsed=(s.bulkAddParsed||[]).map(r=>({...r,validColor:r.valid?'#1f8a5b':'#c0392b',validLabel:r.valid?'OK':'Skip',shiftDisplay:'OFFICE'}));
         const _vc=_parsed.filter(r=>r.valid).length;
         return {
           bulkAddParsed:_parsed,

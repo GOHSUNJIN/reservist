@@ -105,9 +105,7 @@ const CheckinHandlers = {
       const _now = new Date();
       const time = Utils.hhmm(_now);
       if(key==='p1'){
-        const me=this.state.me; const shift=me?.shift||'AM';
-        const cutoff=Utils.LATE_CUTOFF[shift]||'08:30';
-        const [ch,cm]=cutoff.split(':').map(Number);
+        const [ch,cm]='09:00'.split(':').map(Number);
         const [th,tm]=time.split(':').map(Number);
         const minsLate=(th*60+tm)-(ch*60+cm);
         if(minsLate>=60) this.setState({lateReasonOpen:true,lateReasonText:''});
@@ -161,9 +159,7 @@ const CheckinHandlers = {
       const _now = new Date();
       const time = Utils.hhmm(_now);
       if(key==='p1'){
-        const me=this.state.me; const shift=me?.shift||'AM';
-        const cutoff=Utils.LATE_CUTOFF[shift]||'08:30';
-        const [ch,cm]=cutoff.split(':').map(Number);
+        const [ch,cm]='09:00'.split(':').map(Number);
         const [th,tm]=time.split(':').map(Number);
         const minsLate=(th*60+tm)-(ch*60+cm);
         if(minsLate>=60) this.setState({lateReasonOpen:true,lateReasonText:''});

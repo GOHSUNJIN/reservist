@@ -10,11 +10,11 @@ const AdminRoster = {
       const cardStyle='background:#fff;border:1px solid #e3e6ec;border-left:3px solid '+mm.color+';border-radius:12px;padding:11px 13px;';
       const av=s.avatars[p.id]||'';
       const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
-      const _phaseParts=[r.p1?'IN '+r.p1:null,r.p2?((p.shift==='PM'?'DIN ':'LCH ')+r.p2):null,r.p3?'BACK '+r.p3:null,r.p4?'OUT '+r.p4:null].filter(Boolean);
+      const _phaseParts=[r.p1?'IN '+r.p1:null,r.p2?('LCH '+r.p2):null,r.p3?'BACK '+r.p3:null,r.p4?'OUT '+r.p4:null].filter(Boolean);
       const phaseLine=_phaseParts.join('  ·  ');
       const showPhaseLine=r.status==='present'&&_phaseParts.length>0;
       const _pct=s.peopleStats[p.id]?.pct??null;
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:self.setStatus(p.id,'present'),markMc:self.setStatus(p.id,'mc'),markAbsent:self.setStatus(p.id,'absent'),onShiftChange:self.changeShift(p.id),onViewHistory:self.openPersonHistory(p.id),cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0,
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:self.setStatus(p.id,'present'),markMc:self.setStatus(p.id,'mc'),markAbsent:self.setStatus(p.id,'absent'),onViewHistory:self.openPersonHistory(p.id),cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0,
         lowAttendance:s.peopleStatsLoaded&&_pct!==null&&_pct<75,
         statPctText:s.peopleStatsLoaded&&_pct!==null?(_pct+'%'):''};
     });
@@ -24,7 +24,7 @@ const AdminRoster = {
     const sortedFiltered=[...filteredRoster].sort((a,b)=>{
       if(sortKey==='name') return a.name.localeCompare(b.name);
       if(sortKey==='status'){const ord={present:0,mc:1,pending:2,absent:3};return (ord[a.status]??4)-(ord[b.status]??4);}
-      const so={AM:0,PM:1,OFFICE:2};return (so[a.shift]??3)-(so[b.shift]??3);
+      return 0;
     });
     const _sb='flex:1;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;white-space:nowrap;transition:background .15s,color .15s;';
     const _sa=_sb+'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.12);';
@@ -37,11 +37,11 @@ const AdminRoster = {
     const _orgN=self.props.orgName||'Ops Security';
     const snapshotLines=['📋 *'+_orgN+', '+Utils.fmtMed(viewDate)+'*','✅ Present ('+present+'): '+(roster.filter(r=>r.label==='Present').map(r=>r.name).join(', ')||'(none)'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.label==='On MC').map(r=>r.name).join(', ')||'(none)'),snapshotLastLine];
     const snapshotLink='https://api.whatsapp.com/send?text='+encodeURIComponent(snapshotLines.join('\n'));
-    const shiftCutoff=Utils.LATE_CUTOFF;
+    const nowHhmm=Utils.hhmm(s.now);
+    const isLiveView=viewOffset===0;
     const logRows=activeMembers.map(p=>{
       const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent'}, mm=Utils.meta(r.status);
-      const cutoff=shiftCutoff[p.shift||'AM'];
-      const [_cc,_ccm]=cutoff.split(':').map(Number);
+      const [_cc,_ccm]='09:00'.split(':').map(Number);
       const _lm=r.p1?(()=>{const[h,m]=r.p1.split(':').map(Number);return(h*60+m)-(_cc*60+_ccm);})():0;
       const isLate=r.status==='present'&&_lm>=60;
       const lateReason=r.lateReason||'';
@@ -65,12 +65,28 @@ const AdminRoster = {
         p2Color:r.p2?'#161f30':'#c2c8d2',
         p3Color:r.p3?'#161f30':'#c2c8d2',
         p4Color:r.p4?'#161f30':'#c2c8d2',
-        avatarStyle, shift:p.shift||'AM',
-        p2Label:p.shift==='PM'?'DIN':'LCH',
-        p2FormLabel:p.shift==='PM'?'Dinner':'Lunch',
-        p3Label:p.shift==='PM'?'Return (dinner)':'Return (lunch)',
+        avatarStyle, shift:p.shift||'OFFICE',
+        p2Label:'LCH',
+        p2FormLabel:'Lunch',
+        p3Label:'Return (lunch)',
         isTimesEditing:s.timesEditId===p.id,
         onEditTimes:self.openTimesEdit(p.id),
+        ...(() => {
+          const showMealBadge=r.status==='present'&&!!r.p1&&(!!r.p4||isLiveView);
+          if(!showMealBadge) return {showMealBadge:false};
+          const mealOk=Utils.mealEligible(r,nowHhmm);
+          const workMinsVal=Utils.workMins(r,nowHhmm);
+          const done=!!r.p4;
+          return {
+            showMealBadge:true,
+            mealBadgeText:mealOk?(done?'Meal eligible':'On track'):(done?'No meal allowance':'Not yet 8h'),
+            mealBadgeColor:mealOk?'#1f8a5b':(done?'#c0392b':'#b9791a'),
+            mealBadgeBg:mealOk?'#e7f3ec':(done?'#f7e4e1':'#fdf6e9'),
+            mealBadgeBorder:mealOk?'#a8d5bb':(done?'#e5a9a4':'#f0e2c2'),
+            showWorkTime:workMinsVal>0,
+            workTimeText:Utils.fmtMins(workMinsVal)+' worked',
+          };
+        })(),
       };
     });
     const logShiftFilter=s.logShiftFilter||'all';
@@ -124,10 +140,8 @@ const AdminRoster = {
       onTimesP1:self.onTimesP1, onTimesP2:self.onTimesP2, onTimesP3:self.onTimesP3, onTimesP4:self.onTimesP4,
       saveTimesEdit:self.saveTimesEdit, closeTimesEdit:self.closeTimesEdit,
       logShiftFilter:s.logShiftFilter||'all', onLogShiftChange:self.onLogShiftChange,
-      setLogFilterAll:self.setLogShiftFilter('all'), setLogFilterAm:self.setLogShiftFilter('AM'),
-      setLogFilterPm:self.setLogShiftFilter('PM'), setLogFilterOffice:self.setLogShiftFilter('OFFICE'),
-      logFilterAllStyle:_fBtn('all',accent), logFilterAmStyle:_fBtn('AM',accent),
-      logFilterPmStyle:_fBtn('PM',accent), logFilterOfficeStyle:_fBtn('OFFICE',accent),
+      setLogFilterAll:self.setLogShiftFilter('all'),
+      logFilterAllStyle:_fBtn('all',accent),
       setLogStatusAll:self.setLogStatusFilter('all'), setLogStatusPresent:self.setLogStatusFilter('present'),
       setLogStatusMc:self.setLogStatusFilter('mc'), setLogStatusAbsent:self.setLogStatusFilter('absent'), setLogStatusPending:self.setLogStatusFilter('pending'),
       logStatusAllStyle:_fSBtn('all'), logStatusPresentStyle:_fSBtn('present'),

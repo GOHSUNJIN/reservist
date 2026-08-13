@@ -9,7 +9,7 @@ const makeInitialState = () => ({
   authError: '', loading: false, accountDeleted: false,
   // form fields
   loginContact: '', loginPassword: '',
-  suName: '', suContact: '', suShift: 'AM', suPassword: '',
+  suName: '', suContact: '', suPassword: '',
   // live data
   personnel: [], attendance: {}, attendanceCache: {},
   batches: [], activeBatchIdx: 0,
@@ -20,7 +20,7 @@ const makeInitialState = () => ({
   locStatus: 'idle', locDistance: null, locGpsMsg: '',
   accountOpen: false, confirmDelete: false,
   viewOffset: 0, avatars: {}, selectedCalOffset: null,
-  npName: '', npContact: '', npShift: 'AM', npPassword: '',
+  npName: '', npContact: '', npShift: 'OFFICE', npPassword: '',
   rosterSearch: '',
   realtimeChannel: null,
   now: new Date(), demo: false,
@@ -61,7 +61,6 @@ const makeInitialState = () => ({
   leaveOpen: false, leaveDate: '', leaveType: 'mc', leaveReason: '',
   myPendingRequest: null,
   pendingLeaves: [], pendingLeavesLoaded: false,
-  shiftChangeOpen: false, shiftChangeNew: 'AM', shiftChangeReason: '', shiftChangeConfirming: false,
   adminNotifGranted: false,
   myLeaveHistory: [], myLeaveHistoryLoaded: false,
   welfareNoteOpen: false, welfareNoteText: '', welfareNoteSaving: false,

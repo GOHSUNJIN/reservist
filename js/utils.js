@@ -1,6 +1,6 @@
 const Utils = {
-  shiftLabel(s){ return s==='AM'?'AM shift':s==='PM'?'PM shift':'Office'; },
-  shiftWindow(s){ return s==='AM'?'0830 to 1530 hrs':s==='PM'?'1530 to 2230 hrs':'0900 to 1800 hrs'; },
+  shiftLabel(s){ return 'Office'; },
+  shiftWindow(s){ return '0900 to 1800 hrs'; },
   initials(name){ const p=(name||'').trim().split(/\s+/); return ((p[0]||'')[0]||'').toUpperCase()+((p[p.length-1]||'')[0]||'').toUpperCase(); },
   meta(s){
     if(s==='present') return {label:'Present',color:'#1f8a5b',bg:'#e7f3ec'};
@@ -79,13 +79,11 @@ const Utils = {
     }
   },
 
-  LATE_CUTOFF:{AM:'08:30',PM:'15:30',OFFICE:'09:00'},
+  LATE_CUTOFF:{OFFICE:'09:00'},
   PHASE_WINDOWS:{
-    AM:    {p1:['07:00','09:30'],p2:['11:30','14:30'],p3:['12:00','15:30'],p4:['14:30','23:59']},
-    PM:    {p1:['14:30','17:00'],p2:['16:00','18:30'],p3:['16:30','19:30'],p4:['18:30','23:59']},
     OFFICE:{p1:['07:30','10:00'],p2:['11:30','14:00'],p3:['12:00','15:00'],p4:['14:00','23:59']},
   },
-  phaseWindow(shift,key){return(this.PHASE_WINDOWS[shift]||this.PHASE_WINDOWS.OFFICE)[key]||null;},
+  phaseWindow(shift,key){return this.PHASE_WINDOWS.OFFICE[key]||null;},
   phaseInWindow(shift,key,now){
     const w=this.phaseWindow(shift,key);if(!w)return false;
     const p=n=>String(n).padStart(2,'0');
@@ -98,4 +96,20 @@ const Utils = {
     const t=p(now.getHours())+':'+p(now.getMinutes());
     return t>w[1];
   },
+
+  // Work time utilities (used for meal allowance and work timer)
+  _hmToMins(hhmm){ const[h,m]=(hhmm||'').split(':').map(Number); return (h||0)*60+(m||0); },
+  workMins(rec, nowHhmm){
+    if(!rec?.p1) return 0;
+    const p1=this._hmToMins(rec.p1);
+    const end=rec.p4?this._hmToMins(rec.p4):this._hmToMins(nowHhmm);
+    let lunch=0;
+    if(rec.p2){
+      const p2=this._hmToMins(rec.p2);
+      lunch=rec.p3?this._hmToMins(rec.p3)-p2:this._hmToMins(nowHhmm)-p2;
+    }
+    return Math.max(0,end-p1-Math.max(0,lunch));
+  },
+  mealEligible(rec, nowHhmm){ return this.workMins(rec,nowHhmm)>=480; },
+  fmtMins(mins){ const h=Math.floor(mins/60),m=mins%60; return h>0?h+'h '+m+'m':m+'m'; },
 };

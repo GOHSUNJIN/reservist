@@ -18,8 +18,7 @@ Ops Reservist provides full end-to-end attendance accountability for reservist c
 - **4-phase check-in** — Reservists log four checkpoints throughout the day: check in to work, lunch departure, return from lunch, and end of shift. Each is timestamped to the minute.
 - **GPS location verification** — The phone's GPS confirms the reservist is physically present at the designated location before the check-in is accepted. The distance from HQ is recorded. The system can be configured for any GPS radius (default: 200 m).
 - **MC and leave requests** — Submitted digitally through the app and sent directly to the supervisor for approval. No phone calls or messages needed.
-- **Shift change requests** — Submitted with a written reason and reviewed by the supervisor.
-- **Withdraw requests** — A pending leave, MC, or shift change request can be cancelled by the reservist before the supervisor has acted on it. Available from both the check-in tab and the Requests history in the Info tab.
+- **Withdraw requests** — A pending leave or MC request can be cancelled by the reservist before the supervisor has acted on it. Available from both the check-in tab and the Requests history in the Info tab.
 - **Attendance history** — Each reservist can see their own record for the full cycle, including total days present, MC, and absent, plus their attendance rate.
 - **Check-in reminder** — A banner appears automatically when the check-in window for the current phase is open and the reservist has not yet checked in. Disappears once the phase is logged.
 - **Upcoming no-report day notice** — A banner on the check-in screen shows the next scheduled no-report day (public holiday or stand-down) so reservists know when the next off day is.
@@ -32,8 +31,8 @@ Ops Reservist provides full end-to-end attendance accountability for reservist c
 - **Manual status override** — If a reservist cannot use the app, the supervisor can manually mark them as Present, MC, or Absent.
 - **Manual time correction** — Any reservist's check-in times for any day can be edited directly from the Log tab. The supervisor keys in the correct times in 24-hour format across all four phases. Corrected records are flagged in the database as admin-entered. This covers cases where the reservist had a technical issue and could not check in themselves.
 - **Late check-in alerts** — Anyone who checks in more than 30 minutes after shift start sees a timing warning. Those more than one hour late are automatically flagged and must submit a written reason, which is displayed alongside the flag.
-- **Full daily time log** — A complete record of every individual's four check-in phases for the day, including GPS distance, any late reason, and welfare notes. Can be searched by name and filtered by shift.
-- **Unified requests inbox** — All pending signup requests, MC, leave, and shift change requests appear in one place under the Requests tab. Each request is labelled New or Returning so the supervisor knows at a glance whether they are onboarding a first-timer or re-enrolling someone from a previous cycle.
+- **Full daily time log** — A complete record of every individual's four check-in phases for the day, including GPS distance, any late reason, and welfare notes. Can be searched by name and filtered by status.
+- **Unified requests inbox** — All pending signup requests, MC, and leave requests appear in one place under the Requests tab. Each request is labelled New or Returning so the supervisor knows at a glance whether they are onboarding a first-timer or re-enrolling someone from a previous cycle.
 - **Bulk leave actions** — Multiple pending leave requests can be selected and approved or rejected in a single action. Bulk rejection requires a written reason that is recorded against each rejected request.
 - **Personnel roster** — Full list of the current cycle's reservists with attendance stats, notes, and history per person.
 - **Welfare notes** — Supervisors can write a private daily note against any individual (e.g. medical concerns, welfare follow-up). Visible on the roster and time log.
@@ -43,7 +42,7 @@ Ops Reservist provides full end-to-end attendance accountability for reservist c
 - **WhatsApp attendance summary** — One tap sends the day's attendance summary to the unit group chat.
 - **Spreadsheet export** — Full attendance data for any cycle can be exported as a CSV file for record-keeping or further analysis. Includes per-person attendance rates and a summary row.
 - **Cycle management** — Create and label reporting cycles. The system automatically prepares the next 8 cycles on every login so the supervisor never has to scramble before a new intake.
-- **Meal allowance tracking** — Enable or disable meal allowance per cycle.
+- **Meal allowance tracking** — Enable or disable meal allowance per cycle. When active, a live work timer appears on each reservist's check-in screen showing elapsed work time (paused during lunch breaks). Meal eligibility is calculated automatically: a reservist qualifies after completing 8 hours of work (excluding the lunch break). The admin log shows a per-person meal eligibility badge with exact work time for every present reservist.
 
 ### For Master / Command Level
 - All supervisor capabilities.
@@ -92,7 +91,7 @@ Ops Reservist is designed to collect only what is operationally necessary. No se
 - **Profile photos are optional** — avatars are stored only if the user chooses to upload one, and can be removed at any time.
 - **Sessions leave no permanent trace** — login sessions are held in the browser's temporary memory and are erased when the tab is closed or after 20 minutes of inactivity.
 
-The only personal data held in the system is: name, phone number, shift assignment, and attendance records. This is the minimum required to operate an attendance tracking system.
+The only personal data held in the system is: name, phone number, and attendance records. This is the minimum required to operate an attendance tracking system.
 
 ---
 
@@ -189,7 +188,7 @@ The database has six tables:
 |---|---|
 | Name | Full name |
 | Contact | Phone number (used as login) |
-| Shift | AM, PM, or Office |
+| Shift | Office (0900–1800) |
 | Role | Reservist, Admin, or Master |
 | Cycle | Which reporting cycle they belong to |
 | Active | Whether the account is currently active |
@@ -229,7 +228,7 @@ The database has six tables:
 
 | Field | What it stores |
 |---|---|
-| Type | MC, personal leave, shift change, or other |
+| Type | MC, personal leave, or other |
 | Date requested | The date the leave is for |
 | Reason | Written reason from the reservist |
 | Status | Pending, Approved, Rejected, or Cancelled |
@@ -242,7 +241,6 @@ The database has six tables:
 |---|---|
 | Name | Name submitted at signup |
 | Contact | Phone number |
-| Shift | Requested shift |
 | Cycle | Which cycle they are enrolling into |
 | Status | Pending, Approved, or Rejected |
 | Reviewed by | Name of the supervisor who actioned it |
@@ -280,7 +278,7 @@ CREATE TABLE personnel (
   auth_id UUID,
   name TEXT NOT NULL,
   contact TEXT,
-  shift TEXT CHECK (shift IS NULL OR shift IN ('AM', 'PM', 'OFFICE')),
+  shift TEXT CHECK (shift IS NULL OR shift IN ('OFFICE')),
   role TEXT NOT NULL DEFAULT 'reservist' CHECK (role IN ('reservist', 'admin', 'superadmin')),
   batch_id UUID,
   is_active BOOLEAN NOT NULL DEFAULT true,

@@ -107,19 +107,6 @@ const RosterHandlers = {
     else this._toast(pending.length+' member'+(pending.length>1?'s':'')+' marked present.');
   },
 
-  changeShift: function(id) {
-    return async (e) => {
-      const shift=e.target.value;
-      if(shift==='AM'||shift==='PM'){
-        const others=this.state.personnel.filter(p=>p.id!==id&&p.is_active!==false&&(p.role||'reservist')==='reservist');
-        const count=others.filter(p=>p.shift===shift).length;
-        if(count>=2){ this._toast((shift==='AM'?'AM':'PM')+' shift is full (2/2).','error'); return; }
-      }
-      if(!this.state.demo) await DB.personnel.updateShift(id, shift).catch(()=>{});
-      this.setState(s=>({personnel:s.personnel.map(p=>p.id===id?{...p,shift}:p)}));
-    };
-  },
-
   prevDay: function() { this._navToOffset(this.state.viewOffset-1); },
   nextDay: function() { this._navToOffset(this.state.viewOffset+1); },
   goToday: function() { this._navToOffset(0); },
@@ -225,17 +212,15 @@ const RosterHandlers = {
     if (!timesEditId) return;
     const validTime = t => !t || /^([01]\d|2[0-3]):[0-5]\d$/.test(t);
     const _toMins = t => { if(!t) return null; const [h,m]=t.split(':').map(Number); return h*60+m; };
-    const _editPerson = (this.state.personnel||[]).find(p=>p.id===timesEditId);
-    const _isPM = _editPerson?.shift==='PM';
-    const _p2Label = _isPM ? 'Dinner out' : 'Lunch out';
-    const _p3Label = _isPM ? 'Return from dinner' : 'Return from lunch';
+    const _p2Label = 'Lunch out';
+    const _p3Label = 'Return from lunch';
     if (!timesEditP1) { this.setState({timesEditErrField:'p1'}); this._toast('Check-in time is required.', 'error'); return; }
     for (const [key,val] of [['p1',timesEditP1],['p2',timesEditP2],['p3',timesEditP3],['p4',timesEditP4]]) {
       if (val && !validTime(val)) { this.setState({timesEditErrField:key}); this._toast('Times must be in HH:MM format (24h).','error'); return; }
     }
-    if (timesEditP3 && !timesEditP2) { this.setState({timesEditErrField:'p2'}); this._toast(`${_isPM?'Dinner':'Lunch'} out time is required when recording a return.`,'error'); return; }
-    if (timesEditP4 && !timesEditP3) { this.setState({timesEditErrField:'p3'}); this._toast(`Return from ${_isPM?'dinner':'lunch'} time is required when recording checkout.`,'error'); return; }
-    if (timesEditP4 && !timesEditP2) { this.setState({timesEditErrField:'p2'}); this._toast(`${_isPM?'Dinner':'Lunch'} out time is required when recording checkout.`,'error'); return; }
+    if (timesEditP3 && !timesEditP2) { this.setState({timesEditErrField:'p2'}); this._toast('Lunch out time is required when recording a return.','error'); return; }
+    if (timesEditP4 && !timesEditP3) { this.setState({timesEditErrField:'p3'}); this._toast('Return from lunch time is required when recording checkout.','error'); return; }
+    if (timesEditP4 && !timesEditP2) { this.setState({timesEditErrField:'p2'}); this._toast('Lunch out time is required when recording checkout.','error'); return; }
     const _slots = [{t:timesEditP1,label:'Check-in',key:'p1'},{t:timesEditP2||null,label:_p2Label,key:'p2'},{t:timesEditP3||null,label:_p3Label,key:'p3'},{t:timesEditP4||null,label:'Check-out',key:'p4'}];
     let _prevMins=null, _prevLabel='';
     for(const sl of _slots){

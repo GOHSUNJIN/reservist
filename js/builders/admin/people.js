@@ -105,7 +105,7 @@ const AdminPeople = {
         id:l.id, reason:l.reason||'',
         personName:l.personnel?.name||'Unknown',
         initials:Utils.initials(l.personnel?.name||'?'),
-        personShift:Utils.shiftLabel(l.personnel?.shift||'AM'),
+        personShift:Utils.shiftLabel(l.personnel?.shift||'OFFICE'),
         typeLabel:l.type==='mc'?'MC':l.type==='shift_change'?'Shift Change':l.type==='other'?'Other':'Personal Leave',
         typeBg:l.type==='mc'?'#fdf6e9':l.type==='shift_change'?'#eef3fc':'#f1f8f4',
         typeColor:l.type==='mc'?'#b9791a':l.type==='shift_change'?'#2f5fd0':'#1f8a5b',
