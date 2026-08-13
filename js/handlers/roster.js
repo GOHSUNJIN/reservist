@@ -86,7 +86,7 @@ const RosterHandlers = {
     const {batches,activeBatchIdx,batchMembersCache}=this.state;
     const activeBatch=batches[activeBatchIdx||0];
     const activeMembers=(activeBatch?.is_live?this.state.personnel.filter(p=>p.batch_id===activeBatch.id):(batchMembersCache?.[activeBatch?.id]||[])).filter(p=>(p.role||'reservist')==='reservist');
-    const pending=activeMembers.filter(p=>!viewMap[p.id]?.status||viewMap[p.id]?.status==='absent');
+    const pending=activeMembers.filter(p=>{ const st=viewMap[p.id]?.status; return !st||st==='pending'; });
     if(!pending.length){ this.setState({markAllPresenting:false}); return; }
     const p1=Utils.hhmm(new Date());
     const updates={};

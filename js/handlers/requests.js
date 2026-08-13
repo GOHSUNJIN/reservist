@@ -111,7 +111,8 @@ const RequestHandlers = {
           await DB.personnel.linkAuth(existing.id, req.auth_id);
         }
       } else {
-        const {data:newPerson} = await DB.personnel.add({authId:req.auth_id, name:req.name, contact:req.contact, shift:req.shift, batchId:req.batch_id});
+        const {data:newPerson, error:addErr} = await DB.personnel.add({authId:req.auth_id, name:req.name, contact:req.contact, shift:req.shift, batchId:req.batch_id});
+        if(addErr){ this._toast(req.name+' approved but roster entry failed. Check and re-approve.','error'); continue; }
         finalPerson = newPerson;
       }
       this.setState(s=>({
@@ -205,6 +206,13 @@ const RequestHandlers = {
       const me=this.cur(), reviewMeta={reviewed_by:me?.name||null,reviewed_at:new Date().toISOString()};
       await Promise.all(leaveSelectedIds.map(async id=>{
         const leave=pendingLeaves.find(l=>l.id===id);
+        if(leave?.type==='shift_change'&&leave?.requested_shift){
+          const {am,pm}=this._shiftSlotCounts(this.state.personnel);
+          if((leave.requested_shift==='AM'&&am>=2)||(leave.requested_shift==='PM'&&pm>=2)){
+            this._toast(`${leave.requested_shift} shift full — skipped ${leave.personnel?.name||'one request'}.`,'error');
+            return;
+          }
+        }
         const ops=[DB.leaves.updateStatus(id,'approved',reviewMeta).catch(()=>{})];
         if(leave?.type==='mc') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'mc',{}).catch(()=>{}));
         else if(leave?.type==='personal'||leave?.type==='other') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'absent',{}).catch(()=>{}));

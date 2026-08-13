@@ -153,6 +153,10 @@ const CheckinHandlers = {
           this._toast('Your reporting period has ended.','error'); return;
         }
       }
+      const _curRec2 = this.myRec();
+      const _prereq2 = {p2:'p1', p3:'p2', p4:'p3'};
+      const _prereqMsg2 = {p2:'Check in first.', p3:'Record your break out first.', p4:'Record your return before checking out.'};
+      if(_prereq2[key] && !_curRec2?.[_prereq2[key]]){ this._toast(_prereqMsg2[key],'error'); return; }
       this.setState({phaseSubmitting:true});
       const _now = new Date();
       const time = Utils.hhmm(_now);
