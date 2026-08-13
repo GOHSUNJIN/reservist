@@ -4,18 +4,20 @@ const InitHandlers = {
   _init: async function() {
     const y = new Date().getFullYear();
     Utils.loadHolidays(y-1, y, y+1, y+2).catch(()=>{});
-    const batches = await DB.batches.list().catch(()=>[]);
+    const [batches, user] = await Promise.all([
+      DB.batches.list().catch(()=>[]),
+      DB.auth.session(),
+    ]);
     if(batches.length){
       const liveIdx = batches.findIndex(b=>b.is_live);
       const activeBatchIdx = liveIdx>=0?liveIdx:0;
       const personnel = await DB.personnel.list().catch(()=>[]);
       this.setState({batches, activeBatchIdx, personnel});
     }
-    const user = await DB.auth.session();
-    if(user) await this._afterLogin(user);
+    if(user) await this._afterLogin(user, batches);
   },
 
-  _afterLogin: async function(user) {
+  _afterLogin: async function(user, prefetchedBatches) {
     const me = await DB.personnel.get(user.id).catch(()=>null);
     if(!me){
       const req = await DB.signupRequests.getByAuthId(user.id).catch(()=>null);
@@ -71,7 +73,7 @@ const InitHandlers = {
     const role = (me.role === 'superadmin' || me.role === 'admin') ? 'admin' : me.role || 'reservist';
     const today = Utils.dateKey(this.baseDate());
 
-    let batches = await DB.batches.list().catch(()=>[]);
+    let batches = (prefetchedBatches?.length) ? prefetchedBatches : await DB.batches.list().catch(()=>[]);
     if(role==='admin'){
       batches = await this._ensureLiveBatch(batches);
       batches = await this._ensureForwardBatches(batches, 8);
