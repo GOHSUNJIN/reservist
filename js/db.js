@@ -491,6 +491,18 @@ const DB = {
       return data || [];
     },
 
+    async listRejected() {
+      const { data } = await _db.from('signup_requests').select('*').eq('status', 'rejected').order('reviewed_at', { ascending: false }).limit(50);
+      return data || [];
+    },
+
+    async reopen(id) {
+      const { error } = await _db.from('signup_requests')
+        .update({ status: 'pending', reviewed_by: null, reviewed_at: null })
+        .eq('id', id);
+      return { error };
+    },
+
     async approve(id, reviewerName) {
       const { data, error } = await _db.from('signup_requests')
         .update({ status: 'approved', reviewed_by: reviewerName, reviewed_at: new Date().toISOString() })
