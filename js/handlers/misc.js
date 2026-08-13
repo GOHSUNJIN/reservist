@@ -59,7 +59,6 @@ const MiscHandlers = {
     this._scrollTop();
   },
 
-  setRolesTab:  function(k) { return () => this.setState({rolesTab:k}); },
   setBriefTab:  function(k) { return () => this.setState({briefTab:k}); },
   selectCalDay: function(off) { return () => this.setState(s=>({selectedCalOffset:s.selectedCalOffset===off?null:off})); },
 

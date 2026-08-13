@@ -300,8 +300,7 @@ const CheckinBuilders = {
       welfareNoteOpen:s.welfareNoteOpen, welfareNoteText:s.welfareNoteText, welfareNoteSaving:s.welfareNoteSaving, welfareNoteSavingOpacity:s.welfareNoteSaving?0.6:1,
       onWelfareNoteText:this.onWelfareNoteText, submitWelfareNote:this.submitWelfareNote,
       // Broadcast notice for reservist
-      batchNotice:(()=>{const b=s.batches.find(x=>x.id===me?.batch_id); return b?.notice_text||'';})(),
-      hasBatchNotice:!!(()=>{const b=s.batches.find(x=>x.id===me?.batch_id); return b?.notice_text;})(),
+      ...(() => { const _bn=(s.batches.find(x=>x.id===me?.batch_id))?.notice_text||''; return {batchNotice:_bn, hasBatchNotice:!!_bn}; })(),
     };
   },
 

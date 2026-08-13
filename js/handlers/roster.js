@@ -49,7 +49,7 @@ const RosterHandlers = {
     if((viewOffset||0) > 0){ this.setState({confirmMarkAllAbsent:false}); return; }
     this.setState({confirmMarkAllAbsent:false, markingAllAbsent:true});
     const activeBatch=batches[activeBatchIdx||0]; if(!activeBatch){ this.setState({markingAllAbsent:false}); return; }
-    const members=activeBatch.is_live?personnel:(batchMembersCache[activeBatch.id]||[]);
+    const members=activeBatch.is_live?personnel.filter(p=>p.batch_id===activeBatch.id):(batchMembersCache[activeBatch.id]||[]);
     const activeMembers=(members||[]).filter(p=>(p.role||'reservist')==='reservist');
     const off=viewOffset||0;
     const viewDateKey=Utils.dateKey(this.dateForOffset(off));

@@ -153,14 +153,19 @@ const AdminRoster = {
       confirmWipeHistoryOpen:!!(s.confirmWipeHistoryId&&s.confirmWipeHistoryId===s.personHistoryId),
       wipingHistory:s.wipingHistory,
       askWipeHistory:self.askWipeHistory, confirmWipeHistory:self.confirmWipeHistory, cancelWipeHistory:self.cancelWipeHistory,
-      personHistoryRows:(s.personHistoryRows||[]).slice(0,100).map(r=>{
-        const mm=Utils.meta(r.status);
+      personHistoryRows:(()=>{
+        const allRows=s.personHistoryRows||[];
         const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-        const d=new Date(r.date+'T00:00:00');
-        const editLog=r.edit_log||[];
-        const latestEdit=editLog.length?editLog[editLog.length-1]:null;
-        return {dateLabel:W[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,color:mm.color,bg:mm.bg,p1:r.check_in_time?r.check_in_time.slice(0,5):'-',p4:r.work_end_time?r.work_end_time.slice(0,5):'-',adminCorrected:editLog.length>0,editedBy:latestEdit?.by||''};
-      }),
+        return allRows.slice(0,100).map(r=>{
+          const mm=Utils.meta(r.status);
+          const d=new Date(r.date+'T00:00:00');
+          const editLog=r.edit_log||[];
+          const latestEdit=editLog.length?editLog[editLog.length-1]:null;
+          return {dateLabel:W[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,color:mm.color,bg:mm.bg,p1:r.check_in_time?r.check_in_time.slice(0,5):'-',p4:r.work_end_time?r.work_end_time.slice(0,5):'-',adminCorrected:editLog.length>0,editedBy:latestEdit?.by||''};
+        });
+      })(),
+      personHistoryMore:(s.personHistoryRows||[]).length>100,
+      personHistoryTotal:(s.personHistoryRows||[]).length,
       noPersonHistory:!(s.personHistoryRows||[]).length&&!s.personHistoryLoading,
       closePersonHistory:self.closePersonHistory,
       exportPersonHistory:self.exportPersonHistory,

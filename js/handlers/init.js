@@ -88,9 +88,13 @@ const InitHandlers = {
     if(role==='reservist'){
       const myBatch = batches.find(b=>b.id===me.batch_id);
       if(myBatch?.dekit_date && today >= myBatch.dekit_date){
-        await DB.personnel.deactivate(me.id).catch(()=>{});
+        const {error:deactivateErr} = await DB.personnel.deactivate(me.id).catch(()=>({error:true}));
         await DB.auth.logout();
-        this.setState({authed:false,role:null,authMode:'login',loading:false,accountDeleted:true});
+        if(deactivateErr){
+          this.setState({authed:false,role:null,authMode:'login',loading:false,authError:'Your cycle has ended but we could not fully deactivate your account. Please contact your supervisor.'});
+        } else {
+          this.setState({authed:false,role:null,authMode:'login',loading:false,accountDeleted:true});
+        }
         return;
       }
     }
@@ -144,7 +148,10 @@ const InitHandlers = {
       this._myLeaveChannel = DB.realtime.subscribeLeaveStatus(me.id, async (row) => {
         if(row.status !== 'pending'){
           this.setState({myPendingRequest:null});
-          if(row.status === 'rejected') this._toast('Your absence request was declined.');
+          if(row.status === 'rejected'){
+            this._toast('Your absence request was declined.');
+            DB.leaves.myHistory(me.id).then(hist=>this.setState({myLeaveHistory:hist,myLeaveHistoryLoaded:true})).catch(()=>{});
+          }
           if(row.status === 'approved'){
             this._toast('Your absence request was approved.');
             const att = await DB.attendance.getForDate(Utils.dateKey(this.baseDate())).catch(()=>this.state.attendance);
@@ -165,15 +172,18 @@ const InitHandlers = {
     if(this.state.role==='admin'){
       const {attendanceDate:yesterday, attendance:yesterdayAtt, personnel, noReportDays} = this.state;
       if(yesterday && Utils.isReportDay(new Date(yesterday+'T00:00:00')) && !noReportDays.has(yesterday)){
-        const pendingLeaves = this.state.pendingLeaves || [];
-        const approvedLeaves = await DB.leaves.listApprovedForDate(yesterday).catch(()=>[]);
+        const [approvedLeaves, freshPendingLeaves] = await Promise.all([
+          DB.leaves.listApprovedForDate(yesterday).catch(()=>[]),
+          DB.leaves.listPending().catch(()=>[]),
+        ]);
         const approvedLeaveIds = new Set(approvedLeaves.map(l=>l.personnel_id));
+        const pendingLeavesForYesterday = freshPendingLeaves.filter(l=>l.date===yesterday);
         const pending = personnel.filter(p=>{
           const r = yesterdayAtt[p.id];
           if(p.role !== 'reservist') return false;
           if(r && r.status !== 'pending') return false;
           if(approvedLeaveIds.has(p.id)) return false;
-          return !pendingLeaves.some(l => l.personnel_id === p.id && l.date === yesterday);
+          return !pendingLeavesForYesterday.some(l => l.personnel_id === p.id);
         });
         if(pending.length) await Promise.all(pending.map(p=>DB.attendance.upsert(p.id, yesterday, 'absent', {}).catch(()=>{})));
       }

@@ -250,28 +250,53 @@ const PeopleHandlers = {
     if(!safeIds.length) return;
     if(safeIds.length < memberSearchSelected.length) this._toast('Your own account was excluded from the deletion.','error');
     this.setState({bulkDeleting:true});
+    const failedIds = [];
     if(!demo){
       for(const id of safeIds){
         const person=memberSearchList.find(p=>p.id===id);
-        await DB.personnel.deletePermanently(id,person?.auth_id||null).catch(()=>{});
+        const {error} = await DB.personnel.deletePermanently(id,person?.auth_id||null).catch(()=>({error:true}));
+        if(error) failedIds.push(id);
       }
     }
-    const ids=new Set(safeIds);
+    const succeededIds = safeIds.filter(id=>!failedIds.includes(id));
+    const ids=new Set(succeededIds);
     this.setState(prev=>{
       const memberSearchList=prev.memberSearchList.filter(p=>!ids.has(p.id));
       const personnel=prev.personnel.filter(p=>!ids.has(p.id));
       const batchMembersCache={...prev.batchMembersCache};
       Object.keys(batchMembersCache).forEach(k=>{batchMembersCache[k]=(batchMembersCache[k]||[]).filter(p=>!ids.has(p.id));});
-      return {memberSearchList,personnel,batchMembersCache,memberSearchSelected:[],confirmBulkDelete:false,bulkDeleting:false};
+      const memberSearchSelected=prev.memberSearchSelected.filter(id=>!ids.has(id));
+      return {memberSearchList,personnel,batchMembersCache,memberSearchSelected,confirmBulkDelete:false,bulkDeleting:false};
     });
-    this._toast(safeIds.length+' member'+(safeIds.length!==1?'s':'')+' permanently deleted.');
+    if(failedIds.length){
+      this._toast(failedIds.length+' deletion'+(failedIds.length!==1?'s':'')+' failed. Check your connection.','error');
+    }
+    if(succeededIds.length){
+      this._toast(succeededIds.length+' member'+(succeededIds.length!==1?'s':'')+' permanently deleted.');
+    }
   },
 
   exportPersonHistory: function() {
     const s=this.state;
     const allPeople=[...s.personnel,...Object.values(s.batchMembersCache).flat()];
     const name=(allPeople.find(p=>p.id===s.personHistoryId)||{}).name||'Member';
-    const rows=s.personHistoryRows||[];
+    const rawRows=s.personHistoryRows||[];
+    // Map raw DB rows to the same computed fields used in the person history modal builder
+    const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const rows=rawRows.map(r=>{
+      const mm=Utils.meta(r.status);
+      const d=new Date(r.date+'T00:00:00');
+      const editLog=r.edit_log||[];
+      const latestEdit=editLog.length?editLog[editLog.length-1]:null;
+      return {
+        dateLabel:W[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear(),
+        label:mm.label,
+        p1:r.check_in_time?r.check_in_time.slice(0,5):'-',
+        p4:r.work_end_time?r.work_end_time.slice(0,5):'-',
+        adminCorrected:editLog.length>0,
+        editedBy:latestEdit?.by||'',
+      };
+    });
     const xe=t=>String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
     const sc=(sid,v)=>`<Cell ss:StyleID="${sid}"><Data ss:Type="String">${xe(v)}</Data></Cell>`;
     const styles=`<Style ss:ID="ttl"><Font ss:Bold="1" ss:Size="13"/></Style><Style ss:ID="hdr"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#2c3e50" ss:Pattern="Solid"/></Style><Style ss:ID="dat"><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e8eaed"/></Borders></Style><Style ss:ID="s_present"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#27ae60"/><Interior ss:Color="#eafaf1" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e8eaed"/></Borders></Style><Style ss:ID="s_mc"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#e67e22"/><Interior ss:Color="#fef9e7" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e8eaed"/></Borders></Style><Style ss:ID="s_absent"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#c0392b"/><Interior ss:Color="#fdedec" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e8eaed"/></Borders></Style><Style ss:ID="s_other"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#5c6678"/><Interior ss:Color="#f0f2f5" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e8eaed"/></Borders></Style><Style ss:ID="tim"><Alignment ss:Horizontal="Center"/><Font ss:FontName="IBM Plex Mono" ss:Size="10.5"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e8eaed"/></Borders></Style>`;
@@ -285,7 +310,7 @@ const PeopleHandlers = {
     const a=document.createElement('a');
     a.href=url;a.download=name.replace(/\s+/g,'_')+'_history.xml';
     document.body.appendChild(a);a.click();
-    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},1000);
+    setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},3000);
   },
 
   openResetPw: function(id) { return () => this.setState({resetPwId:id, resetPwNew:'', resetPwSaving:false}); },
