@@ -1,4 +1,4 @@
-const CACHE = 'ops-v9';
+const CACHE = 'ops-v10';
 const APP_ASSETS = [
   './',
   './index.html',
@@ -49,6 +49,7 @@ self.addEventListener('fetch', e => {
     url.hostname.includes('supabase.co') ||
     url.hostname.includes('supabase.io') ||
     url.hostname.includes('cdn.jsdelivr.net') ||
+    url.hostname.includes('unpkg.com') ||
     url.hostname.includes('fonts.googleapis.com') ||
     url.hostname.includes('fonts.gstatic.com')
   ) {
