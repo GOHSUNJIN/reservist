@@ -53,7 +53,7 @@ const CheckinHandlers = {
           setTimeout(()=>this.verifyLocation(),300);
           return;
         }
-        this.setState({locDistance:rounded,locAccuracy:accuracy,locSlow:false,locPermErr:false,locStatus:rounded<=this._maxDist()?'verified':'out_of_range'});
+        this.setState({locDistance:rounded,locAccuracy:accuracy,locSlow:false,locPermErr:false,locRetryCount:0,locStatus:rounded<=this._maxDist()?'verified':'out_of_range'});
       },
       err=>{
         clearTimeout(this._locSlowTimer);
@@ -79,8 +79,7 @@ const CheckinHandlers = {
   startPhaseGps: function(phase) {
     return () => {
       if(this.state.locStatus==='locating') return;
-      const switchingPhase=this.state.locPhase!==phase;
-      this.setState({locPhase:phase, locStatus:'idle', locDistance:null, locGpsMsg:'', locAccuracy:null, locSlow:false, locPermErr:false, ...(switchingPhase?{locRetryCount:0}:{})});
+      this.setState({locPhase:phase, locStatus:'idle', locDistance:null, locGpsMsg:'', locAccuracy:null, locSlow:false, locPermErr:false});
       this.verifyLocation();
     };
   },
@@ -112,6 +111,7 @@ const CheckinHandlers = {
         else if(minsLate>=30) this.setState({showLateWarning:true});
       }
       const today = Utils.dateKey(this.baseDate());
+      const prevRec = {...(this.state.attendance[currentUserId]||{})};
       const rec = {...this.myRec()};
       if(key==='p1'){rec.status='present';rec.p1=time;rec.p1dist=locDistance;}
       else if(key==='p2') rec.p2=time;
@@ -133,7 +133,8 @@ const CheckinHandlers = {
           if(phErr){
             const _meCheck = await DB.personnel.get(currentUserId).catch(()=>null);
             if(!_meCheck){ this._toast('Your account no longer exists. Please contact your supervisor.','error'); this.logout(); return; }
-            this._toast('Check-in saved locally but failed to sync. Check your connection.','error');
+            this._toast('Failed to sync check-in. Restoring previous state.','error');
+            this.setState(s=>({attendance:{...s.attendance,[currentUserId]:prevRec}}));
           }
         }
       }

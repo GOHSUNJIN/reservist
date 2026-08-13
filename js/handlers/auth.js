@@ -186,7 +186,6 @@ const AuthHandlers = {
 
   setAuthMode: function(mode) { this.setState({authMode:mode, authError:''}); },
 
-  forgotPassword: function() { this.setState({forgotPasswordOpen:true}); },
   openForgotPassword:  function() { this.setState({forgotPasswordOpen:true}); },
   closeForgotPassword: function() { this.setState({forgotPasswordOpen:false}); },
 
@@ -228,7 +227,5 @@ const AuthHandlers = {
     const liveIdx = this.state.batches.findIndex(b=>b.id===liveBatch.id);
     this.setState({personnel, activeBatchIdx:liveIdx>=0?liveIdx:this.state.activeBatchIdx});
   },
-
-  _capShift: function(want, members) { return 'OFFICE'; },
 
 };

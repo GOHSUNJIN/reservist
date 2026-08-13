@@ -89,7 +89,8 @@ const RequestHandlers = {
       const me = this.cur();
       const {error} = await DB.signupRequests.reject(id, me?.name||null);
       if(error){ this._toast('Failed to reject. Try again.','error'); return; }
-      if(req.auth_id) await DB.auth.deleteUser(req.auth_id).catch(()=>{});
+      // Keep the auth account so the person can re-submit or be re-opened without orphaned records.
+      // The auth account is unlinked from any personnel record, so it is harmless to leave in place.
       this.setState(s=>({pendingSignups:s.pendingSignups.filter(r=>r.id!==id), selectedSignupIds:s.selectedSignupIds.filter(x=>x!==id)}));
       this._toast(req.name+"'s signup was rejected.");
     };
@@ -174,6 +175,12 @@ const RequestHandlers = {
           ops.push(DB.attendance.upsert(leave.personnel_id, leave.date, 'absent', {}).catch(()=>{}));
         }
         if(ops.length) await Promise.all(ops);
+        // Refresh local attendance state if the leave is for today
+        const todayKey = Utils.dateKey(this.baseDate ? this.baseDate() : new Date());
+        if(leave.date === todayKey) {
+          const freshAtt = await DB.attendance.getForDate(todayKey).catch(()=>null);
+          if(freshAtt) this.setState({attendance:freshAtt, attendanceDate:todayKey});
+        }
         this._toast('Request approved.');
       }
       this.loadPendingLeaves();
@@ -195,8 +202,8 @@ const RequestHandlers = {
       const reviewMeta = { reviewed_by: me?.name || null, reviewed_at: new Date().toISOString(), rejection_reason: rejectLeaveReason.trim() || null };
       const { error } = await DB.leaves.updateStatus(rejectLeaveId, 'rejected', reviewMeta).catch(()=>({error:true}));
       if(error) {
-        const fallback = { reviewed_by: me?.name || null, reviewed_at: new Date().toISOString() };
-        await DB.leaves.updateStatus(rejectLeaveId, 'rejected', fallback).catch(()=>{});
+        this._toast('Failed to decline request. Try again.','error');
+        return;
       }
     }
     this.setState({rejectLeaveId: null, rejectLeaveReason: ''});
@@ -246,9 +253,7 @@ const RequestHandlers = {
   },
 
   openLeaveRequest: function(date) { return () => this.setState({leaveOpen:true, leaveDate:date, leaveType:'mc', leaveReason:''}); },
-  openLeave: function(date) { return () => this.setState({leaveOpen:true, leaveDate:date, leaveType:'mc', leaveReason:''}); },
   closeLeaveRequest: function() { this.setState({leaveOpen:false}); },
-  closeLeave: function() { this.setState({leaveOpen:false}); },
   onLeaveDate:   function(e) { this.setState({leaveDate:e.target.value}); },
   onLeaveType:   function(v) { return () => this.setState({leaveType:v}); },
   onLeaveReason: function(e) { this.setState({leaveReason:e.target.value}); },

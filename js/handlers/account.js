@@ -71,6 +71,7 @@ const AccountHandlers = {
     if(!this.state.demo){
       const {error} = await DB.personnel.updateName(this.state.currentUserId, name).catch(e=>({error:e}));
       if(error){ this.setState({acctSaving:false, acctNameError:'Failed to save. Try again.'}); return; }
+      DB.auth.syncDisplayName(name).catch(()=>{});
     }
     this.setState(s=>({acctSaving:false, changeNameOpen:false, me:{...s.me, name}}));
     this._toast('Display name updated.');
