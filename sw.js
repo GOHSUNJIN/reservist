@@ -27,7 +27,7 @@ self.addEventListener('fetch', e => {
   if (!e.request.url.startsWith('http')) return;
   const url = new URL(e.request.url);
 
-  // Network-first for HTML — always serve the latest index so config changes
+  // Network-first for HTML - always serve the latest index so config changes
   // (coordinates, props) take effect immediately without needing a hard refresh
   if (url.pathname === '/' || url.pathname.endsWith('.html')) {
     e.respondWith(
@@ -58,7 +58,7 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Cache-first for local JS files — versioned by CACHE name, safe to serve from cache
+  // Cache-first for local JS files - versioned by CACHE name, safe to serve from cache
   if (url.pathname.endsWith('.js')) {
     e.respondWith(
       caches.match(e.request).then(hit => {

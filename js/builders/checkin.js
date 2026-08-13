@@ -229,7 +229,7 @@ const CheckinBuilders = {
       isMc:!outOfCycle&&status==='mc'&&!noRep,
       isAbsent:!outOfCycle&&status==='absent'&&!noRep,
       hasPendingRequest:!outOfCycle&&!noRep&&status!=='mc'&&status!=='absent'&&!!(s.myPendingRequest&&!pendingRequestExpired&&s.myPendingRequest.date===todayKey&&status!=='present'),
-      pendingRequestLabel:s.myPendingRequest?.type==='mc'?'MC':s.myPendingRequest?.type==='shift_change'?'shift change':'absence',
+      pendingRequestLabel:s.myPendingRequest?.type==='mc'?'MC':'absence',
       pendingRequestDate:s.myPendingRequest?.date?Utils.fmtMed(new Date(s.myPendingRequest.date+'T00:00:00')):'',
       pendingRequestExpired:!outOfCycle&&!noRep&&pendingRequestExpired, pendingRequestTimeAgo,
       onCancelPendingRequest:s.myPendingRequest?this.cancelLeaveRequest(s.myPendingRequest.id):()=>{},

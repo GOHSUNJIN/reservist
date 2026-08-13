@@ -170,12 +170,6 @@ const RequestHandlers = {
           ops.push(DB.attendance.upsert(leave.personnel_id, leave.date, 'mc', {}).catch(()=>{}));
         } else if(leave.type === 'personal' || leave.type === 'other') {
           ops.push(DB.attendance.upsert(leave.personnel_id, leave.date, 'absent', {}).catch(()=>{}));
-        } else if(leave.type === 'shift_change' && leave.requested_shift) {
-          ops.push(
-            DB.personnel.updateShift(leave.personnel_id, leave.requested_shift).then(({data}) => {
-              if(data) this.setState(s=>({personnel:s.personnel.map(p=>p.id===leave.personnel_id?{...p,shift:data.shift}:p)}));
-            }).catch(()=>{})
-          );
         }
         if(ops.length) await Promise.all(ops);
         this._toast('Request approved.');
@@ -223,7 +217,6 @@ const RequestHandlers = {
         const ops=[DB.leaves.updateStatus(id,'approved',reviewMeta).catch(()=>{})];
         if(leave?.type==='mc') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'mc',{}).catch(()=>{}));
         else if(leave?.type==='personal'||leave?.type==='other') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'absent',{}).catch(()=>{}));
-        else if(leave?.type==='shift_change'&&leave?.requested_shift) ops.push(DB.personnel.updateShift(leave.personnel_id,leave.requested_shift).then(({data})=>{if(data)this.setState(s=>({personnel:s.personnel.map(p=>p.id===leave.personnel_id?{...p,shift:data.shift}:p)}));}).catch(()=>{}));
         await Promise.all(ops);
       }));
     }

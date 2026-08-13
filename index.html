@@ -141,7 +141,7 @@
         <input value="{{ suContact }}" onInput="{{ onSuContact }}" placeholder="9xxx xxxx" type="tel" inputmode="numeric" autocomplete="tel" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;margin-bottom:14px;" />
         <div style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:#f0f2f7;border:1px solid #e3e6ec;border-radius:10px;margin-bottom:14px;">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span style="font-size:14px;color:#5c6678;font-weight:500;">Office shift — 0900 to 1800</span>
+          <span style="font-size:14px;color:#5c6678;font-weight:500;">Office shift - 0900 to 1800</span>
         </div>
         <label class="text-field-label">Password</label>
         <input value="{{ suPassword }}" onInput="{{ onSuPassword }}" onKeyDown="{{ onPwKeyDown }}" type="password" autocomplete="new-password" placeholder="Create a password (min 6 chars)" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;" />
@@ -1098,7 +1098,7 @@
                 <sc-if value="{{ lr.isExpired }}" hint-placeholder-val=""><span style="font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:6px;background:#f2f4f7;color:#8a94a3;border:1px solid #d4d9e2;white-space:nowrap;flex:0 0 auto;">Expired</span></sc-if>
                 <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:{{ lr.typeBg }};color:{{ lr.typeColor }};border:1px solid {{ lr.typeBorder }};white-space:nowrap;flex:0 0 auto;">{{ lr.typeLabel }}</span>
               </div>
-              <div style="font-size:12px;color:#8a94a3;margin-bottom:4px;">{{ lr.dateLabel }}<sc-if value="{{ lr.showRequestedShift }}" hint-placeholder-val=""> · Requesting {{ lr.requestedShiftLabel }}</sc-if> · <span style="color:{{ lr.isExpired ? '#c0392b' : '#a0a8b4' }};">{{ lr.timeAgo }}</span></div>
+              <div style="font-size:12px;color:#8a94a3;margin-bottom:4px;">{{ lr.dateLabel }} · <span style="color:{{ lr.isExpired ? '#c0392b' : '#a0a8b4' }};">{{ lr.timeAgo }}</span></div>
               <sc-if value="{{ lr.reason }}" hint-placeholder-val="">
                 <div style="font-size:12px;color:#5c6678;font-style:italic;margin-bottom:5px;">"{{ lr.reason }}"</div>
               </sc-if>
@@ -1388,12 +1388,6 @@
                 <button onClick="{{ clearLogSearch }}" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:2px;color:#9aa3b2;line-height:1;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
               </sc-if>
             </div>
-            <select value="{{ logShiftFilter }}" onChange="{{ onLogShiftChange }}" style="flex:0 0 auto;padding:8px 10px;border:1px solid #d4d9e2;border-radius:9px;font-size:12.5px;font-weight:500;color:#36404f;background:#fff;outline:none;cursor:pointer;">
-              <option value="all">All shifts</option>
-              <option value="AM">AM</option>
-              <option value="PM">PM</option>
-              <option value="OFFICE">Office</option>
-            </select>
           </div>
           <div style="display:flex;gap:5px;align-items:center;margin-bottom:12px;overflow-x:auto;">
             <button onClick="{{ setLogStatusAll }}" style="{{ logStatusAllStyle }}">All</button>
@@ -1659,7 +1653,7 @@
                     <span class="text-body-bold">{{ lr.personName }}</span>
                     <sc-if value="{{ lr.isExpired }}" hint-placeholder-val=""><span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;background:#f2f4f7;color:#8a94a3;border:1px solid #d4d9e2;white-space:nowrap;">Expired</span></sc-if>
                   </div>
-                  <div style="font-size:11px;color:#8a94a3;margin-top:1px;">{{ lr.personShift }} · {{ lr.dateLabel }}<sc-if value="{{ lr.showRequestedShift }}" hint-placeholder-val=""> → <strong style="color:#5c6678;">{{ lr.requestedShiftLabel }}</strong></sc-if> · <span style="color:{{ lr.isExpired ? '#c0392b' : '#a0a8b4' }};">{{ lr.timeAgo }}</span></div>
+                  <div style="font-size:11px;color:#8a94a3;margin-top:1px;">{{ lr.personShift }} · {{ lr.dateLabel }} · <span style="color:{{ lr.isExpired ? '#c0392b' : '#a0a8b4' }};">{{ lr.timeAgo }}</span></div>
                   <sc-if value="{{ lr.reason }}" hint-placeholder-val="">
                     <div style="font-size:11px;color:#9aa3b2;font-style:italic;margin-top:1px;">"{{ lr.reason }}"</div>
                   </sc-if>
@@ -2091,7 +2085,7 @@
         <sc-if value="{{ showAddForm }}" hint-placeholder-val="{{ true }}">
         <input value="{{ npName }}" onInput="{{ onNpName }}" placeholder="Full name" class="field" style="margin-bottom:10px;" />
         <input value="{{ npContact }}" onInput="{{ onNpContact }}" placeholder="Contact number (9xxx xxxx)" type="tel" inputmode="numeric" autocomplete="off" class="field" style="margin-bottom:10px;" />
-        <div class="field" style="margin-bottom:10px;color:#5c6678;">Office shift — 0900 to 1800</div>
+        <div class="field" style="margin-bottom:10px;color:#5c6678;">Office shift - 0900 to 1800</div>
         <input value="{{ npPassword }}" onInput="{{ onNpPassword }}" placeholder="Password (min 6 chars)" type="password" class="field" style="margin-bottom:10px;" />
         <div style="font-size:11.5px;color:#8a94a3;margin-bottom:14px;line-height:1.5;">Password is only needed for new personnel. For returning reservists, leave it blank. They will use their previous password.</div>
         <button onClick="{{ addPerson }}" style="-webkit-appearance:none;display:block;width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;text-align:center;box-sizing:border-box;line-height:1;">Add to roster</button>
@@ -2536,8 +2530,8 @@
           <button onClick="{{ closeBulkAdd }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
         <sc-if value="{{ bulkAddIsInput }}" hint-placeholder-val="{{ true }}">
-          <p style="font-size:13px;color:#5c6678;margin:0 0 12px;line-height:1.5;">One person per line: <strong>Name, Contact, Shift</strong>. Shift is optional and defaults to AM.</p>
-          <textarea onInput="{{ onBulkAddText }}" value="{{ bulkAddText }}" placeholder="Tan Jian Wei, 9123 4567, AM&#10;Ahmad Fariz, 8765 4321, PM&#10;Lim Hui Ying, 9000 1234" style="width:100%;height:130px;padding:12px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:'IBM Plex Mono',monospace;font-size:13px;resize:none;outline:none;box-sizing:border-box;margin-bottom:14px;" rows="6"></textarea>
+          <p style="font-size:13px;color:#5c6678;margin:0 0 12px;line-height:1.5;">One person per line: <strong>Name, Contact</strong>. All personnel are assigned to the Office shift.</p>
+          <textarea onInput="{{ onBulkAddText }}" value="{{ bulkAddText }}" placeholder="Tan Jian Wei, 9123 4567&#10;Ahmad Fariz, 8765 4321&#10;Lim Hui Ying, 9000 1234" style="width:100%;height:130px;padding:12px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:'IBM Plex Mono',monospace;font-size:13px;resize:none;outline:none;box-sizing:border-box;margin-bottom:14px;" rows="6"></textarea>
           <button onClick="{{ parseBulkAdd }}" style="width:100%;padding:13px;background:#161f30;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;">Preview</button>
           <button onClick="{{ closeBulkAdd }}" class="btn-subtle">Cancel</button>
         </sc-if>
