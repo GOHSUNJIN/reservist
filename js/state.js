@@ -38,7 +38,7 @@ const makeInitialState = () => ({
   editingNoteId: null, editingNoteText: '',
   batchJumpDate: Utils.dateKey(new Date()),
   toast: null,
-  rosterSort: 'shift',
+  rosterSort: 'name',
   newBatchDate: '',
   noAvatarIds: new Set(),
   peopleStats: {}, peopleStatsLoaded: false,

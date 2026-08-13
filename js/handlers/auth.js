@@ -104,7 +104,7 @@ const AuthHandlers = {
       editingNoteId:null, editingNoteText:'',
       timesEditId:null, timesEditP1:'', timesEditP2:'', timesEditP3:'', timesEditP4:'', timesEditSaving:false, timesEditErrField:null,
       batchJumpDate:Utils.dateKey(new Date()),
-      toast:null, rosterSort:'shift', newBatchDate:'',
+      toast:null, rosterSort:'name', newBatchDate:'',
       peopleStats:{}, peopleStatsLoaded:false, confirmDeactivateId:null, showArchivedBatches:false, cyclePickerOpen:false,
       noAvatarIds:new Set(), noReportDaysCache:{},
       markAllPresenting:false,
