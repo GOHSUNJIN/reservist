@@ -202,6 +202,7 @@ const RequestHandlers = {
     const {leaveSelectedIds,pendingLeaves,demo}=this.state;
     if(!leaveSelectedIds?.length) return;
     this.setState({bulkApprovingLeaves:true});
+    let skipped=0;
     if(!demo){
       const me=this.cur(), reviewMeta={reviewed_by:me?.name||null,reviewed_at:new Date().toISOString()};
       await Promise.all(leaveSelectedIds.map(async id=>{
@@ -210,6 +211,7 @@ const RequestHandlers = {
           const {am,pm}=this._shiftSlotCounts(this.state.personnel);
           if((leave.requested_shift==='AM'&&am>=2)||(leave.requested_shift==='PM'&&pm>=2)){
             this._toast(`${leave.requested_shift} shift full — skipped ${leave.personnel?.name||'one request'}.`,'error');
+            skipped++;
             return;
           }
         }
@@ -220,7 +222,7 @@ const RequestHandlers = {
         await Promise.all(ops);
       }));
     }
-    const count=leaveSelectedIds.length;
+    const count=leaveSelectedIds.length-skipped;
     this.setState({leaveSelectedIds:[],bulkApprovingLeaves:false});
     this._toast(`${count} request${count!==1?'s':''} approved.`);
     this.loadPendingLeaves();
