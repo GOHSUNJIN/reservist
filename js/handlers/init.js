@@ -43,7 +43,7 @@ const InitHandlers = {
       const batches = this.state.batches.length ? this.state.batches : await DB.batches.list().catch(()=>[]);
       const liveBatch = batches.find(b=>b.is_live);
       if(liveBatch){
-        await DB.signupRequests.create({authId:user.id, name:me.name, contact:me.contact, shift:me.shift||'AM', batchId:liveBatch.id}).catch(()=>{});
+        await DB.signupRequests.create({authId:user.id, name:me.name, contact:me.contact, shift:me.shift||'OFFICE', batchId:liveBatch.id}).catch(()=>{});
         await DB.auth.logout();
         this.setState({authed:false,loading:false,authError:'Your account is inactive for this cycle. A re-enrollment request has been sent to your supervisor. You will be able to log in once they approve it.'});
       } else {
@@ -273,14 +273,6 @@ const InitHandlers = {
   _liveBatch: function(batches) {
     const list = batches || this.state.batches;
     return list.find(b=>b.is_live) || list[0] || null;
-  },
-
-  _shiftSlotCounts: function(members) {
-    const list = (members||[]).filter(p=>p.is_active!==false && (p.role||'reservist')==='reservist');
-    return {
-      am: list.filter(p=>p.shift==='AM').length,
-      pm: list.filter(p=>p.shift==='PM').length,
-    };
   },
 
   _resetIdleTimer: function() {

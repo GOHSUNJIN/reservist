@@ -18,7 +18,7 @@ const AuthHandlers = {
   },
 
   doSignup: async function() {
-    const {suName,suContact,suPassword,suShift} = this.state;
+    const {suName,suContact,suPassword} = this.state;
     if(!suName.trim()||!suContact.trim()||!suPassword.trim()){ this.setState({authError:'Please fill in all fields.'}); return; }
     if(suPassword.length < 6){ this.setState({authError:'Password must be at least 6 characters.'}); return; }
     const cleanContact = suContact.replace(/[\s-]/g,'');
@@ -37,8 +37,7 @@ const AuthHandlers = {
       return;
     }
     const activeBatch = nextBatch || liveBatch;
-    const members = await DB.personnel.list(activeBatch.id).catch(()=>[]);
-    const shift = this._capShift(suShift||'AM', members);
+    const shift = 'OFFICE';
     this.setState({loading:true, authError:''});
     const {user,error} = await DB.auth.signup(cleanContact, suPassword, suName.trim());
     let signupUser = user;
@@ -93,7 +92,7 @@ const AuthHandlers = {
     this.setState({
       authed:false, role:null, authMode:'login', demo:false,
       currentUserId:null, me:null, loginContact:'', loginPassword:'',
-      suName:'', suContact:'', suShift:'AM', suPassword:'',
+      suName:'', suContact:'', suPassword:'',
       locStatus:'idle', locDistance:null, locGpsMsg:'', locSlow:false, locAccuracy:null, locPermErr:false, locRetryCount:0,
       accountOpen:false, confirmDelete:false,
       personnel:[], attendance:{}, history:[], attendanceCache:{}, batchMembersCache:{}, attendanceDate:null,
@@ -115,7 +114,6 @@ const AuthHandlers = {
       pendingLeaves:[], pendingLeavesLoaded:false,
       leaveOpen:false, leaveDate:'', leaveType:'mc', leaveReason:'',
       myPendingRequest:null,
-      shiftChangeOpen:false, shiftChangeNew:'AM', shiftChangeReason:'', shiftChangeConfirming:false,
       adminNotifGranted:false,
       myLeaveHistory:[], myLeaveHistoryLoaded:false,
       welfareNoteOpen:false, welfareNoteText:'', welfareNoteSaving:false,
@@ -149,9 +147,9 @@ const AuthHandlers = {
     const start=Utils.mondayOf(today), end=Utils.addDays(start,13), dekit=Utils.addDays(end,3);
     const batch={id:'demo-batch',label:'Demo Cycle',start_date:Utils.dateKey(start),end_date:Utils.dateKey(end),dekit_date:Utils.dateKey(dekit),is_live:true};
     const personnel=[
-      {id:'d1',name:'Demo User',contact:'9000 0001',shift:'PM',role:'reservist',batch_id:'demo-batch',is_active:true},
-      {id:'d2',name:'Tan Jian Hui',contact:'9000 0002',shift:'AM',role:'reservist',batch_id:'demo-batch',is_active:true},
-      {id:'d3',name:'Ahmad Fariz',contact:'9000 0003',shift:'AM',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d1',name:'Demo User',contact:'9000 0001',shift:'OFFICE',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d2',name:'Tan Jian Hui',contact:'9000 0002',shift:'OFFICE',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d3',name:'Ahmad Fariz',contact:'9000 0003',shift:'OFFICE',role:'reservist',batch_id:'demo-batch',is_active:true},
       {id:'d4',name:'Lim Hui Ying',contact:'9000 0004',shift:'OFFICE',role:'reservist',batch_id:'demo-batch',is_active:true},
     ];
     this.setState({authed:true,role:'reservist',tab:'checkin',demo:true,currentUserId:'d1',me:personnel[0],personnel,batches:[batch],activeBatchIdx:0,attendance:{},noReportDays:new Set(),history:[],historyLoaded:true,authError:'',accountDeleted:false});
@@ -163,10 +161,10 @@ const AuthHandlers = {
     const {start,end,dekit}=Utils.batchDatesFrom(tue);
     const batch={id:'demo-batch',label:'Demo Cycle',start_date:Utils.dateKey(start),end_date:Utils.dateKey(end),dekit_date:Utils.dateKey(dekit),is_live:true};
     const personnel=[
-      {id:'d2',name:'Tan Jian Hui',contact:'9000 0002',shift:'AM',role:'reservist',batch_id:'demo-batch',is_active:true},
-      {id:'d3',name:'Ahmad Fariz',contact:'9000 0003',shift:'AM',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d2',name:'Tan Jian Hui',contact:'9000 0002',shift:'OFFICE',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d3',name:'Ahmad Fariz',contact:'9000 0003',shift:'OFFICE',role:'reservist',batch_id:'demo-batch',is_active:true},
       {id:'d4',name:'Lim Hui Ying',contact:'9000 0004',shift:'OFFICE',role:'reservist',batch_id:'demo-batch',is_active:true},
-      {id:'d5',name:'Brandon Yeo',contact:'9000 0005',shift:'PM',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d5',name:'Brandon Yeo',contact:'9000 0005',shift:'OFFICE',role:'reservist',batch_id:'demo-batch',is_active:true},
     ];
     this.setState({authed:true,role:'admin',tab:'overview',demo:true,currentUserId:'demo-admin',me:{id:'demo-admin',name:'Supervisor',role:'admin'},personnel,batches:[batch],activeBatchIdx:0,attendance:{'d2':{status:'present',p1:'08:24',p1dist:32},'d3':{status:'present',p1:'08:31',p1dist:48},'d5':{status:'mc',p1:null}},noReportDays:new Set(),history:[],authError:'',accountDeleted:false});
   },
@@ -182,8 +180,6 @@ const AuthHandlers = {
   },
   onSuName:        function(e) { this.setState({suName:e.target.value}); },
   onSuContact:     function(e) { this.setState({suContact:e.target.value}); },
-  onSuShift:       function(e) { this.setState({suShift:e.target.value}); },
-  onSuShiftSelect: function(v) { return () => this.setState({suShift:v}); },
   onSuPassword:    function(e) { this.setState({suPassword:e.target.value}); },
 
   dismissSignupPending: function() { this.setState({signupPending:false, authMode:'login'}); },
@@ -233,11 +229,6 @@ const AuthHandlers = {
     this.setState({personnel, activeBatchIdx:liveIdx>=0?liveIdx:this.state.activeBatchIdx});
   },
 
-  _capShift: function(want, members) {
-    const {am, pm} = this._shiftSlotCounts(members || this.state.personnel);
-    if(want==='AM'&&am>=2) return 'OFFICE';
-    if(want==='PM'&&pm>=2) return 'OFFICE';
-    return want;
-  },
+  _capShift: function(want, members) { return 'OFFICE'; },
 
 };

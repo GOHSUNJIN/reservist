@@ -97,9 +97,6 @@ const PeopleHandlers = {
     if(personnel.some(p=>p.contact.replace(/[\s-]/g,'')===cleanContact)){ this._toast('This contact is already on the roster.','error'); return; }
     const activeBatch=batches[activeBatchIdx||0];
     if(!activeBatch){ this._toast('No active batch selected. Create a batch first.','error'); return; }
-    const {am:bAm,pm:bPm}=this._shiftSlotCounts(personnel);
-    if(npShift==='AM'&&bAm>=2){ this._toast('AM shift is full (2/2). Select PM or Office.','error'); return; }
-    if(npShift==='PM'&&bPm>=2){ this._toast('PM shift is full (2/2). Select AM or Office.','error'); return; }
     if(!demo){
       const existingRecord = await DB.personnel.findByContact(cleanContact).catch(()=>null);
       if(existingRecord && !existingRecord.is_active){
@@ -118,10 +115,10 @@ const PeopleHandlers = {
         await DB.auth.deleteUser(user.id).catch(()=>{});
         this._toast('Failed to add to roster. Try again.','error'); return;
       }
-      this.setState(s=>({personnel:[...s.personnel,data],npName:'',npContact:'',npShift:'AM',npPassword:'',rosterSearch:'',addPersonnelOpen:false}));
+      this.setState(s=>({personnel:[...s.personnel,data],npName:'',npContact:'',npShift:'OFFICE',npPassword:'',rosterSearch:'',addPersonnelOpen:false}));
     } else {
       const id='demo-'+Date.now();
-      this.setState(s=>({personnel:[...s.personnel,{id,name:npName.trim(),contact:cleanContact,shift:npShift,role:'reservist',batch_id:activeBatch.id,is_active:true}],npName:'',npContact:'',npShift:'AM',npPassword:'',rosterSearch:'',addPersonnelOpen:false}));
+      this.setState(s=>({personnel:[...s.personnel,{id,name:npName.trim(),contact:cleanContact,shift:npShift,role:'reservist',batch_id:activeBatch.id,is_active:true}],npName:'',npContact:'',npShift:'OFFICE',npPassword:'',rosterSearch:'',addPersonnelOpen:false}));
     }
     this._toast(npName.trim()+' added to roster.');
   },
@@ -135,7 +132,7 @@ const PeopleHandlers = {
     if(reactErr||!reactivated){ this._toast('Failed to re-enroll. Try again.','error'); return; }
     if(addedName&&addedName!==npReenrollRecord.name) await DB.personnel.updateName(npReenrollRecord.id,addedName).catch(()=>{});
     const finalName=addedName||npReenrollRecord.name;
-    this.setState(s=>({personnel:[...s.personnel,{...reactivated,name:finalName}],npName:'',npContact:'',npShift:'AM',npPassword:'',npReenrollRecord:null,rosterSearch:'',addPersonnelOpen:false}));
+    this.setState(s=>({personnel:[...s.personnel,{...reactivated,name:finalName}],npName:'',npContact:'',npShift:'OFFICE',npPassword:'',npReenrollRecord:null,rosterSearch:'',addPersonnelOpen:false}));
     this._toast(finalName+' re-enrolled on the roster.');
   },
 
@@ -143,7 +140,6 @@ const PeopleHandlers = {
 
   onNpName:        function(e) { this.setState({npName:e.target.value}); },
   onNpContact:     function(e) { this.setState({npContact:e.target.value}); },
-  onNpShift:       function(e) { this.setState({npShift:e.target.value}); },
   onNpPassword:    function(e) { this.setState({npPassword:e.target.value}); },
   toggleAddPersonnel: function() { this.setState(s=>({addPersonnelOpen:!s.addPersonnelOpen,npReenrollRecord:null})); },
 
@@ -319,8 +315,7 @@ const PeopleHandlers = {
       const parts = line.split(',').map(p=>p.trim());
       const name = parts[0]||'';
       const contact = (parts[1]||'').replace(/[\s-]/g,'');
-      const shiftRaw = (parts[2]||'AM').toUpperCase().replace(/\s/g,'');
-      const shift = ['AM','PM','OFFICE'].includes(shiftRaw)?shiftRaw:'AM';
+      const shift = 'OFFICE';
       const valid = name.length>1 && /^[689]\d{7}$/.test(contact);
       return {name, contact, shift, valid};
     });

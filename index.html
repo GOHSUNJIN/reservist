@@ -139,12 +139,10 @@
         <input value="{{ suName }}" onInput="{{ onSuName }}" placeholder="Full name" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;margin-bottom:14px;" />
         <label class="text-field-label">Contact number</label>
         <input value="{{ suContact }}" onInput="{{ onSuContact }}" placeholder="9xxx xxxx" type="tel" inputmode="numeric" autocomplete="tel" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;margin-bottom:14px;" />
-        <label class="text-field-label">Shift preference</label>
-        <select value="{{ suShift }}" onChange="{{ onSuShift }}" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:15px;background:#fff;outline:none;margin-bottom:14px;appearance:none;-webkit-appearance:none;background-image:url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238a94a3' stroke-width='2.5'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E\");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;">
-          <option value="AM" disabled="{{ amFull }}">{{ amShiftLabel }}</option>
-          <option value="PM" disabled="{{ pmFull }}">{{ pmShiftLabel }}</option>
-          <option value="OFFICE">Office (0900-1800)</option>
-        </select>
+        <div style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:#f0f2f7;border:1px solid #e3e6ec;border-radius:10px;margin-bottom:14px;">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <span style="font-size:14px;color:#5c6678;font-weight:500;">Office shift — 0900 to 1800</span>
+        </div>
         <label class="text-field-label">Password</label>
         <input value="{{ suPassword }}" onInput="{{ onSuPassword }}" onKeyDown="{{ onPwKeyDown }}" type="password" autocomplete="new-password" placeholder="Create a password (min 6 chars)" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;" />
         <sc-if value="{{ capsLock }}" hint-placeholder-val=""><div style="font-size:12px;color:#b9791a;margin-top:5px;">⇪ Caps Lock is on</div></sc-if>
@@ -484,6 +482,24 @@
               </div>
               </sc-if>
 
+              <!-- Work timer and meal eligibility -->
+              <sc-if value="{{ showWorkTimer }}" hint-placeholder-val="">
+              <div style="margin-top:10px;background:#fff;border:1px solid #e3e6ec;border-radius:13px;padding:13px 15px;">
+                <div style="font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:8px;">WORK TIME TODAY</div>
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+                  <div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:24px;font-weight:700;color:#161f30;line-height:1;">{{ workTimerDisplay }}</div>
+                    <sc-if value="{{ onBreak }}" hint-placeholder-val="">
+                      <div style="font-size:11.5px;color:#b9791a;font-weight:600;margin-top:4px;">Paused · on break {{ breakDisplay }}</div>
+                    </sc-if>
+                  </div>
+                  <div style="display:inline-flex;align-items:center;gap:5px;padding:6px 11px;border-radius:20px;background:{{ mealStatusBg }};border:1px solid {{ mealStatusBorderColor }};">
+                    <span style="font-size:11.5px;font-weight:600;color:{{ mealStatusColor }};">{{ mealStatusText }}</span>
+                  </div>
+                </div>
+              </div>
+              </sc-if>
+
               <sc-if value="{{ showLateWarning }}" hint-placeholder-val="">
                 <div style="display:flex;align-items:flex-start;gap:10px;margin-top:12px;padding:11px 13px;background:#fdf6e9;border:1px solid #f0e2c2;border-radius:11px;">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:1px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
@@ -656,10 +672,6 @@
             <sc-if value="{{ myShiftNote }}" hint-placeholder-val="">
             <div style="margin-top:10px;background:rgba(255,255,255,.13);border-radius:8px;padding:9px 12px;font-size:12px;color:rgba(255,255,255,.88);line-height:1.5;text-wrap:pretty;">{{ myShiftNote }}</div>
             </sc-if>
-            <button onClick="{{ openShiftChange }}" style="margin-top:12px;width:100%;padding:9px 12px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.25);border-radius:9px;font-size:12.5px;font-weight:600;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;">
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="17 1 21 5 17 9"></polyline><path d="M3 11V9a4 4 0 0 1 4-4h14"></path><polyline points="7 23 3 19 7 15"></polyline><path d="M21 13v2a4 4 0 0 1-4 4H3"></path></svg>
-              Request shift change
-            </button>
           </div>
 
           <!-- Sub-tabs -->
@@ -682,14 +694,9 @@
             </div>
           </div>
 
-          <!-- All shifts reference (tabbed, compact) -->
+          <!-- Shift duties -->
           <div class="card" style="padding:13px 15px;">
-            <span class="section-label" style="display:block;margin-bottom:9px;">ALL SHIFTS</span>
-            <div style="display:flex;gap:4px;background:#f1f3f6;padding:4px;border-radius:10px;margin-bottom:10px;">
-              <sc-for list="{{ roleTabs }}" as="t" hint-placeholder-count="3">
-                <button onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</button>
-              </sc-for>
-            </div>
+            <span class="section-label" style="display:block;margin-bottom:9px;">SHIFT DUTIES</span>
             <div style="font-size:12.5px;font-weight:700;color:#161f30;margin-bottom:1px;">{{ roleTitle }}</div>
             <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#8a94a3;margin-bottom:9px;">{{ roleWindow }}</div>
             <div style="display:flex;flex-direction:column;gap:5px;">
@@ -1305,11 +1312,6 @@
               </div>
             </sc-if>
             <div style="display:flex;gap:6px;align-items:center;">
-                <select value="{{ row.shift }}" onChange="{{ row.onShiftChange }}" style="flex:1.3;min-width:0;padding:6px 8px;border:1px solid #d4d9e2;border-radius:7px;font-size:12px;color:#36404f;background:#f6f8fa;outline:none;">
-                  <option value="AM">AM shift</option>
-                  <option value="PM">PM shift</option>
-                  <option value="OFFICE">Office</option>
-                </select>
                 <sc-if value="{{ row.canMark }}" hint-placeholder-val="">
                   <button onClick="{{ row.markPresent }}" class="roster-btn roster-btn-present" style="flex:1;padding:6px 4px;font-size:12px;">Present</button>
                   <button onClick="{{ row.markMc }}" class="roster-btn roster-btn-mc" style="flex:0.7;padding:6px 4px;font-size:12px;">MC</button>
@@ -1491,6 +1493,17 @@
                       <button onClick="{{ saveTimesEdit }}" style="-webkit-appearance:none;flex:1;padding:10px;background:#161f30;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;">Save</button>
                       <button onClick="{{ closeTimesEdit }}" style="-webkit-appearance:none;padding:10px 16px;background:#fff;border:1px solid #d4d9e2;border-radius:9px;font-size:13px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
                     </div>
+                  </div>
+                </sc-if>
+                <sc-if value="{{ row.showMealBadge }}" hint-placeholder-val="">
+                  <div style="display:flex;align-items:center;gap:7px;margin-top:7px;margin-left:46px;">
+                    <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:{{ row.mealBadgeBg }};border:1px solid {{ row.mealBadgeBorder }};font-size:11px;font-weight:600;color:{{ row.mealBadgeColor }};">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                      {{ row.mealBadgeText }}
+                    </span>
+                    <sc-if value="{{ row.showWorkTime }}" hint-placeholder-val="">
+                      <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a94a3;">{{ row.workTimeText }}</span>
+                    </sc-if>
                   </div>
                 </sc-if>
                 <sc-if value="{{ row.showWelfareNote }}" hint-placeholder-val="">
@@ -2054,7 +2067,7 @@
         <sc-if value="{{ showAddForm }}" hint-placeholder-val="{{ true }}">
         <input value="{{ npName }}" onInput="{{ onNpName }}" placeholder="Full name" class="field" style="margin-bottom:10px;" />
         <input value="{{ npContact }}" onInput="{{ onNpContact }}" placeholder="Contact number (9xxx xxxx)" type="tel" inputmode="numeric" autocomplete="off" class="field" style="margin-bottom:10px;" />
-        <select value="{{ npShift }}" onChange="{{ onNpShift }}" class="field" style="margin-bottom:10px;"><option value="AM" disabled="{{ npAmFull }}">{{ npAmLabel }}</option><option value="PM" disabled="{{ npPmFull }}">{{ npPmLabel }}</option><option value="OFFICE">Office (0900-1800)</option></select>
+        <div class="field" style="margin-bottom:10px;color:#5c6678;">Office shift — 0900 to 1800</div>
         <input value="{{ npPassword }}" onInput="{{ onNpPassword }}" placeholder="Password (min 6 chars)" type="password" class="field" style="margin-bottom:10px;" />
         <div style="font-size:11.5px;color:#8a94a3;margin-bottom:14px;line-height:1.5;">Password is only needed for new personnel. For returning reservists, leave it blank. They will use their previous password.</div>
         <button onClick="{{ addPerson }}" style="-webkit-appearance:none;display:block;width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;text-align:center;box-sizing:border-box;line-height:1;">Add to roster</button>
@@ -2272,52 +2285,6 @@
         </div>
         <button onClick="{{ submitLeaveRequest }}" style="width:100%;padding:13px;background:{{ accent }};border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;">Submit request</button>
         <button onClick="{{ closeLeaveRequest }}" class="btn-subtle">Cancel</button>
-      </div>
-    </div>
-    </sc-if>
-
-    <!-- ===== SHIFT CHANGE MODAL ===== -->
-    <sc-if value="{{ shiftChangeOpen }}" hint-placeholder-val="">
-    <div class="modal-overlay">
-      <div class="sheet-padded">
-        <div class="flex-between-tight">
-          <div style="font-size:17px;font-weight:700;color:#161f30;">Request shift change</div>
-          <button onClick="{{ closeShiftChange }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-        </div>
-        <sc-if value="{{ showShiftChangeForm }}" hint-placeholder-val="{{ true }}">
-        <p style="font-size:13px;color:#5c6678;margin:0 0 16px;line-height:1.5;">Request to change your assigned shift. The admin will review and approve or decline.</p>
-        <div style="margin-bottom:12px;">
-          <div class="text-tag">REQUESTED SHIFT</div>
-          <div class="flex-gap-7">
-            <sc-if value="{{ shiftChangeIsAm }}" hint-placeholder-val="{{ true }}"><button onClick="{{ onShiftChangeAm }}" style="flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid {{ accent }};background:{{ accent }};color:#fff;">AM</button></sc-if>
-            <sc-if value="{{ !shiftChangeIsAm }}" hint-placeholder-val=""><button onClick="{{ onShiftChangeAm }}" style="flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid #d4d9e2;background:#fff;color:#5c6678;">AM</button></sc-if>
-            <sc-if value="{{ shiftChangeIsPm }}" hint-placeholder-val=""><button onClick="{{ onShiftChangePm }}" style="flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid {{ accent }};background:{{ accent }};color:#fff;">PM</button></sc-if>
-            <sc-if value="{{ !shiftChangeIsPm }}" hint-placeholder-val="{{ true }}"><button onClick="{{ onShiftChangePm }}" style="flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid #d4d9e2;background:#fff;color:#5c6678;">PM</button></sc-if>
-            <sc-if value="{{ shiftChangeIsOffice }}" hint-placeholder-val=""><button onClick="{{ onShiftChangeOffice }}" style="flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid {{ accent }};background:{{ accent }};color:#fff;">Office</button></sc-if>
-            <sc-if value="{{ !shiftChangeIsOffice }}" hint-placeholder-val="{{ true }}"><button onClick="{{ onShiftChangeOffice }}" style="flex:1;padding:9px;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;border:1.5px solid #d4d9e2;background:#fff;color:#5c6678;">Office</button></sc-if>
-          </div>
-        </div>
-        <div style="margin-bottom:16px;">
-          <div class="text-tag">REASON</div>
-          <textarea onInput="{{ onShiftChangeReason }}" value="{{ shiftChangeReason }}" placeholder="Why do you need this shift change?" style="width:100%;height:72px;padding:10px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>
-        </div>
-        <button onClick="{{ submitShiftChange }}" style="width:100%;padding:13px;background:{{ accent }};border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;">Review request</button>
-        <button onClick="{{ closeShiftChange }}" class="btn-subtle">Cancel</button>
-        </sc-if>
-        <sc-if value="{{ shiftChangeConfirming }}" hint-placeholder-val="">
-        <div style="background:#f6f8fa;border-radius:13px;padding:16px;margin-bottom:16px;">
-          <div style="font-size:11.5px;font-weight:600;color:#8a94a3;letter-spacing:.06em;margin-bottom:10px;">SHIFT CHANGE SUMMARY</div>
-          <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
-            <span style="flex:1;padding:9px;background:#fff;border:1px solid #e3e6ec;border-radius:9px;font-size:13px;font-weight:600;color:#5c6678;text-align:center;">{{ currentShiftLabel }}</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8a94a3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            <span style="flex:1;padding:9px;background:{{ accent }};border:none;border-radius:9px;font-size:13px;font-weight:700;color:#fff;text-align:center;">{{ requestedShiftLabel }}</span>
-          </div>
-          <div style="font-size:12.5px;color:#5c6678;line-height:1.5;font-style:italic;">"{{ shiftChangeReason }}"</div>
-        </div>
-        <div style="font-size:12.5px;color:#8a94a3;margin-bottom:14px;line-height:1.5;text-align:center;">Your admin will be notified and will approve or decline this request.</div>
-        <button onClick="{{ submitShiftChange }}" style="width:100%;padding:13px;background:{{ accent }};border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;">Confirm and send</button>
-        <button onClick="{{ backShiftChange }}" class="btn-subtle">Back</button>
-        </sc-if>
       </div>
     </div>
     </sc-if>

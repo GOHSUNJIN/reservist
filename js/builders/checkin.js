@@ -70,10 +70,6 @@ const CheckinBuilders = {
       leaveIsPersonal:true, leaveIsMc:false, leaveIsOther:false,
       onLeaveDate:()=>{}, onLeaveTypePersonal:()=>{}, onLeaveTypeMc:()=>{}, onLeaveTypeOther:()=>{},
       onLeaveReason:()=>{}, submitLeaveRequest:()=>{}, closeLeaveRequest:()=>{},
-      openShiftChange:()=>{}, shiftChangeOpen:false, shiftChangeNew:'AM', shiftChangeReason:'',
-      shiftChangeIsAm:true, shiftChangeIsPm:false, shiftChangeIsOffice:false,
-      onShiftChangeAm:()=>{}, onShiftChangePm:()=>{}, onShiftChangeOffice:()=>{},
-      onShiftChangeReason:()=>{}, submitShiftChange:()=>{}, closeShiftChange:()=>{},
     };
     const rec=this.myRec(), status=rec.status||'pending', m=Utils.meta(status);
     const todayD=this.dateForOffset(0);
@@ -121,13 +117,13 @@ const CheckinBuilders = {
     else if(locLocating){gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor=accent;gLocMsg=s.locSlow?slowMsg:'Locating you via GPS...';gLocMsgColor='#8a94a3';}
     else{gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor='#8a94a3';gLocMsg='Tap "Locate me" to verify your location.';gLocMsgColor='#8a94a3';}
 
-    const shift=me.shift||'AM';
+    const shift='OFFICE';
     const now=s.now;
     const testMode=s.demo;
     const phaseDefs=[
       {key:'p1',num:1,label:'Check in to work',needsGps:true,depends:null},
-      {key:'p2',num:2,label:shift==='PM'?'Dinner break':'Lunch break',needsGps:true,depends:'p1'},
-      {key:'p3',num:3,label:shift==='PM'?'Return from dinner':'Return from lunch',needsGps:true,depends:'p2'},
+      {key:'p2',num:2,label:'Lunch break',needsGps:true,depends:'p1'},
+      {key:'p3',num:3,label:'Return from lunch',needsGps:true,depends:'p2'},
       {key:'p4',num:4,label:'Check out',needsGps:true,depends:'p3'},
     ];
     const phases=phaseDefs.map(pd=>{
@@ -142,10 +138,10 @@ const CheckinBuilders = {
       const isActive=!done&&!locked&&(inWin||pastWin);
       const myGpsActive=isActive&&pd.needsGps&&s.locPhase===pd.key;
       const doneText=done?(pd.needsGps?(dist!=null?'GPS verified · '+dist+' m from '+hqName:'GPS verified'):'Recorded'):'';
-      const btnLabel=pd.key==='p1'?'Check in to work':pd.key==='p2'?(shift==='PM'?'Record dinner break':'Record lunch break'):pd.key==='p3'?(shift==='PM'?'Return from dinner':'Return from lunch'):'Check out';
+      const btnLabel=pd.key==='p1'?'Check in to work':pd.key==='p2'?'Record lunch break':pd.key==='p3'?'Return from lunch':'Check out';
       const win=Utils.phaseWindow(shift,pd.key);
       const locIsOutOfRange=myGpsActive&&locOutOfRange;
-      const _waPhaseLabel=pd.key==='p1'?'Check in':pd.key==='p2'?(shift==='PM'?'Dinner break':'Lunch break'):pd.key==='p3'?(shift==='PM'?'Return from dinner':'Return from lunch'):'Check out';
+      const _waPhaseLabel=pd.key==='p1'?'Check in':pd.key==='p2'?'Lunch break':pd.key==='p3'?'Return from lunch':'Check out';
       const _waGeoMsg=`Hi, I need help with my attendance.\n\nName: ${me.name}\nShift: ${Utils.shiftLabel(me.shift)}\nPhase: ${_waPhaseLabel}\nDate: ${Utils.dateKey(this.baseDate())}\n\nGPS shows me ${s.locDistance!=null?s.locDistance+'m ':''}out of range. Please assist with a manual record.`;
       const geofenceWaLink=`https://api.whatsapp.com/send?text=${encodeURIComponent(_waGeoMsg)}`;
       return {
@@ -186,8 +182,8 @@ const CheckinBuilders = {
       };
     });
     const allDone=phases.every(ph=>ph.done);
-    const summaryP1=rec.p1||'-', summaryP2=rec.p2||'-', summaryP3=rec.p3||'-', summaryP4=rec.p4||'-', summaryP2Label=shift==='PM'?'DINNER':'LUNCH';
-    const shiftStart={AM:'08:30',PM:'15:30',OFFICE:'09:00'}[shift]||'08:30';
+    const summaryP1=rec.p1||'-', summaryP2=rec.p2||'-', summaryP3=rec.p3||'-', summaryP4=rec.p4||'-', summaryP2Label='LUNCH';
+    const shiftStart='09:00';
     const [_sc,_sm]=shiftStart.split(':').map(Number);
     const _lateMs=rec.p1?(()=>{const[h,m]=rec.p1.split(':').map(Number);return(h*60+m)-(_sc*60+_sm);})():0;
     const isLate=_lateMs>=60;
@@ -195,7 +191,7 @@ const CheckinBuilders = {
     const hasIncompletePast=!!incompletePastRec;
     const incompletePastDate=hasIncompletePast?Utils.fmtMed(new Date(incompletePastRec.date+'T00:00:00')):'';
     const _waDate=Utils.fmtMed(this.baseDate());
-    const _waBreakLabel=shift==='PM'?'DINNER':'LUNCH';
+    const _waBreakLabel='LUNCH';
     const _waTimes=[];
     if(rec.p1) _waTimes.push('IN  '+rec.p1);
     if(rec.p2) _waTimes.push(_waBreakLabel+'  '+rec.p2);
@@ -257,6 +253,24 @@ const CheckinBuilders = {
       lateReasonReady:!!(s.lateReasonText||'').trim()&&!s.lateReasonSubmitting,
       batchLabel, dekitCountdown, batchRange, showBatchInfo:!!activeBatch,
       showCheckinReminder:!outOfCycle&&!noRep&&status==='pending'&&!s.demo&&(Utils.phaseInWindow(shift,'p1',now)||Utils.phaseWindowPast(shift,'p1',now)),
+      // Work timer and meal eligibility
+      ...(() => {
+        const nowHhmm=Utils.hhmm(s.now);
+        const onBreak=!!(rec.p1&&rec.p2&&!rec.p3);
+        const workMinsVal=Utils.workMins(rec,nowHhmm);
+        const breakMinsVal=onBreak?Math.max(0,Utils._hmToMins(nowHhmm)-Utils._hmToMins(rec.p2)):(rec.p2&&rec.p3?Math.max(0,Utils._hmToMins(rec.p3)-Utils._hmToMins(rec.p2)):0);
+        const isMealEligible=Utils.mealEligible(rec,nowHhmm);
+        const mealStatusText=rec.p4?(isMealEligible?'Meal eligible':'No meal allowance'):(isMealEligible?'On track for meal':'Not yet 8h');
+        const mealStatusColor=isMealEligible?'#1f8a5b':'#b9791a';
+        const mealStatusBg=isMealEligible?'#e7f3ec':'#fdf6e9';
+        const mealStatusBorderColor=isMealEligible?'#a8d5bb':'#f0e2c2';
+        return {
+          showWorkTimer:!outOfCycle&&!noRep&&status==='present'&&!!rec.p1,
+          workTimerDisplay:Utils.fmtMins(workMinsVal),
+          onBreak, breakDisplay:Utils.fmtMins(breakMinsVal),
+          isMealEligible, mealStatusText, mealStatusColor, mealStatusBg, mealStatusBorderColor,
+        };
+      })(),
       ...(()=>{
         if(!myBatch) return {hasNextNoReportDay:false,nextNoReportLabel:''};
         const tomorrow=Utils.addDays(todayD,1);
@@ -278,15 +292,6 @@ const CheckinBuilders = {
       leaveIsPersonal:s.leaveType==='personal', leaveIsMc:s.leaveType==='mc', leaveIsOther:s.leaveType==='other',
       onLeaveTypePersonal:this.onLeaveType('personal'), onLeaveTypeMc:this.onLeaveType('mc'), onLeaveTypeOther:this.onLeaveType('other'),
       onLeaveReason:this.onLeaveReason, submitLeaveRequest:this.submitLeaveRequest, closeLeaveRequest:this.closeLeaveRequest,
-      openShiftChange:this.openShiftChange, shiftChangeOpen:s.shiftChangeOpen,
-      shiftChangeNew:s.shiftChangeNew, shiftChangeReason:s.shiftChangeReason,
-      onShiftChangeAm:this.onShiftChangeNew('AM'), onShiftChangePm:this.onShiftChangeNew('PM'), onShiftChangeOffice:this.onShiftChangeNew('OFFICE'),
-      shiftChangeIsAm:s.shiftChangeNew==='AM', shiftChangeIsPm:s.shiftChangeNew==='PM', shiftChangeIsOffice:s.shiftChangeNew==='OFFICE',
-      onShiftChangeReason:this.onShiftChangeReason, submitShiftChange:this.submitShiftChange, closeShiftChange:this.closeShiftChange,
-      shiftChangeConfirming:!!(s.shiftChangeConfirming), showShiftChangeForm:!(s.shiftChangeConfirming),
-      backShiftChange:this.backShiftChange,
-      currentShiftLabel:Utils.shiftLabel(this.cur()?.shift||'AM'),
-      requestedShiftLabel:Utils.shiftLabel(s.shiftChangeNew||'AM'),
       welfareNote:rec.welfareNote||'', hasWelfareNote:!!(rec.welfareNote),
       welfareNoteBtnLabel:rec.welfareNote?'Edit daily note':'Add a note for today',
       canAddWelfareNote:s.role==='admin'&&!outOfCycle&&!noRep&&Utils.isReportDay(todayD),
@@ -383,9 +388,8 @@ const CheckinBuilders = {
 
     const _tc=(v,c1,c0)=>v?c1:c0;
     const _dc='#c2c8d2';
-    const _myShift=me.shift||'AM';
-    const _pw=key=>{const w=Utils.phaseWindow(_myShift,key);return w?w[0]:'-';};
-    const _p2WinLabel=_myShift==='PM'?'DINNER':'LUNCH';
+    const _pw=key=>{const w=Utils.phaseWindow('OFFICE',key);return w?w[0]:'-';};
+    const _p2WinLabel='LUNCH';
 
     const _exDates=s.historyExpandedDates||[];
     const todayRow=(Utils.isReportDay(todayD)&&!this.isNoReport(0))
