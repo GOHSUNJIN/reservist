@@ -12,6 +12,25 @@ const RequestHandlers = {
     this.setState({approvedSignups:data});
   },
 
+  loadRejectedSignups: async function() {
+    const data = await DB.signupRequests.listRejected().catch(()=>[]);
+    this.setState({rejectedSignups:data, rejectedSignupsLoaded:true});
+  },
+
+  reopenSignup: function(id) {
+    return async () => {
+      const req = this.state.rejectedSignups.find(r=>r.id===id);
+      if(!req) return;
+      const {error} = await DB.signupRequests.reopen(id).catch(()=>({error:true}));
+      if(error){ this._toast('Failed to re-open. Try again.','error'); return; }
+      this.setState(s=>({
+        rejectedSignups: s.rejectedSignups.filter(r=>r.id!==id),
+        pendingSignups: [{...req, status:'pending', reviewed_by:null, reviewed_at:null}, ...s.pendingSignups],
+      }));
+      this._toast(req.name+"'s signup re-opened.");
+    };
+  },
+
   approveSignup: function(id) {
     return async () => {
       const req = this.state.pendingSignups.find(r=>r.id===id);

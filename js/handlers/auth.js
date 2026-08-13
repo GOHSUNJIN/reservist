@@ -126,7 +126,7 @@ const AuthHandlers = {
       markingAllAbsent:false, confirmMarkAllAbsent:false,
       personHistoryId:null, personHistoryRows:[], personHistoryLoading:false,
       signupPending:false,
-      pendingSignups:[], pendingSignupsLoaded:false, approvedSignups:[],
+      pendingSignups:[], pendingSignupsLoaded:false, approvedSignups:[], rejectedSignups:[], rejectedSignupsLoaded:false,
       selectedSignupIds:[],
       signupSearch:'', leaveSearch:'', addPersonnelOpen:false, npReenrollRecord:null,
       rejectLeaveId:null, rejectLeaveReason:'',

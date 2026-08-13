@@ -115,6 +115,7 @@ const InitHandlers = {
         this.loadPendingLeaves(),
         this.loadPendingSignups(),
         this.loadApprovedSignups(),
+        this.loadRejectedSignups(),
       ]), 0);
       this._subscribeAdminRequests();
       if(typeof Notification !== 'undefined' && Notification.permission !== 'granted'){

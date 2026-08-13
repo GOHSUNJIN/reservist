@@ -226,6 +226,15 @@ const AdminPeople = {
       selectedSignupCount:(s.selectedSignupIds||[]).length,
       hasSelectedSignups:(s.selectedSignupIds||[]).length>0,
       onApproveSelected:self.approveSelected,
+      rejectedSignups:(s.rejectedSignups||[]).map(r=>{
+        const b=(s.batches||[]).find(b=>b.id===r.batch_id);
+        const initials=r.name.trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
+        const reviewedAt=r.reviewed_at?new Date(r.reviewed_at).toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'}):'';
+        return {id:r.id,name:r.name,contact:r.contact,batchLabel:b?b.label:'',initials,reviewedAt,reviewedBy:r.reviewed_by||'',onReopen:self.reopenSignup(r.id)};
+      }),
+      hasRejectedSignups:(s.rejectedSignups||[]).length>0,
+      rejectedSignupsLoaded:!!(s.rejectedSignupsLoaded),
+      rejectedSignupCount:(s.rejectedSignups||[]).length,
       // People sub-tabs
       ...(()=>{
         const tab=s.peopleTab||'requests';
