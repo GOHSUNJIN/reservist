@@ -1,4 +1,4 @@
-const CACHE = 'ops-v8';
+const CACHE = 'ops-v9';
 const APP_ASSETS = [
   './',
   './index.html',
@@ -44,17 +44,33 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Network-first for Supabase, JS files, and CDN scripts — always get latest
+  // Always network-first for Supabase and external CDNs
   if (
     url.hostname.includes('supabase.co') ||
     url.hostname.includes('supabase.io') ||
-    url.pathname.endsWith('.js') ||
     url.hostname.includes('cdn.jsdelivr.net') ||
     url.hostname.includes('fonts.googleapis.com') ||
     url.hostname.includes('fonts.gstatic.com')
   ) {
     e.respondWith(
       fetch(e.request).catch(() => caches.match(e.request))
+    );
+    return;
+  }
+
+  // Cache-first for local JS files — versioned by CACHE name, safe to serve from cache
+  if (url.pathname.endsWith('.js')) {
+    e.respondWith(
+      caches.match(e.request).then(hit => {
+        if (hit) return hit;
+        return fetch(e.request).then(res => {
+          if (res.ok) {
+            const clone = res.clone();
+            caches.open(CACHE).then(c => c.put(e.request, clone)).catch(() => {});
+          }
+          return res;
+        });
+      })
     );
     return;
   }

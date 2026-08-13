@@ -110,10 +110,12 @@ const InitHandlers = {
     });
     if(role==='admin'){
       this._subscribeRealtime(today);
-      setTimeout(()=>this.loadRosterAvatars(), 0);
-      setTimeout(()=>this.loadPendingLeaves(), 0);
-      setTimeout(()=>this.loadPendingSignups(), 0);
-      setTimeout(()=>this.loadApprovedSignups(), 0);
+      setTimeout(()=>Promise.all([
+        this.loadRosterAvatars(),
+        this.loadPendingLeaves(),
+        this.loadPendingSignups(),
+        this.loadApprovedSignups(),
+      ]), 0);
       this._subscribeAdminRequests();
       if(typeof Notification !== 'undefined' && Notification.permission !== 'granted'){
         localStorage.removeItem('admin_notif');
