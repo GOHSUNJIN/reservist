@@ -101,7 +101,7 @@ class AppComponent extends DCLogic {
       accent, orgName, hqName,
       bgOuter:'#cdd2da',
       bgContent:'#f6f7f9',
-      showToast:!!s.toast, toastMsg:s.toast?.msg||'', toastBg:s.toast?.type==='error'?'#c0392b':'#1f8a5b',
+      showToast:!!s.toast, toastMsg:s.toast?.msg||'', toastBg:s.toast?.type==='error'?'#c0392b':'#1f8a5b', toastBorder:s.toast?.type==='error'?'#f1d3cf':'#cfe6d8',
       dismissToast:this.dismissToast,
       sessionExpiring:s.sessionExpiring, refreshSessionNow:this.refreshSessionNow,
       idleWarning:s.idleWarning, stayActive:this.stayActive,

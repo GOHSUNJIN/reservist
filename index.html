@@ -14,7 +14,6 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Reservist">
 <script src="./js/component.js" defer></script>
-<script src="./support.js" defer></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
 <script src="./js/config.js" defer></script>
 <script src="./js/utils.js" defer></script>
@@ -38,6 +37,7 @@
 <script src="./js/builders/admin/people.js" defer></script>
 <script src="./js/builders/admin/index.js" defer></script>
 <script src="./js/builders/account.js" defer></script>
+<script src="./support.js" defer></script>
 </head>
 <body>
 <div class="landscape-wall">
@@ -227,7 +227,7 @@
           </sc-if>
 
           <sc-if value="{{ hasNextNoReportDay }}" hint-placeholder-val="">
-          <div style="background:#f6f8fa;border:1px solid #e3e6ec;border-radius:10px;padding:9px 13px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
+          <div style="background:#f6f8fa;border:1px solid #e3e6ec;border-radius:12px;padding:11px 14px;margin-bottom:10px;display:flex;align-items:center;gap:8px;">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="3" x2="8" y2="6"/><line x1="16" y1="3" x2="16" y2="6"/></svg>
             <span style="font-size:12.5px;color:#5c6678;font-weight:500;">Next no-report day: <strong>{{ nextNoReportLabel }}</strong></span>
           </div>
@@ -433,7 +433,7 @@
 
               <!-- Completed: clean summary card -->
               <sc-if value="{{ allDone }}" hint-placeholder-val="">
-              <div style="background:#fff;border:1px solid #e3e6ec;border-radius:14px;overflow:hidden;">
+              <div style="background:#fff;border:1px solid #e3e6ec;border-radius:14px;overflow:hidden;box-shadow:0 1px 4px rgba(20,30,50,.04);">
                 <div style="padding:14px 16px;display:flex;align-items:center;gap:12px;border-bottom:1px solid #f0f2f5;">
                   <div style="width:36px;height:36px;border-radius:50%;background:#e7f3ec;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
                     <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#1f8a5b" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -853,7 +853,7 @@
                   <span style="font-size:10.5px;color:#b0b7c3;">Cycle progress</span>
                   <span style="font-size:10.5px;color:#8a94a3;font-weight:600;">{{ cycleDone }} of {{ cycleTotal }} days</span>
                 </div>
-                <sc-if value="{{ streak }}"><div style="display:flex;align-items:center;gap:5px;margin-top:6px;"><span style="font-size:11px;">🔥</span><span style="font-size:11px;font-weight:600;color:#b9791a;">{{ streakLabel }}</span></div></sc-if>
+                <sc-if value="{{ streak }}"><div style="border-top:1px solid #f0f2f5;margin-top:10px;padding-top:8px;display:flex;align-items:center;gap:5px;"><span style="font-size:11px;">🔥</span><span style="font-size:11px;font-weight:600;color:#b9791a;">{{ streakLabel }}</span></div></sc-if>
               </div>
             </sc-if>
           </div>
@@ -863,7 +863,7 @@
               <div style="padding:9px 16px;font-size:11.5px;color:#b9791a;background:#fdf6e9;border-bottom:1px solid #eef0f4;">Showing most recent 500 records only.</div>
             </sc-if>
             <sc-for list="{{ myHistory }}" as="row" hint-placeholder-count="6">
-              <div style="padding:12px 13px 12px 13px;border-bottom:1px solid #f2f4f7;border-left:3px solid {{ row.color }};">
+              <div style="padding:12px 16px 12px 13px;border-bottom:1px solid #f2f4f7;border-left:3px solid {{ row.color }};">
                 <div onClick="{{ row.onToggleExpand }}" style="display:flex;justify-content:space-between;align-items:center;margin-bottom:{{ row.showTimes ? '9px' : '0' }};{{ row.hasExpandToggle ? 'cursor:pointer;' : '' }}">
                   <div>
                     <div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ row.date }}</div>
@@ -1229,7 +1229,7 @@
         <!-- ===== ADMIN: ROSTER ===== -->
         <sc-if value="{{ tabRoster }}" hint-placeholder-val="">
         <div style="display:flex;flex-direction:column;gap:11px;">
-          <div onTouchStart="{{ onDaySwipeStart }}" onTouchEnd="{{ onDaySwipeEnd }}" style="background:#131a27;border-radius:16px;padding:11px 12px;color:#fff;display:flex;align-items:center;gap:9px;">
+          <div onTouchStart="{{ onDaySwipeStart }}" onTouchEnd="{{ onDaySwipeEnd }}" style="background:#131a27;border-radius:16px;padding:11px 12px;color:#fff;display:flex;align-items:center;gap:9px;margin-bottom:14px;">
             <button onClick="{{ prevDay }}" class="btn-icon-dark"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#cdd4df" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
             <div style="flex:1;text-align:center;min-width:0;">
               <div style="font-size:15px;font-weight:600;">{{ viewDateLabel }}</div>
@@ -1400,21 +1400,21 @@
                   <button onClick="{{ row.onEditTimes }}" style="-webkit-appearance:none;padding:4px 9px;background:#f0f2f7;border:1px solid #e3e6ec;border-radius:7px;font-size:11px;font-weight:600;color:#5c6678;cursor:pointer;flex:0 0 auto;">Edit</button>
                 </div>
                 <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-left:46px;">
-                  <div style="background:#f6f8fa;border-radius:7px;padding:5px 7px;">
-                    <div style="font-size:9px;font-weight:700;color:#9aa3b2;letter-spacing:.05em;margin-bottom:3px;">IN</div>
-                    <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:{{ row.p1Color }};">{{ row.p1 }}</div>
+                  <div class="badge-pill">
+                    <div class="text-caption">IN</div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:{{ row.p1Color }};">{{ row.p1 }}</div>
                   </div>
-                  <div style="background:#f6f8fa;border-radius:7px;padding:5px 7px;">
-                    <div style="font-size:9px;font-weight:700;color:#9aa3b2;letter-spacing:.05em;margin-bottom:3px;">{{ row.p2Label }}</div>
-                    <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:{{ row.p2Color }};">{{ row.p2 }}</div>
+                  <div class="badge-pill">
+                    <div class="text-caption">{{ row.p2Label }}</div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:{{ row.p2Color }};">{{ row.p2 }}</div>
                   </div>
-                  <div style="background:#f6f8fa;border-radius:7px;padding:5px 7px;">
-                    <div style="font-size:9px;font-weight:700;color:#9aa3b2;letter-spacing:.05em;margin-bottom:3px;">BACK</div>
-                    <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:{{ row.p3Color }};">{{ row.p3 }}</div>
+                  <div class="badge-pill">
+                    <div class="text-caption">BACK</div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:{{ row.p3Color }};">{{ row.p3 }}</div>
                   </div>
-                  <div style="background:#f6f8fa;border-radius:7px;padding:5px 7px;">
-                    <div style="font-size:9px;font-weight:700;color:#9aa3b2;letter-spacing:.05em;margin-bottom:3px;">OUT</div>
-                    <div style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:{{ row.p4Color }};">{{ row.p4 }}</div>
+                  <div class="badge-pill">
+                    <div class="text-caption">OUT</div>
+                    <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:{{ row.p4Color }};">{{ row.p4 }}</div>
                   </div>
                 </div>
                 <sc-if value="{{ row.showLateReason }}" hint-placeholder-val="">
@@ -1905,7 +1905,7 @@
     <!-- ===== ACCOUNT OVERLAY ===== -->
     <sc-if value="{{ accountOpen }}" hint-placeholder-val="">
     <div class="scroll" style="position:absolute;inset:0;background:#f6f7f9;z-index:30;overflow:auto;">
-      <div style="background:#fff;border-bottom:1px solid #e3e6ec;padding:14px 18px;display:flex;align-items:center;gap:12px;">
+      <div style="background:#fff;border-bottom:1px solid #e3e6ec;padding:14px 18px;display:flex;align-items:center;gap:12px;box-shadow:0 1px 10px rgba(20,30,50,.07);">
         <button onClick="{{ closeAccount }}" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#36404f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
         <div style="font-size:18px;font-weight:700;color:#161f30;">My account</div>
       </div>
@@ -2170,7 +2170,7 @@
     <!-- ===== TOAST ===== -->
     <sc-if value="{{ showToast }}" hint-placeholder-val="">
     <div onClick="{{ dismissToast }}" class="toast-wrap" style="position:absolute;top:58px;left:50%;transform:translateX(-50%);z-index:100;cursor:pointer;">
-      <div style="background:#fff;border-radius:100px;padding:9px 18px 9px 12px;font-size:13px;font-weight:600;white-space:nowrap;box-shadow:0 4px 24px rgba(20,30,50,.18);display:flex;align-items:center;gap:9px;border:1px solid #f0f2f5;">
+      <div style="background:#fff;border-radius:100px;padding:9px 18px 9px 12px;font-size:13px;font-weight:600;white-space:nowrap;box-shadow:0 4px 24px rgba(20,30,50,.18);display:flex;align-items:center;gap:9px;border:1.5px solid {{ toastBorder }};">
         <span style="width:8px;height:8px;border-radius:50%;background:{{ toastBg }};flex:0 0 auto;display:inline-block;"></span>
         <span style="color:#161f30;">{{ toastMsg }}</span>
         <span style="color:#a0a8b4;font-size:15px;line-height:1;margin-left:2px;">×</span>
