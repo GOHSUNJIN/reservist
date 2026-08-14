@@ -275,9 +275,10 @@ const CheckinBuilders = {
         if(!myBatch) return {hasNextNoReportDay:false,nextNoReportLabel:''};
         const tomorrow=Utils.addDays(todayD,1);
         for(let d=new Date(tomorrow);Utils.dateKey(d)<=myBatch.end_date;d=Utils.addDays(d,1)){
-          const dk=Utils.dateKey(d);
-          if(Utils.isReportDay(d)&&!Utils.holidayName(d)&&s.noReportDays.has(dk)){
-            return {hasNextNoReportDay:true,nextNoReportLabel:Utils.fmtMed(d)};
+          const dk=Utils.dateKey(d), holName=Utils.holidayName(d);
+          if(Utils.isReportDay(d)&&(holName||s.noReportDays.has(dk))){
+            const label=Utils.fmtMed(d)+(holName?' · '+holName:'');
+            return {hasNextNoReportDay:true,nextNoReportLabel:label};
           }
         }
         return {hasNextNoReportDay:false,nextNoReportLabel:''};
@@ -287,7 +288,7 @@ const CheckinBuilders = {
       retrySync:this.retrySync, refreshPage:this.refreshPage,
       isInAppBrowser:s.isInAppBrowser, inAppBrowserName:s.inAppBrowserName,
       openLeaveRequest:this.openLeaveRequest(Utils.dateKey(this.baseDate())),
-      leaveOpen:s.leaveOpen, leaveDate:s.leaveDate, leaveType:s.leaveType, leaveReason:s.leaveReason,
+      leaveOpen:s.leaveOpen, leaveDate:s.leaveDate, leaveType:s.leaveType, leaveReason:s.leaveReason, leaveReady:!!(s.leaveDate),
       onLeaveDate:this.onLeaveDate,
       leaveIsPersonal:s.leaveType==='personal', leaveIsMc:s.leaveType==='mc', leaveIsOther:s.leaveType==='other',
       onLeaveTypePersonal:this.onLeaveType('personal'), onLeaveTypeMc:this.onLeaveType('mc'), onLeaveTypeOther:this.onLeaveType('other'),
