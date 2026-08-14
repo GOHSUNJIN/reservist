@@ -196,19 +196,25 @@
         <!-- ===== CHECK IN ===== -->
         <sc-if value="{{ tabCheckin }}" hint-placeholder-val="{{ true }}">
         <div>
-          <div style="background:linear-gradient(135deg,#161f30 0%,#1e2d45 100%);border-radius:18px;padding:18px 20px 16px;color:#fff;margin-bottom:14px;box-shadow:0 4px 18px rgba(20,30,50,.22);">
+          <div style="background:linear-gradient(135deg,#0f1929 0%,#182840 55%,#1d3250 100%);border-radius:18px;padding:18px 20px 16px;color:#fff;margin-bottom:14px;box-shadow:0 4px 22px rgba(10,20,45,.32);position:relative;overflow:hidden;">
+            <div style="position:absolute;right:-36px;top:-36px;width:130px;height:130px;border-radius:50%;border:1px solid rgba(255,255,255,.05);pointer-events:none;"></div>
+            <div style="position:absolute;right:-14px;top:-14px;width:80px;height:80px;border-radius:50%;border:1px solid rgba(255,255,255,.04);pointer-events:none;"></div>
             <div style="display:flex;justify-content:space-between;align-items:flex-start;">
               <div>
-                <div style="font-size:11px;color:#5d6f84;letter-spacing:.07em;text-transform:uppercase;margin-bottom:5px;">{{ todayLong }}</div>
+                <div style="font-size:11.5px;color:#8fa3bc;letter-spacing:.08em;text-transform:uppercase;margin-bottom:4px;">{{ todayLong }}</div>
               </div>
-              <div style="font-family:'IBM Plex Mono',monospace;font-size:30px;font-weight:600;letter-spacing:.02em;line-height:1;margin-top:-2px;">{{ clock }}</div>
+              <div style="font-family:'IBM Plex Mono',monospace;font-size:31px;font-weight:600;letter-spacing:-.01em;line-height:1;margin-top:-2px;color:#fff;">{{ clock }}</div>
             </div>
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-top:13px;">
-              <div style="background:rgba(255,255,255,.1);border-radius:20px;padding:4px 10px 4px 8px;display:inline-flex;align-items:center;gap:5px;">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.6)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>
-                <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.75);">{{ myShiftWindow }}</span>
+            <div style="height:1px;background:rgba(255,255,255,.07);margin:13px 0 11px;"></div>
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.08);border-radius:20px;padding:4px 10px 4px 8px;display:inline-flex;align-items:center;gap:5px;">
+                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.65)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>
+                <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:rgba(255,255,255,.8);">{{ myShiftWindow }}</span>
               </div>
-              <div style="font-size:10px;color:#4a5d72;letter-spacing:.1em;text-transform:uppercase;">{{ hqName }}</div>
+              <div style="display:flex;align-items:center;gap:4px;">
+                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#6d8aaa" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg>
+                <div style="font-size:10.5px;color:#6d8aaa;letter-spacing:.08em;text-transform:uppercase;font-weight:600;">{{ hqName }}</div>
+              </div>
             </div>
           </div>
 
@@ -691,24 +697,6 @@
               <div class="info-cell"><div class="info-cell-label">Days</div><div class="info-cell-val">Mon to Fri</div></div>
               <div class="info-cell" style="grid-column:1/-1;"><div class="info-cell-label">Attire</div><div class="info-cell-val">{{ briefAttire }}</div></div>
             </div>
-          </div>
-
-          <!-- Shift duties -->
-          <div class="card" style="padding:13px 15px;">
-            <span class="section-label" style="display:block;margin-bottom:9px;">SHIFT DUTIES</span>
-            <div style="font-size:12.5px;font-weight:700;color:#161f30;margin-bottom:1px;">{{ roleTitle }}</div>
-            <div style="font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:#8a94a3;margin-bottom:9px;">{{ roleWindow }}</div>
-            <div style="display:flex;flex-direction:column;gap:5px;">
-              <sc-for list="{{ roleItems }}" as="it" hint-placeholder-count="3">
-              <div style="display:flex;gap:8px;align-items:flex-start;">
-                <div style="width:4px;height:4px;border-radius:50%;background:#b8bec9;flex:0 0 auto;margin-top:5px;"></div>
-                <span style="font-size:12px;color:#5c6678;line-height:1.5;text-wrap:pretty;">{{ it }}</span>
-              </div>
-              </sc-for>
-            </div>
-            <sc-if value="{{ roleNote }}" hint-placeholder-val="">
-            <div style="margin-top:8px;background:#f6f8fa;border-radius:7px;padding:8px 11px;font-size:11.5px;color:#5c6678;line-height:1.5;text-wrap:pretty;">{{ roleNote }}</div>
-            </sc-if>
           </div>
 
           <!-- Meal + Dekit -->
