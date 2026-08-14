@@ -228,6 +228,9 @@ const RequestHandlers = {
         else if(leave?.type==='personal'||leave?.type==='other') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'absent',{}).catch(()=>{}));
         await Promise.all(ops);
       }));
+      const todayKey=Utils.dateKey(this.baseDate?this.baseDate():new Date());
+      const hasToday=leaveSelectedIds.some(id=>pendingLeaves.find(l=>l.id===id)?.date===todayKey);
+      if(hasToday){const freshAtt=await DB.attendance.getForDate(todayKey).catch(()=>null);if(freshAtt)this.setState({attendance:freshAtt,attendanceDate:todayKey});}
     }
     const count=leaveSelectedIds.length-skipped;
     this.setState({leaveSelectedIds:[],bulkApprovingLeaves:false});
@@ -274,9 +277,10 @@ const RequestHandlers = {
     if(!demo){
       const {data, error} = await DB.leaves.request(currentUserId, leaveDate, leaveType, leaveReason).catch(e=>({error:e}));
       if(error){ this._toast('Failed to submit request.','error'); return; }
-      if(data) this.setState({myPendingRequest:data});
+      if(data) this.setState(s=>({myPendingRequest:data, myLeaveHistory:[data,...s.myLeaveHistory]}));
     } else {
-      this.setState({myPendingRequest:{id:'demo',personnel_id:currentUserId,date:leaveDate,type:leaveType,status:'pending'}});
+      const demoReq={id:'demo-'+Date.now(),personnel_id:currentUserId,date:leaveDate,type:leaveType,status:'pending'};
+      this.setState(s=>({myPendingRequest:demoReq, myLeaveHistory:[demoReq,...s.myLeaveHistory]}));
     }
     this._toast('Request submitted for approval.');
     this.setState({leaveOpen:false});

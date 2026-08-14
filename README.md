@@ -34,10 +34,11 @@ Ops Reservist provides full end-to-end attendance accountability for reservist c
 - **Full daily time log** - A complete record of every individual's four check-in phases for the day, including GPS distance, any late reason, and welfare notes. Can be searched by name and filtered by status.
 - **Unified requests inbox** - All pending signup requests, MC, and leave requests appear in one place under the Requests tab. Each request is labelled New or Returning so the supervisor knows at a glance whether they are onboarding a first-timer or re-enrolling someone from a previous cycle.
 - **Bulk leave actions** - Multiple pending leave requests can be selected and approved or rejected in a single action. Bulk rejection requires a written reason that is recorded against each rejected request.
+- **Hide rejected signups** - Rejected signup requests can be temporarily collapsed with a single tap to reduce clutter in the inbox. They can be expanded again at any time.
 - **Personnel roster** - Full list of the current cycle's reservists with attendance stats, notes, and history per person.
 - **Welfare notes** - Supervisors can write a private daily note against any individual (e.g. medical concerns, welfare follow-up). Visible on the roster and time log.
 - **Missed attendance notes** - For reservists who did not report without an approved leave, supervisors can add an inline note directly from the attendance history view.
-- **Non-reporting day control** - Mark any date as a non-reporting day (public holidays, stand-down). The system will not count those days against personnel.
+- **Non-reporting day control** - Mark any date as a non-reporting day (public holidays, stand-down). The system will not count those days against personnel. Singapore public holidays are also excluded automatically from attendance rate calculations.
 - **Cycle notice board** - Post a short notice that appears as a banner on every reservist's check-in screen for the duration of the cycle. Used for schedule reminders, welfare messages, or administrative notices.
 - **WhatsApp attendance summary** - One tap sends the day's attendance summary to the unit group chat.
 - **Spreadsheet export** - Full attendance data for any cycle can be exported as a CSV file for record-keeping or further analysis. Includes per-person attendance rates and a summary row.

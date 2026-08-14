@@ -233,6 +233,8 @@ const AdminPeople = {
       hasRejectedSignups:(s.rejectedSignups||[]).length>0,
       rejectedSignupsLoaded:!!(s.rejectedSignupsLoaded),
       rejectedSignupCount:(s.rejectedSignups||[]).length,
+      rejectedSignupsHidden:!!(s.rejectedSignupsHidden),
+      toggleRejectedSignups:()=>self.setState({rejectedSignupsHidden:!s.rejectedSignupsHidden}),
       // People sub-tabs
       ...(()=>{
         const tab=s.peopleTab||'requests';
