@@ -387,7 +387,7 @@ const PeopleHandlers = {
     const reportDays=[];
     for(let d=new Date(batch.start_date+'T00:00:00'),end=new Date(ceiling+'T00:00:00');d<=end;d=new Date(d.getTime()+86400000)){
       const dk=Utils.dateKey(d);
-      if(Utils.isReportDay(d)&&!noReportDays.has(dk)) reportDays.push(dk);
+      if(Utils.isReportDay(d)&&!noReportDays.has(dk)&&!Utils.holidayName(d)) reportDays.push(dk);
     }
     const stats={};
     for(const p of members){

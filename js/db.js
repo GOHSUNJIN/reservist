@@ -236,14 +236,6 @@ const DB = {
       return { data, error };
     },
 
-    async remove(personnelId, dateStr) {
-      await _db.from('attendance').delete().eq('personnel_id', personnelId).eq('date', dateStr);
-    },
-
-    async wipeAll(personnelId) {
-      await _db.from('attendance').delete().eq('personnel_id', personnelId);
-    },
-
     async logPhase(personnelId, dateStr, key, timeStr, dist, bypassed = false) {
       const colMap = {p1:'check_in_time', p2:'lunch_out_time', p3:'work_return_time', p4:'work_end_time'};
       const distMap = {p1:'gps_distance_m', p3:'work_return_dist'};
@@ -343,7 +335,6 @@ const DB = {
       await _db.from('batches').update({ label }).eq('id', batchId);
     },
 
-    // Requires: ALTER TABLE batches ADD COLUMN notice_text TEXT DEFAULT NULL;
     async updateNotice(batchId, text) {
       const { data, error } = await _db.from('batches').update({ notice_text: text || null }).eq('id', batchId).select().maybeSingle();
       return { data, error };

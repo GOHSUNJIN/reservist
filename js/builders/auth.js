@@ -30,6 +30,7 @@ const AuthBuilders = {
       onSuName:this.onSuName, onSuContact:this.onSuContact, onSuPassword:this.onSuPassword,
       doSignup:this.doSignup,
       intakeLabel, intakeRange:intakeRangeFull, intakeRangeFull,
+      showIntakeBadge:!!targetBatch,
       signupIsNextCycle:isLastDay&&!!nextBatch,
       forgotPasswordOpen:s.forgotPasswordOpen,
       openForgotPassword:this.openForgotPassword, closeForgotPassword:this.closeForgotPassword,

@@ -105,7 +105,7 @@ const AuthHandlers = {
       timesEditId:null, timesEditP1:'', timesEditP2:'', timesEditP3:'', timesEditP4:'', timesEditSaving:false, timesEditErrField:null,
       batchJumpDate:Utils.dateKey(new Date()),
       toast:null, rosterSort:'name', newBatchDate:'',
-      peopleStats:{}, peopleStatsLoaded:false, confirmDeactivateId:null, showArchivedBatches:false, cyclePickerOpen:false,
+      peopleStats:{}, peopleStatsLoaded:false, confirmDeactivateId:null, showArchivedBatches:false, cyclePickerOpen:false, rejectedSignupsHidden:false,
       noAvatarIds:new Set(), noReportDaysCache:{},
       markAllPresenting:false,
       historyPage:1,
@@ -221,11 +221,14 @@ const AuthHandlers = {
   },
 
   _refreshSignupSlots: async function() {
-    const liveBatch = this._liveBatch();
-    if(!liveBatch || this.state.demo) return;
-    const personnel = await DB.personnel.list().catch(()=>[]);
-    const liveIdx = this.state.batches.findIndex(b=>b.id===liveBatch.id);
-    this.setState({personnel, activeBatchIdx:liveIdx>=0?liveIdx:this.state.activeBatchIdx});
+    if(this.state.demo) return;
+    if(!this.state.batches.length) {
+      const batches = await DB.batches.list().catch(()=>[]);
+      if(batches.length) {
+        const liveIdx = batches.findIndex(b=>b.is_live);
+        this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0});
+      }
+    }
   },
 
 };

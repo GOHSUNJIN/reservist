@@ -43,7 +43,7 @@ const makeInitialState = () => ({
   noAvatarIds: new Set(),
   peopleStats: {}, peopleStatsLoaded: false,
   confirmDeactivateId: null,
-  showArchivedBatches: false,
+  showArchivedBatches: false, rejectedSignupsHidden: false,
   cyclePickerOpen: false, cyclePickerYear: null, cyclePickerPage: 1,
   attendanceDate: null,
   noReportDaysCache: {},

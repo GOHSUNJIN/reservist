@@ -3,7 +3,6 @@ const AdminRoster = {
 
   build: function(self, s, accent, ctx) {
     const {activeBatch,activeMembers,viewOffset,viewDate,viewIsToday,viewReportDay,viewDateKey,viewMap,viewBlocked,isDekit,viewShowReporting,present,mc,pending,absent} = ctx;
-    const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const roster=activeMembers.map(p=>{
       const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
@@ -14,7 +13,7 @@ const AdminRoster = {
       const phaseLine=_phaseParts.join('  ·  ');
       const showPhaseLine=r.status==='present'&&_phaseParts.length>0;
       const _pct=s.peopleStats[p.id]?.pct??null;
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:self.setStatus(p.id,'present'),markMc:self.setStatus(p.id,'mc'),markAbsent:self.setStatus(p.id,'absent'),onViewHistory:self.openPersonHistory(p.id),cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0,
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shiftWindow:Utils.shiftWindow(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:self.setStatus(p.id,'present'),markMc:self.setStatus(p.id,'mc'),markAbsent:self.setStatus(p.id,'absent'),onViewHistory:self.openPersonHistory(p.id),cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0,
         lowAttendance:s.peopleStatsLoaded&&_pct!==null&&_pct<75,
         statPctText:s.peopleStatsLoaded&&_pct!==null?(_pct+'%'):''};
     });
