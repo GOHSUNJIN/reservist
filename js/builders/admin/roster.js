@@ -4,6 +4,7 @@ const AdminRoster = {
   build: function(self, s, accent, ctx) {
     const {activeBatch,activeMembers,viewOffset,viewDate,viewIsToday,viewReportDay,viewDateKey,viewMap,viewBlocked,isDekit,viewShowReporting,present,mc,pending,absent} = ctx;
     const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const roster=activeMembers.map(p=>{
       const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
       const cardStyle='background:#fff;border:1px solid #e3e6ec;border-left:3px solid '+mm.color+';border-radius:12px;padding:11px 13px;box-shadow:0 1px 5px rgba(20,30,50,.06);';
