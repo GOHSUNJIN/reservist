@@ -119,8 +119,9 @@ const RequestHandlers = {
         count++;
         continue;
       }
-      const {error:approveErr} = await DB.signupRequests.approve(req.id, reviewerName);
+      const {data:approvedRow2, error:approveErr} = await DB.signupRequests.approve(req.id, reviewerName);
       if(approveErr) continue;
+      if(!approvedRow2) continue;
       const existing = await DB.personnel.findByContact(req.contact).catch(()=>null);
       const wasInactive = existing && !existing.is_active;
       let finalPerson = existing;
@@ -170,18 +171,25 @@ const RequestHandlers = {
         if(!updated){ this._toast('Already processed by another admin.','error'); this.loadPendingLeaves(); return; }
         const ops = [];
         if(leave.type === 'mc') {
-          ops.push(DB.attendance.upsert(leave.personnel_id, leave.date, 'mc', {}).catch(()=>{}));
+          ops.push(DB.attendance.upsert(leave.personnel_id, leave.date, 'mc', {}).catch(()=>({error:true})));
         } else if(leave.type === 'personal' || leave.type === 'other') {
-          ops.push(DB.attendance.upsert(leave.personnel_id, leave.date, 'absent', {}).catch(()=>{}));
+          ops.push(DB.attendance.upsert(leave.personnel_id, leave.date, 'absent', {}).catch(()=>({error:true})));
         }
-        if(ops.length) await Promise.all(ops);
-        // Refresh local attendance state if the leave is for today
-        const todayKey = Utils.dateKey(this.baseDate ? this.baseDate() : new Date());
-        if(leave.date === todayKey) {
-          const freshAtt = await DB.attendance.getForDate(todayKey).catch(()=>null);
-          if(freshAtt) this.setState({attendance:freshAtt, attendanceDate:todayKey});
+        if(ops.length){
+          const results = await Promise.all(ops);
+          if(results.some(r=>r?.error)) this._toast('Approved, but failed to update attendance record. Check the roster.','error');
+          else {
+            // Refresh local attendance state if the leave is for today
+            const todayKey = Utils.dateKey(this.baseDate ? this.baseDate() : new Date());
+            if(leave.date === todayKey) {
+              const freshAtt = await DB.attendance.getForDate(todayKey).catch(()=>null);
+              if(freshAtt) this.setState({attendance:freshAtt, attendanceDate:todayKey});
+            }
+            this._toast('Request approved.');
+          }
+        } else {
+          this._toast('Request approved.');
         }
-        this._toast('Request approved.');
       }
       this.loadPendingLeaves();
     };

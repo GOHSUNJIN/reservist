@@ -92,7 +92,11 @@ const CheckinHandlers = {
       if(!demo && !me?.is_active){ this._toast('Your account has been deactivated. Please contact your supervisor.','error'); return; }
       if(!demo){
         const _myBatch = this.state.batches.find(b=>b.id===me?.batch_id);
-        if(_myBatch && Utils.dateKey(this.baseDate()) > _myBatch.end_date){
+        const _todayKey = Utils.dateKey(this.baseDate());
+        if(_myBatch && _todayKey < _myBatch.start_date){
+          this._toast('Your reporting period has not started yet.','error'); return;
+        }
+        if(_myBatch && _todayKey > _myBatch.end_date){
           this._toast('Your reporting period has ended.','error'); return;
         }
       }
@@ -148,7 +152,11 @@ const CheckinHandlers = {
       if(!demo && !me?.is_active){ this._toast('Your account has been deactivated. Please contact your supervisor.','error'); return; }
       if(!demo){
         const _myBatch = this.state.batches.find(b=>b.id===me?.batch_id);
-        if(_myBatch && Utils.dateKey(this.baseDate()) > _myBatch.end_date){
+        const _todayKey2 = Utils.dateKey(this.baseDate());
+        if(_myBatch && _todayKey2 < _myBatch.start_date){
+          this._toast('Your reporting period has not started yet.','error'); return;
+        }
+        if(_myBatch && _todayKey2 > _myBatch.end_date){
           this._toast('Your reporting period has ended.','error'); return;
         }
       }
