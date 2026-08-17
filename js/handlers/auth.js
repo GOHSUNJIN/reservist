@@ -192,6 +192,7 @@ const AuthHandlers = {
   refreshSessionNow: async function() {
     this.setState({sessionExpiring:false});
     if(this._sessionWarnTimer) clearTimeout(this._sessionWarnTimer);
+    this._resetIdleTimer();
     let refreshFailed = false;
     try {
       const {session, error} = await DB.auth.refreshSession();

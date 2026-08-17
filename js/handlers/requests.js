@@ -71,8 +71,9 @@ const RequestHandlers = {
     return async () => {
       const {demo} = this.state;
       if(!demo && id && id !== 'demo') {
-        const {error} = await DB.leaves.cancel(id).catch(()=>({error:true}));
+        const {data, error} = await DB.leaves.cancel(id).catch(()=>({error:true}));
         if(error){ this._toast('Failed to cancel. Try again.','error'); return; }
+        if(!data){ this._toast('Request was already reviewed by an admin.','error'); this.loadMyLeaveHistory(); return; }
       }
       this.setState(s=>({
         myPendingRequest: s.myPendingRequest?.id===id ? null : s.myPendingRequest,
@@ -270,7 +271,8 @@ const RequestHandlers = {
   onLeaveReason: function(e) { this.setState({leaveReason:e.target.value}); },
 
   submitLeaveRequest: async function() {
-    const {currentUserId, leaveDate, leaveType, leaveReason, demo, myPendingRequest, myLeaveHistory} = this.state;
+    const {currentUserId, leaveDate, leaveType, leaveReason, demo, myPendingRequest, myLeaveHistory, myLeaveHistoryLoaded} = this.state;
+    if(!demo && !myLeaveHistoryLoaded){ this._toast('Loading your history, please wait a moment.','error'); return; }
     const _pendExpired=myPendingRequest?.created_at&&(Date.now()-new Date(myPendingRequest.created_at).getTime())>172800000;
     if(myPendingRequest&&!_pendExpired){ this._toast('You already have a pending request.','error'); return; }
     if(myPendingRequest&&_pendExpired&&!demo){
