@@ -395,8 +395,8 @@ const DB = {
     },
 
     async cancel(id) {
-      const { error } = await _db.from('leave_requests').update({ status: 'cancelled' }).eq('id', id).eq('status', 'pending');
-      return { error };
+      const { data, error } = await _db.from('leave_requests').update({ status: 'cancelled' }).eq('id', id).eq('status', 'pending').select().maybeSingle();
+      return { data, error };
     },
 
     async cancelStalePending(cutoffDate) {
