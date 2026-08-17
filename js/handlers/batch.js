@@ -419,8 +419,8 @@ const BatchHandlers = {
     let added=0;
     for(const dk of dates){
       if(!this.state.noReportDays.has(dk)){
-        await DB.noReportDays.ensure(dk).catch(()=>{});
-        added++;
+        const {error:nrErr} = await DB.noReportDays.ensure(dk).catch(()=>({error:true}));
+        if(!nrErr) added++;
       }
     }
     const nrd = await DB.noReportDays.list(batch.start_date, batchEnd).catch(()=>this.state.noReportDays);

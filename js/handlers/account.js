@@ -24,6 +24,7 @@ const AccountHandlers = {
 
   onAvatarFile: function(e) {
     const f=e.target.files&&e.target.files[0]; if(!f) return;
+    if(f.size>5*1024*1024){ this._toast('Photo must be under 5 MB.','error'); return; }
     const r=new FileReader();
     r.onload=()=>{
       const uid=this.state.currentUserId;
