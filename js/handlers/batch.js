@@ -78,12 +78,11 @@ const BatchHandlers = {
 
   cancelBatchLabel: function() { this.setState({editingBatchLabel:false}); },
 
-  exportCsv: async function() {
-    const {batches,activeBatchIdx,batchMembersCache,personnel,attendance,noReportDays,demo}=this.state;
-    const batch=batches[activeBatchIdx||0]; if(!batch) return;
-    const allMembers=batch.is_live?personnel:(batchMembersCache[batch.id]||[]);
-    const members=allMembers.filter(p=>p.role==='reservist'&&p.batch_id===batch.id);
-    if(!members.length){ this._toast('No reservists found in this cycle.','error'); return; }
+  _getExportData: async function() {
+    const {batches,activeBatchIdx,noReportDays,demo}=this.state;
+    const batch=batches[activeBatchIdx||0]; if(!batch) return null;
+    const members=this._batchReservists(batch).filter(p=>p.batch_id===batch.id);
+    if(!members.length) return null;
     const start=new Date(batch.start_date+'T00:00:00'), end=new Date(batch.end_date+'T00:00:00');
     const dates=[];
     for(let d=new Date(start);d<=end;d=Utils.addDays(d,1)){
@@ -94,27 +93,39 @@ const BatchHandlers = {
       const allAtt=await DB.attendance.getForBatch(batch.start_date,batch.end_date).catch(()=>({}));
       attCache={...attCache,...allAtt};
     }
-    const todayKey=Utils.dateKey(this.baseDate());
+    return {batch, members, start, end, dates, attCache, todayKey:Utils.dateKey(this.baseDate())};
+  },
+
+  _buildExportMembers: function(members, dates, attCache, todayKey) {
+    const {attendance}=this.state;
+    return members.map(p=>{
+      const entries=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return map[p.id]||null;});
+      const pres=entries.filter(e=>e?.status==='present').length;
+      const mc=entries.filter(e=>e?.status==='mc').length;
+      const abs=entries.filter(e=>e?.status==='absent'||e?.status==='missed').length;
+      const pct=dates.length>0?Math.round(pres/dates.length*100):null;
+      return {name:p.name, shift:p.shift||'-', entries, pres, mc, abs, pct};
+    });
+  },
+
+  exportCsv: async function() {
+    const exportData=await this._getExportData();
+    if(!exportData){ this._toast('No reservists found in this cycle.','error'); return; }
+    const {batch,members,start,end,dates,attCache,todayKey}=exportData;
     const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const fmtDate=d=>d.getDate()+' '+MO[d.getMonth()];
     const fmtDay=d=>DAYS[d.getDay()];
     const ac=this.props.accent||'#2f5fd0';
 
-    const rowData=members.map(p=>{
-      const entries=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return map[p.id]||null;});
-      const statuses=entries.map(e=>e?.status||null);
-      const pres=statuses.filter(s=>s==='present').length;
-      const mc=statuses.filter(s=>s==='mc').length;
-      const abs=statuses.filter(s=>s==='absent'||s==='missed').length;
-      const pct=dates.length>0?Math.round(pres/dates.length*100):null;
-      const cells=entries.map(e=>{
+    const rowData=this._buildExportMembers(members,dates,attCache,todayKey).map(r=>({
+      ...r,
+      cells:r.entries.map(e=>{
         if(!e?.status||e.status==='absent'||e.status==='missed') return {code:e?.status?'A':'-',sid:'sD'};
         if(e.status==='mc') return {code:'MC',sid:'sMC'};
-        return {code:e.editLog?.length>0?'P*':'P', sid:e.editLog?.length>0?'sPs':'sP'};
-      });
-      return {name:p.name, shift:p.shift||'-', cells, pres, mc, abs, pct};
-    });
+        return {code:e.editLog?.length>0?'P*':'P',sid:e.editLog?.length>0?'sPs':'sP'};
+      }),
+    }));
 
     const totPres=rowData.reduce((a,r)=>a+r.pres,0);
     const totMc=rowData.reduce((a,r)=>a+r.mc,0);
@@ -203,42 +214,25 @@ const BatchHandlers = {
   },
 
   exportPrint: async function() {
-    const {batches,activeBatchIdx,batchMembersCache,personnel,attendance,noReportDays,demo}=this.state;
-    const batch=batches[activeBatchIdx||0]; if(!batch) return;
-    const allMembers=batch.is_live?personnel:(batchMembersCache[batch.id]||[]);
-    const members=allMembers.filter(p=>p.role==='reservist'&&p.batch_id===batch.id);
-    if(!members.length){ this._toast('No reservists found in this cycle.','error'); return; }
-    const start=new Date(batch.start_date+'T00:00:00'), end=new Date(batch.end_date+'T00:00:00');
-    const dates=[];
-    for(let d=new Date(start);d<=end;d=Utils.addDays(d,1)){
-      if(Utils.isReportDay(d)&&!Utils.holidayName(d)&&!noReportDays.has(Utils.dateKey(d))) dates.push(new Date(d));
-    }
-    let attCache=this.state.attendanceCache;
-    if(!demo){
-      const allAtt=await DB.attendance.getForBatch(batch.start_date,batch.end_date).catch(()=>({}));
-      attCache={...attCache,...allAtt};
-    }
-    const todayKey=Utils.dateKey(this.baseDate());
+    const exportData=await this._getExportData();
+    if(!exportData){ this._toast('No reservists found in this cycle.','error'); return; }
+    const {batch,members,start,end,dates,attCache,todayKey}=exportData;
     const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const fmtDate=d=>d.getDate()+' '+MO[d.getMonth()];
-    const fmtDay=d=>{const days=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];return days[d.getDay()];};
+    const fmtDay=d=>DAYS[d.getDay()];
     const orgName=this.props.orgName||'Ops Security';
     const accent=this.props.accent||'#2f5fd0';
 
-    const rowData=members.map(p=>{
-      const entries=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return map[p.id]||null;});
-      const statuses=entries.map(e=>e?.status||'absent');
-      const pres=statuses.filter(s=>s==='present').length;
-      const mc=statuses.filter(s=>s==='mc').length;
-      const abs=statuses.filter(s=>s==='absent'||s==='missed').length;
-      const pct=dates.length>0?Math.round(pres/dates.length*100):0;
-      const cells=entries.map(e=>{
-        if(!e||!e.status||e.status==='absent'||e.status==='missed') return {code:'A',cls:'A'};
+    const rowData=this._buildExportMembers(members,dates,attCache,todayKey).map(r=>({
+      ...r,
+      pct: r.pct ?? 0,
+      cells:r.entries.map(e=>{
+        if(!e?.status||e.status==='absent'||e.status==='missed') return {code:'A',cls:'A'};
         if(e.status==='mc') return {code:'MC',cls:'MC'};
-        return {code:e.editLog?.length>0?'P*':'P', cls:e.editLog?.length>0?'Ps':'P'};
-      });
-      return {name:p.name, shift:p.shift||'-', cells, pres, mc, abs, pct};
-    });
+        return {code:e.editLog?.length>0?'P*':'P',cls:e.editLog?.length>0?'Ps':'P'};
+      }),
+    }));
 
     const totPres=rowData.reduce((a,r)=>a+r.pres,0);
     const totMc=rowData.reduce((a,r)=>a+r.mc,0);

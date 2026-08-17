@@ -21,8 +21,8 @@ const AuthHandlers = {
     const {suName,suContact,suPassword} = this.state;
     if(!suName.trim()||!suContact.trim()||!suPassword.trim()){ this.setState({authError:'Please fill in all fields.'}); return; }
     if(suPassword.length < 6){ this.setState({authError:'Password must be at least 6 characters.'}); return; }
-    const cleanContact = suContact.replace(/[\s-]/g,'');
-    if(!/^[689]\d{7}$/.test(cleanContact)){ this.setState({authError:'Contact must be an 8-digit Singapore number.'}); return; }
+    const {clean:cleanContact, error:contactErr} = Utils.validateSGContact(suContact);
+    if(contactErr){ this.setState({authError:contactErr}); return; }
     const today = Utils.dateKey(this.baseDate());
     const sortedBatches = [...this.state.batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
     const liveBatch = sortedBatches.find(b=>today>=b.start_date&&today<=b.end_date) || this._liveBatch();

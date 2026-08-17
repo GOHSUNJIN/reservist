@@ -112,4 +112,11 @@ const Utils = {
   },
   mealEligible(rec, nowHhmm){ return this.workMins(rec,nowHhmm)>=480; },
   fmtMins(mins){ const h=Math.floor(mins/60),m=mins%60; return h>0?h+'h '+m+'m':m+'m'; },
+
+  validateSGContact(raw) {
+    const clean = (raw||'').replace(/[\s-]/g,'');
+    if(!clean) return {clean:'', error:'Contact number is required.'};
+    if(!/^[689]\d{7}$/.test(clean)) return {clean, error:'Contact must be an 8-digit Singapore number.'};
+    return {clean, error:null};
+  },
 };

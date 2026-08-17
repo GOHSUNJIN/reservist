@@ -31,6 +31,24 @@ const RequestHandlers = {
     };
   },
 
+  _ensurePersonnelForSignup: async function(req, signupId) {
+    const existing = await DB.personnel.findByContact(req.contact).catch(()=>null);
+    if(existing) {
+      if(!existing.is_active) {
+        const {data:reactivated} = await DB.personnel.reactivate(existing.id, {batchId:req.batch_id, shift:req.shift, authId:req.auth_id});
+        return {finalPerson: reactivated || existing, existed: true, wasInactive: true};
+      }
+      await DB.personnel.linkAuth(existing.id, req.auth_id);
+      return {finalPerson: existing, existed: true, wasInactive: false};
+    }
+    const {data:newPerson, error:addErr} = await DB.personnel.add({authId:req.auth_id, name:req.name, contact:req.contact, shift:req.shift, batchId:req.batch_id});
+    if(addErr) {
+      await DB.signupRequests.reopen(signupId).catch(()=>{});
+      return {finalPerson: null, existed: false, wasInactive: false, error: true, message: 'Failed to create roster entry. Signup reverted to pending - try again.'};
+    }
+    return {finalPerson: newPerson, existed: false, wasInactive: false};
+  },
+
   approveSignup: function(id) {
     return async () => {
       const req = this.state.pendingSignups.find(r=>r.id===id);
@@ -40,28 +58,13 @@ const RequestHandlers = {
       const {data:approvedRow, error:approveErr} = await DB.signupRequests.approve(id, reviewerName);
       if(approveErr){ this._toast('Failed to approve. Try again.','error'); return; }
       if(!approvedRow){ this.setState(s=>({pendingSignups:s.pendingSignups.filter(r=>r.id!==id)})); this._toast('Already approved by another admin.','error'); return; }
-      // If admin pre-added this person, link auth to existing record; otherwise create new
-      const existing = await DB.personnel.findByContact(req.contact).catch(()=>null);
-      let finalPerson = existing;
-      const wasInactive = existing && !existing.is_active;
-      if(existing){
-        if(!existing.is_active){
-          // Returning reservist: reactivate and assign to the requested batch
-          const {data:reactivated} = await DB.personnel.reactivate(existing.id, {batchId:req.batch_id, shift:req.shift, authId:req.auth_id});
-          finalPerson = reactivated || existing;
-        } else {
-          await DB.personnel.linkAuth(existing.id, req.auth_id);
-        }
-      } else {
-        const {data:newPerson, error:addErr} = await DB.personnel.add({authId:req.auth_id, name:req.name, contact:req.contact, shift:req.shift, batchId:req.batch_id});
-        if(addErr){ this._toast('Approved but failed to create personnel record. Try again.','error'); return; }
-        finalPerson = newPerson;
-      }
+      const {finalPerson, existed, wasInactive, error:personErr, message:personMsg} = await this._ensurePersonnelForSignup(req, id);
+      if(personErr){ this._toast(personMsg,'error'); return; }
       const freshPersonnel = await DB.personnel.list().catch(()=>null);
       this.setState(s=>({
         pendingSignups:s.pendingSignups.filter(r=>r.id!==id),
         approvedSignups:[{...req,status:'approved',reviewed_by:reviewerName,reviewed_at:new Date().toISOString()},...s.approvedSignups],
-        ...(freshPersonnel ? {personnel:freshPersonnel} : finalPerson&&(!existing||wasInactive) ? {personnel:[...s.personnel,finalPerson]} : {}),
+        ...(freshPersonnel ? {personnel:freshPersonnel} : finalPerson&&(!existed||wasInactive) ? {personnel:[...s.personnel,finalPerson]} : {}),
       }));
       this._toast(req.name+' approved and added to the roster.');
     };
@@ -123,25 +126,12 @@ const RequestHandlers = {
       const {data:approvedRow2, error:approveErr} = await DB.signupRequests.approve(req.id, reviewerName);
       if(approveErr) continue;
       if(!approvedRow2) continue;
-      const existing = await DB.personnel.findByContact(req.contact).catch(()=>null);
-      const wasInactive = existing && !existing.is_active;
-      let finalPerson = existing;
-      if(existing) {
-        if(!existing.is_active) {
-          const {data:reactivated} = await DB.personnel.reactivate(existing.id, {batchId:req.batch_id, shift:req.shift, authId:req.auth_id});
-          finalPerson = reactivated || existing;
-        } else {
-          await DB.personnel.linkAuth(existing.id, req.auth_id);
-        }
-      } else {
-        const {data:newPerson, error:addErr} = await DB.personnel.add({authId:req.auth_id, name:req.name, contact:req.contact, shift:req.shift, batchId:req.batch_id});
-        if(addErr){ this._toast(req.name+' approved but roster entry failed. Check and re-approve.','error'); continue; }
-        finalPerson = newPerson;
-      }
+      const {finalPerson, existed, wasInactive, error:personErr, message:personMsg} = await this._ensurePersonnelForSignup(req, req.id);
+      if(personErr){ this._toast(personMsg,'error'); continue; }
       this.setState(s=>({
         pendingSignups:s.pendingSignups.filter(r=>r.id!==req.id),
         approvedSignups:[{...req,status:'approved',reviewed_by:reviewerName,reviewed_at:new Date().toISOString()},...s.approvedSignups],
-        ...(finalPerson&&(!existing||wasInactive) ? {personnel:[...s.personnel,finalPerson]} : {}),
+        ...(finalPerson&&(!existed||wasInactive) ? {personnel:[...s.personnel,finalPerson]} : {}),
       }));
       count++;
     }

@@ -67,6 +67,14 @@ const MiscHandlers = {
 
   myRec: function() { return this.state.attendance[this.state.currentUserId]||{status:'pending'}; },
 
+  _batchReservists: function(batch) {
+    const {personnel, batchMembersCache} = this.state;
+    const all = batch?.is_live
+      ? personnel.filter(p => p.batch_id === batch.id)
+      : (batchMembersCache[batch?.id] || []);
+    return all.filter(p => (p.role || 'reservist') === 'reservist');
+  },
+
   showMoreHistory: function() { this.setState(s=>({historyPage:(s.historyPage||1)+1})); },
 
   toggleHistoryExpand: function(dateKey) {

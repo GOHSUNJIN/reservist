@@ -47,7 +47,10 @@ class AppComponent extends DCLogic {
           } else {
             await DB.attendance.upsert(pend.id, pend.date, pend.status, pend.extras).catch(()=>{ ok=false; });
           }
-          if(!ok) failed.push(pend);
+          if(!ok){
+            const retries=(pend._retries||0)+1;
+            if(retries<3) failed.push({...pend,_retries:retries});
+          }
         }
         this._offlineQueues = failed;
         try{ sessionStorage.setItem('offlineQ', JSON.stringify(failed)); }catch{}
