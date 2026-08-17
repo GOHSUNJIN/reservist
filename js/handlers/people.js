@@ -15,11 +15,11 @@ const PeopleHandlers = {
   togglePromoteAdmin: function() { this.setState(s=>({promoteAdminOpen:!s.promoteAdminOpen, promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null, promoteSearch:'', promoteListPage:1})); },
 
   addAdmin: async function() {
-    const {npAdminName, npAdminContact, npAdminPassword, adminsList, demo} = this.state;
+    const {npAdminName, npAdminContact, npAdminPassword, adminsList, demo, isSuperAdmin} = this.state;
+    if(!demo && !isSuperAdmin){ this._toast('Access denied.','error'); return; }
     if(!npAdminName.trim()){ this._toast('Name is required.','error'); return; }
-    const cleanContact = npAdminContact.replace(/[\s-]/g,'');
-    if(!cleanContact){ this._toast('Contact number is required.','error'); return; }
-    if(!/^[689]\d{7}$/.test(cleanContact)){ this._toast('Contact must be an 8-digit Singapore number.','error'); return; }
+    const {clean:cleanContact, error:contactErr} = Utils.validateSGContact(npAdminContact);
+    if(contactErr){ this._toast(contactErr,'error'); return; }
     if(adminsList.some(a=>a.contact?.replace(/[\s-]/g,'')===cleanContact)){ this._toast('This contact is already an admin.','error'); return; }
     if(!npAdminPassword || npAdminPassword.length < 6){ this._toast('Password must be at least 6 characters.','error'); return; }
     if(!demo){
@@ -28,7 +28,7 @@ const PeopleHandlers = {
       const {user, error} = await DB.auth.createUserAsAdmin(cleanContact, npAdminPassword, npAdminName.trim());
       if(error || !user){ this._toast('Failed to create account. Try again.','error'); return; }
       const {error:addErr} = await DB.personnel.add({authId:user.id, name:npAdminName.trim(), contact:cleanContact, shift:null, batchId:null, role:'admin'});
-      if(addErr){ this._toast('Account created but roster entry failed.','error'); return; }
+      if(addErr){ await DB.auth.deleteUser(user.id).catch(()=>{}); this._toast('Failed to add admin to roster. Try again.','error'); return; }
       await this.loadAdmins();
     }
     this.setState({npAdminName:'', npAdminContact:'', npAdminPassword:'', addAdminOpen:false});
@@ -41,6 +41,7 @@ const PeopleHandlers = {
   confirmDeactivateAdmin: async function() {
     const id = this.state.confirmDeactivateAdminId;
     if(!id) return;
+    if(!this.state.demo && !this.state.isSuperAdmin){ this._toast('Access denied.','error'); this.setState({confirmDeactivateAdminId:null}); return; }
     const admin = (this.state.adminsList||[]).find(a=>a.id===id);
     this.setState({confirmDeactivateAdminId:null});
     if(!this.state.demo){
@@ -73,8 +74,9 @@ const PeopleHandlers = {
   cancelPromoteAdmin: function() { this.setState({confirmPromoteAdminId:null}); },
 
   confirmPromoteAdmin: async function() {
-    const {confirmPromoteAdminId, personnel, demo} = this.state;
+    const {confirmPromoteAdminId, personnel, demo, isSuperAdmin} = this.state;
     if(!confirmPromoteAdminId) return;
+    if(!demo && !isSuperAdmin){ this._toast('Access denied.','error'); this.setState({confirmPromoteAdminId:null}); return; }
     const person = personnel.find(p=>p.id===confirmPromoteAdminId);
     if(!person) return;
     this.setState({confirmPromoteAdminId:null, promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', promoteSearch:''});
@@ -91,9 +93,8 @@ const PeopleHandlers = {
   addPerson: async function() {
     const {npName,npContact,npShift,npPassword,batches,activeBatchIdx,demo,personnel}=this.state;
     if(!npName.trim()){ this._toast('Name is required.','error'); return; }
-    const cleanContact=npContact.replace(/[\s-]/g,'');
-    if(!cleanContact){ this._toast('Contact number is required.','error'); return; }
-    if(!/^[689]\d{7}$/.test(cleanContact)){ this._toast('Contact must be an 8-digit Singapore number.','error'); return; }
+    const {clean:cleanContact, error:contactErr} = Utils.validateSGContact(npContact);
+    if(contactErr){ this._toast(contactErr,'error'); return; }
     if(personnel.some(p=>p.contact.replace(/[\s-]/g,'')===cleanContact)){ this._toast('This contact is already on the roster.','error'); return; }
     const activeBatch=batches[activeBatchIdx||0];
     if(!activeBatch){ this._toast('No active batch selected. Create a batch first.','error'); return; }

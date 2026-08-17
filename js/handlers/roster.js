@@ -45,12 +45,11 @@ const RosterHandlers = {
   cancelMarkAllAbsent: function() { this.setState({confirmMarkAllAbsent:false}); },
 
   markAllAbsent: async function() {
-    const {personnel,batches,activeBatchIdx,attendance,attendanceCache,viewOffset,batchMembersCache,demo}=this.state;
+    const {batches,activeBatchIdx,attendance,attendanceCache,viewOffset,demo}=this.state;
     if((viewOffset||0) > 0){ this.setState({confirmMarkAllAbsent:false}); return; }
     this.setState({confirmMarkAllAbsent:false, markingAllAbsent:true});
     const activeBatch=batches[activeBatchIdx||0]; if(!activeBatch){ this.setState({markingAllAbsent:false}); return; }
-    const members=activeBatch.is_live?personnel.filter(p=>p.batch_id===activeBatch.id):(batchMembersCache[activeBatch.id]||[]);
-    const activeMembers=(members||[]).filter(p=>(p.role||'reservist')==='reservist');
+    const activeMembers = this._batchReservists(activeBatch);
     const off=viewOffset||0;
     const viewDateKey=Utils.dateKey(this.dateForOffset(off));
     const viewIsToday=off===0;
@@ -83,9 +82,9 @@ const RosterHandlers = {
     const viewDateKey=Utils.dateKey(this.dateForOffset(off));
     const viewIsToday=off===0;
     const viewMap=viewIsToday?this.state.attendance:(this.state.attendanceCache?.[viewDateKey]||{});
-    const {batches,activeBatchIdx,batchMembersCache}=this.state;
+    const {batches,activeBatchIdx}=this.state;
     const activeBatch=batches[activeBatchIdx||0];
-    const activeMembers=(activeBatch?.is_live?this.state.personnel.filter(p=>p.batch_id===activeBatch.id):(batchMembersCache?.[activeBatch?.id]||[])).filter(p=>(p.role||'reservist')==='reservist');
+    const activeMembers = this._batchReservists(activeBatch);
     const pending=activeMembers.filter(p=>{ const st=viewMap[p.id]?.status; return !st||st==='pending'; });
     if(!pending.length){ this.setState({markAllPresenting:false}); return; }
     const p1=Utils.hhmm(new Date());
