@@ -3,3 +3,11 @@ uploads/
 
 .vercel
 .claude/
+
+# Generated working files
+slide_exports/
+_slide_preview/
+~$*
+
+# One-off scripts
+fix_slides.py
