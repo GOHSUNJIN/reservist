@@ -56,8 +56,12 @@ const AdminRoster = {
         isEditingLogNote:s.logNoteId===p.id,
         onEditLogNote:self.openLogNote(p.id, r.welfareNote||''),
         showNoGps: !!(r.gpsBypassed),
-        editLog: (()=>{const log=r.editLog||[];if(!log.length)return[];const e=log[log.length-1];const d=new Date(e.at);const sg=new Date(d.getTime()+8*3600*1000);const hh=String(sg.getUTCHours()).padStart(2,'0'),mm2=String(sg.getUTCMinutes()).padStart(2,'0');const day=sg.getUTCDate(),mon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][sg.getUTCMonth()];return[{by:e.by||'Admin',timeLabel:`${hh}:${mm2}, ${day} ${mon}`}];})(),
-        showEditLog: !!(r.editLog&&r.editLog.length),
+        editSummary: (()=>{const log=r.editLog||[];if(!log.length)return'';const e=log[log.length-1];const d=new Date(e.at);const sg=new Date(d.getTime()+8*3600*1000);const hh=String(sg.getUTCHours()).padStart(2,'0'),mm2=String(sg.getUTCMinutes()).padStart(2,'0');const day=sg.getUTCDate(),mon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][sg.getUTCMonth()];return'Edited by '+(e.by||'Admin')+' · '+hh+':'+mm2+', '+day+' '+mon;})(),
+        showEditSummary: !!(r.editLog&&r.editLog.length),
+        phaseP1Part: r.p1?'IN '+r.p1:'',
+        phaseP1Color: isLate?'#c0392b':'#2c3a50',
+        phaseRestPart: (()=>{const ps=[r.p2?'LCH '+r.p2:null,r.p3?'BACK '+r.p3:null,r.p4?'OUT '+r.p4:null].filter(Boolean);return(r.p1&&ps.length?'  ·  ':'')+ps.join('  ·  ');})(),
+        showPhaseLine: !!(r.p1||r.p2||r.p3||r.p4),
         p1:r.p1||'-', p2:r.p2||'-', p3:r.p3||'-', p4:r.p4||'-',
         p1Color:r.p1?(isLate?'#c0392b':'#161f30'):'#c2c8d2',
         p2Color:r.p2?'#161f30':'#c2c8d2',
@@ -77,7 +81,7 @@ const AdminRoster = {
           const done=!!r.p4;
           return {
             showMealBadge:true,
-            mealBadgeText:mealOk?(done?'Meal eligible':'On track'):(done?'No meal allowance':'Not yet 8h'),
+            mealBadgeText:mealOk?(done?'Meal eligible':'On track'):(done?'No meal allowance':'No meal claim'),
             mealBadgeColor:mealOk?'#1f8a5b':(done?'#c0392b':'#b9791a'),
             mealBadgeBg:mealOk?'#e7f3ec':(done?'#f7e4e1':'#fdf6e9'),
             mealBadgeBorder:mealOk?'#a8d5bb':(done?'#e5a9a4':'#f0e2c2'),

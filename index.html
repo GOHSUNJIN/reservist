@@ -1383,52 +1383,31 @@
                   <button onClick="{{ row.onEditLogNote }}" style="-webkit-appearance:none;width:28px;height:28px;background:#f0f2f7;border:1px solid #e3e6ec;border-radius:8px;cursor:pointer;flex:0 0 auto;color:{{ row.logNoteIconColor }};display:flex;align-items:center;justify-content:center;padding:0;" title="Add note for reservist"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></button>
                   <button onClick="{{ row.onEditTimes }}" style="-webkit-appearance:none;height:28px;padding:0 10px;background:#f0f2f7;border:1px solid #e3e6ec;border-radius:8px;font-size:11.5px;font-weight:600;color:#5c6678;cursor:pointer;flex:0 0 auto;">Edit</button>
                 </div>
-                <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-left:45px;">
-                  <div class="badge-pill">
-                    <div class="text-caption">IN</div>
-                    <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:{{ row.p1Color }};">{{ row.p1 }}</div>
+                <sc-if value="{{ row.showPhaseLine }}" hint-placeholder-val="">
+                  <div style="margin-left:45px;margin-bottom:2px;">
+                    <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:{{ row.phaseP1Color }};">{{ row.phaseP1Part }}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a94a3;">{{ row.phaseRestPart }}</span>
                   </div>
-                  <div class="badge-pill">
-                    <div class="text-caption">{{ row.p2Label }}</div>
-                    <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:{{ row.p2Color }};">{{ row.p2 }}</div>
-                  </div>
-                  <div class="badge-pill">
-                    <div class="text-caption">BACK</div>
-                    <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:{{ row.p3Color }};">{{ row.p3 }}</div>
-                  </div>
-                  <div class="badge-pill">
-                    <div class="text-caption">OUT</div>
-                    <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:{{ row.p4Color }};">{{ row.p4 }}</div>
-                  </div>
+                </sc-if>
+                <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:4px;margin-left:46px;">
+                  <sc-if value="{{ row.showNoLateReason }}" hint-placeholder-val="">
+                    <span style="font-size:11px;font-weight:600;color:#b9791a;">Late · No reason</span>
+                  </sc-if>
+                  <sc-if value="{{ row.showLateReason }}" hint-placeholder-val="">
+                    <span style="font-size:11px;font-weight:500;color:#c0392b;">Late: {{ row.lateReason }}</span>
+                  </sc-if>
+                  <sc-if value="{{ row.showNoGps }}" hint-placeholder-val="">
+                    <span style="font-size:11px;font-weight:500;color:#b9791a;">No GPS</span>
+                  </sc-if>
+                  <sc-if value="{{ row.showMealBadge }}" hint-placeholder-val="">
+                    <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;background:{{ row.mealBadgeBg }};border:1px solid {{ row.mealBadgeBorder }};font-size:11px;font-weight:600;color:{{ row.mealBadgeColor }};">{{ row.mealBadgeText }}</span>
+                    <sc-if value="{{ row.showWorkTime }}" hint-placeholder-val="">
+                      <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a94a3;">{{ row.workTimeText }}</span>
+                    </sc-if>
+                  </sc-if>
+                  <sc-if value="{{ row.showEditSummary }}" hint-placeholder-val="">
+                    <span style="font-size:11px;color:#9aa3b2;">{{ row.editSummary }}</span>
+                  </sc-if>
                 </div>
-                <sc-if value="{{ row.showLateReason }}" hint-placeholder-val="">
-                  <div style="display:flex;align-items:flex-start;gap:7px;margin-top:8px;margin-left:46px;padding:8px 10px;background:#fbeeec;border-radius:8px;">
-                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:1px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                    <div style="font-size:12px;color:#c0392b;font-weight:500;line-height:1.4;">Late reason: {{ row.lateReason }}</div>
-                  </div>
-                </sc-if>
-                <sc-if value="{{ row.showNoLateReason }}" hint-placeholder-val="">
-                  <div style="display:flex;align-items:center;gap:6px;margin-top:6px;margin-left:46px;">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                    <span style="font-size:11.5px;font-weight:600;color:#b9791a;">Late · No reason given</span>
-                  </div>
-                </sc-if>
-                <sc-if value="{{ row.showNoGps }}" hint-placeholder-val="">
-                  <div style="display:flex;align-items:center;gap:6px;margin-top:6px;margin-left:46px;">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"></path><line x1="12" y1="21" x2="12" y2="24"></line><line x1="3" y1="3" x2="21" y2="21"></line></svg>
-                    <span style="font-size:11px;font-weight:600;color:#b9791a;">No GPS. Checked in without location.</span>
-                  </div>
-                </sc-if>
-                <sc-if value="{{ row.showEditLog }}" hint-placeholder-val="">
-                  <div style="margin-top:6px;margin-left:46px;">
-                    <sc-for list="{{ row.editLog }}" as="edit">
-                      <div style="display:flex;align-items:center;gap:5px;margin-top:3px;">
-                        <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
-                        <span style="font-size:11px;color:#5c6678;font-weight:500;">Edited by {{ edit.by }} · {{ edit.timeLabel }}</span>
-                      </div>
-                    </sc-for>
-                  </div>
-                </sc-if>
                 <sc-if value="{{ row.isTimesEditing }}" hint-placeholder-val="">
                   <div style="margin-top:10px;padding:14px;background:#fff;border-radius:12px;border:1px solid #d4d9e2;">
                     <div style="font-size:10.5px;font-weight:700;color:#5c6678;letter-spacing:.06em;margin-bottom:12px;">EDIT TIMES</div>
@@ -1454,17 +1433,6 @@
                       <button onClick="{{ saveTimesEdit }}" style="-webkit-appearance:none;flex:1;padding:10px;background:#161f30;color:#fff;border:none;border-radius:9px;font-size:13px;font-weight:600;cursor:pointer;">Save</button>
                       <button onClick="{{ closeTimesEdit }}" style="-webkit-appearance:none;padding:10px 16px;background:#fff;border:1px solid #d4d9e2;border-radius:9px;font-size:13px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
                     </div>
-                  </div>
-                </sc-if>
-                <sc-if value="{{ row.showMealBadge }}" hint-placeholder-val="">
-                  <div style="display:flex;align-items:center;gap:7px;margin-top:7px;margin-left:46px;">
-                    <span style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;background:{{ row.mealBadgeBg }};border:1px solid {{ row.mealBadgeBorder }};font-size:11px;font-weight:600;color:{{ row.mealBadgeColor }};">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                      {{ row.mealBadgeText }}
-                    </span>
-                    <sc-if value="{{ row.showWorkTime }}" hint-placeholder-val="">
-                      <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a94a3;">{{ row.workTimeText }}</span>
-                    </sc-if>
                   </div>
                 </sc-if>
                 <sc-if value="{{ row.showWelfareNote }}" hint-placeholder-val="">
