@@ -38,8 +38,8 @@ const AccountHandlers = {
               this.setState(s=>{const av={...s.avatars};delete av[uid];const noAv=new Set(s.noAvatarIds||[]);noAv.add(uid);return{avatars:av,noAvatarIds:noAv};});
               this._toast('Photo upload failed. Please try again.','error');
             } else {
-              const url=DB.storage.getAvatarUrl(uid)+'?t='+Date.now();
-              if(url){ localStorage.setItem('avatar_'+uid, url); this.setState(s=>({avatars:{...s.avatars,[uid]:url}})); }
+              const rawUrl=DB.storage.getAvatarUrl(uid);
+              if(rawUrl){ const url=rawUrl+'?t='+Date.now(); localStorage.setItem('avatar_'+uid, url); this.setState(s=>({avatars:{...s.avatars,[uid]:url}})); }
             }
           })
           .catch(()=>{
@@ -114,13 +114,13 @@ const AccountHandlers = {
       if(row._type==='signup'){
         this.loadPendingSignups();
         if(this.state.adminNotifGranted && typeof Notification !== 'undefined' && Notification.permission === 'granted'){
-          new Notification('New signup request', {body:(row.name||'Someone')+' is requesting to join.',icon:'./icon.svg'});
+          new Notification('New signup request', {body:(row.name||'Someone')+' is requesting to join.',icon:'./assets/icon.svg'});
         }
       } else {
         this.loadPendingLeaves();
         if(this.state.adminNotifGranted && typeof Notification !== 'undefined' && Notification.permission === 'granted'){
           const typeMap = {mc:'MC',other:'Other',personal:'Personal Leave'};
-          new Notification('New request from personnel', {body:(typeMap[row.type]||row.type)+' request received.',icon:'./icon.svg'});
+          new Notification('New request from personnel', {body:(typeMap[row.type]||row.type)+' request received.',icon:'./assets/icon.svg'});
         }
       }
     });
