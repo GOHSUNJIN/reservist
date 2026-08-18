@@ -132,7 +132,7 @@
           <sc-if value="{{ signupIsNextCycle }}">
             <div style="font-size:11px;font-weight:600;color:#b9791a;letter-spacing:.06em;margin-bottom:4px;">LAST DAY OF CURRENT CYCLE</div>
           </sc-if>
-          <div style="font-size:12.5px;color:#3a4a66;line-height:1.5;">You will be enrolled in the <strong>{{ intakeLabel }}</strong> intake{{ signupIsNextCycle ? ' (next cycle)' : '' }}, as set by your supervisor.</div>
+          <div style="font-size:12.5px;color:#3a4a66;line-height:1.5;">You will be enrolled in the <strong>{{ intakeLabel }}</strong> intake{{ signupCycleNote }}, as set by your supervisor.</div>
           <div style="display:flex;align-items:center;gap:7px;margin-top:9px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{ accent }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><rect x="3" y="5" width="18" height="16" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="8" y1="3" x2="8" y2="6"></line><line x1="16" y1="3" x2="16" y2="6"></line></svg>
             <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:{{ accent }};white-space:nowrap;">{{ intakeRangeFull }}</span>
@@ -267,7 +267,7 @@
           <sc-if value="{{ isOffline }}" hint-placeholder-val="">
           <div style="background:#f7efdc;border:1px solid #f0e2c2;border-radius:10px;padding:9px 13px;margin-bottom:10px;font-size:12.5px;color:#8a6d2a;font-weight:500;display:flex;align-items:center;gap:8px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l22 22"></path><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path><path d="M10.71 5.05A16 16 0 0 1 22.56 9"></path><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
-            <span style="flex:1;">You're offline{{ offlinePending ? ': ' + offlineQueueCount + ' action' + (offlineQueueCount === 1 ? '' : 's') + ' queued' : '' }}</span>
+            <span style="flex:1;">You're offline{{ offlineQueueMsg }}</span>
             <sc-if value="{{ offlinePending }}" hint-placeholder-val="">
               <button onClick="{{ retrySync }}" style="padding:3px 9px;background:none;border:1px solid #c49a3a;border-radius:6px;font-size:11px;font-weight:600;color:#8a6d2a;cursor:pointer;white-space:nowrap;">Retry</button>
             </sc-if>
@@ -1009,9 +1009,9 @@
             <sc-for list="{{ cyclePickerGroups }}" as="grp" hint-placeholder-count="2">
               <div style="padding:10px 18px 4px;font-size:11px;font-weight:700;color:#8a94a3;letter-spacing:.08em;font-family:'IBM Plex Mono',monospace;background:#f6f8fa;border-bottom:1px solid #eef0f4;">{{ grp.year }}</div>
               <sc-for list="{{ grp.cycles }}" as="c" hint-placeholder-count="3">
-              <button onClick="{{ c.onPick }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border:none;border-bottom:1px solid #f2f4f7;cursor:pointer;background:{{ c.isActive ? '#eef3fc' : '#fff' }};text-align:left;">
+              <button onClick="{{ c.onPick }}" style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:13px 18px;border:none;border-bottom:1px solid #f2f4f7;cursor:pointer;background:{{ c.pickerBg }};text-align:left;">
                 <div>
-                  <div style="font-size:14px;font-weight:600;color:{{ c.isActive ? '#2f5fd0' : '#161f30' }};">{{ c.label }}</div>
+                  <div style="font-size:14px;font-weight:600;color:{{ c.pickerLabelColor }};">{{ c.label }}</div>
                   <div style="font-size:11.5px;color:#8a94a3;margin-top:2px;font-family:'IBM Plex Mono',monospace;">{{ c.range }}</div>
                 </div>
                 <sc-if value="{{ c.isActive }}" hint-placeholder-val="">
@@ -1026,9 +1026,9 @@
           </div>
           <sc-if value="{{ cyclePickerShowPagination }}" hint-placeholder-val="">
           <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-top:1px solid #eef0f4;background:#fff;flex:0 0 auto;padding-bottom:max(10px,env(safe-area-inset-bottom,10px));">
-            <button onClick="{{ cyclePickerPrev }}" style="-webkit-appearance:none;padding:7px 18px;background:#f0f2f5;border:none;border-radius:8px;font-size:13px;font-weight:600;color:{{ cyclePickerHasPrev ? '#161f30' : '#c4c9d4' }};cursor:{{ cyclePickerHasPrev ? 'pointer' : 'default' }};">Prev</button>
+            <button onClick="{{ cyclePickerPrev }}" style="-webkit-appearance:none;padding:7px 18px;background:#f0f2f5;border:none;border-radius:8px;font-size:13px;font-weight:600;color:{{ cyclePickerPrevColor }};cursor:{{ cyclePickerPrevCursor }};">Prev</button>
             <span style="font-size:12px;color:#8a94a3;">{{ cyclePickerPageInfo }}</span>
-            <button onClick="{{ cyclePickerNext }}" style="-webkit-appearance:none;padding:7px 18px;background:#f0f2f5;border:none;border-radius:8px;font-size:13px;font-weight:600;color:{{ cyclePickerHasNext ? '#161f30' : '#c4c9d4' }};cursor:{{ cyclePickerHasNext ? 'pointer' : 'default' }};">Next</button>
+            <button onClick="{{ cyclePickerNext }}" style="-webkit-appearance:none;padding:7px 18px;background:#f0f2f5;border:none;border-radius:8px;font-size:13px;font-weight:600;color:{{ cyclePickerNextColor }};cursor:{{ cyclePickerNextCursor }};">Next</button>
           </div>
           </sc-if>
         </div>
@@ -1058,13 +1058,13 @@
               <span style="background:#c0392b;color:#fff;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:20px;">{{ pendingLeavesCount }}</span>
             </div>
             <sc-for list="{{ pendingLeaves }}" as="lr" hint-placeholder-count="2">
-            <div style="padding:12px 16px;border-bottom:1px solid #f2f4f7;opacity:{{ lr.isExpired ? '0.65' : '1' }};">
+            <div style="padding:12px 16px;border-bottom:1px solid #f2f4f7;opacity:{{ lr.expiredOpacity }};">
               <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
                 <div style="font-size:13.5px;font-weight:600;color:#161f30;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ lr.personName }}</div>
                 <sc-if value="{{ lr.isExpired }}" hint-placeholder-val=""><span style="font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:6px;background:#f2f4f7;color:#8a94a3;border:1px solid #d4d9e2;white-space:nowrap;flex:0 0 auto;">Expired</span></sc-if>
                 <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:{{ lr.typeBg }};color:{{ lr.typeColor }};border:1px solid {{ lr.typeBorder }};white-space:nowrap;flex:0 0 auto;">{{ lr.typeLabel }}</span>
               </div>
-              <div style="font-size:12px;color:#8a94a3;margin-bottom:4px;">{{ lr.dateLabel }} · <span style="color:{{ lr.isExpired ? '#c0392b' : '#a0a8b4' }};">{{ lr.timeAgo }}</span></div>
+              <div style="font-size:12px;color:#8a94a3;margin-bottom:4px;">{{ lr.dateLabel }} · <span style="color:{{ lr.expiredTimeColor }};">{{ lr.timeAgo }}</span></div>
               <sc-if value="{{ lr.reason }}" hint-placeholder-val="">
                 <div style="font-size:12px;color:#5c6678;font-style:italic;margin-bottom:5px;">"{{ lr.reason }}"</div>
               </sc-if>
@@ -1252,7 +1252,7 @@
           </div>
           </sc-if>
           <sc-if value="{{ showFilteredCount }}" hint-placeholder-val="">
-          <div style="font-size:11.5px;color:#8a94a3;margin-bottom:8px;padding:0 2px;">{{ filteredCount }} result{{ filteredCount === 1 ? '' : 's' }}</div>
+          <div style="font-size:11.5px;color:#8a94a3;margin-bottom:8px;padding:0 2px;">{{ filteredCountLabel }}</div>
           </sc-if>
           <sc-for list="{{ filteredRoster }}" as="row" hint-placeholder-count="6">
             <div style="{{ row.cardStyle }}">
@@ -1579,9 +1579,9 @@
               </sc-if>
             </div>
             <sc-for list="{{ pendingLeaves }}" as="lr" hint-placeholder-count="2">
-            <div style="padding:10px 16px;border-bottom:1px solid #f2f4f7;opacity:{{ lr.isExpired ? '0.65' : '1' }};">
+            <div style="padding:10px 16px;border-bottom:1px solid #f2f4f7;opacity:{{ lr.expiredOpacity }};">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:7px;">
-                <div onClick="{{ lr.onToggleSelect }}" style="flex:0 0 auto;width:18px;height:18px;border-radius:4px;border:1.5px solid {{ lr.isSelected ? '#3b5bdb' : '#c8cdd6' }};background:{{ lr.isSelected ? '#3b5bdb' : '#fff' }};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                <div onClick="{{ lr.onToggleSelect }}" style="flex:0 0 auto;width:18px;height:18px;border-radius:4px;border:1.5px solid {{ lr.checkBorder }};background:{{ lr.checkBg }};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
                   <sc-if value="{{ lr.isSelected }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></sc-if>
                 </div>
                 <div class="avatar-sm" style="flex:0 0 auto;">{{ lr.initials }}</div>
@@ -1590,7 +1590,7 @@
                     <span class="text-body-bold">{{ lr.personName }}</span>
                     <sc-if value="{{ lr.isExpired }}" hint-placeholder-val=""><span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;background:#f2f4f7;color:#8a94a3;border:1px solid #d4d9e2;white-space:nowrap;">Expired</span></sc-if>
                   </div>
-                  <div style="font-size:11px;color:#8a94a3;margin-top:1px;">{{ lr.personShift }} · {{ lr.dateLabel }} · <span style="color:{{ lr.isExpired ? '#c0392b' : '#a0a8b4' }};">{{ lr.timeAgo }}</span></div>
+                  <div style="font-size:11px;color:#8a94a3;margin-top:1px;">{{ lr.personShift }} · {{ lr.dateLabel }} · <span style="color:{{ lr.expiredTimeColor }};">{{ lr.timeAgo }}</span></div>
                   <sc-if value="{{ lr.reason }}" hint-placeholder-val="">
                     <div style="font-size:11px;color:#9aa3b2;font-style:italic;margin-top:1px;">"{{ lr.reason }}"</div>
                   </sc-if>
@@ -1623,13 +1623,13 @@
                 <div class="flex-gap-7">
                   <button onClick="{{ clearLeaveSelect }}" style="-webkit-appearance:none;padding:7px 12px;border-radius:8px;border:1px solid #d4d9e2;background:#fff;color:#5c6678;font-size:12px;font-weight:600;cursor:pointer;">Clear</button>
                   <button onClick="{{ askBulkLeaveReject }}" style="-webkit-appearance:none;padding:7px 12px;border-radius:8px;border:1px solid #e3c4c1;background:#fff;color:#c0392b;font-size:12px;font-weight:600;cursor:pointer;">Decline</button>
-                  <button onClick="{{ bulkApproveLeaves }}" style="-webkit-appearance:none;padding:7px 14px;border-radius:8px;border:none;background:#161f30;color:#fff;font-size:12px;font-weight:700;cursor:pointer;opacity:{{ bulkApprovingLeaves ? '0.55' : '1' }};">{{ bulkApprovingLeaves ? 'Approving…' : 'Approve ' + leaveSelectedCount }}</button>
+                  <button onClick="{{ bulkApproveLeaves }}" style="-webkit-appearance:none;padding:7px 14px;border-radius:8px;border:none;background:#161f30;color:#fff;font-size:12px;font-weight:700;cursor:pointer;opacity:{{ bulkApproveBtnOpacity }};">{{ bulkApproveBtnText }}</button>
                 </div>
               </div>
               </sc-if>
               <sc-if value="{{ confirmBulkLeaveReject }}" hint-placeholder-val="">
               <div style="background:#fff5f5;border:1px solid #f0d5d2;border-radius:9px;padding:10px 12px;">
-                <div style="font-size:12.5px;font-weight:600;color:#c0392b;margin-bottom:6px;">Decline {{ leaveSelectedCount }} request{{ leaveSelectedCount === 1 ? '' : 's' }}?</div>
+                <div style="font-size:12.5px;font-weight:600;color:#c0392b;margin-bottom:6px;">{{ declineReqLabel }}</div>
                 <textarea onInput="{{ onBulkLeaveRejectReason }}" value="{{ bulkLeaveRejectReason }}" placeholder="Reason (optional)" style="width:100%;height:52px;padding:7px 9px;border:1px solid #f1d3cf;border-radius:7px;font-family:inherit;font-size:12.5px;resize:none;outline:none;box-sizing:border-box;background:#fff;" rows="2"></textarea>
                 <div style="display:flex;gap:7px;margin-top:7px;">
                   <button onClick="{{ cancelBulkLeaveReject }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #e3e6ec;border-radius:8px;font-size:12.5px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
@@ -1706,7 +1706,7 @@
                   <div class="flex-fill">
                     <div style="font-size:14px;font-weight:600;color:#161f30;">{{ p.name }}</div>
                     <div class="text-hint">{{ p.contact }}</div>
-                    <sc-if value="{{ p.showApprovedBy }}" hint-placeholder-val=""><div style="font-size:10.5px;color:#1f8a5b;margin-top:2px;font-weight:600;">✓ Approved by {{ p.approvedBy }}</div></sc-if>
+                    <sc-if value="{{ p.showApprovedBy }}" hint-placeholder-val=""><div style="font-size:10.5px;color:#1f8a5b;margin-top:2px;font-weight:600;">✓ {{ p.approvedByLabel }} {{ p.approvedBy }}</div></sc-if>
                     <sc-if value="{{ p.notes }}" hint-placeholder-val=""><div style="font-size:11.5px;color:#5c6678;margin-top:2px;font-style:italic;">{{ p.notes }}</div></sc-if>
                     <sc-if value="{{ p.showStats }}" hint-placeholder-val="">
                     <div style="display:flex;gap:5px;flex-wrap:wrap;margin-top:5px;">
@@ -2029,6 +2029,35 @@
           </div>
         </sc-if>
         <sc-if value="{{ showAddForm }}" hint-placeholder-val="{{ true }}">
+        <div style="margin-bottom:14px;">
+          <div style="font-size:11px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:7px;">RE-ENROLL RETURNING RESERVIST</div>
+          <div style="display:flex;align-items:center;gap:8px;padding:8px 11px;border:1px solid #d4d9e2;border-radius:9px;background:#f6f8fa;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            <input value="{{ npAddSearch }}" onInput="{{ onNpAddSearch }}" placeholder="Search by name or contact…" style="flex:1;border:none;outline:none;font-size:13px;color:#161f30;background:transparent;min-width:0;" autocomplete="off" />
+          </div>
+          <sc-if value="{{ npAddSearchHasResults }}" hint-placeholder-val="">
+            <div style="border:1px solid #e8ebf0;border-radius:9px;margin-top:6px;overflow:hidden;">
+              <sc-for list="{{ npAddSearchResults }}" as="dr">
+                <div onClick="{{ dr.onSelect }}" style="display:flex;align-items:center;gap:10px;padding:9px 13px;border-bottom:1px solid #f0f2f5;cursor:pointer;background:#fff;">
+                  <div style="width:30px;height:30px;border-radius:50%;background:#eceef2;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#5c6678;flex:0 0 auto;">{{ dr.initials }}</div>
+                  <div class="flex-fill">
+                    <div style="font-size:13px;font-weight:600;color:#161f30;">{{ dr.name }}</div>
+                    <div style="font-size:11.5px;color:#8a94a3;">{{ dr.contact }}</div>
+                  </div>
+                  <span style="font-size:10.5px;font-weight:600;padding:2px 7px;border-radius:20px;background:#f0f2f5;color:#8a94a3;">Removed</span>
+                </div>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ npAddSearchNoResults }}" hint-placeholder-val="">
+            <div style="font-size:12px;color:#9aa3b2;padding:8px 2px;">No removed reservists found.</div>
+          </sc-if>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+          <div style="flex:1;height:1px;background:#e8ebf0;"></div>
+          <span style="font-size:10.5px;color:#9aa3b2;font-weight:700;letter-spacing:.06em;white-space:nowrap;">OR ADD NEW PERSONNEL</span>
+          <div style="flex:1;height:1px;background:#e8ebf0;"></div>
+        </div>
         <input value="{{ npName }}" onInput="{{ onNpName }}" placeholder="Full name" class="field" style="margin-bottom:10px;" />
         <input value="{{ npContact }}" onInput="{{ onNpContact }}" placeholder="Contact number (9xxx xxxx)" type="tel" inputmode="numeric" autocomplete="off" class="field" style="margin-bottom:10px;" />
         <input value="{{ npPassword }}" onInput="{{ onNpPassword }}" placeholder="Password (min 6 chars)" type="password" class="field" style="margin-bottom:10px;" />
@@ -2092,9 +2121,9 @@
             </sc-for>
             <sc-if value="{{ promoteShowPagination }}" hint-placeholder-val="">
               <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-top:1px solid #eef0f4;background:#f9fafb;">
-                <button onClick="{{ promotePrevPage }}" style="-webkit-appearance:none;padding:5px 12px;background:#fff;border:1px solid #d4d9e2;border-radius:7px;font-size:12px;font-weight:600;color:{{ promoteHasPrev ? '#161f30' : '#c4c9d4' }};cursor:{{ promoteHasPrev ? 'pointer' : 'default' }};">Prev</button>
+                <button onClick="{{ promotePrevPage }}" style="-webkit-appearance:none;padding:5px 12px;background:#fff;border:1px solid #d4d9e2;border-radius:7px;font-size:12px;font-weight:600;color:{{ promoteHasPrevColor }};cursor:{{ promoteHasPrevCursor }};">Prev</button>
                 <span style="font-size:12px;color:#8a94a3;">{{ promotePageInfo }}</span>
-                <button onClick="{{ promoteNextPage }}" style="-webkit-appearance:none;padding:5px 12px;background:#fff;border:1px solid #d4d9e2;border-radius:7px;font-size:12px;font-weight:600;color:{{ promoteHasNext ? '#161f30' : '#c4c9d4' }};cursor:{{ promoteHasNext ? 'pointer' : 'default' }};">Next</button>
+                <button onClick="{{ promoteNextPage }}" style="-webkit-appearance:none;padding:5px 12px;background:#fff;border:1px solid #d4d9e2;border-radius:7px;font-size:12px;font-weight:600;color:{{ promoteHasNextColor }};cursor:{{ promoteHasNextCursor }};">Next</button>
               </div>
             </sc-if>
           </div>
@@ -2312,7 +2341,7 @@
               <div style="font-size:12px;color:#8a94a3;margin-bottom:12px;">This removes all attendance records, leave requests, and their login account. It cannot be undone.</div>
               <div class="flex-gap-8">
                 <button onClick="{{ cancelWipeHistory }}" style="flex:1;padding:9px;border-radius:8px;border:1px solid #d4d9e2;background:#fff;color:#5c6678;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
-                <button onClick="{{ confirmWipeHistory }}" style="flex:1;padding:9px;border-radius:8px;border:none;background:#c0392b;color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ wipingHistory ? '0.55' : '1' }};">{{ wipingHistory ? 'Deleting…' : 'Yes, delete' }}</button>
+                <button onClick="{{ confirmWipeHistory }}" style="flex:1;padding:9px;border-radius:8px;border:none;background:#c0392b;color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ wipeHistoryBtnOpacity }};">{{ wipeHistoryBtnText }}</button>
               </div>
             </div>
           </sc-if>
@@ -2358,7 +2387,7 @@
               <div style="padding:10px 20px;border-bottom:1px solid #f2f4f7;">
                 <sc-if value="{{ !m.isConfirming }}" hint-placeholder-val="">
                   <div style="display:flex;align-items:center;gap:10px;">
-                    <div onClick="{{ m.onToggleSelect }}" style="flex:0 0 auto;width:18px;height:18px;border-radius:4px;border:1.5px solid {{ m.isSelected ? '#3b5bdb' : '#c8cdd6' }};background:{{ m.isSelected ? '#3b5bdb' : '#fff' }};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                    <div onClick="{{ m.onToggleSelect }}" style="flex:0 0 auto;width:18px;height:18px;border-radius:4px;border:1.5px solid {{ m.checkBorder }};background:{{ m.checkBg }};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
                       <sc-if value="{{ m.isSelected }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></sc-if>
                     </div>
                     <div class="avatar-sm" style="flex:0 0 auto;font-size:11px;">{{ m.initials }}</div>
@@ -2376,7 +2405,7 @@
                     <div style="font-size:11.5px;color:#8a94a3;margin-bottom:10px;">Removes all records, leave history, and login account.</div>
                     <div class="flex-gap-7">
                       <button onClick="{{ cancelDeleteMember }}" style="flex:1;padding:7px;border-radius:7px;border:1px solid #d4d9e2;background:#fff;color:#5c6678;font-size:12.5px;font-weight:600;cursor:pointer;">Cancel</button>
-                      <button onClick="{{ confirmDeleteMember }}" style="flex:1;padding:7px;border-radius:7px;border:none;background:#c0392b;color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;opacity:{{ deletingMember ? '0.55' : '1' }};">{{ deletingMember ? 'Deleting…' : 'Yes, delete' }}</button>
+                      <button onClick="{{ confirmDeleteMember }}" style="flex:1;padding:7px;border-radius:7px;border:none;background:#c0392b;color:#fff;font-size:12.5px;font-weight:700;cursor:pointer;opacity:{{ deleteMemberBtnOpacity }};">{{ deleteMemberBtnText }}</button>
                     </div>
                   </div>
                 </sc-if>
@@ -2386,9 +2415,9 @@
         </div>
         <sc-if value="{{ memberSearchTotalPages > 1 }}" hint-placeholder-val="">
         <div style="padding:10px 20px;border-top:1px solid #f0f2f6;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;">
-          <button onClick="{{ memberSearchPagePrev }}" style="padding:6px 14px;border-radius:8px;border:1px solid #d4d9e2;background:#fff;color:#5c6678;font-size:12.5px;font-weight:600;cursor:pointer;opacity:{{ memberSearchHasPrev ? '1' : '0.35' }};" disabled="{{ !memberSearchHasPrev }}">Prev</button>
+          <button onClick="{{ memberSearchPagePrev }}" style="padding:6px 14px;border-radius:8px;border:1px solid #d4d9e2;background:#fff;color:#5c6678;font-size:12.5px;font-weight:600;cursor:pointer;opacity:{{ memberSearchPrevOpacity }};" disabled="{{ !memberSearchHasPrev }}">Prev</button>
           <span style="font-size:12.5px;color:#8a94a3;font-weight:500;">{{ memberSearchPageLabel }}</span>
-          <button onClick="{{ memberSearchPageNext }}" style="padding:6px 14px;border-radius:8px;border:1px solid #d4d9e2;background:#fff;color:#5c6678;font-size:12.5px;font-weight:600;cursor:pointer;opacity:{{ memberSearchHasNext ? '1' : '0.35' }};" disabled="{{ !memberSearchHasNext }}">Next</button>
+          <button onClick="{{ memberSearchPageNext }}" style="padding:6px 14px;border-radius:8px;border:1px solid #d4d9e2;background:#fff;color:#5c6678;font-size:12.5px;font-weight:600;cursor:pointer;opacity:{{ memberSearchNextOpacity }};" disabled="{{ !memberSearchHasNext }}">Next</button>
         </div>
         </sc-if>
         <sc-if value="{{ hasMemberSelection }}" hint-placeholder-val="">
@@ -2408,7 +2437,7 @@
               <div style="font-size:12px;color:#8a94a3;margin-bottom:11px;">All records, leave history, and login accounts will be removed.</div>
               <div class="flex-gap-8">
                 <button onClick="{{ cancelBulkDelete }}" style="flex:1;padding:8px;border-radius:8px;border:1px solid #d4d9e2;background:#fff;color:#5c6678;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
-                <button onClick="{{ executeBulkDelete }}" style="flex:1;padding:8px;border-radius:8px;border:none;background:#c0392b;color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ bulkDeleting ? '0.55' : '1' }};">{{ bulkDeleting ? 'Deleting…' : 'Yes, delete all' }}</button>
+                <button onClick="{{ executeBulkDelete }}" style="flex:1;padding:8px;border-radius:8px;border:none;background:#c0392b;color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ bulkDeleteBtnOpacity }};">{{ bulkDeleteBtnText }}</button>
               </div>
             </div>
           </sc-if>

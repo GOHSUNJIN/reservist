@@ -91,7 +91,7 @@ const PeopleHandlers = {
 
   // ── Personnel management ───────────────────────────────────────────────
   addPerson: async function() {
-    const {npName,npContact,npShift,npPassword,batches,activeBatchIdx,demo,personnel}=this.state;
+    const {npName,npContact,npShift,npPassword,batches,activeBatchIdx,demo,personnel,me}=this.state;
     if(!npName.trim()){ this._toast('Name is required.','error'); return; }
     const {clean:cleanContact, error:contactErr} = Utils.validateSGContact(npContact);
     if(contactErr){ this._toast(contactErr,'error'); return; }
@@ -116,34 +116,45 @@ const PeopleHandlers = {
         await DB.auth.deleteUser(user.id).catch(()=>{});
         this._toast('Failed to add to roster. Try again.','error'); return;
       }
-      this.setState(s=>({personnel:[...s.personnel,data],npName:'',npContact:'',npShift:'OFFICE',npPassword:'',rosterSearch:'',addPersonnelOpen:false}));
+      if(me?.name && data?.id) DB.personnel.setCreatedBy(data.id, me.name).catch(()=>{});
+      this.setState(s=>({personnel:[...s.personnel,data],npName:'',npContact:'',npShift:'OFFICE',npPassword:'',rosterSearch:'',addPersonnelOpen:false,npAddSearch:''}));
     } else {
       const id='demo-'+Date.now();
-      this.setState(s=>({personnel:[...s.personnel,{id,name:npName.trim(),contact:cleanContact,shift:npShift,role:'reservist',batch_id:activeBatch.id,is_active:true}],npName:'',npContact:'',npShift:'OFFICE',npPassword:'',rosterSearch:'',addPersonnelOpen:false}));
+      this.setState(s=>({personnel:[...s.personnel,{id,name:npName.trim(),contact:cleanContact,shift:npShift,role:'reservist',batch_id:activeBatch.id,is_active:true}],npName:'',npContact:'',npShift:'OFFICE',npPassword:'',rosterSearch:'',addPersonnelOpen:false,npAddSearch:''}));
     }
     this._toast(npName.trim()+' added to roster.');
   },
 
   confirmReenroll: async function() {
-    const {npName,npShift,batches,activeBatchIdx,npReenrollRecord}=this.state;
+    const {npName,npShift,batches,activeBatchIdx,npReenrollRecord,me}=this.state;
     if(!npReenrollRecord) return;
     const activeBatch=batches[activeBatchIdx||0];
     const addedName=npName.trim();
     const {data:reactivated,error:reactErr}=await DB.personnel.reactivate(npReenrollRecord.id,{batchId:activeBatch?.id,shift:npShift});
     if(reactErr||!reactivated){ this._toast('Failed to re-enroll. Try again.','error'); return; }
     if(addedName&&addedName!==npReenrollRecord.name) await DB.personnel.updateName(npReenrollRecord.id,addedName).catch(()=>{});
+    if(me?.name && reactivated?.id) DB.personnel.setCreatedBy(reactivated.id, me.name).catch(()=>{});
     const finalName=addedName||npReenrollRecord.name;
-    this.setState(s=>({personnel:[...s.personnel,{...reactivated,name:finalName}],npName:'',npContact:'',npShift:'OFFICE',npPassword:'',npReenrollRecord:null,rosterSearch:'',addPersonnelOpen:false}));
+    this.setState(s=>({personnel:[...s.personnel,{...reactivated,name:finalName}],npName:'',npContact:'',npShift:'OFFICE',npPassword:'',npReenrollRecord:null,rosterSearch:'',addPersonnelOpen:false,npAddSearch:''}));
     this._toast(finalName+' re-enrolled on the roster.');
   },
 
-  cancelReenroll: function() { this.setState({npReenrollRecord:null}); },
+  cancelReenroll: function() { this.setState({npReenrollRecord:null, npAddSearch:''}); },
 
   onNpName:        function(e) { this.setState({npName:e.target.value}); },
   onNpContact:     function(e) { this.setState({npContact:e.target.value}); },
   onNpShift:       function(e) { this.setState({npShift:e.target.value}); },
   onNpPassword:    function(e) { this.setState({npPassword:e.target.value}); },
-  toggleAddPersonnel: function() { this.setState(s=>({addPersonnelOpen:!s.addPersonnelOpen,npReenrollRecord:null})); },
+  onNpAddSearch:   function(e) { this.setState({npAddSearch:e.target.value}); },
+  toggleAddPersonnel: function() {
+    const opening = !this.state.addPersonnelOpen;
+    this.setState({addPersonnelOpen:opening, npReenrollRecord:null, npAddSearch:'', npDeactivatedPool:[]});
+    if(opening && !this.state.demo){
+      DB.personnel.listAll().then(all=>{
+        this.setState({npDeactivatedPool:all.filter(p=>!p.is_active)});
+      }).catch(()=>{});
+    }
+  },
 
   askDeactivatePerson:    function(id) { return () => this.setState({confirmDeactivateId:id}); },
   cancelDeactivatePerson: function() { this.setState({confirmDeactivateId:null}); },

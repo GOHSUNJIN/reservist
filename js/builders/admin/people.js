@@ -7,7 +7,10 @@ const AdminPeople = {
     return {
       personnelList:activeMembers.map(p=>{
         const av=s.avatars[p.id]||'';
-        const approvedBy=approvedByContact.get(p.contact)||'';
+        const _addedBySignup=approvedByContact.get(p.contact)||'';
+        const _addedByAdmin=p.created_by||'';
+        const approvedBy=_addedByAdmin||_addedBySignup;
+        const approvedByLabel=_addedByAdmin?'Added by':'Approved by';
         return {...p,
           initials:Utils.initials(p.name),
           shiftLabel:Utils.shiftLabel(p.shift),
@@ -23,7 +26,7 @@ const AdminPeople = {
           avatarStyle:av?`background-image:url("${av.replace(/"/g,'%22')}");background-size:cover;background-position:center;color:transparent;`:'',
           avatarInitials:av?'':Utils.initials(p.name),
           onViewHistory:self.openPersonHistory(p.id),
-          approvedBy,
+          approvedBy, approvedByLabel,
           showApprovedBy:!!approvedBy,
           onResetPw:self.openResetPw(p.id),
           canResetPw:!!p.auth_id,
@@ -83,18 +86,21 @@ const AdminPeople = {
           memberSearchRows:paged.map(p=>{
             const batchLabel=_getBatchLabel(p);
             const isConfirming=s.confirmDeleteMemberId===p.id;
+            const _isSel=s.memberSearchSelected.includes(p.id);
             return {
               id:p.id, name:p.name, contact:p.contact||'', initials:Utils.initials(p.name),
               statusLabel:_mLabel(p), statusColor:_mColor(p), statusBg:_mBg(p),
               batchLabel, shiftLabel:Utils.shiftLabel(p.shift),
               isConfirming, onAskDelete:self.askDeleteMember(p.id),
-              isSelected:s.memberSearchSelected.includes(p.id), onToggleSelect:self.toggleMemberSelect(p.id),
+              isSelected:_isSel, onToggleSelect:self.toggleMemberSelect(p.id),
+              checkBorder:_isSel?'#3b5bdb':'#c8cdd6', checkBg:_isSel?'#3b5bdb':'#fff',
             };
           }),
           memberSearchEmpty:s.memberSearchLoaded&&filtered.length===0,
           memberSearchPage:page, memberSearchTotalPages:totalPages,
           memberSearchTotal:filtered.length,
           memberSearchHasPrev:page>1, memberSearchHasNext:page<totalPages,
+          memberSearchPrevOpacity:page>1?'1':'0.35', memberSearchNextOpacity:page<totalPages?'1':'0.35',
           memberSearchPagePrev:()=>self.setState({memberSearchPage:Math.max(1,page-1)}),
           memberSearchPageNext:()=>self.setState({memberSearchPage:Math.min(totalPages,page+1)}),
           memberSearchPageLabel:`${page} / ${totalPages}`,
@@ -112,6 +118,9 @@ const AdminPeople = {
         typeBorder:l.type==='mc'?'#f0e2c2':'#cfe6d8',
         dateLabel:l.date?Utils.fmtMed(new Date(l.date+'T00:00:00')):'',
         isSelected:(s.leaveSelectedIds||[]).includes(l.id), onToggleSelect:self.toggleLeaveSelect(l.id),
+        checkBorder:(s.leaveSelectedIds||[]).includes(l.id)?'#3b5bdb':'#c8cdd6',
+        checkBg:(s.leaveSelectedIds||[]).includes(l.id)?'#3b5bdb':'#fff',
+        expiredOpacity:isExpired?'0.65':'1', expiredTimeColor:isExpired?'#c0392b':'#a0a8b4',
         onApprove:self.approveLeave(l.id), onReject:self.rejectLeave(l.id),
         isRejectOpen:s.rejectLeaveId===l.id,
         rejectLeaveReason:s.rejectLeaveId===l.id?s.rejectLeaveReason:'',
@@ -127,6 +136,13 @@ const AdminPeople = {
       hasLeaveSelection:(s.leaveSelectedIds||[]).length>0,
       clearLeaveSelect:self.clearLeaveSelect,
       bulkApproveLeaves:self.bulkApproveLeaves,
+      bulkApproveBtnText:s.bulkApprovingLeaves?'Approving…':('Approve '+(s.leaveSelectedIds||[]).length),
+      bulkApproveBtnOpacity:s.bulkApprovingLeaves?'0.55':'1',
+      declineReqLabel:'Decline '+((s.leaveSelectedIds||[]).length)+' request'+(((s.leaveSelectedIds||[]).length)===1?'':'s')+'?',
+      deleteMemberBtnText:s.deletingMember?'Deleting…':'Yes, delete',
+      deleteMemberBtnOpacity:s.deletingMember?'0.55':'1',
+      bulkDeleteBtnText:s.bulkDeleting?'Deleting…':'Yes, delete all',
+      bulkDeleteBtnOpacity:s.bulkDeleting?'0.55':'1',
       askBulkLeaveReject:self.askBulkLeaveReject,
       confirmBulkLeaveReject:!!(s.confirmBulkLeaveReject),
       bulkLeaveRejectReason:s.bulkLeaveRejectReason||'',
@@ -189,6 +205,8 @@ const AdminPeople = {
           promoteFilteredList, promoteListEmpty:allRows.length===0,
           promoteListPage:safePage, promoteTotalPages,
           promoteHasPrev:safePage>1, promoteHasNext:safePage<promoteTotalPages,
+          promoteHasPrevColor:safePage>1?'#161f30':'#c4c9d4', promoteHasPrevCursor:safePage>1?'pointer':'default',
+          promoteHasNextColor:safePage<promoteTotalPages?'#161f30':'#c4c9d4', promoteHasNextCursor:safePage<promoteTotalPages?'pointer':'default',
           promoteShowPagination:promoteTotalPages>1,
           promotePageInfo:`${safePage} / ${promoteTotalPages}`,
         };
