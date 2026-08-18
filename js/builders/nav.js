@@ -5,11 +5,10 @@ const NavBuilders = {
     const me=this.cur();
     const TITLES={checkin:'Check-In',briefings:'Briefings',attendance:'Attendance',meal:'Meal Allowance',overview:'Dashboard',roster:'Roster',log:'Attendance Log',people:'Personnel'};
     const nc=t=>s.tab===t?accent:'#9aa3b2';
-    const ni=t=>s.tab===t?accent:'transparent';
     const nb=t=>s.tab===t?'#eef3fc':'transparent';
     return {
       isReservist:s.role==='reservist', isAdmin:s.role==='admin',
-      headerChipClick:this.headerChipClick, logout:this.logout,
+      headerChipClick:this.headerChipClick, logout:this.logout, askLogout:this.askLogout, cancelLogout:this.cancelLogout, logoutConfirmOpen:s.logoutConfirmOpen||false, logoutConfirmClosed:!(s.logoutConfirmOpen||false),
       userName:s.role==='admin'?(me?.name||'Supervisor'):(me?.name||''),
       userInitials:s.role==='admin'?(me?.name?Utils.initials(me.name):'SV'):Utils.initials(me?.name||''),
       tabTitle:TITLES[s.tab]||'',
@@ -21,8 +20,6 @@ const NavBuilders = {
       goPeople:this.goPeople,
       cCheckin:nc('checkin'), cBriefings:nc('briefings'), cAttendance:nc('attendance'), cMeal:nc('meal'),
       cOverview:nc('overview'), cRoster:nc('roster'), cLog:nc('log'), cPeople:nc('people'),
-      ntCheckin:ni('checkin'), ntBriefings:ni('briefings'), ntAttendance:ni('attendance'), ntMeal:ni('meal'),
-      ntOverview:ni('overview'), ntRoster:ni('roster'), ntLog:ni('log'), ntPeople:ni('people'),
       nbCheckin:nb('checkin'), nbBriefings:nb('briefings'), nbAttendance:nb('attendance'), nbMeal:nb('meal'),
       nbOverview:nb('overview'), nbRoster:nb('roster'), nbLog:nb('log'), nbPeople:nb('people'),
       tabCheckin:s.tab==='checkin', tabBriefings:s.tab==='briefings', tabAttendance:s.tab==='attendance', tabMeal:s.tab==='meal',

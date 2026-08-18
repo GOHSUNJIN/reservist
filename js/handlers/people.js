@@ -141,6 +141,7 @@ const PeopleHandlers = {
 
   onNpName:        function(e) { this.setState({npName:e.target.value}); },
   onNpContact:     function(e) { this.setState({npContact:e.target.value}); },
+  onNpShift:       function(e) { this.setState({npShift:e.target.value}); },
   onNpPassword:    function(e) { this.setState({npPassword:e.target.value}); },
   toggleAddPersonnel: function() { this.setState(s=>({addPersonnelOpen:!s.addPersonnelOpen,npReenrollRecord:null})); },
 
@@ -322,7 +323,8 @@ const PeopleHandlers = {
     if(!resetPwId) return;
     if(!resetPwNew || resetPwNew.length < 6) { this._toast('Password must be at least 6 characters.', 'error'); return; }
     if(demo) { this._toast('Cannot reset passwords in demo mode.', 'error'); return; }
-    const p = personnel.find(x=>x.id===resetPwId);
+    const _allPersonnel = [...personnel, ...Object.values(this.state.batchMembersCache||{}).flat()];
+    const p = _allPersonnel.find(x=>x.id===resetPwId);
     if(!p?.auth_id) { this._toast('No login account linked to this person.', 'error'); return; }
     this.setState({resetPwSaving:true});
     const {error} = await DB.auth.adminResetPassword(p.auth_id, resetPwNew);

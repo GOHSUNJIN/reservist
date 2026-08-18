@@ -206,7 +206,7 @@ const AdminRoster = {
       rosterSortNameStyle,rosterSortStatusStyle,
       // Feature: admin password reset
       resetPwOpen:s.resetPwId!==null,
-      resetPwPersonName:(s.personnel.find(p=>p.id===s.resetPwId)||{}).name||'',
+      resetPwPersonName:([...s.personnel,...Object.values(s.batchMembersCache||{}).flat()].find(p=>p.id===s.resetPwId)||{}).name||'',
       resetPwNew:s.resetPwNew||'', resetPwSaving:s.resetPwSaving,
       resetPwSavingOpacity:s.resetPwSaving?0.6:1,
       resetPwBtnLabel:s.resetPwSaving?'Resetting...':'Reset password',

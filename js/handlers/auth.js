@@ -3,6 +3,9 @@ const AuthHandlers = {
 
   goLogin: function() { this.setState({authMode:'login', authError:''}); },
 
+  askLogout:    function() { this.setState({logoutConfirmOpen:true}); },
+  cancelLogout: function() { this.setState({logoutConfirmOpen:false}); },
+
   goSignup: async function() {
     this.setState({authMode:'signup', authError:''});
     await this._refreshSignupSlots();
@@ -94,10 +97,10 @@ const AuthHandlers = {
       currentUserId:null, me:null, loginContact:'', loginPassword:'',
       suName:'', suContact:'', suPassword:'',
       locStatus:'idle', locDistance:null, locGpsMsg:'', locSlow:false, locAccuracy:null, locPermErr:false, locRetryCount:0,
-      accountOpen:false, confirmDelete:false,
+      accountOpen:false, confirmDelete:false, logoutConfirmOpen:false,
       personnel:[], attendance:{}, history:[], attendanceCache:{}, batchMembersCache:{}, attendanceDate:null,
       noReportDays:new Set(), avatars:{}, selectedCalOffset:null, offlinePending:false,
-      testDate:null, testDateInput:'', testTime:null, testTimeInput:'', phaseSubmitting:false,
+      phaseSubmitting:false,
       acctNameEdit:'', acctPwCurrent:'', acctPwNew:'', acctPwConfirm:'',
       acctPwError:'', acctPwSuccess:'', acctNameError:'', acctNameSuccess:'', acctSaving:false,
       locPhase:null, batchLoading:false, batchCreating:false,
@@ -108,7 +111,7 @@ const AuthHandlers = {
       peopleStats:{}, peopleStatsLoaded:false, confirmDeactivateId:null, showArchivedBatches:false, cyclePickerOpen:false, rejectedSignupsHidden:false,
       noAvatarIds:new Set(), noReportDaysCache:{},
       markAllPresenting:false,
-      historyPage:1,
+      historyPage:1, historyExpandedDates:[], briefTab:'info', logStatusFilter:'all',
       sessionExpiring:false, idleWarning:false, showA2hs:false, forgotPasswordOpen:false,
       showLateWarning:false, lateReasonOpen:false, lateReasonText:'', lateReasonSubmitting:false,
       pendingLeaves:[], pendingLeavesLoaded:false,
@@ -183,8 +186,6 @@ const AuthHandlers = {
   onSuPassword:    function(e) { this.setState({suPassword:e.target.value}); },
 
   dismissSignupPending: function() { this.setState({signupPending:false, authMode:'login'}); },
-
-  setAuthMode: function(mode) { this.setState({authMode:mode, authError:''}); },
 
   openForgotPassword:  function() { this.setState({forgotPasswordOpen:true}); },
   closeForgotPassword: function() { this.setState({forgotPasswordOpen:false}); },

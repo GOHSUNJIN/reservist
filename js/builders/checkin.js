@@ -272,16 +272,16 @@ const CheckinBuilders = {
         };
       })(),
       ...(()=>{
-        if(!myBatch) return {hasNextNoReportDay:false,nextNoReportLabel:''};
+        if(!myBatch) return {upcomingNoRepDays:[],hasUpcomingNoRepDays:false};
         const tomorrow=Utils.addDays(todayD,1);
+        const days=[];
         for(let d=new Date(tomorrow);Utils.dateKey(d)<=myBatch.end_date;d=Utils.addDays(d,1)){
           const dk=Utils.dateKey(d), holName=Utils.holidayName(d);
           if(Utils.isReportDay(d)&&(holName||s.noReportDays.has(dk))){
-            const label=Utils.fmtMed(d)+(holName?' · '+holName:'');
-            return {hasNextNoReportDay:true,nextNoReportLabel:label};
+            days.push({label:Utils.fmtMed(d)+(holName?' · '+holName:'')});
           }
         }
-        return {hasNextNoReportDay:false,nextNoReportLabel:''};
+        return {upcomingNoRepDays:days, hasUpcomingNoRepDays:days.length>0};
       })(),
       whatsappLink, showWaShare,
       isOffline:!s.isOnline, offlinePending:s.offlinePending, offlineQueueCount:this._offlineQueues?.length||0,
@@ -388,8 +388,6 @@ const CheckinBuilders = {
 
     const _tc=(v,c1,c0)=>v?c1:c0;
     const _dc='#c2c8d2';
-    const _pw=key=>{const w=Utils.phaseWindow('OFFICE',key);return w?w[0]:'-';};
-    const _p2WinLabel='LUNCH';
 
     const _exDates=s.historyExpandedDates||[];
     const todayRow=(Utils.isReportDay(todayD)&&!this.isNoReport(0))
@@ -398,8 +396,6 @@ const CheckinBuilders = {
          p1Color:_tc(rec.p1,'#161f30',_dc),p2Color:_tc(rec.p2,'#161f30',_dc),p3Color:_tc(rec.p3,'#161f30',_dc),p4Color:_tc(rec.p4,'#161f30',_dc),
          hasExpandToggle:status==='present'||status==='pending',isExpanded:_exDates.includes(today),onToggleExpand:this.toggleHistoryExpand(today),
          showTimes:status==='present'&&_exDates.includes(today),lateReason:rec.lateReason||'',showLateReason:!!(rec.lateReason)&&_exDates.includes(today),
-         showPendingTimes:status==='pending'&&_exDates.includes(today),
-         p1Win:_pw('p1'),p2Win:_pw('p2'),p3Win:_pw('p3'),p4Win:_pw('p4'),p2WinLabel:_p2WinLabel,
          isMissedRow:false,showMissedNote:false,missedNote:'',onOpenMissedNote:()=>{},
          showTimingWarning:status==='present'&&(!rec.p2||!rec.p3||!rec.p4),
          ...Utils.meta(status)}]:[];

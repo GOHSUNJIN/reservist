@@ -18,12 +18,6 @@ const AdminBuilders = {
     const mc=activeMembers.filter(p=>_rmap(p)==='On MC').length;
     const pending=activeMembers.filter(p=>_rmap(p)==='Pending').length;
     const absent=activeMembers.filter(p=>_rmap(p)==='Absent').length;
-    const _psVals=Object.values(s.peopleStats);
-    const batchTotalPresent=_psVals.reduce((n,v)=>n+(v.present||0),0);
-    const batchTotalMc=_psVals.reduce((n,v)=>n+(v.mc||0),0);
-    const batchTotalAbsent=_psVals.reduce((n,v)=>n+(v.absent||0),0);
-    const batchTotalDays=batchTotalPresent+batchTotalMc+batchTotalAbsent;
-    const batchAvgPct=batchTotalDays>0?Math.round(batchTotalPresent/batchTotalDays*100):null;
     const approvedByContact=new Map((s.approvedSignups||[]).map(r=>[r.contact,r.reviewed_by||'Admin']));
     return {
       batches,activeBatchIdx,activeBatch,activeMembers,
@@ -32,7 +26,6 @@ const AdminBuilders = {
       viewOffset,viewDate,viewIsToday,viewReportDay,viewDateKey,viewMap,viewBlocked,isDekit,viewShowReporting,
       liveBatch,
       present,mc,pending,absent,
-      batchTotalPresent,batchTotalMc,batchTotalAbsent,batchAvgPct,
       approvedByContact,
     };
   },

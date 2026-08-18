@@ -42,13 +42,6 @@ const MiscHandlers = {
   // ── Navigation ─────────────────────────────────────────────────────────
   _scrollTop: function() { document.getElementById('main-scroll')?.scrollTo(0,0); },
   go: function(t) { return () => { this.setState({tab:t}); this._scrollTop(); }; },
-  goCheckin:    function() { this.setState({tab:'checkin'}); this._scrollTop(); },
-  goBriefings:  function() { this.setState({tab:'briefings'}); this._scrollTop(); },
-  goAttendance: function() { this.setState({tab:'attendance'}); this._scrollTop(); },
-  goMeal:       function() { this.setState({tab:'meal'}); this._scrollTop(); },
-  goOverview:   function() { this.setState({tab:'overview'}); setTimeout(()=>this.loadRosterAvatars(),0); this._scrollTop(); },
-  goRoster:     function() { this.setState({tab:'roster'}); setTimeout(()=>this.loadRosterAvatars(),0); this._scrollTop(); },
-  goLog:        function() { this.setState({tab:'log'}); setTimeout(()=>this.loadRosterAvatars(),0); this._scrollTop(); },
 
   goPeople: function() {
     this.setState({tab:'people',peopleStatsLoaded:false});
@@ -99,13 +92,6 @@ const MiscHandlers = {
     const link = 'https://api.whatsapp.com/send?text='+encodeURIComponent(waPreviewText);
     window.open(link, '_blank', 'noopener');
     this.setState({waPreviewOpen:false, waPreviewText:''});
-  },
-
-  // ── Handover checklist ────────────────────────────────────────────────
-  dismissHandover: function() {
-    const batch = this.state.batches[this.state.activeBatchIdx||0];
-    if(batch) localStorage.setItem('handover_'+batch.id, '1');
-    this.setState({});
   },
 
 };
