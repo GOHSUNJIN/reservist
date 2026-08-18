@@ -1398,12 +1398,6 @@
                   <sc-if value="{{ row.showNoGps }}" hint-placeholder-val="">
                     <span style="font-size:11px;font-weight:500;color:#b9791a;">No GPS</span>
                   </sc-if>
-                  <sc-if value="{{ row.showMealBadge }}" hint-placeholder-val="">
-                    <span style="display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;background:{{ row.mealBadgeBg }};border:1px solid {{ row.mealBadgeBorder }};font-size:11px;font-weight:600;color:{{ row.mealBadgeColor }};">{{ row.mealBadgeText }}</span>
-                    <sc-if value="{{ row.showWorkTime }}" hint-placeholder-val="">
-                      <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a94a3;">{{ row.workTimeText }}</span>
-                    </sc-if>
-                  </sc-if>
                   <sc-if value="{{ row.showEditSummary }}" hint-placeholder-val="">
                     <span style="font-size:11px;color:#9aa3b2;">{{ row.editSummary }}</span>
                   </sc-if>
