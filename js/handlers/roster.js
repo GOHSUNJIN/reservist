@@ -150,6 +150,9 @@ const RosterHandlers = {
     const dx=e.changedTouches[0].clientX-this._touchStartX;
     this._touchStartX=null;
     if(Math.abs(dx)<40) return;
+    const now=Date.now();
+    if(this._lastSwipeAt && now-this._lastSwipeAt<400) return;
+    this._lastSwipeAt=now;
     if(dx<0) this.nextDay(); else this.prevDay();
   },
 

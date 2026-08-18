@@ -24,11 +24,12 @@ const AccountHandlers = {
 
   onAvatarFile: function(e) {
     const f=e.target.files&&e.target.files[0]; if(!f) return;
-    if(f.size>20*1024*1024){ this._toast('Photo must be under 20 MB.','error'); return; }
+    const input=e.target;
+    if(f.size>20*1024*1024){ input.value=''; this._toast('Photo must be under 20 MB.','error'); return; }
     const uid=this.state.currentUserId;
     const objUrl=URL.createObjectURL(f);
     const img=new Image();
-    img.onerror=()=>{ URL.revokeObjectURL(objUrl); this._toast('Could not read image. Try a different photo.','error'); };
+    img.onerror=()=>{ URL.revokeObjectURL(objUrl); input.value=''; this._toast('Could not read image. Try a different photo.','error'); };
     img.onload=()=>{
       URL.revokeObjectURL(objUrl);
       const MAX=800;
@@ -38,11 +39,12 @@ const AccountHandlers = {
       canvas.width=w; canvas.height=h;
       canvas.getContext('2d').drawImage(img,0,0,w,h);
       canvas.toBlob(blob=>{
-        if(!blob){ this._toast('Could not process image. Try a different photo.','error'); return; }
+        if(!blob){ input.value=''; this._toast('Could not process image. Try a different photo.','error'); return; }
         const r=new FileReader();
         r.onload=()=>{
           localStorage.setItem('avatar_'+uid, r.result);
           this.setState(s=>{const noAv=new Set(s.noAvatarIds||[]);noAv.delete(uid);return{avatars:{...s.avatars,[uid]:r.result},noAvatarIds:noAv};});
+          input.value='';
           if(!this.state.demo){
             DB.storage.uploadAvatar(uid, blob)
               .then(({error})=>{

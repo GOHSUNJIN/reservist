@@ -20,7 +20,7 @@ const AdminPeople = {
           statAbsent:s.peopleStats[p.id]?.absent??0,
           statPct:s.peopleStats[p.id]?.pct!=null?(s.peopleStats[p.id].pct+'%'):'No records',
           showStats:s.peopleStatsLoaded,
-          avatarStyle:av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'',
+          avatarStyle:av?`background-image:url("${av.replace(/"/g,'%22')}");background-size:cover;background-position:center;color:transparent;`:'',
           avatarInitials:av?'':Utils.initials(p.name),
           onViewHistory:self.openPersonHistory(p.id),
           approvedBy,
@@ -178,7 +178,7 @@ const AdminPeople = {
           const b=(s.batches||[]).find(b=>b.id===p.batch_id);
           const initials=p.name.trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
           const av=(s.avatars||{})[p.id];
-          const avatarStyle=av?`background-image:url("${av}");background-size:cover;background-position:center;color:transparent;`:'';
+          const avatarStyle=av?`background-image:url("${av.replace(/"/g,'%22')}");background-size:cover;background-position:center;color:transparent;`:'';
           return {id:p.id,name:p.name,contact:p.contact||'',batchLabel:b?b.label:'',initials,avatarStyle,
             onSelect:()=>self.setState({promoteAdminId:p.id,promoteAdminName:p.name,promoteAdminContact:p.contact||'',confirmPromoteAdminId:null,promoteSearch:''})};
         });

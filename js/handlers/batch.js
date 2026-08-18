@@ -224,6 +224,7 @@ const BatchHandlers = {
     const fmtDay=d=>DAYS[d.getDay()];
     const orgName=this.props.orgName||'Ops Security';
     const accent=this.props.accent||'#2f5fd0';
+    const xe=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
     const rowData=this._buildExportMembers(members,dates,attCache,todayKey).map(r=>({
       ...r,
@@ -247,8 +248,8 @@ const BatchHandlers = {
       const dayCells=r.cells.map(c=>`<td class="${c.cls}">${c.code}</td>`).join('');
       const pctColor=r.pct>=80?'#2e7d32':r.pct>=60?'#e65100':'#c62828';
       return `<tr>
-        <td class="name">${r.name.replace(/</g,'&lt;')}</td>
-        <td class="shift">${r.shift}</td>
+        <td class="name">${xe(r.name)}</td>
+        <td class="shift">${xe(r.shift)}</td>
         ${dayCells}
         <td class="tot">${r.pres}</td>
         <td class="tot mc">${r.mc}</td>
@@ -260,8 +261,8 @@ const BatchHandlers = {
     const reportInner=`
 <div class="rpt-hdr">
   <div>
-    <div class="rpt-title">${batch.label}: Attendance Report</div>
-    <div class="rpt-sub">${orgName} &nbsp;·&nbsp; ${fmtDate(start)} to ${fmtDate(end)} ${end.getFullYear()} &nbsp;·&nbsp; ${dates.length} reporting day${dates.length!==1?'s':''} &nbsp;·&nbsp; ${members.length} personnel</div>
+    <div class="rpt-title">${xe(batch.label)}: Attendance Report</div>
+    <div class="rpt-sub">${xe(orgName)} &nbsp;·&nbsp; ${fmtDate(start)} to ${fmtDate(end)} ${end.getFullYear()} &nbsp;·&nbsp; ${dates.length} reporting day${dates.length!==1?'s':''} &nbsp;·&nbsp; ${members.length} personnel</div>
   </div>
   <div class="rpt-gen">Generated ${exportedOn}</div>
 </div>
@@ -348,7 +349,7 @@ const BatchHandlers = {
 <div class="rpt-modal">
   <div class="rpt-toolbar">
     <div class="rpt-toolbar-left">
-      <div class="rpt-toolbar-title">${batch.label}: Attendance Report</div>
+      <div class="rpt-toolbar-title">${xe(batch.label)}: Attendance Report</div>
       <div class="rpt-toolbar-sub">${members.length} personnel · ${dates.length} reporting days</div>
     </div>
     <div class="rpt-toolbar-actions">
@@ -444,6 +445,7 @@ const BatchHandlers = {
 
   toggleNoReporting: async function() {
     const off=this.state.viewOffset, d=this.dateForOffset(off);
+    if(off < 0) return;
     if(!Utils.isReportDay(d)||Utils.holidayName(d)) return;
     const dk=Utils.dateKey(d);
     let isNowOn;

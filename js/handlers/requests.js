@@ -155,6 +155,7 @@ const RequestHandlers = {
   approveLeave: function(id) {
     return async () => {
       const leave = this.state.pendingLeaves.find(l => l.id === id);
+      if(leave && leave.personnel_id === this.state.currentUserId){ this._toast('Cannot approve your own request.','error'); return; }
       if(!this.state.demo && leave) {
         const me = this.cur();
         const reviewMeta = { reviewed_by: me?.name || null, reviewed_at: new Date().toISOString() };
@@ -214,8 +215,10 @@ const RequestHandlers = {
   clearLeaveSelect: function() { this.setState({leaveSelectedIds:[],confirmBulkLeaveReject:false,bulkLeaveRejectReason:''}); },
 
   bulkApproveLeaves: async function() {
-    const {leaveSelectedIds,pendingLeaves,demo}=this.state;
+    const {leaveSelectedIds,pendingLeaves,demo,currentUserId}=this.state;
     if(!leaveSelectedIds?.length) return;
+    const ownId=leaveSelectedIds.find(id=>pendingLeaves.find(l=>l.id===id)?.personnel_id===currentUserId);
+    if(ownId){ this._toast('Cannot approve your own request.','error'); return; }
     this.setState({bulkApprovingLeaves:true});
     if(!demo){
       const me=this.cur(), reviewMeta={reviewed_by:me?.name||null,reviewed_at:new Date().toISOString()};
