@@ -121,7 +121,8 @@ const BatchHandlers = {
     const rowData=this._buildExportMembers(members,dates,attCache,todayKey).map(r=>({
       ...r,
       cells:r.entries.map(e=>{
-        if(!e?.status||e.status==='absent'||e.status==='missed') return {code:e?.status?'A':'-',sid:'sD'};
+        if(!e?.status) return {code:'-',sid:'sD'};
+        if(e.status==='absent'||e.status==='missed') return {code:'A',sid:'sA'};
         if(e.status==='mc') return {code:'MC',sid:'sMC'};
         return {code:e.editLog?.length>0?'P*':'P',sid:e.editLog?.length>0?'sPs':'sP'};
       }),
