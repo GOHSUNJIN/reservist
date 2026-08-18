@@ -13,7 +13,6 @@ const BriefingsBuilders = {
     }));
     const waGroupUrl=this.props.waGroupLink||'';
     return {
-      roleTabs:[], roleTitle:OFFICE_ROLE.title, roleWindow:OFFICE_ROLE.window, roleItems:OFFICE_ROLE.items, roleNote:'',
       myShiftTitle:OFFICE_ROLE.title, myShiftWindow:OFFICE_ROLE.window, myShiftItems:OFFICE_ROLE.items, myShiftNote:'',
       briefLocation:(this.props.hqName||'Bedok DHQ')+' Canteen',
       briefAttire:'Civilian: pants and covered shoes',
@@ -25,11 +24,11 @@ const BriefingsBuilders = {
         'Mark PRESENT if you completed your shift, MC if on sick leave.',
         'Upload a copy of your MC when declaring sick leave.',
         "Supervisor's email is sent daily via the WhatsApp group.",
-        'No submission needed on public holidays or no‑reporting days.',
+        'No submission needed on public holidays or no-reporting days.',
       ]:[
         'When active: submit daily Mon-Fri, including MC days.',
         'Mark PRESENT if shift completed, MC if on sick leave.',
-        'No submission needed on public holidays or no‑reporting days.',
+        'No submission needed on public holidays or no-reporting days.',
       ],
       dekitItems:[
         'Fill meal allowance forms and submit to the Manpower Officer, endorsed by Ops Branch supervisor.',

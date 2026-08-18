@@ -29,7 +29,7 @@ const AuthBuilders = {
       suName:s.suName, suContact:s.suContact, suPassword:s.suPassword,
       onSuName:this.onSuName, onSuContact:this.onSuContact, onSuPassword:this.onSuPassword,
       doSignup:this.doSignup,
-      intakeLabel, intakeRange:intakeRangeFull, intakeRangeFull,
+      intakeLabel, intakeRangeFull,
       showIntakeBadge:!!targetBatch,
       signupIsNextCycle:isLastDay&&!!nextBatch,
       forgotPasswordOpen:s.forgotPasswordOpen,

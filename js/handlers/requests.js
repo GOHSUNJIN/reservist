@@ -217,7 +217,6 @@ const RequestHandlers = {
     const {leaveSelectedIds,pendingLeaves,demo}=this.state;
     if(!leaveSelectedIds?.length) return;
     this.setState({bulkApprovingLeaves:true});
-    let skipped=0;
     if(!demo){
       const me=this.cur(), reviewMeta={reviewed_by:me?.name||null,reviewed_at:new Date().toISOString()};
       await Promise.all(leaveSelectedIds.map(async id=>{
@@ -231,7 +230,7 @@ const RequestHandlers = {
       const hasToday=leaveSelectedIds.some(id=>pendingLeaves.find(l=>l.id===id)?.date===todayKey);
       if(hasToday){const freshAtt=await DB.attendance.getForDate(todayKey).catch(()=>null);if(freshAtt)this.setState({attendance:freshAtt,attendanceDate:todayKey});}
     }
-    const count=leaveSelectedIds.length-skipped;
+    const count=leaveSelectedIds.length;
     this.setState({leaveSelectedIds:[],bulkApprovingLeaves:false});
     this._toast(`${count} request${count!==1?'s':''} approved.`);
     this.loadPendingLeaves();

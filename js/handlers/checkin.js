@@ -123,7 +123,7 @@ const CheckinHandlers = {
       else if(key==='p4') rec.p4=time;
       this.setState(s=>({
         attendance:{...s.attendance,[currentUserId]:rec},
-        locStatus:'idle', locPhase:null, phaseSubmitting:false,
+        locStatus:'idle', locPhase:null,
         showLateWarning:key==='p1'?false:s.showLateWarning,
       }));
       this._haptic();
@@ -132,8 +132,10 @@ const CheckinHandlers = {
       if(!demo){
         if(!isOnline){
           this._queuePush({type:'phase',id:currentUserId,date:today,key,time,dist:locDistance});
+          this.setState({phaseSubmitting:false});
         } else {
           const {error:phErr} = await DB.attendance.logPhase(currentUserId, today, key, time, locDistance);
+          this.setState({phaseSubmitting:false});
           if(phErr){
             const _meCheck = await DB.personnel.get(currentUserId).catch(()=>null);
             if(!_meCheck){ this._toast('Your account no longer exists. Please contact your supervisor.','error'); this.logout(); return; }
@@ -141,6 +143,8 @@ const CheckinHandlers = {
             this.setState(s=>({attendance:{...s.attendance,[currentUserId]:prevRec}}));
           }
         }
+      } else {
+        this.setState({phaseSubmitting:false});
       }
     };
   },
@@ -182,7 +186,7 @@ const CheckinHandlers = {
       else if(key==='p4') rec.p4=time;
       this.setState(s=>({
         attendance:{...s.attendance,[currentUserId]:rec},
-        locStatus:'idle', locPhase:null, phaseSubmitting:false,
+        locStatus:'idle', locPhase:null,
       }));
       this._haptic();
       const _phaseToasts={p1:'Checked in',p2:'Break recorded',p3:'Returned',p4:'Checked out'};
@@ -190,10 +194,14 @@ const CheckinHandlers = {
       if(!demo){
         if(!isOnline){
           this._queuePush({type:'phase',id:currentUserId,date:today,key,time,dist:null,bypassed:true});
+          this.setState({phaseSubmitting:false});
         } else {
           const {error:phErr} = await DB.attendance.logPhase(currentUserId, today, key, time, null, true);
+          this.setState({phaseSubmitting:false});
           if(phErr) this._toast('Check-in saved locally but failed to sync. Check your connection.','error');
         }
+      } else {
+        this.setState({phaseSubmitting:false});
       }
     };
   },

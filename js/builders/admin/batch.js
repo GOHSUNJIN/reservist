@@ -2,7 +2,7 @@
 const AdminBatch = {
 
   build: function(self, s, accent, ctx) {
-    const {batches,activeBatchIdx,activeBatch,activeMembers,npShift,todayForChips,batchTotalPresent,batchTotalMc,batchTotalAbsent,batchAvgPct,liveBatch,approvedByContact} = ctx;
+    const {batches,activeBatchIdx,activeBatch,activeMembers,npShift,todayForChips,liveBatch,approvedByContact} = ctx;
     const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const allChips=batches.map((b,i)=>{
@@ -18,7 +18,6 @@ const AdminBatch = {
       return {label:b.label, range:Utils.fmtShort(bs)+' to '+Utils.fmtShort(be), onClick:self.setBatch(i), style:chipStyle, isPast, isActive, isFuture, startDate:b.start_date};
     });
     const activeChips=allChips.filter(c=>!c.isPast);
-    const archivedChips=allChips.filter(c=>c.isPast);
     const _pickerYearMap={};
     allChips.forEach((c,i)=>{
       const yr=batches[i]?.start_date?.slice(0,4)||'';
@@ -51,7 +50,6 @@ const AdminBatch = {
     const safeCyclePage=Math.min(s.cyclePickerPage||1,cycleTotalPages);
     const currentPickerYear=allPickerYears[safeCyclePage-1];
     const cyclePickerGroups=currentPickerYear?[{year:currentPickerYear,cycles:sortCycles(_pickerYearMap[currentPickerYear])}]:[];
-    const showCycleYearFilter=false;
     const cyclePickerHasPrev=safeCyclePage>1, cyclePickerHasNext=safeCyclePage<cycleTotalPages;
     const cyclePickerShowPagination=cycleTotalPages>1;
     const cyclePickerPageInfo=`${safeCyclePage} / ${cycleTotalPages}`;
@@ -76,24 +74,19 @@ const AdminBatch = {
     const intakeRange=lbs&&lbe?(Utils.fmtShort(lbs)+' to '+Utils.fmtShort(lbe)):'';
 
     return {
-      activeChips, archivedChips, archivedCount:archivedChips.length,
+      activeChips,
       cyclePickerGroups, cyclePickerOpen:s.cyclePickerOpen,
-      cyclePickerYears, showCycleYearFilter, setCyclePickerYear:self.setCyclePickerYear,
+      cyclePickerYears, setCyclePickerYear:self.setCyclePickerYear,
       cyclePickerHasPrev, cyclePickerHasNext, cyclePickerShowPagination, cyclePickerPageInfo,
       cyclePickerNext:self.cyclePickerNext, cyclePickerPrev:self.cyclePickerPrev,
       openCyclePicker:self.openCyclePicker, closeCyclePicker:self.closeCyclePicker,
       activeCycleLabel, activeCycleRange,
-      showArchivedBatches:s.showArchivedBatches,
-      toggleArchivedBatches:()=>self.setState(s=>({showArchivedBatches:!s.showArchivedBatches})),
       editTargetLabel, editTargetIsLive, editTargetRange, editTargetStatus,
       signupTargetLabel, signupIsNextCycle,
-      intakeLabel, intakeRange,
+      intakeLabel,
       editingBatchLabel:s.editingBatchLabel, batchLabelText:s.batchLabelText,
       startEditBatchLabel:self.startEditBatchLabel, onBatchLabelText:self.onBatchLabelText,
       saveBatchLabel:self.saveBatchLabel, cancelBatchLabel:self.cancelBatchLabel,
-      batchTotalPresent, batchTotalMc, batchTotalAbsent,
-      batchAvgPct:batchAvgPct!==null?batchAvgPct+'%':'-',
-      showBatchStats:s.peopleStatsLoaded,
       newBatchDate:s.newBatchDate,onNewBatchDate:self.onNewBatchDate,createBatch:self.createBatch,batchCreating:s.batchCreating,
       npName:s.npName, npContact:s.npContact, npShift, npPassword:s.npPassword,
       addPersonnelOpen:!!(s.addPersonnelOpen), toggleAddPersonnel:self.toggleAddPersonnel,

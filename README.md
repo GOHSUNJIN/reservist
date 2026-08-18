@@ -24,10 +24,11 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 - **Cancel pending requests**: A leave or MC request can be withdrawn by the reservist before the supervisor has acted on it, from both the check-in tab and the Requests history.
 - **Attendance history**: View your own full record for the cycle, including total days present, MC, absent, and your attendance rate.
 - **Phase reminder banner**: A banner appears automatically when a check-in phase window is open and you have not yet logged it. It disappears once the phase is recorded.
-- **Upcoming no-report day banner**: Shows the next scheduled no-report day (public holiday or stand-down) so reservists always know when the next off day is.
+- **Upcoming no-report days**: Lists all remaining no-report days in the current cycle (public holidays and stand-downs) so reservists can plan ahead.
 - **Cycle notice board**: If the supervisor has posted a notice for the current cycle, it appears as a banner on the check-in screen for everyone in that cycle.
 - **Offline check-in**: If connectivity is lost during check-in, the action is saved on the device and submitted automatically once the connection is restored.
 - **Returning reservist re-enrollment**: When a reservist from a previous cycle logs in after their account was deactivated, the app automatically submits a re-enrollment request to the supervisor. No manual coordination required.
+- **Logout confirmation**: Tapping Log Out shows a confirmation step before the session is ended, preventing accidental logouts.
 
 ### For Supervisors (Admin)
 

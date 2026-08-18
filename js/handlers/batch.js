@@ -147,7 +147,7 @@ const BatchHandlers = {
 
     const colDefs=`<Column ss:Width="180"/><Column ss:Width="55"/>${dates.map(()=>'<Column ss:Width="88"/>').join('')}<Column ss:Width="62"/><Column ss:Width="45"/><Column ss:Width="62"/><Column ss:Width="58"/>`;
 
-    const metaRows=`<Row>${sc('sMetaLbl','Cycle')}<Cell ss:StyleID="sMeta" ss:MergeAcross="${span-2}"><Data ss:Type="String">${xe(batch.label)}</Data></Cell></Row><Row>${sc('sMetaLbl','Period')}<Cell ss:StyleID="sMeta" ss:MergeAcross="${span-2}"><Data ss:Type="String">${xe(fmtDate(start)+' – '+fmtDate(end)+' '+end.getFullYear())}</Data></Cell></Row><Row>${sc('sMetaLbl','Exported')}<Cell ss:StyleID="sMeta" ss:MergeAcross="${span-2}"><Data ss:Type="String">${xe(exportedStr)}</Data></Cell></Row><Row ss:Height="8"/>`;
+    const metaRows=`<Row>${sc('sMetaLbl','Cycle')}<Cell ss:StyleID="sMeta" ss:MergeAcross="${span-2}"><Data ss:Type="String">${xe(batch.label)}</Data></Cell></Row><Row>${sc('sMetaLbl','Period')}<Cell ss:StyleID="sMeta" ss:MergeAcross="${span-2}"><Data ss:Type="String">${xe(fmtDate(start)+' to '+fmtDate(end)+' '+end.getFullYear())}</Data></Cell></Row><Row>${sc('sMetaLbl','Exported')}<Cell ss:StyleID="sMeta" ss:MergeAcross="${span-2}"><Data ss:Type="String">${xe(exportedStr)}</Data></Cell></Row><Row ss:Height="8"/>`;
 
     const headerRow=`<Row ss:Height="20">${sc('sHdrL','Name')}${sc('sHdrC','Shift')}${dates.map(d=>sc('sHdrC',fmtDay(d)+' '+fmtDate(d))).join('')}${sc('sHdrC','Present')}${sc('sHdrC','MC')}${sc('sHdrC','Absent')}${sc('sHdrC','Rate')}</Row>`;
 
@@ -260,7 +260,7 @@ const BatchHandlers = {
 <div class="rpt-hdr">
   <div>
     <div class="rpt-title">${batch.label}: Attendance Report</div>
-    <div class="rpt-sub">${orgName} &nbsp;·&nbsp; ${fmtDate(start)} – ${fmtDate(end)} ${end.getFullYear()} &nbsp;·&nbsp; ${dates.length} reporting day${dates.length!==1?'s':''} &nbsp;·&nbsp; ${members.length} personnel</div>
+    <div class="rpt-sub">${orgName} &nbsp;·&nbsp; ${fmtDate(start)} to ${fmtDate(end)} ${end.getFullYear()} &nbsp;·&nbsp; ${dates.length} reporting day${dates.length!==1?'s':''} &nbsp;·&nbsp; ${members.length} personnel</div>
   </div>
   <div class="rpt-gen">Generated ${exportedOn}</div>
 </div>
@@ -410,9 +410,10 @@ const BatchHandlers = {
       if(dk && dk>=batch.start_date && dk<=batchEnd) dates.push(dk);
     }
     if(!dates.length){ this._toast('No valid dates found. Use dd/mm/yyyy format.', 'error'); return; }
+    const _existingNrd = this.state.noReportDays;
     let added=0;
     for(const dk of dates){
-      if(!this.state.noReportDays.has(dk)){
+      if(!_existingNrd.has(dk)){
         const {error:nrErr} = await DB.noReportDays.ensure(dk).catch(()=>({error:true}));
         if(!nrErr) added++;
       }
@@ -458,7 +459,7 @@ const BatchHandlers = {
       const noReportDaysCache=batchId?{...s.noReportDaysCache,[batchId]:nd}:s.noReportDaysCache;
       return {noReportDays:nd,noReportDaysCache};
     });
-    const _existingAtt = !isNowOn && Object.keys((this.state.attendanceCache[dk]||this.state.attendance)||{}).length > 0;
+    const _existingAtt = !isNowOn && Object.keys(this.state.attendanceCache[dk]||{}).length > 0;
     this._toast('No reporting '+(isNowOn?'enabled':'disabled')+' for '+Utils.fmtShort(d)+'.'+(_existingAtt?' Existing attendance records for this date are kept in the database.':''));
   },
 

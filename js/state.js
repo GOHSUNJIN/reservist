@@ -18,7 +18,7 @@ const makeInitialState = () => ({
   // ui state
   tab: 'checkin',
   locStatus: 'idle', locDistance: null, locGpsMsg: '',
-  accountOpen: false, confirmDelete: false,
+  accountOpen: false, confirmDelete: false, logoutConfirmOpen: false,
   viewOffset: 0, avatars: {}, selectedCalOffset: null,
   npName: '', npContact: '', npShift: 'OFFICE', npPassword: '',
   rosterSearch: '',
