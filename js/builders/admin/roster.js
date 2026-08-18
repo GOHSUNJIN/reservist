@@ -154,6 +154,8 @@ const AdminRoster = {
       personHistoryLoading:s.personHistoryLoading,
       confirmWipeHistoryOpen:!!(s.confirmWipeHistoryId&&s.confirmWipeHistoryId===s.personHistoryId),
       wipingHistory:s.wipingHistory,
+      wipeHistoryBtnText:s.wipingHistory?'Deleting…':'Yes, delete',
+      wipeHistoryBtnOpacity:s.wipingHistory?'0.55':'1',
       askWipeHistory:self.askWipeHistory, confirmWipeHistory:self.confirmWipeHistory, cancelWipeHistory:self.cancelWipeHistory,
       personHistoryRows:(()=>{
         const allRows=s.personHistoryRows||[];
@@ -182,6 +184,7 @@ const AdminRoster = {
       noSearchResults:!!search&&sortedFiltered.length===0,
       rosterEmpty:!search&&roster.length===0,
       filteredCount:search?sortedFiltered.length:0, showFilteredCount:!!search&&sortedFiltered.length>0,
+      filteredCountLabel:(search?sortedFiltered.length:0)+' result'+((search?sortedFiltered.length:0)===1?'':'s'),
       statPresent:present, statMc:mc, statPending:pending, statTotal:total,
       lateCount, lateNames, showLateAlert, lateAlertLabel,
       noRepMsg, toggleNoReporting:self.toggleNoReporting,

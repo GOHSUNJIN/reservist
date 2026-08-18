@@ -15,7 +15,8 @@ const AdminBatch = {
       else if(isFuture) chipStyle+='background:#f6f8fa;color:#8a94a3;border:1.5px dashed #c2c8d2;';
       else if(isPast) chipStyle+='background:#f6f8fa;color:#8a94a3;border:1px solid #e3e6ec;';
       else chipStyle+='background:#fff;color:#5c6678;border:1px solid #d4d9e2;';
-      return {label:b.label, range:Utils.fmtShort(bs)+' to '+Utils.fmtShort(be), onClick:self.setBatch(i), style:chipStyle, isPast, isActive, isFuture, startDate:b.start_date};
+      return {label:b.label, range:Utils.fmtShort(bs)+' to '+Utils.fmtShort(be), onClick:self.setBatch(i), style:chipStyle, isPast, isActive, isFuture, startDate:b.start_date,
+        pickerBg:isActive?'#eef3fc':'#fff', pickerLabelColor:isActive?'#2f5fd0':'#161f30'};
     });
     const activeChips=allChips.filter(c=>!c.isPast);
     const _pickerYearMap={};
@@ -53,6 +54,8 @@ const AdminBatch = {
     const cyclePickerHasPrev=safeCyclePage>1, cyclePickerHasNext=safeCyclePage<cycleTotalPages;
     const cyclePickerShowPagination=cycleTotalPages>1;
     const cyclePickerPageInfo=`${safeCyclePage} / ${cycleTotalPages}`;
+    const cyclePickerPrevColor=cyclePickerHasPrev?'#161f30':'#c4c9d4', cyclePickerPrevCursor=cyclePickerHasPrev?'pointer':'default';
+    const cyclePickerNextColor=cyclePickerHasNext?'#161f30':'#c4c9d4', cyclePickerNextCursor=cyclePickerHasNext?'pointer':'default';
     const activeCycleLabel=activeBatch?.label||'No cycle';
     const _abs=activeBatch?new Date(activeBatch.start_date+'T00:00:00'):null;
     const _abe=activeBatch?new Date(activeBatch.end_date+'T00:00:00'):null;
@@ -78,11 +81,13 @@ const AdminBatch = {
       cyclePickerGroups, cyclePickerOpen:s.cyclePickerOpen,
       cyclePickerYears, setCyclePickerYear:self.setCyclePickerYear,
       cyclePickerHasPrev, cyclePickerHasNext, cyclePickerShowPagination, cyclePickerPageInfo,
+      cyclePickerPrevColor, cyclePickerPrevCursor, cyclePickerNextColor, cyclePickerNextCursor,
       cyclePickerNext:self.cyclePickerNext, cyclePickerPrev:self.cyclePickerPrev,
       openCyclePicker:self.openCyclePicker, closeCyclePicker:self.closeCyclePicker,
       activeCycleLabel, activeCycleRange,
       editTargetLabel, editTargetIsLive, editTargetRange, editTargetStatus,
       signupTargetLabel, signupIsNextCycle,
+      signupCycleNote:signupIsNextCycle?' (next cycle)':'',
       intakeLabel,
       editingBatchLabel:s.editingBatchLabel, batchLabelText:s.batchLabelText,
       startEditBatchLabel:self.startEditBatchLabel, onBatchLabelText:self.onBatchLabelText,
@@ -96,6 +101,15 @@ const AdminBatch = {
       reenrollName:s.npReenrollRecord?.name||'',
       confirmReenroll:self.confirmReenroll, cancelReenroll:self.cancelReenroll,
       onNpName:self.onNpName, onNpContact:self.onNpContact, onNpShift:self.onNpShift, onNpPassword:self.onNpPassword, addPerson:self.addPerson,
+      onNpAddSearch:self.onNpAddSearch, npAddSearch:s.npAddSearch||'',
+      ...(()=>{
+        const q=(s.npAddSearch||'').toLowerCase().trim();
+        const results=q?(s.npDeactivatedPool||[]).filter(p=>p.name.toLowerCase().includes(q)||(p.contact||'').toLowerCase().includes(q)).slice(0,6).map(p=>({
+          id:p.id, name:p.name, contact:p.contact||'', initials:Utils.initials(p.name),
+          onSelect:()=>self.setState({npReenrollRecord:p, npName:p.name, npContact:p.contact||'', npAddSearch:''}),
+        })):[];
+        return {npAddSearchResults:results, npAddSearchHasResults:results.length>0, npAddSearchNoResults:!!(q&&!results.length)};
+      })(),
       mealActive:!!(activeBatch?.meal_active), toggleMealActive:self.toggleMealActive,
       mealToggleTrackBg:activeBatch?.meal_active?accent:'#39435a',
       mealToggleKnobX:activeBatch?.meal_active?'25px':'3px',

@@ -28,6 +28,7 @@ const NavBuilders = {
       hasPendingSignups:s.pendingSignups.length>0,
       pendingSignupsLoaded:!!(s.pendingSignupsLoaded),
       offlinePending:s.offlinePending, offlineQueueCount:this._offlineQueues?.length||0,
+      offlineQueueMsg:(()=>{const n=this._offlineQueues?.length||0;return s.offlinePending?': '+n+' action'+(n===1?'':'s')+' queued':'';})(),
     };
   },
 

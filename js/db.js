@@ -116,6 +116,11 @@ const DB = {
       return { error };
     },
 
+    async setCreatedBy(personnelId, createdBy) {
+      const { error } = await _db.from('personnel').update({ created_by: createdBy }).eq('id', personnelId);
+      return { error };
+    },
+
     async reactivate(personnelId, { batchId, shift, authId } = {}) {
       const updates = { is_active: true, deactivated_at: null };
       if (batchId !== undefined) updates.batch_id = batchId;

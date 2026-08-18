@@ -69,7 +69,7 @@ const makeInitialState = () => ({
   npAdminName: '', npAdminContact: '', npAdminPassword: '',
   confirmDeactivateAdminId: null,
   promoteAdminId: '', promoteAdminName: '', promoteAdminContact: '', confirmPromoteAdminId: null, promoteSearch: '', promoteShowAllCycles: false, promoteListPage: 1,
-  peopleTab: 'requests', addPersonnelOpen: false, npReenrollRecord: null,
+  peopleTab: 'requests', addPersonnelOpen: false, npReenrollRecord: null, npAddSearch: '', npDeactivatedPool: [],
   signupPending: false,
   pendingSignups: [], pendingSignupsLoaded: false,
   approvedSignups: [],
