@@ -54,16 +54,19 @@ const InitHandlers = {
       }
       return;
     }
-    const cachedAvatar = localStorage.getItem('avatar_'+me.id);
-    if(cachedAvatar && cachedAvatar !== 'REMOVED'){
-      this.setState(s=>({avatars:{...s.avatars,[me.id]:cachedAvatar}}));
+    const _raw = localStorage.getItem('avatar_'+me.id);
+    const _valid = _raw && _raw !== 'REMOVED' && (_raw.startsWith('http') || _raw.startsWith('data:'));
+    const _invalid = _raw && _raw !== 'REMOVED' && !_valid;
+    if(_invalid) localStorage.removeItem('avatar_'+me.id);
+    if(_valid){
+      this.setState(s=>({avatars:{...s.avatars,[me.id]:_raw}}));
       DB.storage.listAvatarIds().then(ids=>{
         if(!ids.has(me.id)){
           localStorage.removeItem('avatar_'+me.id);
           this.setState(s=>{const av={...s.avatars};delete av[me.id];return{avatars:av};});
         }
       }).catch(()=>{});
-    } else if(!cachedAvatar){
+    } else if(!_raw || _invalid){
       DB.storage.listAvatarIds().then(ids=>{
         if(ids.has(me.id)){
           const url=DB.storage.getAvatarUrl(me.id);

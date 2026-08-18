@@ -424,7 +424,9 @@ const DB = {
   // ── Storage (MC files) ────────────────────────────────────────────────────
   storage: {
     async uploadAvatar(userId, file) {
-      const { data, error } = await _db.storage.from('avatars').upload(userId, file, { upsert: true, contentType: file.type });
+      const ext = (file.name||'').split('.').pop().toLowerCase();
+      const contentType = file.type || (ext==='png'?'image/png':ext==='webp'?'image/webp':'image/jpeg');
+      const { data, error } = await _db.storage.from('avatars').upload(userId, file, { upsert: true, contentType });
       return { path: data?.path || userId, error };
     },
 
