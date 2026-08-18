@@ -34,6 +34,7 @@ const AccountHandlers = {
         DB.storage.uploadAvatar(uid, f)
           .then(({error})=>{
             if(error){
+              console.error('Avatar upload failed:', error?.message, error?.statusCode, error);
               localStorage.removeItem('avatar_'+uid);
               this.setState(s=>{const av={...s.avatars};delete av[uid];const noAv=new Set(s.noAvatarIds||[]);noAv.add(uid);return{avatars:av,noAvatarIds:noAv};});
               this._toast('Photo upload failed. Please try again.','error');
