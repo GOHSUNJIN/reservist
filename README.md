@@ -61,12 +61,14 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 - **Print report**: Generate a formatted A4 attendance report, printable or saveable as PDF directly from the browser.
 - **Cycle management**: Create and label reporting cycles. The system prepares the next 8 cycles automatically on every admin login.
 - **Bulk add personnel**: Paste a list of names and contact numbers to add multiple reservists at once.
+- **Re-enroll by search**: When adding personnel, search for removed reservists by name or contact number. Selecting a match triggers the re-enroll flow, reactivating their existing account and history without creating a duplicate entry.
+- **Personnel accountability**: Each personnel card shows who added the reservist - "Added by [name]" for direct admin additions, or "Approved by [name]" for self-signup approvals.
 - **Bulk no-report days**: Paste a list of dates to mark multiple non-reporting days in a single action.
 - **Jump to date**: Navigate directly to any date across any cycle using the date picker.
 - **Cycle picker**: Browse all cycles grouped by year with a visual picker.
 - **Per-person attendance history**: View the full attendance record for any individual across all cycles they have been part of, with export to XLS.
 - **Member search**: Search across all cycles by name, status, or cycle. Supports permanent deletion of records.
-- **Meal allowance tracking**: Enable or disable meal allowance per cycle. When active, a live work timer appears on each reservist's check-in screen showing elapsed work time, paused during lunch. Meal eligibility is automatically calculated after 8 hours of work (excluding the lunch break). The admin log shows a per-person meal eligibility badge with exact work time.
+- **Meal allowance tracking**: Enable or disable meal allowance per cycle. When active, a live work timer appears on each reservist's check-in screen showing elapsed work time, paused during lunch. Meal eligibility is automatically calculated after 8 hours of work (excluding the lunch break).
 - **Broadcast (cycle notice)**: Post a cycle-wide notice visible to all reservists in the current cycle.
 - **Admin password reset**: Reset any reservist's password directly from the roster without requiring database access.
 
@@ -106,7 +108,7 @@ When a reservist's account is deactivated at the end of a cycle, their login cre
 
 No manual coordination, no new account creation, no password reset needed.
 
-If the supervisor adds a returning reservist manually via the roster, the system detects the existing inactive record and reactivates it without creating a new account.
+If the supervisor adds a returning reservist directly via the Add Personnel form, they can search by name or contact to find the removed record. Selecting it triggers the re-enroll flow, reactivating the existing account without creating a new one.
 
 ---
 
@@ -227,6 +229,7 @@ All data is stored in a structured cloud database (PostgreSQL), with six tables:
 | Cycle | Which reporting cycle they belong to |
 | Active | Whether the account is currently active |
 | Notes | Supervisor notes on the person |
+| Created by | Name of the admin who added or re-enrolled the person (blank for self-signups) |
 
 **Cycles (Batches)** - one row per reporting cycle.
 
@@ -331,6 +334,7 @@ CREATE TABLE personnel (
   batch_id UUID,
   is_active BOOLEAN NOT NULL DEFAULT true,
   notes TEXT,
+  created_by TEXT,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   deactivated_at TIMESTAMPTZ
 );
