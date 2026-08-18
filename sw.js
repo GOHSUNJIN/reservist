@@ -1,10 +1,12 @@
-const CACHE = 'ops-v19';
+const CACHE = 'ops-v21';
 const APP_ASSETS = [
   './',
   './index.html',
   './css/styles.css',
   './manifest.json',
   './assets/icon.svg',
+  './assets/apple-touch-icon.png',
+  './assets/icon-512.png',
 ];
 
 self.addEventListener('install', e => {
