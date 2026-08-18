@@ -1,10 +1,10 @@
-const CACHE = 'ops-v16';
+const CACHE = 'ops-v17';
 const APP_ASSETS = [
   './',
   './index.html',
   './css/styles.css',
   './manifest.json',
-  './icon.svg',
+  './assets/icon.svg',
 ];
 
 self.addEventListener('install', e => {
