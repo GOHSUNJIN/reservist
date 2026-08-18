@@ -171,7 +171,10 @@ Ops Reservist runs directly in the phone's browser. Personnel access it through 
 The JavaScript is split into two layers: **builders** (read state and compute UI props) and **handlers** (write state and call the database). Each feature area has its own file.
 
 ```
+assets/                 - Static icons (PWA home screen, apple-touch-icon)
+
 js/
+├── support.js          - Compiled declarative component runtime (do not edit)
 ├── db.js               - All Supabase queries, namespaced by table (DB.auth, DB.personnel, DB.attendance, etc.)
 ├── state.js            - Initial application state factory
 ├── utils.js            - Date helpers, contact validation, phase window logic, formatting
@@ -200,9 +203,14 @@ js/
     ├── batch.js        - Cycle CRUD, export (XLS and print), bulk add, broadcast
     ├── account.js      - Profile photo upload/remove, password change, name change
     └── misc.js         - Toast, navigation helpers, WhatsApp share, welfare notes
+
+scripts/                - Offline tooling (not part of the web app)
+    ├── build_pptx.py         - Generates the OpsTracker briefing deck
+    ├── generate_checklist.py - Generates the admin testing checklist
+    └── supabase_cron.sql     - SQL to enable the auto-absent scheduled job
 ```
 
-`support.js` is the compiled declarative component runtime (do not edit). `index.html` is the single-page template that wires all builders and handlers together.
+`index.html` is the single-page template that wires all builders and handlers together.
 
 ### Database Schema
 
@@ -294,8 +302,21 @@ Reservists who do not check in on a reporting day are marked absent automaticall
    CREATE POLICY "authenticated" ON <table>
      FOR ALL TO authenticated USING (true) WITH CHECK (true);
    ```
-4. Create a public storage bucket named `avatars` for profile photos.
-5. Run `supabase_cron.sql` to enable the automatic absent job. Requires the `pg_cron` extension (enabled by default on Supabase Pro).
+4. Create a storage bucket named `avatars` for profile photos. Set it to **public** so photos load without authentication. Then add these three policies in the SQL editor:
+   ```sql
+   CREATE POLICY "upload own avatar" ON storage.objects
+     FOR INSERT TO authenticated
+     WITH CHECK (bucket_id = 'avatars' AND name = auth.uid()::text);
+
+   CREATE POLICY "update own avatar" ON storage.objects
+     FOR UPDATE TO authenticated
+     USING (bucket_id = 'avatars' AND name = auth.uid()::text);
+
+   CREATE POLICY "read all avatars" ON storage.objects
+     FOR SELECT TO authenticated
+     USING (bucket_id = 'avatars');
+   ```
+5. Run `scripts/supabase_cron.sql` to enable the automatic absent job. Requires the `pg_cron` extension (enabled by default on Supabase Pro).
 
 **Full schema:**
 
@@ -357,7 +378,8 @@ CREATE TABLE leave_requests (
   status TEXT NOT NULL DEFAULT 'pending',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   reviewed_by TEXT,
-  reviewed_at TIMESTAMPTZ
+  reviewed_at TIMESTAMPTZ,
+  rejection_reason TEXT
 );
 
 CREATE TABLE signup_requests (
@@ -409,13 +431,11 @@ Open `index.html` and edit the configuration block at the top of the file:
 | `hq-range` | Accepted radius from HQ in metres |
 | `wa-group-link` | Unit WhatsApp group link for the share button |
 
-Also add the Supabase project credentials (found in the Supabase project settings under API):
+Open `js/config.js` and fill in the Supabase project credentials (found in the Supabase project settings under API):
 
-```html
-<script>
-  const SUPABASE_URL = 'https://xxxx.supabase.co';
-  const SUPABASE_ANON_KEY = 'eyJ...';
-</script>
+```js
+const SUPABASE_URL      = 'https://xxxx.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJ...';
 ```
 
 ### Step 4 - Deploy
