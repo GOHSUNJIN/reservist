@@ -102,7 +102,7 @@ const PeopleHandlers = {
     if(!npName.trim()){this._toast('Name is required.','error');return;}
     const {clean:cleanContact,error:contactErr}=Utils.validateSGContact(npContact);
     if(contactErr){this._toast(contactErr,'error');return;}
-    if(personnel.some(p=>p.contact.replace(/[\s-]/g,'')===cleanContact)){this._toast('This contact is already on the roster.','error');return;}
+    if(personnel.some(p=>p.contact?.replace(/[\s-]/g,'')===cleanContact)){this._toast('This contact is already on the roster.','error');return;}
     const activeBatch=batches[activeBatchIdx||0];
     if(!activeBatch){this._toast('No active batch selected. Create a batch first.','error');return;}
     if(!demo){
