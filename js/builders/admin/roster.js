@@ -20,8 +20,16 @@ const AdminRoster = {
     });
     const search=(s.rosterSearch||'').toLowerCase();
     const filteredRoster=roster.filter(r=>!search||r.name.toLowerCase().includes(search));
+    const rosterStatusFilter=s.rosterStatusFilter||'all';
+    const statusFilteredRoster=rosterStatusFilter==='all'?filteredRoster:filteredRoster.filter(r=>{
+      if(rosterStatusFilter==='present') return r.status==='present';
+      if(rosterStatusFilter==='mc') return r.status==='mc';
+      if(rosterStatusFilter==='absent') return r.status==='absent';
+      if(rosterStatusFilter==='pending') return r.status==='pending';
+      return true;
+    });
     const sortKey=s.rosterSort||'name';
-    const sortedFiltered=[...filteredRoster].sort((a,b)=>{
+    const sortedFiltered=[...statusFilteredRoster].sort((a,b)=>{
       if(sortKey==='status'){const ord={present:0,mc:1,pending:2,absent:3};return (ord[a.status]??4)-(ord[b.status]??4);}
       return a.name.localeCompare(b.name);
     });
@@ -30,6 +38,8 @@ const AdminRoster = {
     const _si=_sb+'background:transparent;color:#8a94a3;';
     const rosterSortNameStyle=sortKey==='name'?_sa:_si;
     const rosterSortStatusStyle=sortKey==='status'?_sa:_si;
+    const _rSBtn=(f)=>`padding:5px 10px;border-radius:20px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${rosterStatusFilter===f?accent:'#d4d9e2'};background:${rosterStatusFilter===f?accent:'#fff'};color:${rosterStatusFilter===f?'#fff':'#5c6678'};`;
+    const rosterStatusAllStyle=_rSBtn('all'),rosterStatusPresentStyle=_rSBtn('present'),rosterStatusMcStyle=_rSBtn('mc'),rosterStatusAbsentStyle=_rSBtn('absent'),rosterStatusPendingStyle=_rSBtn('pending');
     const total=roster.length;
     const snapshotLastLine=viewIsToday?('⏳ Pending ('+pending+'): '+(roster.filter(r=>r.label==='Pending').map(r=>r.name).join(', ')||'(none)')):('❌ Absent ('+absent+'): '+(roster.filter(r=>r.label==='Absent').map(r=>r.name).join(', ')||'(none)'));
     const _orgN=self.props.orgName||'Ops Security';
@@ -49,6 +59,7 @@ const AdminRoster = {
       const avatarStyle=av?`background-image:url("${av.replace(/"/g,'%22')}");background-size:cover;background-position:center;color:transparent;`:'';
       return {
         id:p.id, name:p.name, initials:Utils.initials(p.name), shiftLabel:Utils.shiftLabel(p.shift),
+        onViewHistory:self.openPersonHistory(p.id),
         label:mm.label, color:mm.color, bg:mm.bg, isLate,
         lateReason, showLateReason, showNoLateReason,
         welfareNote:r.welfareNote||'', showWelfareNote:!!(r.welfareNote),
@@ -122,7 +133,7 @@ const AdminRoster = {
       const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
       const av=s.avatars[p.id]||'';
       const avatarStyle=av?`background-image:url("${av.replace(/"/g,'%22')}");background-size:cover;background-position:center;color:transparent;`:'';
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:(r.status==='present'&&r.p1)?r.p1:'',avatarStyle,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote)};
+      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:(r.status==='present'&&r.p1)?r.p1:'',avatarStyle,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),onViewHistory:self.openPersonHistory(p.id)};
     });
     const vPresent=viewRoster.filter(r=>r.label==='Present').length, vMc=viewRoster.filter(r=>r.label==='On MC').length, vAbsent=viewRoster.filter(r=>r.label==='Absent').length, vPending=viewRoster.filter(r=>r.label==='Pending').length, vTotal=viewRoster.length;
     const vPercent=vTotal?Math.round((vPresent+vMc)/vTotal*100):0;
@@ -132,7 +143,11 @@ const AdminRoster = {
     const vThirdLabel=viewOffset<0?'Absent':'Pending', vThirdVal=viewOffset<0?vAbsent:vPending, vThirdColor=viewOffset<0?'#c0392b':'#5c6678';
 
     return {
-      roster, filteredRoster:sortedFiltered, logRows:filteredLogRows, logRowsEmpty:filteredLogRows.length===0, logDateLabel,
+      roster, filteredRoster:sortedFiltered, logRows:filteredLogRows, logRowsEmpty:filteredLogRows.length===0,
+      logTrulyEmpty:logRows.length===0, logFilterEmpty:logRows.length>0&&filteredLogRows.length===0,
+      showLogFilterCount:(logStatusFilter!=='all'||!!logSearch)&&filteredLogRows.length>0,
+      logFilterCountLabel:filteredLogRows.length+' result'+(filteredLogRows.length!==1?'s':''),
+      logDateLabel,
       timesEditP1:s.timesEditP1||'', timesEditP2:s.timesEditP2||'', timesEditP3:s.timesEditP3||'', timesEditP4:s.timesEditP4||'',
       timesEditSaving:s.timesEditSaving||false,
       ...(()=>{const _iStyle=k=>{const err=s.timesEditErrField===k;return`width:100%;padding:8px 10px;border:1.5px solid ${err?'#c0392b':'#d4d9e2'};border-radius:8px;font-size:13px;font-family:'IBM Plex Mono',monospace;outline:none;background:${err?'#fff5f5':'#f6f8fa'};box-sizing:border-box;color:#161f30;`;};return{timesEditP1Style:_iStyle('p1'),timesEditP2Style:_iStyle('p2'),timesEditP3Style:_iStyle('p3'),timesEditP4Style:_iStyle('p4')};})(),
@@ -157,20 +172,42 @@ const AdminRoster = {
       wipeHistoryBtnText:s.wipingHistory?'Deleting…':'Yes, delete',
       wipeHistoryBtnOpacity:s.wipingHistory?'0.55':'1',
       askWipeHistory:self.askWipeHistory, confirmWipeHistory:self.confirmWipeHistory, cancelWipeHistory:self.cancelWipeHistory,
-      personHistoryRows:(()=>{
-        const allRows=s.personHistoryRows||[];
-        const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-        return allRows.slice(0,100).map(r=>{
-          const mm=Utils.meta(r.status);
-          const d=new Date(r.date+'T00:00:00');
-          const editLog=r.edit_log||[];
-          const latestEdit=editLog.length?editLog[editLog.length-1]:null;
-          return {dateLabel:W[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,color:mm.color,bg:mm.bg,p1:r.check_in_time?r.check_in_time.slice(0,5):'-',p4:r.work_end_time?r.work_end_time.slice(0,5):'-',adminCorrected:editLog.length>0,editedBy:latestEdit?.by||''};
+      ...(()=>{
+        const _phAll=s.personHistoryRows||[];
+        const _phFilter=s.personHistoryFilter||'all';
+        const _M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],_W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+        const _phFiltered=_phFilter==='all'?_phAll:_phAll.filter(r=>{
+          if(_phFilter==='present') return r.status==='present';
+          if(_phFilter==='mc') return r.status==='mc';
+          if(_phFilter==='absent') return r.status==='absent';
+          return true;
         });
+        const _phPS=15,_phTotalPages=Math.max(1,Math.ceil(_phFiltered.length/_phPS));
+        const _phPage=Math.min(Math.max(1,s.personHistoryPage||1),_phTotalPages);
+        const _phPaged=_phFiltered.slice((_phPage-1)*_phPS,_phPage*_phPS);
+        const _phRows=_phPaged.map(r=>{const mm=Utils.meta(r.status);const d=new Date(r.date+'T00:00:00');const el=r.edit_log||[];const le=el.length?el[el.length-1]:null;return{dateLabel:_W[d.getDay()]+' '+d.getDate()+' '+_M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,color:mm.color,bg:mm.bg,p1:r.check_in_time?r.check_in_time.slice(0,5):'-',p4:r.work_end_time?r.work_end_time.slice(0,5):'-',adminCorrected:el.length>0,editedBy:le?.by||''};});
+        const _phSBtn=(f)=>`padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid ${_phFilter===f?accent:'#d4d9e2'};background:${_phFilter===f?accent:'#fff'};color:${_phFilter===f?'#fff':'#5c6678'};white-space:nowrap;`;
+        return {
+          personHistoryRows:_phRows,
+          personHistoryTotal:_phAll.length,
+          noPersonHistory:!_phAll.length&&!s.personHistoryLoading,
+          noPersonHistoryFiltered:_phAll.length>0&&_phFiltered.length===0,
+          personHistoryFilter:_phFilter,
+          personHistoryPage:_phPage,personHistoryTotalPages:_phTotalPages,
+          personHistoryHasPrev:_phPage>1,personHistoryHasNext:_phPage<_phTotalPages,
+          personHistoryShowPagination:_phTotalPages>1,
+          personHistoryPrevOpacity:_phPage>1?'1':'0.35',personHistoryNextOpacity:_phPage<_phTotalPages?'1':'0.35',
+          personHistoryPageLabel:`${_phPage} / ${_phTotalPages}`,
+          personHistoryPageNext:()=>self.setState({personHistoryPage:Math.min(_phTotalPages,_phPage+1)}),
+          personHistoryPagePrev:()=>self.setState({personHistoryPage:Math.max(1,_phPage-1)}),
+          setPersonHistoryFilterAll:()=>self.setState({personHistoryFilter:'all',personHistoryPage:1}),
+          setPersonHistoryFilterPresent:()=>self.setState({personHistoryFilter:'present',personHistoryPage:1}),
+          setPersonHistoryFilterMc:()=>self.setState({personHistoryFilter:'mc',personHistoryPage:1}),
+          setPersonHistoryFilterAbsent:()=>self.setState({personHistoryFilter:'absent',personHistoryPage:1}),
+          personHistoryFilterAllStyle:_phSBtn('all'),personHistoryFilterPresentStyle:_phSBtn('present'),
+          personHistoryFilterMcStyle:_phSBtn('mc'),personHistoryFilterAbsentStyle:_phSBtn('absent'),
+        };
       })(),
-      personHistoryMore:(s.personHistoryRows||[]).length>100,
-      personHistoryTotal:(s.personHistoryRows||[]).length,
-      noPersonHistory:!(s.personHistoryRows||[]).length&&!s.personHistoryLoading,
       closePersonHistory:self.closePersonHistory,
       exportPersonHistory:self.exportPersonHistory,
       realtimeLive:s.realtimeLive,
@@ -181,10 +218,20 @@ const AdminRoster = {
       rosterSearch:s.rosterSearch, onRosterSearch:self.onRosterSearch, onRosterSearchKeyDown:self.onRosterSearchKeyDown, hasRosterSearch:!!search, clearRosterSearch:self.clearRosterSearch,
       retrySync:self.retrySync,
       markAllPresent:self.markAllPresent, markAllPresenting:s.markAllPresenting,
-      noSearchResults:!!search&&sortedFiltered.length===0,
-      rosterEmpty:!search&&roster.length===0,
-      filteredCount:search?sortedFiltered.length:0, showFilteredCount:!!search&&sortedFiltered.length>0,
-      filteredCountLabel:(search?sortedFiltered.length:0)+' result'+((search?sortedFiltered.length:0)===1?'':'s'),
+      askMarkAllPresent:self.askMarkAllPresent, cancelMarkAllPresent:self.cancelMarkAllPresent,
+      confirmMarkAllPresent:!!s.confirmMarkAllPresent, notConfirmMarkAllPresent:!s.confirmMarkAllPresent,
+      notConfirmAny:!s.confirmMarkAllAbsent&&!s.confirmMarkAllPresent,
+      markAllPresentStyle:`padding:6px 11px;border-radius:7px;cursor:pointer;border:1px solid #cfe6d8;background:#fff;color:#1f8a5b;opacity:${s.markAllPresenting?'0.45':'1'};display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;flex-shrink:0;`,
+      markAllPresentConfirmStyle:`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:700;cursor:pointer;border:none;background:#1f8a5b;color:#fff;`,
+      showLogPendingBadge:pendingCount>0, logPendingBadgeCount:String(pendingCount),
+      rosterStatusFilter,
+      setRosterStatusAll:self.setRosterStatusFilter('all'),setRosterStatusPresent:self.setRosterStatusFilter('present'),
+      setRosterStatusMc:self.setRosterStatusFilter('mc'),setRosterStatusAbsent:self.setRosterStatusFilter('absent'),setRosterStatusPending:self.setRosterStatusFilter('pending'),
+      rosterStatusAllStyle,rosterStatusPresentStyle,rosterStatusMcStyle,rosterStatusAbsentStyle,rosterStatusPendingStyle,
+      noSearchResults:(!!search||rosterStatusFilter!=='all')&&sortedFiltered.length===0,
+      rosterEmpty:!search&&rosterStatusFilter==='all'&&roster.length===0,
+      filteredCount:sortedFiltered.length, showFilteredCount:(!!search||rosterStatusFilter!=='all')&&sortedFiltered.length>0,
+      filteredCountLabel:sortedFiltered.length+' result'+(sortedFiltered.length===1?'':'s'),
       statPresent:present, statMc:mc, statPending:pending, statTotal:total,
       lateCount, lateNames, showLateAlert, lateAlertLabel,
       noRepMsg, toggleNoReporting:self.toggleNoReporting,
@@ -198,7 +245,7 @@ const AdminRoster = {
       snapshotLink, showSnapshot:viewShowReporting,
       openWaPreview:()=>{ self.setState({waPreviewOpen:true,waPreviewText:snapshotLines.join('\n')}); },
       waPreviewOpen:s.waPreviewOpen, waPreviewText:s.waPreviewText,
-      closeWaPreview:self.closeWaPreview, onWaPreviewText:self.onWaPreviewText, sendWaPreview:self.sendWaPreview,
+      closeWaPreview:self.closeWaPreview, onWaPreviewText:self.onWaPreviewText, sendWaPreview:self.sendWaPreview, copyWaPreview:self.copyWaPreview,
       editingNoteText:s.editingNoteText, onNoteText:self.onNoteText, saveNote:self.saveNote, closeNote:self.closeNote,
       logNoteText:s.logNoteText, onLogNoteText:self.onLogNoteText, saveLogNote:self.saveLogNote, closeLogNote:self.closeLogNote,
       refreshPage:self.refreshPage,

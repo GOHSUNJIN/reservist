@@ -4,8 +4,10 @@ const AdminPeople = {
   build: function(self, s, accent, ctx) {
     const {activeBatch,activeMembers,approvedByContact} = ctx;
 
+    const _prSearch=(s.peopleRosterSearch||'').toLowerCase().trim();
+    const _filteredActiveMembers=_prSearch?activeMembers.filter(p=>p.name.toLowerCase().includes(_prSearch)||(p.contact||'').toLowerCase().includes(_prSearch)):activeMembers;
     return {
-      personnelList:activeMembers.map(p=>{
+      personnelList:_filteredActiveMembers.map(p=>{
         const av=s.avatars[p.id]||'';
         const _addedBySignup=approvedByContact.get(p.contact)||'';
         const _addedByAdmin=p.created_by||'';
@@ -23,6 +25,7 @@ const AdminPeople = {
           statAbsent:s.peopleStats[p.id]?.absent??0,
           statPct:s.peopleStats[p.id]?.pct!=null?(s.peopleStats[p.id].pct+'%'):'No records',
           showStats:s.peopleStatsLoaded,
+          lowAttendance:s.peopleStatsLoaded&&(s.peopleStats[p.id]?.pct??null)!==null&&s.peopleStats[p.id].pct<75,
           avatarStyle:av?`background-image:url("${av.replace(/"/g,'%22')}");background-size:cover;background-position:center;color:transparent;`:'',
           avatarInitials:av?'':Utils.initials(p.name),
           onViewHistory:self.openPersonHistory(p.id),
@@ -33,6 +36,9 @@ const AdminPeople = {
         };
       }),
       personnelListEmpty:activeMembers.length===0,
+      personnelSearchNoResults:activeMembers.length>0&&_filteredActiveMembers.length===0,
+      peopleRosterSearch:s.peopleRosterSearch||'', hasPeopleRosterSearch:!!_prSearch,
+      onPeopleRosterSearch:self.onPeopleRosterSearch, clearPeopleRosterSearch:self.clearPeopleRosterSearch,
       cancelDeactivatePerson:self.cancelDeactivatePerson,
       confirmDeactivatePerson:self.confirmDeactivatePerson,
       memberSearchOpen:s.memberSearchOpen, openMemberSearch:self.openMemberSearch, closeMemberSearch:self.closeMemberSearch,
@@ -108,30 +114,44 @@ const AdminPeople = {
         };
       })(),
       leaveSearch:s.leaveSearch||'', onLeaveSearch:self.onLeaveSearch, clearLeaveSearch:self.clearLeaveSearch, hasLeaveSearch:!!(s.leaveSearch||'').trim(),
-      pendingLeaves:(()=>{const _lq=(s.leaveSearch||'').toLowerCase().trim();const _lb=_lq?(s.pendingLeaves||[]).filter(l=>(l.personnel?.name||'').toLowerCase().includes(_lq)||(l.personnel?.contact||'').includes(_lq)):(s.pendingLeaves||[]);const _nowMs=Date.now(),_2d=172800000;return _lb.map(l=>{const _ms=l.created_at?_nowMs-new Date(l.created_at).getTime():0,_h=Math.floor(_ms/3600000),_d=Math.floor(_h/24),isExpired=_ms>_2d,timeAgo=!l.created_at?'':_h<1?'Just now':_h<24?_h+' hr'+(_h!==1?'s':'')+' ago':_d+' day'+(_d!==1?'s':'')+' ago';return({
-        id:l.id, reason:l.reason||'',
-        personName:l.personnel?.name||'Unknown',
-        initials:Utils.initials(l.personnel?.name||'?'),
-        personShift:Utils.shiftLabel(l.personnel?.shift||'OFFICE'),
-        typeLabel:l.type==='mc'?'MC':l.type==='other'?'Other':'Personal Leave',
-        typeBg:l.type==='mc'?'#fdf6e9':'#f1f8f4',
-        typeColor:l.type==='mc'?'#b9791a':'#1f8a5b',
-        typeBorder:l.type==='mc'?'#f0e2c2':'#cfe6d8',
-        dateLabel:l.date?Utils.fmtMed(new Date(l.date+'T00:00:00')):'',
-        isSelected:(s.leaveSelectedIds||[]).includes(l.id), onToggleSelect:self.toggleLeaveSelect(l.id),
-        checkBorder:(s.leaveSelectedIds||[]).includes(l.id)?'#3b5bdb':'#c8cdd6',
-        checkBg:(s.leaveSelectedIds||[]).includes(l.id)?'#3b5bdb':'#fff',
-        expiredOpacity:isExpired?'0.65':'1', expiredTimeColor:isExpired?'#c0392b':'#a0a8b4',
-        onApprove:self.approveLeave(l.id), onReject:self.rejectLeave(l.id),
-        isRejectOpen:s.rejectLeaveId===l.id,
-        rejectLeaveReason:s.rejectLeaveId===l.id?s.rejectLeaveReason:'',
-        onRejectLeaveReason:self.onRejectLeaveReason,
-        confirmRejectLeave:self.confirmRejectLeave,
-        cancelRejectLeave:self.cancelRejectLeave,
-        timeAgo, isExpired,
-      });});})(),
+      ...(()=>{
+        const _lq=(s.leaveSearch||'').toLowerCase().trim();
+        const _lb=_lq?(s.pendingLeaves||[]).filter(l=>(l.personnel?.name||'').toLowerCase().includes(_lq)||(l.personnel?.contact||'').includes(_lq)):(s.pendingLeaves||[]);
+        const _sorted=[..._lb].sort((a,b)=>{const aMs=a.created_at?Date.now()-new Date(a.created_at).getTime():0;const bMs=b.created_at?Date.now()-new Date(b.created_at).getTime():0;return bMs-aMs;});
+        const _leaveAllIds=_sorted.map(l=>l.id);
+        const _allLeavesSel=_leaveAllIds.length>0&&_leaveAllIds.every(id=>(s.leaveSelectedIds||[]).includes(id));
+        const _nowMs=Date.now(),_2d=172800000;
+        return {
+          pendingLeaves:_sorted.map(l=>{const _ms=l.created_at?_nowMs-new Date(l.created_at).getTime():0,_h=Math.floor(_ms/3600000),_d=Math.floor(_h/24),isExpired=_ms>_2d,timeAgo=!l.created_at?'':_h<1?'Just now':_h<24?_h+' hr'+(_h!==1?'s':'')+' ago':_d+' day'+(_d!==1?'s':'')+' ago';return({
+            id:l.id,reason:l.reason||'',
+            personName:l.personnel?.name||'Unknown',
+            initials:Utils.initials(l.personnel?.name||'?'),
+            personShift:Utils.shiftLabel(l.personnel?.shift||'OFFICE'),
+            typeLabel:l.type==='mc'?'MC':l.type==='other'?'Other':'Personal Leave',
+            typeBg:l.type==='mc'?'#fdf6e9':'#f1f8f4',
+            typeColor:l.type==='mc'?'#b9791a':'#1f8a5b',
+            typeBorder:l.type==='mc'?'#f0e2c2':'#cfe6d8',
+            dateLabel:l.date?Utils.fmtMed(new Date(l.date+'T00:00:00')):'',
+            isSelected:(s.leaveSelectedIds||[]).includes(l.id),onToggleSelect:self.toggleLeaveSelect(l.id),
+            checkBorder:(s.leaveSelectedIds||[]).includes(l.id)?'#3b5bdb':'#c8cdd6',
+            checkBg:(s.leaveSelectedIds||[]).includes(l.id)?'#3b5bdb':'#fff',
+            expiredOpacity:isExpired?'0.65':'1',expiredTimeColor:isExpired?'#c0392b':'#a0a8b4',
+            onApprove:self.approveLeave(l.id),onReject:self.rejectLeave(l.id),
+            isRejectOpen:s.rejectLeaveId===l.id,
+            rejectLeaveReason:s.rejectLeaveId===l.id?s.rejectLeaveReason:'',
+            onRejectLeaveReason:self.onRejectLeaveReason,
+            confirmRejectLeave:self.confirmRejectLeave,
+            cancelRejectLeave:self.cancelRejectLeave,
+            timeAgo,isExpired,
+          });
+          }),
+          leaveSearchHasNoResults:!!_lq&&(s.pendingLeaves||[]).length>0&&_lb.length===0,
+          allLeavesSelected:_allLeavesSel,
+          selectAllLeaves:self.selectAllLeaves,clearAllLeavesSelection:self.clearAllLeavesSelection,
+          leaveSelectAllBorder:_allLeavesSel?'#3b5bdb':'#c8cdd6',leaveSelectAllBg:_allLeavesSel?'#3b5bdb':'#fff',
+        };
+      })(),
       pendingLeavesCount:(s.pendingLeaves||[]).length,
-      leaveSearchHasNoResults:!!(s.leaveSearch||'').trim()&&(s.pendingLeaves||[]).length>0&&(()=>{const _lq=(s.leaveSearch||'').toLowerCase().trim();return (s.pendingLeaves||[]).filter(l=>(l.personnel?.name||'').toLowerCase().includes(_lq)||(l.personnel?.contact||'').includes(_lq)).length===0;})(),
       hasPendingLeaves:(s.pendingLeaves||[]).length>0,
       pendingLeavesLoaded:s.pendingLeavesLoaded,
       leaveSelectedCount:(s.leaveSelectedIds||[]).length,
@@ -219,30 +239,35 @@ const AdminPeople = {
       cancelPromoteAdmin:self.cancelPromoteAdmin,
       confirmPromoteAdmin:self.confirmPromoteAdmin,
       signupSearch:s.signupSearch||'', onSignupSearch:self.onSignupSearch, clearSignupSearch:self.clearSignupSearch, hasSignupSearch:!!(s.signupSearch||'').trim(),
-      pendingSignups:(()=>{
-        const approvedContacts=new Set((s.approvedSignups||[]).map(a=>(a.contact||'').replace(/[\s-]/g,'')));
+      ...(()=>{
+        const _approvedContacts=new Set((s.approvedSignups||[]).map(a=>(a.contact||'').replace(/[\s-]/g,'')));
         const _sq=(s.signupSearch||'').toLowerCase().trim();
         const _base=_sq?s.pendingSignups.filter(r=>r.name.toLowerCase().includes(_sq)||(r.contact||'').includes(_sq)):s.pendingSignups;
-        return _base.map(r=>{
-          const b=(s.batches||[]).find(b=>b.id===r.batch_id);
-          const initials=r.name.trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
-          const isReactivation=approvedContacts.has((r.contact||'').replace(/[\s-]/g,''));
-          const isSelected=(s.selectedSignupIds||[]).includes(r.id);
-          return {id:r.id,name:r.name,contact:r.contact,shift:r.shift,batchLabel:b?b.label:'',initials,
-            createdAt:r.created_at?new Date(r.created_at).toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'}):'',
-            isReactivation, isNew:!isReactivation,
-            isSelected,
-            cardBg:isSelected?'#f0f2f7':'#fff',
-            checkBorder:isSelected?'#161f30':'#c8cdd6',
-            checkBg:isSelected?'#161f30':'#fff',
-            onToggleSelect:self.toggleSignupSelect(r.id),
-            onApprove:self.approveSignup(r.id), onReject:self.rejectSignup(r.id)};
-        });
+        const _allIds=_base.map(r=>r.id);
+        const _allSel=_allIds.length>0&&_allIds.every(id=>(s.selectedSignupIds||[]).includes(id));
+        return {
+          pendingSignups:_base.map(r=>{
+            const b=(s.batches||[]).find(b=>b.id===r.batch_id);
+            const initials=r.name.trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
+            const isReactivation=_approvedContacts.has((r.contact||'').replace(/[\s-]/g,''));
+            const isSelected=(s.selectedSignupIds||[]).includes(r.id);
+            return {id:r.id,name:r.name,contact:r.contact,shift:r.shift,batchLabel:b?b.label:'',initials,
+              createdAt:r.created_at?new Date(r.created_at).toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'}):'',
+              isReactivation,isNew:!isReactivation,
+              isSelected,cardBg:isSelected?'#f0f2f7':'#fff',
+              checkBorder:isSelected?'#161f30':'#c8cdd6',checkBg:isSelected?'#161f30':'#fff',
+              onToggleSelect:self.toggleSignupSelect(r.id),
+              onApprove:self.approveSignup(r.id),onReject:self.rejectSignup(r.id)};
+          }),
+          signupSearchHasNoResults:!!_sq&&s.pendingSignups.length>0&&_base.length===0,
+          allSignupsSelected:_allSel,
+          selectAllSignups:self.selectAllSignups,clearAllSignupsSelection:self.clearAllSignupsSelection,
+          signupSelectAllBorder:_allSel?'#161f30':'#c8cdd6',signupSelectAllBg:_allSel?'#161f30':'#fff',
+        };
       })(),
       hasPendingSignups:s.pendingSignups.length>0,
       pendingSignupsLoaded:!!(s.pendingSignupsLoaded),
       pendingSignupCount:s.pendingSignups.length,
-      signupSearchHasNoResults:!!(s.signupSearch||'').trim()&&s.pendingSignups.length>0&&(()=>{const _sq=(s.signupSearch||'').toLowerCase().trim();return s.pendingSignups.filter(r=>r.name.toLowerCase().includes(_sq)||(r.contact||'').includes(_sq)).length===0;})(),
       selectedSignupCount:(s.selectedSignupIds||[]).length,
       hasSelectedSignups:(s.selectedSignupIds||[]).length>0,
       onApproveSelected:self.approveSelected,

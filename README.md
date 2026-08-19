@@ -20,6 +20,7 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 
 - **4-phase check-in**: Log four checkpoints throughout the day - check in, lunch out, return from lunch, and end of shift. Each phase is timestamped to the minute.
 - **GPS verification**: The phone's GPS confirms you are physically at the designated location before the check-in is accepted. Distance from HQ is recorded. The radius is configurable (default: 200 m).
+- **GPS bypass**: If GPS is unavailable or blocked, a bypass option allows check-in without location. Bypassed records are permanently flagged in the log.
 - **Leave and MC requests**: Submit requests digitally through the app. They go directly to the supervisor for approval with no phone calls or messages needed.
 - **Cancel pending requests**: A leave or MC request can be withdrawn by the reservist before the supervisor has acted on it, from both the check-in tab and the Requests history.
 - **Attendance history**: View your own full record for the cycle, including total days present, MC, absent, and your attendance rate.
@@ -29,48 +30,77 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 - **Offline check-in**: If connectivity is lost during check-in, the action is saved on the device and submitted automatically once the connection is restored.
 - **Returning reservist re-enrollment**: When a reservist from a previous cycle logs in after their account was deactivated, the app automatically submits a re-enrollment request to the supervisor. No manual coordination required.
 - **Logout confirmation**: Tapping Log Out shows a confirmation step before the session is ended, preventing accidental logouts.
+- **Session expiry warning**: A banner appears 5 minutes before the session expires with a one-tap option to extend it.
+- **Idle timeout**: Sessions expire after 20 minutes of inactivity, with a warning at 18 minutes.
+- **Work timer and meal allowance**: When meal allowance is active for the cycle, a live timer shows total work time for the day, paused during lunch. Meal eligibility is shown automatically after 8 hours.
+- **Late check-in self-declaration**: If you check in more than one hour after shift start, you are prompted to provide a written reason for the lateness before the check-in is accepted.
+- **In-app browser detection**: If opened from WhatsApp, Instagram, or another in-app browser where GPS is blocked, the app shows specific instructions for opening in the device's real browser.
 
 ### For Supervisors (Admin)
 
-**Roster and Attendance:**
+**Attendance Roster:**
 - **Live attendance board**: Updates in real time as reservists check in, with no manual refresh needed.
-- **Manual status override**: Mark any reservist as Present, MC, or Absent if they cannot use the app.
-- **Manual time correction**: Edit any reservist's check-in times for any day directly from the Log tab across all four phases. Corrected records are flagged in the database as admin-entered.
-- **Mark all absent**: Instantly mark all reservists with no status as absent for the current view date, with a confirmation step.
-- **Mark all present**: Instantly mark all reservists with no status as present for the current view date.
-- **Search and filter**: Search the roster by name. Filter the log by attendance status (present, MC, absent).
+- **Status filter chips**: Filter the roster by All, Present, MC, Absent, or Pending to see only the group you need.
+- **Roster search**: Filter roster entries by name. The filter persists while navigating dates.
+- **Manual status override**: Mark any reservist as Present, MC, or Absent directly from the roster.
+- **Mark all absent**: Instantly mark all reservists with no status as absent for the current date, with a confirmation step before committing.
+- **Mark all present**: Instantly mark all pending reservists as present, also with a required confirmation step.
+- **Pending badge on Log nav**: The Log navigation button shows a badge when there are reservists with no attendance status for the current date, so you always know at a glance if action is needed.
+- **Day navigation**: Swipe left or right to move between dates, or use the previous/next day buttons. The calendar in the Overview tab can also be tapped to jump directly to any date.
+- **Jump to date**: Navigate directly to any date across any cycle using the date picker.
+
+**Time Log:**
+- **Manual time correction**: Edit any reservist's check-in times for any day directly from the Log tab across all four phases. Corrected records are flagged as admin-entered in the database.
+- **Log search**: Filter the log by name.
+- **Log status filter**: Filter the log by attendance status (Present, MC, Absent) to focus on a specific group.
+- **Click name to open history**: In the Log tab, clicking a reservist's name opens their full attendance history without needing to navigate to the People tab.
+- **Shift label on log cards**: Each log card shows the reservist's shift alongside their check-in times.
+- **Admin log note**: Add a free-text note against any person's attendance entry for the current view date.
+- **Late check-in alerts**: Anyone who checks in more than 30 minutes after shift start triggers a timing warning in the log. Those more than one hour late are automatically flagged and their written reason is displayed.
 
 **Requests and Leave:**
 - **Unified requests inbox**: All pending signup requests, MC requests, and leave requests appear in one place. Each signup is labelled New or Returning so the supervisor knows at a glance whether they are onboarding a first-timer or re-enrolling someone from a previous cycle.
+- **Select-all for signups**: A checkbox in the signup section header selects or deselects all visible pending signups. Filtered by the search box, so select-all only acts on visible results.
+- **Select-all for leave requests**: Same select-all behavior for pending leave requests.
 - **Bulk leave actions**: Select multiple pending leave requests and approve or reject them in a single action. Bulk rejection requires a written reason recorded against each rejected request.
+- **Urgency sorting**: Pending leave requests are sorted by submission time, oldest first, so the most overdue requests appear at the top.
 - **Leave request rejection reason**: Each rejected request records the reviewer's name, timestamp, and written reason.
 - **Reopen rejected signups**: A rejected signup request can be re-opened and returned to pending status if the decision needs to be reversed.
 - **Hide rejected signups**: Collapsed view for rejected signup requests to reduce clutter in the inbox.
 
 **Alerts and Notes:**
-- **Late check-in alerts**: Anyone who checks in more than 30 minutes after shift start triggers a timing warning. Those more than one hour late are automatically flagged and must submit a written reason, visible alongside their record in the log.
 - **Welfare notes**: Write a private daily note against any individual (for example, medical concerns or welfare follow-ups). Visible in both the roster and the time log.
 - **Missed attendance notes**: Add an inline note for reservists who did not report without an approved leave, directly from the attendance history view.
-- **Admin log note**: Add a note to any person's attendance entry for the current view date from the log tab.
 
-**Cycle and Personnel Management:**
-- **Non-reporting day control**: Mark any date as a non-reporting day (public holiday or stand-down). Singapore public holidays are excluded automatically from attendance rate calculations.
-- **Cycle notice board**: Post a short notice that appears on every reservist's check-in screen for the duration of the cycle.
-- **WhatsApp attendance summary**: One tap copies and sends the day's attendance summary to the unit group chat.
-- **Spreadsheet export (XLS)**: Export the full attendance matrix for any cycle as an Excel-compatible spreadsheet. Includes per-person rates, totals, and a print-ready report view.
-- **Print report**: Generate a formatted A4 attendance report, printable or saveable as PDF directly from the browser.
-- **Cycle management**: Create and label reporting cycles. The system prepares the next 8 cycles automatically on every admin login.
+**Personnel Management (People tab):**
+- **Roster view**: Lists all personnel in the current cycle with their attendance rate shown when stats are loaded.
+- **Low attendance warning**: Personnel with an attendance rate below 75% display a highlighted badge on their card, making at-risk individuals easy to spot.
+- **Per-person attendance history**: Click any person's card to open their full attendance history across all cycles. The history modal includes status filter chips (All, Present, MC, Absent) and pagination (15 records per page), and can be exported to XLS.
+- **Click row in Overview**: Clicking a person's row in the Overview tab also opens their history directly.
+- **Admin password reset**: Reset any reservist's password directly from the roster without requiring database access.
 - **Bulk add personnel**: Paste a list of names and contact numbers to add multiple reservists at once.
 - **Re-enroll by search**: When adding personnel, search for removed reservists by name or contact number. Selecting a match triggers the re-enroll flow, reactivating their existing account and history without creating a duplicate entry.
 - **Personnel accountability**: Each personnel card shows who added the reservist - "Added by [name]" for direct admin additions, or "Approved by [name]" for self-signup approvals.
+
+**Cycle Management:**
+- **Non-reporting day control**: Mark any date as a non-reporting day (public holiday or stand-down). Singapore public holidays are excluded automatically.
 - **Bulk no-report days**: Paste a list of dates to mark multiple non-reporting days in a single action.
-- **Jump to date**: Navigate directly to any date across any cycle using the date picker.
+- **Cycle notice board (broadcast)**: Post a short notice that appears on every reservist's check-in screen for the duration of the cycle.
+- **Meal allowance toggle**: Enable or disable meal allowance per cycle. When active, the work timer and meal eligibility calculations are shown to reservists.
 - **Cycle picker**: Browse all cycles grouped by year with a visual picker.
-- **Per-person attendance history**: View the full attendance record for any individual across all cycles they have been part of, with export to XLS.
-- **Member search**: Search across all cycles by name, status, or cycle. Supports permanent deletion of records.
-- **Meal allowance tracking**: Enable or disable meal allowance per cycle. When active, a live work timer appears on each reservist's check-in screen showing elapsed work time, paused during lunch. Meal eligibility is automatically calculated after 8 hours of work (excluding the lunch break).
-- **Broadcast (cycle notice)**: Post a cycle-wide notice visible to all reservists in the current cycle.
-- **Admin password reset**: Reset any reservist's password directly from the roster without requiring database access.
+- **Cycle management**: Create and label reporting cycles. The system prepares the next 8 cycles automatically on every admin login.
+- **Batch label editing**: Rename any cycle label inline without navigating away.
+
+**Export and Reporting:**
+- **Spreadsheet export (XLS)**: Export the full attendance matrix for any cycle as an Excel-compatible spreadsheet. Includes per-person rates, totals, a legend, and colour-coded status cells.
+- **Print report**: Generate a formatted A4 attendance report, printable or saveable as PDF directly from the browser without leaving the app.
+- **WhatsApp attendance summary**: One tap generates the day's attendance summary. A preview modal lets you review and edit the text, copy it to clipboard, or send it directly to the unit group chat.
+- **Per-person history export**: Export any individual's attendance history to XLS from within the history modal.
+
+**Member Search:**
+- **Cross-cycle search**: Search across all cycles and all personnel by name, contact, or status.
+- **Filter by cycle or status**: Narrow results to a specific cycle or attendance status.
+- **Permanent deletion**: Permanently delete a person's account and all associated records. Supports bulk selection and bulk delete.
 
 ### For Master Level (Super Admin)
 
@@ -78,22 +108,22 @@ All supervisor capabilities, plus:
 
 - **Create supervisor accounts**: Add new admin accounts directly within the app.
 - **Remove supervisors**: Demote any admin back to reservist status. Demoted supervisors return to the reservist pool automatically.
-- **Promote to supervisor**: Promote any existing reservist to admin status.
+- **Promote to supervisor**: Promote any existing reservist to admin status. Search by name with cycle filters.
 - Displayed with a **Master** label in the interface.
 
 ---
 
 ## Accountability and Audit Trail
 
-Every action in the system is recorded with no silent changes possible:
+Every action in the system is recorded:
 
 - Every check-in carries a timestamp and the GPS distance from HQ at the moment of submission.
-- Late arrivals are flagged automatically with no supervisor input required. The reservist must submit a written reason.
-- If GPS verification is bypassed (for example, due to GPS failure), this is permanently marked in the log with a visible indicator.
-- If a supervisor manually corrects a reservist's times, the record is flagged as admin-entered in the database.
-- All leave and MC approvals record who approved them and when.
+- Late arrivals are flagged automatically. If more than one hour late, the reservist must submit a written reason, which is stored alongside the attendance record.
+- If GPS verification is bypassed (due to GPS failure or supervisor authorisation), this is permanently marked in the log with a visible indicator.
+- If a supervisor manually corrects a reservist's times, the record is flagged as admin-entered, and the edit log includes the editor's name and timestamp.
+- All leave and MC approvals record who approved them and when. Rejections record the reviewer and reason.
 - **Absences are written automatically.** If a reservist does not check in by midnight, the system marks them absent through two independent processes (one in the app, one on the server) to ensure no gaps occur even if the supervisor is offline. See [Auto-Absent](#auto-absent).
-- Data is stored in a managed cloud database. Nothing relies on a local file or spreadsheet that can be accidentally deleted or edited.
+- Data is stored in a managed cloud database. Nothing relies on a local file or spreadsheet.
 
 ---
 
@@ -166,11 +196,19 @@ Ops Reservist runs directly in the phone's browser. Personnel access it through 
 | Live updates | Supabase Realtime | Pushes attendance changes to all connected supervisors instantly, without any page refresh. |
 | Profile photos | Supabase Storage | Profile pictures stored in the cloud, isolated per user. |
 | Hosting | Vercel | Deployed globally on a CDN. Loads quickly regardless of network conditions. Zero server maintenance required. |
-| Offline support | Service Worker | Caches the app and queues check-in actions when there is no internet connection. |
+| Offline support | Service Worker | Caches the app shell and queues check-in actions when there is no internet connection. |
+
+### Architecture
+
+The app is a single-page application built without a framework. State is held in a single object and passed down to a declarative template engine. The JavaScript is divided into two layers:
+
+**Builders** read the current state and return a flat object of UI properties for the template. They contain no side effects - just pure computation. This makes the UI predictable: the same state always produces the same output.
+
+**Handlers** respond to user actions. They call the database, update state via `setState`, and trigger side effects like toasts and haptic feedback. Handlers never read from the DOM directly.
+
+The template in `index.html` is driven by `sc-if`, `sc-for`, and `{{ prop }}` expressions. Because the template engine does not support ternary expressions or arithmetic, all computed values (styles, labels, badge counts, pagination state) are pre-computed as named properties in the builder layer before the template consumes them.
 
 ### Code Structure
-
-The JavaScript is split into two layers: **builders** (read state and compute UI props) and **handlers** (write state and call the database). Each feature area has its own file.
 
 ```
 assets/                 - Static icons (PWA home screen, apple-touch-icon)
@@ -179,32 +217,32 @@ js/
 ├── support.js          - Compiled declarative component runtime (do not edit)
 ├── db.js               - All Supabase queries, namespaced by table (DB.auth, DB.personnel, DB.attendance, etc.)
 ├── state.js            - Initial application state factory
-├── utils.js            - Date helpers, contact validation, phase window logic, formatting
-├── component.js        - Component lifecycle, offline queue retry logic
-├── config.js           - Runtime configuration (Supabase credentials)
+├── utils.js            - Date helpers, contact validation, phase window logic, formatting, SG holiday data
+├── component.js        - Component lifecycle, realtime wiring, offline queue retry logic
+├── config.js           - Runtime configuration (Supabase credentials, do not commit)
 │
 ├── builders/           - Pure functions: (state) -> flat object of UI props for the template
 │   ├── auth.js         - Login and signup screens
-│   ├── nav.js          - Navigation bar and offline queue badge
-│   ├── checkin.js      - Reservist check-in screen, phase tiles, calendar, banners
+│   ├── nav.js          - Navigation bar, offline queue badge, pending-action indicators
+│   ├── checkin.js      - Reservist check-in screen, phase tiles, GPS state, calendar, banners, work timer
 │   ├── briefings.js    - Info tab (shift info, leave request history)
-│   ├── account.js      - Account settings, profile photo
+│   ├── account.js      - Account settings, profile photo, password change, name change
 │   └── admin/
 │       ├── index.js    - Shared admin context and sub-builder aggregation
-│       ├── batch.js    - Cycle picker, batch management, meal toggle, broadcast
-│       ├── roster.js   - Attendance roster, time log, search, stats, notes
-│       └── people.js   - Personnel list, member search, leave inbox, signups
+│       ├── batch.js    - Cycle picker, batch management, meal toggle, broadcast, export
+│       ├── roster.js   - Attendance roster, time log, status filters, mark-all actions, search, stats, notes, person history
+│       └── people.js   - Personnel list, member search, leave inbox, signup inbox, bulk actions, low-attendance flags
 │
 └── handlers/           - Event handlers: setState calls and DB writes
-    ├── auth.js         - Login, logout, signup, session management
-    ├── init.js         - App startup, realtime subscriptions, date change, auto-absent
-    ├── checkin.js      - Phase submission, GPS, offline queue
-    ├── requests.js     - Leave and signup approve/reject, bulk actions
-    ├── people.js       - Add/remove personnel, member search, bulk delete, admin management
-    ├── roster.js       - Manual status override, time correction, no-report days
-    ├── batch.js        - Cycle CRUD, export (XLS and print), bulk add, broadcast
-    ├── account.js      - Profile photo upload/remove, password change, name change
-    └── misc.js         - Toast, navigation helpers, WhatsApp share, welfare notes
+    ├── auth.js         - Login, logout, signup, session management, idle/session timers
+    ├── init.js         - App startup, realtime subscriptions, date change detection, auto-absent, batch provisioning
+    ├── checkin.js      - Phase submission (GPS and bypass), offline queue, late reason, location verification
+    ├── requests.js     - Leave and signup approve/reject, bulk actions, welfare notes, missed-day notes, log notes
+    ├── people.js       - Add/remove personnel, re-enroll, member search, bulk delete, admin management, history export
+    ├── roster.js       - Manual status override, time correction, no-report days, search, sort, day navigation
+    ├── batch.js        - Cycle CRUD, export (XLS and print), bulk add, broadcast, no-report bulk, jump to date
+    ├── account.js      - Profile photo upload/remove, password change, name change, notification permissions
+    └── misc.js         - Toast, navigation helpers, WhatsApp share/copy, page refresh
 
 scripts/                - Offline tooling (not part of the web app)
     ├── build_pptx.py         - Generates the OpsTracker briefing deck
@@ -212,7 +250,19 @@ scripts/                - Offline tooling (not part of the web app)
     └── supabase_cron.sql     - SQL to enable the auto-absent scheduled job
 ```
 
-`index.html` is the single-page template that wires all builders and handlers together.
+`index.html` is the single-page template that wires all builders and handlers together. The `<x-dc>` element at the top of the file is where all deployment-specific configuration lives.
+
+### Key Patterns
+
+**Attendance state cache**: Today's attendance is stored in `state.attendance`. Past and future dates are stored in `state.attendanceCache`, keyed by date string (`YYYY-MM-DD`). Roster handlers use `_viewAttMap`, `_setViewEntry`, and `_delViewEntry` helpers to read and write the correct map depending on the current view offset.
+
+**Offline queue**: When the device is offline, check-in actions are pushed to `this._offlineQueues` and persisted to `sessionStorage`. On reconnect, `_onOnline` replays the queue in order against the database.
+
+**Realtime**: Supabase Realtime channels push row-level changes for attendance (admin view), leave status (reservist view), and new requests (admin notifications) without polling.
+
+**Batch provisioning**: On every admin login, the system ensures a live batch exists and that 8 future batches are pre-created. This prevents the cycle selector from being empty when a new cycle starts.
+
+**Person history pagination**: The person history modal is paginated at 15 records per page. Status filters (All, Present, MC, Absent) are applied before pagination. Page state is reset when the filter changes.
 
 ### Database Schema
 
@@ -230,6 +280,7 @@ All data is stored in a structured cloud database (PostgreSQL), with six tables:
 | Active | Whether the account is currently active |
 | Notes | Supervisor notes on the person |
 | Created by | Name of the admin who added or re-enrolled the person (blank for self-signups) |
+| Deactivated at | Timestamp of when the account was last deactivated |
 
 **Cycles (Batches)** - one row per reporting cycle.
 
@@ -272,6 +323,7 @@ All data is stored in a structured cloud database (PostgreSQL), with six tables:
 | Reviewed by | Name of the supervisor who actioned it |
 | Reviewed at | Timestamp of the decision |
 | Rejection reason | Written reason if rejected |
+| Created at | Submission timestamp, used for urgency sorting |
 
 **Signup requests** - one row per enrollment request, including returning reservist re-enrollment.
 
@@ -282,6 +334,7 @@ All data is stored in a structured cloud database (PostgreSQL), with six tables:
 | Cycle | Which cycle they are enrolling into |
 | Status | Pending, Approved, or Rejected |
 | Reviewed by | Name of the supervisor who actioned it |
+| Created at | Submission timestamp |
 
 ### Auto-Absent
 
@@ -474,3 +527,4 @@ Open the address shown in the terminal in a browser. The service worker requires
 - Supervisor accounts are created by the Master account from within the app. No database access is required after initial setup.
 - Sessions are held in the browser's temporary memory (not permanently on the device) and expire when the browser tab is closed. Sessions also expire after 20 minutes of inactivity.
 - A session expiry warning appears 5 minutes before the session ends, with a one-tap option to extend it.
+- An idle warning appears at 18 minutes to give users time to respond before automatic logout at 20 minutes.

@@ -2,16 +2,14 @@
 const CheckinHandlers = {
 
   _detectInAppBrowser: function() {
-    const ua=navigator.userAgent||'';
-    const isIOS=/iP(hone|od|ad)/.test(ua);
+    const ua=navigator.userAgent||'', isIOS=/iP(hone|od|ad)/.test(ua);
     if(/WhatsApp/i.test(ua))       return {detected:true, name:'WhatsApp'};
     if(/Instagram/i.test(ua))      return {detected:true, name:'Instagram'};
     if(/FBAN|FBAV/i.test(ua))      return {detected:true, name:'Facebook'};
     if(/Telegram/i.test(ua))       return {detected:true, name:'Telegram'};
     if(/Line\//i.test(ua))         return {detected:true, name:'Line'};
     if(/MicroMessenger/i.test(ua)) return {detected:true, name:'WeChat'};
-    if(isIOS && /AppleWebKit/.test(ua) && !/Safari\//.test(ua))
-      return {detected:true, name:'a messaging app'};
+    if(isIOS&&/AppleWebKit/.test(ua)&&!/Safari\//.test(ua)) return {detected:true, name:'a messaging app'};
     return {detected:false, name:''};
   },
 
@@ -26,9 +24,8 @@ const CheckinHandlers = {
       this.setState({locStatus:'gps_error',locDistance:null,locGpsMsg:'Location services are not available in this browser. Use the bypass option below if your supervisor has authorised it.',locSlow:false,locPermErr:false});
       return;
     }
-    const ua=navigator.userAgent||'';
-    const isIOS=/iP(hone|od|ad)/.test(ua), isAndroid=/Android/.test(ua);
-    const {detected:isInApp, name:inAppName} = this._detectInAppBrowser();
+    const ua=navigator.userAgent||'', isIOS=/iP(hone|od|ad)/.test(ua), isAndroid=/Android/.test(ua);
+    const {detected:isInApp, name:inAppName}=this._detectInAppBrowser();
     const _permMsg=isInApp
       ?`Location is blocked inside ${inAppName}.\n\n${inAppName}'s browser cannot access GPS.\n\nFix: tap ··· or the share icon → "Open in Safari" (iPhone) or "Open in Chrome" (Android), then try again there.`
       :isIOS
@@ -46,8 +43,7 @@ const CheckinHandlers = {
       pos=>{
         clearTimeout(this._locSlowTimer);
         const dist=this._haversine(pos.coords.latitude,pos.coords.longitude,this._hqLat(),this._hqLon());
-        const rounded=Math.round(dist);
-        const accuracy=pos.coords.accuracy!=null?Math.round(pos.coords.accuracy):null;
+        const rounded=Math.round(dist), accuracy=pos.coords.accuracy!=null?Math.round(pos.coords.accuracy):null;
         if(accuracy!=null&&accuracy>400&&(this.state.locRetryCount||0)<=2){
           this.setState({locStatus:'idle',locSlow:false});
           setTimeout(()=>this.verifyLocation(),300);
@@ -57,21 +53,19 @@ const CheckinHandlers = {
       },
       err=>{
         clearTimeout(this._locSlowTimer);
-        const isPerm=err.code===1;
-        const msg=isPerm?_permMsg:err.code===2?_unavailMsg:_timeoutMsg;
+        const isPerm=err.code===1, msg=isPerm?_permMsg:err.code===2?_unavailMsg:_timeoutMsg;
         this.setState({locStatus:'gps_error',locDistance:null,locGpsMsg:msg,locSlow:false,locPermErr:isPerm});
       },
       {enableHighAccuracy:true,timeout:15000,maximumAge:0}
     );
   },
 
-  _hqLat:  function() { return parseFloat(this.props.hqLat)||1.332572; },
-  _hqLon:  function() { return parseFloat(this.props.hqLon)||103.937189; },
+  _hqLat:   function() { return parseFloat(this.props.hqLat)||1.332572; },
+  _hqLon:   function() { return parseFloat(this.props.hqLon)||103.937189; },
   _maxDist: function() { return parseInt(this.props.hqRange)||500; },
 
   _haversine: function(lat1,lon1,lat2,lon2) {
-    const R=6371000, r=Math.PI/180;
-    const dLat=(lat2-lat1)*r, dLon=(lon2-lon1)*r;
+    const R=6371000, r=Math.PI/180, dLat=(lat2-lat1)*r, dLon=(lon2-lon1)*r;
     const a=Math.sin(dLat/2)**2+Math.cos(lat1*r)*Math.cos(lat2*r)*Math.sin(dLon/2)**2;
     return R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
   },
@@ -84,127 +78,59 @@ const CheckinHandlers = {
     };
   },
 
-  doPhase: function(key) {
+  // Shared implementation for GPS check-in and bypass check-in
+  _doPhaseImpl: function(key, bypassed) {
     return async () => {
       if(this.state.phaseSubmitting) return;
-      const {locStatus,locDistance,locPhase,currentUserId,demo,isOnline,me} = this.state;
-      if(locStatus!=='verified'||locPhase!==key) return;
-      if(!demo && !me?.is_active){ this._toast('Your account has been deactivated. Please contact your supervisor.','error'); return; }
+      const {locStatus,locDistance,locPhase,currentUserId,demo,isOnline,me}=this.state;
+      if(!bypassed&&(locStatus!=='verified'||locPhase!==key)) return;
+      if(!demo&&!me?.is_active){this._toast('Your account has been deactivated. Please contact your supervisor.','error');return;}
       if(!demo){
-        const _myBatch = this.state.batches.find(b=>b.id===me?.batch_id);
-        const _todayKey = Utils.dateKey(this.baseDate());
-        if(_myBatch && _todayKey < _myBatch.start_date){
-          this._toast('Your reporting period has not started yet.','error'); return;
-        }
-        if(_myBatch && _todayKey > _myBatch.end_date){
-          this._toast('Your reporting period has ended.','error'); return;
-        }
+        const _b=this.state.batches.find(b=>b.id===me?.batch_id), _dk=Utils.dateKey(this.baseDate());
+        if(_b&&_dk<_b.start_date){this._toast('Your reporting period has not started yet.','error');return;}
+        if(_b&&_dk>_b.end_date){this._toast('Your reporting period has ended.','error');return;}
       }
-      const _curRec = this.myRec();
-      const _prereq = {p2:'p1', p3:'p2', p4:'p3'};
-      const _prereqMsg = {p2:'Check in first.', p3:'Record your break out first.', p4:'Record your return before checking out.'};
-      if(_prereq[key] && !_curRec?.[_prereq[key]]){ this._toast(_prereqMsg[key],'error'); return; }
+      const _pre={p2:'p1',p3:'p2',p4:'p3'}, _preMsg={p2:'Check in first.',p3:'Record your break out first.',p4:'Record your return before checking out.'};
+      if(_pre[key]&&!this.myRec()?.[_pre[key]]){this._toast(_preMsg[key],'error');return;}
       this.setState({phaseSubmitting:true});
-      const _now = new Date();
-      const time = Utils.hhmm(_now);
+      const time=Utils.hhmm(new Date()), dist=bypassed?null:locDistance;
       if(key==='p1'){
-        const [ch,cm]='09:00'.split(':').map(Number);
-        const [th,tm]=time.split(':').map(Number);
-        const minsLate=(th*60+tm)-(ch*60+cm);
-        if(minsLate>=60) this.setState({lateReasonOpen:true,lateReasonText:''});
-        else if(minsLate>=30) this.setState({showLateWarning:true});
+        const [ch,cm]='09:00'.split(':').map(Number), [th,tm]=time.split(':').map(Number);
+        const ml=(th*60+tm)-(ch*60+cm);
+        if(ml>=60) this.setState({lateReasonOpen:true,lateReasonText:''});
+        else if(ml>=30) this.setState({showLateWarning:true});
       }
-      const today = Utils.dateKey(this.baseDate());
-      const prevRec = {...(this.state.attendance[currentUserId]||{})};
-      const rec = {...this.myRec()};
-      if(key==='p1'){rec.status='present';rec.p1=time;rec.p1dist=locDistance;}
+      const today=Utils.dateKey(this.baseDate()), prev={...(this.state.attendance[currentUserId]||{})};
+      const rec={...this.myRec()};
+      if(key==='p1'){rec.status='present';rec.p1=time;rec.p1dist=dist;if(bypassed)rec.gpsBypassed=true;}
       else if(key==='p2') rec.p2=time;
-      else if(key==='p3'){rec.p3=time;rec.p3dist=locDistance;}
+      else if(key==='p3'){rec.p3=time;rec.p3dist=dist;if(bypassed)rec.gpsBypassed=true;}
       else if(key==='p4') rec.p4=time;
-      this.setState(s=>({
-        attendance:{...s.attendance,[currentUserId]:rec},
-        locStatus:'idle', locPhase:null,
-        showLateWarning:key==='p1'?false:s.showLateWarning,
-      }));
+      this.setState(s=>({attendance:{...s.attendance,[currentUserId]:rec},locStatus:'idle',locPhase:null,...(!bypassed&&key==='p1'?{showLateWarning:false}:{})}));
       this._haptic();
-      const _phaseToasts={p1:'Checked in',p2:'Break recorded',p3:'Returned',p4:'Checked out'};
-      this._toast(_phaseToasts[key]||'Recorded');
-      if(!demo){
-        if(!isOnline){
-          this._queuePush({type:'phase',id:currentUserId,date:today,key,time,dist:locDistance});
-          this.setState({phaseSubmitting:false});
-        } else {
-          const {error:phErr} = await DB.attendance.logPhase(currentUserId, today, key, time, locDistance);
-          this.setState({phaseSubmitting:false});
-          if(phErr){
-            const _meCheck = await DB.personnel.get(currentUserId).catch(()=>null);
-            if(!_meCheck){ this._toast('Your account no longer exists. Please contact your supervisor.','error'); this.logout(); return; }
+      this._toast({p1:'Checked in',p2:'Break recorded',p3:'Returned',p4:'Checked out'}[key]||'Recorded');
+      if(demo){this.setState({phaseSubmitting:false});return;}
+      if(!isOnline){
+        this._queuePush({type:'phase',id:currentUserId,date:today,key,time,dist,...(bypassed?{bypassed:true}:{})});
+        this.setState({phaseSubmitting:false});
+      } else {
+        const {error:phErr}=await DB.attendance.logPhase(currentUserId,today,key,time,dist,bypassed||false);
+        this.setState({phaseSubmitting:false});
+        if(phErr){
+          if(!bypassed){
+            const _mc=await DB.personnel.get(currentUserId).catch(()=>null);
+            if(!_mc){this._toast('Your account no longer exists. Please contact your supervisor.','error');this.logout();return;}
             this._toast('Failed to sync check-in. Restoring previous state.','error');
-            this.setState(s=>({attendance:{...s.attendance,[currentUserId]:prevRec}}));
+            this.setState(s=>({attendance:{...s.attendance,[currentUserId]:prev}}));
+          } else {
+            this._toast('Check-in saved locally but failed to sync. Check your connection.','error');
           }
         }
-      } else {
-        this.setState({phaseSubmitting:false});
       }
     };
   },
-
-  doPhaseBypass: function(key) {
-    return async () => {
-      if(this.state.phaseSubmitting) return;
-      const {currentUserId,demo,isOnline,me} = this.state;
-      if(!demo && !me?.is_active){ this._toast('Your account has been deactivated. Please contact your supervisor.','error'); return; }
-      if(!demo){
-        const _myBatch = this.state.batches.find(b=>b.id===me?.batch_id);
-        const _todayKey2 = Utils.dateKey(this.baseDate());
-        if(_myBatch && _todayKey2 < _myBatch.start_date){
-          this._toast('Your reporting period has not started yet.','error'); return;
-        }
-        if(_myBatch && _todayKey2 > _myBatch.end_date){
-          this._toast('Your reporting period has ended.','error'); return;
-        }
-      }
-      const _curRec2 = this.myRec();
-      const _prereq2 = {p2:'p1', p3:'p2', p4:'p3'};
-      const _prereqMsg2 = {p2:'Check in first.', p3:'Record your break out first.', p4:'Record your return before checking out.'};
-      if(_prereq2[key] && !_curRec2?.[_prereq2[key]]){ this._toast(_prereqMsg2[key],'error'); return; }
-      this.setState({phaseSubmitting:true});
-      const _now = new Date();
-      const time = Utils.hhmm(_now);
-      if(key==='p1'){
-        const [ch,cm]='09:00'.split(':').map(Number);
-        const [th,tm]=time.split(':').map(Number);
-        const minsLate=(th*60+tm)-(ch*60+cm);
-        if(minsLate>=60) this.setState({lateReasonOpen:true,lateReasonText:''});
-        else if(minsLate>=30) this.setState({showLateWarning:true});
-      }
-      const today = Utils.dateKey(this.baseDate());
-      const rec = {...this.myRec()};
-      if(key==='p1'){rec.status='present';rec.p1=time;rec.p1dist=null;rec.gpsBypassed=true;}
-      else if(key==='p2') rec.p2=time;
-      else if(key==='p3'){rec.p3=time;rec.p3dist=null;rec.gpsBypassed=true;}
-      else if(key==='p4') rec.p4=time;
-      this.setState(s=>({
-        attendance:{...s.attendance,[currentUserId]:rec},
-        locStatus:'idle', locPhase:null,
-      }));
-      this._haptic();
-      const _phaseToasts={p1:'Checked in',p2:'Break recorded',p3:'Returned',p4:'Checked out'};
-      this._toast(_phaseToasts[key]||'Recorded');
-      if(!demo){
-        if(!isOnline){
-          this._queuePush({type:'phase',id:currentUserId,date:today,key,time,dist:null,bypassed:true});
-          this.setState({phaseSubmitting:false});
-        } else {
-          const {error:phErr} = await DB.attendance.logPhase(currentUserId, today, key, time, null, true);
-          this.setState({phaseSubmitting:false});
-          if(phErr) this._toast('Check-in saved locally but failed to sync. Check your connection.','error');
-        }
-      } else {
-        this.setState({phaseSubmitting:false});
-      }
-    };
-  },
+  doPhase:       function(key) { return this._doPhaseImpl(key, false); },
+  doPhaseBypass: function(key) { return this._doPhaseImpl(key, true); },
 
   _haptic: function(ms=60) { if(navigator.vibrate) navigator.vibrate(ms); },
 
@@ -216,20 +142,19 @@ const CheckinHandlers = {
 
   retrySync: function() { if(this.state.isOnline) this._onOnline(); },
 
-  openLateReason:      function() { this.setState({lateReasonOpen:true,lateReasonText:this.myRec()?.lateReason||''}); },
-  onLateReasonText:    function(e) { this.setState({lateReasonText:e.target.value}); },
-  skipLateReason:      function() { this.setState({lateReasonOpen:false,lateReasonText:''}); },
-  dismissLateWarning:  function() { this.setState({showLateWarning:false}); },
+  openLateReason:     function() { this.setState({lateReasonOpen:true,lateReasonText:this.myRec()?.lateReason||''}); },
+  onLateReasonText:   function(e) { this.setState({lateReasonText:e.target.value}); },
+  skipLateReason:     function() { this.setState({lateReasonOpen:false,lateReasonText:''}); },
+  dismissLateWarning: function() { this.setState({showLateWarning:false}); },
 
   submitLateReason: async function() {
-    const {lateReasonText,currentUserId,demo,isOnline} = this.state;
+    const {lateReasonText,currentUserId,demo,isOnline}=this.state;
     if(!lateReasonText.trim()) return;
     this.setState({lateReasonSubmitting:true});
     if(!demo){
-      if(!isOnline){ this._toast('No connection. Reason not saved. Try again when online.','error'); this.setState({lateReasonSubmitting:false}); return; }
-      const today=Utils.dateKey(this.baseDate());
-      const {error} = await DB.attendance.submitLateReason(currentUserId, today, lateReasonText.trim());
-      if(error){ this._toast('Failed to save reason. Try again.','error'); this.setState({lateReasonSubmitting:false}); return; }
+      if(!isOnline){this._toast('No connection. Reason not saved. Try again when online.','error');this.setState({lateReasonSubmitting:false});return;}
+      const {error}=await DB.attendance.submitLateReason(currentUserId,Utils.dateKey(this.baseDate()),lateReasonText.trim());
+      if(error){this._toast('Failed to save reason. Try again.','error');this.setState({lateReasonSubmitting:false});return;}
     }
     this.setState({lateReasonOpen:false,lateReasonText:'',lateReasonSubmitting:false});
     this._toast('Reason submitted.');
