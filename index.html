@@ -1399,19 +1399,38 @@
               </div>
             </sc-if>
             <sc-for list="{{ logRows }}" as="row" hint-placeholder-count="6">
-              <div style="padding:11px 14px 11px 13px;border-bottom:1px solid #f2f4f7;border-left:3px solid {{ row.color }};">
-                <div style="display:flex;align-items:center;gap:10px;">
-                  <div class="avatar-sm" style="{{ row.avatarStyle }}">{{ row.initials }}</div>
-                  <div onClick="{{ row.onViewHistory }}" class="flex-fill" style="min-width:0;cursor:pointer;">
-                    <div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div>
-                    <div style="font-size:10.5px;color:#9aa3b2;margin-top:1px;font-family:'IBM Plex Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.shiftLabel }}</div>
+              <div style="padding:12px 14px;border-bottom:1px solid #f0f2f6;">
+                <div style="display:flex;align-items:flex-start;gap:10px;">
+                  <div class="avatar-sm" style="flex:0 0 auto;margin-top:1px;{{ row.avatarStyle }}">{{ row.initials }}</div>
+                  <div style="flex:1;min-width:0;cursor:pointer;" onClick="{{ row.onViewHistory }}">
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                      <span style="font-size:13.5px;font-weight:600;color:#161f30;">{{ row.name }}</span>
+                      <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
+                      <sc-if value="{{ row.showNoLateReason }}" hint-placeholder-val="">
+                        <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:#fdf0dc;color:#b9791a;white-space:nowrap;">Late · No reason</span>
+                      </sc-if>
+                      <sc-if value="{{ row.showLateReason }}" hint-placeholder-val="">
+                        <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:#fdecea;color:#c0392b;white-space:nowrap;">Late</span>
+                      </sc-if>
+                      <sc-if value="{{ row.showNoGps }}" hint-placeholder-val="">
+                        <span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:20px;background:#eef0f4;color:#5c6678;white-space:nowrap;">No GPS</span>
+                      </sc-if>
+                    </div>
+                    <div style="font-size:10.5px;color:#9aa3b2;margin-top:2px;font-family:'IBM Plex Mono',monospace;">{{ row.shiftLabel }}</div>
+                    <sc-if value="{{ row.showLateReason }}" hint-placeholder-val="">
+                      <div style="font-size:10.5px;color:#c0392b;margin-top:2px;font-style:italic;">{{ row.lateReason }}</div>
+                    </sc-if>
+                    <sc-if value="{{ row.showEditSummary }}" hint-placeholder-val="">
+                      <div style="font-size:10px;color:#b0b8c7;margin-top:2px;">{{ row.editSummary }}</div>
+                    </sc-if>
                   </div>
-                  <span style="font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;flex:0 0 auto;color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
-                  <button onClick="{{ row.onEditLogNote }}" style="-webkit-appearance:none;width:28px;height:28px;background:#f6f8fa;border:1px solid #e3e6ec;border-radius:8px;cursor:pointer;flex:0 0 auto;color:{{ row.logNoteIconColor }};display:flex;align-items:center;justify-content:center;padding:0;" title="Note"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></button>
-                  <button onClick="{{ row.onEditTimes }}" style="-webkit-appearance:none;height:28px;padding:0 10px;background:#f6f8fa;border:1px solid #e3e6ec;border-radius:8px;font-size:11.5px;font-weight:600;color:#5c6678;cursor:pointer;flex:0 0 auto;">Edit</button>
+                  <div style="display:flex;gap:5px;flex-shrink:0;">
+                    <button onClick="{{ row.onEditLogNote }}" style="-webkit-appearance:none;width:28px;height:28px;background:#f6f8fa;border:1px solid #e3e6ec;border-radius:8px;cursor:pointer;color:{{ row.logNoteIconColor }};display:flex;align-items:center;justify-content:center;padding:0;" title="Note"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></button>
+                    <button onClick="{{ row.onEditTimes }}" style="-webkit-appearance:none;height:28px;padding:0 10px;background:#f6f8fa;border:1px solid #e3e6ec;border-radius:8px;font-size:11.5px;font-weight:600;color:#5c6678;cursor:pointer;">Edit</button>
+                  </div>
                 </div>
                 <sc-if value="{{ row.showPhaseLine }}" hint-placeholder-val="">
-                  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:9px;">
+                  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:9px;">
                     <div style="background:#f6f8fa;border-radius:7px;padding:5px 4px;text-align:center;">
                       <div style="font-size:9px;font-weight:700;letter-spacing:.05em;color:#9aa3b2;margin-bottom:3px;">IN</div>
                       <div style="font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ row.p1Color }};">{{ row.p1 }}</div>
@@ -1430,20 +1449,6 @@
                     </div>
                   </div>
                 </sc-if>
-                <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:5px;">
-                  <sc-if value="{{ row.showNoLateReason }}" hint-placeholder-val="">
-                    <span style="font-size:10.5px;font-weight:600;color:#b9791a;">Late · No reason</span>
-                  </sc-if>
-                  <sc-if value="{{ row.showLateReason }}" hint-placeholder-val="">
-                    <span style="font-size:10.5px;font-weight:500;color:#c0392b;">Late: {{ row.lateReason }}</span>
-                  </sc-if>
-                  <sc-if value="{{ row.showNoGps }}" hint-placeholder-val="">
-                    <span style="font-size:10.5px;font-weight:500;color:#b9791a;">No GPS</span>
-                  </sc-if>
-                  <sc-if value="{{ row.showEditSummary }}" hint-placeholder-val="">
-                    <span style="font-size:10.5px;color:#9aa3b2;">{{ row.editSummary }}</span>
-                  </sc-if>
-                </div>
                 <sc-if value="{{ row.isTimesEditing }}" hint-placeholder-val="">
                   <div style="margin-top:10px;padding:14px;background:#fff;border-radius:12px;border:1px solid #d4d9e2;">
                     <div style="font-size:10.5px;font-weight:700;color:#5c6678;letter-spacing:.06em;margin-bottom:12px;">EDIT TIMES</div>
