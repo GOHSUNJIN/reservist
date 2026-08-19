@@ -19,8 +19,8 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 ### For Reservists
 
 - **4-phase check-in**: Log four checkpoints throughout the day - check in, lunch out, return from lunch, and end of shift. Each phase is timestamped to the minute.
-- **GPS verification**: The phone's GPS confirms you are physically at the designated location before the check-in is accepted. Distance from HQ is recorded. The radius is configurable (default: 200 m).
-- **GPS bypass**: If GPS is unavailable or blocked, a bypass option allows check-in without location. Bypassed records are permanently flagged in the log.
+- **GPS verification**: The phone's GPS confirms you are physically at the designated location before the check-in is accepted. Distance from HQ is recorded. The radius is configurable (default: 500 m).
+- **GPS bypass**: After two failed GPS attempts, a bypass option appears to allow check-in without location. Bypassed records are permanently flagged in the log.
 - **Leave and MC requests**: Submit requests digitally through the app. They go directly to the supervisor for approval with no phone calls or messages needed.
 - **Cancel pending requests**: A leave or MC request can be withdrawn by the reservist before the supervisor has acted on it, from both the check-in tab and the Requests history.
 - **Attendance history**: View your own full record for the cycle, including total days present, MC, absent, and your attendance rate.
@@ -30,7 +30,7 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 - **Offline check-in**: If connectivity is lost during check-in, the action is saved on the device and submitted automatically once the connection is restored.
 - **Returning reservist re-enrollment**: When a reservist from a previous cycle logs in after their account was deactivated, the app automatically submits a re-enrollment request to the supervisor. No manual coordination required.
 - **Logout confirmation**: Tapping Log Out shows a confirmation step before the session is ended, preventing accidental logouts.
-- **Session expiry warning**: A banner appears 5 minutes before the session expires with a one-tap option to extend it.
+- **Session expiry warning**: A banner appears at 55 minutes into the session with a one-tap option to extend it before the session expires at 60 minutes.
 - **Idle timeout**: Sessions expire after 20 minutes of inactivity, with a warning at 18 minutes.
 - **Work timer and meal allowance**: When meal allowance is active for the cycle, a live timer shows total work time for the day, paused during lunch. Meal eligibility is shown automatically after 8 hours.
 - **Late check-in self-declaration**: If you check in more than one hour after shift start, you are prompted to provide a written reason for the lateness before the check-in is accepted.
@@ -63,7 +63,7 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 - **Select-all for signups**: A checkbox in the signup section header selects or deselects all visible pending signups. Filtered by the search box, so select-all only acts on visible results.
 - **Select-all for leave requests**: Same select-all behavior for pending leave requests.
 - **Bulk leave actions**: Select multiple pending leave requests and approve or reject them in a single action. Bulk rejection requires a written reason recorded against each rejected request.
-- **Urgency sorting**: Pending leave requests are sorted by submission time, oldest first, so the most overdue requests appear at the top.
+- **Urgency sorting**: Pending leave requests are sorted by submission time, newest first, so recently submitted requests are visible immediately.
 - **Leave request rejection reason**: Each rejected request records the reviewer's name, timestamp, and written reason.
 - **Reopen rejected signups**: A rejected signup request can be re-opened and returned to pending status if the decision needs to be reversed.
 - **Hide rejected signups**: Collapsed view for rejected signup requests to reduce clutter in the inbox.
@@ -474,7 +474,7 @@ Open `index.html` and edit the configuration block at the top of the file:
   hq-name="Your Location Name"
   hq-lat="1.332572"
   hq-lon="103.937189"
-  hq-range="200"
+  hq-range="500"
   wa-group-link="https://chat.whatsapp.com/YOUR_GROUP_LINK"
 >
 ```
