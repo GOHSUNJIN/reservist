@@ -1239,20 +1239,23 @@
             <button onClick="{{ setRosterStatusPending }}" style="{{ rosterStatusPendingStyle }}">Pending</button>
           </div>
           <sc-if value="{{ notConfirmAny }}" hint-placeholder-val="">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
-            <div style="display:flex;background:#eceef2;border-radius:11px;padding:3px;gap:2px;">
-              <button onClick="{{ setRosterSortName }}" style="{{ rosterSortNameStyle }}">A to Z</button>
-              <button onClick="{{ setRosterSortStatus }}" style="{{ rosterSortStatusStyle }}">Status</button>
+          <div style="margin-bottom:14px;">
+            <div style="display:flex;align-items:center;margin-bottom:8px;">
+              <div style="display:flex;background:#eceef2;border-radius:11px;padding:3px;gap:2px;">
+                <button onClick="{{ setRosterSortName }}" style="{{ rosterSortNameStyle }}">A to Z</button>
+                <button onClick="{{ setRosterSortStatus }}" style="{{ rosterSortStatusStyle }}">Status</button>
+              </div>
             </div>
-            <div style="flex:1;"></div>
-            <button onClick="{{ askMarkAllPresent }}" disabled="{{ markAllPresenting }}" style="{{ markAllPresentStyle }}" title="Mark all present">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg>
-              Mark present
-            </button>
-            <button onClick="{{ askMarkAllAbsent }}" disabled="{{ markingAllAbsent }}" style="{{ markAllAbsentStyle }}" title="Mark all absent">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-              Mark absent
-            </button>
+            <div style="display:flex;gap:6px;">
+              <button onClick="{{ askMarkAllPresent }}" disabled="{{ markAllPresenting }}" style="{{ markAllPresentStyle }}" title="Mark all present">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg>
+                Mark present
+              </button>
+              <button onClick="{{ askMarkAllAbsent }}" disabled="{{ markingAllAbsent }}" style="{{ markAllAbsentStyle }}" title="Mark all absent">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
+                Mark absent
+              </button>
+            </div>
           </div>
           </sc-if>
           <sc-if value="{{ confirmMarkAllPresent }}" hint-placeholder-val="">
