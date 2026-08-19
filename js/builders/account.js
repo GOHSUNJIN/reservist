@@ -10,6 +10,7 @@ const AccountBuilders = {
     const acctDkLeft=acctDekit?Math.round((acctDekit-acctTodayMid)/86400000):null;
     const acctDekitCountdown=acctDkLeft===null?'':acctDkLeft===0?'Return equipment today':acctDkLeft>0?`${acctDkLeft} day${acctDkLeft!==1?'s':''} to dekit`:'Cycle complete';
     const acctShowDekit=s.role==='reservist'&&!!acctDekitCountdown;
+    const acctCycleRowStyle=acctShowDekit?'':'border-bottom:none;';
     return {
       accountOpen:s.accountOpen,
       closeAccount:this.closeAccount, askDelete:this.askDelete, cancelDelete:this.cancelDelete, deleteAccount:this.deleteAccount,
@@ -29,7 +30,7 @@ const AccountBuilders = {
       saveAcctPw:this.saveAcctPw,
       acctPwError:s.acctPwError, acctPwSuccess:s.acctPwSuccess,
       acctSaving:s.acctSaving, acctSavingOpacity:s.acctSaving?0.6:1, capsLock:!!s.capsLock, onPwKeyDown:this.onPwKeyDown,
-      acctDekitCountdown, acctShowDekit,
+      acctDekitCountdown, acctShowDekit, acctCycleRowStyle,
       adminNotifGranted:s.adminNotifGranted, requestAdminNotifs:this.requestAdminNotifs,
       helpOpen:s.helpOpen, openHelp:this.openHelp, closeHelp:this.closeHelp,
       dekitDateFull:acctDekit?Utils.fmtMed(acctDekit):'',
