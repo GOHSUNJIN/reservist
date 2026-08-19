@@ -61,19 +61,16 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Cache-first for local JS files - versioned by CACHE name, safe to serve from cache
+  // Network-first for local JS files - always fetch fresh code, fall back to cache offline
   if (url.pathname.endsWith('.js')) {
     e.respondWith(
-      caches.match(e.request).then(hit => {
-        if (hit) return hit;
-        return fetch(e.request).then(res => {
-          if (res.ok) {
-            const clone = res.clone();
-            caches.open(CACHE).then(c => c.put(e.request, clone)).catch(() => {});
-          }
-          return res;
-        });
-      })
+      fetch(e.request).then(res => {
+        if (res.ok) {
+          const clone = res.clone();
+          caches.open(CACHE).then(c => c.put(e.request, clone)).catch(() => {});
+        }
+        return res;
+      }).catch(() => caches.match(e.request))
     );
     return;
   }
