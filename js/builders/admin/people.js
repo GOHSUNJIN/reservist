@@ -100,6 +100,7 @@ const AdminPeople = {
           memberSearchPage:page, memberSearchTotalPages:totalPages,
           memberSearchTotal:filtered.length,
           memberSearchHasPrev:page>1, memberSearchHasNext:page<totalPages,
+          memberSearchShowPagination:totalPages>1,
           memberSearchPrevOpacity:page>1?'1':'0.35', memberSearchNextOpacity:page<totalPages?'1':'0.35',
           memberSearchPagePrev:()=>self.setState({memberSearchPage:Math.max(1,page-1)}),
           memberSearchPageNext:()=>self.setState({memberSearchPage:Math.min(totalPages,page+1)}),
@@ -130,6 +131,7 @@ const AdminPeople = {
         timeAgo, isExpired,
       });});})(),
       pendingLeavesCount:(s.pendingLeaves||[]).length,
+      leaveSearchHasNoResults:!!(s.leaveSearch||'').trim()&&(s.pendingLeaves||[]).length>0&&(()=>{const _lq=(s.leaveSearch||'').toLowerCase().trim();return (s.pendingLeaves||[]).filter(l=>(l.personnel?.name||'').toLowerCase().includes(_lq)||(l.personnel?.contact||'').includes(_lq)).length===0;})(),
       hasPendingLeaves:(s.pendingLeaves||[]).length>0,
       pendingLeavesLoaded:s.pendingLeavesLoaded,
       leaveSelectedCount:(s.leaveSelectedIds||[]).length,
@@ -156,6 +158,7 @@ const AdminPeople = {
       adminsList:(s.adminsList||[]).map(a=>({
         id:a.id, name:a.name, contact:a.contact||'',
         roleLabel:a.role==='superadmin'?'Master':'Admin',
+        roleColor:a.role==='superadmin'?'#b9791a':'#5c6678',
         isMaster:a.role==='superadmin',
         initials:Utils.initials(a.name),
         canDeactivate:a.id!==s.currentUserId&&a.role!=='superadmin',
@@ -195,7 +198,7 @@ const AdminPeople = {
           const initials=p.name.trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
           const av=(s.avatars||{})[p.id];
           const avatarStyle=av?`background-image:url("${av.replace(/"/g,'%22')}");background-size:cover;background-position:center;color:transparent;`:'';
-          return {id:p.id,name:p.name,contact:p.contact||'',batchLabel:b?b.label:'',initials,avatarStyle,
+          return {id:p.id,name:p.name,contact:p.contact||'',batchLabel:b?b.label:'',contactBatchLine:(p.contact||'')+(b?' · '+b.label:''),initials,avatarStyle,
             onSelect:()=>self.setState({promoteAdminId:p.id,promoteAdminName:p.name,promoteAdminContact:p.contact||'',confirmPromoteAdminId:null,promoteSearch:''})};
         });
         const promoteTotalPages=Math.max(1,Math.ceil(allRows.length/PROMOTE_PAGE_SIZE));
@@ -239,6 +242,7 @@ const AdminPeople = {
       hasPendingSignups:s.pendingSignups.length>0,
       pendingSignupsLoaded:!!(s.pendingSignupsLoaded),
       pendingSignupCount:s.pendingSignups.length,
+      signupSearchHasNoResults:!!(s.signupSearch||'').trim()&&s.pendingSignups.length>0&&(()=>{const _sq=(s.signupSearch||'').toLowerCase().trim();return s.pendingSignups.filter(r=>r.name.toLowerCase().includes(_sq)||(r.contact||'').includes(_sq)).length===0;})(),
       selectedSignupCount:(s.selectedSignupIds||[]).length,
       hasSelectedSignups:(s.selectedSignupIds||[]).length>0,
       onApproveSelected:self.approveSelected,
@@ -252,6 +256,7 @@ const AdminPeople = {
       rejectedSignupsLoaded:!!(s.rejectedSignupsLoaded),
       rejectedSignupCount:(s.rejectedSignups||[]).length,
       rejectedSignupsHidden:!!(s.rejectedSignupsHidden),
+      rejectedSignupsChevronRotate:s.rejectedSignupsHidden?'-90':'0',
       toggleRejectedSignups:()=>self.setState({rejectedSignupsHidden:!s.rejectedSignupsHidden}),
       // People sub-tabs
       ...(()=>{

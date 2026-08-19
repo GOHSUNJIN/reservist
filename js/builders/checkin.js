@@ -148,6 +148,7 @@ const CheckinBuilders = {
         key:pd.key, num:pd.num, label:pd.label, isLast:pd.key==='p4', notLast:pd.key!=='p4',
         needsGps:pd.needsGps, notNeedsGps:!pd.needsGps,
         done, notDone:!done, time:time||'-', doneText,
+        labelColor:done?'#1f8a5b':isActive?'#161f30':'#a0a8b4',
         locked, upcoming, isActive, notActive:!isActive||done,
         lateActive, btnBg:lateActive?'#b9791a':accent,
         stepBg:done?'#1f8a5b':isActive?(lateActive?'#b9791a':accent):'#eceef2',
@@ -395,7 +396,8 @@ const CheckinBuilders = {
          p1:rec.p1||'-',p2:rec.p2||'-',p3:rec.p3||'-',p4:rec.p4||'-',
          p1Color:_tc(rec.p1,'#161f30',_dc),p2Color:_tc(rec.p2,'#161f30',_dc),p3Color:_tc(rec.p3,'#161f30',_dc),p4Color:_tc(rec.p4,'#161f30',_dc),
          hasExpandToggle:status==='present'||status==='pending',isExpanded:_exDates.includes(today),onToggleExpand:this.toggleHistoryExpand(today),
-         showTimes:status==='present'&&_exDates.includes(today),lateReason:rec.lateReason||'',showLateReason:!!(rec.lateReason)&&_exDates.includes(today),
+         showTimes:status==='present'&&_exDates.includes(today),rowMarginBot:(status==='present'&&_exDates.includes(today))?'9px':'0',chevronRotate:_exDates.includes(today)?'180':'0',
+         lateReason:rec.lateReason||'',showLateReason:!!(rec.lateReason)&&_exDates.includes(today),
          isMissedRow:false,showMissedNote:false,missedNote:'',onOpenMissedNote:()=>{},
          showTimingWarning:status==='present'&&(!rec.p2||!rec.p3||!rec.p4),
          ...Utils.meta(status)}]:[];
@@ -419,7 +421,7 @@ const CheckinBuilders = {
         p4Color:p4?'#161f30':(isPresent?_nc:_dc),
         hasExpandToggle:isPresent||isMissed,isExpanded:_rowEx,
         onToggleExpand:isMissed?this.openMissedNote(r.date,r.welfare_note||''):this.toggleHistoryExpand(r.date),
-        showTimes:isPresent&&_rowEx,hasIncompleteTimes:hasIncompleteTimes&&_rowEx,
+        showTimes:isPresent&&_rowEx,rowMarginBot:(isPresent&&_rowEx)?'9px':'0',chevronRotate:_rowEx?'180':'0',hasIncompleteTimes:hasIncompleteTimes&&_rowEx,
         showTimingWarning:isPresent&&(!p2||!p3||!p4),
         lateReason:r.late_reason||'',showLateReason:!!(r.late_reason)&&_rowEx,
         isMissedRow:isMissed,missedNote:r.welfare_note||'',showMissedNote:false,
@@ -435,7 +437,7 @@ const CheckinBuilders = {
         if(Utils.isReportDay(d)&&dk<=activeBatch.end_date&&!Utils.holidayName(d)&&!s.noReportDays.has(dk)&&!histKeys.has(dk)){
           missedRows.push({date:Utils.fmtMed(d),dateKey:dk,shift:Utils.shiftLabel(me.shift),status:'missed',
             p1:'-',p2:'-',p3:'-',p4:'-',p1Color:_dc,p2Color:_dc,p3Color:_dc,p4Color:_dc,
-            showTimes:false,hasExpandToggle:true,isExpanded:false,onToggleExpand:this.openMissedNote(dk,''),showTimingWarning:false,
+            showTimes:false,rowMarginBot:'0',chevronRotate:'0',hasExpandToggle:true,isExpanded:false,onToggleExpand:this.openMissedNote(dk,''),showTimingWarning:false,
             isMissedRow:true,missedNote:'',showMissedNote:false,onOpenMissedNote:this.openMissedNote(dk,''),
             ...Utils.meta('missed')});
         }

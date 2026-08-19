@@ -129,6 +129,7 @@ const PeopleHandlers = {
     const {npName,npShift,batches,activeBatchIdx,npReenrollRecord,me}=this.state;
     if(!npReenrollRecord) return;
     const activeBatch=batches[activeBatchIdx||0];
+    if(!activeBatch){ this._toast('No active batch selected.','error'); return; }
     const addedName=npName.trim();
     const {data:reactivated,error:reactErr}=await DB.personnel.reactivate(npReenrollRecord.id,{batchId:activeBatch?.id,shift:npShift});
     if(reactErr||!reactivated){ this._toast('Failed to re-enroll. Try again.','error'); return; }
@@ -361,7 +362,7 @@ const PeopleHandlers = {
     this.setState({bulkAddParsed:parsed, bulkAddStep:'preview'});
   },
   confirmBulkAdd: async function() {
-    const {bulkAddParsed, batches, activeBatchIdx, demo} = this.state;
+    const {bulkAddParsed, batches, activeBatchIdx, demo, me} = this.state;
     const batch = batches[activeBatchIdx||0];
     if(!batch) { this._toast('No active batch.', 'error'); return; }
     const valid = bulkAddParsed.filter(r=>r.valid);
@@ -378,8 +379,8 @@ const PeopleHandlers = {
         } else { skipped++; }
         continue;
       }
-      const {error} = await DB.personnel.add({name:r.name,contact:r.contact,shift:r.shift,batchId:batch.id});
-      error ? failed++ : added++;
+      const {data:addedData,error} = await DB.personnel.add({name:r.name,contact:r.contact,shift:r.shift,batchId:batch.id});
+      if(error){ failed++; } else { if(me?.name && addedData?.id) DB.personnel.setCreatedBy(addedData.id, me.name).catch(()=>{}); added++; }
     }
     const personnel = await DB.personnel.list().catch(()=>this.state.personnel);
     this.setState({personnel, bulkAddAdding:false});

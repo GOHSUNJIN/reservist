@@ -183,7 +183,12 @@ const RequestHandlers = {
           this._toast('Request approved.');
         }
       }
-      this.loadPendingLeaves();
+      if(this.state.demo && leave){
+        this.setState(s=>({pendingLeaves:(s.pendingLeaves||[]).filter(l=>l.id!==id)}));
+        this._toast('Request approved.');
+      } else {
+        this.loadPendingLeaves();
+      }
     };
   },
 
@@ -206,9 +211,11 @@ const RequestHandlers = {
         return;
       }
     }
+    const _rejectedId = rejectLeaveId;
     this.setState({rejectLeaveId: null, rejectLeaveReason: ''});
     this._toast('Request declined.');
-    this.loadPendingLeaves();
+    if(demo){ this.setState(s=>({pendingLeaves:(s.pendingLeaves||[]).filter(l=>l.id!==_rejectedId)})); }
+    else { this.loadPendingLeaves(); }
   },
 
   toggleLeaveSelect: function(id) { return () => this.setState(s=>{const ids=s.leaveSelectedIds||[];return {leaveSelectedIds:ids.includes(id)?ids.filter(x=>x!==id):[...ids,id]};});},
@@ -234,9 +241,11 @@ const RequestHandlers = {
       if(hasToday){const freshAtt=await DB.attendance.getForDate(todayKey).catch(()=>null);if(freshAtt)this.setState({attendance:freshAtt,attendanceDate:todayKey});}
     }
     const count=leaveSelectedIds.length;
+    const _approvedIds=new Set(leaveSelectedIds);
     this.setState({leaveSelectedIds:[],bulkApprovingLeaves:false});
     this._toast(`${count} request${count!==1?'s':''} approved.`);
-    this.loadPendingLeaves();
+    if(demo){ this.setState(s=>({pendingLeaves:(s.pendingLeaves||[]).filter(l=>!_approvedIds.has(l.id))})); }
+    else { this.loadPendingLeaves(); }
   },
 
   askBulkLeaveReject: function() { this.setState({confirmBulkLeaveReject:true,bulkLeaveRejectReason:''}); },
@@ -251,9 +260,11 @@ const RequestHandlers = {
       await Promise.all(leaveSelectedIds.map(id=>DB.leaves.updateStatus(id,'rejected',reviewMeta).catch(()=>{})));
     }
     const count=leaveSelectedIds.length;
+    const _rejectedIds=new Set(leaveSelectedIds);
     this.setState({leaveSelectedIds:[],confirmBulkLeaveReject:false,bulkLeaveRejectReason:''});
     this._toast(`${count} request${count!==1?'s':''} declined.`);
-    this.loadPendingLeaves();
+    if(demo){ this.setState(s=>({pendingLeaves:(s.pendingLeaves||[]).filter(l=>!_rejectedIds.has(l.id))})); }
+    else { this.loadPendingLeaves(); }
   },
 
   openLeaveRequest: function(date) { return () => this.setState({leaveOpen:true, leaveDate:date, leaveType:'mc', leaveReason:''}); },

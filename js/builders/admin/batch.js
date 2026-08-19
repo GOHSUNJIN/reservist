@@ -67,6 +67,8 @@ const AdminBatch = {
     const editTargetRange=_ebs&&_ebe?(Utils.fmtShort(_ebs)+' to '+Utils.fmtShort(_ebe)+' '+_ebs.getFullYear()):'';
     const editTargetIsPast=!!(activeBatch&&activeBatch.end_date<todayForChips&&!activeBatch.is_live);
     const editTargetStatus=editTargetIsLive?'LIVE':editTargetIsPast?'PAST':'UPCOMING';
+    const editTargetStatusChipBg=editTargetIsLive?'#22c55e':editTargetIsPast?'rgba(255,255,255,.1)':'rgba(47,95,208,.5)';
+    const editTargetStatusChipColor=editTargetIsLive?'#fff':editTargetIsPast?'#8a94a3':'#a8c0f8';
     const _sortedBatches=[...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
     const _isLastDay=!!(liveBatch&&todayForChips===liveBatch.end_date);
     const _nextBatch=_isLastDay?_sortedBatches.find(b=>b.start_date>liveBatch.end_date):null;
@@ -85,7 +87,7 @@ const AdminBatch = {
       cyclePickerNext:self.cyclePickerNext, cyclePickerPrev:self.cyclePickerPrev,
       openCyclePicker:self.openCyclePicker, closeCyclePicker:self.closeCyclePicker,
       activeCycleLabel, activeCycleRange,
-      editTargetLabel, editTargetIsLive, editTargetRange, editTargetStatus,
+      editTargetLabel, editTargetIsLive, editTargetRange, editTargetStatus, editTargetStatusChipBg, editTargetStatusChipColor,
       signupTargetLabel, signupIsNextCycle,
       signupCycleNote:signupIsNextCycle?' (next cycle)':'',
       intakeLabel,
@@ -111,6 +113,7 @@ const AdminBatch = {
         return {npAddSearchResults:results, npAddSearchHasResults:results.length>0, npAddSearchNoResults:!!(q&&!results.length)};
       })(),
       mealActive:!!(activeBatch?.meal_active), toggleMealActive:self.toggleMealActive,
+      mealActiveText:activeBatch?.meal_active?'Active: reservists should submit daily.':'On hold: reservists should not submit.',
       mealToggleTrackBg:activeBatch?.meal_active?accent:'#39435a',
       mealToggleKnobX:activeBatch?.meal_active?'25px':'3px',
       batchLoading:s.batchLoading,
