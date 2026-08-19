@@ -1239,12 +1239,10 @@
             <button onClick="{{ setRosterStatusPending }}" style="{{ rosterStatusPendingStyle }}">Pending</button>
           </div>
           <sc-if value="{{ notConfirmAny }}" hint-placeholder-val="">
-          <div style="margin-bottom:14px;">
-            <div style="display:flex;align-items:center;margin-bottom:8px;">
-              <div style="display:flex;background:#eceef2;border-radius:11px;padding:3px;gap:2px;">
-                <button onClick="{{ setRosterSortName }}" style="{{ rosterSortNameStyle }}">A to Z</button>
-                <button onClick="{{ setRosterSortStatus }}" style="{{ rosterSortStatusStyle }}">Status</button>
-              </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:14px;">
+            <div style="display:flex;background:#eceef2;border-radius:11px;padding:3px;gap:2px;flex-shrink:0;">
+              <button onClick="{{ setRosterSortName }}" style="{{ rosterSortNameStyle }}">A to Z</button>
+              <button onClick="{{ setRosterSortStatus }}" style="{{ rosterSortStatusStyle }}">Status</button>
             </div>
             <div style="display:flex;gap:6px;">
               <button onClick="{{ askMarkAllPresent }}" disabled="{{ markAllPresenting }}" style="{{ markAllPresentStyle }}" title="Mark all present">
