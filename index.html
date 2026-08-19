@@ -1038,7 +1038,7 @@
         <sc-if value="{{ tabOverview }}" hint-placeholder-val="">
         <div>
           <!-- Date nav -->
-          <div onTouchStart="{{ onDaySwipeStart }}" onTouchEnd="{{ onDaySwipeEnd }}" style="background:#131a27;border-radius:16px;padding:11px 12px;color:#fff;display:flex;align-items:center;gap:9px;margin-bottom:14px;">
+          <div onTouchStart="{{ onDaySwipeStart }}" onTouchEnd="{{ onDaySwipeEnd }}" onTouchCancel="{{ onDaySwipeCancel }}" style="background:#131a27;border-radius:16px;padding:11px 12px;color:#fff;display:flex;align-items:center;gap:9px;margin-bottom:14px;">
             <button onClick="{{ prevDay }}" class="btn-icon-dark"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#cdd4df" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
             <div style="flex:1;text-align:center;min-width:0;">
               <div style="font-size:15px;font-weight:600;">{{ viewDateLabel }}</div>
@@ -1135,7 +1135,7 @@
                 <span style="font-size:11.5px;color:{{ viewPercentColor }};font-weight:600;">{{ viewPercentText }}</span>
               </div>
               <sc-for list="{{ viewRoster }}" as="row" hint-placeholder-count="6">
-                <div class="row-item" style="flex-wrap:wrap;">
+                <div onClick="{{ row.onViewHistory }}" class="row-item" style="flex-wrap:wrap;cursor:pointer;">
                   <div style="display:flex;align-items:center;gap:12px;width:100%;">
                     <div class="avatar-md" style="{{ row.avatarStyle }}">{{ row.initials }}</div>
                     <div class="flex-fill"><div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div></div>
@@ -1213,7 +1213,7 @@
         <!-- ===== ADMIN: ROSTER ===== -->
         <sc-if value="{{ tabRoster }}" hint-placeholder-val="">
         <div style="display:flex;flex-direction:column;gap:11px;">
-          <div onTouchStart="{{ onDaySwipeStart }}" onTouchEnd="{{ onDaySwipeEnd }}" style="background:#131a27;border-radius:16px;padding:11px 12px;color:#fff;display:flex;align-items:center;gap:9px;margin-bottom:14px;">
+          <div onTouchStart="{{ onDaySwipeStart }}" onTouchEnd="{{ onDaySwipeEnd }}" onTouchCancel="{{ onDaySwipeCancel }}" style="background:#131a27;border-radius:16px;padding:11px 12px;color:#fff;display:flex;align-items:center;gap:9px;margin-bottom:14px;">
             <button onClick="{{ prevDay }}" class="btn-icon-dark"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#cdd4df" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
             <div style="flex:1;text-align:center;min-width:0;">
               <div style="font-size:15px;font-weight:600;">{{ viewDateLabel }}</div>
@@ -1231,22 +1231,40 @@
               <button onClick="{{ clearRosterSearch }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#8a94a3;padding:4px;display:flex;align-items:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
             </sc-if>
           </div>
-          <sc-if value="{{ notConfirmMarkAllAbsent }}" hint-placeholder-val="">
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;">
+          <div style="display:flex;gap:6px;margin-bottom:12px;overflow-x:auto;padding-bottom:2px;">
+            <button onClick="{{ setRosterStatusAll }}" style="{{ rosterStatusAllStyle }}">All</button>
+            <button onClick="{{ setRosterStatusPresent }}" style="{{ rosterStatusPresentStyle }}">Present</button>
+            <button onClick="{{ setRosterStatusMc }}" style="{{ rosterStatusMcStyle }}">MC</button>
+            <button onClick="{{ setRosterStatusAbsent }}" style="{{ rosterStatusAbsentStyle }}">Absent</button>
+            <button onClick="{{ setRosterStatusPending }}" style="{{ rosterStatusPendingStyle }}">Pending</button>
+          </div>
+          <sc-if value="{{ notConfirmAny }}" hint-placeholder-val="">
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap;">
             <div style="display:flex;background:#eceef2;border-radius:11px;padding:3px;gap:2px;">
               <button onClick="{{ setRosterSortName }}" style="{{ rosterSortNameStyle }}">A to Z</button>
               <button onClick="{{ setRosterSortStatus }}" style="{{ rosterSortStatusStyle }}">Status</button>
             </div>
             <div style="flex:1;"></div>
+            <button onClick="{{ askMarkAllPresent }}" disabled="{{ markAllPresenting }}" style="{{ markAllPresentStyle }}" title="Mark all present">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg>
+              Mark present
+            </button>
             <button onClick="{{ askMarkAllAbsent }}" disabled="{{ markingAllAbsent }}" style="{{ markAllAbsentStyle }}" title="Mark all absent">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg>
-              Mark all absent
+              Mark absent
             </button>
+          </div>
+          </sc-if>
+          <sc-if value="{{ confirmMarkAllPresent }}" hint-placeholder-val="">
+          <div style="display:flex;gap:5px;align-items:center;justify-content:flex-end;margin-bottom:12px;">
+            <span style="font-size:12px;color:#8a94a3;flex:1;">Mark all pending as present?</span>
+            <button onClick="{{ cancelMarkAllPresent }}" style="padding:5px 10px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid #d4d9e2;background:#fff;color:#5c6678;">Cancel</button>
+            <button onClick="{{ markAllPresent }}" style="{{ markAllPresentConfirmStyle }}">Confirm</button>
           </div>
           </sc-if>
           <sc-if value="{{ confirmMarkAllAbsent }}" hint-placeholder-val="">
           <div style="display:flex;gap:5px;align-items:center;justify-content:flex-end;margin-bottom:12px;">
-            <span style="font-size:12px;color:#8a94a3;flex:1;">Mark all absent?</span>
+            <span style="font-size:12px;color:#8a94a3;flex:1;">Mark all pending as absent?</span>
             <button onClick="{{ cancelMarkAllAbsent }}" style="padding:5px 10px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid #d4d9e2;background:#fff;color:#5c6678;">Cancel</button>
             <button onClick="{{ markAllAbsent }}" style="{{ markAllAbsentConfirmStyle }}">Confirm</button>
           </div>
@@ -1317,7 +1335,7 @@
         <!-- ===== ADMIN: LOG ===== -->
         <sc-if value="{{ tabLog }}" hint-placeholder-val="">
         <div>
-          <div onTouchStart="{{ onDaySwipeStart }}" onTouchEnd="{{ onDaySwipeEnd }}" style="background:#131a27;border-radius:16px;padding:11px 12px;color:#fff;display:flex;align-items:center;gap:9px;margin-bottom:14px;">
+          <div onTouchStart="{{ onDaySwipeStart }}" onTouchEnd="{{ onDaySwipeEnd }}" onTouchCancel="{{ onDaySwipeCancel }}" style="background:#131a27;border-radius:16px;padding:11px 12px;color:#fff;display:flex;align-items:center;gap:9px;margin-bottom:14px;">
             <button onClick="{{ prevDay }}" class="btn-icon-dark"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#cdd4df" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg></button>
             <div style="flex:1;text-align:center;min-width:0;">
               <div style="font-size:15px;font-weight:600;">{{ viewDateLabel }}</div>
@@ -1357,49 +1375,74 @@
               </sc-if>
             </div>
           </div>
-          <div style="display:flex;gap:5px;align-items:center;margin-bottom:12px;overflow-x:auto;">
+          <div style="display:flex;gap:5px;align-items:center;margin-bottom:8px;overflow-x:auto;">
             <button onClick="{{ setLogStatusAll }}" style="{{ logStatusAllStyle }}">All</button>
             <button onClick="{{ setLogStatusPresent }}" style="{{ logStatusPresentStyle }}">Present</button>
             <button onClick="{{ setLogStatusMc }}" style="{{ logStatusMcStyle }}">MC</button>
             <button onClick="{{ setLogStatusAbsent }}" style="{{ logStatusAbsentStyle }}">Absent</button>
             <button onClick="{{ setLogStatusPending }}" style="{{ logStatusPendingStyle }}">Pending</button>
           </div>
+          <sc-if value="{{ showLogFilterCount }}" hint-placeholder-val="">
+            <div style="font-size:11.5px;color:#8a94a3;margin-bottom:8px;padding:0 2px;">{{ logFilterCountLabel }}</div>
+          </sc-if>
           <div class="card-flush">
             <sc-if value="{{ logRowsEmpty }}" hint-placeholder-val="">
               <div style="padding:36px 20px;text-align:center;">
                 <div class="avatar-circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
-                <div class="text-sub">No records yet</div>
-                <div class="text-muted">No personnel on the roster for this day.</div>
+                <sc-if value="{{ logTrulyEmpty }}" hint-placeholder-val="">
+                  <div class="text-sub">No records yet</div>
+                  <div class="text-muted">No personnel on the roster for this day.</div>
+                </sc-if>
+                <sc-if value="{{ logFilterEmpty }}" hint-placeholder-val="">
+                  <div class="text-sub">No matches</div>
+                  <div class="text-muted">No records match your search or filter.</div>
+                </sc-if>
               </div>
             </sc-if>
             <sc-for list="{{ logRows }}" as="row" hint-placeholder-count="6">
-              <div style="padding:13px 16px;border-bottom:1px solid #f2f4f7;">
-                <div style="display:flex;align-items:center;gap:11px;margin-bottom:9px;">
-                  <div class="avatar-md" style="{{ row.avatarStyle }}">{{ row.initials }}</div>
-                  <div class="flex-fill">
+              <div style="padding:11px 14px 11px 13px;border-bottom:1px solid #f2f4f7;border-left:3px solid {{ row.color }};">
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="avatar-sm" style="{{ row.avatarStyle }}">{{ row.initials }}</div>
+                  <div onClick="{{ row.onViewHistory }}" class="flex-fill" style="min-width:0;cursor:pointer;">
                     <div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div>
+                    <div style="font-size:10.5px;color:#9aa3b2;margin-top:1px;font-family:'IBM Plex Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.shiftLabel }}</div>
                   </div>
-                  <span class="badge" style="color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
-                  <button onClick="{{ row.onEditLogNote }}" style="-webkit-appearance:none;width:28px;height:28px;background:#f0f2f7;border:1px solid #e3e6ec;border-radius:8px;cursor:pointer;flex:0 0 auto;color:{{ row.logNoteIconColor }};display:flex;align-items:center;justify-content:center;padding:0;" title="Add note for reservist"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></button>
-                  <button onClick="{{ row.onEditTimes }}" style="-webkit-appearance:none;height:28px;padding:0 10px;background:#f0f2f7;border:1px solid #e3e6ec;border-radius:8px;font-size:11.5px;font-weight:600;color:#5c6678;cursor:pointer;flex:0 0 auto;">Edit</button>
+                  <span style="font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;flex:0 0 auto;color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
+                  <button onClick="{{ row.onEditLogNote }}" style="-webkit-appearance:none;width:28px;height:28px;background:#f6f8fa;border:1px solid #e3e6ec;border-radius:8px;cursor:pointer;flex:0 0 auto;color:{{ row.logNoteIconColor }};display:flex;align-items:center;justify-content:center;padding:0;" title="Note"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></button>
+                  <button onClick="{{ row.onEditTimes }}" style="-webkit-appearance:none;height:28px;padding:0 10px;background:#f6f8fa;border:1px solid #e3e6ec;border-radius:8px;font-size:11.5px;font-weight:600;color:#5c6678;cursor:pointer;flex:0 0 auto;">Edit</button>
                 </div>
                 <sc-if value="{{ row.showPhaseLine }}" hint-placeholder-val="">
-                  <div style="margin-left:45px;margin-bottom:2px;">
-                    <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;font-weight:600;color:{{ row.phaseP1Color }};">{{ row.phaseP1Part }}</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a94a3;">{{ row.phaseRestPart }}</span>
+                  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:5px;margin-top:9px;">
+                    <div style="background:#f6f8fa;border-radius:7px;padding:5px 4px;text-align:center;">
+                      <div style="font-size:9px;font-weight:700;letter-spacing:.05em;color:#9aa3b2;margin-bottom:3px;">IN</div>
+                      <div style="font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ row.p1Color }};">{{ row.p1 }}</div>
+                    </div>
+                    <div style="background:#f6f8fa;border-radius:7px;padding:5px 4px;text-align:center;">
+                      <div style="font-size:9px;font-weight:700;letter-spacing:.05em;color:#9aa3b2;margin-bottom:3px;">LCH</div>
+                      <div style="font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ row.p2Color }};">{{ row.p2 }}</div>
+                    </div>
+                    <div style="background:#f6f8fa;border-radius:7px;padding:5px 4px;text-align:center;">
+                      <div style="font-size:9px;font-weight:700;letter-spacing:.05em;color:#9aa3b2;margin-bottom:3px;">BACK</div>
+                      <div style="font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ row.p3Color }};">{{ row.p3 }}</div>
+                    </div>
+                    <div style="background:#f6f8fa;border-radius:7px;padding:5px 4px;text-align:center;">
+                      <div style="font-size:9px;font-weight:700;letter-spacing:.05em;color:#9aa3b2;margin-bottom:3px;">OUT</div>
+                      <div style="font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ row.p4Color }};">{{ row.p4 }}</div>
+                    </div>
                   </div>
                 </sc-if>
-                <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:4px;margin-left:46px;">
+                <div style="display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:5px;">
                   <sc-if value="{{ row.showNoLateReason }}" hint-placeholder-val="">
-                    <span style="font-size:11px;font-weight:600;color:#b9791a;">Late · No reason</span>
+                    <span style="font-size:10.5px;font-weight:600;color:#b9791a;">Late · No reason</span>
                   </sc-if>
                   <sc-if value="{{ row.showLateReason }}" hint-placeholder-val="">
-                    <span style="font-size:11px;font-weight:500;color:#c0392b;">Late: {{ row.lateReason }}</span>
+                    <span style="font-size:10.5px;font-weight:500;color:#c0392b;">Late: {{ row.lateReason }}</span>
                   </sc-if>
                   <sc-if value="{{ row.showNoGps }}" hint-placeholder-val="">
-                    <span style="font-size:11px;font-weight:500;color:#b9791a;">No GPS</span>
+                    <span style="font-size:10.5px;font-weight:500;color:#b9791a;">No GPS</span>
                   </sc-if>
                   <sc-if value="{{ row.showEditSummary }}" hint-placeholder-val="">
-                    <span style="font-size:11px;color:#9aa3b2;">{{ row.editSummary }}</span>
+                    <span style="font-size:10.5px;color:#9aa3b2;">{{ row.editSummary }}</span>
                   </sc-if>
                 </div>
                 <sc-if value="{{ row.isTimesEditing }}" hint-placeholder-val="">
@@ -1430,13 +1473,13 @@
                   </div>
                 </sc-if>
                 <sc-if value="{{ row.showWelfareNote }}" hint-placeholder-val="">
-                  <div style="display:flex;align-items:flex-start;gap:7px;margin-top:8px;margin-left:46px;padding:8px 10px;background:#f1f8f4;border:1px solid #cfe6d8;border-radius:8px;">
+                  <div style="display:flex;align-items:flex-start;gap:7px;margin-top:7px;padding:7px 10px;background:#f1f8f4;border:1px solid #cfe6d8;border-radius:8px;">
                     <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1f8a5b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:1px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                     <div style="font-size:12px;color:#3a6b4f;font-weight:500;line-height:1.4;font-style:italic;">{{ row.welfareNote }}</div>
                   </div>
                 </sc-if>
                 <sc-if value="{{ row.isEditingLogNote }}" hint-placeholder-val="">
-                  <div style="margin-top:8px;margin-left:46px;padding:10px 12px;background:#f6f8fa;border:1px solid #d4d9e2;border-radius:9px;">
+                  <div style="margin-top:8px;padding:10px 12px;background:#f6f8fa;border:1px solid #d4d9e2;border-radius:9px;">
                     <div style="font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:6px;">NOTE FOR RESERVIST</div>
                     <textarea onInput="{{ onLogNoteText }}" value="{{ logNoteText }}" placeholder="Visible to this reservist in their check-in view" style="width:100%;height:60px;padding:8px 10px;border:1px solid #d4d9e2;border-radius:7px;font-family:inherit;font-size:13px;resize:none;outline:none;box-sizing:border-box;background:#fff;" rows="2"></textarea>
                     <div style="display:flex;gap:7px;margin-top:7px;">
@@ -1478,7 +1521,7 @@
           <button onClick="{{ openMemberSearch }}" style="width:100%;margin-bottom:14px;padding:9px 14px;background:#fff;border:1px solid #d4d9e2;border-radius:10px;display:flex;align-items:center;gap:9px;cursor:pointer;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a94a3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <span style="flex:1;text-align:left;font-size:13px;color:#8a94a3;">Search all members…</span>
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c4c9d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
           </button>
 
           <!-- ── REQUESTS sub-tab ── -->
@@ -1489,10 +1532,15 @@
           <sc-if value="{{ hasPendingSignups }}" hint-placeholder-val="">
           <div class="card-flush" style="margin-bottom:14px;">
             <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
+              <div onClick="{{ selectAllSignups }}" style="width:18px;height:18px;border-radius:4px;border:1.5px solid {{ signupSelectAllBorder }};background:{{ signupSelectAllBg }};display:flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer;" title="Select all">
+                <sc-if value="{{ allSignupsSelected }}" hint-placeholder-val="">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </sc-if>
+              </div>
               <span class="text-label">PENDING SIGNUPS</span>
               <span style="background:#c0392b;color:#fff;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:20px;">{{ pendingSignupCount }}</span>
               <sc-if value="{{ hasSelectedSignups }}" hint-placeholder-val="">
-                <button onClick="{{ onApproveSelected }}" style="-webkit-appearance:none;margin-left:auto;padding:6px 12px;background:#161f30;border:none;color:#fff;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Approve selected ({{ selectedSignupCount }})</button>
+                <button onClick="{{ onApproveSelected }}" style="-webkit-appearance:none;margin-left:auto;padding:6px 12px;background:#161f30;border:none;color:#fff;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Approve {{ selectedSignupCount }}</button>
               </sc-if>
             </div>
             <div style="padding:10px 14px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
@@ -1571,6 +1619,11 @@
           <sc-if value="{{ hasPendingLeaves }}" hint-placeholder-val="">
           <div class="card-flush" style="margin-bottom:14px;">
             <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
+              <div onClick="{{ selectAllLeaves }}" style="width:18px;height:18px;border-radius:4px;border:1.5px solid {{ leaveSelectAllBorder }};background:{{ leaveSelectAllBg }};display:flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer;" title="Select all">
+                <sc-if value="{{ allLeavesSelected }}" hint-placeholder-val="">
+                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </sc-if>
+              </div>
               <span class="text-label">PENDING REQUESTS</span>
               <span style="background:#c0392b;color:#fff;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:20px;">{{ pendingLeavesCount }}</span>
             </div>
@@ -1705,13 +1758,20 @@
                 </button>
               </div>
             </div>
+            <div style="padding:8px 14px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+              <input type="text" placeholder="Search by name or contact" value="{{ peopleRosterSearch }}" onInput="{{ onPeopleRosterSearch }}" style="flex:1;border:none;outline:none;font-size:13px;color:#161f30;background:transparent;min-width:0;" />
+              <sc-if value="{{ hasPeopleRosterSearch }}" hint-placeholder-val="">
+                <button onClick="{{ clearPeopleRosterSearch }}" style="-webkit-appearance:none;background:none;border:none;padding:2px;cursor:pointer;display:flex;align-items:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+              </sc-if>
+            </div>
             <sc-for list="{{ personnelList }}" as="p" hint-placeholder-count="6">
               <div style="border-bottom:1px solid #f2f4f7;padding:12px 16px;">
                 <div style="display:flex;align-items:center;gap:12px;">
                   <div class="avatar-sm" style="{{ p.avatarStyle }}">{{ p.avatarInitials }}</div>
                   <div class="flex-fill">
                     <div style="font-size:14px;font-weight:600;color:#161f30;">{{ p.name }}</div>
-                    <div class="text-hint">{{ p.contact }}</div>
+                    <div class="text-hint">{{ p.contact }} · {{ p.shiftLabel }}</div>
                     <sc-if value="{{ p.showApprovedBy }}" hint-placeholder-val=""><div style="font-size:10.5px;color:#1f8a5b;margin-top:2px;font-weight:600;">✓ {{ p.approvedByLabel }} {{ p.approvedBy }}</div></sc-if>
                     <sc-if value="{{ p.notes }}" hint-placeholder-val=""><div style="font-size:11.5px;color:#5c6678;margin-top:2px;font-style:italic;">{{ p.notes }}</div></sc-if>
                     <sc-if value="{{ p.showStats }}" hint-placeholder-val="">
@@ -1720,6 +1780,12 @@
                       <span style="font-size:10px;font-weight:600;color:#b9791a;background:#fdf6e9;border-radius:5px;padding:2px 6px;">MC {{ p.statMc }}</span>
                       <span style="font-size:10px;font-weight:600;color:#c0392b;background:#f7e4e1;border-radius:5px;padding:2px 6px;">Absent {{ p.statAbsent }}</span>
                       <span style="font-size:10px;font-weight:600;color:#5c6678;background:#eef0f4;border-radius:5px;padding:2px 6px;">{{ p.statPct }}</span>
+                    </div>
+                    </sc-if>
+                    <sc-if value="{{ p.lowAttendance }}" hint-placeholder-val="">
+                    <div style="display:inline-flex;align-items:center;gap:4px;margin-top:4px;padding:2px 8px;background:#fff8ec;border:1px solid #f0d99a;border-radius:20px;">
+                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+                      <span style="font-size:10px;font-weight:700;color:#b9791a;">Low attendance</span>
                     </div>
                     </sc-if>
                   </div>
@@ -1752,6 +1818,12 @@
                 </sc-if>
               </div>
             </sc-for>
+            <sc-if value="{{ personnelSearchNoResults }}" hint-placeholder-val="">
+              <div style="padding:24px 16px;text-align:center;">
+                <div class="text-sub">No matches</div>
+                <div class="text-muted">No one matches "{{ peopleRosterSearch }}".</div>
+              </div>
+            </sc-if>
             <sc-if value="{{ personnelListEmpty }}" hint-placeholder-val="">
               <div style="padding:36px 20px;text-align:center;">
                 <div class="avatar-circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/><line x1="20" y1="8" x2="20" y2="14"/></svg></div>
@@ -1849,7 +1921,7 @@
     <div style="flex:0 0 auto;background:#fff;display:flex;padding:8px 8px env(safe-area-inset-bottom,10px);box-shadow:0 -1px 0 #e3e6ec;">
       <button onClick="{{ goOverview }}" class="nav-btn" style="color:{{ cOverview }};"><div class="nav-btn-pill" style="background:{{ nbOverview }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cOverview }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg><span>Overview</span></div></button>
       <button onClick="{{ goRoster }}" class="nav-btn" style="color:{{ cRoster }};"><div class="nav-btn-pill" style="background:{{ nbRoster }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cRoster }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><circle cx="3.5" cy="6" r="1.2"></circle><circle cx="3.5" cy="12" r="1.2"></circle><circle cx="3.5" cy="18" r="1.2"></circle></svg><span>Roster</span></div></button>
-      <button onClick="{{ goLog }}" class="nav-btn" style="color:{{ cLog }};"><div class="nav-btn-pill" style="background:{{ nbLog }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cLog }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>Log</span></div></button>
+      <button onClick="{{ goLog }}" class="nav-btn" style="color:{{ cLog }};position:relative;"><div class="nav-btn-pill" style="background:{{ nbLog }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cLog }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg><span>Log</span></div><sc-if value="{{ showLogPendingBadge }}" hint-placeholder-val=""><div style="position:absolute;top:4px;right:8px;width:8px;height:8px;border-radius:50%;background:#b9791a;border:1.5px solid #fff;"></div></sc-if></button>
       <button onClick="{{ goPeople }}" class="nav-btn" style="color:{{ cPeople }};position:relative;"><div class="nav-btn-pill" style="background:{{ nbPeople }};"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="{{ cPeople }}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3.2"></circle><path d="M3.5 20a5.5 5.5 0 0 1 11 0"></path><path d="M16 5.5a3 3 0 0 1 0 5.8"></path><path d="M18 14.5a5.5 5.5 0 0 1 3 5"></path></svg><span>People</span></div><sc-if value="{{ hasPendingRequests }}" hint-placeholder-val=""><div style="position:absolute;top:4px;right:8px;width:8px;height:8px;border-radius:50%;background:#c0392b;border:1.5px solid #fff;"></div></sc-if></button>
     </div>
     </sc-if>
@@ -2037,7 +2109,7 @@
         <sc-if value="{{ showAddForm }}" hint-placeholder-val="{{ true }}">
         <div style="margin-bottom:14px;">
           <div style="font-size:11px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:7px;">RE-ENROLL RETURNING RESERVIST</div>
-          <div style="display:flex;align-items:center;gap:8px;padding:8px 11px;border-radius:9px;background:#f6f8fa;">
+          <div style="display:flex;align-items:center;gap:8px;padding:4px 2px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
             <input value="{{ npAddSearch }}" onInput="{{ onNpAddSearch }}" placeholder="Search by name or contact…" style="flex:1;border:none;outline:none;font-size:13px;color:#161f30;background:transparent;min-width:0;" autocomplete="off" />
           </div>
@@ -2231,7 +2303,10 @@
         </div>
         <p style="font-size:12.5px;color:#5c6678;margin:0 0 12px;line-height:1.5;">Edit the message before sending. Tap Send to open WhatsApp.</p>
         <textarea onInput="{{ onWaPreviewText }}" value="{{ waPreviewText }}" style="width:100%;height:160px;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:'IBM Plex Mono',monospace;font-size:12.5px;resize:none;outline:none;box-sizing:border-box;line-height:1.6;color:#161f30;" rows="6"></textarea>
-        <button onClick="{{ sendWaPreview }}" style="width:100%;margin-top:12px;padding:13px;background:#25d366;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Send via WhatsApp</button>
+        <div style="display:flex;gap:8px;margin-top:12px;">
+          <button onClick="{{ copyWaPreview }}" style="-webkit-appearance:none;padding:13px 16px;background:#fff;border:1px solid #d4d9e2;border-radius:11px;font-size:14px;font-weight:600;color:#5c6678;cursor:pointer;display:flex;align-items:center;gap:6px;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+          <button onClick="{{ sendWaPreview }}" style="-webkit-appearance:none;flex:1;padding:13px;background:#25d366;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Send via WhatsApp</button>
+        </div>
         <button onClick="{{ closeWaPreview }}" class="btn-subtle">Cancel</button>
       </div>
     </div>
@@ -2302,11 +2377,17 @@
             <button onClick="{{ closePersonHistory }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
           </div>
         </div>
-        <div style="overflow-y:auto;flex:1;padding:6px 0 24px;">
+        <div style="overflow-y:auto;flex:1;">
           <sc-if value="{{ personHistoryLoading }}" hint-placeholder-val="">
             <div style="padding:28px;text-align:center;color:#8a94a3;font-size:13px;">Loading…</div>
           </sc-if>
           <sc-if value="{{ !personHistoryLoading }}" hint-placeholder-val="">
+            <div style="padding:10px 16px 8px;display:flex;gap:6px;overflow-x:auto;border-bottom:1px solid #f0f2f6;">
+              <button onClick="{{ setPersonHistoryFilterAll }}" style="{{ personHistoryFilterAllStyle }}">All</button>
+              <button onClick="{{ setPersonHistoryFilterPresent }}" style="{{ personHistoryFilterPresentStyle }}">Present</button>
+              <button onClick="{{ setPersonHistoryFilterMc }}" style="{{ personHistoryFilterMcStyle }}">MC</button>
+              <button onClick="{{ setPersonHistoryFilterAbsent }}" style="{{ personHistoryFilterAbsentStyle }}">Absent</button>
+            </div>
             <sc-for list="{{ personHistoryRows }}" as="hr">
               <div style="display:flex;align-items:center;gap:10px;padding:9px 20px;border-bottom:1px solid #f2f4f7;">
                 <span class="badge" style="color:{{ hr.color }};background:{{ hr.bg }};flex:0 0 auto;">{{ hr.label }}</span>
@@ -2322,8 +2403,12 @@
                 <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a94a3;white-space:nowrap;">{{ hr.p1 }} to {{ hr.p4 }}</div>
               </div>
             </sc-for>
-            <sc-if value="{{ personHistoryMore }}" hint-placeholder-val="">
-              <div style="padding:10px 16px;text-align:center;font-size:12px;color:#8a94a3;">Showing 100 of {{ personHistoryTotal }} records</div>
+            <sc-if value="{{ personHistoryShowPagination }}" hint-placeholder-val="">
+              <div style="padding:10px 16px;display:flex;align-items:center;justify-content:center;gap:12px;">
+                <button onClick="{{ personHistoryPagePrev }}" style="-webkit-appearance:none;width:32px;height:32px;border-radius:8px;border:1px solid #d4d9e2;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:{{ personHistoryPrevOpacity }};"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+                <span style="font-size:12px;color:#8a94a3;font-weight:500;">{{ personHistoryPageLabel }}</span>
+                <button onClick="{{ personHistoryPageNext }}" style="-webkit-appearance:none;width:32px;height:32px;border-radius:8px;border:1px solid #d4d9e2;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:{{ personHistoryNextOpacity }};"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+              </div>
             </sc-if>
             <sc-if value="{{ noPersonHistory }}" hint-placeholder-val="">
               <div style="padding:36px 16px;text-align:center;">
@@ -2331,6 +2416,9 @@
                 <div style="font-size:13.5px;font-weight:600;color:#5c6678;margin-bottom:3px;">No records</div>
                 <div style="font-size:12px;color:#9aa3b2;">No past attendance found for this person.</div>
               </div>
+            </sc-if>
+            <sc-if value="{{ noPersonHistoryFiltered }}" hint-placeholder-val="">
+              <div style="padding:24px 16px;text-align:center;font-size:12.5px;color:#9aa3b2;">No {{ personHistoryFilter }} records found.</div>
             </sc-if>
           </sc-if>
         </div>

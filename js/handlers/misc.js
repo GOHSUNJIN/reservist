@@ -87,6 +87,11 @@ const MiscHandlers = {
   openWaPreview: function() { this.setState({waPreviewOpen:true}); },
   closeWaPreview: function() { this.setState({waPreviewOpen:false, waPreviewText:''}); },
   onWaPreviewText: function(e) { this.setState({waPreviewText:e.target.value}); },
+  copyWaPreview: function() {
+    const text=this.state.waPreviewText;
+    if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>this._toast('Copied to clipboard.')).catch(()=>this._toast('Could not copy.','error'));}
+    else{this._toast('Copy not supported.','error');}
+  },
   sendWaPreview: function() {
     const {waPreviewText} = this.state;
     const link = 'https://api.whatsapp.com/send?text='+encodeURIComponent(waPreviewText);
