@@ -56,7 +56,7 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 - **Click name to open history**: In the Log tab, clicking a reservist's name opens their full attendance history without needing to navigate to the People tab.
 - **Shift label on log cards**: Each log card shows the reservist's shift alongside their check-in times.
 - **Admin log note**: Add a free-text note against any person's attendance entry for the current view date.
-- **Late check-in alerts**: Anyone who checks in more than 30 minutes after shift start triggers a timing warning in the log. Those more than one hour late are automatically flagged and their written reason is displayed.
+- **Late check-in alerts**: Anyone who checks in more than one hour after shift start is automatically flagged in the log and their written late reason is displayed alongside the attendance record.
 
 **Requests and Leave:**
 - **Unified requests inbox**: All pending signup requests, MC requests, and leave requests appear in one place. Each signup is labelled New or Returning so the supervisor knows at a glance whether they are onboarding a first-timer or re-enrolling someone from a previous cycle.

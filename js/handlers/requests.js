@@ -133,7 +133,7 @@ const RequestHandlers = {
           const results=await Promise.all(ops);
           if(results.some(r=>r?.error)){this._toast('Approved, but failed to update attendance record. Check the roster.','error');}
           else {
-            const todayKey=Utils.dateKey(this.baseDate?this.baseDate():new Date());
+            const todayKey=Utils.dateKey(this.baseDate());
             if(leave.date===todayKey){const freshAtt=await DB.attendance.getForDate(todayKey).catch(()=>null);if(freshAtt)this.setState({attendance:freshAtt,attendanceDate:todayKey});}
             this._toast('Request approved.');
           }

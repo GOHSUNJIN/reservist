@@ -15,9 +15,13 @@ const Utils = {
   addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; },
   mondayOf(d){ const wd=d.getDay(); return this.addDays(d, wd===0?-6:1-wd); },
   isReportDay(d){ const w=d.getDay(); return w>=1&&w<=5; },
-  fmtShort(d){ const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return d.getDate()+' '+M[d.getMonth()]; },
-  fmtMed(d){ const W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec']; return W[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]; },
-  fmtLong(d){ const W=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],M=['January','February','March','April','May','June','July','August','September','October','November','December']; return W[d.getDay()]+', '+d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear(); },
+  _MS:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+  _WS:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
+  _ML:['January','February','March','April','May','June','July','August','September','October','November','December'],
+  _WL:['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'],
+  fmtShort(d){ return d.getDate()+' '+this._MS[d.getMonth()]; },
+  fmtMed(d){ return this._WS[d.getDay()]+' '+d.getDate()+' '+this._MS[d.getMonth()]; },
+  fmtLong(d){ return this._WL[d.getDay()]+', '+d.getDate()+' '+this._ML[d.getMonth()]+' '+d.getFullYear(); },
 
   // ── Batch cycle helpers ────────────────────────────────────────────────────
   // Cycles run Tue→Mon (13 days), dekit on Wed (+15 days from start).
