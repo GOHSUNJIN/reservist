@@ -44,6 +44,8 @@ const RosterHandlers = {
     };
   },
 
+  dismissLateAlert: function() { this.setState(s=>({lateAlertDismissedCount:s.lateAlertDismissedCount+1})); },
+
   askMarkAllAbsent:    function() { this.setState({confirmMarkAllAbsent:true}); },
   cancelMarkAllAbsent: function() { this.setState({confirmMarkAllAbsent:false}); },
 

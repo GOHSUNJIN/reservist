@@ -200,7 +200,7 @@ const InitHandlers = {
       ]);
       this._unsubscribeRealtime();
       this._subscribeRealtime(newDate);
-      this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0, attendance:att, attendanceDate:newDate, noReportDays:nrd, viewOffset:0, attendanceCache:{}, confirmMarkAllAbsent:false});
+      this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0, attendance:att, attendanceDate:newDate, noReportDays:nrd, viewOffset:0, attendanceCache:{}, confirmMarkAllAbsent:false, lateAlertDismissedCount:0});
     } else if(this.state.role==='reservist'){
       const [att, hist] = await Promise.all([
         DB.attendance.getForDate(newDate).catch(()=>({})),

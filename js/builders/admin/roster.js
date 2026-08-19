@@ -117,7 +117,7 @@ const AdminRoster = {
     const lateRows=viewIsToday?logRows.filter(r=>r.isLate):[];
     const lateCount=lateRows.length;
     const lateNames=lateRows.map(r=>r.name).join(', ');
-    const showLateAlert=viewIsToday&&lateCount>0;
+    const showLateAlert=viewIsToday&&lateCount>0&&lateCount>(s.lateAlertDismissedCount||0);
     const lateAlertLabel=lateCount===1?'1 late check-in':lateCount+' late check-ins';
     const logDateLabel=viewIsToday?'TODAY\'S LOG':((WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()]).toUpperCase()+' LOG');
     const dlabel=WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()];
@@ -233,7 +233,7 @@ const AdminRoster = {
       filteredCount:sortedFiltered.length, showFilteredCount:(!!search||rosterStatusFilter!=='all')&&sortedFiltered.length>0,
       filteredCountLabel:sortedFiltered.length+' result'+(sortedFiltered.length===1?'':'s'),
       statPresent:present, statMc:mc, statPending:pending, statTotal:total,
-      lateCount, lateNames, showLateAlert, lateAlertLabel,
+      lateCount, lateNames, showLateAlert, lateAlertLabel, dismissLateAlert:self.dismissLateAlert,
       noRepMsg, toggleNoReporting:self.toggleNoReporting,
       showRepToggle, repToggleLocked,
       noRepTrackBg:repToggleOn?accent:'#39435a',
