@@ -1120,6 +1120,7 @@
                 <div style="font-size:13px;font-weight:700;color:#b9791a;">{{ lateAlertLabel }}</div>
                 <div style="font-size:12px;color:#8a6d2a;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ lateNames }}</div>
               </div>
+              <button onClick="{{ dismissLateAlert }}" style="-webkit-appearance:none;background:none;border:none;padding:4px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto;border-radius:50%;color:#b9791a;opacity:0.7;" title="Dismiss"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
             </div>
             </sc-if>
 
@@ -1244,7 +1245,7 @@
               <button onClick="{{ setRosterSortName }}" style="{{ rosterSortNameStyle }}">A to Z</button>
               <button onClick="{{ setRosterSortStatus }}" style="{{ rosterSortStatusStyle }}">Status</button>
             </div>
-            <div style="display:flex;gap:6px;">
+            <div style="display:flex;gap:6px;flex-shrink:0;">
               <button onClick="{{ askMarkAllPresent }}" disabled="{{ markAllPresenting }}" style="{{ markAllPresentStyle }}" title="Mark all present">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg>
                 Mark present

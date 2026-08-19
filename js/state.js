@@ -48,6 +48,7 @@ const makeInitialState = () => ({
   attendanceDate: null,
   noReportDaysCache: {},
   markAllPresenting: false,
+  lateAlertDismissedCount: 0,
   editingBatchLabel: false, batchLabelText: '',
   historyPage: 1, historyExpandedDates: [], briefTab: 'info', historyLoaded: false,
   missedNoteOpen: false, missedNoteDateKey: null, missedNoteText: '',
