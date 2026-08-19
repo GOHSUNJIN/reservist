@@ -233,7 +233,7 @@ const AdminRoster = {
       filteredCount:sortedFiltered.length, showFilteredCount:(!!search||rosterStatusFilter!=='all')&&sortedFiltered.length>0,
       filteredCountLabel:sortedFiltered.length+' result'+(sortedFiltered.length===1?'':'s'),
       statPresent:present, statMc:mc, statPending:pending, statTotal:total,
-      lateCount, lateNames, showLateAlert, lateAlertLabel, dismissLateAlert:self.dismissLateAlert,
+      lateCount, lateNames, showLateAlert, lateAlertLabel, dismissLateAlert:()=>self.setState({lateAlertDismissedCount:lateCount}),
       noRepMsg, toggleNoReporting:self.toggleNoReporting,
       showRepToggle, repToggleLocked,
       noRepTrackBg:repToggleOn?accent:'#39435a',
