@@ -16,7 +16,7 @@ const AdminRoster = {
       const phaseLine=_phaseParts.join('  ·  ');
       const showPhaseLine=r.status==='present'&&_phaseParts.length>0;
       const _pct=s.peopleStats[p.id]?.pct??null;
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shiftWindow:Utils.shiftWindow(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:self.setStatus(p.id,'present'),markMc:self.setStatus(p.id,'mc'),markAbsent:self.setStatus(p.id,'absent'),onViewHistory:self.openPersonHistory(p.id),cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0,
+      return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shiftWindow:Utils.shiftWindow(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:self.setStatus(p.id,'present'),markMc:self.setStatus(p.id,'mc'),markAbsent:self.setStatus(p.id,'absent'),onViewHistory:self.openPersonHistory(p.id),cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0,
         lowAttendance:s.peopleStatsLoaded&&_pct!==null&&_pct<75,
         statPctText:s.peopleStatsLoaded&&_pct!==null?(_pct+'%'):''};
     });
@@ -60,7 +60,7 @@ const AdminRoster = {
       const av=s.avatars[p.id]||'';
       const avatarStyle=av?`background-image:url("${av.replace(/"/g,'%22')}");background-size:cover;background-position:center;color:transparent;`:'';
       return {
-        id:p.id, name:p.name, initials:Utils.initials(p.name), shiftLabel:Utils.shiftLabel(p.shift),
+        id:p.id, name:p.name, contact:p.contact||'', initials:Utils.initials(p.name), shiftLabel:Utils.shiftLabel(p.shift),
         onViewHistory:self.openPersonHistory(p.id),
         label:mm.label, color:mm.color, bg:mm.bg, isLate,
         lateReason, showLateReason, showNoLateReason,
