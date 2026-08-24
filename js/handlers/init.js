@@ -178,7 +178,8 @@ const InitHandlers = {
     const dept = this._myDept();
     if(this.state.role==='admin'){
       const {attendanceDate:yesterday, attendance:yesterdayAtt, personnel, noReportDays} = this.state;
-      if(yesterday && Utils.isReportDay(new Date(yesterday+'T00:00:00')) && !noReportDays.has(yesterday)){
+      const _batchForYesterday=this.state.batches.find(b=>b.start_date<=yesterday&&yesterday<=(b.dekit_date||b.end_date));
+      if(yesterday && _batchForYesterday && Utils.isReportDay(new Date(yesterday+'T00:00:00')) && !noReportDays.has(yesterday)){
         const [approvedLeaves, freshPendingLeaves] = await Promise.all([
           DB.leaves.listApprovedForDate(yesterday).catch(()=>[]),
           DB.leaves.listPending(dept).catch(()=>[]),
