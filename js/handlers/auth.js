@@ -1,13 +1,13 @@
 // ── Auth handlers ─────────────────────────────────────────────────────────
 const AuthHandlers = {
 
-  goLogin: function() { this.setState({authMode:'login', authError:''}); },
+  goLogin: function() { this.setState({authMode:'login', authError:'', showLoginPw:false, showSuPw:false}); },
 
   askLogout:    function() { this.setState({logoutConfirmOpen:true}); },
   cancelLogout: function() { this.setState({logoutConfirmOpen:false}); },
 
   goSignup: async function() {
-    this.setState({authMode:'signup', authError:''});
+    this.setState({authMode:'signup', authError:'', showLoginPw:false, showSuPw:false});
     await this._refreshSignupSlots();
   },
 

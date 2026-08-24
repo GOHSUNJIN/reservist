@@ -32,7 +32,7 @@ const AdminPeople = {
           approvedBy, approvedByLabel,
           showApprovedBy:!!approvedBy,
           onResetPw:self.openResetPw(p.id),
-          canResetPw:!!p.auth_id,
+          canResetPw:true, resetPwBtnLabel:p.auth_id?'Reset PW':'Set PW',
         };
       }),
       personnelListEmpty:activeMembers.length===0,
@@ -191,6 +191,9 @@ const AdminPeople = {
       npAdminContact:s.npAdminContact, onNpAdminContact:self.onNpAdminContact,
       npAdminPassword:s.npAdminPassword, onNpAdminPassword:self.onNpAdminPassword,
       addAdmin:self.addAdmin,
+      npPwType:s.showNpPw?'text':'password', showNpPw:!!s.showNpPw, hideNpPw:!s.showNpPw, toggleNpPw:self.toggleNpPw,
+      npAdminPwType:s.showNpAdminPw?'text':'password', showNpAdminPw:!!s.showNpAdminPw, hideNpAdminPw:!s.showNpAdminPw, toggleNpAdminPw:self.toggleNpAdminPw,
+      resetPwType:s.showResetPw?'text':'password', showResetPw:!!s.showResetPw, hideResetPw:!s.showResetPw, toggleResetPw:self.toggleResetPw,
       promoteAdminId:s.promoteAdminId, promoteSearch:s.promoteSearch,
       onPromoteSearch:self.onPromoteSearch, onPromoteSearchKeyDown:self.onPromoteSearchKeyDown,
       promoteShowAllCycles:s.promoteShowAllCycles,

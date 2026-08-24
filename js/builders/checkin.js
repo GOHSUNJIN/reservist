@@ -120,7 +120,11 @@ const CheckinBuilders = {
     const shift='OFFICE';
     const now=s.now;
     const testMode=s.demo;
-    const phaseDefs=[
+    const isCas=this._myDept()==='cas';
+    const phaseDefs=isCas?[
+      {key:'p1',num:1,label:'Check in to work',needsGps:true,depends:null},
+      {key:'p4',num:2,label:'Check out',needsGps:true,depends:'p1'},
+    ]:[
       {key:'p1',num:1,label:'Check in to work',needsGps:true,depends:null},
       {key:'p2',num:2,label:'Lunch break',needsGps:true,depends:'p1'},
       {key:'p3',num:3,label:'Return from lunch',needsGps:true,depends:'p2'},
@@ -188,15 +192,15 @@ const CheckinBuilders = {
     const [_sc,_sm]=shiftStart.split(':').map(Number);
     const _lateMs=rec.p1?(()=>{const[h,m]=rec.p1.split(':').map(Number);return(h*60+m)-(_sc*60+_sm);})():0;
     const isLate=_lateMs>=60;
-    const incompletePastRec=s.history.find(r=>r.status==='present'&&(!r.lunch_out_time||!r.work_return_time||!r.work_end_time));
+    const incompletePastRec=s.history.find(r=>r.status==='present'&&(isCas?!r.work_end_time:(!r.lunch_out_time||!r.work_return_time||!r.work_end_time)));
     const hasIncompletePast=!!incompletePastRec;
     const incompletePastDate=hasIncompletePast?Utils.fmtMed(new Date(incompletePastRec.date+'T00:00:00')):'';
     const _waDate=Utils.fmtMed(this.baseDate());
     const _waBreakLabel='LUNCH';
     const _waTimes=[];
     if(rec.p1) _waTimes.push('IN  '+rec.p1);
-    if(rec.p2) _waTimes.push(_waBreakLabel+'  '+rec.p2);
-    if(rec.p3) _waTimes.push('BACK  '+rec.p3);
+    if(!isCas&&rec.p2) _waTimes.push(_waBreakLabel+'  '+rec.p2);
+    if(!isCas&&rec.p3) _waTimes.push('BACK  '+rec.p3);
     if(rec.p4) _waTimes.push('OUT  '+rec.p4);
     const _waLateNote=isLate?' · Late check-in':'';
     const waMsg=status==='present'
@@ -238,6 +242,7 @@ const CheckinBuilders = {
       outOfCycle, outOfCycleTitle, outOfCycleSub,
       phases, allDone,
       summaryP1, summaryP2, summaryP3, summaryP4, summaryP2Label,
+      showLunchSummary:!isCas, summaryGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',
       isLate, lateShiftStart:shiftStart,
       hasIncompletePast, incompletePastDate,
       canAddLateReason:isLate&&!rec.lateReason&&status==='present'&&!outOfCycle&&!noRep,
@@ -399,7 +404,8 @@ const CheckinBuilders = {
          showTimes:status==='present'&&_exDates.includes(today),rowMarginBot:(status==='present'&&_exDates.includes(today))?'9px':'0',chevronRotate:_exDates.includes(today)?'180':'0',
          lateReason:rec.lateReason||'',showLateReason:!!(rec.lateReason)&&_exDates.includes(today),
          isMissedRow:false,showMissedNote:false,missedNote:'',onOpenMissedNote:()=>{},
-         showTimingWarning:status==='present'&&(!rec.p2||!rec.p3||!rec.p4),
+         showTimingWarning:status==='present'&&(isCas?!rec.p4:(!rec.p2||!rec.p3||!rec.p4)),
+         showLunchTimes:!isCas, histGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',
          ...Utils.meta(status)}]:[];
 
     const _nc='#b9791a'; // amber for unrecorded slots
@@ -409,7 +415,7 @@ const CheckinBuilders = {
       const tk=s=>s?s.slice(0,5):null;
       const p1=tk(r.check_in_time),p2=tk(r.lunch_out_time),p3=tk(r.work_return_time),p4=tk(r.work_end_time);
       const isPresent=r.status==='present';
-      const hasIncompleteTimes=isPresent&&(!p2||!p3||!p4);
+      const hasIncompleteTimes=isPresent&&(isCas?!p4:(!p2||!p3||!p4));
       const _rowEx=_exDates.includes(r.date);
       const isMissed=r.status==='missed';
       return {date:Utils.fmtMed(d),dateKey:r.date,shift:Utils.shiftLabel(me.shift),status:r.status,
@@ -422,7 +428,8 @@ const CheckinBuilders = {
         hasExpandToggle:isPresent||isMissed,isExpanded:_rowEx,
         onToggleExpand:isMissed?this.openMissedNote(r.date,r.welfare_note||''):this.toggleHistoryExpand(r.date),
         showTimes:isPresent&&_rowEx,rowMarginBot:(isPresent&&_rowEx)?'9px':'0',chevronRotate:_rowEx?'180':'0',hasIncompleteTimes:hasIncompleteTimes&&_rowEx,
-        showTimingWarning:isPresent&&(!p2||!p3||!p4),
+        showTimingWarning:isPresent&&(isCas?!p4:(!p2||!p3||!p4)),
+        showLunchTimes:!isCas, histGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',
         lateReason:r.late_reason||'',showLateReason:!!(r.late_reason)&&_rowEx,
         isMissedRow:isMissed,missedNote:r.welfare_note||'',showMissedNote:false,
         onOpenMissedNote:isMissed?this.openMissedNote(r.date,r.welfare_note||''):()=>{},

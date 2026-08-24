@@ -97,4 +97,6 @@ const makeInitialState = () => ({
   bulkAddOpen: false, bulkAddText: '', bulkAddParsed: [], bulkAddStep: 'input', bulkAddAdding: false,
   noReportBulkOpen: false, noReportBulkText: '',
   helpOpen: false,
+  showLoginPw: false, showSuPw: false, showAcctPw: false,
+  showNpPw: false, showNpAdminPw: false, showResetPw: false,
 });

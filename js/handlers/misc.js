@@ -121,6 +121,14 @@ const MiscHandlers = {
     });
   },
 
+  // ── Password visibility toggles ───────────────────────────────────────
+  toggleLoginPw:   function() { this.setState(s=>({showLoginPw:!s.showLoginPw})); },
+  toggleSuPw:      function() { this.setState(s=>({showSuPw:!s.showSuPw})); },
+  toggleAcctPw:    function() { this.setState(s=>({showAcctPw:!s.showAcctPw})); },
+  toggleNpPw:      function() { this.setState(s=>({showNpPw:!s.showNpPw})); },
+  toggleNpAdminPw: function() { this.setState(s=>({showNpAdminPw:!s.showNpAdminPw})); },
+  toggleResetPw:   function() { this.setState(s=>({showResetPw:!s.showResetPw})); },
+
   // ── Help ──────────────────────────────────────────────────────────────
   openHelp: function() { this.setState({helpOpen:true}); },
   closeHelp: function() { this.setState({helpOpen:false}); },

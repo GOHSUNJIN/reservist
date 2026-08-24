@@ -45,6 +45,8 @@ const AuthBuilders = {
       signupDeptOptions,
       onSignupDeptSelect:this.onSignupDeptSelect,
       signupCycleNote: suDept ? ` (${Utils.deptLabel(suDept)})` : '',
+      loginPwType:s.showLoginPw?'text':'password', showLoginPw:!!s.showLoginPw, hideLoginPw:!s.showLoginPw, toggleLoginPw:this.toggleLoginPw,
+      suPwType:s.showSuPw?'text':'password', showSuPw:!!s.showSuPw, hideSuPw:!s.showSuPw, toggleSuPw:this.toggleSuPw,
     };
   },
 
