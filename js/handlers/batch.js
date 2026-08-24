@@ -39,7 +39,9 @@ const BatchHandlers = {
     const allBatches=await DB.batches.list().catch(()=>batches);
     const sameYear=allBatches.filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
     const maxNum=sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0, 10)),0);
-    const label=Utils.batchLabel(startStr,endStr,maxNum+1);
+    const sameDateBatch=allBatches.find(b=>b.start_date===startStr&&b.department!==dept);
+    const cycleNum=sameDateBatch?(parseInt((sameDateBatch.label||'').match(/^Cycle (\d+)\//)?.[1]||0,10)||maxNum+1):maxNum+1;
+    const label=Utils.batchLabel(startStr,endStr,cycleNum);
     if(!demo){
       const {data,error}=await DB.batches.create(label,startStr,endStr,dekitStr,dept);
       if(error||!data){ this._toast('Failed to create batch.','error'); this.setState({batchCreating:false}); return; }

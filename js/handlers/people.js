@@ -12,7 +12,7 @@ const PeopleHandlers = {
   onNpAdminPassword: function(e) { this.setState({npAdminPassword:e.target.value}); },
 
   toggleAddAdmin: function() {
-    this.setState(s=>({addAdminOpen:!s.addAdminOpen,npAdminName:'',npAdminContact:'',npAdminPassword:''}));
+    this.setState(s=>({addAdminOpen:!s.addAdminOpen,npAdminName:'',npAdminContact:'',npAdminPassword:'',showNpAdminPw:false}));
   },
   togglePromoteAdmin: function() {
     this.setState(s=>({promoteAdminOpen:!s.promoteAdminOpen,promoteAdminId:'',promoteAdminName:'',promoteAdminContact:'',confirmPromoteAdminId:null,promoteSearch:'',promoteListPage:1}));
@@ -37,7 +37,7 @@ const PeopleHandlers = {
     } else {
       this.setState(s=>({adminsList:[...s.adminsList,{id:'demo-admin-'+Date.now(),name:npAdminName.trim(),contact:cleanContact,role:'admin'}]}));
     }
-    this.setState({npAdminName:'',npAdminContact:'',npAdminPassword:'',addAdminOpen:false});
+    this.setState({npAdminName:'',npAdminContact:'',npAdminPassword:'',addAdminOpen:false,showNpAdminPw:false});
     this._toast(npAdminName.trim()+' added as admin.');
   },
 
@@ -117,7 +117,8 @@ const PeopleHandlers = {
       const {data,error:addErr}=await DB.personnel.add({authId:user.id,name:npName.trim(),contact:cleanContact,shift:npShift,batchId:activeBatch.id,department:this._myDept()});
       if(addErr||!data){await DB.auth.deleteUser(user.id).catch(()=>{});this._toast('Failed to add to roster. Try again.','error');return;}
       if(me?.name&&data?.id) DB.personnel.setCreatedBy(data.id,me.name).catch(()=>{});
-      this.setState(s=>({personnel:[...s.personnel,data],npName:'',npContact:'',npShift:'OFFICE',npPassword:'',rosterSearch:'',addPersonnelOpen:false,npAddSearch:''}));
+      this.setState(s=>({personnel:[...s.personnel,data],npName:'',npContact:'',npShift:'OFFICE',npPassword:'',rosterSearch:'',addPersonnelOpen:false,npAddSearch:'',showNpPw:false}));
+      DB.personnel.list(null,true,this._myDept()).then(fresh=>this.setState({personnel:fresh})).catch(()=>{});
     } else {
       const id='demo-'+Date.now();
       this.setState(s=>({personnel:[...s.personnel,{id,name:npName.trim(),contact:cleanContact,shift:npShift,role:'reservist',batch_id:activeBatch.id,is_active:true}],npName:'',npContact:'',npShift:'OFFICE',npPassword:'',rosterSearch:'',addPersonnelOpen:false,npAddSearch:''}));
@@ -136,7 +137,8 @@ const PeopleHandlers = {
     if(addedName&&addedName!==npReenrollRecord.name) await DB.personnel.updateName(npReenrollRecord.id,addedName).catch(()=>{});
     if(me?.name&&reactivated?.id) DB.personnel.setCreatedBy(reactivated.id,me.name).catch(()=>{});
     const finalName=addedName||npReenrollRecord.name;
-    this.setState(s=>({personnel:[...s.personnel,{...reactivated,name:finalName}],npName:'',npContact:'',npShift:'OFFICE',npPassword:'',npReenrollRecord:null,rosterSearch:'',addPersonnelOpen:false,npAddSearch:''}));
+    this.setState(s=>({personnel:[...s.personnel,{...reactivated,name:finalName}],npName:'',npContact:'',npShift:'OFFICE',npPassword:'',npReenrollRecord:null,rosterSearch:'',addPersonnelOpen:false,npAddSearch:'',showNpPw:false}));
+    DB.personnel.list(null,true,this._myDept()).then(fresh=>this.setState({personnel:fresh})).catch(()=>{});
     this._toast(finalName+' re-enrolled on the roster.');
   },
 
@@ -144,7 +146,7 @@ const PeopleHandlers = {
 
   toggleAddPersonnel: function() {
     const opening=!this.state.addPersonnelOpen;
-    this.setState({addPersonnelOpen:opening,npReenrollRecord:null,npAddSearch:'',npDeactivatedPool:[],...(opening?{npName:'',npContact:'',npShift:'OFFICE',npPassword:''}:{})});
+    this.setState({addPersonnelOpen:opening,npReenrollRecord:null,npAddSearch:'',npDeactivatedPool:[],showNpPw:false,...(opening?{npName:'',npContact:'',npShift:'OFFICE',npPassword:''}:{})});
     if(opening&&!this.state.demo) DB.personnel.listAll(this._myDept()).then(all=>this.setState({npDeactivatedPool:all.filter(p=>!p.is_active)})).catch(()=>{});
   },
 
@@ -302,7 +304,7 @@ const PeopleHandlers = {
   },
 
   openResetPw:  function(id) { return () => this.setState({resetPwId:id,resetPwNew:'',resetPwSaving:false}); },
-  closeResetPw: function() { this.setState({resetPwId:null,resetPwNew:''}); },
+  closeResetPw: function() { this.setState({resetPwId:null,resetPwNew:'',showResetPw:false}); },
   onResetPwNew: function(e) { this.setState({resetPwNew:e.target.value}); },
 
   submitResetPw: async function() {
@@ -312,13 +314,21 @@ const PeopleHandlers = {
     if(demo){this._toast('Cannot reset passwords in demo mode.','error');return;}
     const _all=[...personnel,...Object.values(this.state.batchMembersCache||{}).flat()];
     const p=_all.find(x=>x.id===resetPwId);
-    if(!p?.auth_id){this._toast('No login account linked to this person.','error');return;}
+    if(!p){this._toast('Person not found.','error');return;}
     this.setState({resetPwSaving:true});
-    const {error}=await DB.auth.adminResetPassword(p.auth_id,resetPwNew);
-    this.setState({resetPwSaving:false});
-    if(error){this._toast('Failed to reset password.','error');return;}
-    this._toast((p.name||'Person')+"'s password has been reset.");
-    this.setState({resetPwId:null,resetPwNew:''});
+    if(!p.auth_id){
+      const {user,error}=await DB.auth.createUserAsAdmin(p.contact,resetPwNew,p.name);
+      if(error||!user){this.setState({resetPwSaving:false});this._toast('Failed to create login account.','error');return;}
+      await DB.personnel.linkAuth(p.id,user.id).catch(()=>{});
+      this.setState(s=>({personnel:s.personnel.map(x=>x.id===resetPwId?{...x,auth_id:user.id}:x),resetPwSaving:false}));
+      this._toast((p.name||'Person')+' now has a login account.');
+    } else {
+      const {error}=await DB.auth.adminResetPassword(p.auth_id,resetPwNew);
+      this.setState({resetPwSaving:false});
+      if(error){this._toast('Failed to reset password.','error');return;}
+      this._toast((p.name||'Person')+"'s password has been reset.");
+    }
+    this.setState({resetPwId:null,resetPwNew:'',showResetPw:false});
   },
 
   openBulkAdd:  function() { this.setState({bulkAddOpen:true,bulkAddText:'',bulkAddParsed:[],bulkAddStep:'input',bulkAddAdding:false}); },

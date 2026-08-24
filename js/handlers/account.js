@@ -6,7 +6,7 @@ const AccountHandlers = {
   askDelete:    function() { this.setState({confirmDelete:true}); },
   cancelDelete: function() { this.setState({confirmDelete:false}); },
   openChangePw:   function() { this.setState({changePwOpen:true, acctPwCurrent:'', acctPwNew:'', acctPwConfirm:'', acctPwError:'', acctPwSuccess:''}); },
-  closeChangePw:  function() { this.setState({changePwOpen:false, acctPwError:'', acctPwSuccess:''}); },
+  closeChangePw:  function() { this.setState({changePwOpen:false, acctPwError:'', acctPwSuccess:'', showAcctPw:false}); },
   openChangeName: function() { this.setState({changeNameOpen:true, acctNameEdit:this.cur()?.name||'', acctNameError:'', acctNameSuccess:''}); },
   closeChangeName:function() { this.setState({changeNameOpen:false, acctNameError:'', acctNameSuccess:''}); },
 

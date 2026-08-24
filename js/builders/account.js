@@ -36,6 +36,7 @@ const AccountBuilders = {
       dekitDateFull:acctDekit?Utils.fmtMed(acctDekit):'',
       changePwOpen:s.changePwOpen, openChangePw:this.openChangePw, closeChangePw:this.closeChangePw,
       changeNameOpen:s.changeNameOpen, openChangeName:this.openChangeName, closeChangeName:this.closeChangeName,
+      acctPwType:s.showAcctPw?'text':'password', showAcctPw:!!s.showAcctPw, hideAcctPw:!s.showAcctPw, toggleAcctPw:this.toggleAcctPw,
     };
   },
 

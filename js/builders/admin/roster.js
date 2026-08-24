@@ -133,7 +133,7 @@ const AdminRoster = {
       const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
       const av=s.avatars[p.id]||'';
       const avatarStyle=av?`background-image:url("${av.replace(/"/g,'%22')}");background-size:cover;background-position:center;color:transparent;`:'';
-      return {id:p.id,name:p.name,initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:(r.status==='present'&&r.p1)?r.p1:'',avatarStyle,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),onViewHistory:self.openPersonHistory(p.id)};
+      return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:(r.status==='present'&&r.p1)?r.p1:'',avatarStyle,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),onViewHistory:self.openPersonHistory(p.id)};
     });
     const vPresent=viewRoster.filter(r=>r.label==='Present').length, vMc=viewRoster.filter(r=>r.label==='On MC').length, vAbsent=viewRoster.filter(r=>r.label==='Absent').length, vPending=viewRoster.filter(r=>r.label==='Pending').length, vTotal=viewRoster.length;
     const vPercent=vTotal?Math.round((vPresent+vMc)/vTotal*100):0;
@@ -258,12 +258,19 @@ const AdminRoster = {
       setRosterSortName:self.setRosterSort('name'),
       setRosterSortStatus:self.setRosterSort('status'),
       rosterSortNameStyle,rosterSortStatusStyle,
-      // Feature: admin password reset
+      // Feature: admin password reset / set
       resetPwOpen:s.resetPwId!==null,
-      resetPwPersonName:([...s.personnel,...Object.values(s.batchMembersCache||{}).flat()].find(p=>p.id===s.resetPwId)||{}).name||'',
+      ...((()=>{
+        const _rp=[...s.personnel,...Object.values(s.batchMembersCache||{}).flat()].find(p=>p.id===s.resetPwId)||{};
+        const _hasAuth=!!_rp.auth_id;
+        return {
+          resetPwPersonName:_rp.name||'',
+          resetPwTitle:_hasAuth?'Reset password':'Set password',
+          resetPwBtnLabel:s.resetPwSaving?(_hasAuth?'Resetting...':'Creating...'): (_hasAuth?'Reset password':'Create login & set password'),
+        };
+      })()),
       resetPwNew:s.resetPwNew||'', resetPwSaving:s.resetPwSaving,
       resetPwSavingOpacity:s.resetPwSaving?0.6:1,
-      resetPwBtnLabel:s.resetPwSaving?'Resetting...':'Reset password',
       onResetPwNew:self.onResetPwNew, submitResetPw:self.submitResetPw, closeResetPw:self.closeResetPw,
     };
   },

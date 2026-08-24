@@ -126,7 +126,7 @@ const Utils = {
 
   DEPARTMENTS: {
     ops_security: { label: 'Ops Security', short: 'OPS' },
-    cas:          { label: 'Crime Alert (CAS)', short: 'CAS' },
+    cas:          { label: 'Crime Prevention', short: 'CAS' },
   },
   deptLabel(dept) { return this.DEPARTMENTS[dept]?.label || dept || ''; },
   deptShort(dept) { return this.DEPARTMENTS[dept]?.short || 'OPS'; },
