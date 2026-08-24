@@ -94,7 +94,7 @@ const makeInitialState = () => ({
   broadcastOpen: false, broadcastText: '', broadcastSaving: false,
   addAdminOpen: false, promoteAdminOpen: false,
   changePwOpen: false, changeNameOpen: false,
-  bulkAddOpen: false, bulkAddText: '', bulkAddParsed: [], bulkAddStep: 'input', bulkAddAdding: false,
+  bulkAddOpen: false, bulkAddText: '', bulkAddParsed: [], bulkAddStep: 'input', bulkAddAdding: false, bulkAddPassword: '', showBulkAddPw: false,
   noReportBulkOpen: false, noReportBulkText: '',
   helpOpen: false,
   showLoginPw: false, showSuPw: false, showAcctPw: false,
