@@ -130,6 +130,7 @@ const AccountHandlers = {
     if(this.state.demo) return;
     if(this._adminRequestsChannel) return;
     this._adminRequestsChannel = DB.realtime.subscribeAdminRequests((row) => {
+      if(row.department && row.department !== this._myDept()) return;
       if(row._type==='signup'){
         this.loadPendingSignups();
         if(this.state.adminNotifGranted && typeof Notification !== 'undefined' && Notification.permission === 'granted'){

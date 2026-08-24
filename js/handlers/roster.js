@@ -114,7 +114,7 @@ const RosterHandlers = {
       const b=batches[ni];
       this.setState({batchLoading:true});
       let members=this.state.batchMembersCache[b.id];
-      if(!members&&!b.is_live){members=await DB.personnel.list(b.id,false).catch(()=>[]);this.setState(s=>({batchMembersCache:{...s.batchMembersCache,[b.id]:members}}));}
+      if(!members&&!b.is_live){members=await DB.personnel.list(b.id,false,this._myDept()).catch(()=>[]);this.setState(s=>({batchMembersCache:{...s.batchMembersCache,[b.id]:members}}));}
       const cachedNrd=this.state.noReportDaysCache[b.id];
       const [nrd,attMap]=await Promise.all([
         cachedNrd?Promise.resolve(cachedNrd):DB.noReportDays.list(b.start_date,b.dekit_date||b.end_date).catch(()=>new Set()),
@@ -228,6 +228,7 @@ const RosterHandlers = {
     if(this.state.demo) return;
     const ch=DB.realtime.subscribeAttendance(dateStr, row=>{
       this.setState(s=>{
+        if(!s.personnel.some(p=>p.id===row.personnel_id)) return null;
         const existing=s.attendance[row.personnel_id]||{}, incoming=DB.attendance._toEntry(row), merged={};
         for(const k of Object.keys(incoming)) merged[k]=incoming[k]??existing[k];
         return {attendance:{...s.attendance,[row.personnel_id]:merged}};
