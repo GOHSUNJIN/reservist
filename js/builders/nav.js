@@ -12,7 +12,7 @@ const NavBuilders = {
       userName:s.role==='admin'?(me?.name||'Supervisor'):(me?.name||''),
       userInitials:s.role==='admin'?(me?.name?Utils.initials(me.name):'SV'):Utils.initials(me?.name||''),
       tabTitle:TITLES[s.tab]||'',
-      headerKicker:s.isSuperAdmin?'Master, '+orgName:s.role==='admin'?'Admin, '+orgName:orgName+', PNSMEN',
+      headerKicker:(()=>{const dl=Utils.deptLabel(this._myDept());return s.isSuperAdmin?'Master, '+dl:s.role==='admin'?'Admin, '+dl:dl+', PNSMEN';})(),
       goCheckin:this.go('checkin'), goBriefings:this.go('briefings'), goAttendance:this.go('attendance'), goMeal:this.go('meal'),
       goOverview:()=>{ this.setState({tab:'overview'}); setTimeout(()=>this.loadRosterAvatars(),0); this._scrollTop(); },
       goRoster:()=>{ this.setState({tab:'roster'}); setTimeout(()=>this.loadRosterAvatars(),0); this._scrollTop(); },

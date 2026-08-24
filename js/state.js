@@ -9,7 +9,8 @@ const makeInitialState = () => ({
   authError: '', loading: false, accountDeleted: false,
   // form fields
   loginContact: '', loginPassword: '',
-  suName: '', suContact: '', suPassword: '',
+  suName: '', suContact: '', suPassword: '', suDepartment: '',
+  adminDeptFilter: 'ops_security',
   // live data
   personnel: [], attendance: {}, attendanceCache: {},
   batches: [], activeBatchIdx: 0,

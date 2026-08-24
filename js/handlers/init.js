@@ -33,19 +33,18 @@ const InitHandlers = {
       }
       return;
     }
+    const dept = me.department || 'ops_security';
     if(!me.is_active){
-      // Check if a re-enrollment request is already pending
       const existingReq = await DB.signupRequests.getByContact(me.contact).catch(()=>null);
       if(existingReq?.status==='pending'){
         await DB.auth.logout();
         this.setState({authed:false,loading:false,authError:'Your re-enrollment request is pending supervisor approval. You will be notified once it is approved.'});
         return;
       }
-      // Auto-submit a re-enrollment request so the supervisor sees it in the Requests tab
-      const batches = this.state.batches.length ? this.state.batches : await DB.batches.list().catch(()=>[]);
-      const liveBatch = batches.find(b=>b.is_live);
+      const deptBatches = await DB.batches.list(dept).catch(()=>[]);
+      const liveBatch = deptBatches.find(b=>b.is_live);
       if(liveBatch){
-        await DB.signupRequests.create({authId:user.id, name:me.name, contact:me.contact, shift:me.shift||'OFFICE', batchId:liveBatch.id}).catch(()=>{});
+        await DB.signupRequests.create({authId:user.id, name:me.name, contact:me.contact, shift:me.shift||'OFFICE', batchId:liveBatch.id, department:dept}).catch(()=>{});
         await DB.auth.logout();
         this.setState({authed:false,loading:false,authError:'Your account is inactive for this cycle. A re-enrollment request has been sent to your supervisor. You will be able to log in once they approve it.'});
       } else {
@@ -78,10 +77,13 @@ const InitHandlers = {
     const role = (me.role === 'superadmin' || me.role === 'admin') ? 'admin' : me.role || 'reservist';
     const today = Utils.dateKey(this.baseDate());
 
-    let batches = (prefetchedBatches?.length) ? prefetchedBatches : await DB.batches.list().catch(()=>[]);
+    let batches = (prefetchedBatches?.length)
+      ? prefetchedBatches.filter(b=>!b.department||b.department===dept)
+      : await DB.batches.list(dept).catch(()=>[]);
+    if(!batches.length) batches = await DB.batches.list(dept).catch(()=>[]);
     if(role==='admin'){
-      batches = await this._ensureLiveBatch(batches);
-      batches = await this._ensureForwardBatches(batches, 8);
+      batches = await this._ensureLiveBatch(batches, null, dept);
+      batches = await this._ensureForwardBatches(batches, 8, dept);
     }
 
     const liveIdx = batches.findIndex(b=>b.is_live);
@@ -103,7 +105,7 @@ const InitHandlers = {
     }
 
     const [personnel, attendance, noReportDays, history] = await Promise.all([
-      DB.personnel.list(),
+      DB.personnel.list(null, true, dept),
       DB.attendance.getForDate(today),
       activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date) : Promise.resolve(new Set()),
       DB.attendance.getHistory(me.id),
@@ -116,6 +118,7 @@ const InitHandlers = {
       me, personnel, batches, activeBatchIdx,
       attendance, noReportDays, history, attendanceDate: today, historyLoaded: true,
       authError:'', loading:false, accountDeleted:false, demo:false, isSuperAdmin,
+      adminDeptFilter: dept,
     });
     if(role==='admin'){
       this._subscribeRealtime(today);
@@ -172,12 +175,13 @@ const InitHandlers = {
 
   _onDateChange: async function(newDate) {
     if(!this.state.authed || this.state.demo) return;
+    const dept = this._myDept();
     if(this.state.role==='admin'){
       const {attendanceDate:yesterday, attendance:yesterdayAtt, personnel, noReportDays} = this.state;
       if(yesterday && Utils.isReportDay(new Date(yesterday+'T00:00:00')) && !noReportDays.has(yesterday)){
         const [approvedLeaves, freshPendingLeaves] = await Promise.all([
           DB.leaves.listApprovedForDate(yesterday).catch(()=>[]),
-          DB.leaves.listPending().catch(()=>[]),
+          DB.leaves.listPending(dept).catch(()=>[]),
         ]);
         const approvedLeaveIds = new Set(approvedLeaves.map(l=>l.personnel_id));
         const pendingLeavesForYesterday = freshPendingLeaves.filter(l=>l.date===yesterday);
@@ -190,8 +194,8 @@ const InitHandlers = {
         });
         if(pending.length) await Promise.all(pending.map(p=>DB.attendance.upsert(p.id, yesterday, 'absent', {}).catch(()=>{})));
       }
-      let batches = await DB.batches.list().catch(()=>this.state.batches);
-      batches = await this._ensureLiveBatch(batches, newDate);
+      let batches = await DB.batches.list(dept).catch(()=>this.state.batches);
+      batches = await this._ensureLiveBatch(batches, newDate, dept);
       const liveIdx = batches.findIndex(b=>b.is_live);
       const activeBatch = batches[liveIdx>=0?liveIdx:0];
       const [att, nrd] = await Promise.all([
@@ -210,14 +214,14 @@ const InitHandlers = {
     }
   },
 
-  _ensureLiveBatch: async function(batches, overrideDate) {
+  _ensureLiveBatch: async function(batches, overrideDate, dept) {
     const today = overrideDate || Utils.dateKey(this.baseDate());
     const live = batches.find(b=>b.is_live);
     if(live && live.start_date<=today && today<=live.end_date) return batches;
     const current = batches.find(b=>b.start_date<=today && today<=b.end_date);
     if(current){
-      await DB.batches.activate(current.id).catch(()=>{});
-      return DB.batches.list().catch(()=>batches);
+      await DB.batches.activate(current.id, dept).catch(()=>{});
+      return DB.batches.list(dept).catch(()=>batches);
     }
     let sorted = [...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
     for(let attempt=0; attempt<20; attempt++){
@@ -231,18 +235,18 @@ const InitHandlers = {
       const sameYear = sorted.filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
       const maxNum = sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0, 10)),0);
       const label = Utils.batchLabel(startStr, endStr, maxNum+1);
-      const {data} = await DB.batches.create(label, startStr, endStr, dekitStr).catch(()=>({}));
+      const {data} = await DB.batches.create(label, startStr, endStr, dekitStr, dept).catch(()=>({}));
       if(data){ sorted.push(data); }
       if(startStr<=today && today<=dekitStr){
-        if(data?.id) await DB.personnel.assignBatch(data.id).catch(()=>{});
+        if(data?.id) await DB.personnel.assignBatch(data.id, dept).catch(()=>{});
         break;
       }
       if(startStr>today) break;
     }
-    return DB.batches.list().catch(()=>sorted);
+    return DB.batches.list(dept).catch(()=>sorted);
   },
 
-  _ensureForwardBatches: async function(batches, ahead=3) {
+  _ensureForwardBatches: async function(batches, ahead=3, dept) {
     const today = Utils.dateKey(this.baseDate());
     let sorted = [...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
     const futureBatches = sorted.filter(b=>b.start_date>today);
@@ -260,16 +264,16 @@ const InitHandlers = {
       const sameYear = sorted.filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
       const maxNum = sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0, 10)),0);
       const label = Utils.batchLabel(startStr, endStr, maxNum+1);
-      const {data} = await DB.batches.create(label, startStr, endStr, dekitStr).catch(()=>({}));
+      const {data} = await DB.batches.create(label, startStr, endStr, dekitStr, dept).catch(()=>({}));
       if(data) sorted.push(data); else break;
     }
     if(prevLiveId){
-      await DB.batches.activate(prevLiveId).catch(()=>{});
+      await DB.batches.activate(prevLiveId, dept).catch(()=>{});
     } else {
-      const fresh = await DB.batches.list().catch(()=>sorted);
-      return this._ensureLiveBatch(fresh);
+      const fresh = await DB.batches.list(dept).catch(()=>sorted);
+      return this._ensureLiveBatch(fresh, null, dept);
     }
-    return DB.batches.list().catch(()=>sorted);
+    return DB.batches.list(dept).catch(()=>sorted);
   },
 
   _loadDateAttendance: async function(off) {

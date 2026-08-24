@@ -2,7 +2,8 @@
 const PeopleHandlers = {
 
   loadAdmins: async function() {
-    const data=await DB.personnel.listAdmins().catch(()=>[]);
+    const dept=this._myDept();
+    const data=await DB.personnel.listAdmins(dept).catch(()=>[]);
     this.setState({adminsList:data,adminsLoaded:true});
   },
 
@@ -30,7 +31,7 @@ const PeopleHandlers = {
       if(existing){this._toast('This contact is already registered.','error');return;}
       const {user,error}=await DB.auth.createUserAsAdmin(cleanContact,npAdminPassword,npAdminName.trim());
       if(error||!user){this._toast('Failed to create account. Try again.','error');return;}
-      const {error:addErr}=await DB.personnel.add({authId:user.id,name:npAdminName.trim(),contact:cleanContact,shift:null,batchId:null,role:'admin'});
+      const {error:addErr}=await DB.personnel.add({authId:user.id,name:npAdminName.trim(),contact:cleanContact,shift:null,batchId:null,role:'admin',department:this._myDept()});
       if(addErr){await DB.auth.deleteUser(user.id).catch(()=>{});this._toast('Failed to add admin to roster. Try again.','error');return;}
       await this.loadAdmins();
     } else {
@@ -113,7 +114,7 @@ const PeopleHandlers = {
       if(npPassword.length<6){this._toast('Password must be at least 6 characters.','error');return;}
       const {user,error}=await DB.auth.createUserAsAdmin(cleanContact,npPassword,npName.trim());
       if(error||!user){this._toast('Account creation failed: '+(error?.message||'Try again.'),'error');return;}
-      const {data,error:addErr}=await DB.personnel.add({authId:user.id,name:npName.trim(),contact:cleanContact,shift:npShift,batchId:activeBatch.id});
+      const {data,error:addErr}=await DB.personnel.add({authId:user.id,name:npName.trim(),contact:cleanContact,shift:npShift,batchId:activeBatch.id,department:this._myDept()});
       if(addErr||!data){await DB.auth.deleteUser(user.id).catch(()=>{});this._toast('Failed to add to roster. Try again.','error');return;}
       if(me?.name&&data?.id) DB.personnel.setCreatedBy(data.id,me.name).catch(()=>{});
       this.setState(s=>({personnel:[...s.personnel,data],npName:'',npContact:'',npShift:'OFFICE',npPassword:'',rosterSearch:'',addPersonnelOpen:false,npAddSearch:''}));
@@ -144,7 +145,7 @@ const PeopleHandlers = {
   toggleAddPersonnel: function() {
     const opening=!this.state.addPersonnelOpen;
     this.setState({addPersonnelOpen:opening,npReenrollRecord:null,npAddSearch:'',npDeactivatedPool:[],...(opening?{npName:'',npContact:'',npShift:'OFFICE',npPassword:''}:{})});
-    if(opening&&!this.state.demo) DB.personnel.listAll().then(all=>this.setState({npDeactivatedPool:all.filter(p=>!p.is_active)})).catch(()=>{});
+    if(opening&&!this.state.demo) DB.personnel.listAll(this._myDept()).then(all=>this.setState({npDeactivatedPool:all.filter(p=>!p.is_active)})).catch(()=>{});
   },
 
   askDeactivatePerson:    function(id) { return () => this.setState({confirmDeactivateId:id}); },
@@ -212,7 +213,7 @@ const PeopleHandlers = {
   openMemberSearch: async function() {
     this.setState({memberSearchOpen:true,memberSearchLoaded:false,memberSearchText:'',memberSearchList:[],memberSearchStatus:'all',memberSearchCycle:'all',memberSearchPage:1,memberSearchSelected:[],confirmDeleteMemberId:null,confirmBulkDelete:false});
     if(!this.state.demo){
-      const data=await DB.personnel.listAll().catch(()=>[]);
+      const data=await DB.personnel.listAll(this._myDept()).catch(()=>[]);
       this.setState({memberSearchList:data,memberSearchLoaded:true});
     } else {
       this.setState({memberSearchLoaded:true});
@@ -349,10 +350,10 @@ const PeopleHandlers = {
         else skipped++;
         continue;
       }
-      const {data:addedData,error}=await DB.personnel.add({name:r.name,contact:r.contact,shift:r.shift,batchId:batch.id});
+      const {data:addedData,error}=await DB.personnel.add({name:r.name,contact:r.contact,shift:r.shift,batchId:batch.id,department:this._myDept()});
       if(error){failed++;}else{if(me?.name&&addedData?.id)DB.personnel.setCreatedBy(addedData.id,me.name).catch(()=>{});added++;}
     }
-    const personnel=await DB.personnel.list().catch(()=>this.state.personnel);
+    const personnel=await DB.personnel.list(null,true,this._myDept()).catch(()=>this.state.personnel);
     this.setState({personnel,bulkAddAdding:false});
     this.closeBulkAdd();
     const msg=[added?added+' added':'',skipped?skipped+' already active':'',failed?failed+' failed':''].filter(Boolean).join(', ');

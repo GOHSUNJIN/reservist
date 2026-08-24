@@ -13,15 +13,49 @@ const MiscHandlers = {
     this.setState({toast:null});
   },
 
+  _myDept: function() {
+    const s = this.state;
+    if(s.isSuperAdmin && s.adminDeptFilter) return s.adminDeptFilter;
+    return s.me?.department || 'ops_security';
+  },
+
+  switchAdminDept: async function(dept) {
+    if(!this.state.isSuperAdmin || dept === this._myDept()) return;
+    this.setState({adminDeptFilter:dept, batchLoading:true, personnel:[], batches:[], viewOffset:0, rosterSearch:'', personHistoryId:null, personHistoryRows:[], pendingLeaves:[], pendingLeavesLoaded:false, pendingSignups:[], pendingSignupsLoaded:false, approvedSignups:[], rejectedSignups:[], rejectedSignupsLoaded:false, adminsList:[], adminsLoaded:false, peopleStats:{}, peopleStatsLoaded:false, attendanceCache:{}, batchMembersCache:{}, noReportDaysCache:{}, confirmMarkAllAbsent:false});
+    let batches = await DB.batches.list(dept).catch(()=>[]);
+    batches = await this._ensureLiveBatch(batches, null, dept);
+    batches = await this._ensureForwardBatches(batches, 8, dept);
+    const liveIdx = batches.findIndex(b=>b.is_live);
+    const activeBatch = batches[liveIdx>=0?liveIdx:0];
+    const today = Utils.dateKey(this.baseDate());
+    const [personnel, attendance, noReportDays] = await Promise.all([
+      DB.personnel.list(null, true, dept),
+      DB.attendance.getForDate(today),
+      activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date) : Promise.resolve(new Set()),
+    ]);
+    this._unsubscribeRealtime();
+    this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0, personnel, attendance, attendanceDate:today, noReportDays, batchLoading:false});
+    this._subscribeRealtime(today);
+    setTimeout(()=>Promise.all([
+      this.loadRosterAvatars(),
+      this.loadPendingLeaves(),
+      this.loadPendingSignups(),
+      this.loadApprovedSignups(),
+      this.loadRejectedSignups(),
+      this.loadAdmins(),
+    ]), 0);
+  },
+
   // ── Page refresh ───────────────────────────────────────────────────────
   refreshPage: async function() {
     const {role, me, demo} = this.state;
     if(demo || !me) return;
     const today = Utils.dateKey(this.baseDate());
-    let batches = await DB.batches.list().catch(()=>this.state.batches);
+    const dept = this._myDept();
+    let batches = await DB.batches.list(dept).catch(()=>this.state.batches);
     if(role==='admin'){
-      batches = await this._ensureLiveBatch(batches).catch(()=>batches);
-      batches = await this._ensureForwardBatches(batches, 8).catch(()=>batches);
+      batches = await this._ensureLiveBatch(batches, null, dept).catch(()=>batches);
+      batches = await this._ensureForwardBatches(batches, 8, dept).catch(()=>batches);
     }
     const liveIdx = batches.findIndex(b=>b.is_live);
     const activeBatchIdx = liveIdx>=0?liveIdx:this.state.activeBatchIdx||0;

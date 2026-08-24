@@ -1,9 +1,9 @@
 // ── Signup and leave request handlers ────────────────────────────────────
 const RequestHandlers = {
 
-  loadPendingSignups:  async function() { const data=await DB.signupRequests.listPending().catch(()=>[]); this.setState({pendingSignups:data,pendingSignupsLoaded:true}); },
-  loadApprovedSignups: async function() { const data=await DB.signupRequests.listApproved().catch(()=>[]); this.setState({approvedSignups:data}); },
-  loadRejectedSignups: async function() { const data=await DB.signupRequests.listRejected().catch(()=>[]); this.setState({rejectedSignups:data,rejectedSignupsLoaded:true}); },
+  loadPendingSignups:  async function() { const dept=this._myDept(); const data=await DB.signupRequests.listPending(dept).catch(()=>[]); this.setState({pendingSignups:data,pendingSignupsLoaded:true}); },
+  loadApprovedSignups: async function() { const dept=this._myDept(); const data=await DB.signupRequests.listApproved(dept).catch(()=>[]); this.setState({approvedSignups:data}); },
+  loadRejectedSignups: async function() { const dept=this._myDept(); const data=await DB.signupRequests.listRejected(dept).catch(()=>[]); this.setState({rejectedSignups:data,rejectedSignupsLoaded:true}); },
 
   reopenSignup: function(id) {
     return async () => {
@@ -17,6 +17,7 @@ const RequestHandlers = {
   },
 
   _ensurePersonnelForSignup: async function(req, signupId) {
+    const dept = req.department || 'ops_security';
     const existing=await DB.personnel.findByContact(req.contact).catch(()=>null);
     if(existing){
       if(!existing.is_active){
@@ -26,7 +27,7 @@ const RequestHandlers = {
       await DB.personnel.linkAuth(existing.id,req.auth_id);
       return {finalPerson:existing,existed:true,wasInactive:false};
     }
-    const {data:newPerson,error:addErr}=await DB.personnel.add({authId:req.auth_id,name:req.name,contact:req.contact,shift:req.shift,batchId:req.batch_id});
+    const {data:newPerson,error:addErr}=await DB.personnel.add({authId:req.auth_id,name:req.name,contact:req.contact,shift:req.shift,batchId:req.batch_id,department:dept});
     if(addErr){
       await DB.signupRequests.reopen(signupId).catch(()=>{});
       return {finalPerson:null,existed:false,wasInactive:false,error:true,message:'Failed to create roster entry. Signup reverted to pending - try again.'};
@@ -44,7 +45,7 @@ const RequestHandlers = {
       if(!approvedRow){this.setState(s=>({pendingSignups:s.pendingSignups.filter(r=>r.id!==id)}));this._toast('Already approved by another admin.','error');return;}
       const {finalPerson,existed,wasInactive,error:personErr,message:personMsg}=await this._ensurePersonnelForSignup(req,id);
       if(personErr){this._toast(personMsg,'error');return;}
-      const freshPersonnel=await DB.personnel.list().catch(()=>null);
+      const freshPersonnel=await DB.personnel.list(null,true,this._myDept()).catch(()=>null);
       this.setState(s=>({
         pendingSignups:s.pendingSignups.filter(r=>r.id!==id),
         approvedSignups:[{...req,status:'approved',reviewed_by:reviewerName,reviewed_at:new Date().toISOString()},...s.approvedSignups],
@@ -91,7 +92,7 @@ const RequestHandlers = {
       }));
       count++;
     }
-    const freshPersonnel=await DB.personnel.list().catch(()=>null);
+    const freshPersonnel=await DB.personnel.list(null,true,this._myDept()).catch(()=>null);
     this.setState(s=>({selectedSignupIds:[],...(freshPersonnel?{personnel:freshPersonnel}:{})}));
     if(count) this._toast(count+' signup'+(count>1?'s':'')+' approved.');
   },
@@ -114,7 +115,7 @@ const RequestHandlers = {
     if(demo) return;
     const liveBatch=this._liveBatch(this.state.batches);
     if(liveBatch?.start_date) await DB.leaves.cancelStalePending(liveBatch.start_date).catch(()=>{});
-    const data=await DB.leaves.listPending().catch(()=>[]);
+    const data=await DB.leaves.listPending(this._myDept()).catch(()=>[]);
     this.setState({pendingLeaves:data,pendingLeavesLoaded:true});
   },
 
