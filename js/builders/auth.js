@@ -26,7 +26,7 @@ const AuthBuilders = {
       loginTabStyle:tb(s.authMode==='login'), signupTabStyle:tb(s.authMode==='signup'),
       accountDeleted:s.accountDeleted,
       loginNric:s.loginContact, loginPassword:s.loginPassword, authError:s.authError,
-      authLoading:s.loading, authLoadingOpacity:s.loading?0.6:1,
+      authLoading:s.loading, authLoadingOpacity:s.loading?0.6:1, authLoadingPointerEvents:s.loading?'none':'auto',
       loginBtnLabel:s.loading?'Logging in…':'Log in',
       signupBtnLabel:s.loading?'Creating account…':'Create account',
       onLoginNric:this.onLoginContact, onLoginPassword:this.onLoginPassword,
