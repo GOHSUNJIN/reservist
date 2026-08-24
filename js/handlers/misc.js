@@ -19,14 +19,22 @@ const MiscHandlers = {
     return s.me?.department || 'ops_security';
   },
 
+  onDeptSelect: function(e) { this.switchAdminDept(e.target.value); },
+
   switchAdminDept: async function(dept) {
     if(!this.state.isSuperAdmin || dept === this._myDept()) return;
-    this.setState({adminDeptFilter:dept, batchLoading:true, personnel:[], batches:[], viewOffset:0, rosterSearch:'', personHistoryId:null, personHistoryRows:[], pendingLeaves:[], pendingLeavesLoaded:false, pendingSignups:[], pendingSignupsLoaded:false, approvedSignups:[], rejectedSignups:[], rejectedSignupsLoaded:false, adminsList:[], adminsLoaded:false, peopleStats:{}, peopleStatsLoaded:false, attendanceCache:{}, batchMembersCache:{}, noReportDaysCache:{}, confirmMarkAllAbsent:false});
+    const currentDept = this._myDept();
+    const currentBatchId = this.state.batches[this.state.activeBatchIdx||0]?.id;
+    const deptLastBatchId = {...(this.state.deptLastBatchId||{}), [currentDept]: currentBatchId};
+    this.setState({adminDeptFilter:dept, batchLoading:true, deptLastBatchId, personnel:[], batches:[], viewOffset:0, rosterSearch:'', personHistoryId:null, personHistoryRows:[], pendingLeaves:[], pendingLeavesLoaded:false, pendingSignups:[], pendingSignupsLoaded:false, approvedSignups:[], rejectedSignups:[], rejectedSignupsLoaded:false, adminsList:[], adminsLoaded:false, peopleStats:{}, peopleStatsLoaded:false, attendanceCache:{}, batchMembersCache:{}, noReportDaysCache:{}, confirmMarkAllAbsent:false});
     let batches = await DB.batches.list(dept).catch(()=>[]);
     batches = await this._ensureLiveBatch(batches, null, dept);
     batches = await this._ensureForwardBatches(batches, 8, dept);
     const liveIdx = batches.findIndex(b=>b.is_live);
-    const activeBatch = batches[liveIdx>=0?liveIdx:0];
+    const savedBatchId = deptLastBatchId[dept];
+    const savedIdx = savedBatchId ? batches.findIndex(b=>b.id===savedBatchId) : -1;
+    const activeBatchIdx = savedIdx>=0 ? savedIdx : (liveIdx>=0?liveIdx:0);
+    const activeBatch = batches[activeBatchIdx];
     const today = Utils.dateKey(this.baseDate());
     const [personnel, attendance, noReportDays] = await Promise.all([
       DB.personnel.list(null, true, dept),
@@ -34,7 +42,7 @@ const MiscHandlers = {
       activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date) : Promise.resolve(new Set()),
     ]);
     this._unsubscribeRealtime();
-    this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0, personnel, attendance, attendanceDate:today, noReportDays, batchLoading:false});
+    this.setState({batches, activeBatchIdx, personnel, attendance, attendanceDate:today, noReportDays, batchLoading:false});
     this._subscribeRealtime(today);
     setTimeout(()=>Promise.all([
       this.loadRosterAvatars(),
