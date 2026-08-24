@@ -139,7 +139,7 @@ const AdminBatch = {
           bulkAddParsed:_parsed,
           bulkAddValidCount:_vc,
           bulkAddTotal:_parsed.length,
-          bulkAddHasValid:_vc>0,
+          bulkAddHasValid:_vc>0&&!!(s.bulkAddPassword&&s.bulkAddPassword.length>=6),
           bulkAddBtnLabel:s.bulkAddAdding?'Adding...':('Add '+_vc+' personnel'),
         };
       })(),
