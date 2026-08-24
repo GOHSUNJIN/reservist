@@ -16,9 +16,7 @@ const AuthBuilders = {
     const be=targetBatch?new Date(targetBatch.end_date+'T00:00:00'):null;
     const intakeLabel=targetBatch?.label||'';
     const intakeRangeFull=bs&&be?(Utils.fmtShort(bs)+' to '+Utils.fmtShort(be)+' '+bs.getFullYear()):'';
-    const deptBtnBase='flex:1;padding:11px 8px;border:2px solid;border-radius:10px;font-size:13.5px;font-weight:600;cursor:pointer;text-align:center;transition:all .15s;';
-    const deptOpsActive=suDept==='ops_security';
-    const deptCasActive=suDept==='cas';
+    const signupDeptOptions=Object.entries(Utils.DEPARTMENTS).map(([value,{label}])=>({value,label}));
     return {
       showAuth:!s.authed, showApp:s.authed,
       isLogin:s.authMode==='login'&&!s.signupPending, isSignup:s.authMode==='signup'&&!s.signupPending,
@@ -43,9 +41,9 @@ const AuthBuilders = {
       capsLock:!!s.capsLock, onPwKeyDown:this.onPwKeyDown,
       signupPending:s.signupPending, dismissSignupPending:this.dismissSignupPending,
       suDepartment:suDept,
-      selectDeptOps:this.selectDeptOps, selectDeptCas:this.selectDeptCas,
-      deptOpsStyle:deptBtnBase+(deptOpsActive?`border-color:${accent};background:#eef3fc;color:${accent};`:'border-color:#d4d9e2;background:#fff;color:#5c6678;'),
-      deptCasStyle:deptBtnBase+(deptCasActive?`border-color:${accent};background:#eef3fc;color:${accent};`:'border-color:#d4d9e2;background:#fff;color:#5c6678;'),
+      signupDeptSelectVal:suDept,
+      signupDeptOptions,
+      onSignupDeptSelect:this.onSignupDeptSelect,
       signupCycleNote: suDept ? ` (${Utils.deptLabel(suDept)})` : '',
     };
   },
