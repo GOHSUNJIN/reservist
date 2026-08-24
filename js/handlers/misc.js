@@ -126,6 +126,7 @@ const MiscHandlers = {
   toggleSuPw:      function() { this.setState(s=>({showSuPw:!s.showSuPw})); },
   toggleAcctPw:    function() { this.setState(s=>({showAcctPw:!s.showAcctPw})); },
   toggleNpPw:      function() { this.setState(s=>({showNpPw:!s.showNpPw})); },
+  toggleBulkAddPw: function() { this.setState(s=>({showBulkAddPw:!s.showBulkAddPw})); },
   toggleNpAdminPw: function() { this.setState(s=>({showNpAdminPw:!s.showNpAdminPw})); },
   toggleResetPw:   function() { this.setState(s=>({showResetPw:!s.showResetPw})); },
 

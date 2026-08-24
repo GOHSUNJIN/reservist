@@ -331,9 +331,10 @@ const PeopleHandlers = {
     this.setState({resetPwId:null,resetPwNew:'',showResetPw:false});
   },
 
-  openBulkAdd:  function() { this.setState({bulkAddOpen:true,bulkAddText:'',bulkAddParsed:[],bulkAddStep:'input',bulkAddAdding:false}); },
-  closeBulkAdd: function() { this.setState({bulkAddOpen:false,bulkAddText:'',bulkAddParsed:[],bulkAddStep:'input',bulkAddAdding:false}); },
+  openBulkAdd:  function() { this.setState({bulkAddOpen:true,bulkAddText:'',bulkAddParsed:[],bulkAddStep:'input',bulkAddAdding:false,bulkAddPassword:'',showBulkAddPw:false}); },
+  closeBulkAdd: function() { this.setState({bulkAddOpen:false,bulkAddText:'',bulkAddParsed:[],bulkAddStep:'input',bulkAddAdding:false,bulkAddPassword:'',showBulkAddPw:false}); },
   onBulkAddText: function(e) { this.setState({bulkAddText:e.target.value}); },
+  onBulkAddPassword: function(e) { this.setState({bulkAddPassword:e.target.value}); },
 
   parseBulkAdd: function() {
     const lines=(this.state.bulkAddText||'').split('\n').map(l=>l.trim()).filter(Boolean);
@@ -345,12 +346,13 @@ const PeopleHandlers = {
   },
 
   confirmBulkAdd: async function() {
-    const {bulkAddParsed,batches,activeBatchIdx,demo,me}=this.state;
+    const {bulkAddParsed,batches,activeBatchIdx,demo,me,bulkAddPassword}=this.state;
     const batch=batches[activeBatchIdx||0];
     if(!batch){this._toast('No active batch.','error');return;}
     const valid=bulkAddParsed.filter(r=>r.valid);
     if(!valid.length) return;
     if(demo){this._toast('Cannot add personnel in demo mode.','error');return;}
+    const usePassword=!!(bulkAddPassword&&bulkAddPassword.length>=6);
     this.setState({bulkAddAdding:true});
     let added=0, skipped=0, failed=0;
     for(const r of valid){
@@ -360,8 +362,15 @@ const PeopleHandlers = {
         else skipped++;
         continue;
       }
-      const {data:addedData,error}=await DB.personnel.add({name:r.name,contact:r.contact,shift:r.shift,batchId:batch.id,department:this._myDept()});
-      if(error){failed++;}else{if(me?.name&&addedData?.id)DB.personnel.setCreatedBy(addedData.id,me.name).catch(()=>{});added++;}
+      if(usePassword){
+        const {user,error:authErr}=await DB.auth.createUserAsAdmin(r.contact,bulkAddPassword,r.name);
+        if(authErr||!user){failed++;continue;}
+        const {data:addedData,error}=await DB.personnel.add({authId:user.id,name:r.name,contact:r.contact,shift:r.shift,batchId:batch.id,department:this._myDept()});
+        if(error){await DB.auth.deleteUser(user.id).catch(()=>{});failed++;}else{if(me?.name&&addedData?.id)DB.personnel.setCreatedBy(addedData.id,me.name).catch(()=>{});added++;}
+      } else {
+        const {data:addedData,error}=await DB.personnel.add({name:r.name,contact:r.contact,shift:r.shift,batchId:batch.id,department:this._myDept()});
+        if(error){failed++;}else{if(me?.name&&addedData?.id)DB.personnel.setCreatedBy(addedData.id,me.name).catch(()=>{});added++;}
+      }
     }
     const personnel=await DB.personnel.list(null,true,this._myDept()).catch(()=>this.state.personnel);
     this.setState({personnel,bulkAddAdding:false});

@@ -145,6 +145,8 @@ const AdminBatch = {
       })(),
       openBulkAdd:self.openBulkAdd, closeBulkAdd:self.closeBulkAdd,
       onBulkAddText:self.onBulkAddText, parseBulkAdd:self.parseBulkAdd, confirmBulkAdd:self.confirmBulkAdd,
+      bulkAddPassword:s.bulkAddPassword||'', onBulkAddPassword:self.onBulkAddPassword,
+      bulkAddPwType:s.showBulkAddPw?'text':'password', showBulkAddPw:!!s.showBulkAddPw, hideBulkAddPw:!s.showBulkAddPw, toggleBulkAddPw:self.toggleBulkAddPw,
       // Feature: bulk no-report days
       noReportBulkOpen:s.noReportBulkOpen, noReportBulkText:s.noReportBulkText||'',
       openNoReportBulk:self.openNoReportBulk, closeNoReportBulk:self.closeNoReportBulk,
