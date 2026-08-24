@@ -185,8 +185,7 @@ const AuthHandlers = {
   onSuName:        function(e) { this.setState({suName:e.target.value}); },
   onSuContact:     function(e) { this.setState({suContact:e.target.value}); },
   onSuPassword:    function(e) { this.setState({suPassword:e.target.value}); },
-  selectDeptOps:   function() { this.setState({suDepartment:'ops_security', authError:''}); },
-  selectDeptCas:   function() { this.setState({suDepartment:'cas', authError:''}); },
+  onSignupDeptSelect: function(e) { this.setState({suDepartment:e.target.value, authError:''}); },
 
   dismissSignupPending: function() { this.setState({signupPending:false, authMode:'login'}); },
 

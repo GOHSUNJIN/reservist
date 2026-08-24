@@ -131,10 +131,12 @@
         <!-- Department picker -->
         <div style="margin-bottom:18px;">
           <label class="text-field-label" style="margin-bottom:8px;display:block;">Department</label>
-          <div style="display:flex;gap:8px;">
-            <button onClick="{{ selectDeptOps }}" style="{{ deptOpsStyle }}">Ops Security</button>
-            <button onClick="{{ selectDeptCas }}" style="{{ deptCasStyle }}">Crime Alert (CAS)</button>
-          </div>
+          <select value="{{ signupDeptSelectVal }}" onChange="{{ onSignupDeptSelect }}" style="width:100%;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:15px;font-weight:500;color:#161f30;background:#fff;outline:none;cursor:pointer;box-sizing:border-box;">
+            <option value="">Select your department</option>
+            <sc-for list="{{ signupDeptOptions }}" as="opt">
+              <option value="{{ opt.value }}">{{ opt.label }}</option>
+            </sc-for>
+          </select>
         </div>
 
         <sc-if value="{{ showIntakeBadge }}" hint-placeholder-val="">
