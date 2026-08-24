@@ -224,6 +224,13 @@ const InitHandlers = {
       return DB.batches.list(dept).catch(()=>batches);
     }
     let sorted = [...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
+    // If today falls before all existing batches (e.g. dept deployed mid-cycle with a 1-day gap),
+    // activate the nearest upcoming batch instead of creating more batches further in the future.
+    if(sorted.length && sorted[0].start_date>today){
+      await DB.batches.activate(sorted[0].id, dept).catch(()=>{});
+      return DB.batches.list(dept).catch(()=>batches);
+    }
+    const allBatches = await DB.batches.list().catch(()=>[]);
     for(let attempt=0; attempt<20; attempt++){
       const lastBatch = sorted[sorted.length-1];
       const fromDate = lastBatch?.end_date
@@ -232,7 +239,7 @@ const InitHandlers = {
       const nextTue = Utils.nextBatchTuesday(fromDate);
       const {start,end,dekit} = Utils.batchDatesFrom(nextTue);
       const startStr=Utils.dateKey(start), endStr=Utils.dateKey(end), dekitStr=Utils.dateKey(dekit);
-      const sameYear = sorted.filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
+      const sameYear = [...allBatches, ...sorted].filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
       const maxNum = sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0, 10)),0);
       const label = Utils.batchLabel(startStr, endStr, maxNum+1);
       const {data} = await DB.batches.create(label, startStr, endStr, dekitStr, dept).catch(()=>({}));
@@ -253,6 +260,7 @@ const InitHandlers = {
     const needed = ahead-futureBatches.length;
     if(needed<=0) return batches;
     const prevLiveId = sorted.find(b=>b.is_live)?.id;
+    const allBatches = await DB.batches.list().catch(()=>[]);
     for(let i=0; i<needed; i++){
       const lastBatch = sorted[sorted.length-1];
       const fromDate = lastBatch?.end_date
@@ -261,7 +269,7 @@ const InitHandlers = {
       const nextTue = Utils.nextBatchTuesday(fromDate);
       const {start,end,dekit} = Utils.batchDatesFrom(nextTue);
       const startStr=Utils.dateKey(start), endStr=Utils.dateKey(end), dekitStr=Utils.dateKey(dekit);
-      const sameYear = sorted.filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
+      const sameYear = [...allBatches, ...sorted].filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
       const maxNum = sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0, 10)),0);
       const label = Utils.batchLabel(startStr, endStr, maxNum+1);
       const {data} = await DB.batches.create(label, startStr, endStr, dekitStr, dept).catch(()=>({}));
