@@ -273,6 +273,7 @@ const AdminRoster = {
       })()),
       resetPwNew:s.resetPwNew||'', resetPwSaving:s.resetPwSaving,
       resetPwSavingOpacity:s.resetPwSaving?0.6:1,
+      resetPwType:s.showResetPw?'text':'password', showResetPw:!!s.showResetPw, hideResetPw:!s.showResetPw, toggleResetPw:self.toggleResetPw,
       onResetPwNew:self.onResetPwNew, submitResetPw:self.submitResetPw, closeResetPw:self.closeResetPw,
     };
   },
