@@ -388,6 +388,7 @@ const CheckinBuilders = {
 
   _buildAttendance: function(s) {
     const me=this.cur(); if(!me) return {myHistory:[],statMyPresent:0,statMyMc:0,statMyMissed:0,statMyDays:0,cycleDone:0,cycleTotal:0,cyclePct:0};
+    const isCas=this._myDept()==='cas';
     const rec=this.myRec(), status=rec.status||'pending';
     const todayD=this.baseDate(), today=Utils.dateKey(todayD);
     const activeBatch=s.batches.find(b=>b.id===me.batch_id)||s.batches[s.activeBatchIdx||0];
