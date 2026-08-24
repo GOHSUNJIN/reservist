@@ -237,15 +237,19 @@ js/
 │       └── people.js   - Personnel list, member search, leave inbox, signup inbox, bulk actions, low-attendance flags
 │
 └── handlers/           - Event handlers: setState calls and DB writes
-    ├── auth.js         - Login, logout, signup, session management, idle/session timers
-    ├── init.js         - App startup, realtime subscriptions, date change detection, auto-absent, batch provisioning
-    ├── checkin.js      - Phase submission (GPS and bypass), offline queue, late reason, location verification
-    ├── requests.js     - Leave and signup approve/reject, bulk actions, welfare notes, missed-day notes, log notes
-    ├── people.js       - Add/remove personnel, re-enroll, member search, bulk delete, admin management, history export
-    ├── roster.js       - Manual status override, time correction, no-report days, search, sort, day navigation
-    ├── batch.js        - Cycle CRUD, export (XLS and print), bulk add, broadcast, no-report bulk, jump to date
-    ├── account.js      - Profile photo upload/remove, password change, name change, notification permissions
-    └── misc.js         - Toast, navigation helpers, WhatsApp share/copy, page refresh
+    ├── init.js          - App startup, realtime subscriptions, date change detection, auto-absent, batch provisioning
+    ├── auth.js          - Login, logout, signup, session management, idle/session timers
+    ├── checkin.js       - Phase submission (GPS and bypass), offline queue, late reason, location verification
+    ├── signups.js       - Signup request approve/reject/reopen, bulk approve, signup search
+    ├── requests.js      - Leave approve/reject, bulk actions, welfare notes, missed-day notes, log notes
+    ├── people.js        - Add/remove personnel, re-enroll, deactivate, bulk add, people stats
+    ├── member_search.js - Cross-cycle member search, permanent delete, bulk delete, person history, password reset
+    ├── admin_mgmt.js    - Add, demote, and promote admin accounts
+    ├── batch.js         - Cycle CRUD, broadcast, no-report days, meal toggle, cycle picker, jump to date
+    ├── export.js        - XLS attendance export and print/PDF report generation
+    ├── roster.js        - Manual status override, time correction, search, sort, day navigation
+    ├── account.js       - Profile photo upload/remove, password change, name change, notification permissions
+    └── misc.js          - Toast, navigation helpers, WhatsApp share/copy, page refresh
 
 scripts/                - Offline tooling (not part of the web app)
     ├── build_pptx.py         - Generates the OpsTracker briefing deck
