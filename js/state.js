@@ -15,7 +15,7 @@ const makeInitialState = () => ({
   personnel: [], attendance: {}, attendanceCache: {},
   batches: [], activeBatchIdx: 0,
   noReportDays: new Set(), history: [],
-  batchMembersCache: {},
+  batchMembersCache: {}, deptLastBatchId: {},
   // ui state
   tab: 'checkin',
   locStatus: 'idle', locDistance: null, locGpsMsg: '',
