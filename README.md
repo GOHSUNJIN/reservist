@@ -28,6 +28,7 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 - **Upcoming no-report days**: Lists all remaining no-report days in the current cycle (public holidays and stand-downs) so reservists can plan ahead.
 - **Cycle notice board**: If the supervisor has posted a notice for the current cycle, it appears as a banner on the check-in screen for everyone in that cycle.
 - **Offline check-in**: If connectivity is lost during check-in, the action is saved on the device and submitted automatically once the connection is restored.
+- **Department selection at signup**: Reservists choose their department (Ops Security or Crime Alert/CAS) during signup. The intake cycle shown on the form updates to reflect whichever department is selected.
 - **Returning reservist re-enrollment**: When a reservist from a previous cycle logs in after their account was deactivated, the app automatically submits a re-enrollment request to the supervisor. No manual coordination required.
 - **Logout confirmation**: Tapping Log Out shows a confirmation step before the session is ended, preventing accidental logouts.
 - **Session expiry warning**: A banner appears at 55 minutes into the session with a one-tap option to extend it before the session expires at 60 minutes.
@@ -106,6 +107,8 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 
 All supervisor capabilities, plus:
 
+- **Department switcher**: Switch the entire admin view between departments (Ops Security and Crime Alert/CAS) using a dropdown in the header. Each department's last-selected cycle is remembered independently, so switching back restores the previous context.
+- **Cross-department isolation**: All data (personnel, cycles, attendance, leave requests, signup requests, and realtime updates) is fully scoped to the active department. Switching departments clears the current view and reloads fresh data for the selected department.
 - **Create supervisor accounts**: Add new admin accounts directly within the app.
 - **Remove supervisors**: Demote any admin back to reservist status. Demoted supervisors return to the reservist pool automatically.
 - **Promote to supervisor**: Promote any existing reservist to admin status. Search by name with cycle filters.
@@ -163,9 +166,9 @@ The system uses three permission levels:
 
 | Role | Who | Access |
 |---|---|---|
-| Reservist | NS personnel | Own check-in, leave requests, and attendance history |
-| Admin | Supervisors and staff officers | Full roster and attendance management, leave approval, personnel records, time correction |
-| Master | Command level | Everything Admin can do, plus managing all supervisor accounts |
+| Reservist | NS personnel | Own check-in, leave requests, and attendance history (scoped to their department) |
+| Admin | Supervisors and staff officers | Full roster and attendance management, leave approval, personnel records, time correction (scoped to their department) |
+| Master | Command level | Everything Admin can do, plus managing all supervisor accounts and switching between departments |
 
 Accounts are tied to Singapore mobile numbers. All sessions expire when the browser is closed. Idle sessions time out after 20 minutes.
 
@@ -247,7 +250,8 @@ js/
 scripts/                - Offline tooling (not part of the web app)
     ├── build_pptx.py         - Generates the OpsTracker briefing deck
     ├── generate_checklist.py - Generates the admin testing checklist
-    └── supabase_cron.sql     - SQL to enable the auto-absent scheduled job
+    ├── supabase_cron.sql     - SQL to enable the auto-absent scheduled job
+    └── add_departments.sql   - Migration to add department columns to an existing deployment
 ```
 
 `index.html` is the single-page template that wires all builders and handlers together. The `<x-dc>` element at the top of the file is where all deployment-specific configuration lives.
@@ -264,6 +268,8 @@ scripts/                - Offline tooling (not part of the web app)
 
 **Person history pagination**: The person history modal is paginated at 15 records per page. Status filters (All, Present, MC, Absent) are applied before pagination. Page state is reset when the filter changes.
 
+**Department isolation**: All database queries, realtime subscriptions, and state updates are scoped to the active department. The `_myDept()` helper on handlers returns the superadmin's manually selected department or the user's own department (set at signup). Switching departments clears all cached data (personnel, batches, attendance, requests) and reloads from scratch for the new department. Realtime callbacks guard against cross-department rows arriving via shared channels.
+
 ### Database Schema
 
 All data is stored in a structured cloud database (PostgreSQL), with six tables:
@@ -276,6 +282,7 @@ All data is stored in a structured cloud database (PostgreSQL), with six tables:
 | Contact | Phone number (used as login) |
 | Shift | Office (0900 to 1800) |
 | Role | Reservist, Admin, or Master |
+| Department | Which department the person belongs to (ops_security or cas) |
 | Cycle | Which reporting cycle they belong to |
 | Active | Whether the account is currently active |
 | Notes | Supervisor notes on the person |
@@ -287,6 +294,7 @@ All data is stored in a structured cloud database (PostgreSQL), with six tables:
 | Field | What it stores |
 |---|---|
 | Label | e.g. "Cycle 15/2026" |
+| Department | Which department this cycle belongs to (ops_security or cas) |
 | Start date | First reporting day (Tuesday) |
 | End date | Last reporting day (Monday, 13 days later) |
 | Dekit date | Equipment return day (Wednesday after end) |
@@ -331,6 +339,7 @@ All data is stored in a structured cloud database (PostgreSQL), with six tables:
 |---|---|
 | Name | Name submitted at signup |
 | Contact | Phone number |
+| Department | Which department the person is signing up for |
 | Cycle | Which cycle they are enrolling into |
 | Status | Pending, Approved, or Rejected |
 | Reviewed by | Name of the supervisor who actioned it |
@@ -374,9 +383,13 @@ Reservists who do not check in on a reporting day are marked absent automaticall
    ```
 5. Run `scripts/supabase_cron.sql` to enable the automatic absent job. Requires the `pg_cron` extension (enabled by default on Supabase Pro).
 
+> **Upgrading an existing deployment?** If you already have the tables from an earlier version, run `scripts/add_departments.sql` instead of re-creating the schema. It adds the `department_type` enum and the `department` column to `personnel`, `batches`, and `signup_requests`, defaulting all existing rows to `ops_security`.
+
 **Full schema:**
 
 ```sql
+CREATE TYPE department_type AS ENUM ('ops_security', 'cas');
+
 CREATE TABLE personnel (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   auth_id UUID,
@@ -384,6 +397,7 @@ CREATE TABLE personnel (
   contact TEXT,
   shift TEXT CHECK (shift IS NULL OR shift IN ('OFFICE')),
   role TEXT NOT NULL DEFAULT 'reservist' CHECK (role IN ('reservist', 'admin', 'superadmin')),
+  department department_type NOT NULL DEFAULT 'ops_security',
   batch_id UUID,
   is_active BOOLEAN NOT NULL DEFAULT true,
   notes TEXT,
@@ -395,6 +409,7 @@ CREATE TABLE personnel (
 CREATE TABLE batches (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   label TEXT NOT NULL,
+  department department_type NOT NULL DEFAULT 'ops_security',
   start_date DATE NOT NULL,
   end_date DATE NOT NULL,
   dekit_date DATE,
@@ -445,6 +460,7 @@ CREATE TABLE signup_requests (
   name TEXT NOT NULL,
   contact TEXT NOT NULL,
   shift TEXT NOT NULL,
+  department department_type NOT NULL DEFAULT 'ops_security',
   batch_id UUID REFERENCES batches(id),
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
   reviewed_by TEXT,

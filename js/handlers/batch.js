@@ -36,7 +36,8 @@ const BatchHandlers = {
     const start=new Date(newBatchDate+'T00:00:00');
     const {start:s,end:e,dekit:dk}=Utils.batchDatesFrom(start);
     const startStr=Utils.dateKey(s),endStr=Utils.dateKey(e),dekitStr=Utils.dateKey(dk);
-    const sameYear=batches.filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
+    const allBatches=await DB.batches.list().catch(()=>batches);
+    const sameYear=allBatches.filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
     const maxNum=sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0, 10)),0);
     const label=Utils.batchLabel(startStr,endStr,maxNum+1);
     if(!demo){
