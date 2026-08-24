@@ -16,7 +16,7 @@ input,button,select,textarea{font-family:inherit;}
 
 /* ── Avatar circles ───────────────────────────────────────────────────────── */
 .avatar-sm{width:36px;height:36px;border-radius:50%;background:#eef0f4;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#5c6678;flex:0 0 auto;}
-.avatar-md{width:34px;height:34px;border-radius:50%;background:#eef0f4;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;color:#5c6678;flex:0 0 auto;}
+.avatar-md{width:40px;height:40px;border-radius:50%;background:#eef0f4;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#5c6678;flex:0 0 auto;}
 
 /* ── Status badge ─────────────────────────────────────────────────────────── */
 .badge{font-size:11px;font-weight:600;padding:4px 9px;border-radius:20px;white-space:nowrap;}
@@ -106,7 +106,8 @@ button:active{transform:scale(.97);transition:transform .08s;}
 
 /* Bottom sheets */
 .sheet               { width:100%;background:#fff;border-radius:20px 20px 0 0;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 -8px 32px rgba(20,30,50,.18); }
-.sheet-header        { padding:18px 20px 12px;border-bottom:1px solid #f0f2f6;flex:0 0 auto; }
+.sheet::before       { content:'';display:block;width:40px;height:4px;background:#d4d9e2;border-radius:2px;margin:10px auto 0;flex:0 0 auto; }
+.sheet-header        { padding:10px 20px 12px;border-bottom:1px solid #f0f2f6;flex:0 0 auto; }
 .sheet-body          { overflow-y:auto;flex:1; }
 
 /* Loading spinner */
@@ -148,7 +149,8 @@ button:active{transform:scale(.97);transition:transform .08s;}
 .badge-pill          { background:#f6f8fa;border:1px solid #eaedf2;border-radius:9px;padding:7px 0;text-align:center; }
 
 /* Sheets */
-.sheet-padded        { width:100%;background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 36px;box-shadow:0 -8px 32px rgba(20,30,50,.18); }
+.sheet-padded        { width:100%;background:#fff;border-radius:20px 20px 0 0;padding:12px 20px 36px;box-shadow:0 -8px 32px rgba(20,30,50,.18); }
+.sheet-padded::before{ content:'';display:block;width:40px;height:4px;background:#d4d9e2;border-radius:2px;margin:0 auto 12px; }
 
 /* Avatars */
 .avatar-circle       { width:44px;height:44px;border-radius:50%;background:#f0f2f5;display:flex;align-items:center;justify-content:center;margin:0 auto 12px; }

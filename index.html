@@ -107,7 +107,7 @@
         <sc-if value="{{ authError }}" hint-placeholder-val="">
           <div style="color:#c0392b;font-size:13px;margin-bottom:6px;">{{ authError }}</div>
         </sc-if>
-        <button onClick="{{ doLogin }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:12px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoadingOpacity }};">{{ loginBtnLabel }}</button>
+        <button onClick="{{ doLogin }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:12px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoadingOpacity }};pointer-events:{{ authLoadingPointerEvents }};">{{ loginBtnLabel }}</button>
         <div style="text-align:center;margin-top:14px;">
           <button onClick="{{ openForgotPassword }}" style="background:none;border:none;color:#8a94a3;font-size:13px;cursor:pointer;text-decoration:underline;padding:0;">Forgot password?</button>
         </div>
@@ -159,7 +159,7 @@
         <sc-if value="{{ authError }}" hint-placeholder-val="">
           <div style="color:#c0392b;font-size:13px;margin-top:12px;">{{ authError }}</div>
         </sc-if>
-        <button onClick="{{ doSignup }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:18px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoadingOpacity }};">{{ signupBtnLabel }}</button>
+        <button onClick="{{ doSignup }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:18px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoadingOpacity }};pointer-events:{{ authLoadingPointerEvents }};">{{ signupBtnLabel }}</button>
 
       </div>
       </sc-if>
@@ -1551,9 +1551,9 @@
           <sc-if value="{{ hasPendingSignups }}" hint-placeholder-val="">
           <div class="card-flush" style="margin-bottom:14px;">
             <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
-              <div onClick="{{ selectAllSignups }}" style="width:18px;height:18px;border-radius:4px;border:1.5px solid {{ signupSelectAllBorder }};background:{{ signupSelectAllBg }};display:flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer;" title="Select all">
+              <div onClick="{{ selectAllSignups }}" style="width:22px;height:22px;border-radius:5px;border:1.5px solid {{ signupSelectAllBorder }};background:{{ signupSelectAllBg }};display:flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer;" title="Select all">
                 <sc-if value="{{ allSignupsSelected }}" hint-placeholder-val="">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                 </sc-if>
               </div>
               <span class="text-label">PENDING SIGNUPS</span>
@@ -1638,9 +1638,9 @@
           <sc-if value="{{ hasPendingLeaves }}" hint-placeholder-val="">
           <div class="card-flush" style="margin-bottom:14px;">
             <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
-              <div onClick="{{ selectAllLeaves }}" style="width:18px;height:18px;border-radius:4px;border:1.5px solid {{ leaveSelectAllBorder }};background:{{ leaveSelectAllBg }};display:flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer;" title="Select all">
+              <div onClick="{{ selectAllLeaves }}" style="width:22px;height:22px;border-radius:5px;border:1.5px solid {{ leaveSelectAllBorder }};background:{{ leaveSelectAllBg }};display:flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer;" title="Select all">
                 <sc-if value="{{ allLeavesSelected }}" hint-placeholder-val="">
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                 </sc-if>
               </div>
               <span class="text-label">PENDING REQUESTS</span>
@@ -1656,8 +1656,8 @@
             <sc-for list="{{ pendingLeaves }}" as="lr" hint-placeholder-count="2">
             <div style="padding:10px 16px;border-bottom:1px solid #f2f4f7;opacity:{{ lr.expiredOpacity }};">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:7px;">
-                <div onClick="{{ lr.onToggleSelect }}" style="flex:0 0 auto;width:18px;height:18px;border-radius:4px;border:1.5px solid {{ lr.checkBorder }};background:{{ lr.checkBg }};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
-                  <sc-if value="{{ lr.isSelected }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></sc-if>
+                <div onClick="{{ lr.onToggleSelect }}" style="flex:0 0 auto;width:22px;height:22px;border-radius:5px;border:1.5px solid {{ lr.checkBorder }};background:{{ lr.checkBg }};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                  <sc-if value="{{ lr.isSelected }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></sc-if>
                 </div>
                 <div class="avatar-sm" style="flex:0 0 auto;">{{ lr.initials }}</div>
                 <div class="flex-fill">
@@ -1722,7 +1722,7 @@
           <sc-if value="{{ !hasPendingRequests }}" hint-placeholder-val="">
             <div style="padding:40px 20px;text-align:center;">
               <div class="avatar-circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
-              <div class="text-sub">All clear</div>
+              <div class="text-sub">Nothing pending</div>
               <div class="text-muted">No pending signups or leave requests.</div>
             </div>
           </sc-if>
@@ -2500,8 +2500,8 @@
               <div style="padding:10px 20px;border-bottom:1px solid #f2f4f7;">
                 <sc-if value="{{ !m.isConfirming }}" hint-placeholder-val="">
                   <div style="display:flex;align-items:center;gap:10px;">
-                    <div onClick="{{ m.onToggleSelect }}" style="flex:0 0 auto;width:18px;height:18px;border-radius:4px;border:1.5px solid {{ m.checkBorder }};background:{{ m.checkBg }};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
-                      <sc-if value="{{ m.isSelected }}"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></sc-if>
+                    <div onClick="{{ m.onToggleSelect }}" style="flex:0 0 auto;width:22px;height:22px;border-radius:5px;border:1.5px solid {{ m.checkBorder }};background:{{ m.checkBg }};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                      <sc-if value="{{ m.isSelected }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></sc-if>
                     </div>
                     <div class="avatar-sm" style="flex:0 0 auto;font-size:11px;">{{ m.initials }}</div>
                     <div class="flex-fill">
