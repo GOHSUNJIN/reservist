@@ -123,4 +123,11 @@ const Utils = {
     if(!/^[689]\d{7}$/.test(clean)) return {clean, error:'Contact must be an 8-digit Singapore number.'};
     return {clean, error:null};
   },
+
+  DEPARTMENTS: {
+    ops_security: { label: 'Ops Security', short: 'OPS' },
+    cas:          { label: 'Crime Alert (CAS)', short: 'CAS' },
+  },
+  deptLabel(dept) { return this.DEPARTMENTS[dept]?.label || dept || ''; },
+  deptShort(dept) { return this.DEPARTMENTS[dept]?.short || 'OPS'; },
 };

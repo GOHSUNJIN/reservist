@@ -32,6 +32,7 @@ const BatchHandlers = {
     const {newBatchDate,batches,demo,batchCreating}=this.state;
     if(!newBatchDate||batchCreating) return;
     this.setState({batchCreating:true});
+    const dept=this._myDept();
     const start=new Date(newBatchDate+'T00:00:00');
     const {start:s,end:e,dekit:dk}=Utils.batchDatesFrom(start);
     const startStr=Utils.dateKey(s),endStr=Utils.dateKey(e),dekitStr=Utils.dateKey(dk);
@@ -39,9 +40,9 @@ const BatchHandlers = {
     const maxNum=sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0, 10)),0);
     const label=Utils.batchLabel(startStr,endStr,maxNum+1);
     if(!demo){
-      const {data,error}=await DB.batches.create(label,startStr,endStr,dekitStr);
+      const {data,error}=await DB.batches.create(label,startStr,endStr,dekitStr,dept);
       if(error||!data){ this._toast('Failed to create batch.','error'); this.setState({batchCreating:false}); return; }
-      const newBatches=await DB.batches.list().catch(()=>[...batches,data]);
+      const newBatches=await DB.batches.list(dept).catch(()=>[...batches,data]);
       const liveIdx=newBatches.findIndex(b=>b.is_live);
       this.setState({batches:newBatches,activeBatchIdx:liveIdx>=0?liveIdx:0,newBatchDate:'',batchCreating:false,tab:'people'});
     } else {
@@ -478,8 +479,8 @@ const BatchHandlers = {
       const lastBatch=sorted[sorted.length-1];
       const lastEnd=lastBatch?.dekit_date||lastBatch?.end_date||'';
       if(batchJumpDate>lastEnd){
-        batches=await this._ensureLiveBatch(batches, batchJumpDate);
-        batches=await this._ensureForwardBatches(batches);
+        batches=await this._ensureLiveBatch(batches, batchJumpDate, this._myDept());
+        batches=await this._ensureForwardBatches(batches, 8, this._myDept());
         this.setState({batches});
       }
     }

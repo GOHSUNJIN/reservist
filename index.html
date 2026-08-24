@@ -127,6 +127,16 @@
       <div>
         <h2 style="font-size:21px;font-weight:700;margin:0 0 4px;color:#161f30;">Register as PNSMEN</h2>
         <p style="font-size:14px;color:#5c6678;margin:0 0 16px;">Create your account to join the roster.</p>
+
+        <!-- Department picker -->
+        <div style="margin-bottom:18px;">
+          <label class="text-field-label" style="margin-bottom:8px;display:block;">Department</label>
+          <div style="display:flex;gap:8px;">
+            <button onClick="{{ selectDeptOps }}" style="{{ deptOpsStyle }}">Ops Security</button>
+            <button onClick="{{ selectDeptCas }}" style="{{ deptCasStyle }}">Crime Alert (CAS)</button>
+          </div>
+        </div>
+
         <sc-if value="{{ showIntakeBadge }}" hint-placeholder-val="">
         <div style="background:#eef3fc;border:1px solid #d7e2f7;border-radius:11px;padding:13px 15px;margin-bottom:18px;">
           <sc-if value="{{ signupIsNextCycle }}">
@@ -975,6 +985,17 @@
         </div>
         </sc-if>
 
+        <!-- ===== DEPT SWITCHER (superadmin only) ===== -->
+        <sc-if value="{{ showDeptSwitcher }}" hint-placeholder-val="">
+        <div style="margin-bottom:14px;padding:11px 13px;background:#f0f2f5;border-radius:11px;">
+          <div style="font-size:10.5px;font-weight:600;color:#8a94a3;letter-spacing:.08em;text-transform:uppercase;margin-bottom:8px;">Viewing Department</div>
+          <div style="display:flex;gap:8px;">
+            <button onClick="{{ deptSwitchOps }}" style="{{ deptOpsStyle }}">Ops Security</button>
+            <button onClick="{{ deptSwitchCas }}" style="{{ deptCasStyle }}">Crime Alert (CAS)</button>
+          </div>
+        </div>
+        </sc-if>
+
         <!-- ===== ADMIN BATCH SELECTOR (shared across all admin tabs) ===== -->
         <sc-if value="{{ isAdmin }}" hint-placeholder-val="">
         <div style="margin-bottom:11px;">
@@ -1559,7 +1580,7 @@
                 <div style="width:34px;height:34px;border-radius:50%;background:#eceef2;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#5c6678;flex:0 0 auto;">{{ sr.initials }}</div>
                 <div class="flex-fill">
                   <div class="text-body-bold">{{ sr.name }}</div>
-                  <div style="font-size:11px;color:#8a94a3;margin-top:1px;">{{ sr.contact }} · {{ sr.shift }} · {{ sr.batchLabel }} · {{ sr.createdAt }}</div>
+                  <div style="font-size:11px;color:#8a94a3;margin-top:1px;">{{ sr.contact }} · {{ sr.deptLabel }} · {{ sr.batchLabel }} · {{ sr.createdAt }}</div>
                 </div>
                 <sc-if value="{{ sr.isReactivation }}" hint-placeholder-val="">
                   <span style="flex:0 0 auto;font-size:10px;font-weight:700;background:#fdf6e9;color:#b9791a;border:1px solid #f0e2c2;padding:2px 7px;border-radius:20px;">Returning</span>

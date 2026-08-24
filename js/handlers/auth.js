@@ -21,20 +21,22 @@ const AuthHandlers = {
   },
 
   doSignup: async function() {
-    const {suName,suContact,suPassword} = this.state;
+    const {suName,suContact,suPassword,suDepartment} = this.state;
+    if(!suDepartment){ this.setState({authError:'Please select your department.'}); return; }
     if(!suName.trim()||!suContact.trim()||!suPassword.trim()){ this.setState({authError:'Please fill in all fields.'}); return; }
     if(suPassword.length < 6){ this.setState({authError:'Password must be at least 6 characters.'}); return; }
     const {clean:cleanContact, error:contactErr} = Utils.validateSGContact(suContact);
     if(contactErr){ this.setState({authError:contactErr}); return; }
     const today = Utils.dateKey(this.baseDate());
-    const sortedBatches = [...this.state.batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
-    const liveBatch = sortedBatches.find(b=>today>=b.start_date&&today<=b.end_date) || this._liveBatch();
+    const allSorted = [...this.state.batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
+    const deptBatches = allSorted.filter(b=>!b.department||b.department===suDepartment);
+    const liveBatch = deptBatches.find(b=>today>=b.start_date&&today<=b.end_date) || deptBatches.find(b=>b.is_live);
     if(!liveBatch){
       this.setState({authError:'No active intake batch is open for sign-up right now.'});
       return;
     }
     const isLastDay = today === liveBatch.end_date;
-    const nextBatch = isLastDay ? sortedBatches.find(b=>b.start_date>liveBatch.end_date) : null;
+    const nextBatch = isLastDay ? deptBatches.find(b=>b.start_date>liveBatch.end_date) : null;
     if(isLastDay && !nextBatch){
       this.setState({authError:'Sign-ups for this cycle have closed. Please wait for the next cycle to open or contact your supervisor.'});
       return;
@@ -47,7 +49,6 @@ const AuthHandlers = {
     if(error||!user){
       const alreadyReg = error?.message?.toLowerCase().includes('already registered') || error?.message?.toLowerCase().includes('user already registered');
       if(alreadyReg){
-        // Returning reservist: try logging in with provided credentials
         const {user:retUser, error:loginErr} = await DB.auth.login(cleanContact, suPassword);
         if(loginErr||!retUser){
           this.setState({loading:false, authError:'This contact is already registered. If you are a returning reservist, use your previous password. Otherwise, ask your supervisor to re-enroll you directly.'});
@@ -59,7 +60,6 @@ const AuthHandlers = {
         return;
       }
     }
-    // Check for existing requests now that the user is authenticated
     const existingReq = await DB.signupRequests.getByContact(cleanContact).catch(()=>null);
     if(existingReq?.status==='pending'){
       await DB.auth.logout();
@@ -76,14 +76,14 @@ const AuthHandlers = {
       this.setState({loading:false, authError:'You are already enrolled for this cycle. Please log in directly.'});
       return;
     }
-    const {error:reqErr} = await DB.signupRequests.create({authId:signupUser.id, name:suName.trim(), contact:cleanContact, shift, batchId:activeBatch.id});
+    const {error:reqErr} = await DB.signupRequests.create({authId:signupUser.id, name:suName.trim(), contact:cleanContact, shift, batchId:activeBatch.id, department:suDepartment});
     if(reqErr){
       await DB.auth.logout();
       this.setState({loading:false, authError:'Signup failed: '+(reqErr.message||'database error. Check Supabase grants.')});
       return;
     }
     await DB.auth.logout();
-    this.setState({loading:false, signupPending:true, suName:'', suContact:'', suPassword:''});
+    this.setState({loading:false, signupPending:true, suName:'', suContact:'', suPassword:'', suDepartment:''});
   },
 
   logout: async function() {
@@ -95,7 +95,8 @@ const AuthHandlers = {
     this.setState({
       authed:false, role:null, authMode:'login', demo:false,
       currentUserId:null, me:null, loginContact:'', loginPassword:'',
-      suName:'', suContact:'', suPassword:'',
+      suName:'', suContact:'', suPassword:'', suDepartment:'',
+      adminDeptFilter:'ops_security',
       locStatus:'idle', locDistance:null, locGpsMsg:'', locSlow:false, locAccuracy:null, locPermErr:false, locRetryCount:0,
       accountOpen:false, confirmDelete:false, logoutConfirmOpen:false,
       personnel:[], attendance:{}, history:[], attendanceCache:{}, batchMembersCache:{}, attendanceDate:null,
@@ -184,6 +185,8 @@ const AuthHandlers = {
   onSuName:        function(e) { this.setState({suName:e.target.value}); },
   onSuContact:     function(e) { this.setState({suContact:e.target.value}); },
   onSuPassword:    function(e) { this.setState({suPassword:e.target.value}); },
+  selectDeptOps:   function() { this.setState({suDepartment:'ops_security', authError:''}); },
+  selectDeptCas:   function() { this.setState({suDepartment:'cas', authError:''}); },
 
   dismissSignupPending: function() { this.setState({signupPending:false, authMode:'login'}); },
 

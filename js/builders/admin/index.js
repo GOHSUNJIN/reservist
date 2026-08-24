@@ -19,6 +19,11 @@ const AdminBuilders = {
     const pending=activeMembers.filter(p=>_rmap(p)==='Pending').length;
     const absent=activeMembers.filter(p=>_rmap(p)==='Absent').length;
     const approvedByContact=new Map((s.approvedSignups||[]).map(r=>[r.contact,r.reviewed_by||'Admin']));
+    // Department switcher (superadmin only)
+    const currentDept=this._myDept();
+    const deptBtnBase='padding:7px 14px;border:2px solid;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;';
+    const deptActiveStyle=(accent)=>`${deptBtnBase}border-color:${accent};background:#eef3fc;color:${accent};`;
+    const deptInactiveStyle=`${deptBtnBase}border-color:#d4d9e2;background:#fff;color:#5c6678;`;
     return {
       batches,activeBatchIdx,activeBatch,activeMembers,
       npShift,
@@ -27,15 +32,29 @@ const AdminBuilders = {
       liveBatch,
       present,mc,pending,absent,
       approvedByContact,
+      showDeptSwitcher:!!s.isSuperAdmin,
+      currentDeptLabel:Utils.deptLabel(currentDept),
+      deptSwitchOps:()=>this.switchAdminDept('ops_security'),
+      deptSwitchCas:()=>this.switchAdminDept('cas'),
+      deptOpsActive:currentDept==='ops_security',
+      deptCasActive:currentDept==='cas',
     };
   },
 
   _buildAdmin: function(s, accent) {
     const ctx=this._adminContext(s);
+    const deptBtnBase='padding:7px 14px;border:2px solid;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;white-space:nowrap;';
+    const deptOpsStyle=ctx.deptOpsActive?`${deptBtnBase}border-color:${accent};background:#eef3fc;color:${accent};`:`${deptBtnBase}border-color:#d4d9e2;background:#fff;color:#5c6678;`;
+    const deptCasStyle=ctx.deptCasActive?`${deptBtnBase}border-color:${accent};background:#eef3fc;color:${accent};`:`${deptBtnBase}border-color:#d4d9e2;background:#fff;color:#5c6678;`;
     return {
       ...AdminBatch.build(this, s, accent, ctx),
       ...AdminRoster.build(this, s, accent, ctx),
       ...AdminPeople.build(this, s, accent, ctx),
+      showDeptSwitcher:ctx.showDeptSwitcher,
+      currentDeptLabel:ctx.currentDeptLabel,
+      deptSwitchOps:ctx.deptSwitchOps,
+      deptSwitchCas:ctx.deptSwitchCas,
+      deptOpsStyle, deptCasStyle,
     };
   },
 

@@ -68,16 +68,19 @@ const DB = {
 
   // ── Personnel ─────────────────────────────────────────────────────────────
   personnel: {
-    async list(batchId, activeOnly = true) {
+    async list(batchId, activeOnly = true, dept) {
       let q = _db.from('personnel').select('*').order('created_at');
       if (batchId) q = q.eq('batch_id', batchId);
       if (activeOnly) q = q.eq('is_active', true);
+      if (dept) q = q.eq('department', dept);
       const { data } = await q;
       return data || [];
     },
 
-    async listAll() {
-      const { data } = await _db.from('personnel').select('*').eq('role','reservist').order('name');
+    async listAll(dept) {
+      let q = _db.from('personnel').select('*').eq('role','reservist').order('name');
+      if (dept) q = q.eq('department', dept);
+      const { data } = await q;
       return data || [];
     },
 
@@ -91,8 +94,8 @@ const DB = {
       return data || null;
     },
 
-    async add({ authId, name, contact, shift, batchId, role = 'reservist' }) {
-      const row = { name, contact, shift: shift || null, batch_id: batchId, role, is_active: true };
+    async add({ authId, name, contact, shift, batchId, role = 'reservist', department = 'ops_security' }) {
+      const row = { name, contact, shift: shift || null, batch_id: batchId, role, is_active: true, department };
       if (authId) row.auth_id = authId;
       const { data, error } = await _db.from('personnel').insert(row).select().maybeSingle();
       return { data, error };
@@ -145,12 +148,16 @@ const DB = {
       return { data, error };
     },
 
-    async assignBatch(batchId) {
-      await _db.from('personnel').update({batch_id:batchId}).is('batch_id',null).eq('is_active',true);
+    async assignBatch(batchId, dept) {
+      let q = _db.from('personnel').update({batch_id:batchId}).is('batch_id',null).eq('is_active',true);
+      if (dept) q = q.eq('department', dept);
+      await q;
     },
 
-    async listAdmins() {
-      const { data } = await _db.from('personnel').select('*').in('role', ['admin', 'superadmin']).eq('is_active', true).order('created_at');
+    async listAdmins(dept) {
+      let q = _db.from('personnel').select('*').in('role', ['admin', 'superadmin']).eq('is_active', true).order('created_at');
+      if (dept) q = q.eq('department', dept);
+      const { data } = await q;
       return data || [];
     },
 
@@ -168,13 +175,15 @@ const DB = {
       return { data, error };
     },
 
-    async carryOver(toBatchId) {
-      const { error } = await _db.from('personnel')
+    async carryOver(toBatchId, dept) {
+      let q = _db.from('personnel')
         .update({ batch_id: toBatchId })
         .neq('batch_id', toBatchId)
         .not('batch_id', 'is', null)
         .eq('is_active', true)
         .eq('role', 'reservist');
+      if (dept) q = q.eq('department', dept);
+      const { error } = await q;
       return { error };
     },
   },
@@ -308,22 +317,28 @@ const DB = {
 
   // ── Batches ───────────────────────────────────────────────────────────────
   batches: {
-    async list() {
-      const { data } = await _db.from('batches').select('*').order('start_date');
+    async list(dept) {
+      let q = _db.from('batches').select('*').order('start_date');
+      if (dept) q = q.eq('department', dept);
+      const { data } = await q;
       return data || [];
     },
 
-    async create(label, startDate, endDate, dekitDate) {
-      // Deactivate any previously live batch
-      await _db.from('batches').update({ is_live: false }).eq('is_live', true);
-      const { data, error } = await _db.from('batches').insert({
-        label, start_date: startDate, end_date: endDate, dekit_date: dekitDate, is_live: true,
-      }).select().maybeSingle();
+    async create(label, startDate, endDate, dekitDate, dept) {
+      // Deactivate the previously live batch within the same department only
+      let deactivateQ = _db.from('batches').update({ is_live: false }).eq('is_live', true);
+      if (dept) deactivateQ = deactivateQ.eq('department', dept);
+      await deactivateQ;
+      const row = { label, start_date: startDate, end_date: endDate, dekit_date: dekitDate, is_live: true };
+      if (dept) row.department = dept;
+      const { data, error } = await _db.from('batches').insert(row).select().maybeSingle();
       return { data, error };
     },
 
-    async activate(batchId) {
-      await _db.from('batches').update({ is_live: false }).eq('is_live', true);
+    async activate(batchId, dept) {
+      let deactivateQ = _db.from('batches').update({ is_live: false }).eq('is_live', true);
+      if (dept) deactivateQ = deactivateQ.eq('department', dept);
+      await deactivateQ;
       await _db.from('batches').update({ is_live: true }).eq('id', batchId);
     },
 
@@ -373,10 +388,12 @@ const DB = {
 
   // ── Leave requests ────────────────────────────────────────────────────────
   leaves: {
-    async listPending() {
-      const { data } = await _db.from('leave_requests')
-        .select('*, personnel(name, shift, contact)')
+    async listPending(dept) {
+      let q = _db.from('leave_requests')
+        .select('*, personnel!inner(name, shift, contact, department)')
         .eq('status', 'pending').order('created_at');
+      if (dept) q = q.eq('personnel.department', dept);
+      const { data } = await q;
       return data || [];
     },
 
@@ -462,9 +479,9 @@ const DB = {
 
   // ── Signup requests ──────────────────────────────────────────────────────
   signupRequests: {
-    async create({ authId, name, contact, shift, batchId }) {
+    async create({ authId, name, contact, shift, batchId, department = 'ops_security' }) {
       const { data, error } = await _db.from('signup_requests')
-        .insert({ auth_id: authId, name, contact, shift, batch_id: batchId, status: 'pending' })
+        .insert({ auth_id: authId, name, contact, shift, batch_id: batchId, status: 'pending', department })
         .select().maybeSingle();
       return { data, error };
     },
@@ -479,18 +496,24 @@ const DB = {
       return data || null;
     },
 
-    async listPending() {
-      const { data } = await _db.from('signup_requests').select('*').eq('status', 'pending').order('created_at');
+    async listPending(dept) {
+      let q = _db.from('signup_requests').select('*').eq('status', 'pending').order('created_at');
+      if (dept) q = q.eq('department', dept);
+      const { data } = await q;
       return data || [];
     },
 
-    async listApproved() {
-      const { data } = await _db.from('signup_requests').select('*').eq('status', 'approved').order('reviewed_at', { ascending: false });
+    async listApproved(dept) {
+      let q = _db.from('signup_requests').select('*').eq('status', 'approved').order('reviewed_at', { ascending: false });
+      if (dept) q = q.eq('department', dept);
+      const { data } = await q;
       return data || [];
     },
 
-    async listRejected() {
-      const { data } = await _db.from('signup_requests').select('*').eq('status', 'rejected').order('reviewed_at', { ascending: false }).limit(50);
+    async listRejected(dept) {
+      let q = _db.from('signup_requests').select('*').eq('status', 'rejected').order('reviewed_at', { ascending: false }).limit(50);
+      if (dept) q = q.eq('department', dept);
+      const { data } = await q;
       return data || [];
     },
 
