@@ -1443,9 +1443,10 @@
                 <div style="display:flex;align-items:flex-start;gap:10px;">
                   <div class="avatar-sm" style="flex:0 0 auto;margin-top:1px;{{ row.avatarStyle }}">{{ row.initials }}</div>
                   <div style="flex:1;min-width:0;cursor:pointer;" onClick="{{ row.onViewHistory }}">
-                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                      <span style="font-size:13.5px;font-weight:600;color:#161f30;">{{ row.name }}</span>
+                    <div><span style="font-size:13.5px;font-weight:600;color:#161f30;">{{ row.name }}</span></div>
+                    <div style="display:flex;align-items:center;gap:5px;margin-top:2px;flex-wrap:wrap;">
                       <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
+                      <span style="font-size:10.5px;color:#9aa3b2;font-family:'IBM Plex Mono',monospace;">{{ row.shiftLabel }}</span>
                       <sc-if value="{{ row.showNoLateReason }}" hint-placeholder-val="">
                         <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:#fdf0dc;color:#b9791a;white-space:nowrap;">Late · No reason</span>
                       </sc-if>
@@ -1456,7 +1457,6 @@
                         <span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:20px;background:#eef0f4;color:#5c6678;white-space:nowrap;">No GPS</span>
                       </sc-if>
                     </div>
-                    <div style="font-size:10.5px;color:#9aa3b2;margin-top:2px;font-family:'IBM Plex Mono',monospace;">{{ row.shiftLabel }}</div>
                     <sc-if value="{{ row.showLateReason }}" hint-placeholder-val="">
                       <div style="font-size:10.5px;color:#c0392b;margin-top:2px;font-style:italic;">{{ row.lateReason }}</div>
                     </sc-if>

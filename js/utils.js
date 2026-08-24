@@ -86,16 +86,17 @@ const Utils = {
   LATE_CUTOFF:{OFFICE:'09:00'},
   PHASE_WINDOWS:{
     OFFICE:{p1:['07:30','10:00'],p2:['11:30','14:00'],p3:['12:00','15:00'],p4:['14:00','23:59']},
+    CAS:  {p1:['07:30','12:00'],p2:['11:30','14:00'],p3:['12:00','15:00'],p4:['14:00','23:59']},
   },
-  phaseWindow(shift,key){return this.PHASE_WINDOWS.OFFICE[key]||null;},
-  phaseInWindow(shift,key,now){
-    const w=this.phaseWindow(shift,key);if(!w)return false;
+  phaseWindow(shift,key,dept){return (dept==='cas'?this.PHASE_WINDOWS.CAS:this.PHASE_WINDOWS.OFFICE)[key]||null;},
+  phaseInWindow(shift,key,now,dept){
+    const w=this.phaseWindow(shift,key,dept);if(!w)return false;
     const p=n=>String(n).padStart(2,'0');
     const t=p(now.getHours())+':'+p(now.getMinutes());
     return t>=w[0]&&t<=w[1];
   },
-  phaseWindowPast(shift,key,now){
-    const w=this.phaseWindow(shift,key);if(!w)return false;
+  phaseWindowPast(shift,key,now,dept){
+    const w=this.phaseWindow(shift,key,dept);if(!w)return false;
     const p=n=>String(n).padStart(2,'0');
     const t=p(now.getHours())+':'+p(now.getMinutes());
     return t>w[1];
