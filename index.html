@@ -1200,6 +1200,16 @@
                     <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a94a3;">{{ row.timeText }}</span>
                     <span class="badge" style="color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
                   </div>
+                  <sc-if value="{{ row.showMealBadge }}" hint-placeholder-val="">
+                    <div style="width:100%;margin-top:4px;padding-left:52px;display:flex;align-items:center;gap:5px;">
+                      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="{{ row.mealBadgeColor }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                      <span style="font-size:10.5px;font-weight:600;color:{{ row.mealBadgeColor }};">{{ row.mealBadgeText }}</span>
+                      <sc-if value="{{ row.showWorkTime }}" hint-placeholder-val="">
+                        <span style="font-size:10px;color:#c2c8d2;">·</span>
+                        <span style="font-size:10px;color:#9aa3b2;">{{ row.workTimeText }}</span>
+                      </sc-if>
+                    </div>
+                  </sc-if>
                   <sc-if value="{{ row.showWelfareNote }}" hint-placeholder-val="">
                     <div style="width:100%;margin-top:5px;padding-left:46px;font-size:11.5px;color:#3a6b4f;font-style:italic;">{{ row.welfareNote }}</div>
                   </sc-if>
