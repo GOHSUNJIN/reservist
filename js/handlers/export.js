@@ -142,7 +142,7 @@ const ExportHandlers = {
     a.href=url; a.download=(batch.label.replace(/[\s/#]+/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'')||'batch')+'_attendance.xls';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    this._toast('Saved to Downloads - open with Excel. Click Yes if prompted about the format.','info');
+    this._toast('Downloaded. Open with Excel - click Yes if prompted about the format.','info');
   },
 
   exportPrint: async function() {

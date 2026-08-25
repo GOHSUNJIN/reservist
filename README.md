@@ -81,7 +81,7 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 **Personnel Management (People tab):**
 - **Roster view**: Lists all personnel in the current cycle with their attendance rate shown when stats are loaded.
 - **Low attendance warning**: Personnel with an attendance rate below 75% are flagged inline on their card - the attendance percentage turns amber and a compact "Low" chip appears on the same line as the stats, without adding a separate row.
-- **Per-person attendance history**: Click any person's card to open their full attendance history across all cycles. The history modal includes status filter chips (All, Present, MC, Absent) and pagination (15 records per page). Time ranges are only shown for present days - MC and absent rows are displayed without a meaningless "- to -" placeholder. The history can be exported to XML.
+- **Per-person attendance history**: Click any person's card to open their full attendance history across all cycles. The history modal includes status filter chips (All, Present, MC, Absent) and pagination (15 records per page). Time ranges are only shown for present days - MC and absent rows are displayed without a meaningless "- to -" placeholder. The history can be exported to Excel (.xls).
 - **Avatar lightbox**: Tap any reservist's profile photo in the overview, roster, or log to view it enlarged. Tapping outside the photo closes it.
 - **Click row in Overview**: Clicking a person's row in the Overview tab also opens their history directly.
 - **Password reset**: Reset any reservist's password directly from the roster without requiring database access. The Master account can also reset supervisor passwords from the Team tab.
@@ -100,7 +100,7 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 - **Batch label editing**: Rename any cycle label inline without navigating away.
 
 **Export and Reporting:**
-- **Excel export**: Export the full attendance matrix for any cycle as an Excel spreadsheet (.xls). Includes per-person rates, totals, a legend, colour-coded status cells, and a dedicated Meal column showing how many days each reservist was eligible for meal allowance (clocked out with 6h+ worked).
+- **Excel export**: Export the full attendance matrix for any cycle as an Excel spreadsheet (.xls). Includes per-person rates, totals, a legend, colour-coded status cells, and a dedicated Meal column showing how many days each reservist was eligible for meal allowance (clocked out with 6h+ worked). The sheet opens with a styled title row, consistent row heights, and freeze panes so the name column and header row stay visible when scrolling.
 - **Print report**: Generate a formatted A4 attendance report, printable or saveable as PDF directly from the browser without leaving the app. Includes a Meal Claims summary stat and per-person meal-eligible day count alongside the attendance totals.
 - **WhatsApp attendance summary**: One tap generates the day's attendance summary. A preview modal lets you review and edit the text, copy it to clipboard, or send it directly to the unit group chat.
 - **Per-person history export**: Export any individual's attendance history to Excel from within the history modal.
@@ -254,7 +254,7 @@ js/
     ├── member_search.js - Cross-cycle member search, permanent delete, bulk delete, person history, password reset
     ├── admin_mgmt.js    - Add, demote, and promote admin accounts
     ├── batch.js         - Cycle CRUD, broadcast, no-report days, meal toggle, cycle picker, jump to date
-    ├── export.js        - XML attendance export and print/PDF report generation
+    ├── export.js        - Excel (.xls) attendance export and print/PDF report generation
     ├── roster.js        - Manual status override, time correction, search, sort, day navigation
     ├── account.js       - Profile photo upload/remove, password change, name change, notification permissions
     └── misc.js          - Toast, navigation helpers, WhatsApp share/copy, page refresh
