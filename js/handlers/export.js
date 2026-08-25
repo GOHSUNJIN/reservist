@@ -134,7 +134,7 @@ const ExportHandlers = {
       ${mk('sLegend','Left',false,'#9AA3B2','','')}
     </Styles>`;
 
-    const freezeOpts=`<WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><FreezePanes/><FrozenNoSplit/><SplitHorizontal>7</SplitHorizontal><TopRowBottomPane>7</TopRowBottomPane><SplitVertical>2</SplitVertical><LeftColumnRightPane>2</LeftColumnRightPane><ActivePane>0</ActivePane></WorksheetOptions>`;
+    const freezeOpts=`<WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><FreezePanes/><FrozenNoSplit/><SplitHorizontal>7</SplitHorizontal><TopRowBottomPane>7</TopRowBottomPane><ActivePane>2</ActivePane></WorksheetOptions>`;
     const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<?mso-application progid="Excel.Sheet"?>\n<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:o="urn:schemas-microsoft-com:office:office">\n${styles}\n<Worksheet ss:Name="Attendance"><Table ss:DefaultColumnWidth="60">\n${colDefs}\n${metaRows}\n${headerRow}\n${dataRows}\n${totalRow}\n${legendRow}\n</Table>${freezeOpts}</Worksheet>\n</Workbook>`;
 
     const blob=new Blob([xml],{type:'application/vnd.ms-excel;charset=utf-8'});
