@@ -39,12 +39,19 @@ const BriefingsBuilders = {
       waGroupUrl, showWaGroup:!!waGroupUrl,
       teamMembers: me?.batch_id ? s.personnel
         .filter(p=>p.batch_id===me.batch_id&&p.id!==s.currentUserId&&(p.role||'reservist')==='reservist')
-        .map(p=>({
-          id:p.id, name:p.name, initials:Utils.initials(p.name),
-          shiftLabel:Utils.shiftLabel(p.shift),
-          contact:p.contact||'',
-          waLink:p.contact?`https://api.whatsapp.com/send?phone=65${p.contact.replace(/[\s-]/g,'')}`:''
-        })) : [],
+        .map(p=>{
+          const av=s.avatars[p.id]||'';
+          return {
+            id:p.id, name:p.name, initials:Utils.initials(p.name),
+            avatarStyle:Utils.avatarStyle(av),
+            avatarInitials:av?'':Utils.initials(p.name),
+            avatarCursor:av?'cursor:pointer;':'',
+            onViewAvatar:av?self.openAvatarLightbox(av):null,
+            shiftLabel:Utils.shiftLabel(p.shift),
+            contact:p.contact||'',
+            waLink:p.contact?`https://api.whatsapp.com/send?phone=65${p.contact.replace(/[\s-]/g,'')}`:''
+          };
+        }) : [],
       showTeam: !!(me?.batch_id && s.personnel.some(p=>p.batch_id===me.batch_id&&p.id!==s.currentUserId&&(p.role||'reservist')==='reservist')),
       leaveHistoryItems: s.myLeaveHistory.map(r=>({
         id:r.id,

@@ -764,7 +764,7 @@
             </div>
             <sc-for list="{{ teamMembers }}" as="tm" hint-placeholder-count="3">
             <div class="row-item">
-              <div class="avatar-sm">{{ tm.initials }}</div>
+              <div class="avatar-sm" onClick="{{ tm.onViewAvatar }}" style="{{ tm.avatarCursor }}{{ tm.avatarStyle }}">{{ tm.avatarInitials }}</div>
               <div class="flex-fill">
                 <div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ tm.name }}</div>
                 <div class="text-hint">{{ tm.contact }}</div>
