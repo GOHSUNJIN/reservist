@@ -21,13 +21,19 @@ const ExportHandlers = {
 
   _buildExportMembers: function(members, dates, attCache, todayKey) {
     const {attendance}=this.state;
+    const _mealElig=e=>{
+      if(!e||e.status!=='present'||!e.work_end_time) return false;
+      const rec={p1:e.check_in_time?.slice(0,5),p2:e.lunch_out_time?.slice(0,5),p3:e.work_return_time?.slice(0,5),p4:e.work_end_time?.slice(0,5)};
+      return Utils.mealEligible(rec, rec.p4);
+    };
     return members.map(p=>{
       const entries=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return map[p.id]||null;});
       const pres=entries.filter(e=>e?.status==='present').length;
       const mc=entries.filter(e=>e?.status==='mc').length;
       const abs=entries.filter(e=>e?.status==='absent'||e?.status==='missed').length;
+      const meal=entries.filter(_mealElig).length;
       const pct=dates.length>0?Math.round(pres/dates.length*100):null;
-      return {name:p.name, shift:p.shift||'-', entries, pres, mc, abs, pct};
+      return {name:p.name, shift:p.shift||'-', entries, pres, mc, abs, meal, pct};
     });
   },
 
@@ -54,6 +60,7 @@ const ExportHandlers = {
     const totPres=rowData.reduce((a,r)=>a+r.pres,0);
     const totMc=rowData.reduce((a,r)=>a+r.mc,0);
     const totAbs=rowData.reduce((a,r)=>a+r.abs,0);
+    const totMeal=rowData.reduce((a,r)=>a+r.meal,0);
     const totDays=members.length*dates.length;
     const totPct=totDays>0?Math.round(totPres/totDays*100):null;
 
@@ -66,24 +73,24 @@ const ExportHandlers = {
 
     const now=new Date();
     const exportedStr=`${fmtDay(now)} ${fmtDate(now)} ${now.getFullYear()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-    const span=2+dates.length+4;
+    const span=2+dates.length+5;
 
-    const colDefs=`<Column ss:Width="180"/><Column ss:Width="55"/>${dates.map(()=>'<Column ss:Width="88"/>').join('')}<Column ss:Width="62"/><Column ss:Width="45"/><Column ss:Width="62"/><Column ss:Width="58"/>`;
+    const colDefs=`<Column ss:Width="180"/><Column ss:Width="55"/>${dates.map(()=>'<Column ss:Width="88"/>').join('')}<Column ss:Width="62"/><Column ss:Width="45"/><Column ss:Width="62"/><Column ss:Width="55"/><Column ss:Width="58"/>`;
 
     const metaRows=`<Row>${sc('sMetaLbl','Cycle')}<Cell ss:StyleID="sMeta" ss:MergeAcross="${span-2}"><Data ss:Type="String">${xe(batch.label)}</Data></Cell></Row><Row>${sc('sMetaLbl','Period')}<Cell ss:StyleID="sMeta" ss:MergeAcross="${span-2}"><Data ss:Type="String">${xe(fmtDate(start)+' to '+fmtDate(end)+' '+end.getFullYear())}</Data></Cell></Row><Row>${sc('sMetaLbl','Exported')}<Cell ss:StyleID="sMeta" ss:MergeAcross="${span-2}"><Data ss:Type="String">${xe(exportedStr)}</Data></Cell></Row><Row ss:Height="8"/>`;
 
-    const headerRow=`<Row ss:Height="20">${sc('sHdrL','Name')}${sc('sHdrC','Shift')}${dates.map(d=>sc('sHdrC',fmtDay(d)+' '+fmtDate(d))).join('')}${sc('sHdrC','Present')}${sc('sHdrC','MC')}${sc('sHdrC','Absent')}${sc('sHdrC','Rate')}</Row>`;
+    const headerRow=`<Row ss:Height="20">${sc('sHdrL','Name')}${sc('sHdrC','Shift')}${dates.map(d=>sc('sHdrC',fmtDay(d)+' '+fmtDate(d))).join('')}${sc('sHdrC','Present')}${sc('sHdrC','MC')}${sc('sHdrC','Absent')}${sc('sHdrC','Meal')}${sc('sHdrC','Rate')}</Row>`;
 
     const dataRows=rowData.map((r,i)=>{
       const even=i%2===0;
       const dashSid=even?'sDashE':'sDashO';
       const cellXml=r.cells.map(c=>sc(c.sid==='sD'?dashSid:c.sid,c.code)).join('');
-      return `<Row>${sc(even?'sNameE':'sNameO',r.name)}${sc(even?'sShiftE':'sShiftO',r.shift)}${cellXml}${sc(even?'sNumGE':'sNumGO',r.pres)}${sc(even?'sNumAE':'sNumAO',r.mc)}${sc(even?'sNumRE':'sNumRO',r.abs)}${sc((even?rateSidE:rateSidO)(r.pct),r.pct!=null?r.pct+'%':'-')}</Row>`;
+      return `<Row>${sc(even?'sNameE':'sNameO',r.name)}${sc(even?'sShiftE':'sShiftO',r.shift)}${cellXml}${sc(even?'sNumGE':'sNumGO',r.pres)}${sc(even?'sNumAE':'sNumAO',r.mc)}${sc(even?'sNumRE':'sNumRO',r.abs)}${sc(even?'sNumAE':'sNumAO',r.meal)}${sc((even?rateSidE:rateSidO)(r.pct),r.pct!=null?r.pct+'%':'-')}</Row>`;
     }).join('');
 
-    const totalRow=`<Row><Cell ss:StyleID="sTotL" ss:MergeAcross="1"><Data ss:Type="String">TOTAL</Data></Cell>${dates.map(()=>ec('sTot')).join('')}${sc('sTotG',totPres)}${sc('sTotA',totMc)}${sc('sTotR',totAbs)}${sc(rateSidT(totPct),totPct!=null?totPct+'%':'-')}</Row>`;
+    const totalRow=`<Row><Cell ss:StyleID="sTotL" ss:MergeAcross="1"><Data ss:Type="String">TOTAL</Data></Cell>${dates.map(()=>ec('sTot')).join('')}${sc('sTotG',totPres)}${sc('sTotA',totMc)}${sc('sTotR',totAbs)}${sc('sTotA',totMeal)}${sc(rateSidT(totPct),totPct!=null?totPct+'%':'-')}</Row>`;
 
-    const legendRow=`<Row ss:Height="8"/><Row><Cell ss:StyleID="sLegend" ss:MergeAcross="${span-1}"><Data ss:Type="String">P = Present  |  P* = Present (admin-corrected)  |  MC = Medical / Leave  |  A = Absent</Data></Cell></Row>`;
+    const legendRow=`<Row ss:Height="8"/><Row><Cell ss:StyleID="sLegend" ss:MergeAcross="${span-1}"><Data ss:Type="String">P = Present  |  P* = Present (admin-corrected)  |  MC = Medical / Leave  |  A = Absent  |  Meal = Days eligible for meal allowance (>=6h worked, clocked out)</Data></Cell></Row>`;
 
     const b1=pos=>`<Border ss:Position="${pos}" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D0D8E4"/>`;
     const allB=`<Borders>${b1('Bottom')}${b1('Left')}${b1('Right')}${b1('Top')}</Borders>`;
@@ -160,6 +167,7 @@ const ExportHandlers = {
     const totPres=rowData.reduce((a,r)=>a+r.pres,0);
     const totMc=rowData.reduce((a,r)=>a+r.mc,0);
     const totAbs=rowData.reduce((a,r)=>a+r.abs,0);
+    const totMeal=rowData.reduce((a,r)=>a+r.meal,0);
     const totDays=members.length*dates.length;
     const totPct=totDays>0?Math.round(totPres/totDays*100):0;
     const exportedOn=fmtDate(new Date())+' '+new Date().getFullYear();
@@ -175,6 +183,7 @@ const ExportHandlers = {
         <td class="tot">${r.pres}</td>
         <td class="tot mc">${r.mc}</td>
         <td class="tot ab">${r.abs}</td>
+        <td class="tot meal">${r.meal}</td>
         <td class="tot" style="color:${pctColor};font-weight:700;">${r.pct}%</td>
       </tr>`;
     }).join('');
@@ -191,6 +200,7 @@ const ExportHandlers = {
   <div class="stat green"><div class="stat-val">${totPres}</div><div class="stat-label">Attendances</div></div>
   <div class="stat blue"><div class="stat-val">${totMc}</div><div class="stat-label">MC / Leave</div></div>
   <div class="stat red"><div class="stat-val">${totAbs}</div><div class="stat-label">Absences</div></div>
+  <div class="stat amber"><div class="stat-val">${totMeal}</div><div class="stat-label">Meal Claims</div></div>
   <div class="stat ${totPct>=80?'green':totPct>=60?'amber':'red'}"><div class="stat-val">${totPct}%</div><div class="stat-label">Overall Rate</div></div>
 </div>
 <div style="overflow-x:auto;">
@@ -199,20 +209,20 @@ const ExportHandlers = {
     <th style="text-align:left;position:sticky;left:0;background:#f0f2f5;z-index:1;">Name</th>
     <th style="text-align:left;">Shift</th>
     ${headCols}
-    <th>P</th><th>MC</th><th>A</th><th>Rate</th>
+    <th>P</th><th>MC</th><th>A</th><th>Meal</th><th>Rate</th>
   </tr></thead>
   <tbody>
     ${bodyRows}
     <tr class="total-row">
       <td class="name" colspan="2">TOTAL</td>
       ${dates.map(()=>'<td></td>').join('')}
-      <td>${totPres}</td><td class="mc">${totMc}</td><td class="ab">${totAbs}</td>
+      <td>${totPres}</td><td class="mc">${totMc}</td><td class="ab">${totAbs}</td><td class="meal">${totMeal}</td>
       <td style="color:${totPct>=80?'#2e7d32':totPct>=60?'#e65100':'#c62828'};font-weight:700;">${totPct}%</td>
     </tr>
   </tbody>
 </table>
 </div>
-<div class="legend">P = Present &nbsp;·&nbsp; P* = Present (admin-corrected) &nbsp;·&nbsp; MC = Medical / Leave &nbsp;·&nbsp; A = Absent / Missed</div>`;
+<div class="legend">P = Present &nbsp;·&nbsp; P* = Present (admin-corrected) &nbsp;·&nbsp; MC = Medical / Leave &nbsp;·&nbsp; A = Absent / Missed &nbsp;·&nbsp; Meal = Days eligible for meal allowance (≥6h worked, clocked out)</div>`;
 
     const printCss=`<style id="print-report-css">
       @media print {
@@ -259,7 +269,7 @@ const ExportHandlers = {
   td.name{text-align:left;font-weight:600;color:#1a2233;}
   td.shift{text-align:left;color:#7d899b;font-size:10px;}
   td.tot{font-weight:700;color:#1a2233;}
-  td.mc{color:#e65100;} td.ab{color:#c62828;}
+  td.mc{color:#e65100;} td.ab{color:#c62828;} td.meal{color:#b45309;font-weight:700;}
   .P{background:#e8f5e9;color:#2e7d32;font-weight:700;}
   .Ps{background:#c8e6c9;color:#1b5e20;font-weight:700;}
   .MC{background:#fff8e1;color:#e65100;font-weight:700;}
