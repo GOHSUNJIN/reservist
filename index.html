@@ -1196,9 +1196,7 @@
                         <span onClick="{{ row.onCopyContact }}" style="font-size:11px;color:#9aa3b2;font-family:'IBM Plex Mono',monospace;cursor:pointer;" title="Tap to copy">{{ row.contact }}</span>
                         <sc-if value="{{ row.showStatPct }}" hint-placeholder-val=""><span style="font-size:10px;font-weight:600;color:{{ row.statPctColor }};">{{ row.statPct }}</span></sc-if>
                         <sc-if value="{{ row.showMealBadge }}" hint-placeholder-val="">
-                          <span style="font-size:9px;color:#d4d9e2;">·</span>
-                          <span style="font-size:10.5px;font-weight:600;color:{{ row.mealBadgeColor }};">{{ row.mealBadgeText }}</span>
-                          <sc-if value="{{ row.showWorkTime }}" hint-placeholder-val=""><span style="font-size:10px;color:#9aa3b2;">{{ row.workTimeText }}</span></sc-if>
+                          <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:{{ row.mealBadgeColor }};background:{{ row.mealBadgeBg }};border:1px solid {{ row.mealBadgeBorder }};padding:1px 7px;border-radius:20px;white-space:nowrap;">{{ row.mealBadgeText }}<sc-if value="{{ row.showWorkTime }}" hint-placeholder-val=""><span style="font-weight:400;opacity:0.75;">· {{ row.workTimeText }}</span></sc-if></span>
                         </sc-if>
                       </div>
                     </div>
