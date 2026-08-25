@@ -1950,17 +1950,15 @@
               <div style="display:flex;align-items:center;gap:11px;">
                 <div class="avatar-md" onClick="{{ adm.onViewAvatar }}" style="background:#161f30;color:#fff;font-size:11px;flex:0 0 auto;{{ adm.avatarCursor }}{{ adm.avatarStyle }}{{ adm.avatarRing }}">{{ adm.initials }}</div>
                 <div class="flex-fill" style="min-width:0;">
-                  <div style="display:flex;align-items:center;gap:7px;margin-bottom:2px;">
-                    <span style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ adm.name }}</span>
-                    <span style="flex-shrink:0;font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:{{ adm.roleBadgeBg }};color:{{ adm.roleBadgeColor }};letter-spacing:.04em;">{{ adm.roleLabel }}</span>
-                  </div>
+                  <div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:2px;">{{ adm.name }}</div>
                   <div style="font-size:11.5px;color:#9aa3b2;font-family:'IBM Plex Mono',monospace;">{{ adm.contact }}</div>
                 </div>
+                <span style="flex-shrink:0;font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;background:{{ adm.roleBadgeBg }};color:{{ adm.roleBadgeColor }};letter-spacing:.04em;">{{ adm.roleLabel }}</span>
                 <sc-if value="{{ isSuperAdmin }}" hint-placeholder-val="">
                 <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
                   <sc-if value="{{ adm.canResetPw }}">
                     <sc-if value="{{ !adm.isConfirming }}">
-                      <button onClick="{{ adm.onResetAdminPw }}" title="Reset password" style="-webkit-appearance:none;width:32px;height:32px;border-radius:8px;background:#f6f8fa;border:1px solid #e3e6ec;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="M12 11.5V7a4 4 0 0 1 8 0v2"/><rect x="16" y="9" width="4" height="6" rx="1"/></svg></button>
+                      <button onClick="{{ adm.onResetAdminPw }}" title="Reset password" style="-webkit-appearance:none;width:32px;height:32px;border-radius:8px;background:#f6f8fa;border:1px solid #e3e6ec;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
                     </sc-if>
                   </sc-if>
                   <sc-if value="{{ adm.canDeactivate }}">
