@@ -26,7 +26,7 @@ const AdminPeople = {
           statPct:s.peopleStats[p.id]?.pct!=null?(s.peopleStats[p.id].pct+'%'):'No records',
           showStats:s.peopleStatsLoaded,
           lowAttendance:s.peopleStatsLoaded&&(s.peopleStats[p.id]?.pct??null)!==null&&s.peopleStats[p.id].pct<75,
-          avatarStyle:av?`background-image:url("${av.replace(/"/g,'%22')}");background-size:cover;background-position:center;color:transparent;`:'',
+          avatarStyle:Utils.avatarStyle(av),
           avatarInitials:av?'':Utils.initials(p.name),
           onViewHistory:self.openPersonHistory(p.id),
           approvedBy, approvedByLabel,
@@ -73,17 +73,18 @@ const AdminPeople = {
       ...(()=>{
         const PAGE_SIZE=20;
         const liveBatchId=(s.batches||[]).find(b=>b.is_live)?.id||null;
-        const _mStatus=p=>!p.is_active?'removed':p.batch_id===liveBatchId?'current':'past';
-        const _mLabel=p=>!p.is_active?'Removed':p.batch_id===liveBatchId?'Current':'Past';
-        const _mColor=p=>!p.is_active?'#8a94a3':p.batch_id===liveBatchId?'#1f8a5b':'#b9791a';
-        const _mBg=p=>!p.is_active?'#f0f2f5':p.batch_id===liveBatchId?'#e7f3ec':'#fff8ec';
+        const _mMeta=p=>{
+          if(!p.is_active) return {status:'removed',label:'Removed',color:'#8a94a3',bg:'#f0f2f5'};
+          if(p.batch_id===liveBatchId) return {status:'current',label:'Current',color:'#1f8a5b',bg:'#e7f3ec'};
+          return {status:'past',label:'Past',color:'#b9791a',bg:'#fff8ec'};
+        };
         const q=(s.memberSearchText||'').toLowerCase().trim();
         const mf=s.memberSearchStatus||'all';
         const mc=s.memberSearchCycle||'all';
         const _getBatchLabel=p=>{const b=(s.batches||[]).find(x=>x.id===p.batch_id);return b?(b.label||Utils.dateKey(new Date(b.start_date)).slice(0,7)):'No cycle';};
         let filtered=s.memberSearchList;
         if(q) filtered=filtered.filter(p=>{const bl=_getBatchLabel(p).toLowerCase();return p.name.toLowerCase().includes(q)||(p.contact||'').toLowerCase().includes(q)||bl.includes(q);});
-        if(mf!=='all') filtered=filtered.filter(p=>_mStatus(p)===mf);
+        if(mf!=='all') filtered=filtered.filter(p=>_mMeta(p).status===mf);
         if(mc!=='all') filtered=filtered.filter(p=>p.batch_id===mc);
         const totalPages=Math.max(1,Math.ceil(filtered.length/PAGE_SIZE));
         const page=Math.min(Math.max(1,s.memberSearchPage||1),totalPages);
@@ -93,9 +94,10 @@ const AdminPeople = {
             const batchLabel=_getBatchLabel(p);
             const isConfirming=s.confirmDeleteMemberId===p.id;
             const _isSel=s.memberSearchSelected.includes(p.id);
+            const mm=_mMeta(p);
             return {
               id:p.id, name:p.name, contact:p.contact||'', initials:Utils.initials(p.name),
-              statusLabel:_mLabel(p), statusColor:_mColor(p), statusBg:_mBg(p),
+              statusLabel:mm.label, statusColor:mm.color, statusBg:mm.bg,
               batchLabel, shiftLabel:Utils.shiftLabel(p.shift),
               isConfirming, onAskDelete:self.askDeleteMember(p.id),
               isSelected:_isSel, onToggleSelect:self.toggleMemberSelect(p.id),
@@ -177,14 +179,13 @@ const AdminPeople = {
       promoteAdminOpen:s.promoteAdminOpen, togglePromoteAdmin:self.togglePromoteAdmin,
       adminsList:(s.adminsList||[]).map(a=>{
         const av=s.avatars[a.id]||'';
-        const avatarStyle=av?`background-image:url("${av.replace(/"/g,'%22')}");background-size:cover;background-position:center;color:transparent;`:'';
         return {
           id:a.id, name:a.name, contact:a.contact||'',
           roleLabel:a.role==='superadmin'?'Master':'Admin',
           roleColor:a.role==='superadmin'?'#b9791a':'#5c6678',
           isMaster:a.role==='superadmin',
           initials:Utils.initials(a.name),
-          avatarStyle,
+          avatarStyle:Utils.avatarStyle(av),
           hasAvatar:!!av,
           avatarCursor:av?'cursor:pointer;':'',
           onViewAvatar:av?self.openAvatarLightbox(av):null,
@@ -231,10 +232,8 @@ const AdminPeople = {
         const filtered=q?base.filter(p=>p.name.toLowerCase().includes(q)||(p.contact||'').includes(q)):base;
         const allRows=filtered.map(p=>{
           const b=(s.batches||[]).find(b=>b.id===p.batch_id);
-          const initials=p.name.trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
           const av=(s.avatars||{})[p.id];
-          const avatarStyle=av?`background-image:url("${av.replace(/"/g,'%22')}");background-size:cover;background-position:center;color:transparent;`:'';
-          return {id:p.id,name:p.name,contact:p.contact||'',batchLabel:b?b.label:'',contactBatchLine:(p.contact||'')+(b?' · '+b.label:''),initials,avatarStyle,
+          return {id:p.id,name:p.name,contact:p.contact||'',batchLabel:b?b.label:'',contactBatchLine:(p.contact||'')+(b?' · '+b.label:''),initials:Utils.initials(p.name)||'?',avatarStyle:Utils.avatarStyle(av),
             onSelect:()=>self.setState({promoteAdminId:p.id,promoteAdminName:p.name,promoteAdminContact:p.contact||'',confirmPromoteAdminId:null,promoteSearch:''})};
         });
         const promoteTotalPages=Math.max(1,Math.ceil(allRows.length/PROMOTE_PAGE_SIZE));
@@ -264,10 +263,9 @@ const AdminPeople = {
         return {
           pendingSignups:_base.map(r=>{
             const b=(s.batches||[]).find(b=>b.id===r.batch_id);
-            const initials=r.name.trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
             const isReactivation=_approvedContacts.has((r.contact||'').replace(/[\s-]/g,''));
             const isSelected=(s.selectedSignupIds||[]).includes(r.id);
-            return {id:r.id,name:r.name,contact:r.contact,shift:r.shift,batchLabel:b?b.label:'',initials,
+            return {id:r.id,name:r.name,contact:r.contact,shift:r.shift,batchLabel:b?b.label:'',initials:Utils.initials(r.name)||'?',
               createdAt:r.created_at?new Date(r.created_at).toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'}):'',
               deptLabel:Utils.deptLabel(r.department),
               isReactivation,isNew:!isReactivation,
@@ -290,9 +288,8 @@ const AdminPeople = {
       onApproveSelected:self.approveSelected,
       rejectedSignups:(s.rejectedSignups||[]).map(r=>{
         const b=(s.batches||[]).find(b=>b.id===r.batch_id);
-        const initials=r.name.trim().split(/\s+/).map(w=>w[0]||'').join('').toUpperCase().slice(0,2)||'?';
         const reviewedAt=r.reviewed_at?new Date(r.reviewed_at).toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'}):'';
-        return {id:r.id,name:r.name,contact:r.contact,batchLabel:b?b.label:'',initials,reviewedAt,reviewedBy:r.reviewed_by||'',onReopen:self.reopenSignup(r.id)};
+        return {id:r.id,name:r.name,contact:r.contact,batchLabel:b?b.label:'',initials:Utils.initials(r.name)||'?',reviewedAt,reviewedBy:r.reviewed_by||'',onReopen:self.reopenSignup(r.id)};
       }),
       hasRejectedSignups:(s.rejectedSignups||[]).length>0,
       rejectedSignupsLoaded:!!(s.rejectedSignupsLoaded),
