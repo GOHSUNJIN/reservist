@@ -62,7 +62,7 @@ const CheckinHandlers = {
 
   _hqLat:   function() { return parseFloat(this.props.hqLat)||1.332572; },
   _hqLon:   function() { return parseFloat(this.props.hqLon)||103.937189; },
-  _maxDist: function() { return parseInt(this.props.hqRange)||500; },
+  _maxDist: function() { return parseInt(this.props.hqRange)||250; },
 
   _haversine: function(lat1,lon1,lat2,lon2) {
     const R=6371000, r=Math.PI/180, dLat=(lat2-lat1)*r, dLon=(lon2-lon1)*r;
