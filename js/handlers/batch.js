@@ -9,7 +9,7 @@ const BatchHandlers = {
       const off=Math.round((start-today)/86400000);
       let members=this.state.batchMembersCache[b.id];
       if(!members && !b.is_live){
-        members = await DB.personnel.list(b.id, false).catch(()=>[]);
+        members = await DB.personnel.list(b.id, false, this._myDept()).catch(()=>[]);
         this.setState(s=>({batchMembersCache:{...s.batchMembersCache,[b.id]:members}}));
       }
       const cachedNrd=this.state.noReportDaysCache[b.id];

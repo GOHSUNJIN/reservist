@@ -43,7 +43,7 @@ const PeopleHandlers = {
     const activeBatch=batches[activeBatchIdx||0];
     if(!activeBatch){this._toast('No active batch selected.','error');return;}
     const addedName=npName.trim();
-    const {data:reactivated,error:reactErr}=await DB.personnel.reactivate(npReenrollRecord.id,{batchId:activeBatch?.id,shift:npShift});
+    const {data:reactivated,error:reactErr}=await DB.personnel.reactivate(npReenrollRecord.id,{batchId:activeBatch?.id,shift:npShift,department:this._myDept()});
     if(reactErr||!reactivated){this._toast('Failed to re-enroll. Try again.','error');return;}
     if(addedName&&addedName!==npReenrollRecord.name) await DB.personnel.updateName(npReenrollRecord.id,addedName).catch(()=>{});
     if(me?.name&&reactivated?.id) DB.personnel.setCreatedBy(reactivated.id,me.name).catch(()=>{});
