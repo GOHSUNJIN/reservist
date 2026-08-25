@@ -97,8 +97,12 @@ const PeopleHandlers = {
     }
     const stats={};
     for(const p of members){
+      // Only count days from when the person joined (prevents inflated absent counts for late joiners)
+      const personJoined=p.created_at?Utils.dateKey(new Date(p.created_at)):batch.start_date;
+      const effectiveStart=personJoined>batch.start_date?personJoined:batch.start_date;
       let present=0,mc=0,absent=0;
       for(const dk of reportDays){
+        if(dk<effectiveStart) continue;
         const rec=allAtt[dk]?.[p.id];
         if(rec?.status==='present') present++;
         else if(rec?.status==='mc') mc++;

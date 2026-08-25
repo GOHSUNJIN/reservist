@@ -111,8 +111,9 @@ const DB = {
     },
 
     async deletePermanently(personnelId, authId) {
-      await _db.from('leave_requests').delete().eq('personnel_id', personnelId);
-      await _db.from('attendance').delete().eq('personnel_id', personnelId);
+      const { error: lErr } = await _db.from('leave_requests').delete().eq('personnel_id', personnelId);
+      const { error: aErr } = await _db.from('attendance').delete().eq('personnel_id', personnelId);
+      if (lErr || aErr) return { error: lErr || aErr };
       await _db.storage.from('avatars').remove([personnelId]).catch(()=>{});
       const { error } = await _db.from('personnel').delete().eq('id', personnelId);
       if (authId) await _db.rpc('delete_auth_user', { p_user_id: authId }).catch(()=>{});
@@ -259,7 +260,10 @@ const DB = {
       if (bypassed) payload.gps_bypassed = true;
       const existingId = await this._findRow(personnelId, dateStr);
       if (existingId) {
-        const { error } = await _db.from('attendance').update(payload).eq('id', existingId).is(colMap[key], null);
+        // Prevent overwriting an approved MC and prevent stamping a time that's already recorded
+        let updateQ = _db.from('attendance').update(payload).eq('id', existingId).is(colMap[key], null);
+        if (key === 'p1') updateQ = updateQ.neq('status', 'mc');
+        const { error } = await updateQ;
         return { error };
       }
       const { error } = await _db.from('attendance').insert({ personnel_id: personnelId, date: dateStr, ...payload });
@@ -274,18 +278,26 @@ const DB = {
     },
 
     async setTimes(personnelId, dateStr, { p1, p2, p3, p4 }, editorName) {
-      const payload = { status: p1 ? 'present' : 'absent', gps_bypassed: true };
-      payload.check_in_time    = p1 ? p1 + ':00' : null;
-      payload.lunch_out_time   = p2 ? p2 + ':00' : null;
-      payload.work_return_time = p3 ? p3 + ':00' : null;
-      payload.work_end_time    = p4 ? p4 + ':00' : null;
-      const { data: existing, error: fetchErr } = await _db.from('attendance').select('id, edit_log').eq('personnel_id', personnelId).eq('date', dateStr).maybeSingle();
+      const { data: existing, error: fetchErr } = await _db.from('attendance')
+        .select('id, edit_log, check_in_time, gps_bypassed')
+        .eq('personnel_id', personnelId).eq('date', dateStr).maybeSingle();
       let editLog = [];
       if (!fetchErr) {
         const prevLog = Array.isArray(existing?.edit_log) ? existing.edit_log : [];
         editLog = [...prevLog, { by: editorName, at: new Date().toISOString() }];
-        payload.edit_log = editLog;
       }
+      // Only mark gps_bypassed if the check-in time is being changed; preserve it otherwise
+      const existingP1 = existing?.check_in_time ? existing.check_in_time.slice(0, 5) : null;
+      const p1Changed = existingP1 !== p1;
+      const payload = {
+        status: p1 ? 'present' : 'absent',
+        gps_bypassed: p1Changed ? true : (existing?.gps_bypassed ?? false),
+        check_in_time:    p1 ? p1 + ':00' : null,
+        lunch_out_time:   p2 ? p2 + ':00' : null,
+        work_return_time: p3 ? p3 + ':00' : null,
+        work_end_time:    p4 ? p4 + ':00' : null,
+        edit_log: editLog,
+      };
       const rowId = existing?.id || (!fetchErr ? null : await this._findRow(personnelId, dateStr));
       if (rowId) {
         const { error } = await _db.from('attendance').update(payload).eq('id', rowId);
@@ -326,6 +338,12 @@ const DB = {
     },
 
     async create(label, startDate, endDate, dekitDate, dept) {
+      // Guard against duplicate batches (e.g. two admins creating simultaneously)
+      let dupCheck = _db.from('batches').select('id').eq('start_date', startDate);
+      if (dept) dupCheck = dupCheck.eq('department', dept);
+      const { data: dup } = await dupCheck.maybeSingle();
+      if (dup) return { data: null, error: new Error('A batch with this start date already exists.') };
+
       // Deactivate the previously live batch within the same department only
       let deactivateQ = _db.from('batches').update({ is_live: false }).eq('is_live', true);
       if (dept) deactivateQ = deactivateQ.eq('department', dept);

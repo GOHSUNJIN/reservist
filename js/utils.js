@@ -85,8 +85,8 @@ const Utils = {
 
   LATE_CUTOFF:{OFFICE:'09:00'},
   PHASE_WINDOWS:{
-    OFFICE:{p1:['07:30','10:00'],p2:['11:30','14:00'],p3:['12:00','15:00'],p4:['14:00','23:59']},
-    CAS:  {p1:['07:30','12:00'],p2:['11:30','14:00'],p3:['12:00','15:00'],p4:['14:00','23:59']},
+    OFFICE:{p1:['07:30','10:00'],p2:['11:00','14:00'],p3:['12:00','15:00'],p4:['14:00','23:59']},
+    CAS:  {p1:['07:30','12:00'],p2:['11:00','14:00'],p3:['12:00','15:00'],p4:['14:00','23:59']},
   },
   phaseWindow(shift,key,dept){return (dept==='cas'?this.PHASE_WINDOWS.CAS:this.PHASE_WINDOWS.OFFICE)[key]||null;},
   phaseInWindow(shift,key,now,dept){
@@ -115,7 +115,7 @@ const Utils = {
     }
     return Math.max(0,end-p1-Math.max(0,lunch));
   },
-  mealEligible(rec, nowHhmm){ return this.workMins(rec,nowHhmm)>=480; },
+  mealEligible(rec, nowHhmm){ return this.workMins(rec,nowHhmm)>=360; },
   fmtMins(mins){ const h=Math.floor(mins/60),m=mins%60; return h>0?h+'h '+m+'m':m+'m'; },
 
   validateSGContact(raw) {
