@@ -36,6 +36,7 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 - **Work timer and meal allowance**: When meal allowance is active for the cycle, a live timer shows total work time for the day, paused during lunch. Meal eligibility is shown automatically after 8 hours.
 - **Late check-in self-declaration**: If you check in more than one hour after shift start, you are prompted to provide a written reason for the lateness before the check-in is accepted.
 - **In-app browser detection**: If opened from WhatsApp, Instagram, or another in-app browser where GPS is blocked, the app shows specific instructions for opening in the device's real browser.
+- **Profile photo**: Upload a profile photo from account settings. Tap your photo to view it enlarged. Works on iOS and Android.
 
 ### For Supervisors (Admin)
 
@@ -77,8 +78,9 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 - **Roster view**: Lists all personnel in the current cycle with their attendance rate shown when stats are loaded.
 - **Low attendance warning**: Personnel with an attendance rate below 75% display a highlighted badge on their card, making at-risk individuals easy to spot.
 - **Per-person attendance history**: Click any person's card to open their full attendance history across all cycles. The history modal includes status filter chips (All, Present, MC, Absent) and pagination (15 records per page), and can be exported to XLS.
+- **Avatar lightbox**: Tap any reservist's profile photo in the overview, roster, or log to view it enlarged. Tapping outside the photo closes it.
 - **Click row in Overview**: Clicking a person's row in the Overview tab also opens their history directly.
-- **Admin password reset**: Reset any reservist's password directly from the roster without requiring database access.
+- **Password reset**: Reset any reservist's password directly from the roster without requiring database access. The Master account can also reset supervisor passwords from the Admin Accounts list.
 - **Bulk add personnel**: Paste a list of names and contact numbers to add multiple reservists at once.
 - **Re-enroll by search**: When adding personnel, search for removed reservists by name or contact number. Selecting a match triggers the re-enroll flow, reactivating their existing account and history without creating a duplicate entry.
 - **Personnel accountability**: Each personnel card shows who added the reservist - "Added by [name]" for direct admin additions, or "Approved by [name]" for self-signup approvals.
@@ -86,7 +88,7 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 **Cycle Management:**
 - **Non-reporting day control**: Mark any date as a non-reporting day (public holiday or stand-down). Singapore public holidays are excluded automatically.
 - **Bulk no-report days**: Paste a list of dates to mark multiple non-reporting days in a single action.
-- **Cycle notice board (broadcast)**: Post a short notice that appears on every reservist's check-in screen for the duration of the cycle.
+- **Cycle notice board (broadcast)**: Post a short notice that appears on every reservist's check-in screen for the duration of the cycle. The notice is scoped to the active department and does not appear to reservists in other departments.
 - **Meal allowance toggle**: Enable or disable meal allowance per cycle. When active, the work timer and meal eligibility calculations are shown to reservists.
 - **Cycle picker**: Browse all cycles grouped by year with a visual picker.
 - **Cycle management**: Create and label reporting cycles. The system prepares the next 8 cycles automatically on every admin login.
@@ -112,6 +114,7 @@ All supervisor capabilities, plus:
 - **Create supervisor accounts**: Add new admin accounts directly within the app.
 - **Remove supervisors**: Demote any admin back to reservist status. Demoted supervisors return to the reservist pool automatically.
 - **Promote to supervisor**: Promote any existing reservist to admin status. Search by name with cycle filters.
+- **Supervisor password reset**: Reset any supervisor's password directly from the Admin Accounts list, without database access.
 - Displayed with a **Master** label in the interface.
 
 ---
