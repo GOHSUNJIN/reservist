@@ -143,9 +143,10 @@ const MemberSearchHandlers = {
     if(!resetPwId) return;
     if(!resetPwNew||resetPwNew.length<6){this._toast('Password must be at least 6 characters.','error');return;}
     if(demo){this._toast('Cannot reset passwords in demo mode.','error');return;}
-    const _all=[...personnel,...Object.values(this.state.batchMembersCache||{}).flat()];
+    const _all=[...personnel,...Object.values(this.state.batchMembersCache||{}).flat(),...(this.state.adminsList||[])];
     const p=_all.find(x=>x.id===resetPwId);
     if(!p){this._toast('Person not found.','error');return;}
+    if((p.role==='admin'||p.role==='superadmin')&&!this.state.isSuperAdmin){this._toast('Access denied.','error');return;}
     if(!this.state.isSuperAdmin&&p.department&&p.department!==this._myDept()){this._toast('Access denied.','error');return;}
     this.setState({resetPwSaving:true});
     if(!p.auth_id){
