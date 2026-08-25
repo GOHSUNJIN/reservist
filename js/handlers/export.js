@@ -138,8 +138,10 @@ const ExportHandlers = {
     const blob=new Blob([xml],{type:'application/vnd.ms-excel;charset=utf-8'});
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
-    a.href=url; a.download=(batch.label.replace(/[\s/]+/g,'_')||'batch')+'_attendance.xls'; a.click();
+    a.href=url; a.download=(batch.label.replace(/[\s/#]+/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'')||'batch')+'_attendance.xls';
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
+    this._toast('Saved to Downloads - open with Excel','info');
   },
 
   exportPrint: async function() {
