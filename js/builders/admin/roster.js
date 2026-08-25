@@ -142,9 +142,17 @@ const AdminRoster = {
       const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
       const av=s.avatars[p.id]||'';
       const _vpct=s.peopleStats[p.id]?.pct??null;
+      const _mealBadge=(()=>{
+        const showMealBadge=r.status==='present'&&!!r.p1&&(!!r.p4||isLiveView);
+        if(!showMealBadge) return {showMealBadge:false};
+        const mealOk=Utils.mealEligible(r,nowHhmm);
+        const workMinsVal=Utils.workMins(r,nowHhmm);
+        const done=!!r.p4;
+        return {showMealBadge:true,mealBadgeText:mealOk?(done?'Meal eligible':'On track'):(done?'No meal allowance':'No meal claim'),mealBadgeColor:mealOk?'#1f8a5b':(done?'#c0392b':'#b9791a'),showWorkTime:workMinsVal>0,workTimeText:Utils.fmtMins(workMinsVal)+' worked'};
+      })();
       return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:(r.status==='present'&&r.p1)?r.p1:'',avatarStyle:Utils.avatarStyle(av),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),onViewHistory:self.openPersonHistory(p.id),onCopyContact:self.copyContact(p.contact||''),
         showStatPct:s.peopleStatsLoaded&&_vpct!==null, statPct:_vpct!==null?(_vpct+'%'):'', lowAttendancePct:s.peopleStatsLoaded&&_vpct!==null&&_vpct<75,
-        statPctColor:(_vpct!==null&&_vpct<75)?'#c0392b':'#8a94a3'};
+        statPctColor:(_vpct!==null&&_vpct<75)?'#c0392b':'#8a94a3',..._mealBadge};
     });
     const vPresent=viewRoster.filter(r=>r.label==='Present').length, vMc=viewRoster.filter(r=>r.label==='On MC').length, vAbsent=viewRoster.filter(r=>r.label==='Absent').length, vPending=viewRoster.filter(r=>r.label==='Pending').length, vTotal=viewRoster.length;
     const vPercent=vTotal?Math.round((vPresent+vMc)/vTotal*100):0;
