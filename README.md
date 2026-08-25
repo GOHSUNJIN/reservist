@@ -24,6 +24,7 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 - **Leave and MC requests**: Submit requests digitally through the app. They go directly to the supervisor for approval with no phone calls or messages needed.
 - **Cancel pending requests**: A leave or MC request can be withdrawn by the reservist before the supervisor has acted on it, from both the check-in tab and the Requests history.
 - **Attendance history**: View your own full record for the cycle, including total days present, MC, absent, and your attendance rate.
+- **MC calendar coloring**: Approved MC days are highlighted amber in the attendance calendar. Pending MC requests appear with a lighter amber tint and a dashed border, so you can see at a glance which days have been covered.
 - **Phase reminder banner**: A banner appears automatically when a check-in phase window is open and you have not yet logged it. It disappears once the phase is recorded.
 - **Upcoming no-report days**: Lists all remaining no-report days in the current cycle (public holidays and stand-downs) so reservists can plan ahead.
 - **Cycle notice board**: If the supervisor has posted a notice for the current cycle, it appears as a banner on the check-in screen for everyone in that cycle.
@@ -80,10 +81,11 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 - **Per-person attendance history**: Click any person's card to open their full attendance history across all cycles. The history modal includes status filter chips (All, Present, MC, Absent) and pagination (15 records per page), and can be exported to XLS.
 - **Avatar lightbox**: Tap any reservist's profile photo in the overview, roster, or log to view it enlarged. Tapping outside the photo closes it.
 - **Click row in Overview**: Clicking a person's row in the Overview tab also opens their history directly.
-- **Password reset**: Reset any reservist's password directly from the roster without requiring database access. The Master account can also reset supervisor passwords from the Admin Accounts list.
+- **Password reset**: Reset any reservist's password directly from the roster without requiring database access. The Master account can also reset supervisor passwords from the Team tab.
 - **Bulk add personnel**: Paste a list of names and contact numbers to add multiple reservists at once.
 - **Re-enroll by search**: When adding personnel, search for removed reservists by name or contact number. Selecting a match triggers the re-enroll flow, reactivating their existing account and history without creating a duplicate entry.
 - **Personnel accountability**: Each personnel card shows who added the reservist - "Added by [name]" for direct admin additions, or "Approved by [name]" for self-signup approvals.
+- **Team tab**: View the full list of active supervisors in your department. Accessible from the People tab for all admin accounts. Each entry shows the supervisor's name, contact number, and role.
 
 **Cycle Management:**
 - **Non-reporting day control**: Mark any date as a non-reporting day (public holiday or stand-down). Singapore public holidays are excluded automatically.
@@ -114,7 +116,7 @@ All supervisor capabilities, plus:
 - **Create supervisor accounts**: Add new admin accounts directly within the app.
 - **Remove supervisors**: Demote any admin back to reservist status. Demoted supervisors return to the reservist pool automatically.
 - **Promote to supervisor**: Promote any existing reservist to admin status. Search by name with cycle filters.
-- **Supervisor password reset**: Reset any supervisor's password directly from the Admin Accounts list, without database access.
+- **Supervisor password reset**: Reset any supervisor's password directly from the Team tab, without database access.
 - Displayed with a **Master** label in the interface.
 
 ---

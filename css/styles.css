@@ -149,7 +149,7 @@ button:active{transform:scale(.97);transition:transform .08s;}
 .sheet-padded::before{ content:'';display:block;width:40px;height:4px;background:#d4d9e2;border-radius:2px;margin:0 auto 12px; }
 
 /* Avatars */
-.avatar-circle       { width:44px;height:44px;border-radius:50%;background:#f0f2f5;display:flex;align-items:center;justify-content:center;margin:0 auto 12px; }
+.avatar-circle       { width:52px;height:52px;border-radius:50%;background:#f0f2f7;display:flex;align-items:center;justify-content:center;margin:0 auto 14px; }
 
 /* Tabs */
 .tab-cell            { padding:13px 8px;text-align:center;border-right:1px solid #f0f2f5; }
