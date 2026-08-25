@@ -25,14 +25,12 @@ const RosterHandlers = {
       this._setViewEntry(id,entry,off,dk);
       if(!this.state.demo){
         if(!this.state.isOnline){
-          const isNewPresent=status==='present'&&!prev.p1;
-          this._queuePush({type:'status',id,date:dk,status,extras:isNewPresent?{time:p1,dist:prev.p1dist}:{}});
+            this._queuePush({type:'status',id,date:dk,status,extras:status==='present'&&p1?{time:p1,dist:prev.p1dist}:{}});
           this._haptic(40);
           this._toast({present:'Marked present (queued)',mc:'Marked MC (queued)',absent:'Marked absent (queued)'}[status]||'Queued');
           return;
         }
-        const isNewPresent=status==='present'&&!prev.p1;
-        const {error}=await DB.attendance.upsert(id,dk,status,isNewPresent?{time:p1,dist:prev.p1dist}:{});
+        const {error}=await DB.attendance.upsert(id,dk,status,status==='present'&&p1?{time:p1,dist:prev.p1dist}:{});
         if(error){
           if(prev.status) this._setViewEntry(id,{...prev},off,dk); else this._delViewEntry(id,off,dk);
           this._toast('Failed to update. Try again.','error');

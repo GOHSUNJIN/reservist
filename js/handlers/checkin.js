@@ -86,6 +86,7 @@ const CheckinHandlers = {
       if(!bypassed&&(locStatus!=='verified'||locPhase!==key)) return;
       if(!demo&&!me?.is_active){this._toast('Your account has been deactivated. Please contact your supervisor.','error');return;}
       if(!demo){
+        if(!me?.batch_id){this._toast('You are not assigned to a reporting cycle. Please contact your supervisor.','error');return;}
         const _b=this.state.batches.find(b=>b.id===me?.batch_id), _dk=Utils.dateKey(this.baseDate());
         if(_b&&_dk<_b.start_date){this._toast('Your reporting period has not started yet.','error');return;}
         if(_b&&_dk>_b.end_date){this._toast('Your reporting period has ended.','error');return;}
@@ -101,6 +102,7 @@ const CheckinHandlers = {
         else if(ml>=30) this.setState({showLateWarning:true});
       }
       const today=Utils.dateKey(this.baseDate()), prev={...(this.state.attendance[currentUserId]||{})};
+      if(key==='p1'&&prev.status==='mc'){this._toast('You have an approved MC for today. Contact your supervisor to change it.','error');this.setState({phaseSubmitting:false});return;}
       const rec={...this.myRec()};
       if(key==='p1'){rec.status='present';rec.p1=time;rec.p1dist=dist;if(bypassed)rec.gpsBypassed=true;}
       else if(key==='p2') rec.p2=time;
