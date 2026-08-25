@@ -87,7 +87,7 @@
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2f5fd0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </div>
           <div style="font-size:18px;font-weight:700;color:#161f30;margin-bottom:8px;">Request submitted</div>
-          <div style="font-size:13.5px;color:#5c6678;line-height:1.55;margin-bottom:24px;">Your signup has been sent to an admin for approval. You will be able to log in once your account is approved.</div>
+          <div style="font-size:13.5px;color:#5c6678;line-height:1.55;margin-bottom:24px;">Your signup has been sent to an admin for approval. You can log in once your account is approved.</div>
           <button onClick="{{ dismissSignupPending }}" style="-webkit-appearance:none;width:100%;padding:14px;background:#2f5fd0;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;">Back to log in</button>
         </div>
       </sc-if>
@@ -127,7 +127,7 @@
             <div style="font-size:13.5px;font-weight:700;color:#161f30;">Forgot your password?</div>
             <button onClick="{{ closeForgotPassword }}" style="background:none;border:none;cursor:pointer;color:#8a94a3;padding:0;margin-left:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
           </div>
-          <div style="font-size:13px;color:#5c6678;line-height:1.6;">Contact your supervisor and ask them to reset your password. They can remove and re-add your account with a new password from the admin panel.</div>
+          <div style="font-size:13px;color:#5c6678;line-height:1.6;">Contact your supervisor to reset your password. They can remove and re-add your account with a new password from the admin panel.</div>
         </div>
         </sc-if>
       </div>
@@ -334,7 +334,7 @@
                   <p style="font-size:13.5px;color:#5c6678;margin:2px 0 0;">{{ phName }}</p>
                 </div>
               </div>
-              <div style="background:#f6f8fa;border-radius:10px;padding:13px 15px;margin-top:12px;font-size:13px;color:#5c6678;line-height:1.55;text-wrap:pretty;">There is no CNB reporting today, so you do not need to report or check in. No attendance submission is required. Enjoy the day off.</div>
+              <div style="background:#f6f8fa;border-radius:10px;padding:13px 15px;margin-top:12px;font-size:13px;color:#5c6678;line-height:1.55;text-wrap:pretty;">There is no CNB reporting today. You do not need to report or check in, and no attendance submission is required.</div>
             </div>
             </sc-if>
 
@@ -538,7 +538,7 @@
                 <sc-if value="{{ showClockOutReminder }}" hint-placeholder-val="">
                   <div style="margin-top:10px;padding:8px 10px;background:#fff3e0;border:1px solid #fb923c;border-radius:8px;display:flex;align-items:center;gap:7px;">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    <span style="font-size:11.5px;color:#c2410c;font-weight:600;">Clock out before leaving - meal allowance will not be recorded if you don't.</span>
+                    <span style="font-size:11.5px;color:#c2410c;font-weight:600;">Clock out before leaving - your meal allowance will not be recorded otherwise.</span>
                   </div>
                 </sc-if>
               </div>
@@ -549,7 +549,7 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:1px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 <div style="flex:1;">
                   <div style="font-size:12.5px;font-weight:700;color:#c2410c;margin-bottom:2px;">Missing clock-out detected</div>
-                  <div style="font-size:11.5px;color:#9a3412;line-height:1.4;">One or more of your recent days shows no clock-out. Inform your supervisor immediately - meal allowance will not apply until your record is corrected.</div>
+                  <div style="font-size:11.5px;color:#9a3412;line-height:1.4;">One or more recent days shows no clock-out. Inform your supervisor - meal allowance will not apply until corrected.</div>
                 </div>
               </div>
               </sc-if>
@@ -629,7 +629,7 @@
             <sc-if value="{{ isMc }}" hint-placeholder-val="">
             <div>
               <h2 style="font-size:19px;font-weight:700;margin:2px 0 6px;color:#161f30;">Marked as MC</h2>
-              <p style="font-size:13.5px;color:#5c6678;margin:0;line-height:1.5;text-wrap:pretty;">Your MC has been approved. Bring your MC hardcopy on dekit day.</p>
+              <p style="font-size:13.5px;color:#5c6678;margin:0;line-height:1.5;text-wrap:pretty;">Your MC has been approved. Remember to bring your MC hardcopy on dekit day.</p>
               <sc-if value="{{ showWaShare }}" hint-placeholder-val="">
               <a href="{{ whatsappLink }}" target="_blank" rel="noopener" class="wa-link" style="margin-top:12px;">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
@@ -642,7 +642,7 @@
             <sc-if value="{{ isAbsent }}" hint-placeholder-val="">
             <div>
               <h2 style="font-size:19px;font-weight:700;margin:2px 0 6px;color:#161f30;">Marked absent</h2>
-              <p style="font-size:13.5px;color:#5c6678;margin:0;line-height:1.5;text-wrap:pretty;">Your absence request has been approved. You are recorded as absent for today.</p>
+              <p style="font-size:13.5px;color:#5c6678;margin:0;line-height:1.5;text-wrap:pretty;">Your absence request has been approved and you are recorded as absent for today.</p>
             </div>
             </sc-if>
           </div>
@@ -652,7 +652,7 @@
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:1px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
             <div>
               <div style="font-size:13.5px;font-weight:600;color:#8a6d2a;margin-bottom:3px;">Unrecorded times from {{ incompletePastDate }}</div>
-              <div style="font-size:12.5px;color:#9a7a2a;line-height:1.5;">Some check-in times were not recorded for that day. Let your supervisor know to update them manually.</div>
+              <div style="font-size:12.5px;color:#9a7a2a;line-height:1.5;">Some check-in times were not recorded. Ask your supervisor to update them manually.</div>
             </div>
           </div>
           </sc-if>
@@ -1018,7 +1018,7 @@
                 <div style="width:40px;height:40px;border-radius:12px;background:#f7efdc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="13"></line><line x1="12" y1="16" x2="12" y2="16"></line></svg></div>
                 <div>
                   <div style="font-size:14px;font-weight:600;color:#161f30;margin-bottom:4px;">Submission paused</div>
-                  <div style="font-size:13px;color:#5c6678;line-height:1.55;text-wrap:pretty;">Do not submit the form. Your attendance is captured through check-in only.</div>
+                  <div style="font-size:13px;color:#5c6678;line-height:1.55;text-wrap:pretty;">Do not submit the form - your attendance is captured through check-in only.</div>
                 </div>
               </div>
             </div>
@@ -2224,7 +2224,7 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
-        <p style="font-size:13.5px;color:#5c6678;margin:0 0 6px;line-height:1.55;">Your attendance history is preserved for supervisor records. You will not be able to log in again.</p>
+        <p style="font-size:13.5px;color:#5c6678;margin:0 0 6px;line-height:1.55;">Your attendance history is preserved for supervisor records. You will not be able to log in after this.</p>
         <sc-if value="{{ dekitDateFull }}" hint-placeholder-val="">
           <p style="font-size:12px;color:#8a94a3;margin:0 0 20px;line-height:1.5;">Your account is deactivated automatically on your dekit day ({{ dekitDateFull }}).</p>
         </sc-if>
@@ -2257,7 +2257,7 @@
                 <div style="font-size:12px;color:#9a7a2a;margin-top:2px;">{{ reenrollName }} has a previous account.</div>
               </div>
             </div>
-            <div style="font-size:12.5px;color:#7a5000;line-height:1.5;margin-bottom:14px;">Re-enrolling will restore their existing account and attendance history. Their previous password will be kept.</div>
+            <div style="font-size:12.5px;color:#7a5000;line-height:1.5;margin-bottom:14px;">Re-enrolling will restore their existing account and attendance history. Their previous password is kept.</div>
             <div class="flex-gap-8">
               <button onClick="{{ confirmReenroll }}" style="-webkit-appearance:none;flex:1;padding:11px;background:#b9791a;color:#fff;border:none;border-radius:9px;font-size:13.5px;font-weight:700;cursor:pointer;">Re-enroll {{ reenrollName }}</button>
               <button onClick="{{ cancelReenroll }}" style="-webkit-appearance:none;padding:11px 16px;background:#fff;border:1px solid #d4d9e2;border-radius:9px;font-size:13.5px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
@@ -2303,7 +2303,7 @@
             <sc-if value="{{ showNpPw }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></sc-if>
           </button>
         </div>
-        <div style="font-size:11.5px;color:#8a94a3;margin-bottom:14px;line-height:1.5;">Password is only needed for new personnel. For returning reservists, leave it blank. They will use their previous password.</div>
+        <div style="font-size:11.5px;color:#8a94a3;margin-bottom:14px;line-height:1.5;">Password is only needed for new personnel. For returning reservists, leave it blank - they will use their previous password.</div>
         <button onClick="{{ addPerson }}" style="-webkit-appearance:none;display:block;width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;text-align:center;box-sizing:border-box;line-height:1;">Add to roster</button>
         </sc-if>
       </div>
@@ -2320,7 +2320,7 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
-        <div style="font-size:12px;color:#8a94a3;margin-bottom:14px;line-height:1.5;">Admin accounts have full roster and attendance control. No shift assignment needed.</div>
+        <div style="font-size:12px;color:#8a94a3;margin-bottom:14px;line-height:1.5;">Admin accounts have full roster and attendance control. No shift assignment is needed.</div>
         <input value="{{ npAdminName }}" onInput="{{ onNpAdminName }}" placeholder="Full name" autocapitalize="words" autocorrect="off" class="field" style="margin-bottom:10px;" />
         <input value="{{ npAdminContact }}" onInput="{{ onNpAdminContact }}" placeholder="Contact number (9xxx xxxx)" type="tel" inputmode="numeric" autocomplete="off" class="field" style="margin-bottom:10px;" />
         <div style="position:relative;margin-bottom:10px;">
@@ -2346,7 +2346,7 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
-        <div style="font-size:12px;color:#8a94a3;margin-bottom:14px;">Convert an existing reservist into an admin. Their shift and batch will be cleared.</div>
+        <div style="font-size:12px;color:#8a94a3;margin-bottom:14px;">Convert an existing reservist into an admin. Their shift and batch assignment will be cleared.</div>
         <sc-if value="{{ !promoteAdminId }}" hint-placeholder-val="{{ true }}">
           <input value="{{ promoteSearch }}" onInput="{{ onPromoteSearch }}" onKeyDown="{{ onPromoteSearchKeyDown }}" placeholder="Search by name or number…" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;padding:9px 12px;border:1px solid #d4d9e2;border-radius:9px;font-size:14px;outline:none;background:#f6f8fa;margin-bottom:8px;box-sizing:border-box;" />
           <div style="display:flex;background:#eef0f4;border-radius:8px;padding:3px;margin-bottom:8px;">
@@ -2574,7 +2574,7 @@
                     </div>
                   </sc-if>
                 </div>
-                <div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a94a3;white-space:nowrap;">{{ hr.p1 }} to {{ hr.p4 }}</div>
+                <sc-if value="{{ hr.showTimeRange }}" hint-placeholder-val=""><div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a94a3;white-space:nowrap;">{{ hr.p1 }} to {{ hr.p4 }}</div></sc-if>
               </div>
             </sc-for>
             <sc-if value="{{ personHistoryShowPagination }}" hint-placeholder-val="">
@@ -2610,7 +2610,7 @@
           <sc-if value="{{ confirmWipeHistoryOpen }}" hint-placeholder-val="">
             <div style="background:#fff5f5;border:1px solid #f0d5d2;border-radius:10px;padding:14px 16px;">
               <div style="font-size:13px;font-weight:600;color:#c0392b;margin-bottom:4px;">Permanently delete {{ personHistoryName }}?</div>
-              <div style="font-size:12px;color:#8a94a3;margin-bottom:12px;">This removes all attendance records, leave requests, and their login account. It cannot be undone.</div>
+              <div style="font-size:12px;color:#8a94a3;margin-bottom:12px;">This removes all attendance records, leave requests, and their login account. This action cannot be undone.</div>
               <div class="flex-gap-8">
                 <button onClick="{{ cancelWipeHistory }}" style="flex:1;padding:9px;border-radius:8px;border:1px solid #d4d9e2;background:#fff;color:#5c6678;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
                 <button onClick="{{ confirmWipeHistory }}" style="flex:1;padding:9px;border-radius:8px;border:none;background:#c0392b;color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ wipeHistoryBtnOpacity }};">{{ wipeHistoryBtnText }}</button>
@@ -2742,7 +2742,7 @@
             <sc-if value="{{ showResetPw }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></sc-if>
           </button>
         </div>
-        <div style="background:#fdf6e9;border:1px solid #f0e2c2;border-radius:9px;padding:10px 12px;font-size:12.5px;color:#8a5a00;margin-bottom:18px;line-height:1.5;">Send the new password to the person via a secure channel. They can change it in their account settings after logging in.</div>
+        <div style="background:#fdf6e9;border:1px solid #f0e2c2;border-radius:9px;padding:10px 12px;font-size:12.5px;color:#8a5a00;margin-bottom:18px;line-height:1.5;">Send the new password to the person via a secure channel. They can update it in their account settings after logging in.</div>
         <button onClick="{{ submitResetPw }}" disabled="{{ resetPwSaving }}" style="width:100%;padding:13px;background:#161f30;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ resetPwSavingOpacity }};">{{ resetPwBtnLabel }}</button>
         <button onClick="{{ closeResetPw }}" class="btn-subtle">Cancel</button>
       </div>
@@ -2757,7 +2757,7 @@
           <div style="font-size:17px;font-weight:700;color:#161f30;">Post notice</div>
           <button onClick="{{ closeBroadcast }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
-        <p style="font-size:13px;color:#5c6678;margin:0 0 14px;line-height:1.5;">Type a message to show as a banner on every reservist's check-in screen. Leave blank to clear the current notice.</p>
+        <p style="font-size:13px;color:#5c6678;margin:0 0 14px;line-height:1.5;">Type a message to show as a banner on every reservist's check-in screen. Leave blank to clear any existing notice.</p>
         <textarea onInput="{{ onBroadcastText }}" value="{{ broadcastText }}" placeholder="e.g. Welfare test tomorrow. All to report by 0800." style="width:100%;height:90px;padding:12px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;margin-bottom:16px;" rows="4"></textarea>
         <button onClick="{{ saveBroadcast }}" disabled="{{ broadcastSaving }}" style="width:100%;padding:13px;background:#2f5fd0;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ broadcastSavingOpacity }};">{{ broadcastBtnLabel }}</button>
         <button onClick="{{ closeBroadcast }}" class="btn-subtle">Cancel</button>
@@ -2773,7 +2773,7 @@
           <div style="font-size:17px;font-weight:700;color:#161f30;">Set no-report days</div>
           <button onClick="{{ closeNoReportBulk }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
-        <p style="font-size:13px;color:#5c6678;margin:0 0 14px;line-height:1.5;">Enter dates separated by commas or one per line. Use dd/mm/yyyy or yyyy-mm-dd format.</p>
+        <p style="font-size:13px;color:#5c6678;margin:0 0 14px;line-height:1.5;">Enter dates separated by commas or one per line, in dd/mm/yyyy or yyyy-mm-dd format.</p>
         <textarea onInput="{{ onNoReportBulkText }}" value="{{ noReportBulkText }}" placeholder="01/07/2026, 08/07/2026&#10;15/07/2026" style="width:100%;height:110px;padding:12px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:'IBM Plex Mono',monospace;font-size:13px;resize:none;outline:none;box-sizing:border-box;margin-bottom:16px;" rows="4"></textarea>
         <button onClick="{{ applyNoReportBulk }}" style="width:100%;padding:13px;background:#161f30;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;">Apply</button>
         <button onClick="{{ closeNoReportBulk }}" class="btn-subtle">Cancel</button>
@@ -2839,7 +2839,7 @@
           <div style="display:flex;flex-direction:column;gap:2px;">
             <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I check in?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Open the Check-In tab and tap "Locate me" to verify your GPS location. Once verified, tap Phase 1 to record your arrival. Complete Phase 2-4 as the day progresses.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Open the Check-In tab and tap "Locate me" to verify your GPS. Once verified, tap Phase 1 to record your arrival. Complete Phase 2-4 as the day progresses.</div>
             </div>
             <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">What do the four phases mean?</div>
@@ -2847,15 +2847,15 @@
             </div>
             <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I request an absence?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Tap the "Request absence" button on the Check-In tab. Your supervisor will approve or decline your request and you will be notified.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Tap "Request absence" on the Check-In tab. Your supervisor will approve or decline, and you will be notified.</div>
             </div>
             <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">Can I check in if I'm offline?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Yes. Your check-in is queued and will sync automatically once your internet connection is restored.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Yes. Your check-in is queued and will sync automatically once your connection is restored.</div>
             </div>
             <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;">
               <div class="text-strong">What if the GPS fails?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Step outside to an open area with a clear view of the sky and try again. If GPS keeps failing on-site, contact your supervisor to manually record your check-in.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Step outside to an open area with a clear view of the sky and try again. If GPS keeps failing, contact your supervisor to record your check-in manually.</div>
             </div>
           </div>
           </sc-if>
@@ -2864,27 +2864,27 @@
           <div style="display:flex;flex-direction:column;gap:2px;">
             <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I approve a new signup?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab and open the <strong>Requests</strong> sub-tab. Pending signups appear there. You can approve individually or select multiple and use "Approve selected".</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab and open the <strong>Requests</strong> sub-tab. Approve individually, or select multiple and tap "Approve selected".</div>
             </div>
             <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I add someone manually?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to <strong>People</strong> tab, tap <strong>Roster</strong>, then tap the <strong>+</strong> button in the Personnel section. For multiple people, use the <strong>Bulk</strong> button instead.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to <strong>People</strong> tab, tap <strong>Roster</strong>, then tap the <strong>+</strong> in the Personnel section. For multiple people, use the <strong>Bulk</strong> button instead.</div>
             </div>
             <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I export attendance?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>Log</strong> tab. Tap <strong>Print Report</strong> for a formatted printable summary (opens as a pop-up; use Print or Save as PDF). Tap <strong>Export XML</strong> for a styled spreadsheet download with per-person totals.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>Log</strong> tab. Tap <strong>Print Report</strong> for a printable summary (opens as a pop-up). Tap <strong>Export XML</strong> for a spreadsheet download with per-person totals.</div>
             </div>
             <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I post a notice to reservists?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>Dashboard</strong> tab and tap <strong>Post notice to reservists</strong>. The message will appear as a banner on every reservist's check-in screen for the duration of the cycle.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>Dashboard</strong> tab and tap <strong>Post notice to reservists</strong>. The message appears as a banner on every reservist's check-in screen for the duration of the cycle.</div>
             </div>
             <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I reset a reservist's password?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to <strong>People</strong> tab, <strong>Roster</strong> sub-tab, find the person and tap <strong>Reset PW</strong>. Enter a temporary password and send it to them securely. They can update it in their account settings.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to <strong>People</strong> tab, <strong>Roster</strong> sub-tab, find the person and tap <strong>Reset PW</strong>. Enter a temporary password and send it securely - they can update it in their account settings.</div>
             </div>
             <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;">
               <div class="text-strong">How do I see who the other supervisors are?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab and tap the <strong>Team</strong> sub-tab. It lists all active supervisors in your department with their contact numbers and roles.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab and tap the <strong>Team</strong> sub-tab. It lists all active supervisors in your department with their contacts and roles.</div>
             </div>
           </div>
           </sc-if>
