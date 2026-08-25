@@ -815,7 +815,7 @@
             <sc-if value="{{ !showLeaveHistory && myLeaveHistoryLoaded }}" hint-placeholder-val="">
             <div style="padding:44px 16px;text-align:center;">
               <div class="avatar-circle">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
               </div>
               <div class="text-sub">No requests yet</div>
               <div class="text-muted">MC, leave, and shift change requests will appear here.</div>
@@ -938,7 +938,7 @@
             </sc-if>
             <sc-if value="{{ historyEmpty }}" hint-placeholder-val="">
               <div style="padding:36px 16px;text-align:center;">
-                <div class="avatar-circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="3" x2="8" y2="6"/><line x1="16" y1="3" x2="16" y2="6"/></svg></div>
+                <div class="avatar-circle"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="3" x2="8" y2="6"/><line x1="16" y1="3" x2="16" y2="6"/></svg></div>
                 <div class="text-sub">No records yet</div>
                 <div class="text-muted">Your attendance will appear here once you start checking in.</div>
               </div>
@@ -1365,14 +1365,14 @@
           </sc-for>
           <sc-if value="{{ noSearchResults }}" hint-placeholder-val="">
             <div style="padding:36px 20px;text-align:center;">
-              <div class="avatar-circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+              <div class="avatar-circle"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
               <div class="text-sub">No results</div>
               <div class="text-muted">No one matches "{{ rosterSearch }}".</div>
             </div>
           </sc-if>
           <sc-if value="{{ rosterEmpty }}" hint-placeholder-val="">
             <div style="padding:36px 20px;text-align:center;">
-              <div class="avatar-circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+              <div class="avatar-circle"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
               <div class="text-sub">No one on the roster</div>
               <div class="text-muted">Add personnel in the People tab to get started.</div>
             </div>
@@ -1445,7 +1445,7 @@
           <div class="card-flush">
             <sc-if value="{{ logRowsEmpty }}" hint-placeholder-val="">
               <div style="padding:36px 20px;text-align:center;">
-                <div class="avatar-circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                <div class="avatar-circle"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
                 <sc-if value="{{ logTrulyEmpty }}" hint-placeholder-val="">
                   <div class="text-sub">No records yet</div>
                   <div class="text-muted">No personnel on the roster for this day.</div>
@@ -1583,9 +1583,7 @@
               </sc-if>
             </button>
             <button onClick="{{ setPeopleTabRoster }}" style="{{ ptRosterStyle }}">Roster</button>
-            <sc-if value="{{ isSuperAdmin }}" hint-placeholder-val="">
-              <button onClick="{{ setPeopleTabAdmins }}" style="{{ ptAdminsStyle }}">Admins</button>
-            </sc-if>
+            <button onClick="{{ setPeopleTabAdmins }}" style="{{ ptAdminsStyle }}">Team</button>
           </div>
           <button onClick="{{ openMemberSearch }}" style="width:100%;margin-bottom:14px;padding:9px 14px;background:#fff;border:1px solid #d4d9e2;border-radius:10px;display:flex;align-items:center;gap:9px;cursor:pointer;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a94a3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -1649,7 +1647,11 @@
             </div>
             </sc-for>
           <sc-if value="{{ signupSearchHasNoResults }}" hint-placeholder-val="">
-            <div style="padding:14px 16px;font-size:12.5px;color:#8a94a3;text-align:center;">No signups match this search.</div>
+            <div class="empty-state-lg">
+              <div class="avatar-circle"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+              <div class="text-sub">No results</div>
+              <div class="text-muted">No signups match "{{ signupSearch }}".</div>
+            </div>
           </sc-if>
           </div>
           </sc-if>
@@ -1774,7 +1776,7 @@
           </sc-if>
           <sc-if value="{{ !hasPendingRequests }}" hint-placeholder-val="">
             <div style="padding:40px 20px;text-align:center;">
-              <div class="avatar-circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+              <div class="avatar-circle"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
               <div class="text-sub">Nothing pending</div>
               <div class="text-muted">No pending signups or leave requests.</div>
             </div>
@@ -1904,14 +1906,15 @@
               </div>
             </sc-for>
             <sc-if value="{{ personnelSearchNoResults }}" hint-placeholder-val="">
-              <div style="padding:24px 16px;text-align:center;">
+              <div class="empty-state-lg">
+                <div class="avatar-circle"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
                 <div class="text-sub">No matches</div>
                 <div class="text-muted">No one matches "{{ peopleRosterSearch }}".</div>
               </div>
             </sc-if>
             <sc-if value="{{ personnelListEmpty }}" hint-placeholder-val="">
               <div style="padding:36px 20px;text-align:center;">
-                <div class="avatar-circle"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/><line x1="20" y1="8" x2="20" y2="14"/></svg></div>
+                <div class="avatar-circle"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/><line x1="20" y1="8" x2="20" y2="14"/></svg></div>
                 <div class="text-sub">No one added yet</div>
                 <div class="text-muted">Tap the + button above to add personnel to this cycle.</div>
               </div>
@@ -1928,11 +1931,11 @@
           </div>
           </sc-if>
 
-          <!-- ── ADMINS sub-tab (superadmin only) ── -->
+          <!-- ── TEAM sub-tab ── -->
           <sc-if value="{{ ptAdmins }}" hint-placeholder-val="">
           <div class="card-flush" style="margin-bottom:14px;">
             <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;justify-content:space-between;">
-              <span class="section-label">ADMIN ACCOUNTS</span>
+              <span class="section-label">SUPERVISORS</span>
               <span style="font-size:12px;color:#8a94a3;">{{ adminsList.length }} active</span>
             </div>
             <sc-for list="{{ adminsList }}" as="adm">
@@ -1943,6 +1946,7 @@
                   <div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ adm.name }}</div>
                   <div class="text-hint">{{ adm.contact }} · <span style="color:{{ adm.roleColor }};font-weight:600;">{{ adm.roleLabel }}</span></div>
                 </div>
+                <sc-if value="{{ isSuperAdmin }}" hint-placeholder-val="">
                 <sc-if value="{{ adm.canResetPw }}">
                   <sc-if value="{{ !adm.isConfirming }}">
                     <button onClick="{{ adm.onResetAdminPw }}" style="padding:5px 11px;background:#fff;border:1px solid #e3e6ec;color:#5c6678;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;flex:0 0 auto;">Reset PW</button>
@@ -1953,7 +1957,9 @@
                     <button onClick="{{ adm.onAskDeactivate }}" style="padding:5px 11px;background:#fff;border:1px solid #e3e6ec;color:#5c6678;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;flex:0 0 auto;">Remove</button>
                   </sc-if>
                 </sc-if>
+                </sc-if>
               </div>
+              <sc-if value="{{ isSuperAdmin }}" hint-placeholder-val="">
               <sc-if value="{{ adm.isConfirming }}">
                 <div style="margin-top:8px;background:#fdf6e9;border:1px solid #f0e2c2;border-radius:8px;padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
                   <span style="font-size:12.5px;color:#7a5000;font-weight:500;">Remove this admin?</span>
@@ -1963,9 +1969,11 @@
                   </div>
                 </div>
               </sc-if>
+              </sc-if>
             </div>
             </sc-for>
           </div>
+          <sc-if value="{{ isSuperAdmin }}" hint-placeholder-val="">
           <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:4px;">
             <button onClick="{{ togglePromoteAdmin }}" style="-webkit-appearance:none;display:flex;align-items:center;gap:12px;padding:13px 15px;background:#fff;border:1px solid #e3e6ec;border-radius:13px;box-shadow:0 1px 3px rgba(20,30,50,.04);width:100%;text-align:left;cursor:pointer;">
               <div style="width:40px;height:40px;border-radius:11px;background:#f0f2f7;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
@@ -1988,6 +1996,7 @@
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c4c9d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
             </button>
           </div>
+          </sc-if>
           </sc-if>
 
         </div>
@@ -2308,7 +2317,7 @@
           <div style="border:1px solid #e8ebf0;border-radius:9px;overflow:hidden;margin-bottom:4px;">
             <sc-if value="{{ promoteListEmpty }}" hint-placeholder-val="">
               <div style="padding:28px 16px;text-align:center;">
-                <div class="avatar-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+                <div class="avatar-circle"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
                 <div class="text-sub">No reservists found</div>
                 <div class="text-muted">Try a different search or switch to all cycles.</div>
               </div>
@@ -2537,14 +2546,18 @@
               </div>
             </sc-if>
             <sc-if value="{{ noPersonHistory }}" hint-placeholder-val="">
-              <div style="padding:36px 16px;text-align:center;">
-                <div style="width:40px;height:40px;border-radius:50%;background:#f0f2f5;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="3" x2="8" y2="6"/><line x1="16" y1="3" x2="16" y2="6"/></svg></div>
-                <div style="font-size:13.5px;font-weight:600;color:#5c6678;margin-bottom:3px;">No records</div>
-                <div style="font-size:12px;color:#9aa3b2;">No past attendance found for this person.</div>
+              <div class="empty-state-lg">
+                <div class="avatar-circle"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="3" x2="8" y2="6"/><line x1="16" y1="3" x2="16" y2="6"/></svg></div>
+                <div class="text-sub">No records</div>
+                <div class="text-muted">No past attendance found for this person.</div>
               </div>
             </sc-if>
             <sc-if value="{{ noPersonHistoryFiltered }}" hint-placeholder-val="">
-              <div style="padding:24px 16px;text-align:center;font-size:12.5px;color:#9aa3b2;">No {{ personHistoryFilter }} records found.</div>
+              <div class="empty-state-lg">
+                <div class="avatar-circle"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="8" y1="3" x2="8" y2="6"/><line x1="16" y1="3" x2="16" y2="6"/></svg></div>
+                <div class="text-sub">No {{ personHistoryFilter }} records</div>
+                <div class="text-muted">No entries of this type found.</div>
+              </div>
             </sc-if>
           </sc-if>
         </div>
@@ -2602,7 +2615,7 @@
           <sc-if value="{{ memberSearchLoaded }}" hint-placeholder-val="">
             <sc-if value="{{ memberSearchEmpty }}" hint-placeholder-val="">
               <div style="padding:36px 16px;text-align:center;">
-                <div class="avatar-circle"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+                <div class="avatar-circle"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
                 <div class="text-sub">No members found</div>
                 <div class="text-muted">Try a different name, number, or filter.</div>
               </div>
