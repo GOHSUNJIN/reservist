@@ -113,6 +113,9 @@ const makeInitialState = () => ({
   historyPage: 1, historyExpandedDates: [], historyLoaded: false,
   briefTab: 'info',
 
+  // ── Avatar lightbox ──────────────────────────────────────────────────────
+  avatarLightboxUrl: null,
+
   // ── Admin management ─────────────────────────────────────────────────────
   adminsList: [], adminsLoaded: false,
   npAdminName: '', npAdminContact: '', npAdminPassword: '', showNpAdminPw: false,

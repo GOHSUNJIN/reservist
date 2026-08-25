@@ -1605,7 +1605,7 @@
                 <div style="width:34px;height:34px;border-radius:50%;background:#eceef2;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#5c6678;flex:0 0 auto;">{{ sr.initials }}</div>
                 <div class="flex-fill">
                   <div class="text-body-bold">{{ sr.name }}</div>
-                  <div style="font-size:11px;color:#8a94a3;margin-top:1px;">{{ sr.contact }} · {{ sr.deptLabel }} · {{ sr.batchLabel }} · {{ sr.createdAt }}</div>
+                  <div style="font-size:11px;color:#8a94a3;margin-top:1px;">{{ sr.contact }} · {{ sr.deptLabel }} · <span style="white-space:nowrap;">{{ sr.batchLabel }}</span> · {{ sr.createdAt }}</div>
                 </div>
                 <sc-if value="{{ sr.isReactivation }}" hint-placeholder-val="">
                   <span style="flex:0 0 auto;font-size:10px;font-weight:700;background:#fdf6e9;color:#b9791a;border:1px solid #f0e2c2;padding:2px 7px;border-radius:20px;">Returning</span>
@@ -1895,7 +1895,7 @@
             <sc-for list="{{ adminsList }}" as="adm">
             <div class="row-item" style="flex-direction:column;align-items:stretch;gap:0;padding:10px 16px;">
               <div style="display:flex;align-items:center;gap:10px;">
-                <div class="avatar-md" style="background:#161f30;color:#fff;font-size:11px;flex:0 0 auto;{{ adm.avatarStyle }}">{{ adm.initials }}</div>
+                <div class="avatar-md" onClick="{{ adm.onViewAvatar }}" style="background:#161f30;color:#fff;font-size:11px;flex:0 0 auto;{{ adm.avatarCursor }}{{ adm.avatarStyle }}">{{ adm.initials }}</div>
                 <div class="flex-fill">
                   <div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ adm.name }}</div>
                   <div class="text-hint">{{ adm.contact }} · <span style="color:{{ adm.roleColor }};font-weight:600;">{{ adm.roleLabel }}</span></div>
@@ -2778,6 +2778,13 @@
           </sc-if>
         </div>
       </div>
+    </div>
+    </sc-if>
+
+    <!-- ===== AVATAR LIGHTBOX ===== -->
+    <sc-if value="{{ showAvatarLightbox }}" hint-placeholder-val="">
+    <div onClick="{{ closeAvatarLightbox }}" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.82);display:flex;align-items:center;justify-content:center;">
+      <img src="{{ avatarLightboxUrl }}" style="width:240px;height:240px;border-radius:50%;object-fit:cover;box-shadow:0 8px 40px rgba(0,0,0,0.5);" />
     </div>
     </sc-if>
 
