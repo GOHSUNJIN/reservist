@@ -192,7 +192,7 @@ const AdminPeople = {
           hasAvatar:!!av,
           avatarCursor:av?'cursor:pointer;':'',
           onViewAvatar:av?self.openAvatarLightbox(av):null,
-          canDeactivate:a.id!==s.currentUserId&&a.role!=='superadmin',
+          canDeactivate:s.isSuperAdmin&&a.id!==s.currentUserId&&a.role!=='superadmin',
           canResetPw:s.isSuperAdmin&&a.id!==s.currentUserId,
           onAskDeactivate:self.askDeactivateAdmin(a.id),
           onResetAdminPw:s.isSuperAdmin&&a.id!==s.currentUserId?self.openResetPw(a.id):null,

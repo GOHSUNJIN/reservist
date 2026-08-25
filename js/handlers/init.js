@@ -134,7 +134,7 @@ const InitHandlers = {
         localStorage.removeItem('admin_notif');
         this.setState({adminNotifGranted:false});
       }
-      if(isSuperAdmin) setTimeout(()=>this.loadAdmins(), 0);
+      setTimeout(()=>this.loadAdmins(), 0);
     }
     if(role==='reservist'){
       DB.leaves.myPending(me.id).then(req=>this.setState({myPendingRequest:req})).catch(()=>{});
