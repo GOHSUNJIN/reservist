@@ -34,7 +34,9 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 - **Logout confirmation**: Tapping Log Out shows a confirmation step before the session is ended, preventing accidental logouts.
 - **Session expiry warning**: A banner appears at 55 minutes into the session with a one-tap option to extend it before the session expires at 60 minutes.
 - **Idle timeout**: Sessions expire after 20 minutes of inactivity, with a warning at 18 minutes.
-- **Work timer and meal allowance**: When meal allowance is active for the cycle, a live timer shows total work time for the day, paused during lunch. Meal eligibility is shown automatically after 8 hours.
+- **Work timer and meal allowance**: When meal allowance is active for the cycle, a live timer shows total work time for the day, paused during lunch. Once 6 hours of work is reached, a "Meal eligible" badge appears. A reminder is shown inside the timer card when eligible but Phase 4 has not yet been recorded, to discourage leaving without clocking out.
+- **Missing clock-out detection**: If a past day shows no clock-out, that calendar day is coloured orange with a dashed border. Tapping it shows a warning. A persistent orange banner also appears on the check-in screen if any day in the past two weeks is missing a clock-out, prompting the reservist to inform their supervisor so their meal allowance record can be corrected.
+- **No-reporting day calendar coloring**: Days marked as no-reporting are highlighted in slate blue in the attendance calendar, distinct from MC (amber) and present (green), making it easy to see at a glance which days required no attendance.
 - **Late check-in self-declaration**: If you check in more than one hour after shift start, you are prompted to provide a written reason for the lateness before the check-in is accepted.
 - **In-app browser detection**: If opened from WhatsApp, Instagram, or another in-app browser where GPS is blocked, the app shows specific instructions for opening in the device's real browser.
 - **Profile photo**: Upload a profile photo from account settings. Tap your photo to view it enlarged. Works on iOS and Android.
@@ -60,6 +62,7 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 - **Shift label on log cards**: Each log card shows the reservist's shift alongside their check-in times.
 - **Admin log note**: Add a free-text note against any person's attendance entry for the current view date.
 - **Late check-in alerts**: Anyone who checks in more than one hour after shift start is automatically flagged in the log and their written late reason is displayed alongside the attendance record.
+- **Missing clock-out flag**: Any log entry where a reservist is marked present but has no Phase 4 clock-out is flagged with a visible "No clock-out" badge on both the log row and the attendance record view, making it easy to identify and correct before payroll.
 
 **Requests and Leave:**
 - **Unified requests inbox**: All pending signup requests, MC requests, and leave requests appear in one place. Each signup is labelled New or Returning so the supervisor knows at a glance whether they are onboarding a first-timer or re-enrolling someone from a previous cycle.
@@ -77,8 +80,8 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 
 **Personnel Management (People tab):**
 - **Roster view**: Lists all personnel in the current cycle with their attendance rate shown when stats are loaded.
-- **Low attendance warning**: Personnel with an attendance rate below 75% display a highlighted badge on their card, making at-risk individuals easy to spot.
-- **Per-person attendance history**: Click any person's card to open their full attendance history across all cycles. The history modal includes status filter chips (All, Present, MC, Absent) and pagination (15 records per page), and can be exported to XML.
+- **Low attendance warning**: Personnel with an attendance rate below 75% are flagged inline on their card - the attendance percentage turns amber and a compact "Low" chip appears on the same line as the stats, without adding a separate row.
+- **Per-person attendance history**: Click any person's card to open their full attendance history across all cycles. The history modal includes status filter chips (All, Present, MC, Absent) and pagination (15 records per page). Time ranges are only shown for present days - MC and absent rows are displayed without a meaningless "- to -" placeholder. The history can be exported to XML.
 - **Avatar lightbox**: Tap any reservist's profile photo in the overview, roster, or log to view it enlarged. Tapping outside the photo closes it.
 - **Click row in Overview**: Clicking a person's row in the Overview tab also opens their history directly.
 - **Password reset**: Reset any reservist's password directly from the roster without requiring database access. The Master account can also reset supervisor passwords from the Team tab.
@@ -97,8 +100,8 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 - **Batch label editing**: Rename any cycle label inline without navigating away.
 
 **Export and Reporting:**
-- **Spreadsheet export (XML)**: Export the full attendance matrix for any cycle as an Excel-compatible spreadsheet. Includes per-person rates, totals, a legend, and colour-coded status cells.
-- **Print report**: Generate a formatted A4 attendance report, printable or saveable as PDF directly from the browser without leaving the app.
+- **Spreadsheet export (XML)**: Export the full attendance matrix for any cycle as an Excel-compatible spreadsheet. Includes per-person rates, totals, a legend, colour-coded status cells, and a dedicated Meal column showing how many days each reservist was eligible for meal allowance (clocked out with 6h+ worked).
+- **Print report**: Generate a formatted A4 attendance report, printable or saveable as PDF directly from the browser without leaving the app. Includes a Meal Claims summary stat and per-person meal-eligible day count alongside the attendance totals.
 - **WhatsApp attendance summary**: One tap generates the day's attendance summary. A preview modal lets you review and edit the text, copy it to clipboard, or send it directly to the unit group chat.
 - **Per-person history export**: Export any individual's attendance history to XML from within the history modal.
 
