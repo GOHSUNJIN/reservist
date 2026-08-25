@@ -1192,8 +1192,9 @@
                     <div class="avatar-md" onClick="{{ row.onViewAvatar }}" style="flex:0 0 auto;{{ row.avatarCursor }}{{ row.avatarStyle }}">{{ row.initials }}</div>
                     <div style="flex:1;min-width:0;">
                       <div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div>
-                      <div style="display:flex;align-items:center;gap:5px;margin-top:2px;">
+                      <div style="display:flex;align-items:center;gap:5px;margin-top:2px;flex-wrap:wrap;">
                         <span onClick="{{ row.onCopyContact }}" style="font-size:11px;color:#9aa3b2;font-family:'IBM Plex Mono',monospace;cursor:pointer;" title="Tap to copy">{{ row.contact }}</span>
+                        <sc-if value="{{ row.showTimeText }}" hint-placeholder-val=""><span style="font-size:9px;color:#d4d9e2;">·</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a94a3;">{{ row.timeText }}</span></sc-if>
                         <sc-if value="{{ row.showStatPct }}" hint-placeholder-val=""><span style="font-size:9px;color:#d4d9e2;">·</span><span style="font-size:10px;font-weight:600;color:{{ row.statPctColor }};">{{ row.statPct }}</span></sc-if>
                       </div>
                       <sc-if value="{{ row.showMealBadge }}" hint-placeholder-val="">
@@ -1202,9 +1203,8 @@
                         </div>
                       </sc-if>
                     </div>
-                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;min-width:64px;">
+                    <div style="flex-shrink:0;">
                       <span class="badge" style="color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
-                      <sc-if value="{{ row.showTimeText }}" hint-placeholder-val=""><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a94a3;">{{ row.timeText }}</span></sc-if>
                     </div>
                   </div>
                   <sc-if value="{{ row.showWelfareNote }}" hint-placeholder-val="">
