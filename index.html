@@ -1469,11 +1469,12 @@
                   </div>
                 </div>
                 <sc-if value="{{ row.showPhaseLine }}" hint-placeholder-val="">
-                  <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:4px;margin-top:9px;">
+                  <div style="display:grid;grid-template-columns:{{ row.phaseGridCols }};gap:4px;margin-top:9px;">
                     <div style="background:#f6f8fa;border-radius:7px;padding:5px 4px;text-align:center;">
                       <div style="font-size:9px;font-weight:700;letter-spacing:.05em;color:#9aa3b2;margin-bottom:3px;">IN</div>
                       <div style="font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ row.p1Color }};">{{ row.p1 }}</div>
                     </div>
+                    <sc-if value="{{ row.showLunchBoxes }}" hint-placeholder-val="">
                     <div style="background:#f6f8fa;border-radius:7px;padding:5px 4px;text-align:center;">
                       <div style="font-size:9px;font-weight:700;letter-spacing:.05em;color:#9aa3b2;margin-bottom:3px;">LCH</div>
                       <div style="font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ row.p2Color }};">{{ row.p2 }}</div>
@@ -1482,6 +1483,7 @@
                       <div style="font-size:9px;font-weight:700;letter-spacing:.05em;color:#9aa3b2;margin-bottom:3px;">BACK</div>
                       <div style="font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ row.p3Color }};">{{ row.p3 }}</div>
                     </div>
+                    </sc-if>
                     <div style="background:#f6f8fa;border-radius:7px;padding:5px 4px;text-align:center;">
                       <div style="font-size:9px;font-weight:700;letter-spacing:.05em;color:#9aa3b2;margin-bottom:3px;">OUT</div>
                       <div style="font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ row.p4Color }};">{{ row.p4 }}</div>
@@ -1496,6 +1498,7 @@
                         <div style="font-size:10px;font-weight:600;color:#8a94a3;margin-bottom:5px;">Check-in <span style="color:#c0392b;">*</span></div>
                         <input type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="{{ timesEditP1 }}" onInput="{{ onTimesP1 }}" style="{{ timesEditP1Style }}" />
                       </div>
+                      <sc-if value="{{ row.showLunchEdit }}" hint-placeholder-val="">
                       <div>
                         <div style="font-size:10px;font-weight:600;color:#8a94a3;margin-bottom:5px;">{{ row.p2FormLabel }} out</div>
                         <input type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="{{ timesEditP2 }}" onInput="{{ onTimesP2 }}" style="{{ timesEditP2Style }}" />
@@ -1504,6 +1507,7 @@
                         <div style="font-size:10px;font-weight:600;color:#8a94a3;margin-bottom:5px;">{{ row.p3Label }}</div>
                         <input type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="{{ timesEditP3 }}" onInput="{{ onTimesP3 }}" style="{{ timesEditP3Style }}" />
                       </div>
+                      </sc-if>
                       <div>
                         <div style="font-size:10px;font-weight:600;color:#8a94a3;margin-bottom:5px;">Check-out</div>
                         <input type="text" inputmode="numeric" maxlength="5" placeholder="HH:MM" value="{{ timesEditP4 }}" onInput="{{ onTimesP4 }}" style="{{ timesEditP4Style }}" />
