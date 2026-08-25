@@ -98,8 +98,11 @@ const AdminPeople = {
             const isConfirming=s.confirmDeleteMemberId===p.id;
             const _isSel=s.memberSearchSelected.includes(p.id);
             const mm=_mMeta(p);
+            const av=s.avatars[p.id]||'';
             return {
               id:p.id, name:p.name, contact:p.contact||'', initials:Utils.initials(p.name),
+              avatarStyle:Utils.avatarStyle(av), avatarCursor:av?'cursor:pointer;':'',
+              onViewAvatar:av?self.openAvatarLightbox(av):null,
               statusLabel:mm.label, statusColor:mm.color, statusBg:mm.bg,
               batchLabel, shiftLabel:Utils.shiftLabel(p.shift),
               isConfirming, onAskDelete:self.askDeleteMember(p.id),
