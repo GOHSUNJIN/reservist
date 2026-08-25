@@ -1,6 +1,9 @@
 // ── Admin account management handlers ─────────────────────────────────────
 const AdminMgmtHandlers = {
 
+  openAvatarLightbox:  function(url) { return () => this.setState({avatarLightboxUrl:url}); },
+  closeAvatarLightbox: function() { this.setState({avatarLightboxUrl:null}); },
+
   loadAdmins: async function() {
     const dept=this._myDept();
     const data=await DB.personnel.listAdmins(dept).catch(()=>[]);

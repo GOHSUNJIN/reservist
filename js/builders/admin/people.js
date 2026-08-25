@@ -185,6 +185,9 @@ const AdminPeople = {
           isMaster:a.role==='superadmin',
           initials:Utils.initials(a.name),
           avatarStyle,
+          hasAvatar:!!av,
+          avatarCursor:av?'cursor:pointer;':'',
+          onViewAvatar:av?self.openAvatarLightbox(av):null,
           canDeactivate:a.id!==s.currentUserId&&a.role!=='superadmin',
           onAskDeactivate:self.askDeactivateAdmin(a.id),
           isConfirming:s.confirmDeactivateAdminId===a.id,
@@ -192,6 +195,8 @@ const AdminPeople = {
           onCancelDeactivate:self.cancelDeactivateAdmin,
         };
       }),
+      showAvatarLightbox:!!s.avatarLightboxUrl, avatarLightboxUrl:s.avatarLightboxUrl||'',
+      closeAvatarLightbox:self.closeAvatarLightbox,
       npAdminName:s.npAdminName, onNpAdminName:self.onNpAdminName,
       npAdminContact:s.npAdminContact, onNpAdminContact:self.onNpAdminContact,
       npAdminPassword:s.npAdminPassword, onNpAdminPassword:self.onNpAdminPassword,
