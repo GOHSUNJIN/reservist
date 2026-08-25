@@ -1895,7 +1895,7 @@
             <sc-for list="{{ adminsList }}" as="adm">
             <div class="row-item" style="flex-direction:column;align-items:stretch;gap:0;padding:10px 16px;">
               <div style="display:flex;align-items:center;gap:10px;">
-                <div class="avatar-md" style="background:#161f30;color:#fff;font-size:11px;flex:0 0 auto;">{{ adm.initials }}</div>
+                <div class="avatar-md" style="background:#161f30;color:#fff;font-size:11px;flex:0 0 auto;{{ adm.avatarStyle }}">{{ adm.initials }}</div>
                 <div class="flex-fill">
                   <div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ adm.name }}</div>
                   <div class="text-hint">{{ adm.contact }} · <span style="color:{{ adm.roleColor }};font-weight:600;">{{ adm.roleLabel }}</span></div>
