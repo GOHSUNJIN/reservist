@@ -38,35 +38,34 @@ const AccountHandlers = {
       const canvas=document.createElement('canvas');
       canvas.width=w; canvas.height=h;
       canvas.getContext('2d').drawImage(img,0,0,w,h);
-      canvas.toBlob(blob=>{
-        if(!blob){ input.value=''; this._toast('Could not process image. Try a different photo.','error'); return; }
-        const r=new FileReader();
-        r.onload=()=>{
-          localStorage.setItem('avatar_'+uid, r.result);
-          this.setState(s=>{const noAv=new Set(s.noAvatarIds||[]);noAv.delete(uid);return{avatars:{...s.avatars,[uid]:r.result},noAvatarIds:noAv};});
-          input.value='';
-          if(!this.state.demo){
-            DB.storage.uploadAvatar(uid, blob)
-              .then(({error})=>{
-                if(error){
-                  localStorage.removeItem('avatar_'+uid);
-                  this.setState(s=>{const av={...s.avatars};delete av[uid];const noAv=new Set(s.noAvatarIds||[]);noAv.add(uid);return{avatars:av,noAvatarIds:noAv};});
-                  this._toast('Photo upload failed. Please try again.','error');
-                } else {
-                  const rawUrl=DB.storage.getAvatarUrl(uid);
-                  if(rawUrl){ const url=rawUrl+'?t='+Date.now(); localStorage.setItem('avatar_'+uid, url); this.setState(s=>({avatars:{...s.avatars,[uid]:url}})); }
-                  this._toast('Profile photo updated.');
-                }
-              })
-              .catch(()=>{
-                localStorage.removeItem('avatar_'+uid);
-                this.setState(s=>{const av={...s.avatars};delete av[uid];const noAv=new Set(s.noAvatarIds||[]);noAv.add(uid);return{avatars:av,noAvatarIds:noAv};});
-                this._toast('Photo upload failed. Please try again.','error');
-              });
-          }
-        };
-        r.readAsDataURL(blob);
-      },'image/jpeg',0.85);
+      let dataUrl;
+      try { dataUrl=canvas.toDataURL('image/jpeg',0.85); } catch(e){ input.value=''; this._toast('Could not process image. Try a different photo.','error'); return; }
+      if(!dataUrl||dataUrl==='data:'){ input.value=''; this._toast('Could not process image. Try a different photo.','error'); return; }
+      const parts=dataUrl.split(','), raw=atob(parts[1]), arr=new Uint8Array(raw.length);
+      for(let i=0;i<raw.length;i++) arr[i]=raw.charCodeAt(i);
+      const blob=new Blob([arr],{type:'image/jpeg'});
+      localStorage.setItem('avatar_'+uid, dataUrl);
+      this.setState(s=>{const noAv=new Set(s.noAvatarIds||[]);noAv.delete(uid);return{avatars:{...s.avatars,[uid]:dataUrl},noAvatarIds:noAv};});
+      input.value='';
+      if(!this.state.demo){
+        DB.storage.uploadAvatar(uid, blob)
+          .then(({error})=>{
+            if(error){
+              localStorage.removeItem('avatar_'+uid);
+              this.setState(s=>{const av={...s.avatars};delete av[uid];const noAv=new Set(s.noAvatarIds||[]);noAv.add(uid);return{avatars:av,noAvatarIds:noAv};});
+              this._toast('Photo upload failed. Please try again.','error');
+            } else {
+              const rawUrl=DB.storage.getAvatarUrl(uid);
+              if(rawUrl){ const url=rawUrl+'?t='+Date.now(); localStorage.setItem('avatar_'+uid, url); this.setState(s=>({avatars:{...s.avatars,[uid]:url}})); }
+              this._toast('Profile photo updated.');
+            }
+          })
+          .catch(()=>{
+            localStorage.removeItem('avatar_'+uid);
+            this.setState(s=>{const av={...s.avatars};delete av[uid];const noAv=new Set(s.noAvatarIds||[]);noAv.add(uid);return{avatars:av,noAvatarIds:noAv};});
+            this._toast('Photo upload failed. Please try again.','error');
+          });
+      }
     };
     img.src=objUrl;
   },
