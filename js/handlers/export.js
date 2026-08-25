@@ -90,7 +90,7 @@ const ExportHandlers = {
 
     const totalRow=`<Row><Cell ss:StyleID="sTotL" ss:MergeAcross="1"><Data ss:Type="String">TOTAL</Data></Cell>${dates.map(()=>ec('sTot')).join('')}${sc('sTotG',totPres)}${sc('sTotA',totMc)}${sc('sTotR',totAbs)}${sc('sTotA',totMeal)}${sc(rateSidT(totPct),totPct!=null?totPct+'%':'-')}</Row>`;
 
-    const legendRow=`<Row ss:Height="8"/><Row><Cell ss:StyleID="sLegend" ss:MergeAcross="${span-1}"><Data ss:Type="String">P = Present  |  P* = Present (admin-corrected)  |  MC = Medical / Leave  |  A = Absent  |  Meal = Days eligible for meal allowance (>=6h worked, clocked out)</Data></Cell></Row>`;
+    const legendRow=`<Row ss:Height="8"/><Row><Cell ss:StyleID="sLegend" ss:MergeAcross="${span-1}"><Data ss:Type="String">P = Present  |  P* = Present (admin-corrected)  |  MC = Medical / Leave  |  A = Absent  |  Meal = Days eligible for meal allowance (6h+ worked, clocked out)</Data></Cell></Row>`;
 
     const b1=pos=>`<Border ss:Position="${pos}" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D0D8E4"/>`;
     const allB=`<Borders>${b1('Bottom')}${b1('Left')}${b1('Right')}${b1('Top')}</Borders>`;
@@ -222,7 +222,7 @@ const ExportHandlers = {
   </tbody>
 </table>
 </div>
-<div class="legend">P = Present &nbsp;·&nbsp; P* = Present (admin-corrected) &nbsp;·&nbsp; MC = Medical / Leave &nbsp;·&nbsp; A = Absent / Missed &nbsp;·&nbsp; Meal = Days eligible for meal allowance (≥6h worked, clocked out)</div>`;
+<div class="legend">P = Present &nbsp;·&nbsp; P* = Present (admin-corrected) &nbsp;·&nbsp; MC = Medical / Leave &nbsp;·&nbsp; A = Absent / Missed &nbsp;·&nbsp; Meal = Days eligible for meal allowance (6h+ worked, clocked out)</div>`;
 
     const printCss=`<style id="print-report-css">
       @media print {
