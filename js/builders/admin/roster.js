@@ -282,7 +282,7 @@ const AdminRoster = {
       refreshPage:self.refreshPage,
       viewDateLabel, viewDateSub, viewIsToday, viewNotToday:!viewIsToday,
       viewShowReporting, viewNoReporting, viewNoRepReason,
-      viewRoster, vPresent, vMc, vThirdVal, vThirdLabel, vThirdColor, vTotal,
+      viewRoster, viewRosterEmpty:viewRoster.length===0, vPresent, vMc, vThirdVal, vThirdLabel, vThirdColor, vTotal,
       vPresentLabel:'Checked in',
       viewListHeader, viewPercentText, viewPercentColor,
       showBatchSummary, batchSummaryAvg, batchSummaryBelow, batchSummaryColor,
