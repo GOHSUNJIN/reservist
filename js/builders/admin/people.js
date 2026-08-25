@@ -148,6 +148,10 @@ const AdminPeople = {
             confirmRejectLeave:self.confirmRejectLeave,
             cancelRejectLeave:self.cancelRejectLeave,
             timeAgo,isExpired,
+            leaveBusyOpacity:(s.approvingLeaveId===l.id||(s.confirmingDecline&&s.rejectLeaveId===l.id))?'0.45':'1',
+            leaveBusyPE:(s.approvingLeaveId===l.id||(s.confirmingDecline&&s.rejectLeaveId===l.id))?'none':'auto',
+            declineBusyOpacity:(s.confirmingDecline&&s.rejectLeaveId===l.id)?'0.45':'1',
+            declineBusyPE:(s.confirmingDecline&&s.rejectLeaveId===l.id)?'none':'auto',
           });
           }),
           leaveSearchHasNoResults:!!_lq&&(s.pendingLeaves||[]).length>0&&_lb.length===0,
