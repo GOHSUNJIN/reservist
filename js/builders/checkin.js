@@ -368,6 +368,11 @@ const CheckinBuilders = {
         else if(pst==='mc') style=cellBase+'background:#f7efdc;color:#b9791a;border:2px solid #e8c77a;cursor:pointer;';
         else style=cellBase+'background:#f7e4e1;color:#c0392b;border:2px solid #e5a9a4;cursor:pointer;';
       }
+      if(dst==='work'&&off>0){
+        const fl=(s.myLeaveHistory||[]).find(r=>r.date===dk&&r.type==='mc');
+        if(fl?.status==='approved') style=cellBase+'background:#f7efdc;color:#b9791a;border:2px solid #e8c77a;cursor:pointer;';
+        else if(fl?.status==='pending') style=cellBase+'background:#fdf6e9;color:#b9791a;border:1px dashed #e8c77a;cursor:pointer;';
+      }
       if(s.selectedCalOffset===off) style+='outline:2px solid '+accent+';outline-offset:1px;';
       return {num:d.getDate(),style,off,st:dst,onClick:this.selectCalDay(off)};
     });
