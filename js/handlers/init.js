@@ -162,6 +162,7 @@ const InitHandlers = {
             this._toast('Your absence request was approved.');
             const att = await DB.attendance.getForDate(Utils.dateKey(this.baseDate())).catch(()=>this.state.attendance);
             this.setState({attendance:att});
+            DB.leaves.myHistory(me.id).then(hist=>this.setState({myLeaveHistory:hist,myLeaveHistoryLoaded:true})).catch(()=>{});
           }
         }
       });

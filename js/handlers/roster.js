@@ -38,6 +38,7 @@ const RosterHandlers = {
           this._toast('Failed to update. Try again.','error');
           return;
         }
+        if(prev.status==='mc'&&status!=='mc') DB.leaves.voidApprovedForDate(id,dk).catch(()=>{});
       }
       this._haptic(40);
       this._toast({present:'Marked present',mc:'Marked MC',absent:'Marked absent'}[status]||'Updated');
