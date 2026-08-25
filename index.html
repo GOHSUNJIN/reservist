@@ -1188,22 +1188,24 @@
               </div>
               <sc-for list="{{ viewRoster }}" as="row" hint-placeholder-count="6">
                 <div onClick="{{ row.onViewHistory }}" class="row-item" style="cursor:pointer;">
-                  <div style="display:flex;align-items:flex-start;gap:12px;">
+                  <div style="display:flex;align-items:center;gap:12px;">
                     <div class="avatar-md" onClick="{{ row.onViewAvatar }}" style="flex:0 0 auto;{{ row.avatarCursor }}{{ row.avatarStyle }}">{{ row.initials }}</div>
                     <div class="flex-fill" style="min-width:0;">
                       <div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div>
-                      <div style="display:flex;align-items:center;gap:5px;margin-top:1px;flex-wrap:wrap;">
+                      <div style="display:flex;align-items:center;gap:5px;margin-top:2px;">
                         <span onClick="{{ row.onCopyContact }}" style="font-size:11px;color:#9aa3b2;font-family:'IBM Plex Mono',monospace;cursor:pointer;" title="Tap to copy">{{ row.contact }}</span>
-                        <sc-if value="{{ row.showTimeText }}" hint-placeholder-val=""><span style="font-size:9px;color:#d4d9e2;">·</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a94a3;">{{ row.timeText }}</span></sc-if>
-                        <sc-if value="{{ row.showStatPct }}" hint-placeholder-val=""><span style="font-size:10px;font-weight:600;color:{{ row.statPctColor }};">{{ row.statPct }}</span></sc-if>
+                        <sc-if value="{{ row.showStatPct }}" hint-placeholder-val=""><span style="font-size:9px;color:#d4d9e2;">·</span><span style="font-size:10px;font-weight:600;color:{{ row.statPctColor }};">{{ row.statPct }}</span></sc-if>
                       </div>
                       <sc-if value="{{ row.showMealBadge }}" hint-placeholder-val="">
-                        <div style="margin-top:4px;">
+                        <div style="margin-top:5px;">
                           <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:{{ row.mealBadgeColor }};background:{{ row.mealBadgeBg }};border:1px solid {{ row.mealBadgeBorder }};padding:2px 8px;border-radius:20px;white-space:nowrap;">{{ row.mealBadgeText }}<sc-if value="{{ row.showWorkTime }}" hint-placeholder-val=""><span style="font-weight:400;opacity:0.75;">· {{ row.workTimeText }}</span></sc-if></span>
                         </div>
                       </sc-if>
                     </div>
-                    <span class="badge" style="color:{{ row.color }};background:{{ row.bg }};flex-shrink:0;">{{ row.label }}</span>
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
+                      <span class="badge" style="color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
+                      <sc-if value="{{ row.showTimeText }}" hint-placeholder-val=""><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a94a3;letter-spacing:0.3px;">{{ row.timeText }}</span></sc-if>
+                    </div>
                   </div>
                   <sc-if value="{{ row.showWelfareNote }}" hint-placeholder-val="">
                     <div style="margin-top:5px;padding-left:46px;font-size:11.5px;color:#3a6b4f;font-style:italic;">{{ row.welfareNote }}</div>
