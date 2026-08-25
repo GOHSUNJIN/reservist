@@ -238,22 +238,20 @@ const RosterHandlers = {
   },
 
   loadRosterAvatars: async function() {
-    const {batches,activeBatchIdx,demo,batchMembersCache,personnel,noAvatarIds}=this.state;
+    const {batches,activeBatchIdx,demo,batchMembersCache,personnel}=this.state;
     if(demo) return;
     const batch=batches[activeBatchIdx||0];
     const batchMembers=batch?.is_live?personnel:(batchMembersCache[batch?.id]||[]);
     const memberSet=new Set(batchMembers.map(p=>p.id));
     const members=[...batchMembers,...(personnel||[]).filter(p=>!memberSet.has(p.id))];
-    const noAvSet=noAvatarIds||new Set();
-    const ids=members.map(p=>p.id).filter(id=>!this.state.avatars[id]&&!noAvSet.has(id));
+    const ids=members.map(p=>p.id).filter(id=>!this.state.avatars[id]);
     if(!ids.length) return;
     const existing=await DB.storage.listAvatarIds().catch(()=>new Set());
-    const withAvatar=ids.filter(id=>existing.has(id)), withoutAvatar=ids.filter(id=>!existing.has(id));
+    if(!existing.size) return;
+    const withAvatar=ids.filter(id=>existing.has(id));
+    if(!withAvatar.length) return;
     const urls=DB.storage.getAvatarUrls(withAvatar);
-    this.setState(s=>({
-      ...(withAvatar.length?{avatars:{...s.avatars,...urls}}:{}),
-      noAvatarIds:new Set([...(s.noAvatarIds||[]),...withoutAvatar]),
-    }));
+    this.setState(s=>({avatars:{...s.avatars,...urls}}));
   },
 
 };
