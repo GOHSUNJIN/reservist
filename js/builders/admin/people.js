@@ -197,7 +197,8 @@ const AdminPeople = {
           onCancelDeactivate:self.cancelDeactivateAdmin,
         };
       }),
-      showAvatarLightbox:!!s.avatarLightboxUrl, avatarLightboxUrl:s.avatarLightboxUrl||'',
+      showAvatarLightbox:!!s.avatarLightboxUrl,
+      avatarLightboxStyle:s.avatarLightboxUrl?`width:240px;height:240px;border-radius:50%;background-image:url("${(s.avatarLightboxUrl).replace(/"/g,'%22')}");background-size:cover;background-position:center;box-shadow:0 8px 40px rgba(0,0,0,0.5);flex-shrink:0;`:'',
       closeAvatarLightbox:self.closeAvatarLightbox,
       npAdminName:s.npAdminName, onNpAdminName:self.onNpAdminName,
       npAdminContact:s.npAdminContact, onNpAdminContact:self.onNpAdminContact,

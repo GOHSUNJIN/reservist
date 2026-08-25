@@ -1180,7 +1180,7 @@
               <sc-for list="{{ viewRoster }}" as="row" hint-placeholder-count="6">
                 <div onClick="{{ row.onViewHistory }}" class="row-item" style="flex-wrap:wrap;cursor:pointer;">
                   <div style="display:flex;align-items:center;gap:12px;width:100%;">
-                    <div class="avatar-md" onClick="{{ row.onViewAvatar }}" style="{{ row.avatarCursor }}{{ row.avatarStyle }}">{{ row.initials }}</div>
+                    <div class="avatar-md" onClick="{{ row.onViewAvatar }}" style="flex:0 0 auto;{{ row.avatarCursor }}{{ row.avatarStyle }}">{{ row.initials }}</div>
                     <div class="flex-fill">
                       <div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div>
                       <div style="font-size:11px;color:#9aa3b2;margin-top:1px;font-family:'IBM Plex Mono',monospace;">{{ row.contact }}</div>
@@ -2788,7 +2788,7 @@
     <!-- ===== AVATAR LIGHTBOX ===== -->
     <sc-if value="{{ showAvatarLightbox }}" hint-placeholder-val="">
     <div onClick="{{ closeAvatarLightbox }}" style="position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.82);display:flex;align-items:center;justify-content:center;">
-      <img src="{{ avatarLightboxUrl }}" style="width:240px;height:240px;border-radius:50%;object-fit:cover;box-shadow:0 8px 40px rgba(0,0,0,0.5);" />
+      <div style="{{ avatarLightboxStyle }}"></div>
     </div>
     </sc-if>
 
