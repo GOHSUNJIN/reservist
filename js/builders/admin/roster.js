@@ -3,6 +3,7 @@ const AdminRoster = {
 
   build: function(self, s, accent, ctx) {
     const {activeBatch,activeMembers,viewOffset,viewDate,viewIsToday,viewReportDay,viewDateKey,viewMap,viewBlocked,isDekit,viewShowReporting,present,mc,pending,absent} = ctx;
+    const isCas=self._myDept()==='cas';
     const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const beforeBatchStart=!!(activeBatch?.start_date&&viewDateKey<activeBatch.start_date);
@@ -73,8 +74,10 @@ const AdminRoster = {
         showEditSummary: !!(r.editLog&&r.editLog.length),
         phaseP1Part: r.status==='present'?('IN '+(r.p1||'-')):'',
         phaseP1Color: isLate?'#c0392b':'#2c3a50',
-        phaseRestPart: r.status==='present'?('  ·  LCH '+(r.p2||'-')+'  ·  BACK '+(r.p3||'-')+'  ·  OUT '+(r.p4||'-')):'',
+        phaseRestPart: r.status==='present'?(isCas?'  ·  OUT '+(r.p4||'-'):'  ·  LCH '+(r.p2||'-')+'  ·  BACK '+(r.p3||'-')+'  ·  OUT '+(r.p4||'-')):'',
         showPhaseLine: r.status==='present',
+        showLunchBoxes: !isCas,
+        phaseGridCols: isCas?'repeat(2,1fr)':'repeat(4,1fr)',
         p1:r.p1||'-', p2:r.p2||'-', p3:r.p3||'-', p4:r.p4||'-',
         p1Color:r.p1?(isLate?'#c0392b':'#161f30'):'#c2c8d2',
         p2Color:r.p2?'#161f30':'#c2c8d2',
@@ -84,6 +87,7 @@ const AdminRoster = {
         p2Label:'LCH',
         p2FormLabel:'Lunch',
         p3Label:'Return (lunch)',
+        showLunchEdit: !isCas,
         isTimesEditing:s.timesEditId===p.id,
         onEditTimes:self.openTimesEdit(p.id),
         ...(() => {
