@@ -78,7 +78,7 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 **Personnel Management (People tab):**
 - **Roster view**: Lists all personnel in the current cycle with their attendance rate shown when stats are loaded.
 - **Low attendance warning**: Personnel with an attendance rate below 75% display a highlighted badge on their card, making at-risk individuals easy to spot.
-- **Per-person attendance history**: Click any person's card to open their full attendance history across all cycles. The history modal includes status filter chips (All, Present, MC, Absent) and pagination (15 records per page), and can be exported to XLS.
+- **Per-person attendance history**: Click any person's card to open their full attendance history across all cycles. The history modal includes status filter chips (All, Present, MC, Absent) and pagination (15 records per page), and can be exported to XML.
 - **Avatar lightbox**: Tap any reservist's profile photo in the overview, roster, or log to view it enlarged. Tapping outside the photo closes it.
 - **Click row in Overview**: Clicking a person's row in the Overview tab also opens their history directly.
 - **Password reset**: Reset any reservist's password directly from the roster without requiring database access. The Master account can also reset supervisor passwords from the Team tab.
@@ -97,10 +97,10 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 - **Batch label editing**: Rename any cycle label inline without navigating away.
 
 **Export and Reporting:**
-- **Spreadsheet export (XLS)**: Export the full attendance matrix for any cycle as an Excel-compatible spreadsheet. Includes per-person rates, totals, a legend, and colour-coded status cells.
+- **Spreadsheet export (XML)**: Export the full attendance matrix for any cycle as an Excel-compatible spreadsheet. Includes per-person rates, totals, a legend, and colour-coded status cells.
 - **Print report**: Generate a formatted A4 attendance report, printable or saveable as PDF directly from the browser without leaving the app.
 - **WhatsApp attendance summary**: One tap generates the day's attendance summary. A preview modal lets you review and edit the text, copy it to clipboard, or send it directly to the unit group chat.
-- **Per-person history export**: Export any individual's attendance history to XLS from within the history modal.
+- **Per-person history export**: Export any individual's attendance history to XML from within the history modal.
 
 **Member Search:**
 - **Cross-cycle search**: Search across all cycles and all personnel by name, contact, or status.
@@ -251,7 +251,7 @@ js/
     ├── member_search.js - Cross-cycle member search, permanent delete, bulk delete, person history, password reset
     ├── admin_mgmt.js    - Add, demote, and promote admin accounts
     ├── batch.js         - Cycle CRUD, broadcast, no-report days, meal toggle, cycle picker, jump to date
-    ├── export.js        - XLS attendance export and print/PDF report generation
+    ├── export.js        - XML attendance export and print/PDF report generation
     ├── roster.js        - Manual status override, time correction, search, sort, day navigation
     ├── account.js       - Profile photo upload/remove, password change, name change, notification permissions
     └── misc.js          - Toast, navigation helpers, WhatsApp share/copy, page refresh
