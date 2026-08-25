@@ -60,9 +60,9 @@ const SignupHandlers = {
       const req=this.state.pendingSignups.find(r=>r.id===id);
       if(!req) return;
       const {error}=await DB.signupRequests.reject(id,this.cur()?.name||null);
-      if(error){this._toast('Failed to reject. Try again.','error');return;}
+      if(error){this._toast('Failed to decline. Try again.','error');return;}
       this.setState(s=>({pendingSignups:s.pendingSignups.filter(r=>r.id!==id),selectedSignupIds:s.selectedSignupIds.filter(x=>x!==id)}));
-      this._toast(req.name+"'s signup was rejected.");
+      this._toast(req.name+"'s signup was declined.");
     };
   },
 

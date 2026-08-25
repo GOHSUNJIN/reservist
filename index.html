@@ -1044,7 +1044,7 @@
         <div onClick="{{ closeCyclePicker }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;"></div>
         <div style="position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:18px 18px 0 0;z-index:41;max-height:78%;display:flex;flex-direction:column;">
           <div style="padding:14px 18px 12px;border-bottom:1px solid #e3e6ec;display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;">
-            <div style="font-size:16px;font-weight:700;color:#161f30;">Select Cycle</div>
+            <div style="font-size:16px;font-weight:700;color:#161f30;">Select cycle</div>
             <button onClick="{{ closeCyclePicker }}" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;color:#8a94a3;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
           </div>
           <div style="overflow-y:auto;flex:1;">
@@ -1352,13 +1352,14 @@
                 <div style="font-size:11.5px;color:#3a6b4f;font-style:italic;line-height:1.4;">{{ row.welfareNote }}</div>
               </div>
             </sc-if>
-            <div style="display:flex;gap:6px;align-items:center;">
-                <sc-if value="{{ row.canMark }}" hint-placeholder-val="">
-                  <button onClick="{{ row.markPresent }}" class="roster-btn roster-btn-present" style="flex:1;padding:6px 4px;font-size:12px;">Present</button>
-                  <button onClick="{{ row.markMc }}" class="roster-btn roster-btn-mc" style="flex:0.7;padding:6px 4px;font-size:12px;">MC</button>
-                  <button onClick="{{ row.markAbsent }}" class="roster-btn roster-btn-absent" style="flex:1;padding:6px 4px;font-size:12px;">Absent</button>
-                </sc-if>
+            <sc-if value="{{ row.canMark }}" hint-placeholder-val="">
+              <div style="display:flex;gap:5px;align-items:center;margin-top:4px;">
+                <span style="font-size:10.5px;color:#9aa3b2;margin-right:2px;">Mark:</span>
+                <button onClick="{{ row.markPresent }}" class="roster-btn roster-btn-present">Present</button>
+                <button onClick="{{ row.markMc }}" class="roster-btn roster-btn-mc">MC</button>
+                <button onClick="{{ row.markAbsent }}" class="roster-btn roster-btn-absent">Absent</button>
               </div>
+            </sc-if>
             </div>
           </sc-for>
           <sc-if value="{{ noSearchResults }}" hint-placeholder-val="">
@@ -1641,7 +1642,7 @@
                 </sc-if>
               </div>
               <div class="flex-gap-8">
-                <button onClick="{{ sr.onReject }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #e3e6ec;color:#c0392b;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;">Reject</button>
+                <button onClick="{{ sr.onReject }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #e3e6ec;color:#c0392b;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;">Decline</button>
                 <button onClick="{{ sr.onApprove }}" style="-webkit-appearance:none;flex:2;padding:7px;background:#161f30;border:none;color:#fff;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;">Approve</button>
               </div>
             </div>
@@ -1654,7 +1655,7 @@
           <sc-if value="{{ hasRejectedSignups }}" hint-placeholder-val="">
           <div class="card-flush" style="margin-bottom:14px;">
             <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
-              <span class="text-label">REJECTED SIGNUPS</span>
+              <span class="text-label">DECLINED SIGNUPS</span>
               <span style="background:#8a94a3;color:#fff;font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:20px;">{{ rejectedSignupCount }}</span>
               <div style="flex:1;"></div>
               <button onClick="{{ toggleRejectedSignups }}" style="-webkit-appearance:none;background:none;border:none;cursor:pointer;padding:2px 4px;display:flex;align-items:center;gap:4px;font-size:11.5px;color:#8a94a3;font-weight:500;">
@@ -1672,12 +1673,12 @@
                   <div class="text-body-bold">{{ sr.name }}</div>
                   <div style="font-size:11px;color:#8a94a3;margin-top:1px;">{{ sr.contact }} · {{ sr.batchLabel }}</div>
                   <sc-if value="{{ sr.reviewedAt }}" hint-placeholder-val="">
-                    <div style="font-size:11px;color:#b9791a;margin-top:2px;">Rejected {{ sr.reviewedAt }}<sc-if value="{{ sr.reviewedBy }}" hint-placeholder-val=""> by {{ sr.reviewedBy }}</sc-if></div>
+                    <div style="font-size:11px;color:#b9791a;margin-top:2px;">Declined {{ sr.reviewedAt }}<sc-if value="{{ sr.reviewedBy }}" hint-placeholder-val=""> by {{ sr.reviewedBy }}</sc-if></div>
                   </sc-if>
                 </div>
-                <span style="flex:0 0 auto;font-size:10px;font-weight:700;background:#fdf2f2;color:#c0392b;border:1px solid #f5c6c6;padding:2px 7px;border-radius:20px;">Rejected</span>
+                <span style="flex:0 0 auto;font-size:10px;font-weight:700;background:#fdf2f2;color:#c0392b;border:1px solid #f5c6c6;padding:2px 7px;border-radius:20px;">Declined</span>
               </div>
-              <button onClick="{{ sr.onReopen }}" style="-webkit-appearance:none;width:100%;padding:7px;background:#fff;border:1px solid #d4d9e2;color:#5c6678;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;">Re-open as Pending</button>
+              <button onClick="{{ sr.onReopen }}" style="-webkit-appearance:none;width:100%;padding:7px;background:#fff;border:1px solid #d4d9e2;color:#5c6678;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;">Reopen as pending</button>
             </div>
             </sc-for>
             </sc-if>
@@ -2570,7 +2571,7 @@
       <div class="sheet">
         <div style="padding:18px 20px 12px;border-bottom:1px solid #f0f2f6;flex:0 0 auto;">
           <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
-            <div style="font-size:16px;font-weight:700;color:#161f30;">All Members</div>
+            <div style="font-size:16px;font-weight:700;color:#161f30;">All members</div>
             <button onClick="{{ closeMemberSearch }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
           </div>
           <div style="position:relative;margin-bottom:10px;">
