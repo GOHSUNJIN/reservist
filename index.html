@@ -1154,6 +1154,15 @@
               </div>
             </div>
 
+            <!-- Batch attendance summary -->
+            <sc-if value="{{ showBatchSummary }}" hint-placeholder-val="">
+            <div style="display:flex;align-items:center;gap:5px;margin-bottom:10px;padding:0 2px;">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="{{ batchSummaryColor }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+              <span style="font-size:11.5px;font-weight:600;color:{{ batchSummaryColor }};">{{ batchSummaryAvg }}</span>
+              <span style="font-size:11.5px;color:#8a94a3;">batch attendance {{ batchSummaryBelow }}</span>
+            </div>
+            </sc-if>
+
             <!-- Late check-in alert -->
             <sc-if value="{{ showLateAlert }}" hint-placeholder-val="">
             <div style="background:#fdf6e9;border:1px solid #f0e2c2;border-radius:12px;padding:11px 14px;margin-bottom:12px;display:flex;align-items:center;gap:10px;">
@@ -1183,7 +1192,10 @@
                     <div class="avatar-md" onClick="{{ row.onViewAvatar }}" style="flex:0 0 auto;{{ row.avatarCursor }}{{ row.avatarStyle }}">{{ row.initials }}</div>
                     <div class="flex-fill">
                       <div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div>
-                      <div style="font-size:11px;color:#9aa3b2;margin-top:1px;font-family:'IBM Plex Mono',monospace;">{{ row.contact }}</div>
+                      <div style="display:flex;align-items:center;gap:6px;margin-top:1px;">
+                        <span onClick="{{ row.onCopyContact }}" style="font-size:11px;color:#9aa3b2;font-family:'IBM Plex Mono',monospace;cursor:pointer;" title="Tap to copy">{{ row.contact }}</span>
+                        <sc-if value="{{ row.showStatPct }}" hint-placeholder-val=""><span style="font-size:10px;font-weight:600;color:{{ row.statPctColor }};">{{ row.statPct }}</span></sc-if>
+                      </div>
                     </div>
                     <span style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a94a3;">{{ row.timeText }}</span>
                     <span class="badge" style="color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
@@ -1289,6 +1301,7 @@
             <div style="display:flex;background:#eceef2;border-radius:11px;padding:3px;gap:2px;flex-shrink:0;">
               <button onClick="{{ setRosterSortName }}" style="{{ rosterSortNameStyle }}">A to Z</button>
               <button onClick="{{ setRosterSortStatus }}" style="{{ rosterSortStatusStyle }}">Status</button>
+              <button onClick="{{ setRosterSortPct }}" style="{{ rosterSortPctStyle }}">%</button>
             </div>
             <div style="display:flex;gap:6px;flex-shrink:0;">
               <button onClick="{{ askMarkAllPresent }}" disabled="{{ markAllPresenting }}" style="{{ markAllPresentStyle }}" title="Mark all present"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg> Mark present</button>
@@ -1445,7 +1458,7 @@
                     <div><span style="font-size:13.5px;font-weight:600;color:#161f30;">{{ row.name }}</span></div>
                     <div style="display:flex;align-items:center;gap:5px;margin-top:2px;flex-wrap:wrap;">
                       <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
-                      <span style="font-size:10.5px;color:#9aa3b2;font-family:'IBM Plex Mono',monospace;">{{ row.contact }}</span>
+                      <span onClick="{{ row.onCopyContact }}" style="font-size:10.5px;color:#9aa3b2;font-family:'IBM Plex Mono',monospace;cursor:pointer;" title="Tap to copy">{{ row.contact }}</span>
                       <sc-if value="{{ row.showNoLateReason }}" hint-placeholder-val="">
                         <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:#fdf0dc;color:#b9791a;white-space:nowrap;">Late · No reason</span>
                       </sc-if>
@@ -1465,6 +1478,9 @@
                   </div>
                   <div style="display:flex;gap:5px;flex-shrink:0;">
                     <button onClick="{{ row.onEditLogNote }}" style="-webkit-appearance:none;width:28px;height:28px;background:#f6f8fa;border:1px solid #e3e6ec;border-radius:8px;cursor:pointer;color:{{ row.logNoteIconColor }};display:flex;align-items:center;justify-content:center;padding:0;" title="Note"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></button>
+                    <sc-if value="{{ row.showQuickAbsent }}" hint-placeholder-val="">
+                      <button onClick="{{ row.markAbsent }}" style="-webkit-appearance:none;height:28px;padding:0 9px;background:#fdf0ef;border:1px solid #f1d0cc;border-radius:8px;font-size:11.5px;font-weight:600;color:#c0392b;cursor:pointer;white-space:nowrap;">Absent</button>
+                    </sc-if>
                     <button onClick="{{ row.onEditTimes }}" style="-webkit-appearance:none;height:28px;padding:0 10px;background:#f6f8fa;border:1px solid #e3e6ec;border-radius:8px;font-size:11.5px;font-weight:600;color:#5c6678;cursor:pointer;">Edit</button>
                   </div>
                 </div>
@@ -1818,7 +1834,7 @@
                   <div class="avatar-sm" style="{{ p.avatarStyle }}">{{ p.avatarInitials }}</div>
                   <div class="flex-fill">
                     <div style="font-size:14px;font-weight:600;color:#161f30;">{{ p.name }}</div>
-                    <div class="text-hint">{{ p.contact }}</div>
+                    <div onClick="{{ p.onCopyContact }}" class="text-hint" style="cursor:pointer;" title="Tap to copy">{{ p.contact }}</div>
                     <sc-if value="{{ p.showApprovedBy }}" hint-placeholder-val=""><div style="font-size:10.5px;color:#1f8a5b;margin-top:2px;font-weight:600;">✓ {{ p.approvedByLabel }} {{ p.approvedBy }}</div></sc-if>
                     <sc-if value="{{ p.notes }}" hint-placeholder-val=""><div style="font-size:11.5px;color:#5c6678;margin-top:2px;font-style:italic;">{{ p.notes }}</div></sc-if>
                     <sc-if value="{{ p.showStats }}" hint-placeholder-val="">
