@@ -16,6 +16,7 @@ const AdminPeople = {
         return {...p,
           initials:Utils.initials(p.name),
           shiftLabel:Utils.shiftLabel(p.shift),
+          onCopyContact:self.copyContact(p.contact||''),
           onEditNote:self.openNote(p.id,p.notes||''),
           isEditingNote:s.editingNoteId===p.id,
           onAskDeactivate:self.askDeactivatePerson(p.id),

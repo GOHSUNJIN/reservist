@@ -143,6 +143,13 @@ const MiscHandlers = {
     if(navigator.clipboard){navigator.clipboard.writeText(text).then(()=>this._toast('Copied to clipboard.')).catch(()=>this._toast('Could not copy.','error'));}
     else{this._toast('Copy not supported.','error');}
   },
+  copyContact: function(contact) {
+    return () => {
+      if(!contact) return;
+      if(navigator.clipboard){navigator.clipboard.writeText(contact).then(()=>this._toast('Copied.')).catch(()=>this._toast('Could not copy.','error'));}
+      else{this._toast('Copy not supported.','error');}
+    };
+  },
   sendWaPreview: function() {
     const {waPreviewText} = this.state;
     const link = 'https://api.whatsapp.com/send?text='+encodeURIComponent(waPreviewText);

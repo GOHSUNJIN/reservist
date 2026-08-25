@@ -19,7 +19,9 @@ const AdminRoster = {
       const _pct=s.peopleStats[p.id]?.pct??null;
       return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shiftWindow:Utils.shiftWindow(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:self.setStatus(p.id,'present'),markMc:self.setStatus(p.id,'mc'),markAbsent:self.setStatus(p.id,'absent'),onViewHistory:self.openPersonHistory(p.id),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0,
         lowAttendance:s.peopleStatsLoaded&&_pct!==null&&_pct<75,
-        statPctText:s.peopleStatsLoaded&&_pct!==null?(_pct+'%'):''};
+        statPctText:s.peopleStatsLoaded&&_pct!==null?(_pct+'%'):'',
+        statPctNum:_pct??-1,
+        onCopyContact:self.copyContact(p.contact||'')};
     });
     const search=(s.rosterSearch||'').toLowerCase();
     const filteredRoster=roster.filter(r=>!search||r.name.toLowerCase().includes(search));
@@ -34,6 +36,7 @@ const AdminRoster = {
     const sortKey=s.rosterSort||'name';
     const sortedFiltered=[...statusFilteredRoster].sort((a,b)=>{
       if(sortKey==='status'){const ord={present:0,mc:1,pending:2,absent:3};return (ord[a.status]??4)-(ord[b.status]??4);}
+      if(sortKey==='pct'){return (b.statPctNum??-1)-(a.statPctNum??-1);}
       return a.name.localeCompare(b.name);
     });
     const _sb='flex:1;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;white-space:nowrap;transition:background .15s,color .15s;';
@@ -41,6 +44,7 @@ const AdminRoster = {
     const _si=_sb+'background:transparent;color:#8a94a3;';
     const rosterSortNameStyle=sortKey==='name'?_sa:_si;
     const rosterSortStatusStyle=sortKey==='status'?_sa:_si;
+    const rosterSortPctStyle=sortKey==='pct'?_sa:_si;
     const _rSBtn=(f)=>`padding:5px 10px;border-radius:20px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${rosterStatusFilter===f?accent:'#d4d9e2'};background:${rosterStatusFilter===f?accent:'#fff'};color:${rosterStatusFilter===f?'#fff':'#5c6678'};`;
     const rosterStatusAllStyle=_rSBtn('all'),rosterStatusPresentStyle=_rSBtn('present'),rosterStatusMcStyle=_rSBtn('mc'),rosterStatusAbsentStyle=_rSBtn('absent'),rosterStatusPendingStyle=_rSBtn('pending');
     const total=roster.length;
@@ -62,7 +66,9 @@ const AdminRoster = {
       const avatarStyle=Utils.avatarStyle(av);
       return {
         id:p.id, name:p.name, contact:p.contact||'', initials:Utils.initials(p.name), shiftLabel:Utils.shiftLabel(p.shift),
-        onViewHistory:self.openPersonHistory(p.id),
+        onViewHistory:self.openPersonHistory(p.id), onCopyContact:self.copyContact(p.contact||''),
+        showQuickAbsent:r.status==='pending'&&viewOffset<=0,
+        markAbsent:self.setStatus(p.id,'absent'),
         label:mm.label, color:mm.color, bg:mm.bg, isLate,
         lateReason, showLateReason, showNoLateReason,
         welfareNote:r.welfareNote||'', showWelfareNote:!!(r.welfareNote),
@@ -135,7 +141,10 @@ const AdminRoster = {
     const viewRoster=visibleMembers.map(p=>{
       const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
       const av=s.avatars[p.id]||'';
-      return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:(r.status==='present'&&r.p1)?r.p1:'',avatarStyle:Utils.avatarStyle(av),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),onViewHistory:self.openPersonHistory(p.id)};
+      const _vpct=s.peopleStats[p.id]?.pct??null;
+      return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:(r.status==='present'&&r.p1)?r.p1:'',avatarStyle:Utils.avatarStyle(av),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),onViewHistory:self.openPersonHistory(p.id),onCopyContact:self.copyContact(p.contact||''),
+        showStatPct:s.peopleStatsLoaded&&_vpct!==null, statPct:_vpct!==null?(_vpct+'%'):'', lowAttendancePct:s.peopleStatsLoaded&&_vpct!==null&&_vpct<75,
+        statPctColor:(_vpct!==null&&_vpct<75)?'#c0392b':'#8a94a3'};
     });
     const vPresent=viewRoster.filter(r=>r.label==='Present').length, vMc=viewRoster.filter(r=>r.label==='On MC').length, vAbsent=viewRoster.filter(r=>r.label==='Absent').length, vPending=viewRoster.filter(r=>r.label==='Pending').length, vTotal=viewRoster.length;
     const vPercent=vTotal?Math.round((vPresent+vMc)/vTotal*100):0;
@@ -143,6 +152,13 @@ const AdminRoster = {
     const viewPercentText=viewOffset>0?(vTotal+' rostered'):(vPercent+'% reported');
     const viewPercentColor=viewOffset>0?'#8a94a3':'#1f8a5b';
     const vThirdLabel=viewOffset<0?'Absent':'Pending', vThirdVal=viewOffset<0?vAbsent:vPending, vThirdColor=viewOffset<0?'#c0392b':'#5c6678';
+    const _batchPcts=s.peopleStatsLoaded?activeMembers.map(p=>s.peopleStats[p.id]?.pct).filter(p=>p!=null):[];
+    const _batchAvg=_batchPcts.length?Math.round(_batchPcts.reduce((a,b)=>a+b,0)/_batchPcts.length):null;
+    const _batchBelow=_batchPcts.filter(p=>p<75).length;
+    const showBatchSummary=s.peopleStatsLoaded&&_batchAvg!==null&&_batchPcts.length>0;
+    const batchSummaryAvg=_batchAvg!==null?_batchAvg+'% avg':'';
+    const batchSummaryBelow=_batchBelow>0?'· '+_batchBelow+' below 75%':'';
+    const batchSummaryColor=_batchAvg!==null&&_batchAvg<75?'#c0392b':'#1f8a5b';
 
     return {
       roster, filteredRoster:sortedFiltered, logRows:filteredLogRows, logRowsEmpty:filteredLogRows.length===0,
@@ -256,10 +272,12 @@ const AdminRoster = {
       viewRoster, vPresent, vMc, vThirdVal, vThirdLabel, vThirdColor, vTotal,
       vPresentLabel:'Checked in',
       viewListHeader, viewPercentText, viewPercentColor,
+      showBatchSummary, batchSummaryAvg, batchSummaryBelow, batchSummaryColor,
       rosterSort:s.rosterSort,
       setRosterSortName:self.setRosterSort('name'),
       setRosterSortStatus:self.setRosterSort('status'),
-      rosterSortNameStyle,rosterSortStatusStyle,
+      setRosterSortPct:self.setRosterSort('pct'),
+      rosterSortNameStyle, rosterSortStatusStyle, rosterSortPctStyle,
       // Feature: admin password reset / set
       resetPwOpen:s.resetPwId!==null,
       ...((()=>{
