@@ -1188,7 +1188,7 @@
               </div>
               <sc-for list="{{ viewRoster }}" as="row" hint-placeholder-count="6">
                 <div onClick="{{ row.onViewHistory }}" class="row-item" style="cursor:pointer;">
-                  <div style="display:flex;align-items:center;gap:12px;">
+                  <div style="display:flex;align-items:flex-start;gap:12px;">
                     <div class="avatar-md" onClick="{{ row.onViewAvatar }}" style="flex:0 0 auto;{{ row.avatarCursor }}{{ row.avatarStyle }}">{{ row.initials }}</div>
                     <div class="flex-fill" style="min-width:0;">
                       <div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div>
