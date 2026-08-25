@@ -162,7 +162,7 @@
         </div>
         </sc-if>
         <label class="text-field-label">Full name</label>
-        <input value="{{ suName }}" onInput="{{ onSuName }}" placeholder="Full name" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;margin-bottom:14px;" />
+        <input value="{{ suName }}" onInput="{{ onSuName }}" placeholder="Full name" autocapitalize="words" autocorrect="off" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;margin-bottom:14px;" />
         <label class="text-field-label">Contact number</label>
         <input value="{{ suContact }}" onInput="{{ onSuContact }}" placeholder="9xxx xxxx" type="tel" inputmode="numeric" autocomplete="tel" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;margin-bottom:14px;" />
         <label class="text-field-label">Password</label>
@@ -1289,7 +1289,7 @@
           </div>
           <sc-if value="{{ viewShowReporting }}" hint-placeholder-val="">
           <div style="position:relative;margin-bottom:10px;">
-            <input value="{{ rosterSearch }}" onInput="{{ onRosterSearch }}" onKeyDown="{{ onRosterSearchKeyDown }}" placeholder="Search name..." style="width:100%;padding:10px 38px 10px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:16px;background:#fff;outline:none;box-sizing:border-box;" />
+            <input value="{{ rosterSearch }}" onInput="{{ onRosterSearch }}" onKeyDown="{{ onRosterSearchKeyDown }}" placeholder="Search name..." autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;padding:10px 38px 10px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:16px;background:#fff;outline:none;box-sizing:border-box;" />
             <sc-if value="{{ hasRosterSearch }}" hint-placeholder-val="">
               <button onClick="{{ clearRosterSearch }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#8a94a3;padding:4px;display:flex;align-items:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
             </sc-if>
@@ -1426,7 +1426,7 @@
           <div style="display:flex;gap:8px;align-items:center;margin-bottom:10px;">
             <div style="position:relative;flex:1;min-width:0;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input value="{{ logSearch }}" onInput="{{ onLogSearch }}" onKeyDown="{{ onLogSearchKeyDown }}" placeholder="Search…" style="width:100%;padding:8px 28px 8px 30px;border:1px solid #d4d9e2;border-radius:9px;font-size:13px;background:#fff;outline:none;box-sizing:border-box;" />
+              <input value="{{ logSearch }}" onInput="{{ onLogSearch }}" onKeyDown="{{ onLogSearchKeyDown }}" placeholder="Search…" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;padding:8px 28px 8px 30px;border:1px solid #d4d9e2;border-radius:9px;font-size:13px;background:#fff;outline:none;box-sizing:border-box;" />
               <sc-if value="{{ hasLogSearch }}" hint-placeholder-val="">
                 <button onClick="{{ clearLogSearch }}" style="position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;padding:2px;color:#9aa3b2;line-height:1;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
               </sc-if>
@@ -1614,7 +1614,7 @@
             </div>
             <div style="padding:10px 14px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input type="text" placeholder="Search by name or contact" value="{{ signupSearch }}" onInput="{{ onSignupSearch }}" style="flex:1;border:none;outline:none;font-size:13px;color:#161f30;background:transparent;min-width:0;" />
+              <input type="text" placeholder="Search by name or contact" value="{{ signupSearch }}" onInput="{{ onSignupSearch }}" autocorrect="off" autocapitalize="off" spellcheck="false" style="flex:1;border:none;outline:none;font-size:13px;color:#161f30;background:transparent;min-width:0;" />
               <sc-if value="{{ hasSignupSearch }}" hint-placeholder-val="">
                 <button onClick="{{ clearSignupSearch }}" style="-webkit-appearance:none;background:none;border:none;padding:2px;cursor:pointer;display:flex;align-items:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
               </sc-if>
@@ -1701,7 +1701,7 @@
             </div>
             <div style="padding:10px 14px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input type="text" placeholder="Search by name or contact" value="{{ leaveSearch }}" onInput="{{ onLeaveSearch }}" style="flex:1;border:none;outline:none;font-size:13px;color:#161f30;background:transparent;min-width:0;" />
+              <input type="text" placeholder="Search by name or contact" value="{{ leaveSearch }}" onInput="{{ onLeaveSearch }}" autocorrect="off" autocapitalize="off" spellcheck="false" style="flex:1;border:none;outline:none;font-size:13px;color:#161f30;background:transparent;min-width:0;" />
               <sc-if value="{{ hasLeaveSearch }}" hint-placeholder-val="">
                 <button onClick="{{ clearLeaveSearch }}" style="-webkit-appearance:none;background:none;border:none;padding:2px;cursor:pointer;display:flex;align-items:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
               </sc-if>
@@ -1832,7 +1832,7 @@
             </div>
             <div style="padding:8px 14px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input type="text" placeholder="Search by name or contact" value="{{ peopleRosterSearch }}" onInput="{{ onPeopleRosterSearch }}" style="flex:1;border:none;outline:none;font-size:13px;color:#161f30;background:transparent;min-width:0;" />
+              <input type="text" placeholder="Search by name or contact" value="{{ peopleRosterSearch }}" onInput="{{ onPeopleRosterSearch }}" autocorrect="off" autocapitalize="off" spellcheck="false" style="flex:1;border:none;outline:none;font-size:13px;color:#161f30;background:transparent;min-width:0;" />
               <sc-if value="{{ hasPeopleRosterSearch }}" hint-placeholder-val="">
                 <button onClick="{{ clearPeopleRosterSearch }}" style="-webkit-appearance:none;background:none;border:none;padding:2px;cursor:pointer;display:flex;align-items:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
               </sc-if>
@@ -2159,7 +2159,7 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
-        <input value="{{ acctNameEdit }}" onInput="{{ onAcctNameEdit }}" placeholder="Enter display name" class="field" />
+        <input value="{{ acctNameEdit }}" onInput="{{ onAcctNameEdit }}" placeholder="Enter display name" autocapitalize="words" autocorrect="off" class="field" />
         <sc-if value="{{ acctNameError }}" hint-placeholder-val=""><div style="color:#c0392b;font-size:12.5px;margin-top:6px;">{{ acctNameError }}</div></sc-if>
         <button onClick="{{ saveAcctName }}" disabled="{{ acctSaving }}" style="-webkit-appearance:none;width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:11px;font-size:15px;font-weight:700;cursor:pointer;margin-top:14px;opacity:{{ acctSavingOpacity }};">Save name</button>
       </div>
@@ -2221,7 +2221,7 @@
           <div style="font-size:11px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:7px;">RE-ENROLL RETURNING RESERVIST</div>
           <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:#f6f7f9;border:1px solid #e3e6ec;border-radius:10px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" style="flex:0 0 auto;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input value="{{ npAddSearch }}" onInput="{{ onNpAddSearch }}" placeholder="Search by name or contact…" style="flex:1;border:none;outline:none;font-size:13px;color:#161f30;background:transparent;min-width:0;" autocomplete="off" />
+            <input value="{{ npAddSearch }}" onInput="{{ onNpAddSearch }}" placeholder="Search by name or contact…" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="flex:1;border:none;outline:none;font-size:13px;color:#161f30;background:transparent;min-width:0;" />
           </div>
           <sc-if value="{{ npAddSearchHasResults }}" hint-placeholder-val="">
             <div style="border:1px solid #e8ebf0;border-radius:9px;margin-top:6px;overflow:hidden;">
@@ -2246,7 +2246,7 @@
           <span style="font-size:10.5px;color:#9aa3b2;font-weight:700;letter-spacing:.06em;white-space:nowrap;">OR ADD NEW PERSONNEL</span>
           <div style="flex:1;height:1px;background:#e8ebf0;"></div>
         </div>
-        <input value="{{ npName }}" onInput="{{ onNpName }}" placeholder="Full name" class="field" style="margin-bottom:10px;" />
+        <input value="{{ npName }}" onInput="{{ onNpName }}" placeholder="Full name" autocapitalize="words" autocorrect="off" class="field" style="margin-bottom:10px;" />
         <input value="{{ npContact }}" onInput="{{ onNpContact }}" placeholder="Contact number (9xxx xxxx)" type="tel" inputmode="numeric" autocomplete="off" class="field" style="margin-bottom:10px;" />
         <div style="position:relative;margin-bottom:10px;">
           <input value="{{ npPassword }}" onInput="{{ onNpPassword }}" placeholder="Password (min 6 chars)" type="{{ npPwType }}" class="field" style="padding-right:42px;box-sizing:border-box;" />
@@ -2273,7 +2273,7 @@
           </button>
         </div>
         <div style="font-size:12px;color:#8a94a3;margin-bottom:14px;line-height:1.5;">Admin accounts have full roster and attendance control. No shift assignment needed.</div>
-        <input value="{{ npAdminName }}" onInput="{{ onNpAdminName }}" placeholder="Full name" class="field" style="margin-bottom:10px;" />
+        <input value="{{ npAdminName }}" onInput="{{ onNpAdminName }}" placeholder="Full name" autocapitalize="words" autocorrect="off" class="field" style="margin-bottom:10px;" />
         <input value="{{ npAdminContact }}" onInput="{{ onNpAdminContact }}" placeholder="Contact number (9xxx xxxx)" type="tel" inputmode="numeric" autocomplete="off" class="field" style="margin-bottom:10px;" />
         <div style="position:relative;margin-bottom:10px;">
           <input value="{{ npAdminPassword }}" onInput="{{ onNpAdminPassword }}" placeholder="Password (min 6 chars)" type="{{ npAdminPwType }}" autocomplete="new-password" class="field" style="padding-right:42px;box-sizing:border-box;" />
@@ -2300,7 +2300,7 @@
         </div>
         <div style="font-size:12px;color:#8a94a3;margin-bottom:14px;">Convert an existing reservist into an admin. Their shift and batch will be cleared.</div>
         <sc-if value="{{ !promoteAdminId }}" hint-placeholder-val="{{ true }}">
-          <input value="{{ promoteSearch }}" onInput="{{ onPromoteSearch }}" onKeyDown="{{ onPromoteSearchKeyDown }}" placeholder="Search by name or number…" style="width:100%;padding:9px 12px;border:1px solid #d4d9e2;border-radius:9px;font-size:14px;outline:none;background:#f6f8fa;margin-bottom:8px;box-sizing:border-box;" />
+          <input value="{{ promoteSearch }}" onInput="{{ onPromoteSearch }}" onKeyDown="{{ onPromoteSearchKeyDown }}" placeholder="Search by name or number…" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;padding:9px 12px;border:1px solid #d4d9e2;border-radius:9px;font-size:14px;outline:none;background:#f6f8fa;margin-bottom:8px;box-sizing:border-box;" />
           <div style="display:flex;background:#eef0f4;border-radius:8px;padding:3px;margin-bottom:8px;">
             <button onClick="{{ setPromoteCurrentCycle }}" style="{{ promoteFilterCurrentStyle }}">Current cycle</button>
             <button onClick="{{ setPromoteAllCycles }}" style="{{ promoteFilterAllStyle }}">All cycles</button>
@@ -2581,7 +2581,7 @@
           </div>
           <div style="position:relative;margin-bottom:10px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-            <input value="{{ memberSearchText }}" onInput="{{ onMemberSearchText }}" placeholder="Search by name, contact or cycle…" style="width:100%;padding:9px 12px 9px 32px;border:1px solid #d4d9e2;border-radius:9px;font-size:13px;background:#f6f8fa;outline:none;box-sizing:border-box;" />
+            <input value="{{ memberSearchText }}" onInput="{{ onMemberSearchText }}" placeholder="Search by name, contact or cycle…" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;padding:9px 12px 9px 32px;border:1px solid #d4d9e2;border-radius:9px;font-size:13px;background:#f6f8fa;outline:none;box-sizing:border-box;" />
           </div>
           <select value="{{ memberSearchCycle }}" onChange="{{ onMemberSearchCycle }}" style="width:100%;padding:8px 10px;border:1px solid #d4d9e2;border-radius:9px;font-size:12.5px;font-weight:500;color:#36404f;background:#fff;outline:none;cursor:pointer;margin-bottom:8px;box-sizing:border-box;">
             <sc-for list="{{ memberCycleOptions }}" as="opt">
