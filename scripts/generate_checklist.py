@@ -269,7 +269,7 @@ row = 1
 
 # Title row
 ws.row_dimensions[row].height = 24
-c = ws.cell(row=row, column=1, value="Ops Reservist - Testing Checklist")
+c = ws.cell(row=row, column=1, value="ReservistGO - Testing Checklist")
 c.font = _font(TXT, sz=15, bold=True)
 ws.merge_cells(f"A{row}:G{row}")
 row += 1

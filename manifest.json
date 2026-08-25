@@ -1,7 +1,7 @@
 {
-  "name": "Ops Reservist",
-  "short_name": "Reservist",
-  "description": "Reservist operations portal for attendance and check-in",
+  "name": "ReservistGO",
+  "short_name": "ReservistGO",
+  "description": "ReservistGO - reservist attendance and check-in portal",
   "start_url": "./",
   "display": "standalone",
   "orientation": "portrait",

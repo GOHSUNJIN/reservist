@@ -1,5 +1,5 @@
 -- ============================================================
--- Row Level Security policies for Ops Reservist
+-- Row Level Security policies for ReservistGO
 -- Run this entire file in the Supabase SQL Editor once.
 -- ============================================================
 

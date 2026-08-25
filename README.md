@@ -1,4 +1,4 @@
-# Ops Reservist
+# ReservistGO
 
 A mobile-first web application for managing NS reservist attendance. Replaces manual sign-in sheets and WhatsApp headcounts with a structured, auditable digital system accessible from any smartphone, no app installation required.
 
@@ -6,7 +6,7 @@ A mobile-first web application for managing NS reservist attendance. Replaces ma
 
 ## Overview
 
-Ops Reservist provides end-to-end attendance accountability for reservist cycles. Supervisors see a live dashboard of who has reported, who is late, and who has not shown up. Reservists check in from their phones with GPS verification. All records are timestamped, stored in the cloud, and exportable.
+ReservistGO provides end-to-end attendance accountability for reservist cycles. Supervisors see a live dashboard of who has reported, who is late, and who has not shown up. Reservists check in from their phones with GPS verification. All records are timestamped, stored in the cloud, and exportable.
 
 **Zero hardware cost.** Runs in the browser on any smartphone. No dedicated terminals, no paper forms, no separate system login beyond a phone number and password.
 
@@ -155,7 +155,7 @@ If the supervisor adds a returning reservist directly via the Add Personnel form
 
 ## Data Privacy
 
-Ops Reservist collects only what is operationally necessary:
+ReservistGO collects only what is operationally necessary:
 
 - **No NRIC, rank, or service details**: accounts require only a name, phone number, and password.
 - **No location history**: GPS is used solely at the moment of check-in to verify proximity to HQ. Exact coordinates are never recorded; only the distance from HQ in metres is stored.
@@ -184,7 +184,7 @@ Accounts are tied to Singapore mobile numbers. All sessions expire when the brow
 
 ## No Installation Required
 
-Ops Reservist runs directly in the phone's browser. Personnel access it through a URL. It can be saved to the home screen for one-tap access, where it behaves exactly like a downloaded app, without going through the App Store or Google Play.
+ReservistGO runs directly in the phone's browser. Personnel access it through a URL. It can be saved to the home screen for one-tap access, where it behaves exactly like a downloaded app, without going through the App Store or Google Play.
 
 | What is needed | What is not needed |
 |---|---|
