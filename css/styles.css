@@ -1,7 +1,7 @@
 /* ── Reset & base ─────────────────────────────────────────────────────────── */
 *{box-sizing:border-box;}
 html,body{margin:0;padding:0;}
-body{font-family:'IBM Plex Sans',system-ui,sans-serif;color:#1c2533;background:#cdd2da;-webkit-font-smoothing:antialiased;}
+body{font-family:'IBM Plex Sans',system-ui,sans-serif;color:#1c2533;background:#cdd2da;-webkit-font-smoothing:antialiased;text-wrap:pretty;}
 input,button,select,textarea{font-family:inherit;}
 button{-webkit-appearance:none;}
 ::placeholder{color:#9aa3b2;}
