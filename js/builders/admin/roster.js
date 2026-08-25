@@ -12,7 +12,7 @@ const AdminRoster = {
       const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
       const cardStyle='background:#fff;border:1px solid #e3e6ec;border-left:3px solid '+mm.color+';border-radius:12px;padding:11px 13px;box-shadow:0 1px 5px rgba(20,30,50,.06);';
       const av=s.avatars[p.id]||'';
-      const avatarStyle=av?`background-image:url("${av.replace(/"/g,'%22')}");background-size:cover;background-position:center;color:transparent;`:'';
+      const avatarStyle=Utils.avatarStyle(av);
       const _phaseParts=[r.p1?'IN '+r.p1:null,r.p2?('LCH '+r.p2):null,r.p3?'BACK '+r.p3:null,r.p4?'OUT '+r.p4:null].filter(Boolean);
       const phaseLine=_phaseParts.join('  ·  ');
       const showPhaseLine=r.status==='present'&&_phaseParts.length>0;
@@ -59,7 +59,7 @@ const AdminRoster = {
       const showLateReason=isLate&&!!lateReason;
       const showNoLateReason=isLate&&!lateReason;
       const av=s.avatars[p.id]||'';
-      const avatarStyle=av?`background-image:url("${av.replace(/"/g,'%22')}");background-size:cover;background-position:center;color:transparent;`:'';
+      const avatarStyle=Utils.avatarStyle(av);
       return {
         id:p.id, name:p.name, contact:p.contact||'', initials:Utils.initials(p.name), shiftLabel:Utils.shiftLabel(p.shift),
         onViewHistory:self.openPersonHistory(p.id),
@@ -72,9 +72,6 @@ const AdminRoster = {
         showNoGps: !!(r.gpsBypassed),
         editSummary: (()=>{const log=r.editLog||[];if(!log.length)return'';const e=log[log.length-1];const d=new Date(e.at);const sg=new Date(d.getTime()+8*3600*1000);const hh=String(sg.getUTCHours()).padStart(2,'0'),mm2=String(sg.getUTCMinutes()).padStart(2,'0');const day=sg.getUTCDate(),mon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][sg.getUTCMonth()];return'Edited by '+(e.by||'Admin')+' · '+hh+':'+mm2+', '+day+' '+mon;})(),
         showEditSummary: !!(r.editLog&&r.editLog.length),
-        phaseP1Part: r.status==='present'?('IN '+(r.p1||'-')):'',
-        phaseP1Color: isLate?'#c0392b':'#2c3a50',
-        phaseRestPart: r.status==='present'?(isCas?'  ·  OUT '+(r.p4||'-'):'  ·  LCH '+(r.p2||'-')+'  ·  BACK '+(r.p3||'-')+'  ·  OUT '+(r.p4||'-')):'',
         showPhaseLine: r.status==='present',
         showLunchBoxes: !isCas,
         phaseGridCols: isCas?'repeat(2,1fr)':'repeat(4,1fr)',
@@ -138,8 +135,7 @@ const AdminRoster = {
     const viewRoster=visibleMembers.map(p=>{
       const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
       const av=s.avatars[p.id]||'';
-      const avatarStyle=av?`background-image:url("${av.replace(/"/g,'%22')}");background-size:cover;background-position:center;color:transparent;`:'';
-      return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:(r.status==='present'&&r.p1)?r.p1:'',avatarStyle,onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),onViewHistory:self.openPersonHistory(p.id)};
+      return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:(r.status==='present'&&r.p1)?r.p1:'',avatarStyle:Utils.avatarStyle(av),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),onViewHistory:self.openPersonHistory(p.id)};
     });
     const vPresent=viewRoster.filter(r=>r.label==='Present').length, vMc=viewRoster.filter(r=>r.label==='On MC').length, vAbsent=viewRoster.filter(r=>r.label==='Absent').length, vPending=viewRoster.filter(r=>r.label==='Pending').length, vTotal=viewRoster.length;
     const vPercent=vTotal?Math.round((vPresent+vMc)/vTotal*100):0;
