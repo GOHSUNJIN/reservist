@@ -25,7 +25,7 @@ const AdminPeople = {
           statMc:s.peopleStats[p.id]?.mc??0,
           statAbsent:s.peopleStats[p.id]?.absent??0,
           statPct:s.peopleStats[p.id]?.pct!=null?(s.peopleStats[p.id].pct+'%'):'No records',
-          statPctColor:(s.peopleStatsLoaded&&(s.peopleStats[p.id]?.pct??null)!==null&&s.peopleStats[p.id].pct<75)?'#b9791a':'#5c6678',
+          statPctColor:(s.peopleStatsLoaded&&(s.peopleStats[p.id]?.pct??null)!==null&&s.peopleStats[p.id]?.pct<75)?'#b9791a':'#5c6678',
           showStats:s.peopleStatsLoaded,
           lowAttendance:s.peopleStatsLoaded&&(s.peopleStats[p.id]?.pct??null)!==null&&s.peopleStats[p.id].pct<75,
           avatarStyle:Utils.avatarStyle(av),
