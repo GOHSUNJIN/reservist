@@ -1,6 +1,9 @@
 uploads/
 .thumbnail
 
+# Supabase credentials - never commit, generated at build time
+js/config.js
+
 .vercel
 .claude/
 
