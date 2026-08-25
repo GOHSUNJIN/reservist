@@ -13,7 +13,7 @@ const CheckinBuilders = {
     }
     if(hol) return {label:'Public holiday',sub:hol+', no reporting',color:'#b9791a',bg:'#f7efdc'};
     if(dst==='ph') return {label:'Public holiday',sub:'No reporting required',color:'#b9791a',bg:'#f7efdc'};
-    if(dst==='nr') return {label:'No reporting',sub:'Marked as a no-reporting day',color:'#8a94a3',bg:'#f0f2f7'};
+    if(dst==='nr') return {label:'No reporting',sub:'Marked as a no-reporting day',color:'#b9791a',bg:'#fdf6e9'};
     if(dst==='dekit') return {label:'Dekit day',sub:'Return equipment and submit meal allowance forms',color:'#161f30',bg:'#eceef2'};
     if(dst==='end') return {label:off<0?'Reporting day':'Upcoming',sub:'Last reporting day of your cycle',color:'#5c6678',bg:'#eceef2'};
     if(dst==='post') return {label:'No reporting',sub:'Reporting cycle ended, await dekit',color:'#8a94a3',bg:'#f0f2f7'};
@@ -333,7 +333,7 @@ const CheckinBuilders = {
     const cellStyle=st=>{
       if(st==='today') return cellBase+'background:'+accent+';color:#fff;';
       if(st==='ph')    return cellBase+'background:#f7efdc;color:#b9791a;';
-      if(st==='nr')    return cellBase+'background:#f0f2f7;color:#8a94a3;border:1px dashed #c4c9d4;';
+      if(st==='nr')    return cellBase+'background:#fdf6e9;color:#b9791a;border:1px dashed #e8c77a;';
       if(st==='work')  return cellBase+'background:#fff;border:1px solid #e3e6ec;color:#161f30;';
       if(st==='end')   return cellBase+'background:#fff;border:1.5px solid '+accent+';color:'+accent+';';
       if(st==='dekit') return cellBase+'background:#131a27;color:#fff;';
