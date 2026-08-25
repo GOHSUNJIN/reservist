@@ -1187,10 +1187,10 @@
                 <span style="font-size:11.5px;color:{{ viewPercentColor }};font-weight:600;">{{ viewPercentText }}</span>
               </div>
               <sc-for list="{{ viewRoster }}" as="row" hint-placeholder-count="6">
-                <div onClick="{{ row.onViewHistory }}" class="row-item" style="cursor:pointer;">
+                <div onClick="{{ row.onViewHistory }}" class="row-item" style="cursor:pointer;display:block;">
                   <div style="display:flex;align-items:center;gap:12px;">
                     <div class="avatar-md" onClick="{{ row.onViewAvatar }}" style="flex:0 0 auto;{{ row.avatarCursor }}{{ row.avatarStyle }}">{{ row.initials }}</div>
-                    <div class="flex-fill" style="min-width:0;">
+                    <div style="flex:1;min-width:0;">
                       <div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div>
                       <div style="display:flex;align-items:center;gap:5px;margin-top:2px;">
                         <span onClick="{{ row.onCopyContact }}" style="font-size:11px;color:#9aa3b2;font-family:'IBM Plex Mono',monospace;cursor:pointer;" title="Tap to copy">{{ row.contact }}</span>
@@ -1202,13 +1202,13 @@
                         </div>
                       </sc-if>
                     </div>
-                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px;flex-shrink:0;">
+                    <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;min-width:64px;">
                       <span class="badge" style="color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
-                      <sc-if value="{{ row.showTimeText }}" hint-placeholder-val=""><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a94a3;letter-spacing:0.3px;">{{ row.timeText }}</span></sc-if>
+                      <sc-if value="{{ row.showTimeText }}" hint-placeholder-val=""><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a94a3;">{{ row.timeText }}</span></sc-if>
                     </div>
                   </div>
                   <sc-if value="{{ row.showWelfareNote }}" hint-placeholder-val="">
-                    <div style="margin-top:5px;padding-left:46px;font-size:11.5px;color:#3a6b4f;font-style:italic;">{{ row.welfareNote }}</div>
+                    <div style="margin-top:5px;padding-left:52px;font-size:11.5px;color:#3a6b4f;font-style:italic;">{{ row.welfareNote }}</div>
                   </sc-if>
                 </div>
               </sc-for>
