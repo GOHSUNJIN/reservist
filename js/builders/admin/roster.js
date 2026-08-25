@@ -93,6 +93,7 @@ const AdminRoster = {
         showLunchEdit: !isCas,
         isTimesEditing:s.timesEditId===p.id,
         onEditTimes:self.openTimesEdit(p.id),
+        missingClockOut: !isLiveView && r.status==='present' && !!r.p1 && !r.p4,
         ...(() => {
           const showMealBadge=r.status==='present'&&!!r.p1&&(!!r.p4||isLiveView);
           if(!showMealBadge) return {showMealBadge:false};
