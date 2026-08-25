@@ -100,10 +100,10 @@ Ops Reservist provides end-to-end attendance accountability for reservist cycles
 - **Batch label editing**: Rename any cycle label inline without navigating away.
 
 **Export and Reporting:**
-- **Spreadsheet export (XML)**: Export the full attendance matrix for any cycle as an Excel-compatible spreadsheet. Includes per-person rates, totals, a legend, colour-coded status cells, and a dedicated Meal column showing how many days each reservist was eligible for meal allowance (clocked out with 6h+ worked).
+- **Excel export**: Export the full attendance matrix for any cycle as an Excel spreadsheet (.xls). Includes per-person rates, totals, a legend, colour-coded status cells, and a dedicated Meal column showing how many days each reservist was eligible for meal allowance (clocked out with 6h+ worked).
 - **Print report**: Generate a formatted A4 attendance report, printable or saveable as PDF directly from the browser without leaving the app. Includes a Meal Claims summary stat and per-person meal-eligible day count alongside the attendance totals.
 - **WhatsApp attendance summary**: One tap generates the day's attendance summary. A preview modal lets you review and edit the text, copy it to clipboard, or send it directly to the unit group chat.
-- **Per-person history export**: Export any individual's attendance history to XML from within the history modal.
+- **Per-person history export**: Export any individual's attendance history to Excel from within the history modal.
 
 **Member Search:**
 - **Cross-cycle search**: Search across all cycles and all personnel by name, contact, or status.
