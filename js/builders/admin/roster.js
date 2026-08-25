@@ -225,7 +225,7 @@ const AdminRoster = {
       notConfirmAny:!s.confirmMarkAllAbsent&&!s.confirmMarkAllPresent,
       markAllPresentStyle:`padding:5px 9px;border-radius:7px;cursor:pointer;border:1px solid #cfe6d8;background:#fff;color:#1f8a5b;opacity:${s.markAllPresenting?'0.45':'1'};display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;white-space:nowrap;`,
       markAllPresentConfirmStyle:`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:700;cursor:pointer;border:none;background:#1f8a5b;color:#fff;`,
-      showLogPendingBadge:pendingCount>0, logPendingBadgeCount:String(pendingCount),
+      showLogPendingBadge:viewIsToday&&pendingCount>0, logPendingBadgeCount:String(pendingCount),
       rosterStatusFilter,
       setRosterStatusAll:self.setRosterStatusFilter('all'),setRosterStatusPresent:self.setRosterStatusFilter('present'),
       setRosterStatusMc:self.setRosterStatusFilter('mc'),setRosterStatusAbsent:self.setRosterStatusFilter('absent'),setRosterStatusPending:self.setRosterStatusFilter('pending'),
