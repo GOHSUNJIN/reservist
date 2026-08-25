@@ -17,10 +17,11 @@ const RequestHandlers = {
     return async () => {
       const leave=this.state.pendingLeaves.find(l=>l.id===id);
       if(leave&&leave.personnel_id===this.state.currentUserId){this._toast('Cannot approve your own request.','error');return;}
+      this.setState({approvingLeaveId:id});
       if(!this.state.demo&&leave){
         const reviewMeta={reviewed_by:this.cur()?.name||null,reviewed_at:new Date().toISOString()};
         const {data:updated}=await DB.leaves.updateStatus(id,'approved',reviewMeta).catch(()=>({}));
-        if(!updated){this._toast('Already processed by another admin.','error');this.loadPendingLeaves();return;}
+        if(!updated){this._toast('Already processed by another admin.','error');this.setState({approvingLeaveId:null});this.loadPendingLeaves();return;}
         const ops=[];
         if(leave.type==='mc') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'mc',{}).catch(()=>({error:true})));
         else if(leave.type==='personal'||leave.type==='other') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'absent',{}).catch(()=>({error:true})));
@@ -36,6 +37,7 @@ const RequestHandlers = {
           this._toast('Request approved.');
         }
       }
+      this.setState({approvingLeaveId:null});
       if(this.state.demo&&leave){this.setState(s=>({pendingLeaves:(s.pendingLeaves||[]).filter(l=>l.id!==id)}));this._toast('Request approved.');}
       else this.loadPendingLeaves();
     };
@@ -48,13 +50,14 @@ const RequestHandlers = {
   confirmRejectLeave: async function() {
     const {rejectLeaveId,rejectLeaveReason,demo}=this.state;
     if(!rejectLeaveId) return;
+    this.setState({confirmingDecline:true});
     if(!demo){
       const reviewMeta={reviewed_by:this.cur()?.name||null,reviewed_at:new Date().toISOString(),rejection_reason:rejectLeaveReason.trim()||null};
       const {error}=await DB.leaves.updateStatus(rejectLeaveId,'rejected',reviewMeta).catch(()=>({error:true}));
-      if(error){this._toast('Failed to decline request. Try again.','error');return;}
+      if(error){this._toast('Failed to decline request. Try again.','error');this.setState({confirmingDecline:false});return;}
     }
     const _id=rejectLeaveId;
-    this.setState({rejectLeaveId:null,rejectLeaveReason:''});
+    this.setState({rejectLeaveId:null,rejectLeaveReason:'',confirmingDecline:false});
     this._toast('Request declined.');
     if(demo) this.setState(s=>({pendingLeaves:(s.pendingLeaves||[]).filter(l=>l.id!==_id)}));
     else this.loadPendingLeaves();
@@ -210,13 +213,14 @@ const RequestHandlers = {
   saveLogNote: async function() {
     const {logNoteId,logNoteText,viewOffset,demo}=this.state;
     if(!logNoteId) return;
+    this.setState({logNoteSaving:true});
     const d=new Date(this.baseDate()); d.setDate(d.getDate()+(viewOffset||0));
     const dateKey=Utils.dateKey(d);
     if(!demo){
       const {error}=await DB.attendance.saveWelfareNote(logNoteId,dateKey,logNoteText.trim()).catch(e=>({error:e}));
-      if(error){this._toast('Failed to save note.','error');return;}
+      if(error){this._toast('Failed to save note.','error');this.setState({logNoteSaving:false});return;}
     }
-    const today=Utils.dateKey(this.baseDate()), clear={logNoteId:null,logNoteText:''};
+    const today=Utils.dateKey(this.baseDate()), clear={logNoteId:null,logNoteText:'',logNoteSaving:false};
     if(dateKey===today) this.setState(s=>({attendance:{...s.attendance,[logNoteId]:{...(s.attendance[logNoteId]||{}),welfareNote:logNoteText.trim()}},...clear}));
     else this.setState(s=>({attendanceCache:{...s.attendanceCache,[dateKey]:{...(s.attendanceCache[dateKey]||{}),[logNoteId]:{...(s.attendanceCache[dateKey]?.[logNoteId]||{}),welfareNote:logNoteText.trim()}}},...clear}));
     this._toast('Note saved.');

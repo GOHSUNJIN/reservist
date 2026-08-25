@@ -278,6 +278,7 @@ const AdminRoster = {
       closeWaPreview:self.closeWaPreview, onWaPreviewText:self.onWaPreviewText, sendWaPreview:self.sendWaPreview, copyWaPreview:self.copyWaPreview,
       editingNoteText:s.editingNoteText, onNoteText:self.onNoteText, saveNote:self.saveNote, closeNote:self.closeNote,
       logNoteText:s.logNoteText, onLogNoteText:self.onLogNoteText, saveLogNote:self.saveLogNote, closeLogNote:self.closeLogNote,
+      logNoteSavingOpacity:s.logNoteSaving?'0.45':'1', logNoteSavingPE:s.logNoteSaving?'none':'auto',
       refreshPage:self.refreshPage,
       viewDateLabel, viewDateSub, viewIsToday, viewNotToday:!viewIsToday,
       viewShowReporting, viewNoReporting, viewNoRepReason,
