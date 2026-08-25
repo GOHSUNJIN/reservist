@@ -2853,9 +2853,17 @@
               <div class="text-strong">Can I check in if I'm offline?</div>
               <div style="font-size:13px;color:#5c6678;line-height:1.55;">Yes. Your check-in is queued and will sync automatically once your connection is restored.</div>
             </div>
-            <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;">
+            <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">What if the GPS fails?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Step outside to an open area with a clear view of the sky and try again. If GPS keeps failing, contact your supervisor to record your check-in manually.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Step outside to an open area with a clear view of the sky and try again. After two failed attempts a bypass option will appear - use it only if GPS keeps failing, as bypassed check-ins are flagged for your supervisor.</div>
+            </div>
+            <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;margin-bottom:6px;">
+              <div class="text-strong">What is the work timer and meal allowance?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">When meal allowance is active for the cycle, a live work timer appears on the Check-In tab. Once you have worked 6 hours and recorded Phase 4, a "Meal eligible" badge appears. You must clock out (Phase 4) for the day to count toward your meal claim.</div>
+            </div>
+            <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;">
+              <div class="text-strong">Why is there an orange warning on my calendar?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">An orange day means you checked in but did not record a Phase 4 clock-out. Inform your supervisor so they can correct the record - without a clock-out the day will not count toward your meal allowance.</div>
             </div>
           </div>
           </sc-if>
@@ -2872,7 +2880,7 @@
             </div>
             <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I export attendance?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>Log</strong> tab. Tap <strong>Print Report</strong> for a printable summary (opens as a pop-up). Tap <strong>Export Excel</strong> for a spreadsheet download with per-person totals.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>Log</strong> tab. Tap <strong>Print</strong> for a printable PDF summary. Tap <strong>Excel</strong> for a spreadsheet download with per-person totals, attendance rates, and a Meal column showing how many days each person is eligible for meal allowance.</div>
             </div>
             <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I post a notice to reservists?</div>
@@ -2882,11 +2890,28 @@
               <div class="text-strong">How do I reset a reservist's password?</div>
               <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to <strong>People</strong> tab, <strong>Roster</strong> sub-tab, find the person and tap <strong>Reset PW</strong>. Enter a temporary password and send it securely - they can update it in their account settings.</div>
             </div>
+            <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;margin-bottom:6px;">
+              <div class="text-strong">How do I find reservists who forgot to clock out?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Any reservist marked Present with no Phase 4 is flagged with a "No clock-out" badge on the <strong>Log</strong> tab. Correct their time using the manual time fields on their log card.</div>
+            </div>
             <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;">
               <div class="text-strong">How do I see who the other supervisors are?</div>
               <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab and tap the <strong>Team</strong> sub-tab. It lists all active supervisors in your department with their contacts and roles.</div>
             </div>
           </div>
+          <sc-if value="{{ isSuperAdmin }}" hint-placeholder-val="">
+          <div style="font-size:11px;font-weight:700;color:#8a94a3;letter-spacing:.07em;margin-bottom:10px;margin-top:16px;">FOR MASTER ACCOUNT</div>
+          <div style="display:flex;flex-direction:column;gap:2px;">
+            <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;margin-bottom:6px;">
+              <div class="text-strong">How do I switch between departments?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Use the <strong>DEPT</strong> dropdown in the header. Switching departments reloads all data for the selected department. Each department's last-selected cycle is remembered independently so switching back restores your previous context.</div>
+            </div>
+            <div style="background:#f6f8fa;border-radius:11px;padding:13px 15px;">
+              <div class="text-strong">How do I add or remove a supervisor?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab and open the <strong>Team</strong> sub-tab. Tap <strong>Add supervisor</strong> to create a new admin account. To remove one, tap <strong>Remove</strong> on their card - they return to the reservist pool. You can also promote any existing reservist to supervisor from the same tab.</div>
+            </div>
+          </div>
+          </sc-if>
           </sc-if>
         </div>
       </div>
