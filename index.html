@@ -1895,13 +1895,10 @@
                       <span style="font-size:9px;color:#d4d9e2;margin-right:7px;">·</span>
                       <span style="font-size:11px;font-weight:700;color:#c0392b;">{{ p.statAbsent }}</span><span style="font-size:10px;color:#9aa3b2;margin-left:2px;margin-right:7px;">absent</span>
                       <span style="font-size:9px;color:#d4d9e2;margin-right:7px;">·</span>
-                      <span style="font-size:11px;font-weight:700;color:#5c6678;">{{ p.statPct }}</span>
-                    </div>
-                    </sc-if>
-                    <sc-if value="{{ p.lowAttendance }}" hint-placeholder-val="">
-                    <div style="display:inline-flex;align-items:center;gap:4px;margin-top:4px;padding:2px 8px;background:#fff8ec;border:1px solid #f0d99a;border-radius:20px;">
-                      <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                      <span style="font-size:10px;font-weight:700;color:#b9791a;">Low attendance</span>
+                      <span style="font-size:11px;font-weight:700;color:{{ p.statPctColor }};">{{ p.statPct }}</span>
+                      <sc-if value="{{ p.lowAttendance }}" hint-placeholder-val="">
+                        <span style="display:inline-flex;align-items:center;gap:3px;margin-left:5px;padding:1px 6px;background:#fff8ec;border:1px solid #f0d99a;border-radius:10px;font-size:10px;font-weight:700;color:#b9791a;white-space:nowrap;"><svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>Low</span>
+                      </sc-if>
                     </div>
                     </sc-if>
                   </div>
