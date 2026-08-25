@@ -156,7 +156,9 @@ const AdminRoster = {
         return {showMealBadge:true,mealBadgeText:mealOk?(done?'Meal eligible':'On track'):(done?'No meal allowance':'No meal claim'),mealBadgeColor:mealOk?'#1f8a5b':'#c0392b',mealBadgeBg:mealOk?'#e7f3ec':'#fef0ef',mealBadgeBorder:mealOk?'#a8d5bb':'#f5c0bb',showWorkTime:workMinsVal>0,workTimeText:Utils.fmtMins(workMinsVal)+' worked'};
       })();
       const _timeText=(r.status==='present'&&r.p1)?r.p1:'';
+      const _missingClockOut=!isLiveView&&r.status==='present'&&!!r.p1&&!r.p4;
       return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:_timeText,showTimeText:!!_timeText,avatarStyle:Utils.avatarStyle(av),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),onViewHistory:self.openPersonHistory(p.id),onCopyContact:self.copyContact(p.contact||''),
+        missingClockOut:_missingClockOut,
         showStatPct:s.peopleStatsLoaded&&_vpct!==null, statPct:_vpct!==null?(_vpct+'%'):'', lowAttendancePct:s.peopleStatsLoaded&&_vpct!==null&&_vpct<75,
         statPctColor:(_vpct!==null&&_vpct<75)?'#c0392b':'#8a94a3',..._mealBadge};
     });

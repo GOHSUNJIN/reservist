@@ -434,7 +434,7 @@ const CheckinBuilders = {
       const p1=tk(r.check_in_time),p2=tk(r.lunch_out_time),p3=tk(r.work_return_time),p4=tk(r.work_end_time);
       const isPresent=r.status==='present';
       const missingClockOut=isPresent&&!p4;
-      const hasIncompleteTimes=isPresent&&(isCas?!p4:(!p2||!p3||!p4));
+      const hasIncompleteTimes=isPresent&&!missingClockOut&&(isCas?false:(!p2||!p3));
       const _rowEx=_exDates.includes(r.date);
       const isMissed=r.status==='missed';
       return {date:Utils.fmtMed(d),dateKey:r.date,shift:Utils.shiftLabel(me.shift),status:r.status,

@@ -538,7 +538,7 @@
                 <sc-if value="{{ showClockOutReminder }}" hint-placeholder-val="">
                   <div style="margin-top:10px;padding:8px 10px;background:#fff3e0;border:1px solid #fb923c;border-radius:8px;display:flex;align-items:center;gap:7px;">
                     <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-                    <span style="font-size:11.5px;color:#c2410c;font-weight:600;">Clock out before leaving — or your meal allowance will not be recorded.</span>
+                    <span style="font-size:11.5px;color:#c2410c;font-weight:600;">Clock out before leaving - meal allowance will not be recorded if you don't.</span>
                   </div>
                 </sc-if>
               </div>
@@ -549,7 +549,7 @@
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:1px;"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                 <div style="flex:1;">
                   <div style="font-size:12.5px;font-weight:700;color:#c2410c;margin-bottom:2px;">Missing clock-out detected</div>
-                  <div style="font-size:11.5px;color:#9a3412;line-height:1.4;">One or more of your recent days shows no clock-out. Inform your supervisor immediately — meal allowance will not apply until your record is corrected.</div>
+                  <div style="font-size:11.5px;color:#9a3412;line-height:1.4;">One or more of your recent days shows no clock-out. Inform your supervisor immediately - meal allowance will not apply until your record is corrected.</div>
                 </div>
               </div>
               </sc-if>
@@ -1222,6 +1222,11 @@
                       <sc-if value="{{ row.showMealBadge }}" hint-placeholder-val="">
                         <div style="margin-top:5px;">
                           <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:600;color:{{ row.mealBadgeColor }};background:{{ row.mealBadgeBg }};border:1px solid {{ row.mealBadgeBorder }};padding:2px 8px;border-radius:20px;white-space:nowrap;">{{ row.mealBadgeText }}<sc-if value="{{ row.showWorkTime }}" hint-placeholder-val=""><span style="font-weight:400;opacity:0.75;">· {{ row.workTimeText }}</span></sc-if></span>
+                        </div>
+                      </sc-if>
+                      <sc-if value="{{ row.missingClockOut }}" hint-placeholder-val="">
+                        <div style="margin-top:5px;">
+                          <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;color:#c2410c;background:#fff3e0;border:1px solid #fb923c;padding:2px 8px;border-radius:20px;white-space:nowrap;"><svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#c2410c" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>No clock-out</span>
                         </div>
                       </sc-if>
                     </div>
