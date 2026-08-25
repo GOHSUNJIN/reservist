@@ -1181,7 +1181,7 @@
               <sc-for list="{{ viewRoster }}" as="row" hint-placeholder-count="6">
                 <div onClick="{{ row.onViewHistory }}" class="row-item" style="flex-wrap:wrap;cursor:pointer;">
                   <div style="display:flex;align-items:center;gap:12px;width:100%;">
-                    <div class="avatar-md" style="{{ row.avatarStyle }}">{{ row.initials }}</div>
+                    <div class="avatar-md" onClick="{{ row.onViewAvatar }}" style="{{ row.avatarCursor }}{{ row.avatarStyle }}">{{ row.initials }}</div>
                     <div class="flex-fill">
                       <div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div>
                       <div style="font-size:11px;color:#9aa3b2;margin-top:1px;font-family:'IBM Plex Mono',monospace;">{{ row.contact }}</div>
@@ -1317,7 +1317,7 @@
           <sc-for list="{{ filteredRoster }}" as="row" hint-placeholder-count="6">
             <div style="{{ row.cardStyle }}">
               <div onClick="{{ row.onViewHistory }}" style="display:flex;align-items:center;gap:10px;margin-bottom:9px;cursor:pointer;">
-                <div class="avatar-sm" style="flex:0 0 auto;{{ row.avatarStyle }}">{{ row.initials }}</div>
+                <div class="avatar-sm" onClick="{{ row.onViewAvatar }}" style="flex:0 0 auto;{{ row.avatarCursor }}{{ row.avatarStyle }}">{{ row.initials }}</div>
                 <div class="flex-fill">
                   <div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div>
                   <div style="font-size:11px;color:#9aa3b2;margin-top:1px;font-family:'IBM Plex Mono',monospace;">{{ row.contact }}</div>
@@ -1441,7 +1441,7 @@
             <sc-for list="{{ logRows }}" as="row" hint-placeholder-count="6">
               <div style="padding:12px 14px;border-bottom:1px solid #f0f2f6;">
                 <div style="display:flex;align-items:flex-start;gap:10px;">
-                  <div class="avatar-sm" style="flex:0 0 auto;margin-top:1px;{{ row.avatarStyle }}">{{ row.initials }}</div>
+                  <div class="avatar-sm" onClick="{{ row.onViewAvatar }}" style="flex:0 0 auto;margin-top:1px;{{ row.avatarCursor }}{{ row.avatarStyle }}">{{ row.initials }}</div>
                   <div style="flex:1;min-width:0;cursor:pointer;" onClick="{{ row.onViewHistory }}">
                     <div><span style="font-size:13.5px;font-weight:600;color:#161f30;">{{ row.name }}</span></div>
                     <div style="display:flex;align-items:center;gap:5px;margin-top:2px;flex-wrap:wrap;">

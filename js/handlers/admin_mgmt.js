@@ -1,7 +1,7 @@
 // ── Admin account management handlers ─────────────────────────────────────
 const AdminMgmtHandlers = {
 
-  openAvatarLightbox:  function(url) { return () => this.setState({avatarLightboxUrl:url}); },
+  openAvatarLightbox:  function(url) { return (e) => { if(e&&e.stopPropagation) e.stopPropagation(); this.setState({avatarLightboxUrl:url}); }; },
   closeAvatarLightbox: function() { this.setState({avatarLightboxUrl:null}); },
 
   loadAdmins: async function() {
