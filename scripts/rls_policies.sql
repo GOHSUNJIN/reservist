@@ -6,19 +6,19 @@
 -- Helper functions (SECURITY DEFINER lets them read personnel
 -- without triggering RLS recursion)
 CREATE OR REPLACE FUNCTION _auth_role()
-RETURNS TEXT LANGUAGE sql SECURITY DEFINER STABLE AS $$
+RETURNS TEXT AS $$
   SELECT role FROM personnel WHERE auth_id = auth.uid() LIMIT 1;
-$$;
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
 
 CREATE OR REPLACE FUNCTION _auth_dept()
-RETURNS TEXT LANGUAGE sql SECURITY DEFINER STABLE AS $$
+RETURNS TEXT AS $$
   SELECT department::text FROM personnel WHERE auth_id = auth.uid() LIMIT 1;
-$$;
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
 
 CREATE OR REPLACE FUNCTION _auth_pid()
-RETURNS UUID LANGUAGE sql SECURITY DEFINER STABLE AS $$
+RETURNS UUID AS $$
   SELECT id FROM personnel WHERE auth_id = auth.uid() LIMIT 1;
-$$;
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
 
 -- ── Enable RLS on all tables ─────────────────────────────────
 ALTER TABLE personnel       ENABLE ROW LEVEL SECURITY;
