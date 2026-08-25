@@ -47,6 +47,14 @@ const CheckinBuilders = {
         }
         return {label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
       }
+      // Future reporting day - check for approved or pending leave
+      const futureLeave=(this.state.myLeaveHistory||[]).find(r=>r.date===dk&&(r.status==='approved'||r.status==='pending'));
+      if(futureLeave){
+        const isMc=futureLeave.type==='mc';
+        if(futureLeave.status==='approved')
+          return {label:isMc?'MC approved':'Leave approved',sub:isMc?'Sick leave approved for this day':'Absence approved for this day',color:'#b9791a',bg:'#f7efdc'};
+        return {label:isMc?'MC pending':'Leave pending',sub:'Awaiting admin approval',color:'#b9791a',bg:'#fdf6e9'};
+      }
       return {label:'Upcoming',sub:'Reporting day',color:'#5c6678',bg:'#eceef2'};
     }
     if(dst==='pre') return {label:'No reporting',sub:'Before your cycle started',color:'#5c6678',bg:'#eceef2'};
