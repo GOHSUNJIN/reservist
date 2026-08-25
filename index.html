@@ -1353,11 +1353,12 @@
               </div>
             </sc-if>
             <sc-if value="{{ row.canMark }}" hint-placeholder-val="">
-              <div style="display:flex;gap:5px;align-items:center;margin-top:4px;">
-                <span style="font-size:10.5px;color:#9aa3b2;margin-right:2px;">Mark:</span>
-                <button onClick="{{ row.markPresent }}" class="roster-btn roster-btn-present">Present</button>
-                <button onClick="{{ row.markMc }}" class="roster-btn roster-btn-mc">MC</button>
-                <button onClick="{{ row.markAbsent }}" class="roster-btn roster-btn-absent">Absent</button>
+              <div style="display:flex;margin:8px -13px -11px;border-top:1px solid #f0f2f6;">
+                <button onClick="{{ row.markPresent }}" style="-webkit-appearance:none;flex:1;padding:9px 0;background:none;border:none;font-size:12px;font-weight:600;color:#1f8a5b;cursor:pointer;">Present</button>
+                <div style="width:1px;background:#f0f2f6;"></div>
+                <button onClick="{{ row.markMc }}" style="-webkit-appearance:none;flex:1;padding:9px 0;background:none;border:none;font-size:12px;font-weight:600;color:#b9791a;cursor:pointer;">MC</button>
+                <div style="width:1px;background:#f0f2f6;"></div>
+                <button onClick="{{ row.markAbsent }}" style="-webkit-appearance:none;flex:1;padding:9px 0;background:none;border:none;font-size:12px;font-weight:600;color:#c0392b;cursor:pointer;">Absent</button>
               </div>
             </sc-if>
             </div>
