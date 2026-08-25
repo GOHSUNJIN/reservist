@@ -143,7 +143,7 @@ const ExportHandlers = {
     a.href=url; a.download=(batch.label.replace(/[\s/#]+/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'')||'batch')+'_attendance.xls';
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    this._toast('Excel file saved. Open it and click Yes if prompted.','info');
+    this._toast('Excel file saved to Downloads.','info');
   },
 
   exportPrint: async function() {
