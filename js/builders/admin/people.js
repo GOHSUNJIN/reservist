@@ -175,18 +175,23 @@ const AdminPeople = {
       isSuperAdmin:s.isSuperAdmin,
       addAdminOpen:s.addAdminOpen, toggleAddAdmin:self.toggleAddAdmin,
       promoteAdminOpen:s.promoteAdminOpen, togglePromoteAdmin:self.togglePromoteAdmin,
-      adminsList:(s.adminsList||[]).map(a=>({
-        id:a.id, name:a.name, contact:a.contact||'',
-        roleLabel:a.role==='superadmin'?'Master':'Admin',
-        roleColor:a.role==='superadmin'?'#b9791a':'#5c6678',
-        isMaster:a.role==='superadmin',
-        initials:Utils.initials(a.name),
-        canDeactivate:a.id!==s.currentUserId&&a.role!=='superadmin',
-        onAskDeactivate:self.askDeactivateAdmin(a.id),
-        isConfirming:s.confirmDeactivateAdminId===a.id,
-        onConfirmDeactivate:self.confirmDeactivateAdmin,
-        onCancelDeactivate:self.cancelDeactivateAdmin,
-      })),
+      adminsList:(s.adminsList||[]).map(a=>{
+        const av=s.avatars[a.id]||'';
+        const avatarStyle=av?`background-image:url("${av.replace(/"/g,'%22')}");background-size:cover;background-position:center;color:transparent;`:'';
+        return {
+          id:a.id, name:a.name, contact:a.contact||'',
+          roleLabel:a.role==='superadmin'?'Master':'Admin',
+          roleColor:a.role==='superadmin'?'#b9791a':'#5c6678',
+          isMaster:a.role==='superadmin',
+          initials:Utils.initials(a.name),
+          avatarStyle,
+          canDeactivate:a.id!==s.currentUserId&&a.role!=='superadmin',
+          onAskDeactivate:self.askDeactivateAdmin(a.id),
+          isConfirming:s.confirmDeactivateAdminId===a.id,
+          onConfirmDeactivate:self.confirmDeactivateAdmin,
+          onCancelDeactivate:self.cancelDeactivateAdmin,
+        };
+      }),
       npAdminName:s.npAdminName, onNpAdminName:self.onNpAdminName,
       npAdminContact:s.npAdminContact, onNpAdminContact:self.onNpAdminContact,
       npAdminPassword:s.npAdminPassword, onNpAdminPassword:self.onNpAdminPassword,
