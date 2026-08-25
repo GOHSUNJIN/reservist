@@ -22,9 +22,8 @@ const ExportHandlers = {
   _buildExportMembers: function(members, dates, attCache, todayKey) {
     const {attendance}=this.state;
     const _mealElig=e=>{
-      if(!e||e.status!=='present'||!e.work_end_time) return false;
-      const rec={p1:e.check_in_time?.slice(0,5),p2:e.lunch_out_time?.slice(0,5),p3:e.work_return_time?.slice(0,5),p4:e.work_end_time?.slice(0,5)};
-      return Utils.mealEligible(rec, rec.p4);
+      if(!e||e.status!=='present'||!e.p4) return false;
+      return Utils.mealEligible(e, e.p4);
     };
     return members.map(p=>{
       const entries=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return map[p.id]||null;});
@@ -77,7 +76,7 @@ const ExportHandlers = {
 
     const colDefs=`<Column ss:Width="180"/><Column ss:Width="55"/>${dates.map(()=>'<Column ss:Width="88"/>').join('')}<Column ss:Width="62"/><Column ss:Width="45"/><Column ss:Width="62"/><Column ss:Width="55"/><Column ss:Width="58"/>`;
 
-    const metaRows=`<Row>${sc('sMetaLbl','Cycle')}<Cell ss:StyleID="sMeta" ss:MergeAcross="${span-2}"><Data ss:Type="String">${xe(batch.label)}</Data></Cell></Row><Row>${sc('sMetaLbl','Period')}<Cell ss:StyleID="sMeta" ss:MergeAcross="${span-2}"><Data ss:Type="String">${xe(fmtDate(start)+' to '+fmtDate(end)+' '+end.getFullYear())}</Data></Cell></Row><Row>${sc('sMetaLbl','Exported')}<Cell ss:StyleID="sMeta" ss:MergeAcross="${span-2}"><Data ss:Type="String">${xe(exportedStr)}</Data></Cell></Row><Row ss:Height="8"/>`;
+    const metaRows=`<Row ss:Height="30"><Cell ss:StyleID="sTitleHdr" ss:MergeAcross="${span-1}"><Data ss:Type="String">${xe(batch.label)}: Attendance Report</Data></Cell></Row><Row ss:Height="4"/><Row ss:Height="18">${sc('sMetaLbl','Cycle')}<Cell ss:StyleID="sMeta" ss:MergeAcross="${span-2}"><Data ss:Type="String">${xe(batch.label)}</Data></Cell></Row><Row ss:Height="18">${sc('sMetaLbl','Period')}<Cell ss:StyleID="sMeta" ss:MergeAcross="${span-2}"><Data ss:Type="String">${xe(fmtDate(start)+' to '+fmtDate(end)+' '+end.getFullYear())}</Data></Cell></Row><Row ss:Height="18">${sc('sMetaLbl','Exported')}<Cell ss:StyleID="sMeta" ss:MergeAcross="${span-2}"><Data ss:Type="String">${xe(exportedStr)}</Data></Cell></Row><Row ss:Height="10"/>`;
 
     const headerRow=`<Row ss:Height="20">${sc('sHdrL','Name')}${sc('sHdrC','Shift')}${dates.map(d=>sc('sHdrC',fmtDay(d)+' '+fmtDate(d))).join('')}${sc('sHdrC','Present')}${sc('sHdrC','MC')}${sc('sHdrC','Absent')}${sc('sHdrC','Meal')}${sc('sHdrC','Rate')}</Row>`;
 
@@ -85,7 +84,7 @@ const ExportHandlers = {
       const even=i%2===0;
       const dashSid=even?'sDashE':'sDashO';
       const cellXml=r.cells.map(c=>sc(c.sid==='sD'?dashSid:c.sid,c.code)).join('');
-      return `<Row>${sc(even?'sNameE':'sNameO',r.name)}${sc(even?'sShiftE':'sShiftO',r.shift)}${cellXml}${sc(even?'sNumGE':'sNumGO',r.pres)}${sc(even?'sNumAE':'sNumAO',r.mc)}${sc(even?'sNumRE':'sNumRO',r.abs)}${sc(even?'sNumAE':'sNumAO',r.meal)}${sc((even?rateSidE:rateSidO)(r.pct),r.pct!=null?r.pct+'%':'-')}</Row>`;
+      return `<Row ss:Height="20">${sc(even?'sNameE':'sNameO',r.name)}${sc(even?'sShiftE':'sShiftO',r.shift)}${cellXml}${sc(even?'sNumGE':'sNumGO',r.pres)}${sc(even?'sNumAE':'sNumAO',r.mc)}${sc(even?'sNumRE':'sNumRO',r.abs)}${sc(even?'sNumAE':'sNumAO',r.meal)}${sc((even?rateSidE:rateSidO)(r.pct),r.pct!=null?r.pct+'%':'-')}</Row>`;
     }).join('');
 
     const totalRow=`<Row><Cell ss:StyleID="sTotL" ss:MergeAcross="1"><Data ss:Type="String">TOTAL</Data></Cell>${dates.map(()=>ec('sTot')).join('')}${sc('sTotG',totPres)}${sc('sTotA',totMc)}${sc('sTotR',totAbs)}${sc('sTotA',totMeal)}${sc(rateSidT(totPct),totPct!=null?totPct+'%':'-')}</Row>`;
@@ -95,12 +94,13 @@ const ExportHandlers = {
     const b1=pos=>`<Border ss:Position="${pos}" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D0D8E4"/>`;
     const allB=`<Borders>${b1('Bottom')}${b1('Left')}${b1('Right')}${b1('Top')}</Borders>`;
     const totB=`<Borders><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#B0B8CC"/>${b1('Bottom')}${b1('Left')}${b1('Right')}</Borders>`;
-    const mk=(id,hal,bold,fc,bg,bdr)=>`<Style ss:ID="${id}"><Alignment ss:Horizontal="${hal}"/><Font ss:FontName="Arial" ss:Size="10"${bold?' ss:Bold="1"':''}${fc?` ss:Color="${fc}"`:''}/>${bg?`<Interior ss:Color="${bg}" ss:Pattern="Solid"/>`:''}${bdr}</Style>`;
+    const mk=(id,hal,bold,fc,bg,bdr,sz=10)=>`<Style ss:ID="${id}"><Alignment ss:Horizontal="${hal}" ss:Vertical="Center"/><Font ss:FontName="Arial" ss:Size="${sz}"${bold?' ss:Bold="1"':''}${fc?` ss:Color="${fc}"`:''}/>${bg?`<Interior ss:Color="${bg}" ss:Pattern="Solid"/>`:''}${bdr}</Style>`;
 
     const styles=`<Styles>
       <Style ss:ID="Default"><Font ss:FontName="Arial" ss:Size="10"/></Style>
-      ${mk('sMetaLbl','Left',true,'#777777','','')}
-      ${mk('sMeta','Left',false,'','','')}
+      ${mk('sTitleHdr','Left',true,'#FFFFFF',ac,'',13)}
+      ${mk('sMetaLbl','Left',true,'#888888','','')}
+      ${mk('sMeta','Left',false,'#333333','','')}
       ${mk('sHdrL','Left',true,'#FFFFFF',ac,allB)}
       ${mk('sHdrC','Center',true,'#FFFFFF',ac,allB)}
       ${mk('sNameE','Left',true,'#1A2233','#FFFFFF',allB)}
@@ -133,7 +133,8 @@ const ExportHandlers = {
       ${mk('sLegend','Left',false,'#9AA3B2','','')}
     </Styles>`;
 
-    const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<?mso-application progid="Excel.Sheet"?>\n<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:o="urn:schemas-microsoft-com:office:office">\n${styles}\n<Worksheet ss:Name="Attendance"><Table ss:DefaultColumnWidth="60">\n${colDefs}\n${metaRows}\n${headerRow}\n${dataRows}\n${totalRow}\n${legendRow}\n</Table></Worksheet>\n</Workbook>`;
+    const freezeOpts=`<WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><FreezePanes/><FrozenNoSplit/><SplitHorizontal>7</SplitHorizontal><TopRowBottomPane>7</TopRowBottomPane><SplitVertical>2</SplitVertical><LeftColumnRightPane>2</LeftColumnRightPane><ActivePane>0</ActivePane></WorksheetOptions>`;
+    const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<?mso-application progid="Excel.Sheet"?>\n<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:o="urn:schemas-microsoft-com:office:office">\n${styles}\n<Worksheet ss:Name="Attendance"><Table ss:DefaultColumnWidth="60">\n${colDefs}\n${metaRows}\n${headerRow}\n${dataRows}\n${totalRow}\n${legendRow}\n</Table>${freezeOpts}</Worksheet>\n</Workbook>`;
 
     const blob=new Blob([xml],{type:'application/vnd.ms-excel;charset=utf-8'});
     const url=URL.createObjectURL(blob);
