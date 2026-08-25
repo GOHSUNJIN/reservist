@@ -1833,7 +1833,7 @@
             <sc-for list="{{ personnelList }}" as="p" hint-placeholder-count="6">
               <div style="border-bottom:1px solid #f2f4f7;padding:12px 16px;">
                 <div style="display:flex;align-items:center;gap:12px;">
-                  <div class="avatar-sm" style="{{ p.avatarStyle }}">{{ p.avatarInitials }}</div>
+                  <div class="avatar-sm" onClick="{{ p.onViewAvatar }}" style="{{ p.avatarCursor }}{{ p.avatarStyle }}">{{ p.avatarInitials }}</div>
                   <div class="flex-fill">
                     <div style="font-size:14px;font-weight:600;color:#161f30;">{{ p.name }}</div>
                     <div onClick="{{ p.onCopyContact }}" class="text-hint" style="cursor:pointer;" title="Tap to copy">{{ p.contact }}</div>

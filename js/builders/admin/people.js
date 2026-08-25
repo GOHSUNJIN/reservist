@@ -29,6 +29,8 @@ const AdminPeople = {
           lowAttendance:s.peopleStatsLoaded&&(s.peopleStats[p.id]?.pct??null)!==null&&s.peopleStats[p.id].pct<75,
           avatarStyle:Utils.avatarStyle(av),
           avatarInitials:av?'':Utils.initials(p.name),
+          avatarCursor:av?'cursor:pointer;':'',
+          onViewAvatar:av?self.openAvatarLightbox(av):null,
           onViewHistory:self.openPersonHistory(p.id),
           approvedBy, approvedByLabel,
           showApprovedBy:!!approvedBy,
