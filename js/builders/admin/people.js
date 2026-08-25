@@ -257,6 +257,8 @@ const AdminPeople = {
       signupSearch:s.signupSearch||'', onSignupSearch:self.onSignupSearch, clearSignupSearch:self.clearSignupSearch, hasSignupSearch:!!(s.signupSearch||'').trim(),
       ...(()=>{
         const _approvedContacts=new Set((s.approvedSignups||[]).map(a=>(a.contact||'').replace(/[\s-]/g,'')));
+        const _prevDeptMap={};
+        (s.approvedSignups||[]).forEach(a=>{const c=(a.contact||'').replace(/[\s-]/g,'');if(!_prevDeptMap[c])_prevDeptMap[c]=a.department;});
         const _sq=(s.signupSearch||'').toLowerCase().trim();
         const _base=_sq?s.pendingSignups.filter(r=>r.name.toLowerCase().includes(_sq)||(r.contact||'').includes(_sq)):s.pendingSignups;
         const _allIds=_base.map(r=>r.id);
@@ -264,12 +266,16 @@ const AdminPeople = {
         return {
           pendingSignups:_base.map(r=>{
             const b=(s.batches||[]).find(b=>b.id===r.batch_id);
-            const isReactivation=_approvedContacts.has((r.contact||'').replace(/[\s-]/g,''));
+            const _rc=(r.contact||'').replace(/[\s-]/g,'');
+            const isReactivation=_approvedContacts.has(_rc);
+            const prevDept=isReactivation?(_prevDeptMap[_rc]||null):null;
+            const isCrossDept=isReactivation&&!!prevDept&&prevDept!==r.department;
             const isSelected=(s.selectedSignupIds||[]).includes(r.id);
             return {id:r.id,name:r.name,contact:r.contact,shift:r.shift,batchLabel:b?b.label:'',initials:Utils.initials(r.name)||'?',
               createdAt:r.created_at?new Date(r.created_at).toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'}):'',
               deptLabel:Utils.deptLabel(r.department),
               isReactivation,isNew:!isReactivation,
+              isCrossDept, prevDeptLabel:isCrossDept?('Previously: '+Utils.deptLabel(prevDept)):'',
               isSelected,cardBg:isSelected?'#f0f2f7':'#fff',
               checkBorder:isSelected?'#161f30':'#c8cdd6',checkBg:isSelected?'#161f30':'#fff',
               onToggleSelect:self.toggleSignupSelect(r.id),

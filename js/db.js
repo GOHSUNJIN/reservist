@@ -124,11 +124,12 @@ const DB = {
       return { error };
     },
 
-    async reactivate(personnelId, { batchId, shift, authId } = {}) {
+    async reactivate(personnelId, { batchId, shift, authId, department } = {}) {
       const updates = { is_active: true, deactivated_at: null };
       if (batchId !== undefined) updates.batch_id = batchId;
       if (shift !== undefined) updates.shift = shift;
       if (authId !== undefined) updates.auth_id = authId;
+      if (department !== undefined) updates.department = department;
       const { data, error } = await _db.from('personnel').update(updates).eq('id', personnelId).select().maybeSingle();
       return { data, error };
     },
@@ -419,6 +420,15 @@ const DB = {
     async cancel(id) {
       const { data, error } = await _db.from('leave_requests').update({ status: 'cancelled' }).eq('id', id).eq('status', 'pending').select().maybeSingle();
       return { data, error };
+    },
+
+    async voidApprovedForDate(personnelId, date) {
+      const { error } = await _db.from('leave_requests')
+        .update({ status: 'cancelled' })
+        .eq('personnel_id', personnelId)
+        .eq('date', date)
+        .eq('status', 'approved');
+      return { error };
     },
 
     async cancelStalePending(cutoffDate) {
