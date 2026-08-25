@@ -98,7 +98,7 @@ const BatchHandlers = {
     this.setState({broadcastSaving:false});
     if(error) { this._toast('Failed to save notice.', 'error'); return; }
     this.setState(s=>({batches:s.batches.map(b=>b.id===batch.id?{...b,notice_text:text||null}:b), broadcastOpen:false}));
-    this._toast(text ? 'Notice posted to all reservists.' : 'Notice cleared.');
+    this._toast(text ? `Notice posted to ${Utils.deptLabel(this._myDept())} reservists.` : 'Notice cleared.');
   },
 
   openNoReportBulk: function() { this.setState({noReportBulkOpen:true, noReportBulkText:''}); },
