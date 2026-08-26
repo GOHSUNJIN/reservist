@@ -1525,11 +1525,11 @@
                 <div style="display:flex;align-items:flex-start;gap:10px;">
                   <div class="avatar-sm" onClick="{{ row.onViewAvatar }}" style="flex:0 0 auto;margin-top:2px;{{ row.avatarCursor }}{{ row.avatarStyle }}">{{ row.initials }}</div>
                   <div style="flex:1;min-width:0;cursor:pointer;" onClick="{{ row.onViewHistory }}">
-                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-                      <span style="font-size:13.5px;font-weight:700;color:#161f30;">{{ row.name }}</span>
+                    <span style="font-size:13.5px;font-weight:700;color:#161f30;">{{ row.name }}</span>
+                    <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
                       <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
+                      <div onClick="{{ row.onCopyContact }}" style="font-size:11px;color:#b0b8c7;font-family:'IBM Plex Mono',monospace;cursor:pointer;">{{ row.contact }}</div>
                     </div>
-                    <div onClick="{{ row.onCopyContact }}" style="font-size:11px;color:#b0b8c7;margin-top:2px;font-family:'IBM Plex Mono',monospace;cursor:pointer;">{{ row.contact }}</div>
                     <sc-if value="{{ row.showAnyFlags }}" hint-placeholder-val="">
                       <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:7px;">
                         <sc-if value="{{ row.showNoLateReason }}" hint-placeholder-val="">
