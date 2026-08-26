@@ -1521,32 +1521,36 @@
               </div>
             </sc-if>
             <sc-for list="{{ logRows }}" as="row" hint-placeholder-count="6">
-              <div style="padding:12px 14px;border-bottom:1px solid #f0f2f6;">
+              <div style="padding:13px 14px;border-bottom:1px solid #f0f2f6;">
                 <div style="display:flex;align-items:flex-start;gap:10px;">
-                  <div class="avatar-sm" onClick="{{ row.onViewAvatar }}" style="flex:0 0 auto;margin-top:1px;{{ row.avatarCursor }}{{ row.avatarStyle }}">{{ row.initials }}</div>
+                  <div class="avatar-sm" onClick="{{ row.onViewAvatar }}" style="flex:0 0 auto;margin-top:2px;{{ row.avatarCursor }}{{ row.avatarStyle }}">{{ row.initials }}</div>
                   <div style="flex:1;min-width:0;cursor:pointer;" onClick="{{ row.onViewHistory }}">
-                    <div><span style="font-size:13.5px;font-weight:600;color:#161f30;">{{ row.name }}</span></div>
-                    <div style="display:flex;align-items:center;gap:5px;margin-top:2px;flex-wrap:wrap;">
+                    <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                      <span style="font-size:13.5px;font-weight:700;color:#161f30;">{{ row.name }}</span>
                       <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
-                      <span onClick="{{ row.onCopyContact }}" style="font-size:10.5px;color:#9aa3b2;font-family:'IBM Plex Mono',monospace;cursor:pointer;" title="Tap to copy">{{ row.contact }}</span>
-                      <sc-if value="{{ row.showNoLateReason }}" hint-placeholder-val="">
-                        <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:#fdf0dc;color:#b9791a;white-space:nowrap;">Late · No reason</span>
-                      </sc-if>
-                      <sc-if value="{{ row.showLateReason }}" hint-placeholder-val="">
-                        <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;background:#fdecea;color:#c0392b;white-space:nowrap;">Late</span>
-                      </sc-if>
-                      <sc-if value="{{ row.showNoGps }}" hint-placeholder-val="">
-                        <span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:20px;background:#eef0f4;color:#5c6678;white-space:nowrap;">No GPS</span>
-                      </sc-if>
-                      <sc-if value="{{ row.missingClockOut }}" hint-placeholder-val="">
-                        <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:20px;background:#fff3e0;color:#c2410c;white-space:nowrap;border:1px solid #fb923c;">No clock-out</span>
-                      </sc-if>
                     </div>
+                    <div onClick="{{ row.onCopyContact }}" style="font-size:11px;color:#b0b8c7;margin-top:2px;font-family:'IBM Plex Mono',monospace;cursor:pointer;">{{ row.contact }}</div>
+                    <sc-if value="{{ row.showAnyFlags }}" hint-placeholder-val="">
+                      <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:7px;">
+                        <sc-if value="{{ row.showNoLateReason }}" hint-placeholder-val="">
+                          <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;background:#fdf0dc;color:#b9791a;white-space:nowrap;">Late · No reason</span>
+                        </sc-if>
+                        <sc-if value="{{ row.showLateReason }}" hint-placeholder-val="">
+                          <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;background:#fdecea;color:#c0392b;white-space:nowrap;">Late</span>
+                        </sc-if>
+                        <sc-if value="{{ row.showNoGps }}" hint-placeholder-val="">
+                          <span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:#eef0f4;color:#5c6678;white-space:nowrap;">No GPS</span>
+                        </sc-if>
+                        <sc-if value="{{ row.missingClockOut }}" hint-placeholder-val="">
+                          <span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:#fff3e0;color:#c2410c;white-space:nowrap;border:1px solid #fb923c;">No clock-out</span>
+                        </sc-if>
+                      </div>
+                    </sc-if>
                     <sc-if value="{{ row.showLateReason }}" hint-placeholder-val="">
-                      <div style="font-size:10.5px;color:#c0392b;margin-top:2px;font-style:italic;">{{ row.lateReason }}</div>
+                      <div style="font-size:10.5px;color:#9aa3b2;margin-top:4px;">Reason: <span style="color:#c0392b;">{{ row.lateReason }}</span></div>
                     </sc-if>
                     <sc-if value="{{ row.showEditSummary }}" hint-placeholder-val="">
-                      <div style="font-size:10px;color:#b0b8c7;margin-top:2px;">{{ row.editSummary }}</div>
+                      <div style="font-size:10px;color:#b0b8c7;margin-top:3px;">{{ row.editSummary }}</div>
                     </sc-if>
                   </div>
                   <div style="display:flex;gap:5px;flex-shrink:0;">
@@ -1558,24 +1562,24 @@
                   </div>
                 </div>
                 <sc-if value="{{ row.showPhaseLine }}" hint-placeholder-val="">
-                  <div style="display:grid;grid-template-columns:{{ row.phaseGridCols }};gap:4px;margin-top:9px;">
-                    <div style="background:#f6f8fa;border-radius:7px;padding:5px 4px;text-align:center;">
-                      <div style="font-size:9px;font-weight:700;letter-spacing:.05em;color:#9aa3b2;margin-bottom:3px;">IN</div>
-                      <div style="font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ row.p1Color }};">{{ row.p1 }}</div>
+                  <div style="display:flex;margin-top:10px;background:#f8f9fc;border-radius:8px;overflow:hidden;">
+                    <div style="flex:1;text-align:center;padding:7px 4px;border-right:1px solid #eceef2;">
+                      <div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#9aa3b2;margin-bottom:2px;">IN</div>
+                      <div style="font-size:12.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ row.p1Color }};">{{ row.p1 }}</div>
                     </div>
                     <sc-if value="{{ row.showLunchBoxes }}" hint-placeholder-val="">
-                    <div style="background:#f6f8fa;border-radius:7px;padding:5px 4px;text-align:center;">
-                      <div style="font-size:9px;font-weight:700;letter-spacing:.05em;color:#9aa3b2;margin-bottom:3px;">LCH</div>
-                      <div style="font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ row.p2Color }};">{{ row.p2 }}</div>
+                    <div style="flex:1;text-align:center;padding:7px 4px;border-right:1px solid #eceef2;">
+                      <div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#9aa3b2;margin-bottom:2px;">LCH</div>
+                      <div style="font-size:12.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ row.p2Color }};">{{ row.p2 }}</div>
                     </div>
-                    <div style="background:#f6f8fa;border-radius:7px;padding:5px 4px;text-align:center;">
-                      <div style="font-size:9px;font-weight:700;letter-spacing:.05em;color:#9aa3b2;margin-bottom:3px;">BACK</div>
-                      <div style="font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ row.p3Color }};">{{ row.p3 }}</div>
+                    <div style="flex:1;text-align:center;padding:7px 4px;border-right:1px solid #eceef2;">
+                      <div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#9aa3b2;margin-bottom:2px;">BACK</div>
+                      <div style="font-size:12.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ row.p3Color }};">{{ row.p3 }}</div>
                     </div>
                     </sc-if>
-                    <div style="background:#f6f8fa;border-radius:7px;padding:5px 4px;text-align:center;">
-                      <div style="font-size:9px;font-weight:700;letter-spacing:.05em;color:#9aa3b2;margin-bottom:3px;">OUT</div>
-                      <div style="font-size:12px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ row.p4Color }};">{{ row.p4 }}</div>
+                    <div style="flex:1;text-align:center;padding:7px 4px;">
+                      <div style="font-size:9px;font-weight:700;letter-spacing:.06em;color:#9aa3b2;margin-bottom:2px;">OUT</div>
+                      <div style="font-size:12.5px;font-weight:700;font-family:'IBM Plex Mono',monospace;color:{{ row.p4Color }};">{{ row.p4 }}</div>
                     </div>
                   </div>
                 </sc-if>
@@ -2990,7 +2994,7 @@
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#2f5fd0&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;orgName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Ops Security&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Bedok DHQ&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqLat&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;1.332572&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqLon&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;103.937189&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;waGroupLink&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqRange&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;200&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#2f5fd0&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;orgName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Ops Security&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Bedok DHQ&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqLat&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;1.332572&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqLon&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;103.937189&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;waGroupLink&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqRange&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;250&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
 class Component extends makeAppComponent(DCLogic) {}
 </script>
 <script>
