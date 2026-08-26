@@ -21,7 +21,7 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 ### For Reservists
 
 - **Department-based check-in flow**: Ops Security reservists log four phases (check in, lunch out, return from lunch, end of shift). Crime Alert (CAS) reservists use a simplified two-phase flow: check in and check out only. Each phase is timestamped to the minute.
-- **GPS verification**: Tapping a check-in phase shows a "Locate me" button first. After GPS confirms you are within range of HQ, the button swaps to "Check in to work" (or the phase-specific label). Distance from HQ is recorded. The radius is configurable (default: 500 m).
+- **GPS verification**: Tapping a check-in phase shows a "Locate me" button first. After GPS confirms you are within range of HQ, the button swaps to "Check in to work" (or the phase-specific label). Distance from HQ is recorded. The radius is configurable (default: 250 m).
 - **GPS bypass**: After two failed GPS attempts, a bypass option appears to allow check-in without location. Bypassed records are permanently flagged in the log.
 - **Leave and MC requests**: Submit requests digitally through the app. They go directly to the supervisor for approval with no phone calls or messages needed.
 - **Cancel pending requests**: A leave or MC request can be withdrawn by the reservist before the supervisor has acted on it, from both the check-in tab and the Requests history.
@@ -545,7 +545,7 @@ Open `index.html` and edit the configuration block at the top of the file:
   hq-name="Your Location Name"
   hq-lat="1.332572"
   hq-lon="103.937189"
-  hq-range="500"
+  hq-range="250"
   wa-group-link="https://chat.whatsapp.com/YOUR_GROUP_LINK"
 >
 ```
