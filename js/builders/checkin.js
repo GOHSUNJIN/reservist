@@ -243,6 +243,7 @@ const CheckinBuilders = {
       phName:Utils.holidayName(todayD)||(isOffDay?'Reservists do not report on weekends.':'No CNB reporting today.'),
       isMc:!outOfCycle&&status==='mc'&&!noRep,
       isAbsent:!outOfCycle&&status==='absent'&&!noRep,
+      showTeamSection:!outOfCycle&&!noRep&&(status==='mc'||status==='absent')&&!!(me?.batch_id&&s.personnel.some(p=>p.batch_id===me.batch_id&&p.id!==s.currentUserId&&(p.role||'reservist')==='reservist')),
       hasPendingRequest:!outOfCycle&&!noRep&&status!=='mc'&&status!=='absent'&&!!(s.myPendingRequest&&!pendingRequestExpired&&s.myPendingRequest.date===todayKey&&status!=='present'),
       pendingRequestLabel:s.myPendingRequest?.type==='mc'?'MC':'absence',
       pendingRequestDate:s.myPendingRequest?.date?Utils.fmtMed(new Date(s.myPendingRequest.date+'T00:00:00')):'',

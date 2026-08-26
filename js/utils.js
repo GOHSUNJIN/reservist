@@ -8,7 +8,7 @@ const Utils = {
     if(s==='absent')  return {label:'Absent', color:'#c0392b',bg:'#f7e4e1'};
     if(s==='missed')    return {label:'Missed',    color:'#c0392b',bg:'#f7e4e1'};
     if(s==='cancelled') return {label:'Cancelled', color:'#8a94a3',bg:'#eceef2'};
-    return {label:'Pending',color:'#b9791a',bg:'#fdf6e9'};
+    return {label:'Pending',color:'#2f5fd0',bg:'#eef3fc'};
   },
   hhmm(d){ const p=n=>String(n).padStart(2,'0'); return p(d.getHours())+':'+p(d.getMinutes()); },
   dateKey(d){ const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); },
