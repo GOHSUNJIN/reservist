@@ -142,7 +142,7 @@ const CheckinBuilders = {
     ];
     const phases=phaseDefs.map(pd=>{
       const time=rec[pd.key];
-      const dist=pd.key==='p1'?rec.p1dist:pd.key==='p3'?rec.p3dist:null;
+      const dist=rec[pd.key+'dist']??null;
       const done=!!time;
       const locked=!!pd.depends&&!rec[pd.depends];
       const inWin=testMode||Utils.phaseInWindow(shift,pd.key,now,isCas?'cas':null);

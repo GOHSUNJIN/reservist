@@ -199,9 +199,11 @@ const DB = {
         p1: t(r.check_in_time),
         p1dist: r.gps_distance_m,
         p2: t(r.lunch_out_time),
+        p2dist: r.lunch_out_dist,
         p3: t(r.work_return_time),
         p3dist: r.work_return_dist,
         p4: t(r.work_end_time),
+        p4dist: r.work_end_dist,
         lateReason: r.late_reason || null,
         welfareNote: r.welfare_note || null,
         gpsBypassed: r.gps_bypassed || false,
@@ -254,7 +256,7 @@ const DB = {
 
     async logPhase(personnelId, dateStr, key, timeStr, dist, bypassed = false) {
       const colMap = {p1:'check_in_time', p2:'lunch_out_time', p3:'work_return_time', p4:'work_end_time'};
-      const distMap = {p1:'gps_distance_m', p3:'work_return_dist'};
+      const distMap = {p1:'gps_distance_m', p2:'lunch_out_dist', p3:'work_return_dist', p4:'work_end_dist'};
       const payload = { status: 'present', [colMap[key]]: timeStr + ':00' };
       if (distMap[key] && dist != null) payload[distMap[key]] = dist;
       if (bypassed) payload.gps_bypassed = true;
