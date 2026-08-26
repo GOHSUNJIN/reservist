@@ -367,6 +367,46 @@ Reservists who do not check in on a reporting day are marked absent automaticall
 
 ---
 
+## Planned Enhancements
+
+The following improvements are planned to make the system fully self-managed by supervisors, requiring no developer involvement after initial deployment. Items are ordered from lowest to highest implementation effort.
+
+### Quick wins
+
+1. **Editable reporting timings**: Phase windows (0900, 1200, 1400, 1800) are currently fixed constants in code. Moving them to the database per cycle allows supervisors to set different reporting hours for each cycle from within the app. Phase reminder banners, the work timer, and meal eligibility all update automatically.
+
+2. **Editable Info tab content**: Attire requirements, meal form links, dekit checklists, and meal instructions are currently hardcoded. Storing them in the cycle record and exposing an edit form in the cycle management panel means supervisors can keep this content up to date without a code change.
+
+3. **WhatsApp group link in database**: The unit WA group link is currently set once at deployment in the app's configuration file. Moving it to a department-level database record lets supervisors update it from within the app when the group changes.
+
+4. **Multiple shifts per department**: The system already tracks shift assignments but only supports a single "Office" shift. Extending this to AM, PM, Night, and custom shifts (each with their own phase windows) allows departments with rotating shift schedules to use the system correctly.
+
+5. **Per-cycle GPS location and radius**: HQ coordinates and the accepted check-in radius are currently deployment-level settings. Storing these per cycle allows supervisors to run cycles at different venues (exercises, off-site operations) without requiring a code deployment.
+
+### Medium effort
+
+6. **Department CRUD**: Departments are currently defined as a fixed database type, so adding a new department requires a database schema change. Migrating to a departments table lets the Master account create and manage departments from within the app. This is the prerequisite for all department-level configuration below.
+
+7. **Per-department configuration panel**: Once departments are table-driven, each department can store its own HQ coordinates, GPS radius, phase windows, WA group link, accent colour, and Info tab content. The Master account edits these from a Settings panel. After initial deployment, no configuration files need to be touched again.
+
+8. **Shift scheduler**: Pre-assign which reservists report on which days. This generates the expected attendance list per date, so mark-all-absent only targets scheduled personnel. Useful when not all reservists report every weekday.
+
+9. **Push notifications**: The app's service worker is already in place. Adding Web Push allows reservists to receive reminders when a phase window opens, and supervisors to be alerted on new leave requests or pending signups, without needing to have the app open.
+
+10. **Audit log viewer**: A read-only log of all supervisor actions (status overrides, time corrections, approvals, account changes) surfaced as a tab for the Master account. Useful for accountability without needing database access.
+
+### Larger scope
+
+11. **In-app configuration editor**: Replace all deployment-time configuration (org name, accent colour, HQ location) with a Settings panel inside the app. After initial deployment, the system is entirely self-contained and no files ever need to be edited again.
+
+12. **Scoped department access for supervisors**: Currently all admins in a department see all data in that department. As more departments are added, this may need to be tightened so that each supervisor is scoped to one department, with the Master account retaining full cross-department visibility.
+
+13. **Automated attendance summaries**: Scheduled daily and weekly reports sent to the supervisor's WhatsApp or email, covering attendance rate, pending leave requests, and missing clock-outs. Requires a messaging API integration.
+
+14. **Equipment and dekit tracking**: Track issued items per reservist per cycle and record return status at dekit. Fits naturally into the existing cycle lifecycle alongside the dekit date already stored on each cycle.
+
+---
+
 ## Setup Guide
 
 > This section is for the person deploying and configuring the system. Basic familiarity with running terminal commands is required.
