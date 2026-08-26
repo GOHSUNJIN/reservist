@@ -18,11 +18,12 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 
 ### For Reservists
 
-- **4-phase check-in**: Log four checkpoints throughout the day - check in, lunch out, return from lunch, and end of shift. Each phase is timestamped to the minute.
-- **GPS verification**: The phone's GPS confirms you are physically at the designated location before the check-in is accepted. Distance from HQ is recorded. The radius is configurable (default: 500 m).
+- **Department-based check-in flow**: Ops Security reservists log four phases (check in, lunch out, return from lunch, end of shift). Crime Alert (CAS) reservists use a simplified two-phase flow: check in and check out only. Each phase is timestamped to the minute.
+- **GPS verification**: Tapping a check-in phase shows a "Locate me" button first. After GPS confirms you are within range of HQ, the button swaps to "Check in to work" (or the phase-specific label). Distance from HQ is recorded. The radius is configurable (default: 500 m).
 - **GPS bypass**: After two failed GPS attempts, a bypass option appears to allow check-in without location. Bypassed records are permanently flagged in the log.
 - **Leave and MC requests**: Submit requests digitally through the app. They go directly to the supervisor for approval with no phone calls or messages needed.
 - **Cancel pending requests**: A leave or MC request can be withdrawn by the reservist before the supervisor has acted on it, from both the check-in tab and the Requests history.
+- **Info and Attendance tabs**: The Info tab shows shift details, meal allowance information, leave request history, and a team directory listing batchmates with contact links. Both Ops Security and CAS reservists see the team directory. The Attendance tab shows the personal attendance calendar and history.
 - **Attendance history**: View your own full record for the cycle, including total days present, MC, absent, and your attendance rate.
 - **MC calendar coloring**: Approved MC days are highlighted amber in the attendance calendar. Pending MC requests appear with a lighter amber tint and a dashed border, so you can see at a glance which days have been covered.
 - **Phase reminder banner**: A banner appears automatically when a check-in phase window is open and you have not yet logged it. It disappears once the phase is recorded.
