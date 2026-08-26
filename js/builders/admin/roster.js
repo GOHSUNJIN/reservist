@@ -62,6 +62,8 @@ const AdminRoster = {
       const lateReason=r.lateReason||'';
       const showLateReason=isLate&&!!lateReason;
       const showNoLateReason=isLate&&!lateReason;
+      const _missingCo=!isLiveView&&r.status==='present'&&!!r.p1&&!r.p4;
+      const showAnyFlags=showNoLateReason||showLateReason||!!(r.gpsBypassed)||_missingCo;
       const av=s.avatars[p.id]||'';
       const avatarStyle=Utils.avatarStyle(av);
       return {
@@ -70,7 +72,7 @@ const AdminRoster = {
         showQuickAbsent:r.status==='pending'&&viewOffset<=0,
         markAbsent:self.setStatus(p.id,'absent'),
         label:mm.label, color:mm.color, bg:mm.bg, isLate,
-        lateReason, showLateReason, showNoLateReason,
+        lateReason, showLateReason, showNoLateReason, showAnyFlags,
         welfareNote:r.welfareNote||'', showWelfareNote:!!(r.welfareNote),
         logNoteIconColor:r.welfareNote?'#1f8a5b':'#5c6678',
         isEditingLogNote:s.logNoteId===p.id,
