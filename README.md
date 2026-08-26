@@ -2,6 +2,8 @@
 
 A mobile-first web application for managing NS reservist attendance. Replaces manual sign-in sheets and WhatsApp headcounts with a structured, auditable digital system accessible from any smartphone, no app installation required.
 
+**Live app:** https://opsreservist.vercel.app
+
 ---
 
 ## Overview
@@ -597,3 +599,100 @@ Open the address shown in the terminal in a browser. The service worker requires
 - Sessions are held in the browser's temporary memory (not permanently on the device) and expire when the browser tab is closed. Sessions also expire after 20 minutes of inactivity.
 - A session expiry warning appears 5 minutes before the session ends, with a one-tap option to extend it.
 - An idle warning appears at 18 minutes to give users time to respond before automatic logout at 20 minutes.
+
+---
+
+## Supervisor Quick-Start
+
+This section is for a supervisor taking over the system for the first time.
+
+### First-time setup
+
+1. Sign up through the app login screen using your mobile number. Your account will initially be created as a reservist.
+2. Have the Master account log in and promote your account to Admin (People tab > Team tab > add supervisor) or promote an existing reservist to admin from the People tab.
+3. Once promoted, log out and log back in. You will land on the supervisor dashboard.
+
+### Starting a new cycle
+
+The system auto-creates the next 8 cycles on every admin login, so no manual cycle creation is needed in most cases.
+
+1. Go to the Overview tab and tap the cycle label at the top to open the cycle picker.
+2. Select the cycle you want to activate and tap "Set as Live". Only one cycle is live at a time.
+3. Set the correct start and end dates if they are not already filled in.
+4. Mark any no-report days (public holidays, stand-downs) from the cycle management panel.
+5. Enable meal allowance if it applies to this cycle.
+6. Post a cycle notice if there is anything all reservists need to see on their check-in screen.
+
+### Daily routine
+
+1. Open the Roster tab each morning to see who has reported.
+2. Use the status filters (Present, Absent, Pending) to focus on who still needs attention.
+3. Check the Requests tab for any new leave or MC requests and approve or reject them.
+4. At end of day, use "Mark all absent" to write absence records for anyone still showing as pending. This is also done automatically at midnight, but doing it manually confirms the day is closed.
+5. Use the WhatsApp summary button to send the day's headcount to the unit group chat.
+
+### End of cycle
+
+1. Export the attendance matrix from the Overview tab (Export button) for records.
+2. Print or save the PDF attendance report if a hardcopy is required.
+3. Go to the People tab and deactivate all reservists for the cycle. Their accounts are preserved and can be re-enrolled for the next cycle.
+
+### Managing personnel
+
+- To add new reservists: People tab > Add Personnel. Paste a list of names and contact numbers for bulk adds.
+- To approve a self-signup: Requests tab > Signups section. Each request shows whether the person is new or returning.
+- To reset a forgotten password: People tab > find the person > Reset Password.
+- To re-enroll a returning reservist: either approve their re-enrollment request in the Requests tab, or search for them by name in the Add Personnel form and select the existing record.
+
+---
+
+## Troubleshooting
+
+### Reservist cannot check in
+
+- **GPS not working in WhatsApp or Instagram browser**: The in-app browser blocks GPS. The app will detect this and show instructions to open the link in Chrome or Safari instead.
+- **GPS keeps failing**: After two failed attempts a bypass option appears. The reservist can bypass and check in without GPS. The record will be flagged as bypassed in the log.
+- **Button is greyed out or unresponsive**: The reservist may already have a check-in recorded for that phase. Check the Log tab to confirm. If the record is wrong, edit it from the Log tab.
+- **Reservist sees the wrong phase**: Phase windows are time-based. If they are outside the window, the current phase card may not be active yet. Check the configured phase times.
+
+### Reservist forgot their password
+
+Go to People tab, find the person, and tap Reset Password. Enter and confirm a new temporary password and share it with the reservist verbally. They can change it later from their account settings.
+
+### Attendance status is wrong
+
+Open the Log tab, navigate to the date in question, find the person, and tap the edit icon to correct their status or times. All edits are flagged as admin-entered with your name and a timestamp.
+
+### A reservist is showing as absent but was present
+
+If the auto-absent job ran before the reservist checked in, their status may have been set to absent. Correct it manually from the Roster or Log tab by setting their status to Present and entering their times.
+
+### Clock-out is missing
+
+If a reservist is marked present but has no Phase 4 time, the log entry will show a "No clock-out" badge. Open the log entry and add the correct end-of-shift time. This affects meal allowance eligibility, so correct it before the end of the day where possible.
+
+### Realtime updates are not appearing
+
+The live roster requires a stable internet connection. If updates stop appearing, refresh the page. The connection re-establishes automatically on reload.
+
+### Session expired mid-shift
+
+Sessions expire after 60 minutes or after 20 minutes of inactivity. A warning appears beforehand with a one-tap option to extend. If a session expires unexpectedly, the reservist or supervisor just logs back in. No data is lost.
+
+### The cycle picker shows no cycles
+
+This should not happen after an admin login, as the system auto-creates 8 upcoming cycles. If the picker is empty, log out and log back in to trigger the provisioning step.
+
+### A signup request is not appearing
+
+Signup requests only appear for admins scoped to the correct department. If you are a Master account, check that the department switcher in the header is set to the correct department.
+
+---
+
+## Known Limitations
+
+- **CAS Info tab content is a placeholder.** The Info tab for Crime Alert (CAS) reservists currently shows placeholder text. The attire, location, and operational details for CAS have not yet been configured in the codebase.
+- **Phase windows are hardcoded.** The check-in phase times (0900, 1200, 1400, 1800) are fixed constants and cannot be changed from within the app. Changing them requires a code update and redeployment. This is tracked as item 1 in the Planned Enhancements section.
+- **Departments cannot be added or removed from within the app.** The department list (Ops Security and CAS) is defined in the database schema as an enum. Adding a new department requires a schema migration. This is tracked as item 6 in the Planned Enhancements section.
+- **No push notifications.** Supervisors must have the app open to see new leave requests or signup requests. There is no background alert. This is tracked as item 9 in the Planned Enhancements section.
+- **RLS batch-mate visibility requires a manual SQL step.** If the Supabase project is ever recreated from scratch, the `_auth_batch_id()` function and the updated `personnel_select` policy in `scripts/rls_policies.sql` must be re-run in the Supabase SQL editor for the YOUR TEAM section to appear correctly for reservists.
