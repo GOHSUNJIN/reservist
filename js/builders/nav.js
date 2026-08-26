@@ -30,6 +30,7 @@ const NavBuilders = {
       offlinePending:s.offlinePending, offlineQueueCount:this._offlineQueues?.length||0,
       offlineQueueMsg:(()=>{const n=this._offlineQueues?.length||0;return s.offlinePending?': '+n+' action'+(n===1?'':'s')+' queued':'';})(),
       showReservistFullNav: s.role==='reservist' && this._myDept()!=='cas',
+      showCasReservistNav:  s.role==='reservist' && this._myDept()==='cas',
     };
   },
 
