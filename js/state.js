@@ -68,7 +68,7 @@ const makeInitialState = () => ({
   noReportBulkOpen: false, noReportBulkText: '',
 
   // ── Personnel management ─────────────────────────────────────────────────
-  peopleTab: 'requests',
+  peopleTab: 'roster',
   npName: '', npContact: '', npShift: 'OFFICE', npPassword: '', showNpPw: false,
   addPersonnelOpen: false, npReenrollRecord: null, npAddSearch: '', npDeactivatedPool: [],
   confirmDeactivateId: null,

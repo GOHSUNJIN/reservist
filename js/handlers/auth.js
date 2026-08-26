@@ -124,7 +124,7 @@ const AuthHandlers = {
       isSuperAdmin:false, adminsList:[], adminsLoaded:false,
       npAdminName:'', npAdminContact:'', npAdminPassword:'', confirmDeactivateAdminId:null,
       promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null, promoteSearch:'', promoteShowAllCycles:false, promoteListPage:1,
-      peopleTab:'requests',
+      peopleTab:'roster',
       editingBatchLabel:false, batchLabelText:'',
       viewOffset:0, rosterSearch:'', logSearch:'',
       markingAllAbsent:false, confirmMarkAllAbsent:false,

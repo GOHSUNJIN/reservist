@@ -319,7 +319,7 @@ const AdminPeople = {
       toggleRejectedSignups:()=>self.setState({rejectedSignupsHidden:!s.rejectedSignupsHidden}),
       // People sub-tabs
       ...(()=>{
-        const tab=s.peopleTab||'requests';
+        const tab=s.peopleTab||'roster';
         const pendingTotal=s.pendingSignups.length+(s.pendingLeaves||[]).length;
         const ptBtn=(active)=>active
           ?'flex:1;padding:8px 4px;background:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;color:#161f30;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.1);'
