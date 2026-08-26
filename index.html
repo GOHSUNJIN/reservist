@@ -448,7 +448,10 @@
                       </div>
                       </sc-if>
                       <sc-if value="{{ !ph.locVerified }}" hint-placeholder-val="{{ true }}">
-                        <button onClick="{{ ph.onStart }}" disabled="{{ ph.locBtnDisabled }}" style="width:100%;margin-top:10px;padding:11px 0;background:#f6f8fa;border:1.5px solid #e3e6ec;border-radius:10px;font-size:13px;font-weight:600;color:#5c6678;cursor:pointer;">{{ ph.locBtnLabel }}</button>
+                        <button onClick="{{ ph.onStart }}" disabled="{{ ph.locBtnDisabled }}" style="width:100%;margin-top:10px;padding:11px 0;display:flex;align-items:center;justify-content:center;gap:7px;background:{{ ph.btnBg }};color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ ph.locBtnOpacity }};">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>
+                          {{ ph.locBtnLabel }}
+                        </button>
                       </sc-if>
                       <sc-if value="{{ ph.locVerified }}" hint-placeholder-val="">
                         <button onClick="{{ ph.onSubmit }}" style="width:100%;margin-top:10px;padding:11px 0;background:{{ ph.btnBg }};color:#fff;border:none;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">{{ ph.btnLabel }}</button>

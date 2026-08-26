@@ -182,6 +182,7 @@ const CheckinBuilders = {
         locShowReload:myGpsActive&&locGpsError&&s.locPermErr,
         locBtnLabel:locLocating?'Locating...':(locIdle?'Locate me':'Try again'),
         locBtnDisabled:myGpsActive&&locLocating,
+        locBtnOpacity:myGpsActive&&locLocating?'.6':'1',
         locBorder:myGpsActive?gLocBorder:'#eef0f4',
         locCardBg:myGpsActive?gLocCardBg:'#fff',
         locBadgeBg:myGpsActive?gLocBadgeBg:'#eceef2',
