@@ -144,7 +144,8 @@ const MiscHandlers = {
     else{this._toast('Copy not supported.','error');}
   },
   copyContact: function(contact) {
-    return () => {
+    return (e) => {
+      if(e){e.stopPropagation();e.preventDefault();}
       if(!contact) return;
       if(navigator.clipboard){navigator.clipboard.writeText(contact).then(()=>this._toast('Copied.')).catch(()=>this._toast('Could not copy.','error'));}
       else{this._toast('Copy not supported.','error');}
