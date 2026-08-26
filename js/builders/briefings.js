@@ -53,6 +53,7 @@ const BriefingsBuilders = {
           };
         }) : [],
       showTeam: !!(me?.batch_id && s.personnel.some(p=>p.batch_id===me.batch_id&&p.id!==s.currentUserId&&(p.role||'reservist')==='reservist')),
+      casInfoBlocked: s.role==='reservist' && this._myDept()==='cas',
       leaveHistoryItems: s.myLeaveHistory.map(r=>({
         id:r.id,
         typeLabel:r.type==='mc'?'MC':r.type==='other'?'Other':'Personal Leave',

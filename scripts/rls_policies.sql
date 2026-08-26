@@ -20,6 +20,11 @@ RETURNS UUID AS $$
   SELECT id FROM personnel WHERE auth_id = auth.uid() LIMIT 1;
 $$ LANGUAGE sql SECURITY DEFINER STABLE;
 
+CREATE OR REPLACE FUNCTION _auth_batch_id()
+RETURNS UUID AS $$
+  SELECT batch_id FROM personnel WHERE auth_id = auth.uid() LIMIT 1;
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
+
 -- ── Enable RLS on all tables ─────────────────────────────────
 ALTER TABLE personnel       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE batches         ENABLE ROW LEVEL SECURITY;
@@ -37,9 +42,19 @@ DROP POLICY IF EXISTS "authenticated" ON signup_requests;
 DROP POLICY IF EXISTS "authenticated" ON no_report_days;
 
 -- ── personnel ────────────────────────────────────────────────
--- Reservists see only their own row; admins see all
+-- Reservists see their own row + teammates in the same batch; admins see all
+DROP POLICY IF EXISTS "personnel_select" ON personnel;
 CREATE POLICY "personnel_select" ON personnel FOR SELECT TO authenticated
-  USING (auth_id = auth.uid() OR _auth_role() IN ('admin','superadmin'));
+  USING (
+    auth_id = auth.uid()
+    OR _auth_role() IN ('admin','superadmin')
+    OR (
+      _auth_role() = 'reservist'
+      AND batch_id IS NOT NULL
+      AND batch_id = _auth_batch_id()
+      AND (role IS NULL OR role = 'reservist')
+    )
+  );
 
 -- Only admins can add people
 CREATE POLICY "personnel_insert" ON personnel FOR INSERT TO authenticated
