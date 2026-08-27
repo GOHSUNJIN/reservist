@@ -48,6 +48,8 @@ const BriefingsBuilders = {
             avatarCursor:av?'cursor:pointer;':'',
             onViewAvatar:av?this.openAvatarLightbox(av):null,
             shiftLabel:Utils.shiftLabel(p.shift),
+            contact:p.contact||'',
+            onCopyContact:this.copyContact(p.contact||''),
             waLink:p.contact?`https://api.whatsapp.com/send?phone=65${p.contact.replace(/[\s-]/g,'')}`:''
           };
         }) : [],
