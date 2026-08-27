@@ -127,10 +127,6 @@ const MiscHandlers = {
 
   showMoreHistory: function() { this.setState(s=>({historyPage:(s.historyPage||1)+1})); },
 
-  toggleRosterCard: function(id) {
-    return () => this.setState(s => ({rosterExpandedId: s.rosterExpandedId === id ? null : id}));
-  },
-
   toggleHistoryExpand: function(dateKey) {
     return () => this.setState(s=>{
       const a=[...(s.historyExpandedDates||[])];

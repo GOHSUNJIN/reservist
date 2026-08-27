@@ -1,6 +1,10 @@
 // ── Roster, log, and attendance handlers ──────────────────────────────────
 const RosterHandlers = {
 
+  toggleRosterCard: function(id) {
+    return () => this.setState(s => ({rosterExpandedId: s.rosterExpandedId === id ? null : id}));
+  },
+
   // Helpers: read/write attendance from today's map or the date cache
   // Returns the attendance map for the viewed date: today's live map or the date cache.
   _viewAttMap: function(off, dk) {

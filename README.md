@@ -22,11 +22,13 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 
 - **Department-based check-in flow**: Ops Security reservists log four phases (check in, lunch out, return from lunch, end of shift). Crime Alert (CAS) reservists use a simplified two-phase flow: check in and check out only. Each phase is timestamped to the minute.
 - **GPS verification**: Tapping a check-in phase shows a "Locate me" button first. After GPS confirms you are within range of HQ, the button swaps to "Check in to work" (or the phase-specific label). Distance from HQ is recorded. The radius is configurable (default: 250 m).
-- **GPS bypass**: After two failed GPS attempts, a bypass option appears to allow check-in without location. Bypassed records are permanently flagged in the log.
+- **GPS bypass**: After five consecutive failed GPS attempts, a bypass option appears to allow check-in without location. Bypassed records are permanently flagged in the log.
 - **Leave and MC requests**: Submit requests digitally through the app. They go directly to the supervisor for approval with no phone calls or messages needed.
 - **Cancel pending requests**: A leave or MC request can be withdrawn by the reservist before the supervisor has acted on it, from both the check-in tab and the Requests history.
+- **Request status tracking**: The Requests tab in the Info view shows the full history of submitted leave and MC requests, each with a type badge (MC in amber, Personal Leave in blue, Other in grey) and a status badge (Submitted, Approved, Declined, Withdrawn). Pending items can be withdrawn inline.
 - **Info and Attendance tabs**: The Info tab shows shift details, meal allowance information, leave request history, and a team directory listing batchmates with contact links. Both Ops Security and CAS reservists see the team directory. The Attendance tab shows the personal attendance calendar and history.
 - **Attendance history**: View your own full record for the cycle, including total days present, MC, absent, and your attendance rate.
+- **Copyable contact numbers**: Tap any batchmate's phone number in the team directory to copy it to the clipboard.
 - **MC calendar coloring**: Approved MC days are highlighted amber in the attendance calendar. Pending MC requests appear with a lighter amber tint and a dashed border, so you can see at a glance which days have been covered.
 - **Phase reminder banner**: A banner appears automatically when a check-in phase window is open and you have not yet logged it. It disappears once the phase is recorded.
 - **Upcoming no-report days**: Lists all remaining no-report days in the current cycle (public holidays and stand-downs) so reservists can plan ahead.
@@ -69,6 +71,10 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 
 **Requests and Leave:**
 - **Unified requests inbox**: All pending signup requests, MC requests, and leave requests appear in one place. Each signup is labelled New or Returning so the supervisor knows at a glance whether they are onboarding a first-timer or re-enrolling someone from a previous cycle.
+- **Leave type badges**: Pending leave requests display colour-coded type badges: MC in amber, Personal Leave in blue, Other in grey. The same colours are used consistently across the admin view and the reservist's own request history.
+- **Submission timestamps**: Pending requests and signups show the exact submission time (HH:MM) rather than a relative label. The time resets daily so context is always accurate.
+- **Signup search and filters**: The Pending Signups panel has a collapsible search bar with filter pills (All, New, Returning). A red dot on the search icon indicates when a filter is active.
+- **Leave search and filters**: The Pending Requests panel has the same collapsible search bar with filter pills (All, MC, Personal, Other).
 - **Select-all for signups**: A checkbox in the signup section header selects or deselects all visible pending signups. Filtered by the search box, so select-all only acts on visible results.
 - **Select-all for leave requests**: Same select-all behavior for pending leave requests.
 - **Bulk leave actions**: Select multiple pending leave requests and approve or reject them in a single action. Bulk rejection requires a written reason recorded against each rejected request.
@@ -76,6 +82,7 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 - **Leave request rejection reason**: Each rejected request records the reviewer's name, timestamp, and written reason.
 - **Reopen rejected signups**: A rejected signup request can be re-opened and returned to pending status if the decision needs to be reversed.
 - **Hide rejected signups**: Collapsed view for rejected signup requests to reduce clutter in the inbox.
+- **Copyable contact numbers**: Tap any phone number in the requests list, roster card, or supervisor list to copy it to the clipboard.
 
 **Alerts and Notes:**
 - **Welfare notes**: Write a private daily note against any individual (for example, medical concerns or welfare follow-ups). Visible in both the roster and the time log.
@@ -83,7 +90,9 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 
 **Personnel Management (People tab):**
 - **Roster view**: Lists all personnel in the current cycle with their attendance rate shown when stats are loaded.
+- **Collapsible action bar**: Each roster card is collapsed by default. A chevron button in the top-right corner of each card expands the action bar, which contains History, Note, Reset PW, and Remove. Only one card can be expanded at a time, keeping the list compact.
 - **Low attendance warning**: Personnel with an attendance rate below 75% are flagged inline on their card - the attendance percentage turns amber and a compact "Low" chip appears on the same line as the stats, without adding a separate row.
+- **Roster search**: Filter the personnel list by name or contact number with a persistent search bar.
 - **Per-person attendance history**: Click any person's card to open their full attendance history across all cycles. The history modal includes status filter chips (All, Present, MC, Absent) and pagination (15 records per page). Time ranges are only shown for present days - MC and absent rows are displayed without a meaningless "- to -" placeholder. The history can be exported to Excel (.xls).
 - **Avatar lightbox**: Tap any reservist's profile photo in the overview, roster, or log to view it enlarged. Tapping outside the photo closes it.
 - **Click row in Overview**: Clicking a person's row in the Overview tab also opens their history directly.
@@ -258,9 +267,9 @@ js/
     ├── admin_mgmt.js    - Add, demote, and promote admin accounts
     ├── batch.js         - Cycle CRUD, broadcast, no-report days, meal toggle, cycle picker, jump to date
     ├── export.js        - Excel (.xls) attendance export and print/PDF report generation
-    ├── roster.js        - Manual status override, time correction, search, sort, day navigation
+    ├── roster.js        - Manual status override, time correction, search, sort, day navigation, roster card expand/collapse
     ├── account.js       - Profile photo upload/remove, password change, name change, notification permissions
-    └── misc.js          - Toast, navigation helpers, WhatsApp share/copy, page refresh
+    └── misc.js          - Toast, navigation helpers, department switching, WhatsApp share/copy, page refresh
 
 scripts/                - Offline tooling (not part of the web app)
     ├── build_pptx.py         - Generates the OpsTracker briefing deck
@@ -342,7 +351,7 @@ All data is stored in a structured cloud database (PostgreSQL), with six tables:
 | Type | MC, personal leave, or other |
 | Date requested | The date the leave is for |
 | Reason | Written reason from the reservist |
-| Status | Pending, Approved, Rejected, or Cancelled |
+| Status | Submitted (awaiting review), Approved, Rejected, or Cancelled |
 | Reviewed by | Name of the supervisor who actioned it |
 | Reviewed at | Timestamp of the decision |
 | Rejection reason | Written reason if rejected |
@@ -651,7 +660,7 @@ The system auto-creates the next 8 cycles on every admin login, so no manual cyc
 ### Reservist cannot check in
 
 - **GPS not working in WhatsApp or Instagram browser**: The in-app browser blocks GPS. The app will detect this and show instructions to open the link in Chrome or Safari instead.
-- **GPS keeps failing**: After two failed attempts a bypass option appears. The reservist can bypass and check in without GPS. The record will be flagged as bypassed in the log.
+- **GPS keeps failing**: After five failed attempts a bypass option appears. The reservist can bypass and check in without GPS. The record will be flagged as bypassed in the log.
 - **Button is greyed out or unresponsive**: The reservist may already have a check-in recorded for that phase. Check the Log tab to confirm. If the record is wrong, edit it from the Log tab.
 - **Reservist sees the wrong phase**: Phase windows are time-based. If they are outside the window, the current phase card may not be active yet. Check the configured phase times.
 
