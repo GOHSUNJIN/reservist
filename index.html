@@ -841,45 +841,39 @@
             <sc-for list="{{ leaveHistoryItems }}" as="rh" hint-placeholder-count="3">
             <div style="padding:14px 16px;border-bottom:1px solid #f2f4f7;">
               <div style="display:flex;gap:12px;align-items:center;">
-                <div style="flex:0 0 40px;height:40px;border-radius:50%;background:{{ rh.statusBg }};border:1.5px solid {{ rh.statusBorder }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <div style="flex:0 0 36px;height:36px;border-radius:50%;background:{{ rh.statusBg }};border:1.5px solid {{ rh.statusBorder }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
                   <sc-if value="{{ rh.isApproved }}" hint-placeholder-val="">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ rh.statusColor }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{ rh.statusColor }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                   </sc-if>
                   <sc-if value="{{ rh.isRejected }}" hint-placeholder-val="">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ rh.statusColor }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{ rh.statusColor }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                   </sc-if>
                   <sc-if value="{{ rh.isPending }}" hint-placeholder-val="">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ rh.statusColor }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{ rh.statusColor }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
                   </sc-if>
                   <sc-if value="{{ rh.isCancelled }}" hint-placeholder-val="">
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{{ rh.statusColor }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{ rh.statusColor }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
                   </sc-if>
                 </div>
                 <div style="flex:1;min-width:0;">
                   <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                    <span style="font-size:14px;font-weight:700;color:#161f30;">{{ rh.typeLabel }}</span>
-                    <span style="font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;color:{{ rh.statusColor }};background:{{ rh.statusBg }};border:1px solid {{ rh.statusBorder }};white-space:nowrap;flex:0 0 auto;">{{ rh.statusLabel }}</span>
+                    <span style="font-size:13.5px;font-weight:600;color:#161f30;">{{ rh.typeLabel }}</span>
+                    <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;color:{{ rh.statusColor }};background:{{ rh.statusBg }};border:1px solid {{ rh.statusBorder }};white-space:nowrap;flex:0 0 auto;">{{ rh.statusLabel }}</span>
                   </div>
-                  <div style="font-size:12px;color:#8a94a3;margin-top:1px;">{{ rh.dateLabel }}</div>
+                  <div style="font-size:12px;color:#9aa3b2;margin-top:2px;">{{ rh.dateLabel }}</div>
                 </div>
               </div>
               <sc-if value="{{ rh.reason }}" hint-placeholder-val="">
-                <div style="margin-top:9px;padding:7px 10px;background:#f5f7fa;border:1px solid #e8eaef;border-radius:8px;font-size:12px;color:#8a94a3;font-style:italic;">"{{ rh.reason }}"</div>
+                <div style="margin-top:9px;padding:7px 10px;background:#f5f7fa;border-radius:8px;font-size:12px;color:#8a94a3;font-style:italic;">"{{ rh.reason }}"</div>
               </sc-if>
               <sc-if value="{{ rh.isRejected }}" hint-placeholder-val="">
-                <div style="margin-top:9px;padding:9px 11px;background:#fdf0ee;border:1px solid #f1d0cc;border-radius:9px;">
-                  <div style="font-size:10.5px;font-weight:700;color:#c0392b;letter-spacing:.05em;margin-bottom:3px;">DECLINED BY SUPERVISOR</div>
-                  <div style="font-size:12.5px;color:#7a2c22;line-height:1.4;">{{ rh.rejectionReasonText }}</div>
-                </div>
+                <div style="margin-top:9px;padding:8px 11px;background:#fdf0ee;border-left:3px solid #e8a29a;border-radius:0 8px 8px 0;font-size:12px;color:#9a3328;line-height:1.5;"><span style="font-weight:600;color:#c0392b;">Supervisor: </span>{{ rh.rejectionReasonText }}</div>
               </sc-if>
               <sc-if value="{{ rh.showReviewedByApproved }}" hint-placeholder-val="">
                 <div style="margin-top:6px;font-size:11px;color:#b0b8c4;">Approved by {{ rh.reviewedBy }}</div>
               </sc-if>
               <sc-if value="{{ rh.canCancel }}" hint-placeholder-val="">
-                <button onClick="{{ rh.onCancel }}" style="-webkit-appearance:none;margin-top:10px;padding:7px 13px;background:#fff5f4;border:1.5px solid #f1d0cc;border-radius:8px;font-size:12px;font-weight:600;color:#c0392b;cursor:pointer;display:inline-flex;align-items:center;gap:5px;">
-                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                  Withdraw request
-                </button>
+                <button onClick="{{ rh.onCancel }}" style="-webkit-appearance:none;margin-top:10px;padding:0;background:none;border:none;font-size:12px;font-weight:500;color:#9aa3b2;cursor:pointer;display:inline-flex;align-items:center;gap:4px;text-decoration:underline;text-underline-offset:2px;">Withdraw request</button>
               </sc-if>
             </div>
             </sc-for>
@@ -1716,7 +1710,7 @@
                 <div style="width:34px;height:34px;border-radius:50%;background:#eceef2;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#5c6678;flex:0 0 auto;">{{ sr.initials }}</div>
                 <div class="flex-fill">
                   <div class="text-body-bold">{{ sr.name }}</div>
-                  <div style="font-size:12px;color:#5c6678;margin-top:1px;font-weight:500;">{{ sr.contact }}</div>
+                  <div style="font-size:12px;color:#8a94a3;margin-top:1px;font-weight:400;">{{ sr.contact }}</div>
                   <div style="font-size:11px;color:#9aa3b2;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ sr.deptLabel }} · {{ sr.batchLabel }} · {{ sr.createdAt }}</div>
                 </div>
                 <sc-if value="{{ sr.isReactivation }}" hint-placeholder-val="">
