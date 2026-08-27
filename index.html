@@ -1735,11 +1735,6 @@
           <sc-if value="{{ hasPendingLeaves }}" hint-placeholder-val="">
           <div class="card-flush" style="margin-bottom:14px;">
             <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
-              <div onClick="{{ selectAllLeaves }}" style="width:22px;height:22px;border-radius:5px;border:1.5px solid {{ leaveSelectAllBorder }};background:{{ leaveSelectAllBg }};display:flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer;" title="Select all">
-                <sc-if value="{{ allLeavesSelected }}" hint-placeholder-val="">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                </sc-if>
-              </div>
               <span class="text-label">PENDING REQUESTS</span>
               <span style="background:#c0392b;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;">{{ pendingLeavesCount }}</span>
               <div style="flex:1;"></div>
@@ -1768,9 +1763,6 @@
             <sc-for list="{{ pendingLeaves }}" as="lr" hint-placeholder-count="2">
             <div style="padding:12px 16px;border-bottom:1px solid #f2f4f7;opacity:{{ lr.expiredOpacity }};">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-                <div onClick="{{ lr.onToggleSelect }}" style="flex:0 0 auto;width:22px;height:22px;border-radius:5px;border:1.5px solid {{ lr.checkBorder }};background:{{ lr.checkBg }};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
-                  <sc-if value="{{ lr.isSelected }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></sc-if>
-                </div>
                 <div class="avatar-sm" style="flex:0 0 auto;{{ lr.avatarStyle }}">{{ lr.avatarInitials }}</div>
                 <div class="flex-fill">
                   <div style="display:flex;align-items:center;gap:6px;">
@@ -1804,30 +1796,6 @@
             </sc-for>
             <sc-if value="{{ leaveSearchHasNoResults }}" hint-placeholder-val="">
               <div style="padding:18px 16px;font-size:12px;color:#8a94a3;text-align:center;">No requests match your search or filter.</div>
-            </sc-if>
-            <sc-if value="{{ hasLeaveSelection }}" hint-placeholder-val="">
-            <div style="padding:10px 14px;border-top:1px solid #eef0f4;background:#f9fafb;">
-              <sc-if value="{{ !confirmBulkLeaveReject }}" hint-placeholder-val="">
-              <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                <span style="font-size:12px;color:#5c6678;font-weight:500;">{{ leaveSelectedCount }} selected</span>
-                <div class="flex-gap-7">
-                  <button onClick="{{ clearLeaveSelect }}" style="-webkit-appearance:none;padding:7px 12px;border-radius:8px;border:1px solid #d4d9e2;background:#fff;color:#5c6678;font-size:12px;font-weight:600;cursor:pointer;">Clear</button>
-                  <button onClick="{{ askBulkLeaveReject }}" style="-webkit-appearance:none;padding:7px 12px;border-radius:8px;border:1px solid #e3c4c1;background:#fff;color:#c0392b;font-size:12px;font-weight:600;cursor:pointer;">Decline</button>
-                  <button onClick="{{ bulkApproveLeaves }}" style="-webkit-appearance:none;padding:7px 14px;border-radius:8px;border:none;background:#161f30;color:#fff;font-size:12px;font-weight:700;cursor:pointer;opacity:{{ bulkApproveBtnOpacity }};">{{ bulkApproveBtnText }}</button>
-                </div>
-              </div>
-              </sc-if>
-              <sc-if value="{{ confirmBulkLeaveReject }}" hint-placeholder-val="">
-              <div style="background:#fff5f5;border:1px solid #f0d5d2;border-radius:9px;padding:10px 12px;">
-                <div style="font-size:12px;font-weight:600;color:#c0392b;margin-bottom:6px;">{{ declineReqLabel }}</div>
-                <textarea onInput="{{ onBulkLeaveRejectReason }}" value="{{ bulkLeaveRejectReason }}" placeholder="Reason (optional)" style="width:100%;height:52px;padding:7px 9px;border:1px solid #f1d3cf;border-radius:7px;font-family:inherit;font-size:12px;resize:none;outline:none;box-sizing:border-box;background:#fff;" rows="2"></textarea>
-                <div style="display:flex;gap:7px;margin-top:7px;">
-                  <button onClick="{{ cancelBulkLeaveReject }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #e3e6ec;border-radius:8px;font-size:12px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
-                  <button onClick="{{ executeBulkLeaveReject }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#c0392b;border:none;border-radius:8px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;">Confirm decline</button>
-                </div>
-              </div>
-              </sc-if>
-            </div>
             </sc-if>
           </div>
           </sc-if>
