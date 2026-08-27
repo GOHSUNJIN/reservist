@@ -1700,16 +1700,8 @@
           <sc-if value="{{ hasPendingSignups }}" hint-placeholder-val="">
           <div class="card-flush mb-14">
             <div class="section-row">
-              <div onClick="{{ selectAllSignups }}" style="width:22px;height:22px;border-radius:5px;border:1.5px solid {{ signupSelectAllBorder }};background:{{ signupSelectAllBg }};display:flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer;" title="Select all">
-                <sc-if value="{{ allSignupsSelected }}" hint-placeholder-val="">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                </sc-if>
-              </div>
               <span class="text-label">PENDING SIGNUPS</span>
               <span style="background:#c0392b;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;">{{ pendingSignupCount }}</span>
-              <sc-if value="{{ hasSelectedSignups }}" hint-placeholder-val="">
-                <button onClick="{{ onApproveSelected }}" style="-webkit-appearance:none;margin-left:auto;padding:6px 12px;background:#161f30;border:none;color:#fff;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Approve {{ selectedSignupCount }}</button>
-              </sc-if>
             </div>
             <div style="padding:10px 14px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -1719,13 +1711,8 @@
               </sc-if>
             </div>
             <sc-for list="{{ pendingSignups }}" as="sr">
-            <div style="padding:10px 16px;border-bottom:1px solid #f2f4f7;background:{{ sr.cardBg }};">
+            <div style="padding:10px 16px;border-bottom:1px solid #f2f4f7;">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-                <div onClick="{{ sr.onToggleSelect }}" style="width:20px;height:20px;border-radius:5px;border:2px solid {{ sr.checkBorder }};background:{{ sr.checkBg }};display:flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer;">
-                  <sc-if value="{{ sr.isSelected }}" hint-placeholder-val="">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-                  </sc-if>
-                </div>
                 <div style="width:34px;height:34px;border-radius:50%;background:#eceef2;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#5c6678;flex:0 0 auto;">{{ sr.initials }}</div>
                 <div class="flex-fill">
                   <div class="text-body-bold">{{ sr.name }}</div>
@@ -1742,8 +1729,8 @@
                 </sc-if>
               </div>
               <div class="flex-gap-8">
-                <button onClick="{{ sr.onReject }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #e3e6ec;color:#c0392b;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Decline</button>
-                <button onClick="{{ sr.onApprove }}" style="-webkit-appearance:none;flex:2;padding:7px;background:#161f30;border:none;color:#fff;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Approve</button>
+                <button onClick="{{ sr.onReject }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fbeeec;border:1px solid #f1d3cf;color:#c0392b;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Decline</button>
+                <button onClick="{{ sr.onApprove }}" style="-webkit-appearance:none;flex:2;padding:7px;background:#e7f3ec;border:1px solid #cfe6d8;color:#1f8a5b;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Approve</button>
               </div>
             </div>
             </sc-for>
@@ -1815,8 +1802,8 @@
               </sc-if>
               <sc-if value="{{ !lr.isRejectOpen }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;gap:8px;margin-top:4px;opacity:{{ lr.leaveBusyOpacity }};pointer-events:{{ lr.leaveBusyPE }};">
-                <button onClick="{{ lr.onReject }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #e3e6ec;color:#c0392b;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Decline</button>
-                <button onClick="{{ lr.onApprove }}" style="-webkit-appearance:none;flex:2;padding:7px;background:#161f30;border:none;color:#fff;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Approve</button>
+                <button onClick="{{ lr.onReject }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fbeeec;border:1px solid #f1d3cf;color:#c0392b;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Decline</button>
+                <button onClick="{{ lr.onApprove }}" style="-webkit-appearance:none;flex:2;padding:7px;background:#e7f3ec;border:1px solid #cfe6d8;color:#1f8a5b;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Approve</button>
               </div>
               </sc-if>
             </div>
