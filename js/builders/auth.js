@@ -17,6 +17,7 @@ const AuthBuilders = {
     const intakeLabel=targetBatch?.label||'';
     const intakeRangeFull=bs&&be?(Utils.fmtShort(bs)+' to '+Utils.fmtShort(be)+' '+bs.getFullYear()):'';
     const signupDeptOptions=Object.entries(Utils.DEPARTMENTS).map(([value,{label}])=>({value,label}));
+    console.log('[signup] _buildAuth: s.batches=', (s.batches||[]).length, (s.batches||[]).map(b=>({id:b.id,dept:b.department,is_live:b.is_live,start:b.start_date,end:b.end_date})), '| today=', today);
     const openCycles=Object.keys(Utils.DEPARTMENTS).reduce((acc,dept)=>{
       const db=allSorted.filter(b=>!b.department||b.department===dept);
       const live=db.find(b=>today>=b.start_date&&today<=b.end_date)||db.find(b=>b.is_live);

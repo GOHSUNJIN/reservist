@@ -195,11 +195,14 @@ const AuthHandlers = {
     const dept = e.target.value;
     this.setState({suDepartment:dept, authError:''});
     if(!dept || this.state.demo) return;
-    const deptBatches = await DB.batches.list(dept).catch(()=>[]);
+    console.log('[signup] onSignupDeptSelect: fetching batches for dept=', dept, '| current batches in state:', this.state.batches.length);
+    const deptBatches = await DB.batches.list(dept).catch(e=>{console.error('[signup] dept batches error:',e);return[];});
+    console.log('[signup] dept batches fetched:', deptBatches.length, deptBatches.map(b=>({id:b.id,is_live:b.is_live,start:b.start_date,end:b.end_date})));
     if(deptBatches.length) {
       this.setState(s=>{
         const existing = new Set(s.batches.map(b=>b.id));
         const merged = [...s.batches, ...deptBatches.filter(b=>!existing.has(b.id))];
+        console.log('[signup] merged batches total:', merged.length);
         return {batches:merged};
       });
     }
@@ -244,7 +247,9 @@ const AuthHandlers = {
 
   _refreshSignupSlots: async function() {
     if(this.state.demo) return;
-    const batches = await DB.batches.list().catch(()=>[]);
+    console.log('[signup] _refreshSignupSlots: fetching batches...');
+    const batches = await DB.batches.list().catch(e=>{console.error('[signup] batches.list() error:',e);return[];});
+    console.log('[signup] batches fetched:', batches.length, batches.map(b=>({id:b.id,dept:b.department,is_live:b.is_live,start:b.start_date,end:b.end_date})));
     if(batches.length) {
       const liveIdx = batches.findIndex(b=>b.is_live);
       this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0});
