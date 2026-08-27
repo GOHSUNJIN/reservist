@@ -140,12 +140,14 @@ const RequestHandlers = {
     if((myLeaveHistory||[]).some(h=>h.date===leaveDate&&h.status!=='cancelled'&&h.status!=='rejected')){this._toast('You already submitted a request for this date.','error');return;}
     if(!demo){
       const {data,error}=await DB.leaves.request(currentUserId,leaveDate,leaveType,leaveReason).catch(e=>({error:e}));
+      console.log('[leaves] submit result — data:',data,'error:',error);
       if(error){
         const isDuplicate=error?.code==='23505'||error?.message?.includes('leave_requests_one_active_per_day');
         this._toast(isDuplicate?'You already have an active request for this date.':'Failed to submit request.','error');
         return;
       }
       const newReq=data||{personnel_id:currentUserId,date:leaveDate,type:leaveType,reason:leaveReason||null,status:'pending',created_at:new Date().toISOString()};
+      console.log('[leaves] newReq stored in state:',newReq);
       this.setState(s=>({myPendingRequest:newReq,myLeaveHistory:[newReq,...s.myLeaveHistory]}));
     } else {
       const demoReq={id:'demo-'+Date.now(),personnel_id:currentUserId,date:leaveDate,type:leaveType,status:'pending'};
