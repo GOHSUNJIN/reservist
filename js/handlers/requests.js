@@ -143,10 +143,6 @@ const RequestHandlers = {
       if(error){this._toast('Failed to submit request.','error');return;}
       const newReq=data||{personnel_id:currentUserId,date:leaveDate,type:leaveType,reason:leaveReason||null,status:'pending',created_at:new Date().toISOString()};
       this.setState(s=>({myPendingRequest:newReq,myLeaveHistory:[newReq,...s.myLeaveHistory]}));
-      if(!data){
-        DB.leaves.myHistory(currentUserId).then(hist=>this.setState({myLeaveHistory:hist,myLeaveHistoryLoaded:true})).catch(()=>{});
-        DB.leaves.myPending(currentUserId).then(req=>this.setState({myPendingRequest:req})).catch(()=>{});
-      }
     } else {
       const demoReq={id:'demo-'+Date.now(),personnel_id:currentUserId,date:leaveDate,type:leaveType,status:'pending'};
       this.setState(s=>({myPendingRequest:demoReq,myLeaveHistory:[demoReq,...s.myLeaveHistory]}));
