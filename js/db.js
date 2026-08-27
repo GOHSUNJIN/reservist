@@ -482,6 +482,11 @@ const DB = {
         .select('personnel_id').eq('date', date).eq('status', 'approved');
       return data || [];
     },
+
+    async deleteOld(cutoffDate) {
+      const { error } = await _db.from('leave_requests').delete().lt('date', cutoffDate);
+      return { error };
+    },
   },
 
   // ── Storage (MC files) ────────────────────────────────────────────────────
@@ -576,6 +581,15 @@ const DB = {
       const { error } = await _db.from('signup_requests')
         .update({ status: 'rejected', reviewed_by: reviewerName, reviewed_at: new Date().toISOString() })
         .eq('id', id);
+      return { error };
+    },
+
+    async deleteOldProcessed(currentBatchId) {
+      if (!currentBatchId) return { error: null };
+      const { error } = await _db.from('signup_requests')
+        .delete()
+        .in('status', ['approved', 'rejected'])
+        .neq('batch_id', currentBatchId);
       return { error };
     },
   },

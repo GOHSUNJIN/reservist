@@ -123,19 +123,40 @@ const AdminPeople = {
         };
       })(),
       leaveSearch:s.leaveSearch||'', onLeaveSearch:self.onLeaveSearch, clearLeaveSearch:self.clearLeaveSearch, hasLeaveSearch:!!(s.leaveSearch||'').trim(),
+      leaveSearchOpen:!!(s.leaveSearchOpen), toggleLeaveSearch:()=>self.setState({leaveSearchOpen:!s.leaveSearchOpen}),
+      leaveTypeFilter:s.leaveTypeFilter||'all',
+      setLeaveTypeAll:()=>self.setState({leaveTypeFilter:'all'}),
+      setLeaveTypeMc:()=>self.setState({leaveTypeFilter:'mc'}),
+      setLeaveTypePersonal:()=>self.setState({leaveTypeFilter:'personal'}),
+      setLeaveTypeOther:()=>self.setState({leaveTypeFilter:'other'}),
       ...(()=>{
         const _lq=(s.leaveSearch||'').toLowerCase().trim();
+        const _tf=s.leaveTypeFilter||'all';
+        const _fPill=(active)=>active?'-webkit-appearance:none;padding:5px 13px;border-radius:20px;border:none;font-size:12px;font-weight:600;background:#161f30;color:#fff;cursor:pointer;':'-webkit-appearance:none;padding:5px 13px;border-radius:20px;border:none;font-size:12px;font-weight:500;color:#8a94a3;background:#f1f3f6;cursor:pointer;';
+        const filterAllStyle=_fPill(_tf==='all'),filterMcStyle=_fPill(_tf==='mc'),filterPersonalStyle=_fPill(_tf==='personal'),filterOtherStyle=_fPill(_tf==='other');
+        const leaveFilterActive=!!_lq||_tf!=='all';
+        const leaveSearchIconStyle=s.leaveSearchOpen?'-webkit-appearance:none;background:#f0f2f7;border:1px solid #c8cdd6;border-radius:8px;padding:5px 8px;cursor:pointer;display:flex;align-items:center;color:#161f30;':'-webkit-appearance:none;background:none;border:1px solid #e3e6ec;border-radius:8px;padding:5px 8px;cursor:pointer;display:flex;align-items:center;color:#8a94a3;';
         const _lb=_lq?(s.pendingLeaves||[]).filter(l=>(l.personnel?.name||'').toLowerCase().includes(_lq)||(l.personnel?.contact||'').includes(_lq)):(s.pendingLeaves||[]);
-        const _sorted=[..._lb].sort((a,b)=>{const aMs=a.created_at?Date.now()-new Date(a.created_at).getTime():0;const bMs=b.created_at?Date.now()-new Date(b.created_at).getTime():0;return bMs-aMs;});
+        const _lbf=_tf==='all'?_lb:_lb.filter(l=>l.type===_tf);
+        return {filterAllStyle,filterMcStyle,filterPersonalStyle,filterOtherStyle,leaveFilterActive,leaveSearchIconStyle,_lbf,_lbNoFilter:_lb,_lq};
+      })(),
+      ...(()=>{
+        const _lq=(s.leaveSearch||'').toLowerCase().trim();
+        const _tf=s.leaveTypeFilter||'all';
+        const _lb=_lq?(s.pendingLeaves||[]).filter(l=>(l.personnel?.name||'').toLowerCase().includes(_lq)||(l.personnel?.contact||'').includes(_lq)):(s.pendingLeaves||[]);
+        const _lbf=_tf==='all'?_lb:_lb.filter(l=>l.type===_tf);
+        const _sorted=[..._lbf].sort((a,b)=>{const aMs=a.created_at?Date.now()-new Date(a.created_at).getTime():0;const bMs=b.created_at?Date.now()-new Date(b.created_at).getTime():0;return bMs-aMs;});
         const _leaveAllIds=_sorted.map(l=>l.id);
         const _allLeavesSel=_leaveAllIds.length>0&&_leaveAllIds.every(id=>(s.leaveSelectedIds||[]).includes(id));
         const _nowMs=Date.now(),_2d=172800000;
         return {
-          pendingLeaves:_sorted.map(l=>{const _ms=l.created_at?_nowMs-new Date(l.created_at).getTime():0,_h=Math.floor(_ms/3600000),_d=Math.floor(_h/24),isExpired=_ms>_2d,timeAgo=!l.created_at?'':_h<1?'Just now':_h<24?_h+' hr'+(_h!==1?'s':'')+' ago':_d+' day'+(_d!==1?'s':'')+' ago';return({
+          pendingLeaves:_sorted.map(l=>{const _ms=l.created_at?_nowMs-new Date(l.created_at).getTime():0,_h=Math.floor(_ms/3600000),_d=Math.floor(_h/24),isExpired=_ms>_2d,timeAgo=!l.created_at?'':_h<1?'Just now':_h<24?_h+' hr'+(_h!==1?'s':'')+' ago':_d+' day'+(_d!==1?'s':'')+' ago',_av=s.avatars[l.personnel_id]||'';return({
             id:l.id,reason:l.reason||'',
             personName:l.personnel?.name||'Unknown',
+            personContact:l.personnel?.contact||'',
             initials:Utils.initials(l.personnel?.name||'?'),
-            personShift:Utils.shiftLabel(l.personnel?.shift||'OFFICE'),
+            avatarStyle:Utils.avatarStyle(_av),
+            avatarInitials:_av?'':Utils.initials(l.personnel?.name||'?'),
             typeLabel:l.type==='mc'?'MC':l.type==='other'?'Other':'Personal Leave',
             typeBg:l.type==='mc'?'#fdf6e9':'#f1f8f4',
             typeColor:l.type==='mc'?'#b9791a':'#1f8a5b',
@@ -158,7 +179,7 @@ const AdminPeople = {
             declineBusyPE:(s.confirmingDecline&&s.rejectLeaveId===l.id)?'none':'auto',
           });
           }),
-          leaveSearchHasNoResults:!!_lq&&(s.pendingLeaves||[]).length>0&&_lb.length===0,
+          leaveSearchHasNoResults:(!!_lq||_tf!=='all')&&(s.pendingLeaves||[]).length>0&&_sorted.length===0,
           allLeavesSelected:_allLeavesSel,
           selectAllLeaves:self.selectAllLeaves,clearAllLeavesSelection:self.clearAllLeavesSelection,
           leaveSelectAllBorder:_allLeavesSel?'#3b5bdb':'#c8cdd6',leaveSelectAllBg:_allLeavesSel?'#3b5bdb':'#fff',

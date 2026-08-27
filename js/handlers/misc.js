@@ -86,11 +86,12 @@ const MiscHandlers = {
   go: function(t) { return () => { this.setState({tab:t}); this._scrollTop(); }; },
 
   goPeople: function() {
-    this.setState({tab:'people',peopleStatsLoaded:false});
+    this.setState({tab:'people',peopleStatsLoaded:false,rejectedSignupsHidden:true,leaveSearchOpen:false,leaveTypeFilter:'all',leaveSearch:''});
     this.loadPeopleStats();
     this.loadRosterAvatars();
     this.loadPendingLeaves();
     this.loadPendingSignups();
+    this.loadRejectedSignups();
     this._scrollTop();
   },
 
@@ -99,8 +100,8 @@ const MiscHandlers = {
       this.setState({briefTab:k});
       if(k==='history' && this.state.role==='reservist' && !this.state.demo) {
         DB.leaves.myHistory(this.state.currentUserId)
-          .then(hist=>{console.log('[leaves] myHistory (tab reload) result:',hist);this.setState(s=>({myLeaveHistory:hist.length>0?hist:s.myLeaveHistory,myLeaveHistoryLoaded:true}));})
-          .catch(e=>{console.error('[leaves] myHistory (tab reload) error:',e);});
+          .then(hist=>{this.setState(s=>({myLeaveHistory:hist.length>0?hist:s.myLeaveHistory,myLeaveHistoryLoaded:true}));})
+          .catch(()=>{});
       }
     };
   },

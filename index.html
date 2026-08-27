@@ -1729,38 +1729,6 @@
           </sc-if>
           </div>
           </sc-if>
-          <sc-if value="{{ hasRejectedSignups }}" hint-placeholder-val="">
-          <div class="card-flush" style="margin-bottom:14px;">
-            <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
-              <span class="text-label">DECLINED SIGNUPS</span>
-              <span style="background:#8a94a3;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;">{{ rejectedSignupCount }}</span>
-              <div style="flex:1;"></div>
-              <button onClick="{{ toggleRejectedSignups }}" style="-webkit-appearance:none;background:none;border:none;cursor:pointer;padding:2px 4px;display:flex;align-items:center;gap:4px;font-size:11.5px;color:#8a94a3;font-weight:500;">
-                <sc-if value="{{ rejectedSignupsHidden }}" hint-placeholder-val="">Show</sc-if>
-                <sc-if value="{{ !rejectedSignupsHidden }}" hint-placeholder-val="{{ true }}">Hide</sc-if>
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate({{ rejectedSignupsChevronRotate }}deg);transition:transform .2s;"><polyline points="6 9 12 15 18 9"/></svg>
-              </button>
-            </div>
-            <sc-if value="{{ !rejectedSignupsHidden }}" hint-placeholder-val="{{ true }}">
-            <sc-for list="{{ rejectedSignups }}" as="sr">
-            <div style="padding:10px 16px;border-bottom:1px solid #f2f4f7;">
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-                <div style="width:34px;height:34px;border-radius:50%;background:#f2f4f7;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#8a94a3;flex:0 0 auto;">{{ sr.initials }}</div>
-                <div class="flex-fill">
-                  <div class="text-body-bold">{{ sr.name }}</div>
-                  <div style="font-size:11px;color:#8a94a3;margin-top:1px;">{{ sr.contact }} · {{ sr.batchLabel }}</div>
-                  <sc-if value="{{ sr.reviewedAt }}" hint-placeholder-val="">
-                    <div style="font-size:11px;color:#b9791a;margin-top:2px;">Declined {{ sr.reviewedAt }}<sc-if value="{{ sr.reviewedBy }}" hint-placeholder-val=""> by {{ sr.reviewedBy }}</sc-if></div>
-                  </sc-if>
-                </div>
-                <span style="flex:0 0 auto;font-size:10px;font-weight:700;background:#fdf2f2;color:#c0392b;border:1px solid #f5c6c6;padding:2px 7px;border-radius:20px;">Declined</span>
-              </div>
-              <button onClick="{{ sr.onReopen }}" style="-webkit-appearance:none;width:100%;padding:7px;background:#fff;border:1px solid #d4d9e2;color:#5c6678;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Reopen as pending</button>
-            </div>
-            </sc-for>
-            </sc-if>
-          </div>
-          </sc-if>
           <sc-if value="{{ !pendingLeavesLoaded }}" hint-placeholder-val="">
             <div style="padding:28px 16px;text-align:center;"><div class="spinner"></div></div>
           </sc-if>
@@ -1774,27 +1742,42 @@
               </div>
               <span class="text-label">PENDING REQUESTS</span>
               <span style="background:#c0392b;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;">{{ pendingLeavesCount }}</span>
+              <div style="flex:1;"></div>
+              <button onClick="{{ toggleLeaveSearch }}" style="{{ leaveSearchIconStyle }}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <sc-if value="{{ leaveFilterActive }}" hint-placeholder-val=""><div style="width:6px;height:6px;border-radius:50%;background:#c0392b;margin-left:4px;flex:0 0 auto;"></div></sc-if>
+              </button>
             </div>
-            <div style="padding:10px 14px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input type="text" placeholder="Search by name or contact" value="{{ leaveSearch }}" onInput="{{ onLeaveSearch }}" autocorrect="off" autocapitalize="off" spellcheck="false" style="flex:1;border:none;outline:none;font-size:13px;color:#161f30;background:transparent;min-width:0;" />
-              <sc-if value="{{ hasLeaveSearch }}" hint-placeholder-val="">
-                <button onClick="{{ clearLeaveSearch }}" style="-webkit-appearance:none;background:none;border:none;padding:2px;cursor:pointer;display:flex;align-items:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-              </sc-if>
+            <sc-if value="{{ leaveSearchOpen }}" hint-placeholder-val="">
+            <div style="padding:10px 14px;border-bottom:1px solid #eef0f4;background:#f9fafb;">
+              <div style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #e3e6ec;border-radius:9px;padding:7px 10px;margin-bottom:8px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" placeholder="Search by name or contact" value="{{ leaveSearch }}" onInput="{{ onLeaveSearch }}" autocorrect="off" autocapitalize="off" spellcheck="false" style="flex:1;border:none;outline:none;font-size:13px;color:#161f30;background:transparent;min-width:0;" />
+                <sc-if value="{{ hasLeaveSearch }}" hint-placeholder-val="">
+                  <button onClick="{{ clearLeaveSearch }}" style="-webkit-appearance:none;background:none;border:none;padding:2px;cursor:pointer;display:flex;align-items:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                </sc-if>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button onClick="{{ setLeaveTypeAll }}" style="{{ filterAllStyle }}">All</button>
+                <button onClick="{{ setLeaveTypeMc }}" style="{{ filterMcStyle }}">MC</button>
+                <button onClick="{{ setLeaveTypePersonal }}" style="{{ filterPersonalStyle }}">Personal</button>
+                <button onClick="{{ setLeaveTypeOther }}" style="{{ filterOtherStyle }}">Other</button>
+              </div>
             </div>
+            </sc-if>
             <sc-for list="{{ pendingLeaves }}" as="lr" hint-placeholder-count="2">
-            <div style="padding:10px 16px;border-bottom:1px solid #f2f4f7;opacity:{{ lr.expiredOpacity }};">
-              <div style="display:flex;align-items:center;gap:10px;margin-bottom:7px;">
+            <div style="padding:12px 16px;border-bottom:1px solid #f2f4f7;opacity:{{ lr.expiredOpacity }};">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
                 <div onClick="{{ lr.onToggleSelect }}" style="flex:0 0 auto;width:22px;height:22px;border-radius:5px;border:1.5px solid {{ lr.checkBorder }};background:{{ lr.checkBg }};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
                   <sc-if value="{{ lr.isSelected }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></sc-if>
                 </div>
-                <div class="avatar-sm" style="flex:0 0 auto;">{{ lr.initials }}</div>
+                <div class="avatar-sm" style="flex:0 0 auto;{{ lr.avatarStyle }}">{{ lr.avatarInitials }}</div>
                 <div class="flex-fill">
                   <div style="display:flex;align-items:center;gap:6px;">
                     <span class="text-body-bold">{{ lr.personName }}</span>
                     <sc-if value="{{ lr.isExpired }}" hint-placeholder-val=""><span style="font-size:10px;font-weight:700;padding:1px 6px;border-radius:20px;background:#f2f4f7;color:#8a94a3;border:1px solid #d4d9e2;white-space:nowrap;">Expired</span></sc-if>
                   </div>
-                  <div style="font-size:11px;color:#8a94a3;margin-top:1px;">{{ lr.personShift }} · {{ lr.dateLabel }} · <span style="color:{{ lr.expiredTimeColor }};">{{ lr.timeAgo }}</span></div>
+                  <div style="font-size:11px;color:#8a94a3;margin-top:1px;">{{ lr.personContact }} · {{ lr.dateLabel }} · <span style="color:{{ lr.expiredTimeColor }};">{{ lr.timeAgo }}</span></div>
                   <sc-if value="{{ lr.reason }}" hint-placeholder-val="">
                     <div style="font-size:11px;color:#9aa3b2;font-style:italic;margin-top:1px;">"{{ lr.reason }}"</div>
                   </sc-if>
@@ -1820,7 +1803,7 @@
             </div>
             </sc-for>
             <sc-if value="{{ leaveSearchHasNoResults }}" hint-placeholder-val="">
-              <div style="padding:14px 16px;font-size:12px;color:#8a94a3;text-align:center;">No requests match this search.</div>
+              <div style="padding:18px 16px;font-size:12px;color:#8a94a3;text-align:center;">No requests match your search or filter.</div>
             </sc-if>
             <sc-if value="{{ hasLeaveSelection }}" hint-placeholder-val="">
             <div style="padding:10px 14px;border-top:1px solid #eef0f4;background:#f9fafb;">
@@ -1845,6 +1828,38 @@
               </div>
               </sc-if>
             </div>
+            </sc-if>
+          </div>
+          </sc-if>
+          <sc-if value="{{ hasRejectedSignups }}" hint-placeholder-val="">
+          <div class="card-flush" style="margin-bottom:14px;">
+            <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
+              <span class="text-label">DECLINED SIGNUPS</span>
+              <span style="background:#8a94a3;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;">{{ rejectedSignupCount }}</span>
+              <div style="flex:1;"></div>
+              <button onClick="{{ toggleRejectedSignups }}" style="-webkit-appearance:none;background:none;border:none;cursor:pointer;padding:2px 4px;display:flex;align-items:center;gap:4px;font-size:11.5px;color:#8a94a3;font-weight:500;">
+                <sc-if value="{{ rejectedSignupsHidden }}" hint-placeholder-val="{{ true }}">Show</sc-if>
+                <sc-if value="{{ !rejectedSignupsHidden }}" hint-placeholder-val="">Hide</sc-if>
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate({{ rejectedSignupsChevronRotate }}deg);transition:transform .2s;"><polyline points="6 9 12 15 18 9"/></svg>
+              </button>
+            </div>
+            <sc-if value="{{ !rejectedSignupsHidden }}" hint-placeholder-val="">
+            <sc-for list="{{ rejectedSignups }}" as="sr">
+            <div style="padding:12px 16px;border-bottom:1px solid #f2f4f7;">
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                <div style="width:34px;height:34px;border-radius:50%;background:#f2f4f7;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#8a94a3;flex:0 0 auto;">{{ sr.initials }}</div>
+                <div class="flex-fill">
+                  <div class="text-body-bold">{{ sr.name }}</div>
+                  <div style="font-size:11px;color:#8a94a3;margin-top:1px;">{{ sr.contact }}</div>
+                  <sc-if value="{{ sr.reviewedAt }}" hint-placeholder-val="">
+                    <div style="font-size:11px;color:#b9791a;margin-top:2px;">Declined {{ sr.reviewedAt }}<sc-if value="{{ sr.reviewedBy }}" hint-placeholder-val=""> by {{ sr.reviewedBy }}</sc-if></div>
+                  </sc-if>
+                </div>
+                <span style="flex:0 0 auto;font-size:10px;font-weight:700;background:#fdf2f2;color:#c0392b;border:1px solid #f5c6c6;padding:2px 7px;border-radius:20px;">Declined</span>
+              </div>
+              <button onClick="{{ sr.onReopen }}" style="-webkit-appearance:none;width:100%;padding:7px;background:#fff;border:1px solid #d4d9e2;color:#5c6678;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Reopen as pending</button>
+            </div>
+            </sc-for>
             </sc-if>
           </div>
           </sc-if>
