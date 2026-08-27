@@ -186,7 +186,19 @@ const AuthHandlers = {
   onSuName:        function(e) { this.setState({suName:e.target.value}); },
   onSuContact:     function(e) { this.setState({suContact:e.target.value}); },
   onSuPassword:    function(e) { this.setState({suPassword:e.target.value}); },
-  onSignupDeptSelect: function(e) { this.setState({suDepartment:e.target.value, authError:''}); },
+  onSignupDeptSelect: async function(e) {
+    const dept = e.target.value;
+    this.setState({suDepartment:dept, authError:''});
+    if(!dept || this.state.demo) return;
+    const deptBatches = await DB.batches.list(dept).catch(()=>[]);
+    if(deptBatches.length) {
+      this.setState(s=>{
+        const existing = new Set(s.batches.map(b=>b.id));
+        const merged = [...s.batches, ...deptBatches.filter(b=>!existing.has(b.id))];
+        return {batches:merged};
+      });
+    }
+  },
 
   dismissSignupPending: function() { this.setState({signupPending:false, authMode:'login'}); },
 
@@ -227,12 +239,10 @@ const AuthHandlers = {
 
   _refreshSignupSlots: async function() {
     if(this.state.demo) return;
-    if(!this.state.batches.length) {
-      const batches = await DB.batches.list().catch(()=>[]);
-      if(batches.length) {
-        const liveIdx = batches.findIndex(b=>b.is_live);
-        this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0});
-      }
+    const batches = await DB.batches.list().catch(()=>[]);
+    if(batches.length) {
+      const liveIdx = batches.findIndex(b=>b.is_live);
+      this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0});
     }
   },
 
