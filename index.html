@@ -856,9 +856,9 @@
                   </sc-if>
                 </div>
                 <div style="flex:1;min-width:0;">
-                  <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                    <span style="font-size:13.5px;font-weight:600;color:#161f30;">{{ rh.typeLabel }}</span>
-                    <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:20px;color:{{ rh.statusColor }};background:{{ rh.statusBg }};border:1px solid {{ rh.statusBorder }};white-space:nowrap;flex:0 0 auto;">{{ rh.statusLabel }}</span>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <span style="font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px;background:{{ rh.typeBg }};color:{{ rh.typeColor }};border:1px solid {{ rh.typeBorder }};white-space:nowrap;">{{ rh.typeLabel }}</span>
+                    <span style="font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px;color:{{ rh.statusColor }};background:{{ rh.statusBg }};border:1px solid {{ rh.statusBorder }};white-space:nowrap;flex:0 0 auto;">{{ rh.statusLabel }}</span>
                   </div>
                   <div style="font-size:12px;color:#9aa3b2;margin-top:2px;">{{ rh.dateLabel }}</div>
                 </div>
@@ -1175,12 +1175,17 @@
             </div>
             <sc-for list="{{ pendingLeaves }}" as="lr" hint-placeholder-count="2">
             <div style="padding:12px 16px;border-bottom:1px solid #f2f4f7;opacity:{{ lr.expiredOpacity }};">
-              <div style="display:flex;align-items:center;gap:8px;margin-bottom:5px;">
-                <div style="font-size:13.5px;font-weight:600;color:#161f30;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ lr.personName }}</div>
-                <sc-if value="{{ lr.isExpired }}" hint-placeholder-val=""><span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;background:#f2f4f7;color:#8a94a3;border:1px solid #d4d9e2;white-space:nowrap;flex:0 0 auto;">Expired</span></sc-if>
-                <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:{{ lr.typeBg }};color:{{ lr.typeColor }};border:1px solid {{ lr.typeBorder }};white-space:nowrap;flex:0 0 auto;">{{ lr.typeLabel }}</span>
+              <div style="display:flex;align-items:center;gap:10px;margin-bottom:5px;">
+                <div class="avatar-sm" onClick="{{ lr.onViewAvatar }}" style="flex:0 0 auto;{{ lr.avatarStyle }}{{ lr.avatarCursor }}">{{ lr.avatarInitials }}</div>
+                <div style="flex:1;min-width:0;">
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <div style="font-size:13.5px;font-weight:600;color:#161f30;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ lr.personName }}</div>
+                    <sc-if value="{{ lr.isExpired }}" hint-placeholder-val=""><span style="font-size:11px;font-weight:700;padding:2px 7px;border-radius:6px;background:#f2f4f7;color:#8a94a3;border:1px solid #d4d9e2;white-space:nowrap;flex:0 0 auto;">Expired</span></sc-if>
+                    <span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:6px;background:{{ lr.typeBg }};color:{{ lr.typeColor }};border:1px solid {{ lr.typeBorder }};white-space:nowrap;flex:0 0 auto;">{{ lr.typeLabel }}</span>
+                  </div>
+                  <div style="font-size:12px;color:#8a94a3;margin-top:1px;"><span onClick="{{ lr.onCopyContact }}" style="cursor:pointer;">{{ lr.personContact }}</span> · {{ lr.dateLabel }} · <span style="color:{{ lr.expiredTimeColor }};">{{ lr.timeAgo }}</span></div>
+                </div>
               </div>
-              <div style="font-size:12px;color:#8a94a3;margin-bottom:4px;">{{ lr.dateLabel }} · <span style="color:{{ lr.expiredTimeColor }};">{{ lr.timeAgo }}</span></div>
               <sc-if value="{{ lr.reason }}" hint-placeholder-val="">
                 <div style="font-size:12px;color:#5c6678;font-style:italic;margin-bottom:5px;">"{{ lr.reason }}"</div>
               </sc-if>
@@ -1830,7 +1835,7 @@
                     <div style="font-size:11px;color:#b9791a;margin-top:2px;">Declined {{ sr.reviewedAt }}<sc-if value="{{ sr.reviewedBy }}" hint-placeholder-val=""> by {{ sr.reviewedBy }}</sc-if></div>
                   </sc-if>
                 </div>
-                <span style="flex:0 0 auto;font-size:10px;font-weight:700;background:#fdf2f2;color:#c0392b;border:1px solid #f5c6c6;padding:2px 7px;border-radius:20px;">Declined</span>
+                <span style="flex:0 0 auto;font-size:10px;font-weight:700;background:#f7e4e1;color:#c0392b;border:1px solid #f1d0cc;padding:2px 7px;border-radius:20px;">Declined</span>
               </div>
               <button onClick="{{ sr.onReopen }}" style="-webkit-appearance:none;width:100%;padding:7px;background:#fff;border:1px solid #d4d9e2;color:#5c6678;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Reopen as pending</button>
             </div>

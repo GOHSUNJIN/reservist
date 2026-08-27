@@ -55,7 +55,7 @@ const CheckinBuilders = {
         const isMc=futureLeave.type==='mc';
         if(futureLeave.status==='approved')
           return {label:isMc?'MC approved':'Leave approved',sub:isMc?'Sick leave approved for this day':'Absence approved for this day',color:'#b9791a',bg:'#f7efdc'};
-        return {label:isMc?'MC pending':'Leave pending',sub:'Awaiting admin approval',color:'#b9791a',bg:'#fdf6e9'};
+        return {label:isMc?'MC submitted':'Leave submitted',sub:'Awaiting admin approval',color:'#b9791a',bg:'#fdf6e9'};
       }
       return {label:'Upcoming',sub:'Reporting day',color:'#5c6678',bg:'#eceef2'};
     }
