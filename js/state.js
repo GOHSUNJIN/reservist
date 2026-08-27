@@ -94,14 +94,14 @@ const makeInitialState = () => ({
   rejectedSignups: [], rejectedSignupsLoaded: false,
   selectedSignupIds: [],
   signupSearch: '',
-  rejectedSignupsHidden: false,
+  rejectedSignupsHidden: true,
 
   // ── Leave requests ───────────────────────────────────────────────────────
   leaveOpen: false, leaveDate: '', leaveType: 'mc', leaveReason: '',
   myPendingRequest: null,
   myLeaveHistory: [], myLeaveHistoryLoaded: false,
   pendingLeaves: [], pendingLeavesLoaded: false,
-  leaveSearch: '',
+  leaveSearch: '', leaveTypeFilter: 'all', leaveSearchOpen: false,
   rejectLeaveId: null, rejectLeaveReason: '',
   leaveSelectedIds: [], confirmBulkLeaveReject: false, bulkLeaveRejectReason: '', bulkApprovingLeaves: false,
 
