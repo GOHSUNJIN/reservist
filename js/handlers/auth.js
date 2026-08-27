@@ -28,7 +28,12 @@ const AuthHandlers = {
     const {clean:cleanContact, error:contactErr} = Utils.validateSGContact(suContact);
     if(contactErr){ this.setState({authError:contactErr}); return; }
     const today = Utils.dateKey(this.baseDate());
-    const allSorted = [...this.state.batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
+    let allBatches = this.state.batches;
+    if(!allBatches.length) {
+      allBatches = await DB.batches.list().catch(()=>[]);
+      if(allBatches.length) this.setState({batches:allBatches});
+    }
+    const allSorted = [...allBatches].sort((a,b)=>a.start_date>b.start_date?1:-1);
     const deptBatches = allSorted.filter(b=>!b.department||b.department===suDepartment);
     const liveBatch = deptBatches.find(b=>today>=b.start_date&&today<=b.end_date) || deptBatches.find(b=>b.is_live);
     if(!liveBatch){
