@@ -94,7 +94,16 @@ const MiscHandlers = {
     this._scrollTop();
   },
 
-  setBriefTab:  function(k) { return () => this.setState({briefTab:k}); },
+  setBriefTab: function(k) {
+    return () => {
+      this.setState({briefTab:k});
+      if(k==='history' && this.state.role==='reservist' && !this.state.demo) {
+        DB.leaves.myHistory(this.state.currentUserId)
+          .then(hist=>this.setState({myLeaveHistory:hist,myLeaveHistoryLoaded:true}))
+          .catch(()=>{});
+      }
+    };
+  },
   selectCalDay: function(off) { return () => this.setState(s=>({selectedCalOffset:s.selectedCalOffset===off?null:off})); },
 
   // ── Helpers ────────────────────────────────────────────────────────────
