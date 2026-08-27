@@ -2,13 +2,16 @@
 const RosterHandlers = {
 
   // Helpers: read/write attendance from today's map or the date cache
+  // Returns the attendance map for the viewed date: today's live map or the date cache.
   _viewAttMap: function(off, dk) {
     return off===0 ? this.state.attendance : (this.state.attendanceCache?.[dk]||{});
   },
+  // Writes an attendance entry to today's map or the date cache depending on the offset.
   _setViewEntry: function(id, entry, off, dk) {
     if(off===0) this.setState(s=>({attendance:{...s.attendance,[id]:entry}}));
     else this.setState(s=>({attendanceCache:{...s.attendanceCache,[dk]:{...(s.attendanceCache?.[dk]||{}),[id]:entry}}}));
   },
+  // Removes an attendance entry from today's map or the date cache depending on the offset.
   _delViewEntry: function(id, off, dk) {
     if(off===0) this.setState(s=>{const a={...s.attendance};delete a[id];return{attendance:a};});
     else this.setState(s=>{const c={...(s.attendanceCache?.[dk]||{})};delete c[id];return{attendanceCache:{...s.attendanceCache,[dk]:c}};});
@@ -98,6 +101,7 @@ const RosterHandlers = {
   nextDay: function() { this._navToOffset(this.state.viewOffset+1); },
   goToday: function() { this._navToOffset(0); },
 
+  // Navigates to a day offset, switching active batch if the target date falls in a different batch.
   _navToOffset: async function(off) {
     const date=Utils.dateKey(this.dateForOffset(off)), {batches}=this.state, curIdx=this.state.activeBatchIdx||0;
     let ni=batches.findIndex((b,i)=>i!==curIdx&&date>=b.start_date&&date<=b.end_date);
@@ -223,6 +227,7 @@ const RosterHandlers = {
     this._toast('Times updated.');
   },
 
+  // Subscribes to Supabase realtime updates for attendance on the given date.
   _subscribeRealtime: function(dateStr) {
     if(this.state.demo) return;
     const ch=DB.realtime.subscribeAttendance(dateStr, row=>{

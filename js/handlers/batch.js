@@ -146,6 +146,7 @@ const BatchHandlers = {
     this._toast('Meal allowance forms '+(next?'activated':'paused')+'.');
   },
 
+  // Returns true if the day at the given offset is a no-report day (weekend, holiday, or manually set).
   isNoReport: function(off) {
     const d=this.dateForOffset(off);
     if(!Utils.isReportDay(d)) return false;

@@ -17,6 +17,16 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
 <script src="./js/config.js" defer></script>
 <script src="./js/utils.js" defer></script>
+<script src="./js/db-client.js" defer></script>
+<script src="./js/db/auth.js" defer></script>
+<script src="./js/db/personnel.js" defer></script>
+<script src="./js/db/attendance.js" defer></script>
+<script src="./js/db/batches.js" defer></script>
+<script src="./js/db/no-report-days.js" defer></script>
+<script src="./js/db/leaves.js" defer></script>
+<script src="./js/db/storage.js" defer></script>
+<script src="./js/db/signups.js" defer></script>
+<script src="./js/db/realtime.js" defer></script>
 <script src="./js/db.js" defer></script>
 <script src="./js/state.js" defer></script>
 <script src="./js/handlers/init.js" defer></script>
@@ -304,7 +314,7 @@
 
 
           <div style="background:#fff;border:1px solid #e3e6ec;border-radius:16px;padding:22px;box-shadow:0 2px 12px rgba(20,30,50,.09);">
-            <div style="margin-bottom:12px;">
+            <div class="mb-12">
               <span style="display:inline-flex;align-items:center;gap:7px;padding:4px 10px;background:{{ myStatusBg }};border-radius:20px;">
                 <span style="width:7px;height:7px;border-radius:50%;background:{{ myStatusColor }};display:inline-block;flex:0 0 auto;{{ myStatusPulse }}"></span>
                 <span style="font-size:12px;font-weight:700;color:{{ myStatusColor }};text-transform:uppercase;letter-spacing:.07em;">{{ myStatusLabel }}</span>
@@ -359,7 +369,7 @@
 
             <!-- Expired request - can re-request -->
             <sc-if value="{{ pendingRequestExpired }}" hint-placeholder-val="">
-            <div style="margin-bottom:14px;">
+            <div class="mb-14">
               <div style="background:#f6f8fa;border:1px solid #e3e6ec;border-radius:14px;padding:13px 15px;">
                 <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8a94a3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>
@@ -1164,7 +1174,7 @@
 
           <!-- Pending requests -->
           <sc-if value="{{ hasPendingLeaves }}" hint-placeholder-val="">
-          <div class="card-flush" style="margin-bottom:14px;">
+          <div class="card-flush mb-14">
             <div style="padding:11px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
               <span style="font-size:11.5px;font-weight:700;color:#8a94a3;letter-spacing:.06em;">PENDING REQUESTS</span>
               <span style="background:#c0392b;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;">{{ pendingLeavesCount }}</span>
@@ -1246,7 +1256,7 @@
             </sc-if>
 
             <!-- Live roster -->
-            <div class="card-flush" style="margin-bottom:14px;">
+            <div class="card-flush mb-14">
               <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;justify-content:space-between;align-items:center;">
                 <div style="display:flex;align-items:center;gap:7px;">
                   <span class="text-label">{{ viewListHeader }}</span>
@@ -1297,7 +1307,7 @@
             </div>
 
             <!-- Communication actions -->
-            <div class="card-flush" style="margin-bottom:14px;">
+            <div class="card-flush mb-14">
               <button onClick="{{ openBroadcast }}" style="-webkit-appearance:none;width:100%;padding:14px 16px;background:transparent;border:none;border-bottom:1px solid #f2f4f7;cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;">
                 <div style="width:36px;height:36px;border-radius:10px;background:#eef3fc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#2f5fd0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 17H2a3 3 0 0 0 3-3V9a7 7 0 0 1 14 0v5a3 3 0 0 0 3 3z"/><line x1="12" y1="20" x2="12" y2="20.01"/></svg>
@@ -1688,8 +1698,8 @@
             <div style="padding:28px 16px;text-align:center;"><div class="spinner"></div></div>
           </sc-if>
           <sc-if value="{{ hasPendingSignups }}" hint-placeholder-val="">
-          <div class="card-flush" style="margin-bottom:14px;">
-            <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
+          <div class="card-flush mb-14">
+            <div class="section-row">
               <div onClick="{{ selectAllSignups }}" style="width:22px;height:22px;border-radius:5px;border:1.5px solid {{ signupSelectAllBorder }};background:{{ signupSelectAllBg }};display:flex;align-items:center;justify-content:center;flex:0 0 auto;cursor:pointer;" title="Select all">
                 <sc-if value="{{ allSignupsSelected }}" hint-placeholder-val="">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1750,8 +1760,8 @@
             <div style="padding:28px 16px;text-align:center;"><div class="spinner"></div></div>
           </sc-if>
           <sc-if value="{{ hasPendingLeaves }}" hint-placeholder-val="">
-          <div class="card-flush" style="margin-bottom:14px;">
-            <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
+          <div class="card-flush mb-14">
+            <div class="section-row">
               <span class="text-label">PENDING REQUESTS</span>
               <span style="background:#c0392b;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;">{{ pendingLeavesCount }}</span>
               <div style="flex:1;"></div>
@@ -1817,8 +1827,8 @@
           </div>
           </sc-if>
           <sc-if value="{{ hasRejectedSignups }}" hint-placeholder-val="">
-          <div class="card-flush" style="margin-bottom:14px;">
-            <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
+          <div class="card-flush mb-14">
+            <div class="section-row">
               <span class="text-label">DECLINED SIGNUPS</span>
               <span style="background:#8a94a3;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;">{{ rejectedSignupCount }}</span>
               <div style="flex:1;"></div>
@@ -1892,7 +1902,7 @@
               </div>
             </sc-if>
           </div>
-          <div class="card-flush" style="margin-bottom:14px;">
+          <div class="card-flush mb-14">
             <div style="padding:13px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;justify-content:space-between;">
               <span class="text-label">PERSONNEL</span>
               <div style="display:flex;align-items:center;gap:8px;">
@@ -2004,7 +2014,7 @@
 
           <!-- ── TEAM sub-tab ── -->
           <sc-if value="{{ ptAdmins }}" hint-placeholder-val="">
-          <div class="card-flush" style="margin-bottom:14px;">
+          <div class="card-flush mb-14">
             <div style="padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;justify-content:space-between;">
               <span class="section-label">SUPERVISORS</span>
               <span style="font-size:12px;color:#8a94a3;">{{ adminsList.length }} active</span>
@@ -2134,7 +2144,7 @@
 
       <div style="padding:0 18px 36px;">
         <!-- Info rows -->
-        <div class="card-flush" style="margin-bottom:12px;">
+        <div class="card-flush mb-12">
           <div class="detail-row"><span style="color:#8a94a3;">Contact</span><span style="font-weight:600;color:#161f30;">{{ acctContact }}</span></div>
           <sc-if value="{{ isReservistRole }}" hint-placeholder-val="">
             <div class="detail-row" style="{{ acctCycleRowStyle }}"><span style="color:#8a94a3;">Cycle</span><span style="font-weight:600;color:#161f30;">{{ cycleStart }} to {{ cycleEnd }}</span></div>
@@ -2148,7 +2158,7 @@
         </div>
 
         <!-- Settings rows -->
-        <div class="card-flush" style="margin-bottom:12px;">
+        <div class="card-flush mb-12">
           <sc-if value="{{ isAdmin }}" hint-placeholder-val="">
           <button onClick="{{ openChangeName }}" style="-webkit-appearance:none;width:100%;padding:14px 16px;background:transparent;border:none;border-bottom:1px solid #f2f4f7;cursor:pointer;display:flex;align-items:center;justify-content:space-between;text-align:left;">
             <div>
@@ -2304,7 +2314,7 @@
           </div>
         </sc-if>
         <sc-if value="{{ showAddForm }}" hint-placeholder-val="{{ true }}">
-        <div style="margin-bottom:14px;">
+        <div class="mb-14">
           <div style="font-size:11px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:7px;">RE-ENROLL RETURNING RESERVIST</div>
           <div style="display:flex;align-items:center;gap:8px;padding:9px 12px;background:#f6f7f9;border:1px solid #e3e6ec;border-radius:10px;">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" style="flex:0 0 auto;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -2550,11 +2560,11 @@
           <button onClick="{{ closeLeaveRequest }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
         <p style="font-size:13px;color:#5c6678;margin:0 0 16px;line-height:1.5;">Submit an absence request for review by the admin. It does not automatically mark you absent.</p>
-        <div style="margin-bottom:12px;">
+        <div class="mb-12">
           <div class="text-tag">DATE</div>
           <input type="date" value="{{ leaveDate }}" onInput="{{ onLeaveDate }}" class="field" />
         </div>
-        <div style="margin-bottom:12px;">
+        <div class="mb-12">
           <div class="text-tag">TYPE</div>
           <div class="flex-gap-7">
             <sc-if value="{{ leaveIsPersonal }}" hint-placeholder-val="{{ true }}"><button onClick="{{ onLeaveTypePersonal }}" style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid {{ accent }};background:{{ accent }};color:#fff;">Personal</button></sc-if>

@@ -1,6 +1,7 @@
 // ── Check-in handlers ─────────────────────────────────────────────────────
 const CheckinHandlers = {
 
+  // Detects if the page is running inside a social media or messaging in-app browser.
   _detectInAppBrowser: function() {
     const ua=navigator.userAgent||'', isIOS=/iP(hone|od|ad)/.test(ua);
     if(/WhatsApp/i.test(ua))       return {detected:true, name:'WhatsApp'};
@@ -64,6 +65,7 @@ const CheckinHandlers = {
   _hqLon:   function() { return parseFloat(this.props.hqLon)||103.937189; },
   _maxDist: function() { return parseInt(this.props.hqRange)||250; },
 
+  // Computes the great-circle distance in metres between two GPS coordinates.
   _haversine: function(lat1,lon1,lat2,lon2) {
     const R=6371000, r=Math.PI/180, dLat=(lat2-lat1)*r, dLon=(lon2-lon1)*r;
     const a=Math.sin(dLat/2)**2+Math.cos(lat1*r)*Math.cos(lat2*r)*Math.sin(dLon/2)**2;
@@ -78,7 +80,7 @@ const CheckinHandlers = {
     };
   },
 
-  // Shared implementation for GPS check-in and bypass check-in
+  // Shared core logic for GPS check-in and bypass check-in; writes the phase locally then syncs to DB.
   _doPhaseImpl: function(key, bypassed) {
     return async () => {
       if(this.state.phaseSubmitting) return;
@@ -143,6 +145,7 @@ const CheckinHandlers = {
 
   _haptic: function(ms=60) { if(navigator.vibrate) navigator.vibrate(ms); },
 
+  // Adds an action to the offline queue and persists it to sessionStorage for retry on reconnect.
   _queuePush: function(item) {
     this._offlineQueues.push(item);
     try{ sessionStorage.setItem('offlineQ', JSON.stringify(this._offlineQueues)); }catch{}

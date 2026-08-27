@@ -154,3 +154,50 @@ button:active{transform:scale(.97);transition:transform .08s;}
 /* Tabs */
 .tab-cell            { padding:13px 8px;text-align:center;border-right:1px solid #f0f2f5; }
 
+/* ── Spacing utilities ─────────────────────────────────────────────────────── */
+.mb-4  { margin-bottom:4px; }
+.mb-6  { margin-bottom:6px; }
+.mb-8  { margin-bottom:8px; }
+.mb-10 { margin-bottom:10px; }
+.mb-12 { margin-bottom:12px; }
+.mb-14 { margin-bottom:14px; }
+.mb-16 { margin-bottom:16px; }
+.mt-4  { margin-top:4px; }
+.mt-6  { margin-top:6px; }
+.mt-8  { margin-top:8px; }
+.mt-10 { margin-top:10px; }
+.mt-12 { margin-top:12px; }
+
+/* ── Position ──────────────────────────────────────────────────────────────── */
+.pos-rel { position:relative; }
+
+/* ── Status pills ──────────────────────────────────────────────────────────── */
+.pill { font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;flex:0 0 auto; }
+.pill-sm { font-size:10.5px;font-weight:700;padding:2px 7px;border-radius:20px;white-space:nowrap; }
+
+/* ── Input wrapper with icon ───────────────────────────────────────────────── */
+.input-wrap { position:relative;margin-bottom:10px; }
+.input-wrap .field { padding-right:42px; }
+.input-clear-btn { position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9aa3b2;padding:4px;display:flex;align-items:center; }
+
+/* ── Color tokens ──────────────────────────────────────────────────────────── */
+.text-danger  { color:#c0392b; }
+.text-success { color:#1f8a5b; }
+.text-warn    { color:#b9791a; }
+.text-primary { color:#2f5fd0; }
+
+/* ── Gap helpers (missing from existing) ───────────────────────────────────── */
+.gap-4  { gap:4px; }
+.gap-14 { gap:14px; }
+.gap-16 { gap:16px; }
+.flex-gap-6  { display:flex;gap:6px; }
+.flex-gap-10 { display:flex;gap:10px; }
+.flex-gap-12 { display:flex;gap:12px; }
+.flex-gap-14 { display:flex;gap:14px; }
+
+/* ── Section header row ────────────────────────────────────────────────────── */
+.section-row { padding:12px 16px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px; }
+
+/* ── Card row item (list rows inside card-flush) ───────────────────────────── */
+.card-row { padding:12px 16px;border-bottom:1px solid #f2f4f7;display:flex;align-items:center;gap:12px; }
+

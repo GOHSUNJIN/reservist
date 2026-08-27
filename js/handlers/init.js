@@ -17,6 +17,7 @@ const InitHandlers = {
     if(user) await this._afterLogin(user, batches);
   },
 
+  // Runs after a successful auth session is established; loads all user data and sets up realtime.
   _afterLogin: async function(user, prefetchedBatches) {
     const me = await DB.personnel.get(user.id).catch(()=>null);
     if(!me){
@@ -175,6 +176,7 @@ const InitHandlers = {
     this._resetIdleTimer();
   },
 
+  // Triggered when the calendar date rolls over midnight; auto-marks yesterday's pending as absent and reloads attendance.
   _onDateChange: async function(newDate) {
     if(!this.state.authed || this.state.demo) return;
     const dept = this._myDept();
@@ -217,6 +219,7 @@ const InitHandlers = {
     }
   },
 
+  // Activates a batch if none is live for today's date; creates new batches as needed to cover the current date.
   _ensureLiveBatch: async function(batches, overrideDate, dept) {
     const today = overrideDate || Utils.dateKey(this.baseDate());
     const live = batches.find(b=>b.is_live);
@@ -258,6 +261,7 @@ const InitHandlers = {
     return DB.batches.list(dept).catch(()=>sorted);
   },
 
+  // Pre-creates upcoming batches so admins can navigate forward without gaps.
   _ensureForwardBatches: async function(batches, ahead=3, dept) {
     const today = Utils.dateKey(this.baseDate());
     let sorted = [...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
@@ -291,6 +295,7 @@ const InitHandlers = {
     return DB.batches.list(dept).catch(()=>sorted);
   },
 
+  // Fetches and caches attendance for a given day offset if not already cached.
   _loadDateAttendance: async function(off) {
     if(off===0) return;
     const d = this.dateForOffset(off);
@@ -305,11 +310,13 @@ const InitHandlers = {
     });
   },
 
+  // Returns the currently live batch, falling back to the first batch in the list.
   _liveBatch: function(batches) {
     const list = batches || this.state.batches;
     return list.find(b=>b.is_live) || list[0] || null;
   },
 
+  // Resets the idle-logout countdown; warns after 18 min and logs out after 20 min of inactivity.
   _resetIdleTimer: function() {
     this._lastActiveAt = Date.now();
     if(this._idleWarnTimer) clearTimeout(this._idleWarnTimer);
@@ -319,6 +326,7 @@ const InitHandlers = {
     this._idleLogoutTimer = setTimeout(()=>{ if(this.state.authed){ this._toast('Logged out due to inactivity.'); this.logout(); } }, 20*60*1000);
   },
 
+  // Tears down all active Supabase realtime channels.
   _unsubscribeRealtime: function() {
     DB.realtime.unsubscribe(this.state.realtimeChannel);
     if(this._myLeaveChannel){ DB.realtime.unsubscribe(this._myLeaveChannel); this._myLeaveChannel = null; }

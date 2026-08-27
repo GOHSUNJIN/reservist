@@ -138,13 +138,6 @@ const AdminPeople = {
         const leaveSearchIconStyle=s.leaveSearchOpen?'-webkit-appearance:none;background:#f0f2f7;border:1px solid #c8cdd6;border-radius:8px;padding:5px 8px;cursor:pointer;display:flex;align-items:center;color:#161f30;':'-webkit-appearance:none;background:none;border:1px solid #e3e6ec;border-radius:8px;padding:5px 8px;cursor:pointer;display:flex;align-items:center;color:#8a94a3;';
         const _lb=_lq?(s.pendingLeaves||[]).filter(l=>(l.personnel?.name||'').toLowerCase().includes(_lq)||(l.personnel?.contact||'').includes(_lq)):(s.pendingLeaves||[]);
         const _lbf=_tf==='all'?_lb:_lb.filter(l=>l.type===_tf);
-        return {filterAllStyle,filterMcStyle,filterPersonalStyle,filterOtherStyle,leaveFilterActive,leaveSearchIconStyle,_lbf,_lbNoFilter:_lb,_lq};
-      })(),
-      ...(()=>{
-        const _lq=(s.leaveSearch||'').toLowerCase().trim();
-        const _tf=s.leaveTypeFilter||'all';
-        const _lb=_lq?(s.pendingLeaves||[]).filter(l=>(l.personnel?.name||'').toLowerCase().includes(_lq)||(l.personnel?.contact||'').includes(_lq)):(s.pendingLeaves||[]);
-        const _lbf=_tf==='all'?_lb:_lb.filter(l=>l.type===_tf);
         const _sorted=[..._lbf].sort((a,b)=>{const aMs=a.created_at?Date.now()-new Date(a.created_at).getTime():0;const bMs=b.created_at?Date.now()-new Date(b.created_at).getTime():0;return bMs-aMs;});
         const _leaveAllIds=_sorted.map(l=>l.id);
         const _allLeavesSel=_leaveAllIds.length>0&&_leaveAllIds.every(id=>(s.leaveSelectedIds||[]).includes(id));
@@ -182,6 +175,7 @@ const AdminPeople = {
             declineBusyPE:(s.confirmingDecline&&s.rejectLeaveId===l.id)?'none':'auto',
           });
           }),
+          filterAllStyle,filterMcStyle,filterPersonalStyle,filterOtherStyle,leaveFilterActive,leaveSearchIconStyle,
           leaveSearchHasNoResults:(!!_lq||_tf!=='all')&&(s.pendingLeaves||[]).length>0&&_sorted.length===0,
           allLeavesSelected:_allLeavesSel,
           selectAllLeaves:self.selectAllLeaves,clearAllLeavesSelection:self.clearAllLeavesSelection,

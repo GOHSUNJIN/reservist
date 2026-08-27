@@ -125,6 +125,7 @@ const AccountHandlers = {
     }
   },
 
+  // Subscribes to realtime inserts on leave_requests and signup_requests; shows browser notifications if granted.
   _subscribeAdminRequests: function() {
     if(this.state.demo) return;
     if(this._adminRequestsChannel) return;
