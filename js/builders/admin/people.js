@@ -137,7 +137,7 @@ const AdminPeople = {
         const _fPill=(active)=>active?'-webkit-appearance:none;padding:5px 13px;border-radius:20px;border:none;font-size:12px;font-weight:600;background:#161f30;color:#fff;cursor:pointer;':'-webkit-appearance:none;padding:5px 13px;border-radius:20px;border:none;font-size:12px;font-weight:500;color:#8a94a3;background:#f1f3f6;cursor:pointer;';
         const filterAllStyle=_fPill(_tf==='all'),filterMcStyle=_fPill(_tf==='mc'),filterPersonalStyle=_fPill(_tf==='personal'),filterOtherStyle=_fPill(_tf==='other');
         const leaveFilterActive=!!_lq||_tf!=='all';
-        const leaveSearchIconStyle=s.leaveSearchOpen?'-webkit-appearance:none;background:#f0f2f7;border:1px solid #c8cdd6;border-radius:8px;padding:5px 8px;cursor:pointer;display:flex;align-items:center;color:#161f30;':'-webkit-appearance:none;background:none;border:1px solid #e3e6ec;border-radius:8px;padding:5px 8px;cursor:pointer;display:flex;align-items:center;color:#8a94a3;';
+        const leaveSearchIconStyle=s.leaveSearchOpen?'-webkit-appearance:none;background:#f0f2f7;border:1px solid #c8cdd6;border-radius:8px;padding:5px 8px;cursor:pointer;display:flex;align-items:center;color:#161f30;flex-shrink:0;':'-webkit-appearance:none;background:none;border:1px solid #e3e6ec;border-radius:8px;padding:5px 8px;cursor:pointer;display:flex;align-items:center;color:#8a94a3;flex-shrink:0;';
         const _lb=_lq?(s.pendingLeaves||[]).filter(l=>(l.personnel?.name||'').toLowerCase().includes(_lq)||(l.personnel?.contact||'').includes(_lq)):(s.pendingLeaves||[]);
         const _lbf=_tf==='all'?_lb:_lb.filter(l=>l.type===_tf);
         const _sorted=[..._lbf].sort((a,b)=>{const aMs=a.created_at?Date.now()-new Date(a.created_at).getTime():0;const bMs=b.created_at?Date.now()-new Date(b.created_at).getTime():0;return bMs-aMs;});
@@ -303,7 +303,7 @@ const AdminPeople = {
         const _fSignupPill=(active)=>active?'-webkit-appearance:none;padding:5px 13px;border-radius:20px;border:none;font-size:12px;font-weight:600;background:#161f30;color:#fff;cursor:pointer;':'-webkit-appearance:none;padding:5px 13px;border-radius:20px;border:none;font-size:12px;font-weight:500;color:#8a94a3;background:#f1f3f6;cursor:pointer;';
         const signupFilterAllStyle=_fSignupPill(_stf==='all'),signupFilterNewStyle=_fSignupPill(_stf==='new'),signupFilterReturningStyle=_fSignupPill(_stf==='returning');
         const signupFilterActive=!!_sq||_stf!=='all';
-        const signupSearchIconStyle=s.signupSearchOpen?'-webkit-appearance:none;background:#f0f2f7;border:1px solid #c8cdd6;border-radius:8px;padding:5px 8px;cursor:pointer;display:flex;align-items:center;color:#161f30;':'-webkit-appearance:none;background:none;border:1px solid #e3e6ec;border-radius:8px;padding:5px 8px;cursor:pointer;display:flex;align-items:center;color:#8a94a3;';
+        const signupSearchIconStyle=s.signupSearchOpen?'-webkit-appearance:none;background:#f0f2f7;border:1px solid #c8cdd6;border-radius:8px;padding:5px 8px;cursor:pointer;display:flex;align-items:center;color:#161f30;flex-shrink:0;':'-webkit-appearance:none;background:none;border:1px solid #e3e6ec;border-radius:8px;padding:5px 8px;cursor:pointer;display:flex;align-items:center;color:#8a94a3;flex-shrink:0;';
         const _base=_sq?s.pendingSignups.filter(r=>r.name.toLowerCase().includes(_sq)||(r.contact||'').includes(_sq)):s.pendingSignups;
         const _basef=_stf==='all'?_base:_base.filter(r=>{const isRet=_approvedContacts.has((r.contact||'').replace(/[\s-]/g,''));return _stf==='returning'?isRet:!isRet;});
         return {
