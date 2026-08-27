@@ -143,7 +143,7 @@ const AdminPeople = {
         const _allLeavesSel=_leaveAllIds.length>0&&_leaveAllIds.every(id=>(s.leaveSelectedIds||[]).includes(id));
         const _nowMs=Date.now(),_2d=172800000;
         return {
-          pendingLeaves:_sorted.map(l=>{const _ms=l.created_at?_nowMs-new Date(l.created_at).getTime():0,_h=Math.floor(_ms/3600000),_d=Math.floor(_h/24),isExpired=_ms>_2d,timeAgo=!l.created_at?'':_h<1?'Just now':_h<24?_h+' hr'+(_h!==1?'s':'')+' ago':_d+' day'+(_d!==1?'s':'')+' ago',_av=s.avatars[l.personnel_id]||'';return({
+          pendingLeaves:_sorted.map(l=>{const _ms=l.created_at?_nowMs-new Date(l.created_at).getTime():0,_d=Math.floor(_ms/86400000),isExpired=_ms>_2d,timeAgo=!l.created_at?'':Utils.hhmm(new Date(l.created_at)),_av=s.avatars[l.personnel_id]||'';return({
             id:l.id,reason:l.reason||'',
             personName:l.personnel?.name||'Unknown',
             personContact:l.personnel?.contact||'',
@@ -301,7 +301,7 @@ const AdminPeople = {
             const prevDept=isReactivation?(_prevDeptMap[_rc]||null):null;
             const isCrossDept=isReactivation&&!!prevDept&&prevDept!==r.department;
             return {id:r.id,name:r.name,contact:r.contact,shift:r.shift,batchLabel:b?b.label:'',initials:Utils.initials(r.name)||'?',
-              createdAt:r.created_at?new Date(r.created_at).toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'}):'',
+              createdAt:r.created_at?(new Date(r.created_at).toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'})+' · '+Utils.hhmm(new Date(r.created_at))):'',
               deptLabel:Utils.deptLabel(r.department),
               isReactivation,isNew:!isReactivation,
               isCrossDept, prevDeptLabel:isCrossDept?('Previously: '+Utils.deptLabel(prevDept)):'',
