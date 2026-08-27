@@ -491,7 +491,12 @@ const CheckinBuilders = {
     const attendanceRate=cycleDone>0?Math.round((statMyPresent+statMyMc)/cycleDone*100):null;
     const attendanceRateText=attendanceRate!==null?attendanceRate+'%':'-';
     const showAttendanceSummary=totalRecorded>0||cycleDone>0;
-    const streak=(()=>{const sorted=s.history.slice().sort((a,b)=>b.date.localeCompare(a.date));let n=0;for(const r of sorted){if(r.status==='present')n++;else break;}return n;})();
+    const streak=(()=>{
+      const myRec=s.attendance[s.currentUserId]||{};
+      const todayEntry=(Utils.isReportDay(todayD)&&!this.isNoReport(0)&&myRec.status==='present')?[{date:today,status:'present'}]:[];
+      const sorted=[...todayEntry,...s.history.filter(r=>r.date!==today)].sort((a,b)=>b.date.localeCompare(a.date));
+      let n=0;for(const r of sorted){if(r.status==='present')n++;else break;}return n;
+    })();
     const streakLabel=streak===0?'No streak':streak===1?'1-day streak':streak+'-day streak';
     const cycleNotStarted=!!(activeBatch&&today<activeBatch.start_date);
     const cycleStartsLabel=activeBatch?Utils.fmtLong(new Date(activeBatch.start_date+'T00:00:00')):'';
