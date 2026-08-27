@@ -137,8 +137,8 @@ const InitHandlers = {
       setTimeout(()=>this.loadAdmins(), 0);
     }
     if(role==='reservist'){
-      DB.leaves.myPending(me.id).then(req=>this.setState({myPendingRequest:req})).catch(()=>{});
-      DB.leaves.myHistory(me.id).then(hist=>this.setState({myLeaveHistory:hist,myLeaveHistoryLoaded:true})).catch(()=>this.setState({myLeaveHistoryLoaded:true}));
+      DB.leaves.myPending(me.id).then(req=>{console.log('[leaves] myPending result:',req);this.setState({myPendingRequest:req});}).catch(e=>{console.error('[leaves] myPending error:',e);});
+      DB.leaves.myHistory(me.id).then(hist=>{console.log('[leaves] myHistory (init) result:',hist);this.setState({myLeaveHistory:hist,myLeaveHistoryLoaded:true});}).catch(e=>{console.error('[leaves] myHistory (init) error:',e);this.setState({myLeaveHistoryLoaded:true});});
       setTimeout(()=>this.loadRosterAvatars(), 0);
       this._myAttendanceChannel = DB.realtime.subscribeMyAttendance(me.id, (row) => {
         const todayKey = Utils.dateKey(this.baseDate());
@@ -153,6 +153,7 @@ const InitHandlers = {
         }
       });
       this._myLeaveChannel = DB.realtime.subscribeLeaveStatus(me.id, async (row) => {
+        console.log('[leaves] realtime leave status update:',row);
         if(row.status !== 'pending'){
           this.setState({myPendingRequest:null});
           if(row.status === 'rejected'){

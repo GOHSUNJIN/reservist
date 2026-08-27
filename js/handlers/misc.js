@@ -99,8 +99,8 @@ const MiscHandlers = {
       this.setState({briefTab:k});
       if(k==='history' && this.state.role==='reservist' && !this.state.demo) {
         DB.leaves.myHistory(this.state.currentUserId)
-          .then(hist=>this.setState(s=>({myLeaveHistory:hist.length>0?hist:s.myLeaveHistory,myLeaveHistoryLoaded:true})))
-          .catch(()=>{});
+          .then(hist=>{console.log('[leaves] myHistory (tab reload) result:',hist);this.setState(s=>({myLeaveHistory:hist.length>0?hist:s.myLeaveHistory,myLeaveHistoryLoaded:true}));})
+          .catch(e=>{console.error('[leaves] myHistory (tab reload) error:',e);});
       }
     };
   },
