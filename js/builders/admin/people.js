@@ -32,6 +32,8 @@ const AdminPeople = {
           avatarInitials:av?'':Utils.initials(p.name),
           avatarCursor:av?'cursor:pointer;':'',
           onViewAvatar:av?self.openAvatarLightbox(av):null,
+          isExpanded:s.rosterExpandedId===p.id,
+          onToggleExpand:self.toggleRosterCard(p.id),
           onViewHistory:self.openPersonHistory(p.id),
           approvedBy, approvedByLabel,
           showApprovedBy:!!approvedBy,

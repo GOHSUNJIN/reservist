@@ -143,6 +143,7 @@ const AuthHandlers = {
       waPreviewOpen:false, waPreviewText:'',
       logNoteId:null, logNoteText:'',
       realtimeLive:false,
+      rosterExpandedId:null,
       resetPwId:null, resetPwNew:'', resetPwSaving:false, showResetPw:false,
       changePwOpen:false, changeNameOpen:false,
       broadcastOpen:false, broadcastText:'', broadcastSaving:false,
