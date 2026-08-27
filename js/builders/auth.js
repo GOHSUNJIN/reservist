@@ -17,6 +17,17 @@ const AuthBuilders = {
     const intakeLabel=targetBatch?.label||'';
     const intakeRangeFull=bs&&be?(Utils.fmtShort(bs)+' to '+Utils.fmtShort(be)+' '+bs.getFullYear()):'';
     const signupDeptOptions=Object.entries(Utils.DEPARTMENTS).map(([value,{label}])=>({value,label}));
+    const openCycles=Object.keys(Utils.DEPARTMENTS).reduce((acc,dept)=>{
+      const db=allSorted.filter(b=>!b.department||b.department===dept);
+      const live=db.find(b=>today>=b.start_date&&today<=b.end_date)||db.find(b=>b.is_live);
+      if(!live) return acc;
+      const isLast=today===live.end_date;
+      const next=isLast?db.find(b=>b.start_date>live.end_date):null;
+      const target=next||live;
+      const bs=new Date(target.start_date+'T00:00:00'),be=new Date(target.end_date+'T00:00:00');
+      acc.push({dept,deptLabel:Utils.deptLabel(dept),label:target.label||'',range:Utils.fmtShort(bs)+' – '+Utils.fmtShort(be)});
+      return acc;
+    },[]);
     return {
       showAuth:!s.authed, showApp:s.authed,
       isLogin:s.authMode==='login'&&!s.signupPending, isSignup:s.authMode==='signup'&&!s.signupPending,
@@ -47,6 +58,7 @@ const AuthBuilders = {
       signupCycleNote: suDept ? ` (${Utils.deptLabel(suDept)})` : '',
       loginPwType:s.showLoginPw?'text':'password', showLoginPw:!!s.showLoginPw, hideLoginPw:!s.showLoginPw, toggleLoginPw:this.toggleLoginPw,
       suPwType:s.showSuPw?'text':'password', showSuPw:!!s.showSuPw, hideSuPw:!s.showSuPw, toggleSuPw:this.toggleSuPw,
+      openCycles, showOpenCycles:openCycles.length>0,
     };
   },
 
