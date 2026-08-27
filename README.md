@@ -698,7 +698,207 @@ Signup requests only appear for admins scoped to the correct department. If you 
 
 ---
 
-## Known Limitations
+## Testing Checklist
+
+Use this checklist when verifying a deployment or after making changes. Test each role in a real browser on a mobile device where possible. The demo buttons on the login screen cover basic flows; use real accounts for anything involving the database, realtime, or GPS.
+
+---
+
+### Reservist
+
+#### Auth
+- [ ] Sign up with a new phone number and password - request appears in admin Requests tab as New
+- [ ] Sign up with a number that was previously approved and deactivated - request appears as Returning
+- [ ] Sign up with a number that already has a pending request - error shown, no duplicate created
+- [ ] Sign up with a number that was previously rejected - error shown
+- [ ] Log in with correct credentials - lands on check-in screen
+- [ ] Log in with wrong password - error shown, no access granted
+- [ ] Log out - confirmation dialog appears, session ends on confirm
+- [ ] Close and reopen tab before session expires - still logged in (session persists in memory)
+- [ ] Leave tab idle for 18 minutes - idle warning banner appears
+- [ ] Leave tab idle for 20 minutes - session ends, redirected to login
+
+#### Check-in (Ops Security - 4 phases)
+- [ ] Phase 1 (0900-1200): Locate Me button appears, GPS resolves within range, Check In button becomes active, tap to record
+- [ ] Phase 1 outside window: card is visible but button is greyed out
+- [ ] Phase 2 (Lunch out, 1200-1400): Locate Me not required, button is direct
+- [ ] Phase 3 (Return from lunch, 1400-1800): GPS verify required, records on tap
+- [ ] Phase 4 (End of shift, after 1800): direct button, records timestamp
+- [ ] All 4 phases done: "All done for today" state shown
+- [ ] Late check-in (more than 1 hour after 0900): late reason modal appears, reason recorded and visible in log
+- [ ] GPS keeps failing: after 5 attempts the bypass option appears
+- [ ] GPS bypass: check-in completes, record is flagged as GPS bypassed in admin log
+- [ ] Opened in WhatsApp or Instagram in-app browser: banner shown with instructions to open in Chrome or Safari
+- [ ] Offline check-in: disable network, tap check-in, pending badge appears; restore network, record submits automatically
+
+#### Check-in (CAS - 2 phases)
+- [ ] Phase 1 (check in): GPS verify, records on tap
+- [ ] Phase 2 (check out): records timestamp
+- [ ] No phases 3 or 4 visible
+
+#### Leave and MC requests
+- [ ] Submit MC request for today or a future date - appears in admin Requests tab
+- [ ] Submit Personal Leave request - appears in admin Requests tab with blue badge
+- [ ] Submit Other request - appears in admin Requests tab with grey badge
+- [ ] Try to submit a second request for a date already covered - error shown
+- [ ] Try to submit a request for a past date - error shown
+- [ ] Withdraw a pending request from the check-in screen - request removed
+- [ ] Withdraw a pending request from the Requests history (Info tab) - status changes to Withdrawn
+- [ ] View Requests history: type badge (MC amber, Personal Leave blue, Other grey) and status badge (Submitted, Approved, Declined, Withdrawn) shown correctly
+- [ ] View a declined request: supervisor's decline reason displayed
+- [ ] Approved MC for today: check-in is blocked with a message explaining leave is pending
+
+#### Info tab
+- [ ] Shift info shown correctly (title, window, items)
+- [ ] Meal allowance banner shows active or on-hold state
+- [ ] Team directory lists batchmates (not the logged-in user, not admins)
+- [ ] Tap a contact number in team directory: copies to clipboard, toast appears
+- [ ] WhatsApp link button opens WA chat with the correct number
+- [ ] WA group link shown only if configured
+
+#### Attendance tab
+- [ ] Calendar shows all days in the cycle
+- [ ] Present days shown in green
+- [ ] MC days shown in amber with solid border
+- [ ] Days with a submitted (pending) MC request shown with dashed border
+- [ ] No-report days shown in slate blue
+- [ ] Absent days shown in red
+- [ ] Days with missing clock-out shown in orange with dashed border
+- [ ] Attendance rate, present count, MC count, and absent count shown correctly
+
+#### Account settings
+- [ ] Change display name: saved and reflected in header immediately
+- [ ] Change password: re-login with new password works; old password rejected
+- [ ] Upload profile photo: photo appears in header and team directory
+- [ ] Tap own photo: lightbox opens
+- [ ] Remove photo: reverts to initials
+
+---
+
+### Admin (Supervisor)
+
+#### Auth and navigation
+- [ ] Log in as admin: lands on Overview tab, not check-in
+- [ ] All 4 tabs visible: Overview, Roster, Log, People
+- [ ] Logout confirmation works
+
+#### Overview tab
+- [ ] Stat tiles show correct Present, MC, Absent, Pending counts for today
+- [ ] Pending requests card shows avatars, copyable contact numbers, type badges, and time
+- [ ] Tap Approve or Decline on a pending request from the Overview tab
+- [ ] Calendar shows current day highlighted
+- [ ] Realtime: open a second browser tab as a reservist and check in - Overview updates without refresh
+
+#### Roster tab
+- [ ] All active reservists for the live cycle listed
+- [ ] Filter by Present, MC, Absent, Pending - list updates correctly
+- [ ] Search by name - list filters correctly
+- [ ] Mark a reservist as Present: status updates immediately in roster and log
+- [ ] Mark a reservist as MC: status updates
+- [ ] Mark a reservist as Absent: status updates
+- [ ] Mark All Absent: confirmation step shown, all Pending become Absent
+- [ ] Mark All Present: confirmation step shown, all Pending become Present
+- [ ] Navigate to yesterday (viewOffset -1): log reads from cache, not live attendance
+- [ ] Navigate to a future date (viewOffset +1 or more): status buttons not available
+
+#### Log tab
+- [ ] All personnel listed for the viewed date
+- [ ] Filter by status (Present, MC, Absent) - list updates
+- [ ] Search by name - filters correctly
+- [ ] Edit times for a present record: all 4 phase fields editable, save updates the record and flags it as admin-entered
+- [ ] Add a welfare note to a record: note saved and visible on next load
+- [ ] Tap a person's name in the log: opens their full history modal
+- [ ] Late check-in: "Late" badge visible, reason text shown
+- [ ] Missing clock-out: "No clock-out" badge visible on the log card
+- [ ] WhatsApp summary button: generates text, preview modal opens, copy and send both work
+
+#### Requests tab (Signups)
+- [ ] Pending signups listed with avatar initials, name, contact, timestamp, New or Returning badge
+- [ ] Tap contact number: copies to clipboard
+- [ ] Approve a signup: person appears in roster on next load; request disappears from pending list
+- [ ] Decline a signup: request moves to Declined section
+- [ ] Reopen a declined signup: request returns to Pending
+- [ ] Search by name: filters list
+- [ ] Filter by New: only new signups shown
+- [ ] Filter by Returning: only returning signups shown
+- [ ] Red dot on search icon when filter is active
+- [ ] Select all (checkbox): selects all visible signups
+- [ ] Bulk approve selected signups: all approved in one action
+
+#### Requests tab (Leave)
+- [ ] Pending leave requests listed with avatar, name, contact, type badge, time
+- [ ] Approve a request: removed from list, reservist's status updates if for today
+- [ ] Decline a request: enter reason, confirm - request shows declined badge and reason on reservist side
+- [ ] Bulk approve multiple requests: all approved, toast confirms count
+- [ ] Bulk reject: requires reason, applied to all selected
+- [ ] Search and filter by type (MC, Personal, Other): list filters correctly
+- [ ] Expired requests (older than 48 hours): shown with Expired badge in amber
+
+#### People tab - Roster view
+- [ ] All personnel listed with name, contact, shift, attendance stats
+- [ ] Attendance rate below 75%: Low badge visible in amber
+- [ ] Search by name or contact: filters correctly
+- [ ] Tap a card: no action (card does not open history from here - use the expand button)
+- [ ] Tap the chevron on a card: action bar expands (History, Note, Reset PW, Remove)
+- [ ] Only one card expanded at a time - opening another collapses the previous
+- [ ] History: opens person's full attendance history
+- [ ] Note: opens note editor, save persists the note on the card
+- [ ] Reset PW: enter and confirm new password, save
+- [ ] Remove: confirmation shown, person deactivated and removed from roster
+- [ ] Approved by / Added by label correct for each card
+
+#### People tab - Bulk add and re-enroll
+- [ ] Bulk add: paste names and numbers, preview list, add all
+- [ ] Search for removed person by name: existing record found, re-enroll triggers
+- [ ] Re-enrolled person receives a Returning signup request
+
+#### Cycle management
+- [ ] Open cycle picker from Overview tab
+- [ ] Set a cycle as Live: only that cycle is live, previous live cycle is no longer live
+- [ ] Label editing: rename a cycle inline
+- [ ] Add a no-report day: date highlighted in slate on reservist calendar
+- [ ] Bulk add no-report days: paste multiple dates, all applied
+- [ ] Toggle meal allowance: work timer and meal badge appear or disappear for reservists
+- [ ] Post broadcast notice: text appears on reservist check-in screen
+- [ ] Show/hide archived batches toggle works in the cycle picker
+
+#### Export and reporting
+- [ ] Export Excel: file downloads, all columns present, colour-coding correct, headers freeze
+- [ ] Print report: print preview opens, A4 formatted, includes Meal column
+- [ ] Export person history from history modal: file downloads with that person's records
+
+---
+
+### Master (Superadmin)
+
+All admin checks above apply. Run them for both departments. Then verify the following.
+
+#### Department switcher
+- [ ] Dropdown visible in header
+- [ ] Switching department reloads all data: roster, personnel, batches, pending requests all change
+- [ ] Search and filter state clears when switching departments (no stale text from previous dept)
+- [ ] Last-selected cycle is remembered per department: switching back restores previous cycle context
+
+#### Cross-department isolation
+- [ ] Logged in as Master in Dept A: signups from Dept B do not appear in Requests tab
+- [ ] Leave request submitted by Dept B reservist: does not appear in Dept A Requests tab
+- [ ] Browser notification (if enabled) for a Dept B leave request does not fire while viewing Dept A
+- [ ] Cycle notice posted in Dept A: not visible to Dept B reservists
+
+#### Team management
+- [ ] Add supervisor: fill in name, contact, password - account created and appears in Team tab
+- [ ] Reset supervisor password from Team tab
+- [ ] Demote supervisor: person moves back to reservist roster
+- [ ] Promote reservist to supervisor: search by name, select, confirm - person appears in Team tab
+
+#### Access control verification
+- [ ] Reservist cannot access admin tabs (Overview, Roster, Log, People)
+- [ ] Admin cannot see other departments' data
+- [ ] Admin cannot promote accounts to admin or superadmin
+- [ ] Reservist cannot submit a leave request on behalf of another user (RLS enforced)
+- [ ] Reservist cannot mark their own attendance as present without going through the check-in flow
+
+---
 
 - **CAS Info tab content is a placeholder.** The Info tab for Crime Alert (CAS) reservists currently shows placeholder text. The attire, location, and operational details for CAS have not yet been configured in the codebase.
 - **Phase windows are hardcoded.** The check-in phase times (0900, 1200, 1400, 1800) are fixed constants and cannot be changed from within the app. Changing them requires a code update and redeployment. This is tracked as item 1 in the Planned Enhancements section.
