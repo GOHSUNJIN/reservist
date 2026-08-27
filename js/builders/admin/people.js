@@ -289,14 +289,26 @@ const AdminPeople = {
       cancelPromoteAdmin:self.cancelPromoteAdmin,
       confirmPromoteAdmin:self.confirmPromoteAdmin,
       signupSearch:s.signupSearch||'', onSignupSearch:self.onSignupSearch, clearSignupSearch:self.clearSignupSearch, hasSignupSearch:!!(s.signupSearch||'').trim(),
+      signupSearchOpen:!!(s.signupSearchOpen), toggleSignupSearch:()=>self.setState({signupSearchOpen:!s.signupSearchOpen}),
+      signupTypeFilter:s.signupTypeFilter||'all',
+      setSignupTypeAll:()=>self.setState({signupTypeFilter:'all'}),
+      setSignupTypeNew:()=>self.setState({signupTypeFilter:'new'}),
+      setSignupTypeReturning:()=>self.setState({signupTypeFilter:'returning'}),
       ...(()=>{
         const _approvedContacts=new Set((s.approvedSignups||[]).map(a=>(a.contact||'').replace(/[\s-]/g,'')));
         const _prevDeptMap={};
         (s.approvedSignups||[]).forEach(a=>{const c=(a.contact||'').replace(/[\s-]/g,'');if(!_prevDeptMap[c])_prevDeptMap[c]=a.department;});
         const _sq=(s.signupSearch||'').toLowerCase().trim();
+        const _stf=s.signupTypeFilter||'all';
+        const _fSignupPill=(active)=>active?'-webkit-appearance:none;padding:5px 13px;border-radius:20px;border:none;font-size:12px;font-weight:600;background:#161f30;color:#fff;cursor:pointer;':'-webkit-appearance:none;padding:5px 13px;border-radius:20px;border:none;font-size:12px;font-weight:500;color:#8a94a3;background:#f1f3f6;cursor:pointer;';
+        const signupFilterAllStyle=_fSignupPill(_stf==='all'),signupFilterNewStyle=_fSignupPill(_stf==='new'),signupFilterReturningStyle=_fSignupPill(_stf==='returning');
+        const signupFilterActive=!!_sq||_stf!=='all';
+        const signupSearchIconStyle=s.signupSearchOpen?'-webkit-appearance:none;background:#f0f2f7;border:1px solid #c8cdd6;border-radius:8px;padding:5px 8px;cursor:pointer;display:flex;align-items:center;color:#161f30;':'-webkit-appearance:none;background:none;border:1px solid #e3e6ec;border-radius:8px;padding:5px 8px;cursor:pointer;display:flex;align-items:center;color:#8a94a3;';
         const _base=_sq?s.pendingSignups.filter(r=>r.name.toLowerCase().includes(_sq)||(r.contact||'').includes(_sq)):s.pendingSignups;
+        const _basef=_stf==='all'?_base:_base.filter(r=>{const isRet=_approvedContacts.has((r.contact||'').replace(/[\s-]/g,''));return _stf==='returning'?isRet:!isRet;});
         return {
-          pendingSignups:_base.map(r=>{
+          signupFilterAllStyle,signupFilterNewStyle,signupFilterReturningStyle,signupFilterActive,signupSearchIconStyle,
+          pendingSignups:_basef.map(r=>{
             const b=(s.batches||[]).find(b=>b.id===r.batch_id);
             const _rc=(r.contact||'').replace(/[\s-]/g,'');
             const isReactivation=_approvedContacts.has(_rc);
@@ -310,7 +322,7 @@ const AdminPeople = {
               onCopyContact:self.copyContact(r.contact||''),
               onApprove:self.approveSignup(r.id),onReject:self.rejectSignup(r.id)};
           }),
-          signupSearchHasNoResults:!!_sq&&s.pendingSignups.length>0&&_base.length===0,
+          signupSearchHasNoResults:(!!_sq||_stf!=='all')&&s.pendingSignups.length>0&&_basef.length===0,
         };
       })(),
       hasPendingSignups:s.pendingSignups.length>0,

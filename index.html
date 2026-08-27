@@ -1701,14 +1701,28 @@
             <div class="section-row">
               <span class="text-label">PENDING SIGNUPS</span>
               <span style="background:#c0392b;color:#fff;font-size:11px;font-weight:700;padding:2px 7px;border-radius:20px;">{{ pendingSignupCount }}</span>
+              <div style="flex:1;"></div>
+              <button onClick="{{ toggleSignupSearch }}" style="{{ signupSearchIconStyle }}">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <sc-if value="{{ signupFilterActive }}" hint-placeholder-val=""><div style="width:6px;height:6px;border-radius:50%;background:#c0392b;margin-left:4px;flex:0 0 auto;"></div></sc-if>
+              </button>
             </div>
-            <div style="padding:10px 14px;border-bottom:1px solid #eef0f4;display:flex;align-items:center;gap:8px;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-              <input type="text" placeholder="Search by name or contact" value="{{ signupSearch }}" onInput="{{ onSignupSearch }}" autocorrect="off" autocapitalize="off" spellcheck="false" style="flex:1;border:none;outline:none;font-size:13px;color:#161f30;background:transparent;min-width:0;" />
-              <sc-if value="{{ hasSignupSearch }}" hint-placeholder-val="">
-                <button onClick="{{ clearSignupSearch }}" style="-webkit-appearance:none;background:none;border:none;padding:2px;cursor:pointer;display:flex;align-items:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-              </sc-if>
+            <sc-if value="{{ signupSearchOpen }}" hint-placeholder-val="">
+            <div style="padding:10px 14px;border-bottom:1px solid #eef0f4;background:#f9fafb;">
+              <div style="display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #e3e6ec;border-radius:9px;padding:7px 10px;margin-bottom:8px;">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" placeholder="Search by name or contact" value="{{ signupSearch }}" onInput="{{ onSignupSearch }}" autocorrect="off" autocapitalize="off" spellcheck="false" style="flex:1;border:none;outline:none;font-size:13px;color:#161f30;background:transparent;min-width:0;" />
+                <sc-if value="{{ hasSignupSearch }}" hint-placeholder-val="">
+                  <button onClick="{{ clearSignupSearch }}" style="-webkit-appearance:none;background:none;border:none;padding:2px;cursor:pointer;display:flex;align-items:center;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+                </sc-if>
+              </div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button onClick="{{ setSignupTypeAll }}" style="{{ signupFilterAllStyle }}">All</button>
+                <button onClick="{{ setSignupTypeNew }}" style="{{ signupFilterNewStyle }}">New</button>
+                <button onClick="{{ setSignupTypeReturning }}" style="{{ signupFilterReturningStyle }}">Returning</button>
+              </div>
             </div>
+            </sc-if>
             <sc-for list="{{ pendingSignups }}" as="sr">
             <div style="padding:12px 16px;border-bottom:1px solid #f2f4f7;">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
@@ -1739,7 +1753,7 @@
             <div class="empty-state-lg">
               <div class="avatar-circle"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
               <div class="text-sub">No results</div>
-              <div class="text-muted">No signups match "{{ signupSearch }}".</div>
+              <div class="text-muted">No signups match your search or filter.</div>
             </div>
           </sc-if>
           </div>
