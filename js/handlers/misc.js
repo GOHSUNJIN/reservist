@@ -29,7 +29,7 @@ const MiscHandlers = {
     const currentDept = this._myDept();
     const currentBatchId = this.state.batches[this.state.activeBatchIdx||0]?.id;
     const deptLastBatchId = {...(this.state.deptLastBatchId||{}), [currentDept]: currentBatchId};
-    this.setState({adminDeptFilter:dept, batchLoading:true, deptLastBatchId, personnel:[], batches:[], viewOffset:0, rosterSearch:'', personHistoryId:null, personHistoryRows:[], pendingLeaves:[], pendingLeavesLoaded:false, pendingSignups:[], pendingSignupsLoaded:false, approvedSignups:[], rejectedSignups:[], rejectedSignupsLoaded:false, adminsList:[], adminsLoaded:false, peopleStats:{}, peopleStatsLoaded:false, attendanceCache:{}, batchMembersCache:{}, noReportDaysCache:{}, confirmMarkAllAbsent:false});
+    this.setState({adminDeptFilter:dept, batchLoading:true, deptLastBatchId, personnel:[], batches:[], viewOffset:0, rosterSearch:'', personHistoryId:null, personHistoryRows:[], pendingLeaves:[], pendingLeavesLoaded:false, leaveSearch:'', leaveSearchOpen:false, leaveTypeFilter:'all', pendingSignups:[], pendingSignupsLoaded:false, approvedSignups:[], rejectedSignups:[], rejectedSignupsLoaded:false, signupSearch:'', signupSearchOpen:false, signupTypeFilter:'all', adminsList:[], adminsLoaded:false, peopleStats:{}, peopleStatsLoaded:false, attendanceCache:{}, batchMembersCache:{}, noReportDaysCache:{}, confirmMarkAllAbsent:false});
     let batches = await DB.batches.list(dept).catch(()=>[]);
     batches = await this._ensureLiveBatch(batches, null, dept);
     batches = await this._ensureForwardBatches(batches, 8, dept);
@@ -90,7 +90,7 @@ const MiscHandlers = {
   go: function(t) { return () => { this.setState({tab:t}); this._scrollTop(); }; },
 
   goPeople: function() {
-    this.setState({tab:'people',peopleStatsLoaded:false,rejectedSignupsHidden:true,leaveSearchOpen:false,leaveTypeFilter:'all',leaveSearch:''});
+    this.setState({tab:'people',peopleStatsLoaded:false,rejectedSignupsHidden:true,leaveSearch:'',leaveSearchOpen:false,leaveTypeFilter:'all',signupSearch:'',signupSearchOpen:false,signupTypeFilter:'all'});
     this.loadPeopleStats();
     this.loadRosterAvatars();
     this.loadPendingLeaves();

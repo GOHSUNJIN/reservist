@@ -19,11 +19,11 @@ const RosterHandlers = {
 
   setStatus: function(id, status) {
     return async () => {
+      const off=this.state.viewOffset||0;
+      if(off > 0) return;
       if(!this._statusSubmitting) this._statusSubmitting = new Set();
       if(this._statusSubmitting.has(id)) return;
       this._statusSubmitting.add(id);
-      const off=this.state.viewOffset||0;
-      if(off > 0) return;
       const dk=Utils.dateKey(this.dateForOffset(off));
       const prev=this._viewAttMap(off,dk)[id]||{};
       const p1=status==='present'?(prev.p1||Utils.hhmm(new Date())):prev.p1;

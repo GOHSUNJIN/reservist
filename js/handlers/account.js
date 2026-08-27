@@ -130,13 +130,16 @@ const AccountHandlers = {
     if(this.state.demo) return;
     if(this._adminRequestsChannel) return;
     this._adminRequestsChannel = DB.realtime.subscribeAdminRequests(this._myDept(), (row) => {
-      if(row.department && row.department !== this._myDept()) return;
       if(row._type==='signup'){
+        if(row.department && row.department !== this._myDept()) return;
         this.loadPendingSignups();
         if(this.state.adminNotifGranted && typeof Notification !== 'undefined' && Notification.permission === 'granted'){
           new Notification('New signup request', {body:(row.name||'Someone')+' is requesting to join.',icon:'./assets/icon.svg'});
         }
       } else {
+        // leave_requests has no department column - check personnel list instead
+        const myPersonnelIds = new Set((this.state.personnel||[]).map(p=>p.id));
+        if(row.personnel_id && !myPersonnelIds.has(row.personnel_id)) return;
         this.loadPendingLeaves();
         if(this.state.adminNotifGranted && typeof Notification !== 'undefined' && Notification.permission === 'granted'){
           const typeMap = {mc:'MC',other:'Other',personal:'Personal Leave'};
