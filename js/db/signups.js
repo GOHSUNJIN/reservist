@@ -24,7 +24,7 @@ const DB_Signups = {
   },
 
   async listApproved(dept) {
-    let q = _db.from('signup_requests').select('*').eq('status', 'approved').order('reviewed_at', { ascending: false });
+    let q = _db.from('signup_requests').select('*').eq('status', 'approved').order('reviewed_at', { ascending: false }).limit(50);
     if (dept) q = q.eq('department', dept);
     const { data } = await q;
     return data || [];
@@ -58,12 +58,14 @@ const DB_Signups = {
     return { error };
   },
 
-  async deleteOldProcessed(currentBatchId) {
+  async deleteOldProcessed(currentBatchId, dept) {
     if (!currentBatchId) return { error: null };
-    const { error } = await _db.from('signup_requests')
+    let q = _db.from('signup_requests')
       .delete()
       .in('status', ['approved', 'rejected'])
       .neq('batch_id', currentBatchId);
+    if (dept) q = q.eq('department', dept);
+    const { error } = await q;
     return { error };
   },
 };

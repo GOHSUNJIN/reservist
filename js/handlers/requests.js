@@ -13,7 +13,7 @@ const RequestHandlers = {
       await DB.leaves.cancelStalePending(liveBatch.start_date).catch(()=>{});
       await DB.leaves.deleteOld(liveBatch.start_date).catch(()=>{});
     }
-    if(liveBatch?.id) await DB.signupRequests.deleteOldProcessed(liveBatch.id).catch(()=>{});
+    if(liveBatch?.id) await DB.signupRequests.deleteOldProcessed(liveBatch.id, this._myDept()).catch(()=>{});
     const data=await DB.leaves.listPending(this._myDept()).catch(()=>[]);
     this.setState({pendingLeaves:data,pendingLeavesLoaded:true});
   },

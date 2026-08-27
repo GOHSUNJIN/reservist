@@ -129,7 +129,7 @@ const AccountHandlers = {
   _subscribeAdminRequests: function() {
     if(this.state.demo) return;
     if(this._adminRequestsChannel) return;
-    this._adminRequestsChannel = DB.realtime.subscribeAdminRequests((row) => {
+    this._adminRequestsChannel = DB.realtime.subscribeAdminRequests(this._myDept(), (row) => {
       if(row.department && row.department !== this._myDept()) return;
       if(row._type==='signup'){
         this.loadPendingSignups();

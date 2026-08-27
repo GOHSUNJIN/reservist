@@ -20,11 +20,12 @@ const DB_Realtime = {
       .subscribe();
   },
 
-  subscribeAdminRequests(onNew) {
-    return _db.channel('admin-new-requests')
+  subscribeAdminRequests(dept, onNew) {
+    return _db.channel('admin-new-requests-' + (dept||'all'))
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'leave_requests' },
         payload => { if (payload.new) onNew(payload.new); })
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'signup_requests' },
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'signup_requests',
+        ...(dept ? { filter: `department=eq.${dept}` } : {}) },
         payload => { if (payload.new) onNew({ _type: 'signup', ...payload.new }); })
       .subscribe();
   },
