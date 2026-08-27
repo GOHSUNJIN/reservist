@@ -1714,6 +1714,9 @@
                   </div>
                   <div style="font-size:11px;color:#8a94a3;margin-top:1px;"><span onClick="{{ sr.onCopyContact }}" style="cursor:pointer;">{{ sr.contact }}</span> · {{ sr.createdAt }}</div>
                 </div>
+                <sc-if value="{{ sr.isNew }}" hint-placeholder-val="">
+                  <span style="flex:0 0 auto;font-size:11px;font-weight:600;background:#eef3fc;color:#3b5bdb;border:1px solid #c5d3f5;padding:2px 7px;border-radius:20px;white-space:nowrap;">New</span>
+                </sc-if>
                 <sc-if value="{{ sr.isReactivation }}" hint-placeholder-val="">
                   <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
                     <span style="font-size:11px;font-weight:600;background:#fdf0dc;color:#b9791a;border:1px solid #f0e2c2;padding:2px 7px;border-radius:20px;white-space:nowrap;">Returning</span>
