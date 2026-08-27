@@ -93,7 +93,7 @@ const makeInitialState = () => ({
   approvedSignups: [],
   rejectedSignups: [], rejectedSignupsLoaded: false,
   selectedSignupIds: [],
-  signupSearch: '',
+  signupSearch: '', signupTypeFilter: 'all', signupSearchOpen: false,
   rejectedSignupsHidden: true,
 
   // ── Leave requests ───────────────────────────────────────────────────────
