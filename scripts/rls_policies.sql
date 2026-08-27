@@ -60,12 +60,14 @@ CREATE POLICY "personnel_select" ON personnel FOR SELECT TO authenticated
 CREATE POLICY "personnel_insert" ON personnel FOR INSERT TO authenticated
   WITH CHECK (_auth_role() IN ('admin','superadmin'));
 
--- Admins can update, but only superadmins can assign the superadmin role
+-- Admins can update reservist rows; only superadmins can set role to admin or superadmin
 CREATE POLICY "personnel_update" ON personnel FOR UPDATE TO authenticated
   USING (_auth_role() IN ('admin','superadmin'))
   WITH CHECK (
-    CASE WHEN role = 'superadmin' THEN _auth_role() = 'superadmin'
-         ELSE true
+    CASE
+      WHEN role = 'superadmin' THEN _auth_role() = 'superadmin'
+      WHEN role = 'admin'      THEN _auth_role() = 'superadmin'
+      ELSE _auth_role() IN ('admin','superadmin')
     END
   );
 
@@ -90,10 +92,17 @@ CREATE POLICY "attendance_select" ON attendance FOR SELECT TO authenticated
   USING (personnel_id = _auth_pid() OR _auth_role() IN ('admin','superadmin'));
 
 CREATE POLICY "attendance_insert" ON attendance FOR INSERT TO authenticated
-  WITH CHECK (personnel_id = _auth_pid() OR _auth_role() IN ('admin','superadmin'));
+  WITH CHECK (
+    _auth_role() IN ('admin','superadmin')
+    OR (personnel_id = _auth_pid() AND date = CURRENT_DATE)
+  );
 
 CREATE POLICY "attendance_update" ON attendance FOR UPDATE TO authenticated
-  USING (personnel_id = _auth_pid() OR _auth_role() IN ('admin','superadmin'));
+  USING (personnel_id = _auth_pid() OR _auth_role() IN ('admin','superadmin'))
+  WITH CHECK (
+    _auth_role() IN ('admin','superadmin')
+    OR (personnel_id = _auth_pid() AND date = CURRENT_DATE)
+  );
 
 CREATE POLICY "attendance_delete" ON attendance FOR DELETE TO authenticated
   USING (_auth_role() IN ('admin','superadmin'));

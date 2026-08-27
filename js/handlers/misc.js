@@ -25,6 +25,7 @@ const MiscHandlers = {
 
   switchAdminDept: async function(dept) {
     if(!this.state.isSuperAdmin || dept === this._myDept()) return;
+    if(this.state.timesEditId){this._toast('Close the time editor before switching departments.','error');return;}
     const currentDept = this._myDept();
     const currentBatchId = this.state.batches[this.state.activeBatchIdx||0]?.id;
     const deptLastBatchId = {...(this.state.deptLastBatchId||{}), [currentDept]: currentBatchId};
@@ -46,6 +47,7 @@ const MiscHandlers = {
     this._unsubscribeRealtime();
     this.setState({batches, activeBatchIdx, personnel, attendance, attendanceDate:today, noReportDays, batchLoading:false});
     this._subscribeRealtime(today);
+    this._subscribeAdminRequests();
     setTimeout(()=>Promise.all([
       this.loadRosterAvatars(),
       this.loadPendingLeaves(),

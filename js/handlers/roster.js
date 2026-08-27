@@ -19,6 +19,9 @@ const RosterHandlers = {
 
   setStatus: function(id, status) {
     return async () => {
+      if(!this._statusSubmitting) this._statusSubmitting = new Set();
+      if(this._statusSubmitting.has(id)) return;
+      this._statusSubmitting.add(id);
       const off=this.state.viewOffset||0;
       if(off > 0) return;
       const dk=Utils.dateKey(this.dateForOffset(off));
@@ -36,11 +39,13 @@ const RosterHandlers = {
         const {error}=await DB.attendance.upsert(id,dk,status,status==='present'&&p1?{time:p1,dist:prev.p1dist}:{});
         if(error){
           if(prev.status) this._setViewEntry(id,{...prev},off,dk); else this._delViewEntry(id,off,dk);
+          this._statusSubmitting.delete(id);
           this._toast('Failed to update. Try again.','error');
           return;
         }
         if(prev.status==='mc'&&status!=='mc') DB.leaves.voidApprovedForDate(id,dk).catch(()=>{});
       }
+      this._statusSubmitting.delete(id);
       this._haptic(40);
       this._toast({present:'Marked present',mc:'Marked MC',absent:'Marked absent'}[status]||'Updated');
     };

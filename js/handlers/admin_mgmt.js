@@ -22,6 +22,7 @@ const AdminMgmtHandlers = {
   },
 
   addAdmin: async function() {
+    if(this.state.addingAdmin) return;
     const {npAdminName,npAdminContact,npAdminPassword,adminsList,demo,isSuperAdmin}=this.state;
     if(!demo&&!isSuperAdmin){this._toast('Access denied.','error');return;}
     if(!npAdminName.trim()){this._toast('Name is required.','error');return;}
@@ -29,18 +30,19 @@ const AdminMgmtHandlers = {
     if(contactErr){this._toast(contactErr,'error');return;}
     if(adminsList.some(a=>a.contact?.replace(/[\s-]/g,'')===cleanContact)){this._toast('This contact is already an admin.','error');return;}
     if(!npAdminPassword||npAdminPassword.length<6){this._toast('Password must be at least 6 characters.','error');return;}
+    this.setState({addingAdmin:true});
     if(!demo){
       const existing=await DB.personnel.findByContact(cleanContact).catch(()=>null);
-      if(existing){this._toast('This contact is already registered.','error');return;}
+      if(existing){this.setState({addingAdmin:false});this._toast('This contact is already registered.','error');return;}
       const {user,error}=await DB.auth.createUserAsAdmin(cleanContact,npAdminPassword,npAdminName.trim());
-      if(error||!user){this._toast('Failed to create account. Try again.','error');return;}
+      if(error||!user){this.setState({addingAdmin:false});this._toast('Failed to create account. Try again.','error');return;}
       const {error:addErr}=await DB.personnel.add({authId:user.id,name:npAdminName.trim(),contact:cleanContact,shift:null,batchId:null,role:'admin',department:this._myDept()});
-      if(addErr){await DB.auth.deleteUser(user.id).catch(()=>{});this._toast('Failed to add admin to roster. Try again.','error');return;}
+      if(addErr){await DB.auth.deleteUser(user.id).catch(()=>{});this.setState({addingAdmin:false});this._toast('Failed to add admin to roster. Try again.','error');return;}
       await this.loadAdmins();
     } else {
       this.setState(s=>({adminsList:[...s.adminsList,{id:'demo-admin-'+Date.now(),name:npAdminName.trim(),contact:cleanContact,role:'admin'}]}));
     }
-    this.setState({npAdminName:'',npAdminContact:'',npAdminPassword:'',addAdminOpen:false,showNpAdminPw:false});
+    this.setState({addingAdmin:false,npAdminName:'',npAdminContact:'',npAdminPassword:'',addAdminOpen:false,showNpAdminPw:false});
     this._toast(npAdminName.trim()+' added as admin.');
   },
 
