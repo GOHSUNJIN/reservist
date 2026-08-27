@@ -221,6 +221,7 @@ const AdminPeople = {
           hasAvatar:!!av,
           avatarCursor:av?'cursor:pointer;':'',
           onViewAvatar:av?self.openAvatarLightbox(av):null,
+          onCopyContact:self.copyContact(a.contact||''),
           canDeactivate:s.isSuperAdmin&&a.id!==s.currentUserId&&a.role!=='superadmin',
           canResetPw:s.isSuperAdmin&&a.id!==s.currentUserId,
           onAskDeactivate:self.askDeactivateAdmin(a.id),
@@ -304,6 +305,7 @@ const AdminPeople = {
               deptLabel:Utils.deptLabel(r.department),
               isReactivation,isNew:!isReactivation,
               isCrossDept, prevDeptLabel:isCrossDept?('Previously: '+Utils.deptLabel(prevDept)):'',
+              onCopyContact:self.copyContact(r.contact||''),
               onApprove:self.approveSignup(r.id),onReject:self.rejectSignup(r.id)};
           }),
           signupSearchHasNoResults:!!_sq&&s.pendingSignups.length>0&&_base.length===0,
@@ -332,6 +334,7 @@ const AdminPeople = {
           :'flex:1;padding:8px 4px;background:transparent;border:none;font-size:13px;font-weight:500;color:#8a94a3;cursor:pointer;';
         return {
           ptRequests:tab==='requests', ptRoster:tab==='roster', ptAdmins:tab==='admins',
+          ptRequestsLoading:!(s.pendingSignupsLoaded&&s.pendingLeavesLoaded),
           setPeopleTabRequests:()=>self.setState({peopleTab:'requests'}),
           setPeopleTabRoster:()=>self.setState({peopleTab:'roster'}),
           setPeopleTabAdmins:()=>self.setState({peopleTab:'admins'}),
