@@ -192,7 +192,8 @@ const CheckinBuilders = {
         checkInOpacity:(myGpsActive&&locVerified&&!s.phaseSubmitting)?'1':'.45',
         checkInPE:(myGpsActive&&locVerified&&!s.phaseSubmitting)?'auto':'none',
         locIsOutOfRange, geofenceWaLink,
-        showGpsBypass: myGpsActive && locGpsError && (s.locRetryCount||0) >= 2 && (pd.key==='p1'||pd.key==='p3'),
+        showGpsBypass: myGpsActive && locGpsError && (s.locRetryCount||0) >= 2,
+        bypassLabel: pd.key==='p1'?'Check in without GPS':pd.key==='p2'?'Record break without GPS':pd.key==='p3'?'Record return without GPS':'Check out without GPS',
         onBypass: this.doPhaseBypass(pd.key),
         showBrowserTip: myGpsActive && locGpsError,
       };
@@ -217,7 +218,7 @@ const CheckinBuilders = {
     const waMsg=status==='present'
       ?`✅ *${me.name}* | ${Utils.shiftLabel(me.shift)}\n${_waDate}${_waLateNote}\n\n${_waTimes.join('  ·  ')}`
       :status==='mc'
-      ?`🤒 *${me.name}* - On MC today\n${Utils.shiftLabel(me.shift)}  ·  ${_waDate}`
+      ?`🤒 *${me.name}* | On MC today\n${Utils.shiftLabel(me.shift)}  ·  ${_waDate}`
       :'';
     const whatsappLink=waMsg?'https://api.whatsapp.com/send?text='+encodeURIComponent(waMsg):'';
     const showWaShare=!!(status==='present'||status==='mc');

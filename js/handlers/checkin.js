@@ -116,7 +116,7 @@ const CheckinHandlers = {
         this._queuePush({type:'phase',id:currentUserId,date:today,key,time,dist,...(bypassed?{bypassed:true}:{})});
         this.setState({phaseSubmitting:false});
       } else {
-        const {error:phErr}=await DB.attendance.logPhase(currentUserId,today,key,time,dist,bypassed||false);
+        const {time:serverTime,error:phErr}=await DB.attendance.logPhaseNow(currentUserId,today,key,dist,bypassed||false);
         this.setState({phaseSubmitting:false});
         if(phErr){
           if(!bypassed){
@@ -127,6 +127,13 @@ const CheckinHandlers = {
           } else {
             this._toast('Check-in saved locally but failed to sync. Check your connection.','error');
           }
+        } else if(serverTime) {
+          const corrected={...rec};
+          if(key==='p1') corrected.p1=serverTime;
+          else if(key==='p2') corrected.p2=serverTime;
+          else if(key==='p3') corrected.p3=serverTime;
+          else if(key==='p4') corrected.p4=serverTime;
+          this.setState(s=>({attendance:{...s.attendance,[currentUserId]:corrected}}));
         }
       }
     };

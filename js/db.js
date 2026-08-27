@@ -272,6 +272,17 @@ const DB = {
       return { error };
     },
 
+    async logPhaseNow(personnelId, dateStr, key, dist, bypassed = false) {
+      const { data, error } = await _db.rpc('log_phase_now', {
+        p_personnel_id: personnelId,
+        p_date: dateStr,
+        p_phase: key,
+        p_dist: dist ?? null,
+        p_bypassed: bypassed || false,
+      });
+      return { time: data || null, error };
+    },
+
     async submitLateReason(personnelId, dateStr, reason) {
       const { error } = await _db.from('attendance')
         .update({ late_reason: reason })
