@@ -54,7 +54,12 @@ const BriefingsBuilders = {
         }) : [],
       showTeam: !!(me?.batch_id && s.personnel.some(p=>p.batch_id===me.batch_id&&p.id!==s.currentUserId&&(p.role||'reservist')==='reservist')),
       casInfoBlocked: s.role==='reservist' && this._myDept()==='cas',
-      leaveHistoryItems: s.myLeaveHistory.map(r=>({
+      leaveHistoryItems: (()=>{
+        const raw=s.myLeaveHistory||[];
+        const pend=s.myPendingRequest;
+        const list=(pend&&!raw.some(r=>r.id===pend.id))?[pend,...raw]:raw;
+        return list;
+      })().map(r=>({
         id:r.id,
         typeLabel:r.type==='mc'?'MC':r.type==='other'?'Other':'Personal Leave',
         dateLabel:r.date?Utils.fmtMed(new Date(r.date+'T00:00:00')):'',
@@ -69,7 +74,7 @@ const BriefingsBuilders = {
         canCancel:r.status==='pending',
         onCancel:this.cancelLeaveRequest(r.id),
       })),
-      showLeaveHistory:s.myLeaveHistory.length>0, myLeaveHistoryLoaded:s.myLeaveHistoryLoaded,
+      showLeaveHistory:((s.myLeaveHistory||[]).length>0)||!!s.myPendingRequest, myLeaveHistoryLoaded:s.myLeaveHistoryLoaded,
     };
   },
 
