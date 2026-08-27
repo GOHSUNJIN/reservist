@@ -4,6 +4,7 @@ const RequestHandlers = {
   onLeaveSearch:    function(e) { this.setState({leaveSearch:e.target.value}); },
   clearLeaveSearch: function() { this.setState({leaveSearch:''}); },
 
+  // Cancels stale/old leave requests, purges old processed signups, then reloads the pending leaves list.
   loadPendingLeaves: async function() {
     const {demo}=this.state;
     if(demo) return;
@@ -172,6 +173,7 @@ const RequestHandlers = {
     };
   },
 
+  // Fetches the current user's leave history and updates state.
   loadMyLeaveHistory: async function() {
     const hist=await DB.leaves.myHistory(this.state.currentUserId).catch(()=>[]);
     this.setState({myLeaveHistory:hist,myLeaveHistoryLoaded:true});

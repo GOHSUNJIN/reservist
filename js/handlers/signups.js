@@ -16,6 +16,7 @@ const SignupHandlers = {
     };
   },
 
+  // Finds or creates a personnel record for an approved signup; reactivates inactive records if found.
   _ensurePersonnelForSignup: async function(req, signupId) {
     const dept = req.department || 'ops_security';
     const existing=await DB.personnel.findByContact(req.contact).catch(()=>null);

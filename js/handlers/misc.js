@@ -2,6 +2,7 @@
 const MiscHandlers = {
 
   // ── Toast ──────────────────────────────────────────────────────────────
+  // Shows a toast notification and auto-dismisses it after a timeout.
   _toast: function(msg, type='success') {
     if(this._toastTimer) clearTimeout(this._toastTimer);
     this.setState({toast:{msg,type}});
@@ -13,6 +14,7 @@ const MiscHandlers = {
     this.setState({toast:null});
   },
 
+  // Returns the effective department for the current user, respecting the superadmin dept filter.
   _myDept: function() {
     const s = this.state;
     if(s.isSuperAdmin && s.adminDeptFilter) return s.adminDeptFilter;
@@ -112,6 +114,7 @@ const MiscHandlers = {
 
   myRec: function() { return this.state.attendance[this.state.currentUserId]||{status:'pending'}; },
 
+  // Returns the list of reservists for a given batch, using the members cache for past batches.
   _batchReservists: function(batch) {
     const {personnel, batchMembersCache} = this.state;
     const all = batch?.is_live
