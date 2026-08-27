@@ -1716,7 +1716,8 @@
                 <div style="width:34px;height:34px;border-radius:50%;background:#eceef2;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#5c6678;flex:0 0 auto;">{{ sr.initials }}</div>
                 <div class="flex-fill">
                   <div class="text-body-bold">{{ sr.name }}</div>
-                  <div style="font-size:11px;color:#8a94a3;margin-top:1px;">{{ sr.contact }} · {{ sr.deptLabel }} · <span style="white-space:nowrap;">{{ sr.batchLabel }}</span> · {{ sr.createdAt }}</div>
+                  <div style="font-size:12px;color:#5c6678;margin-top:1px;font-weight:500;">{{ sr.contact }}</div>
+                  <div style="font-size:11px;color:#9aa3b2;margin-top:1px;">{{ sr.deptLabel }} · <span style="white-space:nowrap;">{{ sr.batchLabel }}</span> · {{ sr.createdAt }}</div>
                 </div>
                 <sc-if value="{{ sr.isReactivation }}" hint-placeholder-val="">
                   <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
