@@ -30,7 +30,7 @@ const SignupHandlers = {
     const {data:newPerson,error:addErr}=await DB.personnel.add({authId:req.auth_id,name:req.name,contact:req.contact,shift:req.shift,batchId:req.batch_id,department:dept});
     if(addErr){
       await DB.signupRequests.reopen(signupId).catch(()=>{});
-      return {finalPerson:null,existed:false,wasInactive:false,error:true,message:'Failed to create roster entry. Signup reverted to pending - try again.'};
+      return {finalPerson:null,existed:false,wasInactive:false,error:true,message:'Failed to create roster entry. Signup reverted to pending. Try again.'};
     }
     return {finalPerson:newPerson,existed:false,wasInactive:false};
   },
