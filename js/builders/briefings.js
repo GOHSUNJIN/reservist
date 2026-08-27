@@ -75,6 +75,8 @@ const BriefingsBuilders = {
         onCancel:this.cancelLeaveRequest(r.id),
       })),
       showLeaveHistory:((s.myLeaveHistory||[]).length>0)||!!s.myPendingRequest, myLeaveHistoryLoaded:s.myLeaveHistoryLoaded,
+      showLeaveItems:(((s.myLeaveHistory||[]).length>0)||!!s.myPendingRequest)&&!!s.myLeaveHistoryLoaded,
+      showLeaveEmpty:!(((s.myLeaveHistory||[]).length>0)||!!s.myPendingRequest)&&!!s.myLeaveHistoryLoaded,
     };
   },
 
