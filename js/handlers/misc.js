@@ -99,7 +99,7 @@ const MiscHandlers = {
       this.setState({briefTab:k});
       if(k==='history' && this.state.role==='reservist' && !this.state.demo) {
         DB.leaves.myHistory(this.state.currentUserId)
-          .then(hist=>this.setState({myLeaveHistory:hist,myLeaveHistoryLoaded:true}))
+          .then(hist=>this.setState(s=>({myLeaveHistory:hist.length>0?hist:s.myLeaveHistory,myLeaveHistoryLoaded:true})))
           .catch(()=>{});
       }
     };
