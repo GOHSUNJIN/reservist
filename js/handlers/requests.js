@@ -158,12 +158,12 @@ const RequestHandlers = {
     return async () => {
       const {demo}=this.state;
       if(!demo&&id&&id!=='demo'){
-        const {data,error}=await DB.leaves.cancel(id).catch(()=>({error:true}));
+        const {error}=await DB.leaves.cancel(id).catch(()=>({error:true}));
         if(error){this._toast('Failed to cancel. Try again.','error');return;}
-        if(!data){this._toast('Request was already reviewed by an admin.','error');this.loadMyLeaveHistory();return;}
       }
       this.setState(s=>({myPendingRequests:s.myPendingRequests.filter(r=>r.id!==id),myLeaveHistory:s.myLeaveHistory.map(r=>r.id===id?{...r,status:'cancelled'}:r)}));
-      this._toast('Request cancelled.');
+      this._toast('Request withdrawn.');
+      if(!demo) this.loadMyLeaveHistory();
     };
   },
 
