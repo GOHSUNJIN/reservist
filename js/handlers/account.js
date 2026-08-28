@@ -142,7 +142,7 @@ const AccountHandlers = {
         if(row.personnel_id && !myPersonnelIds.has(row.personnel_id)) return;
         this.loadPendingLeaves();
         if(this.state.adminNotifGranted && typeof Notification !== 'undefined' && Notification.permission === 'granted'){
-          const typeMap = {mc:'MC',other:'Other',personal:'Personal Leave'};
+          const typeMap = {mc:'MC',other:'Personal Leave',personal:'Personal Leave'};
           new Notification('New request from personnel', {body:(typeMap[row.type]||row.type)+' request received.',icon:'./assets/icon.svg'});
         }
       }

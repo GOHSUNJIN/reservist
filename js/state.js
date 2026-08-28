@@ -49,7 +49,8 @@ const makeInitialState = () => ({
 
   // ── Roster and log ──────────────────────────────────────────────────────
   rosterSearch: '', rosterSort: 'name', rosterStatusFilter: 'all',
-  logSearch: '', logStatusFilter: 'all',
+  rosterExpandedId: null,
+  logSearch: '', logStatusFilter: 'all', logNoteSaving: false,
   markingAllAbsent: false, confirmMarkAllAbsent: false,
   markAllPresenting: false, confirmMarkAllPresent: false,
   editingNoteId: null, editingNoteText: '',
@@ -98,11 +99,13 @@ const makeInitialState = () => ({
 
   // ── Leave requests ───────────────────────────────────────────────────────
   leaveOpen: false, leaveDate: '', leaveType: 'mc', leaveReason: '',
+  leaveHistFilter: 'all',
   myPendingRequests: [],
   myLeaveHistory: [], myLeaveHistoryLoaded: false,
   pendingLeaves: [], pendingLeavesLoaded: false,
   leaveSearch: '', leaveTypeFilter: 'all', leaveSearchOpen: false,
   rejectLeaveId: null, rejectLeaveReason: '',
+  approvingLeaveId: null, confirmingDecline: false,
   leaveSelectedIds: [], confirmBulkLeaveReject: false, bulkLeaveRejectReason: '', bulkApprovingLeaves: false,
 
   // ── Notes and welfare ────────────────────────────────────────────────────

@@ -29,7 +29,6 @@ const NavBuilders = {
       pendingSignupsLoaded:!!(s.pendingSignupsLoaded),
       offlinePending:s.offlinePending, offlineQueueCount:this._offlineQueues?.length||0,
       offlineQueueMsg:(()=>{const n=this._offlineQueues?.length||0;return s.offlinePending?': '+n+' action'+(n===1?'':'s')+' queued':'';})(),
-      isReservistRole: s.role==='reservist',
       showIdleWarning: !!(s.idleWarning && !s.sessionExpiring),
       hasPendingLeave: !!(s.myPendingRequests?.length),
     };
