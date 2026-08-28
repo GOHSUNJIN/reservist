@@ -170,6 +170,9 @@ const InitHandlers = {
             this.setState({attendance:att});
             DB.leaves.myHistory(me.id).then(hist=>this.setState({myLeaveHistory:hist,myLeaveHistoryLoaded:true})).catch(()=>{});
           }
+          if(row.status === 'cancelled'){
+            DB.leaves.myHistory(me.id).then(hist=>this.setState({myLeaveHistory:hist,myLeaveHistoryLoaded:true})).catch(()=>{});
+          }
         }
       });
     }
