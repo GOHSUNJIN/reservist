@@ -23,13 +23,13 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 - **Department-based check-in flow**: Ops Security reservists log four phases (check in, lunch out, return from lunch, end of shift). Crime Alert (CAS) reservists use a simplified two-phase flow: check in and check out only. Each phase is timestamped to the minute.
 - **GPS verification**: Tapping a check-in phase shows a "Locate me" button first. After GPS confirms you are within range of HQ, the button swaps to "Check in to work" (or the phase-specific label). Distance from HQ is recorded. The radius is configurable (default: 250 m).
 - **GPS bypass**: After five consecutive failed GPS attempts, a bypass option appears to allow check-in without location. Bypassed records are permanently flagged in the log.
-- **Leave and MC requests**: Submit requests digitally through the app. They go directly to the supervisor for approval with no phone calls or messages needed.
-- **Cancel pending requests**: A leave or MC request can be withdrawn by the reservist before the supervisor has acted on it, from both the check-in tab and the Requests history.
-- **Request status tracking**: The Requests tab in the Info view shows the full history of submitted leave and MC requests, each with a type badge (MC in amber, Personal Leave in blue, Other in grey) and a status badge (Submitted, Approved, Declined, Withdrawn). Pending items can be withdrawn inline.
-- **Info and Attendance tabs**: The Info tab shows shift details, meal allowance information, leave request history, and a team directory listing batchmates with contact links. Both Ops Security and CAS reservists see the team directory. The Attendance tab shows the personal attendance calendar and history.
-- **Attendance history**: View your own full record for the cycle, including total days present, MC, absent, and your attendance rate.
+- **Leave and MC requests**: Submit requests digitally through the app. They go directly to the supervisor for approval with no phone calls or messages needed. Only one leave type is supported per day: MC (sick leave) or Personal Leave (other absences).
+- **Cancel pending requests**: A leave or MC request can be withdrawn by the reservist before the supervisor has acted on it, from both the check-in screen and the Requests history tab.
+- **Request history**: The Requests tab shows the full history of submitted leave and MC requests, each with a coloured left bar, a type badge (MC in amber, Personal Leave in red), and a status badge (Submitted, Approved, Declined, or Withdrawn). Records are deduplicated by date: if multiple requests exist for the same date, only the most relevant one is shown (pending takes priority over approved, approved over declined). Filter pills let you narrow the list by status. Pending requests can be withdrawn inline.
+- **Info and Attendance tabs**: The Info tab shows shift details, meal allowance information, leave request history, and a team directory listing batchmates with contact links. The Attendance tab shows the personal attendance calendar and history.
+- **Attendance history**: View your full record for the cycle, including total days present, MC, absent, and your attendance rate.
 - **Copyable contact numbers**: Tap any batchmate's phone number in the team directory to copy it to the clipboard.
-- **MC calendar coloring**: Approved MC days are highlighted amber in the attendance calendar. Pending MC requests appear with a lighter amber tint and a dashed border, so you can see at a glance which days have been covered.
+- **Calendar coloring**: The attendance calendar uses colour to distinguish day types at a glance. Present days are green. MC days are amber with a solid border. Approved personal leave days are red with a solid border. Pending leave or MC requests appear with a lighter tint and a dashed border. Days with a missing clock-out are orange with a dashed border. No-report days are slate blue. Absent days are red.
 - **Phase reminder banner**: A banner appears automatically when a check-in phase window is open and you have not yet logged it. It disappears once the phase is recorded.
 - **Upcoming no-report days**: Lists all remaining no-report days in the current cycle (public holidays and stand-downs) so reservists can plan ahead.
 - **Cycle notice board**: If the supervisor has posted a notice for the current cycle, it appears as a banner on the check-in screen for everyone in that cycle.
@@ -41,7 +41,6 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 - **Idle timeout**: Sessions expire after 20 minutes of inactivity, with a warning at 18 minutes.
 - **Work timer and meal allowance**: When meal allowance is active for the cycle, a live timer shows total work time for the day, paused during lunch. Once 6 hours of work is reached, a "Meal eligible" badge appears. A reminder is shown inside the timer card when eligible but Phase 4 has not yet been recorded, to discourage leaving without clocking out.
 - **Missing clock-out detection**: If a past day shows no clock-out, that calendar day is coloured orange with a dashed border. Tapping it shows a warning. A persistent orange banner also appears on the check-in screen if any day in the past two weeks is missing a clock-out, prompting the reservist to inform their supervisor so their meal allowance record can be corrected.
-- **No-reporting day calendar coloring**: Days marked as no-reporting are highlighted in slate blue in the attendance calendar, distinct from MC (amber) and present (green), making it easy to see at a glance which days required no attendance.
 - **Late check-in self-declaration**: If you check in more than one hour after shift start, you are prompted to provide a written reason for the lateness before the check-in is accepted.
 - **In-app browser detection**: If opened from WhatsApp, Instagram, or another in-app browser where GPS is blocked, the app shows specific instructions for opening in the device's real browser.
 - **Profile photo**: Upload a profile photo from account settings. Tap your photo to view it enlarged. Works on iOS and Android.
@@ -58,6 +57,7 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 - **Pending badge on Log nav**: The Log navigation button shows a badge when there are reservists with no attendance status for the current date, so you always know at a glance if action is needed.
 - **Day navigation**: Swipe left or right to move between dates, or use the previous/next day buttons. The calendar in the Overview tab can also be tapped to jump directly to any date.
 - **Jump to date**: Navigate directly to any date across any cycle using the date picker.
+- **Low attendance indicator**: Reservists with an attendance rate below 75% are flagged inline on their roster card. The amber percentage and a short indicator appear next to the contact number, keeping the card compact without a separate row.
 
 **Time Log:**
 - **Manual time correction**: Edit any reservist's check-in times for any day directly from the Log tab across all four phases. Corrected records are flagged as admin-entered in the database.
@@ -66,17 +66,17 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 - **Click name to open history**: In the Log tab, clicking a reservist's name opens their full attendance history without needing to navigate to the People tab.
 - **Shift label on log cards**: Each log card shows the reservist's shift alongside their check-in times.
 - **Admin log note**: Add a free-text note against any person's attendance entry for the current view date.
-- **Late check-in alerts**: Anyone who checks in more than one hour after shift start is automatically flagged in the log and their written late reason is displayed alongside the attendance record.
-- **Missing clock-out flag**: Any log entry where a reservist is marked present but has no Phase 4 clock-out is flagged with a visible "No clock-out" badge on both the log row and the attendance record view, making it easy to identify and correct before payroll.
+- **Late check-in alerts**: Anyone who checks in more than one hour after shift start is automatically flagged. The late badge shows the written reason inline (for example: "Late · Dental appointment") so supervisors do not need to expand anything to read it. If no reason was given, the badge shows "Late · No reason".
+- **Missing clock-out display**: When a reservist is marked present but has no Phase 4 clock-out, the OUT column of their log card shows a dash on an orange background instead of a time. This keeps the missing clock-out visible without adding a separate badge row, making it easy to scan and correct before payroll.
 
 **Requests and Leave:**
-- **Unified requests inbox**: All pending signup requests, MC requests, and leave requests appear in one place. Each signup is labelled New or Returning so the supervisor knows at a glance whether they are onboarding a first-timer or re-enrolling someone from a previous cycle.
-- **Leave type badges**: Pending leave requests display colour-coded type badges: MC in amber, Personal Leave in blue, Other in grey. The same colours are used consistently across the admin view and the reservist's own request history.
+- **Unified requests inbox**: All pending signup requests, MC requests, and personal leave requests appear in one place. Each signup is labelled New or Returning so the supervisor knows at a glance whether they are onboarding a first-timer or re-enrolling someone from a previous cycle.
+- **Leave type badges**: Pending leave requests display colour-coded type badges: MC in amber, Personal Leave in red. The same colours are used consistently across the admin view and the reservist's own request history.
 - **Submission timestamps**: Pending requests and signups show the exact submission time (HH:MM) rather than a relative label. The time resets daily so context is always accurate.
 - **Signup search and filters**: The Pending Signups panel has a collapsible search bar with filter pills (All, New, Returning). A red dot on the search icon indicates when a filter is active.
-- **Leave search and filters**: The Pending Requests panel has the same collapsible search bar with filter pills (All, MC, Personal, Other).
+- **Leave search and filters**: The Pending Requests panel has the same collapsible search bar with filter pills (All, MC, Personal Leave).
 - **Select-all for signups**: A checkbox in the signup section header selects or deselects all visible pending signups. Filtered by the search box, so select-all only acts on visible results.
-- **Select-all for leave requests**: Same select-all behavior for pending leave requests.
+- **Select-all for leave requests**: Same select-all behaviour for pending leave requests.
 - **Bulk leave actions**: Select multiple pending leave requests and approve or reject them in a single action. Bulk rejection requires a written reason recorded against each rejected request.
 - **Urgency sorting**: Pending leave requests are sorted by submission time, newest first, so recently submitted requests are visible immediately.
 - **Leave request rejection reason**: Each rejected request records the reviewer's name, timestamp, and written reason.
@@ -89,17 +89,16 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 - **Missed attendance notes**: Add an inline note for reservists who did not report without an approved leave, directly from the attendance history view.
 
 **Personnel Management (People tab):**
-- **Roster view**: Lists all personnel in the current cycle with their attendance rate shown when stats are loaded.
+- **Roster view**: Lists all personnel in the current cycle with their attendance rate shown when stats are loaded. Low attendance (below 75%) is flagged inline next to the contact number in amber, keeping the card compact.
 - **Collapsible action bar**: Each roster card is collapsed by default. A chevron button in the top-right corner of each card expands the action bar, which contains History, Note, Reset PW, and Remove. Only one card can be expanded at a time, keeping the list compact.
-- **Low attendance warning**: Personnel with an attendance rate below 75% are flagged inline on their card - the attendance percentage turns amber and a compact "Low" chip appears on the same line as the stats, without adding a separate row.
 - **Roster search**: Filter the personnel list by name or contact number with a persistent search bar.
-- **Per-person attendance history**: Click any person's card to open their full attendance history across all cycles. The history modal includes status filter chips (All, Present, MC, Absent) and pagination (15 records per page). Time ranges are only shown for present days - MC and absent rows are displayed without a meaningless "- to -" placeholder. The history can be exported to Excel (.xls).
+- **Per-person attendance history**: Click any person's card to open their full attendance history across all cycles. The history modal includes status filter chips (All, Present, MC, Absent) and pagination (15 records per page). Time ranges are only shown for present days: MC and absent rows are displayed without a placeholder. The history can be exported to Excel (.xls).
 - **Avatar lightbox**: Tap any reservist's profile photo in the overview, roster, or log to view it enlarged. Tapping outside the photo closes it.
 - **Click row in Overview**: Clicking a person's row in the Overview tab also opens their history directly.
 - **Password reset**: Reset any reservist's password directly from the roster without requiring database access. The Master account can also reset supervisor passwords from the Team tab.
 - **Bulk add personnel**: Paste a list of names and contact numbers to add multiple reservists at once.
 - **Re-enroll by search**: When adding personnel, search for removed reservists by name or contact number. Selecting a match triggers the re-enroll flow, reactivating their existing account and history without creating a duplicate entry.
-- **Personnel accountability**: Each personnel card shows who added the reservist - "Added by [name]" for direct admin additions, or "Approved by [name]" for self-signup approvals.
+- **Personnel accountability**: Each personnel card shows who added the reservist: "Added by [name]" for direct admin additions, or "Approved by [name]" for self-signup approvals.
 - **Team tab**: View the full list of active supervisors in your department. Accessible from the People tab for all admin accounts. Each entry shows the supervisor's name, contact number, and role.
 
 **Cycle Management:**
@@ -141,7 +140,7 @@ All supervisor capabilities, plus:
 Every action in the system is recorded:
 
 - Every check-in carries a timestamp and the GPS distance from HQ at the moment of submission.
-- Late arrivals are flagged automatically. If more than one hour late, the reservist must submit a written reason, which is stored alongside the attendance record.
+- Late arrivals are flagged automatically. If more than one hour late, the reservist must submit a written reason, which is stored alongside the attendance record and displayed inline on the log card.
 - If GPS verification is bypassed (due to GPS failure or supervisor authorisation), this is permanently marked in the log with a visible indicator.
 - If a supervisor manually corrects a reservist's times, the record is flagged as admin-entered, and the edit log includes the editor's name and timestamp.
 - All leave and MC approvals record who approved them and when. Rejections record the reviewer and reason.
@@ -225,7 +224,7 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 
 The app is a single-page application built without a framework. State is held in a single object and passed down to a declarative template engine. The JavaScript is divided into two layers:
 
-**Builders** read the current state and return a flat object of UI properties for the template. They contain no side effects - just pure computation. This makes the UI predictable: the same state always produces the same output.
+**Builders** read the current state and return a flat object of UI properties for the template. They contain no side effects: just pure computation. This makes the UI predictable; the same state always produces the same output.
 
 **Handlers** respond to user actions. They call the database, update state via `setState`, and trigger side effects like toasts and haptic feedback. Handlers never read from the DOM directly.
 
@@ -248,7 +247,7 @@ js/
 │   ├── auth.js         - Login and signup screens
 │   ├── nav.js          - Navigation bar, offline queue badge, pending-action indicators
 │   ├── checkin.js      - Reservist check-in screen, phase tiles, GPS state, calendar, banners, work timer
-│   ├── briefings.js    - Info tab (shift info, leave request history)
+│   ├── briefings.js    - Info tab (shift info, leave request history with dedup and filter pills)
 │   ├── account.js      - Account settings, profile photo, password change, name change
 │   └── admin/
 │       ├── index.js    - Shared admin context and sub-builder aggregation
@@ -284,11 +283,15 @@ scripts/                - Offline tooling (not part of the web app)
 
 **Attendance state cache**: Today's attendance is stored in `state.attendance`. Past and future dates are stored in `state.attendanceCache`, keyed by date string (`YYYY-MM-DD`). Roster handlers use `_viewAttMap`, `_setViewEntry`, and `_delViewEntry` helpers to read and write the correct map depending on the current view offset.
 
+**Approved leave cache**: `state.approvedLeavesCache` maps date keys to a map of `personnelId: leaveType`. It is populated when attendance is fetched and updated when leave is approved or voided. The roster and calendar builders use it to colour-code reservists who are absent due to approved leave rather than unexplained absence. When a supervisor overrides an absent status to present, the cache entry is cleared immediately alongside the database void.
+
 **Offline queue**: When the device is offline, check-in actions are pushed to `this._offlineQueues` and persisted to `sessionStorage`. On reconnect, `_onOnline` replays the queue in order against the database.
 
 **Realtime**: Supabase Realtime channels push row-level changes for attendance (admin view), leave status (reservist view), and new requests (admin notifications) without polling.
 
 **Batch provisioning**: On every admin login, the system ensures a live batch exists and that 8 future batches are pre-created. This prevents the cycle selector from being empty when a new cycle starts.
+
+**Request deduplication**: The reservist's Requests history deduplicates entries by date. If multiple requests exist for the same date (for example, an approved request followed by a withdrawn re-submission), only the most relevant one is shown. Priority order: pending > approved > rejected > withdrawn. This prevents the list from showing confusing duplicate rows.
 
 **Person history pagination**: The person history modal is paginated at 15 records per page. Status filters (All, Present, MC, Absent) are applied before pagination. Page state is reset when the filter changes.
 
@@ -348,7 +351,7 @@ All data is stored in a structured cloud database (PostgreSQL), with six tables:
 
 | Field | What it stores |
 |---|---|
-| Type | MC, personal leave, or other |
+| Type | MC or Personal Leave |
 | Date requested | The date the leave is for |
 | Reason | Written reason from the reservist |
 | Status | Submitted (awaiting review), Approved, Rejected, or Cancelled |
@@ -678,7 +681,7 @@ If the auto-absent job ran before the reservist checked in, their status may hav
 
 ### Clock-out is missing
 
-If a reservist is marked present but has no Phase 4 time, the log entry will show a "No clock-out" badge. Open the log entry and add the correct end-of-shift time. This affects meal allowance eligibility, so correct it before the end of the day where possible.
+If a reservist is marked present but has no Phase 4 time, the log entry's OUT column will show a dash on an orange background. Open the log entry and add the correct end-of-shift time. This affects meal allowance eligibility, so correct it before the end of the day where possible.
 
 ### Realtime updates are not appearing
 
@@ -725,7 +728,7 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Phase 3 (Return from lunch, 1400-1800): GPS verify required, records on tap
 - [ ] Phase 4 (End of shift, after 1800): direct button, records timestamp
 - [ ] All 4 phases done: "All done for today" state shown
-- [ ] Late check-in (more than 1 hour after 0900): late reason modal appears, reason recorded and visible in log
+- [ ] Late check-in (more than 1 hour after 0900): late reason modal appears, reason recorded and visible inline on log card
 - [ ] GPS keeps failing: after 5 attempts the bypass option appears
 - [ ] GPS bypass: check-in completes, record is flagged as GPS bypassed in admin log
 - [ ] Opened in WhatsApp or Instagram in-app browser: banner shown with instructions to open in Chrome or Safari
@@ -737,16 +740,31 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] No phases 3 or 4 visible
 
 #### Leave and MC requests
-- [ ] Submit MC request for today or a future date - appears in admin Requests tab
-- [ ] Submit Personal Leave request - appears in admin Requests tab with blue badge
-- [ ] Submit Other request - appears in admin Requests tab with grey badge
-- [ ] Try to submit a second request for a date already covered - error shown
+- [ ] Submit MC request for today or a future date - appears in admin Requests tab with amber badge
+- [ ] Submit Personal Leave request - appears in admin Requests tab with red badge
+- [ ] Try to submit a second request for a date already covered by a pending request - error shown
 - [ ] Try to submit a request for a past date - error shown
+- [ ] Try to submit a request for a weekend or public holiday - error shown
+- [ ] Try to submit a request for a date outside the current cycle - error shown
 - [ ] Withdraw a pending request from the check-in screen - request removed
 - [ ] Withdraw a pending request from the Requests history (Info tab) - status changes to Withdrawn
-- [ ] View Requests history: type badge (MC amber, Personal Leave blue, Other grey) and status badge (Submitted, Approved, Declined, Withdrawn) shown correctly
+- [ ] Multiple requests for the same date: only one entry shown in history (pending shown over approved, approved over declined)
+- [ ] View Requests history: type badge (MC amber, Personal Leave red) and status badge (Submitted, Approved, Declined, Withdrawn) shown correctly
 - [ ] View a declined request: supervisor's decline reason displayed
 - [ ] Approved MC for today: check-in is blocked with a message explaining leave is pending
+- [ ] After admin voids an approved leave (marks present): reservist can re-submit a new request for that date
+
+#### Calendar (Attendance tab)
+- [ ] Present days shown in green
+- [ ] MC days shown in amber with solid border
+- [ ] Approved MC request for a future date shown in amber with solid border
+- [ ] Pending (submitted) MC request for a future date shown with dashed amber border
+- [ ] Approved Personal Leave for a future date shown in red with solid border
+- [ ] Pending Personal Leave request shown with dashed red border
+- [ ] No-report days shown in slate blue
+- [ ] Absent days shown in red
+- [ ] Days with missing clock-out shown in orange with dashed border
+- [ ] Tap any calendar day: detail panel shows correct label, sub-text, and colour
 
 #### Info tab
 - [ ] Shift info shown correctly (title, window, items)
@@ -755,16 +773,6 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Tap a contact number in team directory: copies to clipboard, toast appears
 - [ ] WhatsApp link button opens WA chat with the correct number
 - [ ] WA group link shown only if configured
-
-#### Attendance tab
-- [ ] Calendar shows all days in the cycle
-- [ ] Present days shown in green
-- [ ] MC days shown in amber with solid border
-- [ ] Days with a submitted (pending) MC request shown with dashed border
-- [ ] No-report days shown in slate blue
-- [ ] Absent days shown in red
-- [ ] Days with missing clock-out shown in orange with dashed border
-- [ ] Attendance rate, present count, MC count, and absent count shown correctly
 
 #### Account settings
 - [ ] Change display name: saved and reflected in header immediately
@@ -800,6 +808,7 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Mark All Present: confirmation step shown, all Pending become Present
 - [ ] Navigate to yesterday (viewOffset -1): log reads from cache, not live attendance
 - [ ] Navigate to a future date (viewOffset +1 or more): status buttons not available
+- [ ] Reservist with attendance below 75%: amber percentage and indicator visible inline next to contact number
 
 #### Log tab
 - [ ] All personnel listed for the viewed date
@@ -808,8 +817,9 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Edit times for a present record: all 4 phase fields editable, save updates the record and flags it as admin-entered
 - [ ] Add a welfare note to a record: note saved and visible on next load
 - [ ] Tap a person's name in the log: opens their full history modal
-- [ ] Late check-in: "Late" badge visible, reason text shown
-- [ ] Missing clock-out: "No clock-out" badge visible on the log card
+- [ ] Late check-in: "Late" badge shows the written reason inline (e.g. "Late · Dental appointment")
+- [ ] Late check-in with no reason given: badge shows "Late · No reason"
+- [ ] Missing clock-out: OUT column shows a dash on orange background (no separate badge row)
 - [ ] WhatsApp summary button: generates text, preview modal opens, copy and send both work
 
 #### Requests tab (Signups)
@@ -826,19 +836,19 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Bulk approve selected signups: all approved in one action
 
 #### Requests tab (Leave)
-- [ ] Pending leave requests listed with avatar, name, contact, type badge, time
+- [ ] Pending leave requests listed with avatar, name, contact, type badge (MC amber, Personal Leave red), time
 - [ ] Approve a request: removed from list, reservist's status updates if for today
 - [ ] Decline a request: enter reason, confirm - request shows declined badge and reason on reservist side
 - [ ] Bulk approve multiple requests: all approved, toast confirms count
 - [ ] Bulk reject: requires reason, applied to all selected
-- [ ] Search and filter by type (MC, Personal, Other): list filters correctly
-- [ ] Expired requests (older than 48 hours): shown with Expired badge in amber
+- [ ] Search and filter by type (All, MC, Personal Leave): list filters correctly
+- [ ] Expired requests (older than 48 hours): shown with Expired badge
+- [ ] Mark a reservist with approved leave as Present: leave is voided, reservist can re-submit
 
 #### People tab - Roster view
 - [ ] All personnel listed with name, contact, shift, attendance stats
-- [ ] Attendance rate below 75%: Low badge visible in amber
+- [ ] Attendance rate below 75%: amber indicator visible inline next to contact number
 - [ ] Search by name or contact: filters correctly
-- [ ] Tap a card: no action (card does not open history from here - use the expand button)
 - [ ] Tap the chevron on a card: action bar expands (History, Note, Reset PW, Remove)
 - [ ] Only one card expanded at a time - opening another collapses the previous
 - [ ] History: opens person's full attendance history
@@ -899,6 +909,8 @@ All admin checks above apply. Run them for both departments. Then verify the fol
 - [ ] Reservist cannot mark their own attendance as present without going through the check-in flow
 
 ---
+
+## Known Limitations
 
 - **CAS Info tab content is a placeholder.** The Info tab for Crime Alert (CAS) reservists currently shows placeholder text. The attire, location, and operational details for CAS have not yet been configured in the codebase.
 - **Phase windows are hardcoded.** The check-in phase times (0900, 1200, 1400, 1800) are fixed constants and cannot be changed from within the app. Changing them requires a code update and redeployment. This is tracked as item 1 in the Planned Enhancements section.
