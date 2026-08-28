@@ -65,7 +65,7 @@ const AdminRoster = {
       const showNoLateReason=isLate&&!lateReason;
       const lateTagLabel=isLate?('Late · '+(lateReason||'No reason')):'';
       const _missingCo=!isLiveView&&r.status==='present'&&!!r.p1&&!r.p4;
-      const showAnyFlags=showNoLateReason||showLateReason||!!(r.gpsBypassed)||_missingCo;
+      const showAnyFlags=showNoLateReason||showLateReason||!!(r.gpsBypassed);
       const av=s.avatars[p.id]||'';
       const avatarStyle=Utils.avatarStyle(av);
       return {
@@ -90,6 +90,12 @@ const AdminRoster = {
         p2Color:r.p2?'#161f30':'#c2c8d2',
         p3Color:r.p3?'#161f30':'#c2c8d2',
         p4Color:r.p4?'#161f30':'#c2c8d2',
+        outCellBg:_missingCo?'#fff3e0':'transparent',
+        outLabelColor:_missingCo?'#c2410c':'#9aa3b2',
+        outValue:r.p4||(_missingCo?'No out':'-'),
+        outValueColor:_missingCo?'#c2410c':(r.p4?'#161f30':'#c2c8d2'),
+        outValueSize:_missingCo?'10px':'12px',
+        missingClockOut:_missingCo,
         avatarStyle, onViewAvatar:av?self.openAvatarLightbox(av):null, avatarCursor:av?'cursor:pointer;':'', shift:p.shift||'OFFICE',
         p2Label:'LCH',
         p2FormLabel:'Lunch',
