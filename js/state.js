@@ -51,7 +51,7 @@ const makeInitialState = () => ({
   rosterSearch: '', rosterSort: 'name', rosterStatusFilter: 'all',
   logSearch: '', logStatusFilter: 'all',
   markingAllAbsent: false, confirmMarkAllAbsent: false,
-  markAllPresenting: false,
+  markAllPresenting: false, confirmMarkAllPresent: false,
   editingNoteId: null, editingNoteText: '',
   logNoteId: null, logNoteText: '',
   timesEditId: null, timesEditP1: '', timesEditP2: '', timesEditP3: '', timesEditP4: '', timesEditSaving: false, timesEditErrField: null,

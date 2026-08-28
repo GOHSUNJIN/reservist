@@ -1432,16 +1432,13 @@
                 <div class="avatar-sm" onClick="{{ row.onViewAvatar }}" style="flex:0 0 auto;{{ row.avatarCursor }}{{ row.avatarStyle }}">{{ row.initials }}</div>
                 <div class="flex-fill">
                   <div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div>
-                  <div style="font-size:11px;color:#9aa3b2;margin-top:1px;font-family:'IBM Plex Mono',monospace;">{{ row.contact }}</div>
+                  <div style="display:flex;align-items:center;gap:5px;margin-top:1px;">
+                    <span style="font-size:11px;color:#9aa3b2;font-family:'IBM Plex Mono',monospace;">{{ row.contact }}</span>
+                    <sc-if value="{{ row.lowAttendance }}" hint-placeholder-val=""><span style="font-size:10.5px;font-weight:600;color:#b9791a;">· {{ row.statPctText }}</span></sc-if>
+                  </div>
                 </div>
                 <span class="badge" style="color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
               </div>
-              <sc-if value="{{ row.lowAttendance }}" hint-placeholder-val="">
-              <div style="display:flex;align-items:center;gap:5px;margin-bottom:8px;padding:4px 8px;background:#fdf0dc;border:1px solid #f0d99a;border-radius:7px;width:fit-content;">
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-                <span style="font-size:11px;font-weight:600;color:#b9791a;">{{ row.statPctText }} this cycle</span>
-              </div>
-              </sc-if>
             <sc-if value="{{ row.showWelfareNote }}" hint-placeholder-val="">
               <div style="display:flex;align-items:flex-start;gap:6px;margin-bottom:9px;padding:7px 9px;background:#e7f3ec;border:1px solid #cfe6d8;border-radius:8px;">
                 <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1f8a5b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:1px;"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
