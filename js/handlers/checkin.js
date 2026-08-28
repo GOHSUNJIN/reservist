@@ -30,10 +30,10 @@ const CheckinHandlers = {
     const _permMsg=isInApp
       ?`Location is blocked inside ${inAppName}.\n\n${inAppName}'s browser cannot access GPS.\n\nFix: tap ··· or the share icon → "Open in Safari" (iPhone) or "Open in Chrome" (Android), then try again there.`
       :isIOS
-      ?'Location is blocked for this site.\n\n⚠️ Using Private Browsing? Safari blocks location in private tabs. Switch to a normal tab.\n\nOtherwise:\n1. iPhone Settings → Privacy & Security → Location Services → your browser → "While Using App"\n2. In Safari: tap "aA" in address bar → Website Settings → Location → Allow\n\nThen tap Reload below.'
+      ?'⚠ Using Private Browsing? Safari blocks GPS in private tabs. Switch to a normal tab.\n\nOtherwise:\n1. iPhone Settings → Privacy → Location Services → [your browser] → Allow\n2. In Safari: tap "aA" in address bar → Website Settings → Location → Allow\n\nThen tap "Try again" below.'
       :isAndroid
-      ?'Location is blocked for this site.\n\n⚠️ Using Incognito? Location is often blocked in private tabs. Switch to a normal tab.\n\nOtherwise:\n1. Tap the 🔒 icon in your address bar → Permissions → Location → Allow\n2. Browser Settings → Site Settings → Location → this site → Allow\n3. Phone Settings → Apps → [your browser] → Permissions → Location → Allow\n\nThen tap Reload below.'
-      :'Location blocked.\n\n⚠️ Using a private/incognito tab? Switch to a normal tab.\n\nOtherwise allow Location via the 🔒 lock icon in your address bar, then tap Reload below.';
+      ?'⚠ Using Incognito? Location is often blocked in private tabs. Switch to a normal tab.\n\nOtherwise:\n1. Tap the 🔒 icon in your address bar → Location → Allow\n2. Phone Settings → Apps → [your browser] → Permissions → Location → Allow\n\nThen tap "Try again" below.'
+      :'⚠ Using private/incognito mode? Switch to a normal tab.\n\nOtherwise: tap the 🔒 lock icon in your address bar, allow Location, then tap "Try again" below.';
     const _unavailMsg=retries>=2
       ?'GPS still unavailable after several tries.\n\nAdditional steps:\n• Turn Location Services off and back on in phone Settings\n• Restart your phone\n• Contact your supervisor if the issue persists'
       :'GPS signal unavailable.\n\n• Step outside or move near a window\n• Make sure Airplane mode is off\n• Turn Location Services off and back on, then try again';
