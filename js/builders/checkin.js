@@ -377,7 +377,7 @@ const CheckinBuilders = {
         else style=cellBase+'background:#f7e4e1;color:#c0392b;border:2px solid #e5a9a4;cursor:pointer;';
       }
       if(dst==='work'&&off>0){
-        const fl=(s.myLeaveHistory||[]).find(r=>r.date===dk&&r.type==='mc');
+        const fl=(s.myLeaveHistory||[]).find(r=>r.date===dk&&(r.status==='approved'||r.status==='pending'));
         if(fl?.status==='approved') style=cellBase+'background:#f7efdc;color:#b9791a;border:2px solid #e8c77a;cursor:pointer;';
         else if(fl?.status==='pending') style=cellBase+'background:#fdf6e9;color:#b9791a;border:1px dashed #e8c77a;cursor:pointer;';
       }
