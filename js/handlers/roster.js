@@ -47,7 +47,7 @@ const RosterHandlers = {
           this._toast('Failed to update. Try again.','error');
           return;
         }
-        if(prev.status==='mc'&&status!=='mc') DB.leaves.voidApprovedForDate(id,dk).catch(()=>{});
+        if((prev.status==='mc'||prev.status==='absent')&&status==='present') DB.leaves.voidApprovedForDate(id,dk).catch(()=>{});
       }
       this._statusSubmitting.delete(id);
       this._haptic(40);
@@ -230,6 +230,7 @@ const RosterHandlers = {
       savedEditLog=editLog||[];
     }
     const prevEntry=(this.state.attendanceCache[dateKey]||this.state.attendance)[timesEditId]||{};
+    if(!demo&&(prevEntry.status==='mc'||prevEntry.status==='absent')) DB.leaves.voidApprovedForDate(timesEditId,dateKey).catch(()=>{});
     const entry={...prevEntry,status:'present',p1:timesEditP1||null,p2:timesEditP2||null,p3:timesEditP3||null,p4:timesEditP4||null,gpsBypassed:true,editLog:savedEditLog};
     const clearEdit={timesEditId:null,timesEditSaving:false,timesEditP1:'',timesEditP2:'',timesEditP3:'',timesEditP4:''};
     if(viewOffset===0) this.setState(s=>({attendance:{...s.attendance,[timesEditId]:entry},...clearEdit}));
