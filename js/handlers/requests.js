@@ -130,14 +130,8 @@ const RequestHandlers = {
   onLeaveReason: function(e) { this.setState({leaveReason:e.target.value}); },
 
   submitLeaveRequest: async function() {
-    const {currentUserId,leaveDate,leaveType,leaveReason,demo,myPendingRequest,myLeaveHistory,myLeaveHistoryLoaded}=this.state;
+    const {currentUserId,leaveDate,leaveType,leaveReason,demo,myLeaveHistory,myLeaveHistoryLoaded}=this.state;
     if(!demo&&!myLeaveHistoryLoaded){this._toast('Loading your history, please wait a moment.','error');return;}
-    const _pendExpired=myPendingRequest?.created_at&&(Date.now()-new Date(myPendingRequest.created_at).getTime())>172800000;
-    if(myPendingRequest&&!_pendExpired){this._toast('You already have a pending request.','error');return;}
-    if(myPendingRequest&&_pendExpired&&!demo){
-      await DB.leaves.updateStatus(myPendingRequest.id,'rejected',{reviewed_by:'System',rejection_reason:'Auto-expired after 2 days'}).catch(()=>{});
-      this.setState({myPendingRequest:null});
-    }
     if(!leaveDate){this._toast('Please select a date.','error');return;}
     if(leaveDate<Utils.dateKey(this.baseDate())){this._toast('Cannot submit a request for a past date.','error');return;}
     const _myBatch=this.state.batches.find(b=>b.id===this.state.me?.batch_id);
@@ -151,10 +145,10 @@ const RequestHandlers = {
         return;
       }
       const newReq=data||{personnel_id:currentUserId,date:leaveDate,type:leaveType,reason:leaveReason||null,status:'pending',created_at:new Date().toISOString()};
-      this.setState(s=>({myPendingRequest:newReq,myLeaveHistory:[newReq,...s.myLeaveHistory]}));
+      this.setState(s=>({myPendingRequests:[newReq,...s.myPendingRequests],myLeaveHistory:[newReq,...s.myLeaveHistory]}));
     } else {
       const demoReq={id:'demo-'+Date.now(),personnel_id:currentUserId,date:leaveDate,type:leaveType,status:'pending'};
-      this.setState(s=>({myPendingRequest:demoReq,myLeaveHistory:[demoReq,...s.myLeaveHistory]}));
+      this.setState(s=>({myPendingRequests:[demoReq,...s.myPendingRequests],myLeaveHistory:[demoReq,...s.myLeaveHistory]}));
     }
     this._toast('Request submitted for approval.');
     this.setState({leaveOpen:false});
@@ -168,7 +162,7 @@ const RequestHandlers = {
         if(error){this._toast('Failed to cancel. Try again.','error');return;}
         if(!data){this._toast('Request was already reviewed by an admin.','error');this.loadMyLeaveHistory();return;}
       }
-      this.setState(s=>({myPendingRequest:s.myPendingRequest?.id===id?null:s.myPendingRequest,myLeaveHistory:s.myLeaveHistory.map(r=>r.id===id?{...r,status:'cancelled'}:r)}));
+      this.setState(s=>({myPendingRequests:s.myPendingRequests.filter(r=>r.id!==id),myLeaveHistory:s.myLeaveHistory.map(r=>r.id===id?{...r,status:'cancelled'}:r)}));
       this._toast('Request cancelled.');
     };
   },

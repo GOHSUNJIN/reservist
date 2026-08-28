@@ -98,7 +98,7 @@ const makeInitialState = () => ({
 
   // ── Leave requests ───────────────────────────────────────────────────────
   leaveOpen: false, leaveDate: '', leaveType: 'mc', leaveReason: '',
-  myPendingRequest: null,
+  myPendingRequests: [],
   myLeaveHistory: [], myLeaveHistoryLoaded: false,
   pendingLeaves: [], pendingLeavesLoaded: false,
   leaveSearch: '', leaveTypeFilter: 'all', leaveSearchOpen: false,
