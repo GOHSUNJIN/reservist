@@ -194,7 +194,7 @@ const CheckinBuilders = {
         checkInOpacity:(myGpsActive&&locVerified&&!s.phaseSubmitting)?'1':'.45',
         checkInPE:(myGpsActive&&locVerified&&!s.phaseSubmitting)?'auto':'none',
         locIsOutOfRange, geofenceWaLink,
-        showGpsBypass: myGpsActive && locGpsError && (s.locRetryCount||0) >= 5,
+        showGpsBypass: myGpsActive && locGpsError,
         bypassLabel: pd.key==='p1'?'Check in without GPS':pd.key==='p2'?'Record break without GPS':pd.key==='p3'?'Record return without GPS':'Check out without GPS',
         onBypass: this.doPhaseBypass(pd.key),
         showBrowserTip: myGpsActive && locGpsError && !s.locPermErr,
