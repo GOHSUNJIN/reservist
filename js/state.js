@@ -20,7 +20,7 @@ const makeInitialState = () => ({
   adminDeptFilter: 'ops_security',
 
   // ── Live data ───────────────────────────────────────────────────────────
-  personnel: [], attendance: {}, attendanceCache: {},
+  personnel: [], attendance: {}, attendanceCache: {}, approvedLeavesCache: {},
   batches: [], activeBatchIdx: 0,
   noReportDays: new Set(), noReportDaysCache: {},
   history: [],

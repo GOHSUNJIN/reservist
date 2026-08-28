@@ -58,7 +58,7 @@ const DB_Leaves = {
 
   async listApprovedForDate(date) {
     const { data } = await _db.from('leave_requests')
-      .select('personnel_id').eq('date', date).eq('status', 'approved');
+      .select('personnel_id, type').eq('date', date).eq('status', 'approved');
     return data || [];
   },
 

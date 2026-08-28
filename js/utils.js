@@ -10,6 +10,11 @@ const Utils = {
     if(s==='cancelled') return {label:'Cancelled', color:'#8a94a3',bg:'#eceef2'};
     return {label:'Pending',color:'#2f5fd0',bg:'#eef3fc'};
   },
+  leaveMeta(type){
+    if(type==='personal') return {label:'Personal Leave',color:'#3b5bdb',bg:'#eef3fc'};
+    if(type==='other')    return {label:'Other Leave',   color:'#5c6678',bg:'#f0f2f7'};
+    return {label:'Absent',color:'#c0392b',bg:'#f7e4e1'};
+  },
   hhmm(d){ const p=n=>String(n).padStart(2,'0'); return p(d.getHours())+':'+p(d.getMinutes()); },
   dateKey(d){ const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); },
   addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; },
