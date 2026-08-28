@@ -105,12 +105,15 @@ const InitHandlers = {
       }
     }
 
-    const [personnel, attendance, noReportDays, history] = await Promise.all([
+    const [personnel, attendance, approvedLeaves, noReportDays, history] = await Promise.all([
       DB.personnel.list(null, true, dept),
       DB.attendance.getForDate(today),
+      DB.leaves.listApprovedForDate(today).catch(()=>[]),
       activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date) : Promise.resolve(new Set()),
       DB.attendance.getHistory(me.id),
     ]);
+    const _alMap={};
+    for(const l of approvedLeaves) _alMap[l.personnel_id]=l.type;
 
     this.setState({
       authed:true, role,
@@ -120,6 +123,7 @@ const InitHandlers = {
       attendance, noReportDays, history, attendanceDate: today, historyLoaded: true,
       authError:'', loading:false, accountDeleted:false, demo:false, isSuperAdmin,
       adminDeptFilter: dept,
+      approvedLeavesCache: {[today]: _alMap},
     });
     if(role==='admin'){
       this._subscribeRealtime(today);
@@ -203,13 +207,16 @@ const InitHandlers = {
       batches = await this._ensureLiveBatch(batches, newDate, dept);
       const liveIdx = batches.findIndex(b=>b.is_live);
       const activeBatch = batches[liveIdx>=0?liveIdx:0];
-      const [att, nrd] = await Promise.all([
+      const [att, nrd, newDateLeaves] = await Promise.all([
         DB.attendance.getForDate(newDate).catch(()=>({})),
         activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date).catch(()=>new Set()) : Promise.resolve(new Set()),
+        DB.leaves.listApprovedForDate(newDate).catch(()=>[]),
       ]);
+      const _ndAlMap={};
+      for(const l of newDateLeaves) _ndAlMap[l.personnel_id]=l.type;
       this._unsubscribeRealtime();
       this._subscribeRealtime(newDate);
-      this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0, attendance:att, attendanceDate:newDate, noReportDays:nrd, viewOffset:0, attendanceCache:{}, confirmMarkAllAbsent:false, lateAlertDismissedCount:0});
+      this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0, attendance:att, attendanceDate:newDate, noReportDays:nrd, viewOffset:0, attendanceCache:{}, approvedLeavesCache:{[newDate]:_ndAlMap}, confirmMarkAllAbsent:false, lateAlertDismissedCount:0});
     } else if(this.state.role==='reservist'){
       const [att, hist] = await Promise.all([
         DB.attendance.getForDate(newDate).catch(()=>({})),
@@ -301,12 +308,17 @@ const InitHandlers = {
     const d = this.dateForOffset(off);
     const dk = Utils.dateKey(d);
     if(this.state.attendanceCache[dk]) return;
-    const data = await DB.attendance.getForDate(dk).catch(()=>({}));
+    const [data, approvedLeaves] = await Promise.all([
+      DB.attendance.getForDate(dk).catch(()=>({})),
+      DB.leaves.listApprovedForDate(dk).catch(()=>[]),
+    ]);
+    const alMap={};
+    for(const l of approvedLeaves) alMap[l.personnel_id]=l.type;
     this.setState(s=>{
       const cache={...s.attendanceCache,[dk]:data};
       const keys=Object.keys(cache).sort();
       if(keys.length>30) keys.slice(0,keys.length-30).forEach(k=>delete cache[k]);
-      return {attendanceCache:cache};
+      return {attendanceCache:cache, approvedLeavesCache:{...s.approvedLeavesCache,[dk]:alMap}};
     });
   },
 

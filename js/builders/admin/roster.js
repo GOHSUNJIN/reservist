@@ -8,8 +8,9 @@ const AdminRoster = {
     const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const beforeBatchStart=!!(activeBatch?.start_date&&viewDateKey<activeBatch.start_date);
     const visibleMembers=beforeBatchStart?[]:activeMembers;
+    const approvedLeavesForView=s.approvedLeavesCache?.[viewDateKey]||{};
     const roster=visibleMembers.map(p=>{
-      const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
+      const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, _bMm=Utils.meta(r.status), mm=r.status==='absent'&&approvedLeavesForView[p.id]?Utils.leaveMeta(approvedLeavesForView[p.id]):_bMm;
       const cardStyle='background:#fff;border:1px solid #e3e6ec;border-left:3px solid '+mm.color+';border-radius:12px;padding:11px 13px;box-shadow:0 1px 5px rgba(20,30,50,.06);overflow:hidden;';
       const av=s.avatars[p.id]||'';
       const avatarStyle=Utils.avatarStyle(av);
@@ -48,14 +49,14 @@ const AdminRoster = {
     const _rSBtn=(f)=>`padding:5px 10px;border-radius:20px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${rosterStatusFilter===f?accent:'#d4d9e2'};background:${rosterStatusFilter===f?accent:'#fff'};color:${rosterStatusFilter===f?'#fff':'#5c6678'};`;
     const rosterStatusAllStyle=_rSBtn('all'),rosterStatusPresentStyle=_rSBtn('present'),rosterStatusMcStyle=_rSBtn('mc'),rosterStatusAbsentStyle=_rSBtn('absent'),rosterStatusPendingStyle=_rSBtn('pending');
     const total=roster.length;
-    const snapshotLastLine=viewIsToday?('⏳ Pending ('+pending+'): '+(roster.filter(r=>r.label==='Pending').map(r=>r.name).join(', ')||'(none)')):('❌ Absent ('+absent+'): '+(roster.filter(r=>r.label==='Absent').map(r=>r.name).join(', ')||'(none)'));
+    const snapshotLastLine=viewIsToday?('⏳ Pending ('+pending+'): '+(roster.filter(r=>r.status==='pending').map(r=>r.name).join(', ')||'(none)')):('❌ Absent ('+absent+'): '+(roster.filter(r=>r.status==='absent').map(r=>r.name).join(', ')||'(none)'));
     const _orgN=self.props.orgName||'Ops Security';
-    const snapshotLines=['📋 *'+_orgN+', '+Utils.fmtMed(viewDate)+'*','✅ Present ('+present+'): '+(roster.filter(r=>r.label==='Present').map(r=>r.name).join(', ')||'(none)'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.label==='On MC').map(r=>r.name).join(', ')||'(none)'),snapshotLastLine];
+    const snapshotLines=['📋 *'+_orgN+', '+Utils.fmtMed(viewDate)+'*','✅ Present ('+present+'): '+(roster.filter(r=>r.status==='present').map(r=>r.name).join(', ')||'(none)'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.status==='mc').map(r=>r.name).join(', ')||'(none)'),snapshotLastLine];
     const snapshotLink='https://api.whatsapp.com/send?text='+encodeURIComponent(snapshotLines.join('\n'));
     const nowHhmm=Utils.hhmm(s.now);
     const isLiveView=viewOffset===0;
     const logRows=visibleMembers.map(p=>{
-      const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent'}, mm=Utils.meta(r.status);
+      const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent'}, _bMm2=Utils.meta(r.status), mm=r.status==='absent'&&approvedLeavesForView[p.id]?Utils.leaveMeta(approvedLeavesForView[p.id]):_bMm2;
       const [_cc,_ccm]='09:00'.split(':').map(Number);
       const _lm=r.p1?(()=>{const[h,m]=r.p1.split(':').map(Number);return(h*60+m)-(_cc*60+_ccm);})():0;
       const isLate=r.status==='present'&&_lm>=60;
@@ -71,7 +72,7 @@ const AdminRoster = {
         onViewHistory:self.openPersonHistory(p.id), onCopyContact:self.copyContact(p.contact||''),
         showQuickAbsent:r.status==='pending'&&viewOffset<=0,
         markAbsent:self.setStatus(p.id,'absent'),
-        label:mm.label, color:mm.color, bg:mm.bg, isLate,
+        status:r.status, label:mm.label, color:mm.color, bg:mm.bg, isLate,
         lateReason, showLateReason, showNoLateReason, showAnyFlags,
         welfareNote:r.welfareNote||'', showWelfareNote:!!(r.welfareNote),
         logNoteIconColor:r.welfareNote?'#1f8a5b':'#5c6678',
@@ -119,14 +120,14 @@ const AdminRoster = {
     const logStatusFilter=s.logStatusFilter||'all';
     const logSearch=(s.logSearch||'').toLowerCase().trim();
     const statusFiltered=logStatusFilter==='all'?logRows:logRows.filter(r=>{
-      if(logStatusFilter==='present') return r.label==='Present';
-      if(logStatusFilter==='mc') return r.label==='On MC';
-      if(logStatusFilter==='absent') return r.label==='Absent';
-      if(logStatusFilter==='pending') return r.label==='Pending';
+      if(logStatusFilter==='present') return r.status==='present';
+      if(logStatusFilter==='mc') return r.status==='mc';
+      if(logStatusFilter==='absent') return r.status==='absent';
+      if(logStatusFilter==='pending') return r.status==='pending';
       return true;
     });
     const filteredLogRows=logSearch?statusFiltered.filter(r=>r.name.toLowerCase().includes(logSearch)):statusFiltered;
-    const pendingCount=logRows.filter(r=>r.label==='Pending').length;
+    const pendingCount=logRows.filter(r=>r.status==='pending').length;
     const _fSBtn=(f)=>`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${logStatusFilter===f?accent:'#d4d9e2'};background:${logStatusFilter===f?accent:'#fff'};color:${logStatusFilter===f?'#fff':'#5c6678'};`;
     const lateRows=viewIsToday?logRows.filter(r=>r.isLate):[];
     const lateCount=lateRows.length;
@@ -144,7 +145,7 @@ const AdminRoster = {
     const showRepToggle=viewReportDay&&!isDekit, repToggleLocked=!!viewHoliday, repToggleOn=viewBlocked;
     const noRepMsg=viewHoliday?('Public holiday ('+viewHoliday+'). Auto no-reporting, locked.'):repToggleOn?'Reservists are not required to report this day.':'Off. Reservists report and check in as normal.';
     const viewRoster=visibleMembers.map(p=>{
-      const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, mm=Utils.meta(r.status);
+      const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, _bMm3=Utils.meta(r.status), mm=r.status==='absent'&&approvedLeavesForView[p.id]?Utils.leaveMeta(approvedLeavesForView[p.id]):_bMm3;
       const av=s.avatars[p.id]||'';
       const _vpct=s.peopleStats[p.id]?.pct??null;
       const _mealBadge=(()=>{
@@ -159,12 +160,12 @@ const AdminRoster = {
       })();
       const _timeText=(r.status==='present'&&r.p1)?r.p1:'';
       const _missingClockOut=!isLiveView&&r.status==='present'&&!!r.p1&&!r.p4;
-      return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),label:mm.label,color:mm.color,bg:mm.bg,timeText:_timeText,showTimeText:!!_timeText,avatarStyle:Utils.avatarStyle(av),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),onViewHistory:self.openPersonHistory(p.id),onCopyContact:self.copyContact(p.contact||''),
+      return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),status:r.status,label:mm.label,color:mm.color,bg:mm.bg,timeText:_timeText,showTimeText:!!_timeText,avatarStyle:Utils.avatarStyle(av),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),onViewHistory:self.openPersonHistory(p.id),onCopyContact:self.copyContact(p.contact||''),
         missingClockOut:_missingClockOut,
         showStatPct:s.peopleStatsLoaded&&_vpct!==null, statPct:_vpct!==null?(_vpct+'%'):'', lowAttendancePct:s.peopleStatsLoaded&&_vpct!==null&&_vpct<75,
         statPctColor:(_vpct!==null&&_vpct<75)?'#c0392b':'#8a94a3',..._mealBadge};
     });
-    const vPresent=viewRoster.filter(r=>r.label==='Present').length, vMc=viewRoster.filter(r=>r.label==='On MC').length, vAbsent=viewRoster.filter(r=>r.label==='Absent').length, vPending=viewRoster.filter(r=>r.label==='Pending').length, vTotal=viewRoster.length;
+    const vPresent=viewRoster.filter(r=>r.status==='present').length, vMc=viewRoster.filter(r=>r.status==='mc').length, vAbsent=viewRoster.filter(r=>r.status==='absent').length, vPending=viewRoster.filter(r=>r.status==='pending').length, vTotal=viewRoster.length;
     const vPercent=vTotal?Math.round((vPresent+vMc)/vTotal*100):0;
     const viewListHeader=viewOffset<0?'ATTENDANCE RECORD':viewOffset>0?'SCHEDULED ROSTER':'LIVE STATUS';
     const viewPercentText=viewOffset>0?(vTotal+' rostered'):(vPercent+'% reported');

@@ -139,6 +139,7 @@ const RosterHandlers = {
     if(off===0 && !this.state.demo && this.state.isOnline){
       const _today=Utils.dateKey(this.dateForOffset(0));
       DB.attendance.getForDate(_today).then(att=>{if(this.state.viewOffset===0)this.setState({attendance:att});}).catch(()=>{});
+      DB.leaves.listApprovedForDate(_today).then(leaves=>{const alMap={};for(const l of leaves)alMap[l.personnel_id]=l.type;this.setState(s=>({approvedLeavesCache:{...s.approvedLeavesCache,[_today]:alMap}}));}).catch(()=>{});
     }
     this._loadDateAttendance(off);
   },
