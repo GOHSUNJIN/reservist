@@ -23,8 +23,8 @@ const DB_Leaves = {
   async myPending(personnelId) {
     const { data } = await _db.from('leave_requests')
       .select('*').eq('personnel_id', personnelId).eq('status', 'pending')
-      .order('created_at', { ascending: false }).limit(1).maybeSingle();
-    return data || null;
+      .order('created_at', { ascending: false });
+    return data || [];
   },
 
   async cancel(id) {

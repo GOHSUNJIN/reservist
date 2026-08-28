@@ -57,8 +57,9 @@ const BriefingsBuilders = {
       casInfoBlocked: s.role==='reservist' && this._myDept()==='cas',
       leaveHistoryItems: (()=>{
         const raw=s.myLeaveHistory||[];
-        const pend=s.myPendingRequest;
-        const list=(pend&&!raw.some(r=>r.id===pend.id))?[pend,...raw]:raw;
+        const pends=s.myPendingRequests||[];
+        const newPends=pends.filter(p=>!raw.some(r=>r.id===p.id));
+        const list=[...newPends,...raw];
         const _pri={pending:4,approved:3,rejected:2,cancelled:1};
         const byDate=new Map();
         for(const r of list){
@@ -88,9 +89,9 @@ const BriefingsBuilders = {
         canCancel:r.status==='pending',
         onCancel:this.cancelLeaveRequest(r.id),
       })),
-      showLeaveHistory:((s.myLeaveHistory||[]).length>0)||!!s.myPendingRequest, myLeaveHistoryLoaded:s.myLeaveHistoryLoaded,
-      showLeaveItems:(((s.myLeaveHistory||[]).length>0)||!!s.myPendingRequest)&&!!s.myLeaveHistoryLoaded,
-      showLeaveEmpty:!(((s.myLeaveHistory||[]).length>0)||!!s.myPendingRequest)&&!!s.myLeaveHistoryLoaded,
+      showLeaveHistory:((s.myLeaveHistory||[]).length>0)||!!(s.myPendingRequests?.length), myLeaveHistoryLoaded:s.myLeaveHistoryLoaded,
+      showLeaveItems:(((s.myLeaveHistory||[]).length>0)||!!(s.myPendingRequests?.length))&&!!s.myLeaveHistoryLoaded,
+      showLeaveEmpty:!(((s.myLeaveHistory||[]).length>0)||!!(s.myPendingRequests?.length))&&!!s.myLeaveHistoryLoaded,
     };
   },
 

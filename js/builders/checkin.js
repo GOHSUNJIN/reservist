@@ -229,10 +229,11 @@ const CheckinBuilders = {
     const dekitDaysLeft=dekit?Math.round((dekit-todayMid)/86400000):null;
     const dekitCountdown=dekitDaysLeft===null?'':dekitDaysLeft===0?'Return equipment today':dekitDaysLeft>0?`${dekitDaysLeft} day${dekitDaysLeft!==1?'s':''} to dekit`:'Cycle complete';
     const batchRange=activeBatch?(Utils.fmtShort(new Date(activeBatch.start_date+'T00:00:00'))+' to '+Utils.fmtShort(new Date(activeBatch.end_date+'T00:00:00'))):'';
-    const _pendMs=s.myPendingRequest?.created_at?Date.now()-new Date(s.myPendingRequest.created_at).getTime():0;
-    const pendingRequestExpired=!!(s.myPendingRequest&&_pendMs>172800000);
+    const _todayPend=(s.myPendingRequests||[]).find(r=>r.date===todayKey);
+    const _pendMs=_todayPend?.created_at?Date.now()-new Date(_todayPend.created_at).getTime():0;
+    const pendingRequestExpired=!!(_todayPend&&_pendMs>172800000);
     const _pendH=Math.floor(_pendMs/3600000),_pendD=Math.floor(_pendH/24);
-    const pendingRequestTimeAgo=s.myPendingRequest?.created_at?(_pendH<1?'Just now':_pendH<24?_pendH+' hr'+(_pendH!==1?'s':'')+' ago':_pendD+' day'+(_pendD!==1?'s':'')+' ago'):'';
+    const pendingRequestTimeAgo=_todayPend?.created_at?(_pendH<1?'Just now':_pendH<24?_pendH+' hr'+(_pendH!==1?'s':'')+' ago':_pendD+' day'+(_pendD!==1?'s':'')+' ago'):'';
     return {
       todayLong:Utils.fmtLong(this.baseDate()),
       clock:Utils.hhmm(s.now),
@@ -246,12 +247,12 @@ const CheckinBuilders = {
       isMc:!outOfCycle&&status==='mc'&&!noRep,
       isAbsent:!outOfCycle&&status==='absent'&&!noRep,
       showTeamSection:!outOfCycle&&!noRep&&(status==='mc'||status==='absent')&&!!(me?.batch_id&&s.personnel.some(p=>p.batch_id===me.batch_id&&p.id!==s.currentUserId&&(p.role||'reservist')==='reservist')),
-      hasPendingRequest:!outOfCycle&&!noRep&&status!=='mc'&&status!=='absent'&&!!(s.myPendingRequest&&!pendingRequestExpired&&s.myPendingRequest.date===todayKey&&status!=='present'),
-      pendingRequestLabel:s.myPendingRequest?.type==='mc'?'MC':'absence',
-      pendingRequestDate:s.myPendingRequest?.date?Utils.fmtMed(new Date(s.myPendingRequest.date+'T00:00:00')):'',
+      hasPendingRequest:!outOfCycle&&!noRep&&status!=='mc'&&status!=='absent'&&!!(_todayPend&&!pendingRequestExpired&&status!=='present'),
+      pendingRequestLabel:_todayPend?.type==='mc'?'MC':'absence',
+      pendingRequestDate:_todayPend?.date?Utils.fmtMed(new Date(_todayPend.date+'T00:00:00')):'',
       pendingRequestExpired:!outOfCycle&&!noRep&&pendingRequestExpired, pendingRequestTimeAgo,
-      onCancelPendingRequest:s.myPendingRequest?this.cancelLeaveRequest(s.myPendingRequest.id):()=>{},
-      showPhases:!outOfCycle&&!noRep&&status!=='mc'&&status!=='absent'&&!(s.myPendingRequest&&!pendingRequestExpired&&s.myPendingRequest.date===todayKey&&status!=='present'),
+      onCancelPendingRequest:_todayPend?this.cancelLeaveRequest(_todayPend.id):()=>{},
+      showPhases:!outOfCycle&&!noRep&&status!=='mc'&&status!=='absent'&&!(_todayPend&&!pendingRequestExpired&&status!=='present'),
       outOfCycle, outOfCycleTitle, outOfCycleSub,
       phases, allDone,
       summaryP1, summaryP2, summaryP3, summaryP4, summaryP2Label,

@@ -122,7 +122,7 @@ const AuthHandlers = {
       showLateWarning:false, lateReasonOpen:false, lateReasonText:'', lateReasonSubmitting:false,
       pendingLeaves:[], pendingLeavesLoaded:false,
       leaveOpen:false, leaveDate:'', leaveType:'mc', leaveReason:'',
-      myPendingRequest:null,
+      myPendingRequests:[],
       adminNotifGranted:false,
       myLeaveHistory:[], myLeaveHistoryLoaded:false,
       welfareNoteOpen:false, welfareNoteText:'', welfareNoteSaving:false,

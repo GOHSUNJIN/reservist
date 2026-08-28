@@ -142,7 +142,7 @@ const InitHandlers = {
       setTimeout(()=>this.loadAdmins(), 0);
     }
     if(role==='reservist'){
-      DB.leaves.myPending(me.id).then(req=>{this.setState({myPendingRequest:req});}).catch(()=>{});
+      DB.leaves.myPending(me.id).then(reqs=>{this.setState({myPendingRequests:reqs});}).catch(()=>{});
       DB.leaves.myHistory(me.id).then(hist=>{this.setState({myLeaveHistory:hist,myLeaveHistoryLoaded:true});}).catch(()=>{this.setState({myLeaveHistoryLoaded:true});});
       setTimeout(()=>this.loadRosterAvatars(), 0);
       this._myAttendanceChannel = DB.realtime.subscribeMyAttendance(me.id, (row) => {
@@ -159,7 +159,7 @@ const InitHandlers = {
       });
       this._myLeaveChannel = DB.realtime.subscribeLeaveStatus(me.id, async (row) => {
         if(row.status !== 'pending'){
-          this.setState({myPendingRequest:null});
+          this.setState(s=>({myPendingRequests:s.myPendingRequests.filter(r=>r.id!==row.id)}));
           if(row.status === 'rejected'){
             this._toast('Your absence request was declined.');
             DB.leaves.myHistory(me.id).then(hist=>this.setState({myLeaveHistory:hist,myLeaveHistoryLoaded:true})).catch(()=>{});
