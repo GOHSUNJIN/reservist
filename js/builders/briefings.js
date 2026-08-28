@@ -69,10 +69,10 @@ const BriefingsBuilders = {
         return [...byDate.values()].sort((a,b)=>b.date.localeCompare(a.date));
       })().map(r=>({
         id:r.id,
-        typeLabel:r.type==='mc'?'MC':r.type==='other'?'Other':'Personal Leave',
-        typeBg:r.type==='mc'?'#fdf6e9':r.type==='other'?'#f0f2f7':'#eef3fc',
-        typeColor:r.type==='mc'?'#b9791a':r.type==='other'?'#5c6678':'#3b5bdb',
-        typeBorder:r.type==='mc'?'#f0e2c2':r.type==='other'?'#d4d9e2':'#c5d3f5',
+        typeLabel:r.type==='mc'?'MC':'Personal Leave',
+        typeBg:r.type==='mc'?'#fdf6e9':'#eef3fc',
+        typeColor:r.type==='mc'?'#b9791a':'#3b5bdb',
+        typeBorder:r.type==='mc'?'#f0e2c2':'#c5d3f5',
         dateLabel:r.date?Utils.fmtMed(new Date(r.date+'T00:00:00')):'',
         statusLabel:r.status==='approved'?'Approved':r.status==='rejected'?'Declined':r.status==='cancelled'?'Withdrawn':'Submitted',
         statusColor:r.status==='approved'?'#1f8a5b':r.status==='rejected'?'#c0392b':r.status==='cancelled'?'#8a94a3':'#b9791a',

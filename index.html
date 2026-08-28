@@ -1788,7 +1788,6 @@
                 <button onClick="{{ setLeaveTypeAll }}" style="{{ filterAllStyle }}">All</button>
                 <button onClick="{{ setLeaveTypeMc }}" style="{{ filterMcStyle }}">MC</button>
                 <button onClick="{{ setLeaveTypePersonal }}" style="{{ filterPersonalStyle }}">Personal</button>
-                <button onClick="{{ setLeaveTypeOther }}" style="{{ filterOtherStyle }}">Other</button>
               </div>
             </div>
             </sc-if>
@@ -2576,8 +2575,6 @@
             <sc-if value="{{ !leaveIsPersonal }}" hint-placeholder-val=""><button onClick="{{ onLeaveTypePersonal }}" style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid #d4d9e2;background:#fff;color:#5c6678;">Personal</button></sc-if>
             <sc-if value="{{ leaveIsMc }}" hint-placeholder-val=""><button onClick="{{ onLeaveTypeMc }}" style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid {{ accent }};background:{{ accent }};color:#fff;">MC</button></sc-if>
             <sc-if value="{{ !leaveIsMc }}" hint-placeholder-val="{{ true }}"><button onClick="{{ onLeaveTypeMc }}" style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid #d4d9e2;background:#fff;color:#5c6678;">MC</button></sc-if>
-            <sc-if value="{{ leaveIsOther }}" hint-placeholder-val=""><button onClick="{{ onLeaveTypeOther }}" style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid {{ accent }};background:{{ accent }};color:#fff;">Other</button></sc-if>
-            <sc-if value="{{ !leaveIsOther }}" hint-placeholder-val="{{ true }}"><button onClick="{{ onLeaveTypeOther }}" style="flex:1;padding:8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid #d4d9e2;background:#fff;color:#5c6678;">Other</button></sc-if>
           </div>
         </div>
         <div style="margin-bottom:16px;">
