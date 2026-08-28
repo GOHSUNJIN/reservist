@@ -22,7 +22,7 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 
 - **Department-based check-in flow**: Ops Security reservists log four phases (check in, lunch out, return from lunch, end of shift). Crime Alert (CAS) reservists use a simplified two-phase flow: check in and check out only. Each phase is timestamped to the minute.
 - **GPS verification**: Tapping a check-in phase shows a "Locate me" button first. After GPS confirms you are within range of HQ, the button swaps to "Check in to work" (or the phase-specific label). Distance from HQ is recorded. The radius is configurable (default: 250 m).
-- **GPS bypass**: After five consecutive failed GPS attempts, a bypass option appears to allow check-in without location. Bypassed records are permanently flagged in the log.
+- **GPS bypass**: If GPS cannot detect your location at all (permission denied, signal unavailable, or timeout), a bypass option appears immediately so you can check in without GPS. The bypass is not offered when GPS works but you are simply out of range; in that case you must move closer to HQ and try again. Bypassed records are permanently flagged in the log.
 - **Leave and MC requests**: Submit requests digitally through the app. They go directly to the supervisor for approval with no phone calls or messages needed. Only one leave type is supported per day: MC (sick leave) or Personal Leave (other absences).
 - **Cancel pending requests**: A leave or MC request can be withdrawn by the reservist before the supervisor has acted on it, from both the check-in screen and the Requests history tab.
 - **Request history**: The Requests tab shows the full history of submitted leave and MC requests, each with a coloured left bar, a type badge (MC in amber, Personal Leave in red), and a status badge (Submitted, Approved, Declined, or Withdrawn). Records are deduplicated by date: if multiple requests exist for the same date, only the most relevant one is shown (pending takes priority over approved, approved over declined). Filter pills let you narrow the list by status. Pending requests can be withdrawn inline.
@@ -271,10 +271,19 @@ js/
     └── misc.js          - Toast, navigation helpers, department switching, WhatsApp share/copy, page refresh
 
 scripts/                - Offline tooling (not part of the web app)
-    ├── build_pptx.py         - Generates the OpsTracker briefing deck
-    ├── generate_checklist.py - Generates the admin testing checklist
-    ├── supabase_cron.sql     - SQL to enable the auto-absent scheduled job
-    └── add_departments.sql   - Migration to add department columns to an existing deployment
+    ├── build-config.js       - Generates js/config.js from environment variables at Vercel build time
+    ├── sql/
+    │   ├── supabase_cron.sql         - SQL to enable the auto-absent scheduled job
+    │   ├── rls_policies.sql          - Row-level security policies for Supabase
+    │   ├── add_departments.sql       - Migration to add department columns to an existing deployment
+    │   └── fix_avatar_storage_policy.sql - Storage policy fix for avatar uploads
+    └── python/
+        ├── generate_checklist.py     - Generates docs/testing_checklist.xlsx
+        └── build_pptx.py             - Generates the OpsTracker briefing deck
+
+docs/
+    ├── OpsTracker.pptx               - Operational briefing deck
+    └── testing_checklist.xlsx        - Generated QA checklist (167 test cases across 14 sections)
 ```
 
 `index.html` is the single-page template that wires all builders and handlers together. The `<x-dc>` element at the top of the file is where all deployment-specific configuration lives.
@@ -448,9 +457,9 @@ The following improvements are planned to make the system fully self-managed by 
      FOR SELECT TO authenticated
      USING (bucket_id = 'avatars');
    ```
-5. Run `scripts/supabase_cron.sql` to enable the automatic absent job. Requires the `pg_cron` extension (enabled by default on Supabase Pro).
+5. Run `scripts/sql/supabase_cron.sql` to enable the automatic absent job. Requires the `pg_cron` extension (enabled by default on Supabase Pro).
 
-> **Upgrading an existing deployment?** If you already have the tables from an earlier version, run `scripts/add_departments.sql` instead of re-creating the schema. It adds the `department_type` enum and the `department` column to `personnel`, `batches`, and `signup_requests`, defaulting all existing rows to `ops_security`.
+> **Upgrading an existing deployment?** If you already have the tables from an earlier version, run `scripts/sql/add_departments.sql` instead of re-creating the schema. It adds the `department_type` enum and the `department` column to `personnel`, `batches`, and `signup_requests`, defaulting all existing rows to `ops_security`.
 
 **Full schema:**
 
@@ -663,7 +672,7 @@ The system auto-creates the next 8 cycles on every admin login, so no manual cyc
 ### Reservist cannot check in
 
 - **GPS not working in WhatsApp or Instagram browser**: The in-app browser blocks GPS. The app will detect this and show instructions to open the link in Chrome or Safari instead.
-- **GPS keeps failing**: After five failed attempts a bypass option appears. The reservist can bypass and check in without GPS. The record will be flagged as bypassed in the log.
+- **GPS cannot detect location** (permission denied, signal unavailable, or timeout): a bypass option appears immediately. The reservist can check in without GPS and the record will be flagged as bypassed in the log. Note: if GPS works but the reservist is simply out of range, no bypass is offered. They must move closer to HQ and try again.
 - **Button is greyed out or unresponsive**: The reservist may already have a check-in recorded for that phase. Check the Log tab to confirm. If the record is wrong, edit it from the Log tab.
 - **Reservist sees the wrong phase**: Phase windows are time-based. If they are outside the window, the current phase card may not be active yet. Check the configured phase times.
 
@@ -729,7 +738,8 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Phase 4 (End of shift, after 1800): direct button, records timestamp
 - [ ] All 4 phases done: "All done for today" state shown
 - [ ] Late check-in (more than 1 hour after 0900): late reason modal appears, reason recorded and visible inline on log card
-- [ ] GPS keeps failing: after 5 attempts the bypass option appears
+- [ ] GPS cannot detect location (permission denied or timeout): bypass option appears immediately
+- [ ] GPS out of range: no bypass offered, must retry or move closer to HQ
 - [ ] GPS bypass: check-in completes, record is flagged as GPS bypassed in admin log
 - [ ] Opened in WhatsApp or Instagram in-app browser: banner shown with instructions to open in Chrome or Safari
 - [ ] Offline check-in: disable network, tap check-in, pending badge appears; restore network, record submits automatically
@@ -916,4 +926,4 @@ All admin checks above apply. Run them for both departments. Then verify the fol
 - **Phase windows are hardcoded.** The check-in phase times (0900, 1200, 1400, 1800) are fixed constants and cannot be changed from within the app. Changing them requires a code update and redeployment. This is tracked as item 1 in the Planned Enhancements section.
 - **Departments cannot be added or removed from within the app.** The department list (Ops Security and CAS) is defined in the database schema as an enum. Adding a new department requires a schema migration. This is tracked as item 6 in the Planned Enhancements section.
 - **No push notifications.** Supervisors must have the app open to see new leave requests or signup requests. There is no background alert. This is tracked as item 9 in the Planned Enhancements section.
-- **RLS batch-mate visibility requires a manual SQL step.** If the Supabase project is ever recreated from scratch, the `_auth_batch_id()` function and the updated `personnel_select` policy in `scripts/rls_policies.sql` must be re-run in the Supabase SQL editor for the YOUR TEAM section to appear correctly for reservists.
+- **RLS batch-mate visibility requires a manual SQL step.** If the Supabase project is ever recreated from scratch, the `_auth_batch_id()` function and the updated `personnel_select` policy in `scripts/sql/rls_policies.sql` must be re-run in the Supabase SQL editor for the YOUR TEAM section to appear correctly for reservists.
