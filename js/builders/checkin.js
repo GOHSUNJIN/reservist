@@ -54,8 +54,8 @@ const CheckinBuilders = {
       if(futureLeave){
         const isMc=futureLeave.type==='mc';
         if(futureLeave.status==='approved')
-          return {label:isMc?'MC approved':'Leave approved',sub:isMc?'Sick leave approved for this day':'Absence approved for this day',color:'#b9791a',bg:'#f7efdc'};
-        return {label:isMc?'MC submitted':'Leave submitted',sub:'Awaiting admin approval',color:'#b9791a',bg:'#fdf6e9'};
+          return {label:isMc?'MC approved':'Leave approved',sub:isMc?'Sick leave approved for this day':'Absence approved for this day',color:isMc?'#b9791a':'#c0392b',bg:isMc?'#f7efdc':'#f7e4e1'};
+        return {label:isMc?'MC submitted':'Leave submitted',sub:'Awaiting admin approval',color:isMc?'#b9791a':'#c0392b',bg:isMc?'#fdf6e9':'#fbeeec'};
       }
       return {label:'Upcoming',sub:'Reporting day',color:'#5c6678',bg:'#eceef2'};
     }
@@ -378,8 +378,8 @@ const CheckinBuilders = {
       }
       if(dst==='work'&&off>0){
         const fl=(s.myLeaveHistory||[]).find(r=>r.date===dk&&(r.status==='approved'||r.status==='pending'));
-        if(fl?.status==='approved') style=cellBase+'background:#f7efdc;color:#b9791a;border:2px solid #e8c77a;cursor:pointer;';
-        else if(fl?.status==='pending') style=cellBase+'background:#fdf6e9;color:#b9791a;border:1px dashed #e8c77a;cursor:pointer;';
+        if(fl?.status==='approved') style=cellBase+(fl.type==='mc'?'background:#f7efdc;color:#b9791a;border:2px solid #e8c77a;':'background:#f7e4e1;color:#c0392b;border:2px solid #e5a9a4;')+'cursor:pointer;';
+        else if(fl?.status==='pending') style=cellBase+(fl.type==='mc'?'background:#fdf6e9;color:#b9791a;border:1px dashed #e8c77a;':'background:#fbeeec;color:#c0392b;border:1px dashed #e5a9a4;')+'cursor:pointer;';
       }
       if(s.selectedCalOffset===off) style+='outline:2px solid '+accent+';outline-offset:1px;';
       return {num:d.getDate(),style,off,st:dst,onClick:this.selectCalDay(off)};
