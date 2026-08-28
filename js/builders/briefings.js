@@ -67,7 +67,6 @@ const BriefingsBuilders = {
         const lhf=s.leaveHistFilter||'all';
         const _fPill=(active)=>active?'-webkit-appearance:none;padding:5px 13px;border-radius:20px;border:none;font-size:12px;font-weight:600;background:#161f30;color:#fff;cursor:pointer;':'-webkit-appearance:none;padding:5px 13px;border-radius:20px;border:none;font-size:12px;font-weight:500;color:#8a94a3;background:#f1f3f6;cursor:pointer;';
         const filtered=lhf==='all'?deduped:deduped.filter(r=>r.status===lhf);
-        const totalCount=deduped.length, pendCount=deduped.filter(r=>r.status==='pending').length, approvedCount=deduped.filter(r=>r.status==='approved').length, rejectedCount=deduped.filter(r=>r.status==='rejected').length, cancelledCount=deduped.filter(r=>r.status==='cancelled').length;
         return {
           leaveHistFilter:lhf,
           setLeaveHistAll:()=>this.setState({leaveHistFilter:'all'}),
@@ -80,10 +79,10 @@ const BriefingsBuilders = {
           leaveHistFilterApprovedStyle:_fPill(lhf==='approved'),
           leaveHistFilterRejectedStyle:_fPill(lhf==='rejected'),
           leaveHistFilterCancelledStyle:_fPill(lhf==='cancelled'),
-          showLeaveHistFilterPending:pendCount>0,
-          showLeaveHistFilterApproved:approvedCount>0,
-          showLeaveHistFilterRejected:rejectedCount>0,
-          showLeaveHistFilterCancelled:cancelledCount>0,
+          showLeaveHistFilterPending:deduped.some(r=>r.status==='pending'),
+          showLeaveHistFilterApproved:deduped.some(r=>r.status==='approved'),
+          showLeaveHistFilterRejected:deduped.some(r=>r.status==='rejected'),
+          showLeaveHistFilterCancelled:deduped.some(r=>r.status==='cancelled'),
           leaveHistFiltered:filtered.length>0, leaveHistEmpty:filtered.length===0&&deduped.length>0,
           leaveHistoryItems:filtered.map(r=>({
             id:r.id,
