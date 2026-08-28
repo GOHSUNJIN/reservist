@@ -59,14 +59,7 @@ const BriefingsBuilders = {
         const raw=s.myLeaveHistory||[];
         const pends=s.myPendingRequests||[];
         const newPends=pends.filter(p=>!raw.some(r=>r.id===p.id));
-        const list=[...newPends,...raw];
-        const _pri={pending:4,approved:3,rejected:2,cancelled:1};
-        const byDate=new Map();
-        for(const r of list){
-          const ex=byDate.get(r.date);
-          if(!ex||(_pri[r.status]||0)>(_pri[ex.status]||0)) byDate.set(r.date,r);
-        }
-        return [...byDate.values()].sort((a,b)=>b.date.localeCompare(a.date));
+        return [...newPends,...raw].sort((a,b)=>b.date.localeCompare(a.date)||(b.created_at||'').localeCompare(a.created_at||''));
       })().map(r=>({
         id:r.id,
         typeLabel:r.type==='mc'?'MC':r.type==='other'?'Other':'Personal Leave',

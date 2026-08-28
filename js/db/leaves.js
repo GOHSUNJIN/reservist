@@ -28,8 +28,8 @@ const DB_Leaves = {
   },
 
   async cancel(id) {
-    const { data, error } = await _db.from('leave_requests').update({ status: 'cancelled' }).eq('id', id).eq('status', 'pending').select().maybeSingle();
-    return { data, error };
+    const { error } = await _db.from('leave_requests').update({ status: 'cancelled' }).eq('id', id).eq('status', 'pending');
+    return { error };
   },
 
   async voidApprovedForDate(personnelId, date) {
