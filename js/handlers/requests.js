@@ -144,7 +144,7 @@ const RequestHandlers = {
     const _myBatch=this.state.batches.find(b=>b.id===this.state.me?.batch_id);
     if(_myBatch&&(leaveDate<_myBatch.start_date||leaveDate>_myBatch.end_date)){this._toast('The selected date is outside your current cycle.','error');return;}
     if(_myBatch?.dekit_date===leaveDate){this._toast('Cannot submit a request for dekit day.','error');return;}
-    if((myLeaveHistory||[]).some(h=>h.date===leaveDate&&h.status!=='cancelled'&&h.status!=='rejected')){this._toast('You already submitted a request for this date.','error');return;}
+    if((this.state.myPendingRequests||[]).some(r=>r.date===leaveDate)){this._toast('You already have a pending request for this date.','error');return;}
     if(!demo){
       const {data,error}=await DB.leaves.request(currentUserId,leaveDate,leaveType,leaveReason).catch(e=>({error:e}));
       if(error){
