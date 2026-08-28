@@ -156,7 +156,7 @@ const CheckinBuilders = {
       const win=Utils.phaseWindow(shift,pd.key,isCas?'cas':null);
       const locIsOutOfRange=myGpsActive&&locOutOfRange;
       const _waPhaseLabel=pd.key==='p1'?'Check in':pd.key==='p2'?'Lunch break':pd.key==='p3'?'Return from lunch':'Check out';
-      const _waGeoMsg=`Hi, I need help with my attendance.\n\nName: ${me.name}\nShift: ${Utils.shiftLabel(me.shift)}\nPhase: ${_waPhaseLabel}\nDate: ${Utils.dateKey(this.baseDate())}\n\nGPS shows me ${s.locDistance!=null?s.locDistance+'m ':''}out of range. Please assist with a manual record.`;
+      const _waGeoMsg=`Hi, I need help with my attendance.\n\nName: ${me.name}\nPhase: ${_waPhaseLabel}\nDate: ${Utils.dateKey(this.baseDate())}\n\nGPS shows me ${s.locDistance!=null?s.locDistance+'m ':''}out of range. Please assist with a manual record.`;
       const geofenceWaLink=`https://api.whatsapp.com/send?text=${encodeURIComponent(_waGeoMsg)}`;
       return {
         key:pd.key, num:pd.num, label:pd.label, isLast:pd.key==='p4', notLast:pd.key!=='p4',
@@ -179,7 +179,9 @@ const CheckinBuilders = {
         locLocating:myGpsActive&&locLocating,
         locVerified:myGpsActive&&locVerified,
         locNeedsAction:myGpsActive&&(locIdle||locOutOfRange||locGpsError),
-        locShowReload:myGpsActive&&locGpsError&&s.locPermErr,
+        locShowReload:false,
+        locIsPermErr:myGpsActive&&locGpsError&&s.locPermErr,
+        locIsNotPermErr:!(myGpsActive&&locGpsError&&s.locPermErr),
         locBtnLabel:locLocating?'Locating...':(locIdle?'Locate me':'Try again'),
         locBtnDisabled:myGpsActive&&locLocating,
         locBtnOpacity:myGpsActive&&locLocating?'.6':'1',
@@ -195,7 +197,7 @@ const CheckinBuilders = {
         showGpsBypass: myGpsActive && locGpsError && (s.locRetryCount||0) >= 5,
         bypassLabel: pd.key==='p1'?'Check in without GPS':pd.key==='p2'?'Record break without GPS':pd.key==='p3'?'Record return without GPS':'Check out without GPS',
         onBypass: this.doPhaseBypass(pd.key),
-        showBrowserTip: myGpsActive && locGpsError,
+        showBrowserTip: myGpsActive && locGpsError && !s.locPermErr,
       };
     });
     const allDone=phases.every(ph=>ph.done);
