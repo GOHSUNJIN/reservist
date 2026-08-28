@@ -87,9 +87,9 @@ const BriefingsBuilders = {
           leaveHistoryItems:filtered.map(r=>({
             id:r.id,
             typeLabel:r.type==='mc'?'MC':'Personal Leave',
-            typeBg:r.type==='mc'?'#fdf6e9':'#eef3fc',
-            typeColor:r.type==='mc'?'#b9791a':'#3b5bdb',
-            typeBorder:r.type==='mc'?'#f0e2c2':'#c5d3f5',
+            typeBg:r.type==='mc'?'#fdf6e9':'#f7e4e1',
+            typeColor:r.type==='mc'?'#b9791a':'#c0392b',
+            typeBorder:r.type==='mc'?'#f0e2c2':'#f1d0cc',
             dateLabel:r.date?Utils.fmtMed(new Date(r.date+'T00:00:00')):'',
             statusLabel:r.status==='approved'?'Approved':r.status==='rejected'?'Declined':r.status==='cancelled'?'Withdrawn':'Submitted',
             statusColor:r.status==='approved'?'#1f8a5b':r.status==='rejected'?'#c0392b':r.status==='cancelled'?'#8a94a3':'#b9791a',
