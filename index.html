@@ -839,61 +839,58 @@
 
           <!-- LEAVE HISTORY tab -->
           <sc-if value="{{ briefTabHistory }}" hint-placeholder-val="">
-          <div class="card-flush">
-            <sc-if value="{{ !myLeaveHistoryLoaded }}" hint-placeholder-val="">
+          <sc-if value="{{ !myLeaveHistoryLoaded }}" hint-placeholder-val="">
             <div style="padding:28px;text-align:center;color:#8a94a3;font-size:13px;">Loading…</div>
           </sc-if>
-          <sc-if value="{{ showLeaveItems }}" hint-placeholder-val="">
+          <sc-if value="{{ showLeaveHistory }}" hint-placeholder-val="">
+          <div style="padding:0 16px 10px;display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid #f2f4f7;padding-top:12px;">
+            <button onClick="{{ setLeaveHistAll }}" style="{{ leaveHistFilterAllStyle }}">All</button>
+            <sc-if value="{{ showLeaveHistFilterPending }}" hint-placeholder-val=""><button onClick="{{ setLeaveHistPending }}" style="{{ leaveHistFilterPendingStyle }}">Submitted</button></sc-if>
+            <sc-if value="{{ showLeaveHistFilterApproved }}" hint-placeholder-val=""><button onClick="{{ setLeaveHistApproved }}" style="{{ leaveHistFilterApprovedStyle }}">Approved</button></sc-if>
+            <sc-if value="{{ showLeaveHistFilterRejected }}" hint-placeholder-val=""><button onClick="{{ setLeaveHistRejected }}" style="{{ leaveHistFilterRejectedStyle }}">Declined</button></sc-if>
+            <sc-if value="{{ showLeaveHistFilterCancelled }}" hint-placeholder-val=""><button onClick="{{ setLeaveHistCancelled }}" style="{{ leaveHistFilterCancelledStyle }}">Withdrawn</button></sc-if>
+          </div>
+          <sc-if value="{{ leaveHistFiltered }}" hint-placeholder-val="">
             <sc-for list="{{ leaveHistoryItems }}" as="rh" hint-placeholder-count="3">
-            <div style="padding:14px 16px;border-bottom:1px solid #f2f4f7;">
-              <div style="display:flex;gap:12px;align-items:center;">
-                <div style="flex:0 0 36px;height:36px;border-radius:50%;background:{{ rh.statusBg }};border:1.5px solid {{ rh.statusBorder }};display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-                  <sc-if value="{{ rh.isApproved }}" hint-placeholder-val="">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{ rh.statusColor }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                  </sc-if>
-                  <sc-if value="{{ rh.isRejected }}" hint-placeholder-val="">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{ rh.statusColor }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                  </sc-if>
-                  <sc-if value="{{ rh.isPending }}" hint-placeholder-val="">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{ rh.statusColor }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                  </sc-if>
-                  <sc-if value="{{ rh.isCancelled }}" hint-placeholder-val="">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="{{ rh.statusColor }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-                  </sc-if>
-                </div>
-                <div style="flex:1;min-width:0;">
-                  <div style="display:flex;align-items:center;gap:6px;">
-                    <span style="font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px;background:{{ rh.typeBg }};color:{{ rh.typeColor }};border:1px solid {{ rh.typeBorder }};white-space:nowrap;">{{ rh.typeLabel }}</span>
-                    <span style="font-size:12px;font-weight:600;padding:2px 8px;border-radius:20px;color:{{ rh.statusColor }};background:{{ rh.statusBg }};border:1px solid {{ rh.statusBorder }};white-space:nowrap;flex:0 0 auto;">{{ rh.statusLabel }}</span>
+            <div style="display:flex;border-bottom:1px solid #f2f4f7;">
+              <div style="width:3px;flex-shrink:0;background:{{ rh.leftBar }};border-radius:0;"></div>
+              <div style="flex:1;padding:13px 15px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                  <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+                    <span style="font-size:12px;font-weight:600;padding:2px 9px;border-radius:20px;background:{{ rh.typeBg }};color:{{ rh.typeColor }};border:1px solid {{ rh.typeBorder }};white-space:nowrap;">{{ rh.typeLabel }}</span>
+                    <span style="font-size:12px;font-weight:600;padding:2px 9px;border-radius:20px;color:{{ rh.statusColor }};background:{{ rh.statusBg }};border:1px solid {{ rh.statusBorder }};white-space:nowrap;">{{ rh.statusLabel }}</span>
                   </div>
-                  <div style="font-size:12px;color:#9aa3b2;margin-top:2px;">{{ rh.dateLabel }}</div>
+                  <div style="font-size:12px;color:#a0a8b4;white-space:nowrap;flex-shrink:0;">{{ rh.dateLabel }}</div>
                 </div>
+                <sc-if value="{{ rh.reason }}" hint-placeholder-val="">
+                  <div style="margin-top:7px;font-size:12px;color:#8a94a3;font-style:italic;">"{{ rh.reason }}"</div>
+                </sc-if>
+                <sc-if value="{{ rh.isRejected }}" hint-placeholder-val="">
+                  <div style="margin-top:8px;padding:7px 10px;background:#fdf0ee;border-left:3px solid #e8a29a;border-radius:0 7px 7px 0;font-size:12px;color:#9a3328;line-height:1.5;"><span style="font-weight:600;">Supervisor: </span>{{ rh.rejectionReasonText }}</div>
+                </sc-if>
+                <sc-if value="{{ rh.showReviewedByApproved }}" hint-placeholder-val="">
+                  <div style="margin-top:5px;font-size:11.5px;color:#6aad87;">Approved by {{ rh.reviewedBy }}</div>
+                </sc-if>
+                <sc-if value="{{ rh.canCancel }}" hint-placeholder-val="">
+                  <button onClick="{{ rh.onCancel }}" style="-webkit-appearance:none;margin-top:9px;padding:0;background:none;border:none;font-size:12px;font-weight:500;color:#9aa3b2;cursor:pointer;text-decoration:underline;text-underline-offset:2px;">Withdraw request</button>
+                </sc-if>
               </div>
-              <sc-if value="{{ rh.reason }}" hint-placeholder-val="">
-                <div style="margin-top:9px;padding:7px 10px;background:#f5f7fa;border-radius:8px;font-size:12px;color:#8a94a3;font-style:italic;">"{{ rh.reason }}"</div>
-              </sc-if>
-              <sc-if value="{{ rh.isRejected }}" hint-placeholder-val="">
-                <div style="margin-top:9px;padding:8px 11px;background:#fdf0ee;border-left:3px solid #e8a29a;border-radius:0 8px 8px 0;font-size:12px;color:#9a3328;line-height:1.5;"><span style="font-weight:600;color:#c0392b;">Supervisor: </span>{{ rh.rejectionReasonText }}</div>
-              </sc-if>
-              <sc-if value="{{ rh.showReviewedByApproved }}" hint-placeholder-val="">
-                <div style="margin-top:6px;font-size:11px;color:#b0b8c4;">Approved by {{ rh.reviewedBy }}</div>
-              </sc-if>
-              <sc-if value="{{ rh.canCancel }}" hint-placeholder-val="">
-                <button onClick="{{ rh.onCancel }}" style="-webkit-appearance:none;margin-top:10px;padding:0;background:none;border:none;font-size:12px;font-weight:500;color:#9aa3b2;cursor:pointer;display:inline-flex;align-items:center;gap:4px;text-decoration:underline;text-underline-offset:2px;">Withdraw request</button>
-              </sc-if>
             </div>
             </sc-for>
-            </sc-if>
-            <sc-if value="{{ showLeaveEmpty }}" hint-placeholder-val="">
-            <div style="padding:44px 16px;text-align:center;">
-              <div class="avatar-circle">
-                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
-              </div>
-              <div class="text-sub">No requests yet</div>
-              <div class="text-muted">MC and leave requests will appear here.</div>
+          </sc-if>
+          <sc-if value="{{ leaveHistEmpty }}" hint-placeholder-val="">
+            <div style="padding:28px 16px;text-align:center;color:#a0a8b4;font-size:13px;">No requests match this filter.</div>
+          </sc-if>
+          </sc-if>
+          <sc-if value="{{ showLeaveEmpty }}" hint-placeholder-val="">
+          <div style="padding:44px 16px;text-align:center;">
+            <div class="avatar-circle">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
             </div>
-            </sc-if>
+            <div class="text-sub">No requests yet</div>
+            <div class="text-muted">MC and leave requests will appear here.</div>
           </div>
+          </sc-if>
           </sc-if>
 
         </div>
