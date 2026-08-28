@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>ReservistGO - Admin Onboarding Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --blue:    #1e45c4;
+    --blue-lt: #4d79e8;
+    --blue-bg: #eef2fc;
+    --red:     #c0392b;
+    --red-bg:  #fdf0ef;
+    --amber:   #b9791a;
+    --amber-bg:#fdf6e9;
+    --green:   #1a7c4f;
+    --green-bg:#edf7f2;
+    --dark:    #161f30;
+    --mid:     #3d4a5c;
+    --muted:   #8a94a3;
+    --border:  #e3e6ec;
+    --bg:      #f4f6fb;
+    --white:   #ffffff;
+  }
+
+  body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    font-size: 10.5pt;
+    color: var(--dark);
+    background: var(--white);
+    line-height: 1.55;
+  }
+
+  /* ── PAGE SETUP ── */
+  @page { size: A4; margin: 0; }
+  @page :first { margin: 0; }
+
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 0 auto;
+    background: var(--white);
+    position: relative;
+    page-break-after: always;
+  }
+
+  /* ── COVER PAGE ── */
+  .cover {
+    background: linear-gradient(155deg, #1a3aaa 0%, #2f5fd0 45%, #4d79e8 100%);
+    min-height: 297mm;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .cover-bg-circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.04);
+  }
+  .cover-top { padding: 52px 52px 0; position: relative; z-index: 1; }
+  .cover-logo {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    margin-bottom: 80px;
+  }
+  .cover-logo-icon {
+    width: 42px; height: 42px;
+    background: rgba(255,255,255,0.18);
+    border-radius: 11px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .cover-logo-icon svg { display: block; }
+  .cover-logo-name {
+    font-size: 15pt;
+    font-weight: 700;
+    color: rgba(255,255,255,0.95);
+    letter-spacing: -0.01em;
+  }
+  .cover-logo-name span { color: rgba(255,255,255,0.55); font-weight: 500; }
+  .cover-title {
+    font-size: 32pt;
+    font-weight: 800;
+    color: #fff;
+    line-height: 1.15;
+    letter-spacing: -0.025em;
+    margin-bottom: 20px;
+  }
+  .cover-subtitle {
+    font-size: 13pt;
+    font-weight: 500;
+    color: rgba(255,255,255,0.7);
+    line-height: 1.5;
+  }
+  .cover-bottom {
+    padding: 0 52px 48px;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+  .cover-meta { color: rgba(255,255,255,0.55); font-size: 9pt; line-height: 1.7; }
+  .cover-meta strong { color: rgba(255,255,255,0.8); font-weight: 600; }
+  .cover-badge {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 8px;
+    padding: 10px 16px;
+    text-align: right;
+  }
+  .cover-badge div:first-child { font-size: 8pt; color: rgba(255,255,255,0.55); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 2px; }
+  .cover-badge div:last-child  { font-size: 10pt; color: rgba(255,255,255,0.9); font-weight: 600; }
+  .cover-divider {
+    height: 2px;
+    background: linear-gradient(90deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0.05) 100%);
+    margin: 32px 0 24px;
+  }
+
+  /* ── INNER PAGE LAYOUT ── */
+  .inner {
+    padding: 36px 48px 44px;
+  }
+  .page-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 48px;
+    border-bottom: 1.5px solid var(--border);
+    margin-bottom: 0;
+  }
+  .page-header-title { font-size: 8pt; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .07em; }
+  .page-header-logo  { font-size: 8pt; font-weight: 700; color: var(--blue); letter-spacing: -.01em; }
+  .page-footer {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 12px 48px;
+    border-top: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 7.5pt;
+    color: var(--muted);
+  }
+  .page-footer .pg { font-weight: 600; color: var(--mid); }
+
+  /* ── TYPOGRAPHY ── */
+  h1 { font-size: 19pt; font-weight: 800; color: var(--dark); letter-spacing: -.025em; line-height: 1.2; margin-bottom: 6px; }
+  h2 { font-size: 13.5pt; font-weight: 700; color: var(--dark); letter-spacing: -.015em; line-height: 1.25; margin-bottom: 4px; }
+  h3 { font-size: 10.5pt; font-weight: 700; color: var(--dark); margin-bottom: 3px; }
+  h4 { font-size: 9.5pt; font-weight: 600; color: var(--mid); margin-bottom: 2px; }
+  p  { margin-bottom: 8px; color: var(--mid); }
+  p:last-child { margin-bottom: 0; }
+
+  .section { margin-bottom: 26px; }
+  .section-label {
+    font-size: 7.5pt; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .1em;
+    margin-bottom: 12px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .section-intro { font-size: 10pt; color: var(--mid); margin-bottom: 16px; line-height: 1.6; }
+
+  /* ── ROLE CARDS ── */
+  .role-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin-bottom: 0; }
+  .role-card {
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+  .role-card.admin  { border-color: #c5d3f5; background: #f7f9ff; }
+  .role-card.master { border-color: #f0e2c2; background: #fdfaf4; }
+  .role-card.res    { border-color: var(--border); background: #fafbfc; }
+  .role-icon {
+    width: 36px; height: 36px; border-radius: 9px;
+    display: flex; align-items: center; justify-content: center;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+  .role-card.admin  .role-icon { background: var(--blue-bg); }
+  .role-card.master .role-icon { background: var(--amber-bg); }
+  .role-card.res    .role-icon { background: #f1f3f6; }
+  .role-name { font-size: 10.5pt; font-weight: 700; margin-bottom: 6px; }
+  .role-card.admin  .role-name { color: var(--blue); }
+  .role-card.master .role-name { color: var(--amber); }
+  .role-card.res    .role-name { color: var(--mid); }
+  .role-desc { font-size: 8.5pt; color: var(--muted); line-height: 1.55; }
+
+  /* ── NAV TABS ── */
+  .tab-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .tab-card {
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 18px;
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+  }
+  .tab-icon {
+    width: 38px; height: 38px; flex: 0 0 auto;
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+  }
+  .tab-body h3 { font-size: 10.5pt; font-weight: 700; margin-bottom: 4px; }
+  .tab-body p  { font-size: 8.5pt; color: var(--muted); line-height: 1.55; margin: 0; }
+
+  .tab-overview .tab-icon { background: #edf7f2; }
+  .tab-roster   .tab-icon { background: var(--blue-bg); }
+  .tab-log      .tab-icon { background: #f7f7f0; }
+  .tab-people   .tab-icon { background: var(--red-bg); }
+
+  /* ── WORKFLOW STEPS ── */
+  .workflow { margin-bottom: 20px; }
+  .workflow-title {
+    font-size: 10pt; font-weight: 700; color: var(--dark);
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .workflow-title .badge {
+    font-size: 7.5pt; font-weight: 600; padding: 2px 8px;
+    border-radius: 20px; letter-spacing: .03em;
+  }
+  .badge-blue   { background: var(--blue-bg);   color: var(--blue); }
+  .badge-red    { background: var(--red-bg);    color: var(--red); }
+  .badge-amber  { background: var(--amber-bg);  color: var(--amber); }
+  .badge-green  { background: var(--green-bg);  color: var(--green); }
+  .badge-gray   { background: #f1f3f6;          color: var(--mid); }
+
+  .steps { list-style: none; counter-reset: step; }
+  .steps li {
+    counter-increment: step;
+    display: flex;
+    gap: 10px;
+    margin-bottom: 7px;
+    font-size: 9.5pt;
+    color: var(--mid);
+    line-height: 1.5;
+    align-items: flex-start;
+  }
+  .steps li::before {
+    content: counter(step);
+    flex: 0 0 auto;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--blue);
+    color: #fff;
+    font-size: 7.5pt;
+    font-weight: 700;
+    display: flex; align-items: center; justify-content: center;
+    margin-top: 1px;
+  }
+  .steps li strong { color: var(--dark); }
+
+  /* ── INFO BOXES ── */
+  .info-box {
+    border-radius: 10px;
+    padding: 13px 16px;
+    margin-bottom: 12px;
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 9pt;
+    line-height: 1.55;
+  }
+  .info-box .icon { font-size: 13px; flex: 0 0 auto; margin-top: 1px; }
+  .info-box p { margin: 0; }
+  .info-blue  { background: var(--blue-bg);  border: 1px solid #c5d3f5; color: #2a3d8f; }
+  .info-amber { background: var(--amber-bg); border: 1px solid #f0e2c2; color: #7a5010; }
+  .info-red   { background: var(--red-bg);   border: 1px solid #f5c2be; color: #7a231a; }
+  .info-green { background: var(--green-bg); border: 1px solid #b4e0c8; color: #14593a; }
+
+  /* ── TWO-COL LAYOUT ── */
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+
+  /* ── FEATURE LIST ── */
+  .feature-list { list-style: none; }
+  .feature-list li {
+    font-size: 9pt; color: var(--mid);
+    padding: 5px 0;
+    border-bottom: 1px solid #f0f2f5;
+    display: flex; gap: 8px; align-items: flex-start;
+    line-height: 1.4;
+  }
+  .feature-list li:last-child { border-bottom: none; }
+  .feature-list li::before { content: '›'; color: var(--blue); font-weight: 700; flex: 0 0 auto; }
+  .feature-list li strong { color: var(--dark); font-weight: 600; }
+
+  /* ── GLOSSARY TABLE ── */
+  table { width: 100%; border-collapse: collapse; font-size: 9pt; }
+  th {
+    text-align: left; padding: 8px 12px;
+    background: #f4f6fb; border-bottom: 2px solid var(--border);
+    font-size: 7.5pt; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: .07em;
+  }
+  td { padding: 8px 12px; border-bottom: 1px solid #f0f2f5; vertical-align: top; line-height: 1.5; }
+  td:first-child { font-weight: 600; color: var(--dark); white-space: nowrap; width: 28%; }
+  td:last-child { color: var(--mid); }
+  tr:last-child td { border-bottom: none; }
+
+  /* ── STATUS BADGES ── */
+  .status { display: inline-flex; align-items: center; gap: 5px; font-size: 8pt; font-weight: 600; padding: 2px 8px; border-radius: 20px; white-space: nowrap; }
+  .status-present { background: var(--green-bg); color: var(--green); }
+  .status-absent  { background: var(--red-bg);   color: var(--red); }
+  .status-mc      { background: var(--amber-bg); color: var(--amber); }
+  .status-pending { background: #f1f3f6;          color: var(--mid); }
+
+  /* ── SECTION BLOCK ── */
+  .block {
+    border: 1.5px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    margin-bottom: 14px;
+  }
+  .block-header {
+    padding: 11px 16px;
+    background: #f9fafb;
+    border-bottom: 1px solid var(--border);
+    font-size: 9pt; font-weight: 700; color: var(--dark);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .block-header .dot { width: 8px; height: 8px; border-radius: 50%; flex: 0 0 auto; }
+  .block-body { padding: 14px 16px; }
+
+  /* ── TIPS ── */
+  .tips-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .tip-card {
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    padding: 13px 15px;
+  }
+  .tip-card h4 { font-size: 9pt; font-weight: 700; color: var(--dark); margin-bottom: 5px; }
+  .tip-card p  { font-size: 8.5pt; color: var(--muted); line-height: 1.5; margin: 0; }
+
+  /* ── PHASE DIAGRAM ── */
+  .phases {
+    display: flex;
+    align-items: stretch;
+    gap: 0;
+    border: 1.5px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+  .phase-item {
+    flex: 1;
+    padding: 10px 12px;
+    border-right: 1px solid var(--border);
+    text-align: center;
+  }
+  .phase-item:last-child { border-right: none; }
+  .phase-num { font-size: 7pt; font-weight: 700; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 3px; }
+  .phase-label { font-size: 9pt; font-weight: 700; color: var(--dark); margin-bottom: 2px; }
+  .phase-time { font-size: 7.5pt; color: var(--muted); }
+  .phase-item.active { background: var(--blue-bg); }
+  .phase-item.active .phase-label { color: var(--blue); }
+
+  /* ── PRINT RULES ── */
+  @media print {
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .page { page-break-after: always; margin: 0; }
+    .page:last-child { page-break-after: avoid; }
+    a { text-decoration: none; color: inherit; }
+  }
+
+  .mt4  { margin-top: 4px; }
+  .mt8  { margin-top: 8px; }
+  .mt12 { margin-top: 12px; }
+  .mt16 { margin-top: 16px; }
+  .mb4  { margin-bottom: 4px; }
+  .mb8  { margin-bottom: 8px; }
+  .mb12 { margin-bottom: 12px; }
+  .mb16 { margin-bottom: 16px; }
+  .mb20 { margin-bottom: 20px; }
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════════════
+     PAGE 1:COVER
+════════════════════════════════════════════════ -->
+<div class="page">
+  <div class="cover">
+    <!-- decorative circles -->
+    <div class="cover-bg-circle" style="width:420px;height:420px;top:-140px;right:-120px;"></div>
+    <div class="cover-bg-circle" style="width:280px;height:280px;bottom:60px;left:-80px;"></div>
+    <div class="cover-bg-circle" style="width:160px;height:160px;top:200px;right:80px;background:rgba(255,255,255,0.06);"></div>
+
+    <div class="cover-top">
+      <div class="cover-logo">
+        <div class="cover-logo-icon">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <div class="cover-logo-name">ReservistGO <span>/ Admin</span></div>
+      </div>
+
+      <div class="cover-title">Admin<br>Onboarding<br>Guide</div>
+      <div class="cover-subtitle">Everything you need to start managing<br>your reservists with confidence.</div>
+
+      <div class="cover-divider"></div>
+
+      <div style="display:flex;gap:24px;">
+        <div style="text-align:center;">
+          <div style="font-size:22pt;font-weight:800;color:#fff;line-height:1;">4</div>
+          <div style="font-size:8pt;color:rgba(255,255,255,0.55);margin-top:2px;">Main Tabs</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.15);"></div>
+        <div style="text-align:center;">
+          <div style="font-size:22pt;font-weight:800;color:#fff;line-height:1;">3</div>
+          <div style="font-size:8pt;color:rgba(255,255,255,0.55);margin-top:2px;">Roles</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.15);"></div>
+        <div style="text-align:center;">
+          <div style="font-size:22pt;font-weight:800;color:#fff;line-height:1;">4</div>
+          <div style="font-size:8pt;color:rgba(255,255,255,0.55);margin-top:2px;">Check-in Phases</div>
+        </div>
+        <div style="width:1px;background:rgba(255,255,255,0.15);"></div>
+        <div style="text-align:center;">
+          <div style="font-size:22pt;font-weight:800;color:#fff;line-height:1;">2</div>
+          <div style="font-size:8pt;color:rgba(255,255,255,0.55);margin-top:2px;">Departments</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="cover-bottom">
+      <div class="cover-meta">
+        <strong>SPF G Division, Ops Branch</strong><br>
+        For internal use only<br>
+        Prepared for new admin supervisors
+      </div>
+      <div class="cover-badge">
+        <div>Document type</div>
+        <div>Admin Reference Guide</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════
+     PAGE 2:ROLES + APP OVERVIEW
+════════════════════════════════════════════════ -->
+<div class="page" style="padding-bottom:48px;">
+  <div class="page-header">
+    <div class="page-header-title">Introduction</div>
+    <div class="page-header-logo">ReservistGO</div>
+  </div>
+  <div class="inner" style="padding-bottom: 60px;">
+
+    <div class="section">
+      <h1>What is ReservistGO?</h1>
+      <p class="section-intro" style="margin-top:6px;">ReservistGO is a mobile-first attendance management system for SPF G Division reservists. It handles the full cycle of a reporting period, covering everything from enrolling new members to tracking daily check-ins, managing leave, and generating reports for payroll and welfare.</p>
+      <div class="info-blue info-box">
+        <div class="icon">ℹ️</div>
+        <p>As an Admin, you manage your department's roster, approve requests, correct attendance records, and export reports. You do <strong>not</strong> need database access for day-to-day operations. Everything is done through the app.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">System Roles</div>
+      <div class="role-grid">
+        <div class="role-card res">
+          <div class="role-icon">👤</div>
+          <div class="role-name">Reservist</div>
+          <div class="role-desc">Self-service only. Can check in, submit leave requests, view their own attendance, and manage their profile. Cannot see other members' details.</div>
+        </div>
+        <div class="role-card admin">
+          <div class="role-icon">🛡️</div>
+          <div class="role-name">Admin (Supervisor)</div>
+          <div class="role-desc">Manages the roster, approves signups and leave, corrects attendance, adds/removes personnel, and exports reports, within their department only.</div>
+        </div>
+        <div class="role-card master">
+          <div class="role-icon">⭐</div>
+          <div class="role-name">Master (Superadmin)</div>
+          <div class="role-desc">All Admin capabilities, plus: switch between departments, create/remove Admin accounts, and promote reservists to Admin.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">The Four Tabs</div>
+      <p style="font-size:9.5pt;color:var(--mid);margin-bottom:14px;">Your admin interface has four tabs at the bottom of the screen. Each covers a distinct part of managing your team.</p>
+      <div class="tab-grid">
+        <div class="tab-card tab-overview">
+          <div class="tab-icon">📊</div>
+          <div class="tab-body">
+            <h3>Overview</h3>
+            <p>Daily attendance dashboard. See at a glance how many are Present, on MC, Absent, or Pending. Pending signups and leave requests also appear here for quick action.</p>
+          </div>
+        </div>
+        <div class="tab-card tab-roster">
+          <div class="tab-icon">📋</div>
+          <div class="tab-body">
+            <h3>Roster</h3>
+            <p>Live attendance board. See every reservist's current status as they check in. Mark statuses, correct times, add welfare notes, and view check-in phases in real time.</p>
+          </div>
+        </div>
+        <div class="tab-card tab-log">
+          <div class="tab-icon">🕐</div>
+          <div class="tab-body">
+            <h3>Log</h3>
+            <p>Full time records for each person. Edit all four check-in phases, flag missing clock-outs, generate a WhatsApp attendance summary, and export to Excel or PDF.</p>
+          </div>
+        </div>
+        <div class="tab-card tab-people">
+          <div class="tab-icon">👥</div>
+          <div class="tab-body">
+            <h3>People</h3>
+            <p>Three sub-tabs: <strong>Requests</strong> (approve signups and leave), <strong>Roster</strong> (add/remove personnel, view history), and <strong>Team</strong> (manage supervisor accounts).</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Key Concepts</div>
+      <div class="two-col">
+        <div>
+          <div class="block">
+            <div class="block-header"><div class="dot" style="background:var(--blue);"></div>Cycle</div>
+            <div class="block-body" style="padding:12px 16px;">
+              <p style="font-size:9pt;color:var(--mid);margin:0;line-height:1.6;">A reporting period, typically 2 weeks (Tue to Mon). Each cycle has a start date, end date, and a dekit date. Only one cycle is <strong>Live</strong> at any time. The app auto-creates upcoming cycles 8 cycles ahead.</p>
+            </div>
+          </div>
+          <div class="block">
+            <div class="block-header"><div class="dot" style="background:var(--green);"></div>Reporting Days</div>
+            <div class="block-body" style="padding:12px 16px;">
+              <p style="font-size:9pt;color:var(--mid);margin:0;line-height:1.6;">Weekdays within a cycle when reservists are expected to report. Weekends are auto no-report. Admins can toggle additional no-report days (public holidays, stand-downs).</p>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="block">
+            <div class="block-header"><div class="dot" style="background:var(--amber);"></div>Departments</div>
+            <div class="block-body" style="padding:12px 16px;">
+              <p style="font-size:9pt;color:var(--mid);margin:0;line-height:1.6;"><strong>Ops Security</strong> uses a 4-phase check-in. <strong>CAS (Crime Alert)</strong> uses a 2-phase check-in. Data is fully scoped per department. Master accounts can switch between them.</p>
+            </div>
+          </div>
+          <div class="block">
+            <div class="block-header"><div class="dot" style="background:var(--red);"></div>Attendance Statuses</div>
+            <div class="block-body" style="padding:12px 16px;">
+              <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                <span class="status status-present">Present</span>
+                <span class="status status-mc">MC</span>
+                <span class="status status-absent">Absent</span>
+                <span class="status status-pending">Pending</span>
+              </div>
+              <p style="font-size:8.5pt;color:var(--muted);margin-top:8px;margin-bottom:0;line-height:1.5;">Pending means no status yet (awaiting check-in or admin action). Absent is auto-set at midnight for anyone still Pending.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="page-footer">
+    <div>SPF G Division | ReservistGO Admin Guide</div>
+    <div class="pg">2</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════
+     PAGE 3:CHECK-IN PHASES + ROSTER TAB
+════════════════════════════════════════════════ -->
+<div class="page" style="padding-bottom:48px;">
+  <div class="page-header">
+    <div class="page-header-title">Attendance & Roster</div>
+    <div class="page-header-logo">ReservistGO</div>
+  </div>
+  <div class="inner" style="padding-bottom:60px;">
+
+    <div class="section">
+      <h2>Check-in Phases</h2>
+      <p style="font-size:9.5pt;color:var(--mid);margin:6px 0 12px;">Ops Security reservists check in across four phases throughout the day. Each phase is time-stamped and GPS-verified where applicable.</p>
+
+      <div class="phases">
+        <div class="phase-item active">
+          <div class="phase-num">Phase 1</div>
+          <div class="phase-label">Check In</div>
+          <div class="phase-time">09:00 to 12:00</div>
+        </div>
+        <div class="phase-item">
+          <div class="phase-num">Phase 2</div>
+          <div class="phase-label">Lunch Out</div>
+          <div class="phase-time">12:00 to 14:00</div>
+        </div>
+        <div class="phase-item">
+          <div class="phase-num">Phase 3</div>
+          <div class="phase-label">Return</div>
+          <div class="phase-time">14:00 to 18:00</div>
+        </div>
+        <div class="phase-item">
+          <div class="phase-num">Phase 4</div>
+          <div class="phase-label">End of Shift</div>
+          <div class="phase-time">After 18:00</div>
+        </div>
+      </div>
+
+      <div class="info-amber info-box">
+        <div class="icon">⚠️</div>
+        <p><strong>CAS department</strong> uses only Phase 1 (Check In) and Phase 4 (End of Shift), with no lunch phases. GPS verification applies to Phases 1 and 3. A missing Phase 4 time triggers a <strong>"No clock-out"</strong> flag in the Log tab.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Roster Tab:What You See</div>
+      <div class="two-col">
+        <div>
+          <h3 class="mb8">Each Roster Card Shows</h3>
+          <ul class="feature-list">
+            <li><strong>Name & contact</strong>:tap contact to copy</li>
+            <li><strong>Status badge</strong>:colour-coded (green/amber/red/gray)</li>
+            <li><strong>Check-in phases</strong>:IN / LCH / BACK / OUT times</li>
+            <li><strong>GPS distance</strong>:metres from HQ at check-in</li>
+            <li><strong>Attendance rate</strong>:flagged amber if below 75%</li>
+            <li><strong>Welfare note</strong>:if one has been added</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="mb8">Actions You Can Take</h3>
+          <ul class="feature-list">
+            <li><strong>Mark Present / MC / Absent</strong> individually</li>
+            <li><strong>Mark All Absent</strong>:end-of-day closure (with confirm)</li>
+            <li><strong>Mark All Present</strong>:bulk approval (with confirm)</li>
+            <li><strong>Edit phase times</strong>:correct any timestamp manually</li>
+            <li><strong>Add welfare note</strong>:visible to the reservist</li>
+            <li><strong>Filter by status</strong>:All / Present / MC / Absent / Pending</li>
+            <li><strong>Search by name</strong>:persistent across navigation</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Log Tab:Time Records & Reporting</div>
+      <div class="two-col">
+        <div>
+          <h3 class="mb8">What You Can Do</h3>
+          <ul class="feature-list">
+            <li><strong>Edit all 4 phases</strong> for any person on any date</li>
+            <li><strong>Add welfare / daily notes</strong> per person</li>
+            <li><strong>See Late flag</strong>:check-ins &gt;1hr after start time</li>
+            <li><strong>See No Clock-out flag</strong>:missing Phase 4 time</li>
+            <li><strong>View edit history</strong>:who changed what and when</li>
+            <li><strong>Filter & search</strong>:by status, name, or date</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="mb8">Reporting & Export</h3>
+          <ul class="feature-list">
+            <li><strong>Excel export</strong>:full cycle matrix with colour-coded statuses and meal column</li>
+            <li><strong>Print / PDF</strong>:A4 formatted report including meal claims summary</li>
+            <li><strong>WhatsApp summary</strong>:auto-generated text with names; edit before sending</li>
+            <li><strong>Per-person history export</strong>:from the history modal in People &gt; Roster</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="info-blue info-box mt12">
+        <div class="icon">ℹ️</div>
+        <p>The <strong>Log tab badge</strong> (orange dot on the nav icon) lights up when there are attendance records awaiting review. For example, pending check-ins that need a status decision before end of day.</p>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">GPS & Late Flags</div>
+      <div class="three-col">
+        <div class="block">
+          <div class="block-header"><div class="dot" style="background:var(--blue);"></div>GPS Verified</div>
+          <div class="block-body" style="padding:12px 16px;">
+            <p style="font-size:8.5pt;color:var(--mid);margin:0;line-height:1.55;">Check-in within 250m of HQ. Distance is recorded permanently. If GPS fails after 5 attempts, a bypass is offered and flagged in the log.</p>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-header"><div class="dot" style="background:var(--amber);"></div>Late Badge</div>
+          <div class="block-body" style="padding:12px 16px;">
+            <p style="font-size:8.5pt;color:var(--mid);margin:0;line-height:1.55;">Shown when Phase 1 is more than 1 hour after shift start. Reservist is prompted to provide a written reason, which you can see in the Log.</p>
+          </div>
+        </div>
+        <div class="block">
+          <div class="block-header"><div class="dot" style="background:var(--red);"></div>No Clock-out</div>
+          <div class="block-body" style="padding:12px 16px;">
+            <p style="font-size:8.5pt;color:var(--mid);margin:0;line-height:1.55;">Marked Present but Phase 4 is missing. Must be manually entered before payroll. Also affects meal allowance eligibility.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="page-footer">
+    <div>SPF G Division | ReservistGO Admin Guide</div>
+    <div class="pg">3</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════
+     PAGE 4:PEOPLE TAB + WORKFLOWS
+════════════════════════════════════════════════ -->
+<div class="page" style="padding-bottom:48px;">
+  <div class="page-header">
+    <div class="page-header-title">People Tab & Key Workflows</div>
+    <div class="page-header-logo">ReservistGO</div>
+  </div>
+  <div class="inner" style="padding-bottom:60px;">
+
+    <div class="section">
+      <h2>People Tab</h2>
+      <p style="font-size:9.5pt;color:var(--mid);margin:6px 0 14px;">The People tab has three sub-tabs. A red dot on the People nav icon means there are pending signups or leave requests awaiting your action.</p>
+
+      <div class="two-col mb16">
+        <div>
+          <div class="block">
+            <div class="block-header"><div class="dot" style="background:var(--red);"></div>Requests</div>
+            <div class="block-body" style="padding:12px 16px;">
+              <ul class="feature-list" style="margin:0;">
+                <li><strong>Pending Signups</strong>:New and Returning enrollments waiting for approval</li>
+                <li><strong>Pending Leave Requests</strong>:MC, Personal Leave, and Other leave types</li>
+                <li>Approve or decline individually; bulk-select for batch actions</li>
+                <li>Rejection requires a written reason (shown to the reservist)</li>
+                <li>Search and filter by type within each section</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="block">
+            <div class="block-header"><div class="dot" style="background:var(--blue);"></div>Roster</div>
+            <div class="block-body" style="padding:12px 16px;">
+              <ul class="feature-list" style="margin:0;">
+                <li><strong>Add Personnel</strong>:single or bulk add with a pasted list</li>
+                <li><strong>Re-enroll</strong>:reactivate a previously removed member</li>
+                <li><strong>View history</strong>:full attendance across all cycles</li>
+                <li><strong>Reset password</strong>:set a temporary password without DB access</li>
+                <li><strong>Remove</strong>:deactivate and remove from current cycle</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="block mb16">
+        <div class="block-header"><div class="dot" style="background:var(--amber);"></div>Team (Admin only)</div>
+        <div class="block-body" style="padding:12px 16px;">
+          <div class="two-col">
+            <ul class="feature-list" style="margin:0;">
+              <li>View all active supervisors in your department</li>
+              <li><strong>Add Supervisor</strong>:create new admin account (Master only)</li>
+            </ul>
+            <ul class="feature-list" style="margin:0;">
+              <li><strong>Remove Supervisor</strong>:demote back to reservist (Master only)</li>
+              <li><strong>Promote Reservist</strong>:elevate existing member to admin (Master only)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Workflow 1:Approving a New Signup</div>
+      <div class="two-col">
+        <div>
+          <div class="workflow-title">
+            Self-signup (Reservist-initiated)
+            <span class="badge badge-blue">Most common</span>
+          </div>
+          <ol class="steps">
+            <li>Reservist opens the app and taps <strong>Sign up</strong></li>
+            <li>They enter name, phone number, password, and select department</li>
+            <li>You see their request in <strong>People &gt; Requests &gt; Pending Signups</strong> with a <strong>New</strong> badge</li>
+            <li>Tap <strong>Approve</strong>. They immediately appear in the Roster and can log in</li>
+          </ol>
+        </div>
+        <div>
+          <div class="workflow-title">
+            Returning reservist
+            <span class="badge badge-gray">Re-enrollment</span>
+          </div>
+          <ol class="steps">
+            <li>Reservist logs in with their existing number and password</li>
+            <li>System detects their deactivated account and auto-submits a re-enrollment</li>
+            <li>You see their request with a <strong>Returning</strong> badge</li>
+            <li>Tap <strong>Approve</strong>. Their account is reactivated and they join the current cycle</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Workflow 2:Handling a Leave Request</div>
+      <div class="two-col">
+        <div>
+          <div class="workflow-title">Approving leave</div>
+          <ol class="steps">
+            <li>Reservist submits a leave request (MC, Personal, or Other) from their app</li>
+            <li>Go to <strong>People &gt; Requests &gt; Pending Leave Requests</strong></li>
+            <li>Review: name, date, type, and any reason provided</li>
+            <li>Tap <strong>Approve</strong>. Attendance is updated automatically for that date</li>
+          </ol>
+          <div class="info-green info-box mt8" style="margin-bottom:0;">
+            <div class="icon">✅</div>
+            <p>Approved MC marks the reservist's status as <strong>On MC</strong>. They cannot check in for that date.</p>
+          </div>
+        </div>
+        <div>
+          <div class="workflow-title">Declining leave</div>
+          <ol class="steps">
+            <li>Tap <strong>Decline</strong> on the request</li>
+            <li>Enter a written reason. This is <strong>mandatory</strong> and will be shown to the reservist</li>
+            <li>Confirm. The request is marked Declined in their history</li>
+            <li>They may resubmit a new request if needed</li>
+          </ol>
+          <div class="info-amber info-box mt8" style="margin-bottom:0;">
+            <div class="icon">⚠️</div>
+            <p>For <strong>bulk decline</strong>, the same reason applies to all selected requests. Make sure it's appropriate for everyone selected.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Workflow 3:Adding Personnel Directly</div>
+      <div class="two-col">
+        <div>
+          <div class="workflow-title">Single add</div>
+          <ol class="steps">
+            <li>Go to <strong>People &gt; Roster</strong>, tap <strong>Add Personnel</strong></li>
+            <li>Enter name and phone number</li>
+            <li>If the person was previously removed, search for them first. Reusing their account avoids duplicates</li>
+            <li>Confirm. They appear in the roster immediately</li>
+          </ol>
+        </div>
+        <div>
+          <div class="workflow-title">Bulk add <span class="badge badge-blue">Efficient for large groups</span></div>
+          <ol class="steps">
+            <li>Tap the <strong>Bulk</strong> button in People &gt; Roster</li>
+            <li>Paste a list of names and phone numbers (one per line)</li>
+            <li>Review the parsed preview</li>
+            <li>Enter a default password (min. 6 characters) for all accounts</li>
+            <li>Confirm. All are added at once</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+
+  </div>
+  <div class="page-footer">
+    <div>SPF G Division | ReservistGO Admin Guide</div>
+    <div class="pg">4</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════
+     PAGE 5:CYCLE MANAGEMENT + MEAL + GLOSSARY
+════════════════════════════════════════════════ -->
+<div class="page" style="padding-bottom:48px;">
+  <div class="page-header">
+    <div class="page-header-title">Cycles, Meal Allowance & Glossary</div>
+    <div class="page-header-logo">ReservistGO</div>
+  </div>
+  <div class="inner" style="padding-bottom:60px;">
+
+    <div class="section">
+      <h2>Managing Cycles</h2>
+      <p style="font-size:9.5pt;color:var(--mid);margin:6px 0 14px;">Cycles are your primary reporting container. The app auto-creates upcoming cycles, but you control their settings.</p>
+
+      <div class="two-col mb12">
+        <div>
+          <h3 class="mb8">Cycle Settings</h3>
+          <ul class="feature-list">
+            <li><strong>Label</strong>:editable inline (e.g. "Cycle 18/2026")</li>
+            <li><strong>Start / End / Dekit dates</strong>:set the reporting window</li>
+            <li><strong>Live toggle</strong>:marks this cycle as the active one</li>
+            <li><strong>Meal allowance</strong>:on/off toggle per cycle</li>
+            <li><strong>Cycle notice</strong>:broadcasts a message to all reservists in check-in view</li>
+            <li><strong>No-report days</strong>:toggle individual days or paste a bulk list</li>
+          </ul>
+        </div>
+        <div>
+          <h3 class="mb8">No-Report Days</h3>
+          <ul class="feature-list">
+            <li>Weekends are automatically excluded</li>
+            <li>Toggle any weekday as no-report (public holidays, stand-downs)</li>
+            <li>No-report days show as <strong>amber</strong> on the reservist's calendar</li>
+            <li>Reservists do not need to check in on no-report days</li>
+            <li>Bulk add by pasting a list of dates</li>
+          </ul>
+          <div class="info-amber info-box mt8" style="margin-bottom:0;">
+            <div class="icon">⚠️</div>
+            <p>The <strong>dekit date</strong> is automatically a no-report day. Reservists attend only to return equipment.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Meal Allowance</div>
+      <div class="two-col">
+        <div>
+          <ul class="feature-list">
+            <li>Enable/disable per cycle via the toggle in cycle settings</li>
+            <li>Reservist must complete <strong>Phase 1</strong> (check-in) and <strong>Phase 4</strong> (end of shift)</li>
+            <li>Minimum <strong>6 hours</strong> of work time required for eligibility</li>
+            <li>A work timer is shown on the reservist's check-in screen when meal is active</li>
+          </ul>
+        </div>
+        <div>
+          <ul class="feature-list">
+            <li>Meal eligibility appears as a <strong>Meal</strong> column in the Excel export</li>
+            <li>The printed PDF report includes a <strong>Meal Claims summary</strong></li>
+            <li>Missing Phase 4 (no clock-out) makes a reservist ineligible for that day</li>
+            <li>Admin can manually enter a missing Phase 4 time in the Log tab</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Glossary</div>
+      <div class="block" style="margin-bottom:0;">
+        <table>
+          <thead>
+            <tr>
+              <th>Term</th>
+              <th>Meaning</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Cycle</td><td>A 2-week reporting period (Tue to Mon). One cycle is live at a time. Auto-generated 8 cycles ahead.</td></tr>
+            <tr><td>Dekit Date</td><td>Last day of a cycle when reservists return equipment. Automatically a no-report day.</td></tr>
+            <tr><td>Live Cycle</td><td>The currently active cycle. Only one cycle can be live. Changing the live cycle changes what reservists see.</td></tr>
+            <tr><td>No-Report Day</td><td>A weekday when reservists are not required to attend (public holiday, stand-down). Set per cycle.</td></tr>
+            <tr><td>Pending</td><td>Attendance status for a reservist who has not checked in yet and has no status set.</td></tr>
+            <tr><td>Phases 1 to 4</td><td>The four check-in milestones: Check In → Lunch Out → Return → End of Shift.</td></tr>
+            <tr><td>New (signup)</td><td>A first-time signup request from someone with no existing account.</td></tr>
+            <tr><td>Returning (signup)</td><td>A re-enrollment request from someone whose account was previously deactivated.</td></tr>
+            <tr><td>GPS Bypass</td><td>When a reservist cannot get GPS signal after 5 attempts and checks in without location. Flagged in Log.</td></tr>
+            <tr><td>Late Badge</td><td>Shown when Phase 1 is more than 1 hour after shift start. Reservist must provide a reason.</td></tr>
+            <tr><td>No Clock-out</td><td>Present status recorded but Phase 4 time is missing. Must be filled in before payroll processing.</td></tr>
+            <tr><td>Welfare Note</td><td>A private daily note added by admin for a reservist. Visible to the reservist in their check-in view.</td></tr>
+            <tr><td>Low Attendance</td><td>Attendance rate below 75%. Flagged with an amber indicator on roster and personnel cards.</td></tr>
+            <tr><td>Meal Allowance</td><td>Optional daily allowance when enabled. Requires ≥6 hours of recorded work (Phase 1 to Phase 4).</td></tr>
+            <tr><td>Edit Log</td><td>Permanent audit trail of all admin changes to time records:includes editor name and timestamp.</td></tr>
+            <tr><td>Batch / Bulk Add</td><td>Adding multiple personnel at once by pasting a list of names and contacts.</td></tr>
+            <tr><td>Master</td><td>Superadmin role. Can switch departments and manage supervisor accounts.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+  <div class="page-footer">
+    <div>SPF G Division | ReservistGO Admin Guide</div>
+    <div class="pg">5</div>
+  </div>
+</div>
+
+
+<!-- ════════════════════════════════════════════════
+     PAGE 6:TIPS & QUICK REFERENCE
+════════════════════════════════════════════════ -->
+<div class="page" style="padding-bottom:48px;">
+  <div class="page-header">
+    <div class="page-header-title">Tips & Quick Reference</div>
+    <div class="page-header-logo">ReservistGO</div>
+  </div>
+  <div class="inner" style="padding-bottom:60px;">
+
+    <div class="section">
+      <h2>Tips for New Admins</h2>
+      <p style="font-size:9.5pt;color:var(--mid);margin:6px 0 14px;">These habits will help you stay on top of daily operations from the start.</p>
+
+      <div class="tips-grid mb16">
+        <div class="tip-card">
+          <h4>🔴 Check the red dots daily</h4>
+          <p>Red dots on the People and Log nav icons mean something needs your attention: pending signups, leave requests, or unreviewed attendance. Clear these before end of day.</p>
+        </div>
+        <div class="tip-card">
+          <h4>⏰ Run Mark All Absent before midnight</h4>
+          <p>Anyone still Pending at midnight is auto-marked Absent. Use <strong>Mark All Absent</strong> in the Roster tab at end of day to do this intentionally and close out the day cleanly.</p>
+        </div>
+        <div class="tip-card">
+          <h4>📋 Fix No Clock-out flags before export</h4>
+          <p>Missing Phase 4 times affect meal allowance calculations. Always review the Log tab for "No clock-out" flags before generating your Excel export for payroll.</p>
+        </div>
+        <div class="tip-card">
+          <h4>📝 Use welfare notes proactively</h4>
+          <p>If someone has a known reason for absence (medical, family), log a welfare note. It appears in their check-in view, making it visible to them and useful as a record for you.</p>
+        </div>
+        <div class="tip-card">
+          <h4>🔁 Re-enroll, don't re-add</h4>
+          <p>When adding a returning reservist, search for their name or number first. Selecting an existing inactive account reactivates it cleanly without creating a duplicate.</p>
+        </div>
+        <div class="tip-card">
+          <h4>✉️ Decline with clear reasons</h4>
+          <p>Rejection reasons are shown directly to the reservist. Write them as if you're addressing the person: clear, professional, and actionable (e.g. "Please resubmit with supporting MC document").</p>
+        </div>
+        <div class="tip-card">
+          <h4>📊 Export at end of cycle</h4>
+          <p>The Excel export contains the full attendance matrix with meal eligibility colour-coded. Export this at the end of every cycle and keep a copy for your records.</p>
+        </div>
+        <div class="tip-card">
+          <h4>🔐 Reset passwords without IT</h4>
+          <p>If a reservist is locked out, go to People &gt; Roster, find their card, and use <strong>Reset Password</strong>. Give them a temporary password and ask them to change it after logging in.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Daily Admin Checklist</div>
+      <div class="two-col">
+        <div>
+          <div class="block">
+            <div class="block-header" style="background:var(--green-bg);border-color:#b4e0c8;color:var(--green);">Morning</div>
+            <div class="block-body" style="padding:12px 16px;">
+              <ul class="feature-list" style="margin:0;">
+                <li>Check People tab for overnight signups or leave requests</li>
+                <li>Approve or action pending requests before parade</li>
+                <li>Monitor Roster tab as reservists begin checking in</li>
+                <li>Note any "Late" flags and follow up if needed</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="block">
+            <div class="block-header" style="background:var(--blue-bg);border-color:#c5d3f5;color:var(--blue);">End of Day</div>
+            <div class="block-body" style="padding:12px 16px;">
+              <ul class="feature-list" style="margin:0;">
+                <li>Run <strong>Mark All Absent</strong> for anyone still Pending</li>
+                <li>Review Log tab for "No clock-out" flags and fill in Phase 4 times</li>
+                <li>Send WhatsApp attendance summary if required</li>
+                <li>Add welfare notes for any known absences or concerns</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-label">Quick Reference:Where to Find Things</div>
+      <div class="block" style="margin-bottom:0;">
+        <table>
+          <thead>
+            <tr><th>Task</th><th>Where to go</th></tr>
+          </thead>
+          <tbody>
+            <tr><td>Approve a new signup</td><td>People tab → Requests → Pending Signups</td></tr>
+            <tr><td>Approve / decline leave</td><td>People tab → Requests → Pending Leave Requests</td></tr>
+            <tr><td>Mark someone Present / MC / Absent</td><td>Roster tab → find person → tap status button</td></tr>
+            <tr><td>Edit a check-in time</td><td>Log tab → find person → tap the phase time</td></tr>
+            <tr><td>Add a welfare note</td><td>Roster tab or Log tab → person card → Note</td></tr>
+            <tr><td>Add a new reservist</td><td>People tab → Roster sub-tab → Add Personnel</td></tr>
+            <tr><td>Remove a reservist from cycle</td><td>People tab → Roster sub-tab → person card → Remove</td></tr>
+            <tr><td>Reset someone's password</td><td>People tab → Roster sub-tab → person card → Reset PW</td></tr>
+            <tr><td>View someone's full history</td><td>People tab → Roster sub-tab → person card → History</td></tr>
+            <tr><td>Export attendance to Excel</td><td>Log tab → Export button</td></tr>
+            <tr><td>Send WhatsApp attendance summary</td><td>Log tab → WhatsApp button</td></tr>
+            <tr><td>Set no-report day / public holiday</td><td>Overview tab → Cycle settings → No-report days</td></tr>
+            <tr><td>Post a notice to all reservists</td><td>Overview tab → Cycle settings → Cycle Notice</td></tr>
+            <tr><td>Add a new supervisor (Master only)</td><td>People tab → Team sub-tab → Add Supervisor</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+  <div class="page-footer">
+    <div>SPF G Division | ReservistGO Admin Guide | For internal use only</div>
+    <div class="pg">6</div>
+  </div>
+</div>
+
+</body>
+</html>
