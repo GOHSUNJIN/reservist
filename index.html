@@ -1566,7 +1566,7 @@
                         </sc-if>
                         <sc-if value="{{ row.showLateReason }}" hint-placeholder-val="">
                           <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;background:#fdecea;color:#c0392b;white-space:nowrap;">Late</span>
-                          <span style="font-size:10.5px;color:#c0392b;font-weight:500;">{{ row.lateReason }}</span>
+                          <span style="font-size:10.5px;color:#c0392b;font-weight:500;display:inline-block;max-width:160px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;">{{ row.lateReason }}</span>
                         </sc-if>
                         <sc-if value="{{ row.showNoGps }}" hint-placeholder-val="">
                           <span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:#eef0f4;color:#5c6678;white-space:nowrap;">No GPS</span>
