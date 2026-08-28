@@ -20,7 +20,7 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 
 ### For Reservists
 
-- **Department-based check-in flow**: Ops Security reservists log four phases (check in, lunch out, return from lunch, end of shift). Crime Alert (CAS) reservists use a simplified two-phase flow: check in and check out only. Each phase is timestamped to the minute.
+- **Department-based check-in flow**: Ops Security reservists log four phases (check in, lunch out, return from lunch, end of shift). Crime Prevention Office (CPO) reservists use a simplified two-phase flow: check in and check out only. Each phase is timestamped to the minute.
 - **GPS verification**: Tapping a check-in phase shows a "Locate me" button first. After GPS confirms you are within range of HQ, the button swaps to "Check in to work" (or the phase-specific label). Distance from HQ is recorded. The radius is configurable (default: 250 m).
 - **GPS bypass**: If GPS cannot detect your location at all (permission denied, signal unavailable, or timeout), a bypass option appears immediately so you can check in without GPS. The bypass is not offered when GPS works but you are simply out of range; in that case you must move closer to HQ and try again. Bypassed records are permanently flagged in the log.
 - **Leave and MC requests**: Submit requests digitally through the app. They go directly to the supervisor for approval with no phone calls or messages needed. Only one leave type is supported per day: MC (sick leave) or Personal Leave (other absences).
@@ -34,7 +34,7 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 - **Upcoming no-report days**: Lists all remaining no-report days in the current cycle (public holidays and stand-downs) so reservists can plan ahead.
 - **Cycle notice board**: If the supervisor has posted a notice for the current cycle, it appears as a banner on the check-in screen for everyone in that cycle.
 - **Offline check-in**: If connectivity is lost during check-in, the action is saved on the device and submitted automatically once the connection is restored.
-- **Department selection at signup**: Reservists choose their department (Ops Security or Crime Alert/CAS) during signup. The intake cycle shown on the form updates to reflect whichever department is selected.
+- **Department selection at signup**: Reservists choose their department (Ops Security or Crime Prevention Office/CPO) during signup. The intake cycle shown on the form updates to reflect whichever department is selected.
 - **Returning reservist re-enrollment**: When a reservist from a previous cycle logs in after their account was deactivated, the app automatically submits a re-enrollment request to the supervisor. No manual coordination required.
 - **Logout confirmation**: Tapping Log Out shows a confirmation step before the session is ended, preventing accidental logouts.
 - **Session expiry warning**: A banner appears at 55 minutes into the session with a one-tap option to extend it before the session expires at 60 minutes.
@@ -125,7 +125,7 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 
 All supervisor capabilities, plus:
 
-- **Department switcher**: Switch the entire admin view between departments (Ops Security and Crime Alert/CAS) using a dropdown in the header. Each department's last-selected cycle is remembered independently, so switching back restores the previous context.
+- **Department switcher**: Switch the entire admin view between departments (Ops Security and Crime Prevention Office/CPO) using a dropdown in the header. Each department's last-selected cycle is remembered independently, so switching back restores the previous context.
 - **Cross-department isolation**: All data (personnel, cycles, attendance, leave requests, signup requests, and realtime updates) is fully scoped to the active department. Switching departments clears the current view and reloads fresh data for the selected department.
 - **Create supervisor accounts**: Add new admin accounts directly within the app.
 - **Remove supervisors**: Demote any admin back to reservist status. Demoted supervisors return to the reservist pool automatically.
@@ -318,7 +318,7 @@ All data is stored in a structured cloud database (PostgreSQL), with six tables:
 | Contact | Phone number (used as login) |
 | Shift | Office (0900 to 1800) |
 | Role | Reservist, Admin, or Master |
-| Department | Which department the person belongs to (ops_security or cas) |
+| Department | Which department the person belongs to (ops_security or cpo) |
 | Cycle | Which reporting cycle they belong to |
 | Active | Whether the account is currently active |
 | Notes | Supervisor notes on the person |
@@ -330,7 +330,7 @@ All data is stored in a structured cloud database (PostgreSQL), with six tables:
 | Field | What it stores |
 |---|---|
 | Label | e.g. "Cycle 15/2026" |
-| Department | Which department this cycle belongs to (ops_security or cas) |
+| Department | Which department this cycle belongs to (ops_security or cpo) |
 | Start date | First reporting day (Tuesday) |
 | End date | Last reporting day (Monday, 13 days later) |
 | Dekit date | Equipment return day (Wednesday after end) |
@@ -744,7 +744,7 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Opened in WhatsApp or Instagram in-app browser: banner shown with instructions to open in Chrome or Safari
 - [ ] Offline check-in: disable network, tap check-in, pending badge appears; restore network, record submits automatically
 
-#### Check-in (CAS - 2 phases)
+#### Check-in (CPO - 2 phases)
 - [ ] Phase 1 (check in): GPS verify, records on tap
 - [ ] Phase 2 (check out): records timestamp
 - [ ] No phases 3 or 4 visible
@@ -922,8 +922,8 @@ All admin checks above apply. Run them for both departments. Then verify the fol
 
 ## Known Limitations
 
-- **CAS Info tab content is a placeholder.** The Info tab for Crime Alert (CAS) reservists currently shows placeholder text. The attire, location, and operational details for CAS have not yet been configured in the codebase.
+- **CPO Info tab content is a placeholder.** The Info tab for Crime Prevention Office (CPO) reservists currently shows placeholder text. The attire, location, and operational details for CPO have not yet been configured in the codebase.
 - **Phase windows are hardcoded.** The check-in phase times (0900, 1200, 1400, 1800) are fixed constants and cannot be changed from within the app. Changing them requires a code update and redeployment. This is tracked as item 1 in the Planned Enhancements section.
-- **Departments cannot be added or removed from within the app.** The department list (Ops Security and CAS) is defined in the database schema as an enum. Adding a new department requires a schema migration. This is tracked as item 6 in the Planned Enhancements section.
+- **Departments cannot be added or removed from within the app.** The department list (Ops Security and CPO) is defined in the database schema as an enum. Adding a new department requires a schema migration. This is tracked as item 6 in the Planned Enhancements section.
 - **No push notifications.** Supervisors must have the app open to see new leave requests or signup requests. There is no background alert. This is tracked as item 9 in the Planned Enhancements section.
 - **RLS batch-mate visibility requires a manual SQL step.** If the Supabase project is ever recreated from scratch, the `_auth_batch_id()` function and the updated `personnel_select` policy in `scripts/sql/rls_policies.sql` must be re-run in the Supabase SQL editor for the YOUR TEAM section to appear correctly for reservists.
