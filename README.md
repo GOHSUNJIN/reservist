@@ -25,11 +25,11 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 - **GPS bypass**: If GPS cannot detect your location at all (permission denied, signal unavailable, or timeout), a bypass option appears immediately so you can check in without GPS. The bypass is not offered when GPS works but you are simply out of range; in that case you must move closer to HQ and try again. Bypassed records are permanently flagged in the log.
 - **Leave and MC requests**: Submit requests digitally through the app. They go directly to the supervisor for approval with no phone calls or messages needed. Only one leave type is supported per day: MC (sick leave) or Personal Leave (other absences).
 - **Cancel pending requests**: A leave or MC request can be withdrawn by the reservist before the supervisor has acted on it, from both the check-in screen and the Requests history tab.
-- **Request history**: The Requests tab shows the full history of submitted leave and MC requests, each with a coloured left bar, a type badge (MC in amber, Personal Leave in red), and a status badge (Submitted, Approved, Declined, or Withdrawn). Records are deduplicated by date: if multiple requests exist for the same date, only the most relevant one is shown (pending takes priority over approved, approved over declined). Filter pills let you narrow the list by status. Pending requests can be withdrawn inline.
+- **Request history**: The Requests tab shows the full history of submitted leave and MC requests, each with a coloured left bar, a type badge (MC and Personal Leave both in amber), and a status badge (Submitted, Approved, Declined, or Withdrawn). Records are deduplicated by date: if multiple requests exist for the same date, only the most relevant one is shown (pending takes priority over approved, approved over declined). Filter pills let you narrow the list by status. Pending requests can be withdrawn inline.
 - **Info and Attendance tabs**: The Info tab shows shift details, meal allowance information, leave request history, and a team directory listing batchmates with contact links. The Attendance tab shows the personal attendance calendar and history.
 - **Attendance history**: View your full record for the cycle, including total days present, MC, absent, and your attendance rate.
 - **Copyable contact numbers**: Tap any batchmate's phone number in the team directory to copy it to the clipboard.
-- **Calendar coloring**: The attendance calendar uses colour to distinguish day types at a glance. Present days are green. MC days are amber with a solid border. Approved personal leave days are red with a solid border. Pending leave or MC requests appear with a lighter tint and a dashed border. Days with a missing clock-out are orange with a dashed border. No-report days are slate blue. Absent days are red.
+- **Calendar coloring**: The attendance calendar uses colour to distinguish day types at a glance. Present days are green. MC and approved personal leave days are amber with a solid border. Pending MC or personal leave requests appear with a lighter amber tint and a dashed border. Days with a missing clock-out are orange with a dashed border. No-report days are slate blue. Absent days are red.
 - **Phase reminder banner**: A banner appears automatically when a check-in phase window is open and you have not yet logged it. It disappears once the phase is recorded.
 - **Upcoming no-report days**: Lists all remaining no-report days in the current cycle (public holidays and stand-downs) so reservists can plan ahead.
 - **Cycle notice board**: If the supervisor has posted a notice for the current cycle, it appears as a banner on the check-in screen for everyone in that cycle.
@@ -71,7 +71,7 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 
 **Requests and Leave:**
 - **Unified requests inbox**: All pending signup requests, MC requests, and personal leave requests appear in one place. Each signup is labelled New or Returning so the supervisor knows at a glance whether they are onboarding a first-timer or re-enrolling someone from a previous cycle.
-- **Leave type badges**: Pending leave requests display colour-coded type badges: MC in amber, Personal Leave in red. The same colours are used consistently across the admin view and the reservist's own request history.
+- **Leave type badges**: Pending leave requests display amber type badges for both MC and Personal Leave. The same colour is used consistently across the admin view and the reservist's own request history.
 - **Submission timestamps**: Pending requests and signups show the exact submission time (HH:MM) rather than a relative label. The time resets daily so context is always accurate.
 - **Signup search and filters**: The Pending Signups panel has a collapsible search bar with filter pills (All, New, Returning). A red dot on the search icon indicates when a filter is active.
 - **Leave search and filters**: The Pending Requests panel has the same collapsible search bar with filter pills (All, MC, Personal Leave).
@@ -751,7 +751,7 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 
 #### Leave and MC requests
 - [ ] Submit MC request for today or a future date - appears in admin Requests tab with amber badge
-- [ ] Submit Personal Leave request - appears in admin Requests tab with red badge
+- [ ] Submit Personal Leave request - appears in admin Requests tab with amber badge
 - [ ] Try to submit a second request for a date already covered by a pending request - error shown
 - [ ] Try to submit a request for a past date - error shown
 - [ ] Try to submit a request for a weekend or public holiday - error shown
@@ -759,7 +759,7 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Withdraw a pending request from the check-in screen - request removed
 - [ ] Withdraw a pending request from the Requests history (Info tab) - status changes to Withdrawn
 - [ ] Multiple requests for the same date: only one entry shown in history (pending shown over approved, approved over declined)
-- [ ] View Requests history: type badge (MC amber, Personal Leave red) and status badge (Submitted, Approved, Declined, Withdrawn) shown correctly
+- [ ] View Requests history: type badge (MC and Personal Leave both amber) and status badge (Submitted, Approved, Declined, Withdrawn) shown correctly
 - [ ] View a declined request: supervisor's decline reason displayed
 - [ ] Approved MC for today: check-in is blocked with a message explaining leave is pending
 - [ ] After admin voids an approved leave (marks present): reservist can re-submit a new request for that date
@@ -769,8 +769,8 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] MC days shown in amber with solid border
 - [ ] Approved MC request for a future date shown in amber with solid border
 - [ ] Pending (submitted) MC request for a future date shown with dashed amber border
-- [ ] Approved Personal Leave for a future date shown in red with solid border
-- [ ] Pending Personal Leave request shown with dashed red border
+- [ ] Approved Personal Leave for a future date shown in amber with solid border
+- [ ] Pending Personal Leave request shown with dashed amber border
 - [ ] No-report days shown in slate blue
 - [ ] Absent days shown in red
 - [ ] Days with missing clock-out shown in orange with dashed border
@@ -846,7 +846,7 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Bulk approve selected signups: all approved in one action
 
 #### Requests tab (Leave)
-- [ ] Pending leave requests listed with avatar, name, contact, type badge (MC amber, Personal Leave red), time
+- [ ] Pending leave requests listed with avatar, name, contact, type badge (MC and Personal Leave both amber), time
 - [ ] Approve a request: removed from list, reservist's status updates if for today
 - [ ] Decline a request: enter reason, confirm - request shows declined badge and reason on reservist side
 - [ ] Bulk approve multiple requests: all approved, toast confirms count
