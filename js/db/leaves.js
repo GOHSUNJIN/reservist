@@ -81,6 +81,14 @@ const DB_Leaves = {
     return data || [];
   },
 
+  async cancelAllPendingByPerson(personnelId) {
+    const { error } = await _db.from('leave_requests')
+      .update({ status: 'cancelled' })
+      .eq('personnel_id', personnelId)
+      .eq('status', 'pending');
+    return { error };
+  },
+
   async deleteOld(cutoffDate) {
     const { error } = await _db.from('leave_requests').delete().lt('date', cutoffDate);
     return { error };

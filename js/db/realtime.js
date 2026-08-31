@@ -20,6 +20,13 @@ const DB_Realtime = {
       .subscribe();
   },
 
+  subscribePersonnelStatus(personnelId, onUpdate) {
+    return _db.channel('my-personnel-' + personnelId)
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'personnel', filter: `id=eq.${personnelId}` },
+        payload => { if (payload.new) onUpdate(payload.new); })
+      .subscribe();
+  },
+
   subscribeAdminRequests(dept, onNew) {
     return _db.channel('admin-new-requests-' + (dept||'all'))
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'leave_requests' },

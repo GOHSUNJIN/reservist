@@ -45,9 +45,13 @@ const InitHandlers = {
       const deptBatches = await DB.batches.list(dept).catch(()=>[]);
       const liveBatch = deptBatches.find(b=>b.is_live);
       if(liveBatch){
-        await DB.signupRequests.create({authId:user.id, name:me.name, contact:me.contact, shift:me.shift||'OFFICE', batchId:liveBatch.id, department:dept}).catch(()=>{});
+        const {error:reqErr}=await DB.signupRequests.create({authId:user.id, name:me.name, contact:me.contact, shift:me.shift||'OFFICE', batchId:liveBatch.id, department:dept}).catch(()=>({error:true}));
         await DB.auth.logout();
-        this.setState({authed:false,loading:false,authError:'Your account is inactive for this cycle. A re-enrollment request has been sent to your supervisor. You will be able to log in once they approve it.'});
+        if(reqErr){
+          this.setState({authed:false,loading:false,authError:'Your account is inactive. We could not send a re-enrollment request automatically. Please contact your supervisor directly.'});
+        } else {
+          this.setState({authed:false,loading:false,authError:'Your account is inactive for this cycle. A re-enrollment request has been sent to your supervisor. You will be able to log in once they approve it.'});
+        }
       } else {
         await DB.auth.logout();
         this.setState({authed:false,loading:false,authError:'Your account is inactive and there is no active cycle to enroll into. Please contact your supervisor.'});
@@ -95,6 +99,7 @@ const InitHandlers = {
       const myBatch = batches.find(b=>b.id===me.batch_id);
       if(myBatch?.dekit_date && today >= myBatch.dekit_date){
         const {error:deactivateErr} = await DB.personnel.deactivate(me.id).catch(()=>({error:true}));
+        DB.leaves.cancelAllPendingByPerson(me.id).catch(()=>{});
         await DB.auth.logout();
         if(deactivateErr){
           this.setState({authed:false,role:null,authMode:'login',loading:false,authError:'Your cycle has ended but we could not fully deactivate your account. Please contact your supervisor.'});
@@ -145,6 +150,12 @@ const InitHandlers = {
       DB.leaves.myPending(me.id).then(reqs=>{this.setState({myPendingRequests:reqs});}).catch(()=>{});
       DB.leaves.myHistory(me.id).then(hist=>{this.setState({myLeaveHistory:hist,myLeaveHistoryLoaded:true});}).catch(()=>{this.setState({myLeaveHistoryLoaded:true});});
       setTimeout(()=>this.loadRosterAvatars(), 0);
+      this._myPersonnelChannel = DB.realtime.subscribePersonnelStatus(me.id, (row) => {
+        if(row.is_active === false){
+          this._toast('Your account has been deactivated. Please contact your supervisor.','error');
+          setTimeout(()=>this.logout(), 2500);
+        }
+      });
       this._myAttendanceChannel = DB.realtime.subscribeMyAttendance(me.id, (row) => {
         const todayKey = Utils.dateKey(this.baseDate());
         if(row.date === todayKey){
@@ -221,6 +232,17 @@ const InitHandlers = {
       this._subscribeRealtime(newDate);
       this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0, attendance:att, attendanceDate:newDate, noReportDays:nrd, viewOffset:0, attendanceCache:{}, approvedLeavesCache:{[newDate]:_ndAlMap}, confirmMarkAllAbsent:false, lateAlertDismissedCount:0});
     } else if(this.state.role==='reservist'){
+      const myBatch=this.state.batches.find(b=>b.id===this.state.me?.batch_id);
+      if(myBatch?.dekit_date && newDate>=myBatch.dekit_date){
+        const {error:deactivateErr}=await DB.personnel.deactivate(this.state.me.id).catch(()=>({error:true}));
+        await DB.auth.logout();
+        if(deactivateErr){
+          this.setState({authed:false,role:null,authMode:'login',loading:false,authError:'Your cycle has ended but we could not fully deactivate your account. Please contact your supervisor.'});
+        } else {
+          this.setState({authed:false,role:null,authMode:'login',loading:false,accountDeleted:true});
+        }
+        return;
+      }
       const [att, hist] = await Promise.all([
         DB.attendance.getForDate(newDate).catch(()=>({})),
         DB.attendance.getHistory(this.state.currentUserId).catch(()=>[]),
@@ -344,6 +366,7 @@ const InitHandlers = {
   // Tears down all active Supabase realtime channels.
   _unsubscribeRealtime: function() {
     DB.realtime.unsubscribe(this.state.realtimeChannel);
+    if(this._myPersonnelChannel){ DB.realtime.unsubscribe(this._myPersonnelChannel); this._myPersonnelChannel = null; }
     if(this._myLeaveChannel){ DB.realtime.unsubscribe(this._myLeaveChannel); this._myLeaveChannel = null; }
     if(this._myAttendanceChannel){ DB.realtime.unsubscribe(this._myAttendanceChannel); this._myAttendanceChannel = null; }
     if(this._adminRequestsChannel){ DB.realtime.unsubscribe(this._adminRequestsChannel); this._adminRequestsChannel = null; }

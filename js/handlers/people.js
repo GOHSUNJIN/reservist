@@ -71,6 +71,7 @@ const PeopleHandlers = {
     if(!demo){
       const {error}=await DB.personnel.deactivate(confirmDeactivateId).catch(()=>({error:true}));
       if(error){this._toast('Could not remove person. Check your connection.','error');this.setState({confirmDeactivateId:null});return;}
+      DB.leaves.cancelAllPendingByPerson(confirmDeactivateId).catch(()=>{});
     }
     const batchId=batches[activeBatchIdx||0]?.id;
     this.setState(s=>{
