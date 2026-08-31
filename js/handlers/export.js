@@ -284,7 +284,7 @@ ${colsXml}
     a.href=url; a.download=filename;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    this._toast('Excel file saved to Downloads.');
+    this._toast('Saved to Downloads.');
   },
 
   exportPrint: async function() {
