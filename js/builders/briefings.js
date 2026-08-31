@@ -104,6 +104,8 @@ const BriefingsBuilders = {
             rejectionReasonText:r.rejection_reason||'No reason provided.',
             showReviewedByApproved:!!(r.reviewed_by&&r.status==='approved'),
             reviewedBy:r.reviewed_by||'',
+            showApprovalNote:!!(r.approval_note&&r.status==='approved'),
+            approvalNoteText:r.approval_note||'',
             canCancel:r.status==='pending',
             onCancel:this.cancelLeaveRequest(r.id),
           })),
