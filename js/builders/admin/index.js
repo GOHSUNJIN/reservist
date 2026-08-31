@@ -15,9 +15,10 @@ const AdminBuilders = {
     const liveBatch=batches.find(b=>b.is_live)||activeBatch;
     const _rmap=p=>{const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent'};return Utils.meta(r.status).label;};
     const present=activeMembers.filter(p=>_rmap(p)==='Present').length;
-    const mc=activeMembers.filter(p=>_rmap(p)==='On MC').length;
+    const _alView=s.approvedLeavesCache?.[viewDateKey]||{};
+    const mc=activeMembers.filter(p=>{const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent'};return r.status==='mc'||(r.status==='absent'&&!!_alView[p.id]);}).length;
     const pending=activeMembers.filter(p=>_rmap(p)==='Pending').length;
-    const absent=activeMembers.filter(p=>_rmap(p)==='Absent').length;
+    const absent=activeMembers.filter(p=>{const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent'};return r.status==='absent'&&!_alView[p.id];}).length;
     const approvedByContact=new Map((s.approvedSignups||[]).map(r=>[r.contact,r.reviewed_by||'Admin']));
     // Department switcher (superadmin only)
     const currentDept=this._myDept();
