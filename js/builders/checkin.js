@@ -69,7 +69,7 @@ const CheckinBuilders = {
       todayLong:Utils.fmtLong(new Date()), clock:Utils.hhmm(s.now),
       myShiftLabel:'', myShiftWindow:'', myStatusLabel:'', myStatusColor:accent,
       myStatusPulse:'', phToday:false, phName:'',
-      isMc:false, showPhases:false, phases:[], allDone:false,
+      isMc:false, isPersonalLeave:false, showPhases:false, phases:[], allDone:false,
       outOfCycle:false, outOfCycleTitle:'', outOfCycleSub:'',
       batchLabel:'', dekitCountdown:'', batchRange:'', showBatchInfo:false,
       whatsappLink:'', showWaShare:false,
@@ -231,6 +231,7 @@ const CheckinBuilders = {
     const dekitDaysLeft=dekit?Math.round((dekit-todayMid)/86400000):null;
     const dekitCountdown=dekitDaysLeft===null?'':dekitDaysLeft===0?'Return equipment today':dekitDaysLeft>0?`${dekitDaysLeft} day${dekitDaysLeft!==1?'s':''} to dekit`:'Cycle complete';
     const batchRange=activeBatch?(Utils.fmtShort(new Date(activeBatch.start_date+'T00:00:00'))+' to '+Utils.fmtShort(new Date(activeBatch.end_date+'T00:00:00'))):'';
+    const todayApprovedLeave=(s.myLeaveHistory||[]).find(r=>r.date===todayKey&&r.status==='approved'&&r.type!=='mc');
     const _todayPend=(s.myPendingRequests||[]).find(r=>r.date===todayKey);
     const _pendMs=_todayPend?.created_at?Date.now()-new Date(_todayPend.created_at).getTime():0;
     const pendingRequestExpired=!!(_todayPend&&_pendMs>172800000);
@@ -240,14 +241,15 @@ const CheckinBuilders = {
       todayLong:Utils.fmtLong(this.baseDate()),
       clock:Utils.hhmm(s.now),
       myShiftLabel:Utils.shiftLabel(me.shift), myShiftWindow:Utils.shiftWindow(me.shift),
-      myStatusLabel:outOfCycle?outOfCycleTitle:noRep?'No reporting':m.label,
-      myStatusColor:outOfCycle?'#8a94a3':noRep?accent:m.color,
-      myStatusBg:outOfCycle?'#eceef2':noRep?'#eef3fc':m.bg,
+      myStatusLabel:outOfCycle?outOfCycleTitle:noRep?'No reporting':todayApprovedLeave&&status==='absent'?'Personal Leave':m.label,
+      myStatusColor:outOfCycle?'#8a94a3':noRep?accent:todayApprovedLeave&&status==='absent'?'#b9791a':m.color,
+      myStatusBg:outOfCycle?'#eceef2':noRep?'#eef3fc':todayApprovedLeave&&status==='absent'?'#f7efdc':m.bg,
       myStatusPulse:(!outOfCycle&&status==='pending'&&!noRep)?'animation:pulseDot 1.6s ease infinite;':'',
       phToday:!outOfCycle&&noRep,
       phName:Utils.holidayName(todayD)||(isOffDay?'Reservists do not report on weekends.':'No CNB reporting today.'),
       isMc:!outOfCycle&&status==='mc'&&!noRep,
-      isAbsent:!outOfCycle&&status==='absent'&&!noRep,
+      isPersonalLeave:!outOfCycle&&status==='absent'&&!noRep&&!!todayApprovedLeave,
+      isAbsent:!outOfCycle&&status==='absent'&&!noRep&&!todayApprovedLeave,
       showTeamSection:!outOfCycle&&!noRep&&(status==='mc'||status==='absent')&&!!(me?.batch_id&&s.personnel.some(p=>p.batch_id===me.batch_id&&p.id!==s.currentUserId&&(p.role||'reservist')==='reservist')),
       hasPendingRequest:!outOfCycle&&!noRep&&status!=='mc'&&status!=='absent'&&!!(_todayPend&&!pendingRequestExpired&&status!=='present'),
       pendingRequestLabel:_todayPend?.type==='mc'?'MC':'absence',
