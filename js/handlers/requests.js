@@ -19,34 +19,43 @@ const RequestHandlers = {
   },
 
   approveLeave: function(id) {
-    return async () => {
+    return () => {
       const leave=this.state.pendingLeaves.find(l=>l.id===id);
       if(leave&&leave.personnel_id===this.state.currentUserId){this._toast('Cannot approve your own request.','error');return;}
-      this.setState({approvingLeaveId:id});
-      if(!this.state.demo&&leave){
-        const reviewMeta={reviewed_by:this.cur()?.name||null,reviewed_at:new Date().toISOString()};
-        const {data:updated}=await DB.leaves.updateStatus(id,'approved',reviewMeta).catch(()=>({}));
-        if(!updated){this._toast('Already processed by another admin.','error');this.setState({approvingLeaveId:null});this.loadPendingLeaves();return;}
-        const ops=[];
-        if(leave.type==='mc') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'mc',{}).catch(()=>({error:true})));
-        else if(leave.type==='personal'||leave.type==='other') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'absent',{}).catch(()=>({error:true})));
-        if(ops.length){
-          const results=await Promise.all(ops);
-          if(results.some(r=>r?.error)){this._toast('Approved, but failed to update attendance record. Check the roster.','error');}
-          else {
-            const todayKey=Utils.dateKey(this.baseDate());
-            if(leave.date===todayKey){const freshAtt=await DB.attendance.getForDate(todayKey).catch(()=>null);if(freshAtt)this.setState({attendance:freshAtt,attendanceDate:todayKey});}
-            if(leave.type==='personal'||leave.type==='other') this.setState(s=>({approvedLeavesCache:{...s.approvedLeavesCache,[leave.date]:{...(s.approvedLeavesCache?.[leave.date]||{}),[leave.personnel_id]:leave.type}}}));
-            this._toast('Request approved.');
-          }
-        } else {
+      this.setState({approveLeaveId:id,approveLeaveNote:''});
+    };
+  },
+  cancelApproveLeave:  function() { this.setState({approveLeaveId:null,approveLeaveNote:''}); },
+  onApproveLeaveNote:  function(e) { this.setState({approveLeaveNote:e.target.value}); },
+
+  confirmApproveLeave: async function() {
+    const {approveLeaveId,approveLeaveNote,pendingLeaves,demo}=this.state;
+    if(!approveLeaveId) return;
+    const leave=pendingLeaves.find(l=>l.id===approveLeaveId);
+    this.setState({approvingLeaveId:approveLeaveId});
+    if(!demo&&leave){
+      const reviewMeta={reviewed_by:this.cur()?.name||null,reviewed_at:new Date().toISOString(),approval_note:approveLeaveNote.trim()||null};
+      const {data:updated}=await DB.leaves.updateStatus(approveLeaveId,'approved',reviewMeta).catch(()=>({}));
+      if(!updated){this._toast('Already processed by another admin.','error');this.setState({approvingLeaveId:null,approveLeaveId:null,approveLeaveNote:''});this.loadPendingLeaves();return;}
+      const ops=[];
+      if(leave.type==='mc') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'mc',{}).catch(()=>({error:true})));
+      else if(leave.type==='personal'||leave.type==='other') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'absent',{}).catch(()=>({error:true})));
+      if(ops.length){
+        const results=await Promise.all(ops);
+        if(results.some(r=>r?.error)){this._toast('Approved, but failed to update attendance record. Check the roster.','error');}
+        else {
+          const todayKey=Utils.dateKey(this.baseDate());
+          if(leave.date===todayKey){const freshAtt=await DB.attendance.getForDate(todayKey).catch(()=>null);if(freshAtt)this.setState({attendance:freshAtt,attendanceDate:todayKey});}
+          if(leave.type==='personal'||leave.type==='other') this.setState(s=>({approvedLeavesCache:{...s.approvedLeavesCache,[leave.date]:{...(s.approvedLeavesCache?.[leave.date]||{}),[leave.personnel_id]:leave.type}}}));
           this._toast('Request approved.');
         }
+      } else {
+        this._toast('Request approved.');
       }
-      this.setState({approvingLeaveId:null});
-      if(this.state.demo&&leave){this.setState(s=>({pendingLeaves:(s.pendingLeaves||[]).filter(l=>l.id!==id)}));this._toast('Request approved.');}
-      else this.loadPendingLeaves();
-    };
+    }
+    this.setState({approvingLeaveId:null,approveLeaveId:null,approveLeaveNote:''});
+    if(demo&&leave){this.setState(s=>({pendingLeaves:(s.pendingLeaves||[]).filter(l=>l.id!==approveLeaveId)}));this._toast('Request approved.');}
+    else this.loadPendingLeaves();
   },
 
   rejectLeave:        function(id) { return () => this.setState({rejectLeaveId:id,rejectLeaveReason:''}); },
