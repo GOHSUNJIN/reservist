@@ -9,6 +9,12 @@ const CheckinBuilders = {
       const rec=this.myRec(), st=rec.status||'pending';
       if(st==='present') return {label:'Checked in',sub:'Reported at '+(rec.p1||'-'),color:'#1f8a5b',bg:'#e7f3ec'};
       if(st==='mc')      return {label:'MC',sub:'Sick leave declared for today',color:'#b9791a',bg:'#f7efdc'};
+      if(st==='absent'){
+        const pl=(this.state.myLeaveHistory||[]).find(r=>r.date===dk&&r.status==='approved'&&r.type!=='mc');
+        return pl
+          ? {label:'Personal Leave',sub:'Personal leave approved for today',color:'#b9791a',bg:'#f7efdc'}
+          : {label:'Absent',sub:'You have been marked absent',color:'#c0392b',bg:'#f7e4e1'};
+      }
       return {label:'Pending',sub:'You have not checked in yet today',color:'#5c6678',bg:'#eceef2'};
     }
     if(hol) return {label:'Public holiday',sub:hol+', no reporting',color:'#b9791a',bg:'#f7efdc'};
