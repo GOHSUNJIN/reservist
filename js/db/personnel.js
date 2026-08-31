@@ -21,8 +21,9 @@ const DB_Personnel = {
   },
 
   async findByContact(contact) {
-    const { data } = await _db.from('personnel').select('*').eq('contact', contact).maybeSingle();
-    return data || null;
+    const { data } = await _db.from('personnel').select('*').eq('contact', contact);
+    if (!data || !data.length) return null;
+    return data.find(p => p.is_active) || data[0];
   },
 
   async add({ authId, name, contact, shift, batchId, role = 'reservist', department = 'ops_security' }) {
