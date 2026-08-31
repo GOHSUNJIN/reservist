@@ -8,7 +8,7 @@ const CheckinBuilders = {
       if(this.isNoReport(0)) return {label:'No reporting',sub:hol||'Marked as a no-reporting day',color:'#b9791a',bg:'#f7efdc'};
       const rec=this.myRec(), st=rec.status||'pending';
       if(st==='present') return {label:'Checked in',sub:'Reported at '+(rec.p1||'-'),color:'#1f8a5b',bg:'#e7f3ec'};
-      if(st==='mc')      return {label:'On MC',sub:'Sick leave declared for today',color:'#b9791a',bg:'#f7efdc'};
+      if(st==='mc')      return {label:'MC',sub:'Sick leave declared for today',color:'#b9791a',bg:'#f7efdc'};
       return {label:'Pending',sub:'You have not checked in yet today',color:'#5c6678',bg:'#eceef2'};
     }
     if(hol) return {label:'Public holiday',sub:hol+', no reporting',color:'#b9791a',bg:'#f7efdc'};
@@ -28,7 +28,7 @@ const CheckinBuilders = {
         const t=hr.check_in_time?hr.check_in_time.slice(0,5):'-';
         if(hr.status==='present'&&!hr.work_end_time) return {label:'No clock-out',sub:'You did not clock out. Inform your supervisor. Meal allowance may not apply.',color:'#c2410c',bg:'#fff3e0'};
         if(hr.status==='present') return {label:'Present',sub:'Reported at '+t,color:'#1f8a5b',bg:'#e7f3ec'};
-        if(hr.status==='mc')     return {label:'On MC',sub:'Sick leave recorded',color:'#b9791a',bg:'#f7efdc'};
+        if(hr.status==='mc')     return {label:'MC',sub:'Sick leave recorded',color:'#b9791a',bg:'#f7efdc'};
         if(hr.status==='absent') return {label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
       }
       return {label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
@@ -44,7 +44,7 @@ const CheckinBuilders = {
           const t=hr.check_in_time?hr.check_in_time.slice(0,5):'-';
           if(hr.status==='present'&&!hr.work_end_time) return {label:'No clock-out',sub:'You did not clock out. Inform your supervisor. Meal allowance may not apply.',color:'#c2410c',bg:'#fff3e0'};
           if(hr.status==='present') return {label:'Present',sub:'Reported at '+t,color:'#1f8a5b',bg:'#e7f3ec'};
-          if(hr.status==='mc')     return {label:'On MC',sub:'Sick leave recorded',color:'#b9791a',bg:'#f7efdc'};
+          if(hr.status==='mc')     return {label:'MC',sub:'Sick leave recorded',color:'#b9791a',bg:'#f7efdc'};
           if(hr.status==='absent') return {label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
         }
         return {label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
@@ -54,8 +54,8 @@ const CheckinBuilders = {
       if(futureLeave){
         const isMc=futureLeave.type==='mc';
         if(futureLeave.status==='approved')
-          return {label:isMc?'MC approved':'Leave approved',sub:isMc?'Sick leave approved for this day':'Absence approved for this day',color:isMc?'#b9791a':'#7c5e00',bg:isMc?'#f7efdc':'#fefce8'};
-        return {label:isMc?'MC submitted':'Leave submitted',sub:'Awaiting admin approval',color:isMc?'#b9791a':'#7c5e00',bg:isMc?'#fdf6e9':'#fefce8'};
+          return {label:isMc?'MC approved':'Leave approved',sub:isMc?'Sick leave approved for this day':'Absence approved for this day',color:'#b9791a',bg:'#f7efdc'};
+        return {label:isMc?'MC submitted':'Leave submitted',sub:'Awaiting admin approval',color:'#b9791a',bg:'#fdf6e9'};
       }
       return {label:'Upcoming',sub:'Reporting day',color:'#5c6678',bg:'#eceef2'};
     }
@@ -381,8 +381,8 @@ const CheckinBuilders = {
       }
       if(dst==='work'&&off>0){
         const fl=(s.myLeaveHistory||[]).find(r=>r.date===dk&&(r.status==='approved'||r.status==='pending'));
-        if(fl?.status==='approved') style=cellBase+(fl.type==='mc'?'background:#f7efdc;color:#b9791a;border:2px solid #e8c77a;':'background:#fefce8;color:#7c5e00;border:2px solid #fde68a;')+'cursor:pointer;';
-        else if(fl?.status==='pending') style=cellBase+(fl.type==='mc'?'background:#fdf6e9;color:#b9791a;border:1px dashed #e8c77a;':'background:#fefce8;color:#7c5e00;border:1px dashed #fde68a;')+'cursor:pointer;';
+        if(fl?.status==='approved') style=cellBase+'background:#f7efdc;color:#b9791a;border:2px solid #e8c77a;cursor:pointer;';
+        else if(fl?.status==='pending') style=cellBase+'background:#fdf6e9;color:#b9791a;border:1px dashed #e8c77a;cursor:pointer;';
       }
       if(s.selectedCalOffset===off) style+='outline:2px solid '+accent+';outline-offset:1px;';
       return {num:d.getDate(),style,off,st:dst,onClick:this.selectCalDay(off)};
