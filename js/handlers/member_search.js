@@ -116,10 +116,12 @@ const MemberSearchHandlers = {
     const allPeople=[...s.personnel,...Object.values(s.batchMembersCache).flat()];
     const name=(allPeople.find(p=>p.id===s.personHistoryId)||{}).name||'Member';
     const rawRows=s.personHistoryRows||[];
+    const leaveSet=new Set((s.personHistoryLeaves||[]).map(l=>l.date));
     const M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const rows=rawRows.map(r=>{
-      const mm=Utils.meta(r.status), d=new Date(r.date+'T00:00:00'), editLog=r.edit_log||[], latestEdit=editLog.length?editLog[editLog.length-1]:null;
+      const isPersonalLeave=r.status==='absent'&&leaveSet.has(r.date);
+      const mm=isPersonalLeave?{label:'Personal Leave'}:Utils.meta(r.status), d=new Date(r.date+'T00:00:00'), editLog=r.edit_log||[], latestEdit=editLog.length?editLog[editLog.length-1]:null;
       return {dateLabel:W[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,p1:r.check_in_time?r.check_in_time.slice(0,5):'-',p4:r.work_end_time?r.work_end_time.slice(0,5):'-',adminCorrected:editLog.length>0,editedBy:latestEdit?.by||''};
     });
     const xe=t=>String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
