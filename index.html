@@ -2545,8 +2545,8 @@
 
     <!-- ===== TOAST ===== -->
     <sc-if value="{{ showToast }}" hint-placeholder-val="">
-    <div onClick="{{ dismissToast }}" class="toast-wrap" style="position:absolute;top:58px;left:50%;transform:translateX(-50%);z-index:400;cursor:pointer;max-width:calc(100vw - 32px);">
-      <div style="background:#fff;border-radius:100px;padding:9px 18px 9px 12px;font-size:13px;font-weight:600;white-space:nowrap;box-shadow:0 4px 24px rgba(20,30,50,.18);display:flex;align-items:center;gap:9px;border:1.5px solid {{ toastBorder }};">
+    <div onClick="{{ dismissToast }}" class="toast-wrap" style="position:absolute;top:58px;left:50%;transform:translateX(-50%);z-index:400;cursor:pointer;max-width:calc(100% - 32px);">
+      <div style="background:#fff;border-radius:100px;padding:9px 18px 9px 12px;font-size:13px;font-weight:600;white-space:normal;word-break:break-word;box-shadow:0 4px 24px rgba(20,30,50,.18);display:flex;align-items:center;gap:9px;border:1.5px solid {{ toastBorder }};">
         <span style="width:8px;height:8px;border-radius:50%;background:{{ toastBg }};flex:0 0 auto;display:inline-block;"></span>
         <span style="color:#161f30;">{{ toastMsg }}</span>
         <span style="color:#a0a8b4;font-size:15px;line-height:1;margin-left:2px;">×</span>
