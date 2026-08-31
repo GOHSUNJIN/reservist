@@ -111,7 +111,8 @@ const MemberSearchHandlers = {
     if(succeededIds.length) this._toast(succeededIds.length+' member'+(succeededIds.length!==1?'s':'')+' permanently deleted.');
   },
 
-  exportPersonHistory: function() {
+  exportPersonHistory: async function() {
+    if(typeof JSZip==='undefined'){this._toast('Export library not loaded. Please refresh and try again.','error');return;}
     const s=this.state;
     const allPeople=[...s.personnel,...Object.values(s.batchMembersCache).flat()];
     const name=(allPeople.find(p=>p.id===s.personHistoryId)||{}).name||'Member';
@@ -121,22 +122,76 @@ const MemberSearchHandlers = {
     const W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const rows=rawRows.map(r=>{
       const isPersonalLeave=r.status==='absent'&&leaveSet.has(r.date);
-      const mm=isPersonalLeave?{label:'Personal Leave'}:Utils.meta(r.status), d=new Date(r.date+'T00:00:00'), editLog=r.edit_log||[], latestEdit=editLog.length?editLog[editLog.length-1]:null;
-      return {dateLabel:W[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,p1:r.check_in_time?r.check_in_time.slice(0,5):'-',p4:r.work_end_time?r.work_end_time.slice(0,5):'-',adminCorrected:editLog.length>0,editedBy:latestEdit?.by||''};
+      const mm=isPersonalLeave?{label:'Personal Leave'}:Utils.meta(r.status);
+      const d=new Date(r.date+'T00:00:00'), editLog=r.edit_log||[], latestEdit=editLog.length?editLog[editLog.length-1]:null;
+      return {dateLabel:W[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,p1:r.check_in_time?r.check_in_time.slice(0,5):'-',p4:r.work_end_time?r.work_end_time.slice(0,5):'-',note:editLog.length>0?'Corrected by '+(latestEdit?.by||''):'',statusKey:r.status==='present'?'present':r.status==='mc'?'mc':(isPersonalLeave?'leave':'absent')};
     });
-    const xe=t=>String(t||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    const sc=(sid,v)=>`<Cell ss:StyleID="${sid}"><Data ss:Type="String">${xe(v)}</Data></Cell>`;
-    const styles=`<Style ss:ID="ttl"><Font ss:Bold="1" ss:Size="13"/></Style><Style ss:ID="hdr"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#2c3e50" ss:Pattern="Solid"/></Style><Style ss:ID="dat"><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e8eaed"/></Borders></Style><Style ss:ID="s_present"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#27ae60"/><Interior ss:Color="#eafaf1" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e8eaed"/></Borders></Style><Style ss:ID="s_mc"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#e67e22"/><Interior ss:Color="#fef9e7" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e8eaed"/></Borders></Style><Style ss:ID="s_absent"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#c0392b"/><Interior ss:Color="#fdedec" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e8eaed"/></Borders></Style><Style ss:ID="s_other"><Alignment ss:Horizontal="Center"/><Font ss:Bold="1" ss:Color="#5c6678"/><Interior ss:Color="#f0f2f5" ss:Pattern="Solid"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e8eaed"/></Borders></Style><Style ss:ID="tim"><Alignment ss:Horizontal="Center"/><Font ss:FontName="IBM Plex Mono" ss:Size="10.5"/><Borders><Border ss:Position="Bottom" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#e8eaed"/></Borders></Style>`;
-    const dataRows=rows.map(r=>{
-      const sid='s_'+(r.label==='Present'?'present':r.label==='MC'?'mc':r.label==='Absent'?'absent':'other');
-      return `<Row ss:Height="22">${sc('dat',r.dateLabel)}${sc(sid,r.label)}${sc('tim',r.p1)}${sc('tim',r.p4)}${sc('dat',r.adminCorrected?'Corrected by '+r.editedBy:'')}</Row>`;
-    }).join('');
-    const xml=`<?xml version="1.0" encoding="UTF-8"?><?mso-application progid="Excel.Sheet"?><Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet"><Styles>${styles}</Styles><Worksheet ss:Name="History"><Table><Column ss:Width="150"/><Column ss:Width="80"/><Column ss:Width="70"/><Column ss:Width="70"/><Column ss:Width="130"/><Row ss:Height="28"><Cell ss:MergeAcross="4" ss:StyleID="ttl"><Data ss:Type="String">${xe(name+' - Attendance History')}</Data></Cell></Row><Row ss:Height="24">${sc('hdr','Date')}${sc('hdr','Status')}${sc('hdr','In')}${sc('hdr','Out')}${sc('hdr','Notes')}</Row>${dataRows}</Table></Worksheet></Workbook>`;
-    const blob=new Blob([xml],{type:'application/vnd.ms-excel;charset=utf-8'});
+
+    // ── OOXML utilities ──────────────────────────────────────────────────────
+    const xe=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const cr=(row,c)=>String.fromCharCode(64+c)+row;
+    const sc=(row,c,val,xf)=>`<c r="${cr(row,c)}" s="${xf}" t="inlineStr"><is><t>${xe(String(val))}</t></is></c>`;
+    const mkFont=(bold,sz,color)=>`<font>${bold?'<b/>':''}<sz val="${sz}"/><color rgb="FF${color}"/><name val="Arial"/></font>`;
+    const mkFill=c=>c==='none'?'<fill><patternFill patternType="none"/></fill>':c==='gray125'?'<fill><patternFill patternType="gray125"/></fill>':`<fill><patternFill patternType="solid"><fgColor rgb="FF${c}"/><bgColor indexed="64"/></patternFill></fill>`;
+    const thin=p=>`<${p} style="thin"><color rgb="FFE8EAED"/></${p}>`;
+    const mkBorder=t=>t==='none'?'<border><left/><right/><top/><bottom/><diagonal/></border>':`<border>${thin('left')}${thin('right')}${thin('top')}${thin('bottom')}<diagonal/></border>`;
+    const mkXf=(f,fi,b,h)=>`<xf numFmtId="0" fontId="${f}" fillId="${fi}" borderId="${b}" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="${h}" vertical="center"/></xf>`;
+
+    // Fonts: 0=normal  1=bold  2=bold13pt  3=boldWhite  4=boldGreen  5=boldAmber  6=boldRed  7=boldGrey
+    const fontDefs=[mkFont(false,10,'000000'),mkFont(true,10,'000000'),mkFont(true,13,'000000'),mkFont(true,10,'FFFFFF'),mkFont(true,10,'27AE60'),mkFont(true,10,'E67E22'),mkFont(true,10,'C0392B'),mkFont(true,10,'5C6678')];
+    // Fills: 0=none  1=gray125  2=darkHeader  3=green  4=amber  5=red  6=grey
+    const fillKeys=['none','gray125','2C3E50','EAFAF1','FEF9E7','FDEDEC','F0F2F5'];
+    // Borders: 0=none  1=thin-bottom
+    const borderDefs=[mkBorder('none'),mkBorder('thin')];
+    // Cell formats (xf):
+    // 0=title  1=hdrC  2=dat  3=present  4=mc  5=absent  6=leave/other  7=time
+    const xfDefs=[[2,0,0,'left'],[3,2,1,'center'],[0,0,1,'left'],[4,3,1,'center'],[5,4,1,'center'],[6,5,1,'center'],[7,6,1,'center'],[0,0,1,'center']];
+    const XF={title:0,hdr:1,dat:2,present:3,mc:4,absent:5,other:6,time:7};
+
+    const statusXf=k=>k==='present'?XF.present:k==='mc'?XF.mc:k==='absent'?XF.absent:XF.other;
+
+    const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<fonts count="${fontDefs.length}">${fontDefs.join('')}</fonts>
+<fills count="${fillKeys.length}">${fillKeys.map(mkFill).join('')}</fills>
+<borders count="${borderDefs.length}">${borderDefs.join('')}</borders>
+<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+<cellXfs count="${xfDefs.length}">${xfDefs.map(([f,fi,b,h])=>mkXf(f,fi,b,h)).join('')}</cellXfs>
+</styleSheet>`;
+
+    const shRows=[];
+    // Row 1: title (merged A1:E1)
+    shRows.push(`<row r="1" ht="28" customHeight="1">${sc(1,1,name+' - Attendance History',XF.title)}${[2,3,4,5].map(c=>`<c r="${cr(1,c)}" s="${XF.title}"/>`).join('')}</row>`);
+    // Row 2: headers
+    shRows.push(`<row r="2" ht="24" customHeight="1">${['Date','Status','In','Out','Notes'].map((h,i)=>sc(2,i+1,h,XF.hdr)).join('')}</row>`);
+    // Data rows
+    rows.forEach((r,i)=>{
+      const row=i+3;
+      shRows.push(`<row r="${row}" ht="22" customHeight="1">${sc(row,1,r.dateLabel,XF.dat)}${sc(row,2,r.label,statusXf(r.statusKey))}${sc(row,3,r.p1,XF.time)}${sc(row,4,r.p4,XF.time)}${sc(row,5,r.note,XF.dat)}</row>`);
+    });
+
+    const lastRow=rows.length+2;
+    const sheetXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<cols><col min="1" max="1" width="22" customWidth="1"/><col min="2" max="2" width="14" customWidth="1"/><col min="3" max="4" width="10" customWidth="1"/><col min="5" max="5" width="22" customWidth="1"/></cols>
+<sheetData>${shRows.join('')}</sheetData>
+<mergeCells count="1"><mergeCell ref="A1:E1"/></mergeCells>
+</worksheet>`;
+
+    const zip=new JSZip();
+    zip.file('[Content_Types].xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/></Types>`);
+    zip.file('_rels/.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`);
+    zip.file('xl/workbook.xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="History" sheetId="1" r:id="rId1"/></sheets></workbook>`);
+    zip.file('xl/_rels/workbook.xml.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`);
+    zip.file('xl/styles.xml',styles);
+    zip.file('xl/worksheets/sheet1.xml',sheetXml);
+
+    const blob=await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
     const url=URL.createObjectURL(blob), a=document.createElement('a');
-    a.href=url;a.download=name.replace(/\s+/g,'_')+'_history.xls';
-    document.body.appendChild(a);a.click();
+    a.href=url; a.download=name.replace(/\s+/g,'_')+'_history.xlsx';
+    document.body.appendChild(a); a.click();
     setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},3000);
+    this._toast('Saved to Downloads.');
   },
 
   openResetPw:  function(id) { return () => this.setState({resetPwId:id,resetPwNew:'',resetPwSaving:false}); },
