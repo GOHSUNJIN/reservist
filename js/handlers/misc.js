@@ -93,6 +93,7 @@ const MiscHandlers = {
     this.setState({tab:'people',peopleStatsLoaded:false,rejectedSignupsHidden:true,processedLeavesHidden:true,leaveSearch:'',leaveSearchOpen:false,leaveTypeFilter:'all',signupSearch:'',signupSearchOpen:false,signupTypeFilter:'all'});
     this.loadPeopleStats();
     this.loadRosterAvatars();
+    this.loadProcessedLeaves();
     this.loadPendingLeaves();
     this.loadPendingSignups();
     this.loadRejectedSignups();
