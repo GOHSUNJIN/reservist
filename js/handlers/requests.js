@@ -45,7 +45,7 @@ const RequestHandlers = {
           else {
             const todayKey=Utils.dateKey(this.baseDate());
             if(leave.date===todayKey){const freshAtt=await DB.attendance.getForDate(todayKey).catch(()=>null);if(freshAtt)this.setState({attendance:freshAtt,attendanceDate:todayKey});}
-            if(leave.type==='personal'||leave.type==='other') this.setState(s=>({approvedLeavesCache:{...s.approvedLeavesCache,[leave.date]:{...(s.approvedLeavesCache?.[leave.date]||{}),[leave.personnel_id]:leave.type}}}));
+            if(leave.type==='personal'||leave.type==='other') this.setState(s=>({approvedLeavesCache:{...s.approvedLeavesCache,[leave.date]:{...(s.approvedLeavesCache?.[leave.date]||{}),[leave.personnel_id]:{type:leave.type,reason:leave.reason||''}}}}));
             this._toast('Request approved.');
           }
         } else {
@@ -108,7 +108,7 @@ const RequestHandlers = {
         if(freshAtt) this.setState({attendance:freshAtt,attendanceDate:todayKey});
       }
       const personalLeaves=leaveSelectedIds.map(id=>pendingLeaves.find(l=>l.id===id)).filter(l=>l&&(l.type==='personal'||l.type==='other'));
-      if(personalLeaves.length) this.setState(s=>{const cache={...s.approvedLeavesCache};for(const l of personalLeaves){cache[l.date]={...(cache[l.date]||{}),[l.personnel_id]:l.type};}return{approvedLeavesCache:cache};});
+      if(personalLeaves.length) this.setState(s=>{const cache={...s.approvedLeavesCache};for(const l of personalLeaves){cache[l.date]={...(cache[l.date]||{}),[l.personnel_id]:{type:l.type,reason:l.reason||''}};}return{approvedLeavesCache:cache};});
     }
     const count=leaveSelectedIds.length, _approved=new Set(leaveSelectedIds);
     this.setState({leaveSelectedIds:[],bulkApprovingLeaves:false});

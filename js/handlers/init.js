@@ -113,7 +113,7 @@ const InitHandlers = {
       DB.attendance.getHistory(me.id),
     ]);
     const _alMap={};
-    for(const l of approvedLeaves) _alMap[l.personnel_id]=l.type;
+    for(const l of approvedLeaves) _alMap[l.personnel_id]={type:l.type,reason:l.reason||''};
 
     this.setState({
       authed:true, role,
@@ -216,7 +216,7 @@ const InitHandlers = {
         DB.leaves.listApprovedForDate(newDate).catch(()=>[]),
       ]);
       const _ndAlMap={};
-      for(const l of newDateLeaves) _ndAlMap[l.personnel_id]=l.type;
+      for(const l of newDateLeaves) _ndAlMap[l.personnel_id]={type:l.type,reason:l.reason||''};
       this._unsubscribeRealtime();
       this._subscribeRealtime(newDate);
       this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0, attendance:att, attendanceDate:newDate, noReportDays:nrd, viewOffset:0, attendanceCache:{}, approvedLeavesCache:{[newDate]:_ndAlMap}, confirmMarkAllAbsent:false, lateAlertDismissedCount:0});
@@ -316,7 +316,7 @@ const InitHandlers = {
       DB.leaves.listApprovedForDate(dk).catch(()=>[]),
     ]);
     const alMap={};
-    for(const l of approvedLeaves) alMap[l.personnel_id]=l.type;
+    for(const l of approvedLeaves) alMap[l.personnel_id]={type:l.type,reason:l.reason||''};
     this.setState(s=>{
       const cache={...s.attendanceCache,[dk]:data};
       const keys=Object.keys(cache).sort();

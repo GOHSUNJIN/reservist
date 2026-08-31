@@ -25,6 +25,7 @@ const BatchHandlers = {
         batchLoading:false, rosterSearch:'', logSearch:'', confirmMarkAllAbsent:false, peopleStatsLoaded:false,
       }));
       this.loadPeopleStats();
+      if(this.state.tab==='people') this.loadProcessedLeaves();
     };
   },
 
