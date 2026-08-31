@@ -26,7 +26,7 @@ const CheckinBuilders = {
             ? {status:myAtt.status, check_in_time:myAtt.p1?myAtt.p1+':00':null} : null);
       if(hr){
         const t=hr.check_in_time?hr.check_in_time.slice(0,5):'-';
-        if(hr.status==='present'&&!hr.work_end_time) return {label:'No clock-out',sub:'You did not clock out. Inform your supervisor — meal allowance may not apply.',color:'#c2410c',bg:'#fff3e0'};
+        if(hr.status==='present'&&!hr.work_end_time) return {label:'No clock-out',sub:'You did not clock out. Inform your supervisor. Meal allowance may not apply.',color:'#c2410c',bg:'#fff3e0'};
         if(hr.status==='present') return {label:'Present',sub:'Reported at '+t,color:'#1f8a5b',bg:'#e7f3ec'};
         if(hr.status==='mc')     return {label:'On MC',sub:'Sick leave recorded',color:'#b9791a',bg:'#f7efdc'};
         if(hr.status==='absent') return {label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
@@ -42,7 +42,7 @@ const CheckinBuilders = {
               ? {status:myAtt.status, check_in_time:myAtt.p1?myAtt.p1+':00':null} : null);
         if(hr){
           const t=hr.check_in_time?hr.check_in_time.slice(0,5):'-';
-          if(hr.status==='present'&&!hr.work_end_time) return {label:'No clock-out',sub:'You did not clock out. Inform your supervisor — meal allowance may not apply.',color:'#c2410c',bg:'#fff3e0'};
+          if(hr.status==='present'&&!hr.work_end_time) return {label:'No clock-out',sub:'You did not clock out. Inform your supervisor. Meal allowance may not apply.',color:'#c2410c',bg:'#fff3e0'};
           if(hr.status==='present') return {label:'Present',sub:'Reported at '+t,color:'#1f8a5b',bg:'#e7f3ec'};
           if(hr.status==='mc')     return {label:'On MC',sub:'Sick leave recorded',color:'#b9791a',bg:'#f7efdc'};
           if(hr.status==='absent') return {label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
