@@ -22,7 +22,7 @@ const AdminRoster = {
         lowAttendance:s.peopleStatsLoaded&&_pct!==null&&_pct<75,
         statPctText:s.peopleStatsLoaded&&_pct!==null?(_pct+'%'):'',
         statPctNum:_pct??-1,
-        leaveReason:approvedLeavesForView[p.id]?.reason||'',showLeaveReason:!!(approvedLeavesForView[p.id]?.reason),
+        hasApprovedLeave:!!(approvedLeavesForView[p.id]),leaveReason:approvedLeavesForView[p.id]?.reason||'',showLeaveReason:!!(approvedLeavesForView[p.id]?.reason),
         onCopyContact:self.copyContact(p.contact||'')};
     });
     const search=(s.rosterSearch||'').toLowerCase();
@@ -30,14 +30,14 @@ const AdminRoster = {
     const rosterStatusFilter=s.rosterStatusFilter||'all';
     const statusFilteredRoster=rosterStatusFilter==='all'?filteredRoster:filteredRoster.filter(r=>{
       if(rosterStatusFilter==='present') return r.status==='present';
-      if(rosterStatusFilter==='mc') return r.status==='mc';
-      if(rosterStatusFilter==='absent') return r.status==='absent';
+      if(rosterStatusFilter==='mc') return r.status==='mc'||(r.status==='absent'&&r.hasApprovedLeave);
+      if(rosterStatusFilter==='absent') return r.status==='absent'&&!r.hasApprovedLeave;
       if(rosterStatusFilter==='pending') return r.status==='pending';
       return true;
     });
     const sortKey=s.rosterSort||'name';
     const sortedFiltered=[...statusFilteredRoster].sort((a,b)=>{
-      if(sortKey==='status'){const ord={present:0,mc:1,pending:2,absent:3};return (ord[a.status]??4)-(ord[b.status]??4);}
+      if(sortKey==='status'){const _o=r=>r.status==='present'?0:(r.status==='mc'||(r.status==='absent'&&r.hasApprovedLeave))?1:r.status==='pending'?2:r.status==='absent'?3:4;return _o(a)-_o(b);}
       if(sortKey==='pct'){return (b.statPctNum??-1)-(a.statPctNum??-1);}
       return a.name.localeCompare(b.name);
     });
@@ -50,9 +50,9 @@ const AdminRoster = {
     const _rSBtn=(f)=>`padding:5px 10px;border-radius:20px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${rosterStatusFilter===f?accent:'#d4d9e2'};background:${rosterStatusFilter===f?accent:'#fff'};color:${rosterStatusFilter===f?'#fff':'#5c6678'};`;
     const rosterStatusAllStyle=_rSBtn('all'),rosterStatusPresentStyle=_rSBtn('present'),rosterStatusMcStyle=_rSBtn('mc'),rosterStatusAbsentStyle=_rSBtn('absent'),rosterStatusPendingStyle=_rSBtn('pending');
     const total=roster.length;
-    const snapshotLastLine=viewIsToday?('⏳ Pending ('+pending+'): '+(roster.filter(r=>r.status==='pending').map(r=>r.name).join(', ')||'(none)')):('❌ Absent ('+absent+'): '+(roster.filter(r=>r.status==='absent').map(r=>r.name).join(', ')||'(none)'));
+    const snapshotLastLine=viewIsToday?('⏳ Pending ('+pending+'): '+(roster.filter(r=>r.status==='pending').map(r=>r.name).join(', ')||'(none)')):('❌ Absent ('+absent+'): '+(roster.filter(r=>r.status==='absent'&&!r.hasApprovedLeave).map(r=>r.name).join(', ')||'(none)'));
     const _orgN=self.props.orgName||'Ops Security';
-    const snapshotLines=['📋 *'+_orgN+', '+Utils.fmtMed(viewDate)+'*','✅ Present ('+present+'): '+(roster.filter(r=>r.status==='present').map(r=>r.name).join(', ')||'(none)'),'🤒 MC ('+mc+'): '+(roster.filter(r=>r.status==='mc').map(r=>r.name).join(', ')||'(none)'),snapshotLastLine];
+    const snapshotLines=['📋 *'+_orgN+', '+Utils.fmtMed(viewDate)+'*','✅ Present ('+present+'): '+(roster.filter(r=>r.status==='present').map(r=>r.name).join(', ')||'(none)'),'🤒 Leave ('+mc+'): '+(roster.filter(r=>r.status==='mc'||r.hasApprovedLeave).map(r=>r.name).join(', ')||'(none)'),snapshotLastLine];
     const snapshotLink='https://api.whatsapp.com/send?text='+encodeURIComponent(snapshotLines.join('\n'));
     const nowHhmm=Utils.hhmm(s.now);
     const isLiveView=viewOffset===0;
@@ -96,7 +96,7 @@ const AdminRoster = {
         outValue:r.p4||'–',
         outValueColor:_missingCo?'#c2410c':(r.p4?'#161f30':'#c2c8d2'),
         missingClockOut:_missingCo,
-        avatarStyle, onViewAvatar:av?self.openAvatarLightbox(av):null, avatarCursor:av?'cursor:pointer;':'', shift:p.shift||'OFFICE',
+        hasApprovedLeave:!!(approvedLeavesForView[p.id]),avatarStyle, onViewAvatar:av?self.openAvatarLightbox(av):null, avatarCursor:av?'cursor:pointer;':'', shift:p.shift||'OFFICE',
         p2Label:'LCH',
         p2FormLabel:'Lunch',
         p3Label:'Return (lunch)',
@@ -128,8 +128,8 @@ const AdminRoster = {
     const logSearch=(s.logSearch||'').toLowerCase().trim();
     const statusFiltered=logStatusFilter==='all'?logRows:logRows.filter(r=>{
       if(logStatusFilter==='present') return r.status==='present';
-      if(logStatusFilter==='mc') return r.status==='mc';
-      if(logStatusFilter==='absent') return r.status==='absent';
+      if(logStatusFilter==='mc') return r.status==='mc'||(r.status==='absent'&&r.hasApprovedLeave);
+      if(logStatusFilter==='absent') return r.status==='absent'&&!r.hasApprovedLeave;
       if(logStatusFilter==='pending') return r.status==='pending';
       return true;
     });
@@ -171,10 +171,10 @@ const AdminRoster = {
         missingClockOut:_missingClockOut,
         showStatPct:s.peopleStatsLoaded&&_vpct!==null, statPct:_vpct!==null?(_vpct+'%'):'', lowAttendancePct:s.peopleStatsLoaded&&_vpct!==null&&_vpct<75,
         statPctColor:(_vpct!==null&&_vpct<75)?'#c0392b':'#8a94a3',
-        leaveReason:approvedLeavesForView[p.id]?.reason||'',showLeaveReason:!!(approvedLeavesForView[p.id]?.reason),
+        hasApprovedLeave:!!(approvedLeavesForView[p.id]),leaveReason:approvedLeavesForView[p.id]?.reason||'',showLeaveReason:!!(approvedLeavesForView[p.id]?.reason),
         ..._mealBadge};
     });
-    const vPresent=viewRoster.filter(r=>r.status==='present').length, vMc=viewRoster.filter(r=>r.status==='mc').length, vAbsent=viewRoster.filter(r=>r.status==='absent').length, vPending=viewRoster.filter(r=>r.status==='pending').length, vTotal=viewRoster.length;
+    const vPresent=viewRoster.filter(r=>r.status==='present').length, vMc=viewRoster.filter(r=>r.status==='mc'||(r.status==='absent'&&r.hasApprovedLeave)).length, vAbsent=viewRoster.filter(r=>r.status==='absent'&&!r.hasApprovedLeave).length, vPending=viewRoster.filter(r=>r.status==='pending').length, vTotal=viewRoster.length;
     const vPercent=vTotal?Math.round((vPresent+vMc)/vTotal*100):0;
     const viewListHeader=viewOffset<0?'ATTENDANCE RECORD':viewOffset>0?'SCHEDULED ROSTER':'LIVE STATUS';
     const viewPercentText=viewOffset>0?(vTotal+' rostered'):(vPercent+'% reported');
