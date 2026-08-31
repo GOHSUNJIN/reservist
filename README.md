@@ -92,7 +92,7 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 - **Roster view**: Lists all personnel in the current cycle with their attendance rate shown when stats are loaded. Low attendance (below 75%) is flagged inline next to the contact number in amber, keeping the card compact.
 - **Collapsible action bar**: Each roster card is collapsed by default. A chevron button in the top-right corner of each card expands the action bar, which contains History, Note, Reset PW, and Remove. Only one card can be expanded at a time, keeping the list compact.
 - **Roster search**: Filter the personnel list by name or contact number with a persistent search bar.
-- **Per-person attendance history**: Click any person's card to open their full attendance history across all cycles. The history modal includes status filter chips (All, Present, MC, Absent) and pagination (15 records per page). Time ranges are only shown for present days: MC and absent rows are displayed without a placeholder. The history can be exported to Excel (.xls).
+- **Per-person attendance history**: Click any person's card to open their full attendance history across all cycles. The history modal includes status filter chips (All, Present, MC, Absent) and pagination (15 records per page). Time ranges are only shown for present days. Approved personal leave days are labelled "Personal Leave" in amber rather than "Absent". The history can be exported to Excel (.xls), with personal leave days correctly labelled in the exported file.
 - **Avatar lightbox**: Tap any reservist's profile photo in the overview, roster, or log to view it enlarged. Tapping outside the photo closes it.
 - **Click row in Overview**: Clicking a person's row in the Overview tab also opens their history directly.
 - **Password reset**: Reset any reservist's password directly from the roster without requiring database access. The Master account can also reset supervisor passwords from the Team tab.
@@ -777,6 +777,7 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Absent days shown in red
 - [ ] Days with missing clock-out shown in orange with dashed border
 - [ ] Tap any calendar day: detail panel shows correct label, sub-text, and colour
+- [ ] Tap a past day with approved personal leave: detail panel shows "Personal Leave" in amber, not "Absent"
 
 #### Info tab
 - [ ] Shift info shown correctly (title, window, items)
