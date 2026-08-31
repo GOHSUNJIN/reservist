@@ -20,11 +20,10 @@ const RequestHandlers = {
   },
 
   loadProcessedLeaves: async function() {
-    const {demo}=this.state;
+    const {demo,batches,activeBatchIdx}=this.state;
     if(demo) return;
-    const liveBatch=this._liveBatch(this.state.batches);
-    const since=liveBatch?.start_date||null;
-    const data=await DB.leaves.listProcessed(this._myDept(),since).catch(()=>[]);
+    const batch=batches[activeBatchIdx||0];
+    const data=await DB.leaves.listProcessed(this._myDept(),batch?.start_date||null,batch?.end_date||null).catch(()=>[]);
     this.setState({processedLeaves:data,processedLeavesLoaded:true});
   },
 
