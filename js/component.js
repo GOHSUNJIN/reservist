@@ -41,7 +41,7 @@ class AppComponent extends DCLogic {
     this._onOnline = async () => {
       this.setState({isOnline:true});
       const pending = this._offlineQueues;
-      if(pending.length && !this.state.demo){
+      if(pending.length && !this.state.demo && this.state.authed !== false && this.state.me?.is_active !== false){
         const failed = [];
         for(const pend of pending){
           let ok = true;

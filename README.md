@@ -154,13 +154,15 @@ Every action in the system is recorded:
 When a reservist's account is deactivated at the end of a cycle, their login credentials are preserved but access is blocked. If they return for a new cycle:
 
 1. The reservist logs in with their existing phone number and password.
-2. The app detects the inactive account and automatically submits a re-enrollment request on their behalf.
+2. The app detects the inactive account and automatically submits a re-enrollment request on their behalf. If the request cannot be submitted (network failure), a clear error message is shown with instructions to contact the supervisor directly.
 3. The supervisor sees the request in the Requests tab, labelled **Returning**, and approves it with one tap.
 4. The reservist's account is reactivated and assigned to the current cycle. They can log in immediately.
 
 No manual coordination, no new account creation, no password reset needed.
 
 If the supervisor adds a returning reservist directly via the Add Personnel form, they can search by name or contact to find the removed record. Selecting it triggers the re-enroll flow, reactivating the existing account without creating a new one.
+
+When a supervisor deactivates a reservist or when a cycle ends and auto-deactivation fires, all pending leave requests for that person are cancelled automatically. Approved leaves already on record are preserved for audit purposes.
 
 ---
 
@@ -296,7 +298,7 @@ docs/
 
 **Offline queue**: When the device is offline, check-in actions are pushed to `this._offlineQueues` and persisted to `sessionStorage`. On reconnect, `_onOnline` replays the queue in order against the database.
 
-**Realtime**: Supabase Realtime channels push row-level changes for attendance (admin view), leave status (reservist view), and new requests (admin notifications) without polling.
+**Realtime**: Supabase Realtime channels push row-level changes for attendance (admin view), leave status (reservist view), new requests (admin notifications), and personnel status changes (reservist view) without polling. If a reservist's account is deactivated while they are logged in, the personnel status channel fires immediately, shows a toast, and logs them out within a few seconds.
 
 **Batch provisioning**: On every admin login, the system ensures a live batch exists and that 8 future batches are pre-created. This prevents the cycle selector from being empty when a new cycle starts.
 
@@ -729,6 +731,15 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Close and reopen tab before session expires - still logged in (session persists in memory)
 - [ ] Leave tab idle for 18 minutes - idle warning banner appears
 - [ ] Leave tab idle for 20 minutes - session ends, redirected to login
+- [ ] Admin deactivates a reservist who is currently logged in: reservist sees a toast within a few seconds and is logged out automatically
+- [ ] Deactivated reservist logs in with a live batch: re-enrollment request auto-submitted, error shown with instructions if submission fails
+- [ ] Deactivated reservist logs in with no live batch: clear error shown, no re-enrollment request created
+- [ ] Deactivated reservist logs in with a pending re-enrollment request: message shown that the request is awaiting approval, no duplicate request created
+- [ ] Reservist account auto-deactivated at dekit date on login: deactivation message shown, cannot re-enter the app
+- [ ] Reservist session active when midnight rolls to the dekit date: app detects the date change, deactivates account, and logs out without requiring a page refresh
+- [ ] Admin deactivates a reservist who had pending leave requests: all pending requests are cancelled (verify in DB or admin Requests tab shows none for that person)
+- [ ] Reservist self-deletes their account: pending leave requests cancelled, deactivation message shown on login screen
+- [ ] Adding a person whose contact has multiple DB records (e.g. old deactivated duplicate): active record is preferred, or if all inactive, the most recent is selected for re-enroll
 
 #### Check-in (Ops Security - 4 phases)
 - [ ] Phase 1 (0900-1200): Locate Me button appears, GPS resolves within range, Check In button becomes active, tap to record
