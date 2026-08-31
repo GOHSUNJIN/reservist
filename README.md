@@ -390,6 +390,10 @@ Reservists who do not check in on a reporting day are marked absent automaticall
 1. **In the app**: when the clock ticks past midnight, the app immediately marks anyone still showing as unchecked for the previous day. Approved leaves and pending leave requests for that date are excluded automatically.
 2. **On the server**: a scheduled task runs at 00:05 SGT every day and writes absent records for any active reservist with no entry for the previous weekday. This runs independently of whether any supervisor or reservist has the app open.
 
+### Auto-Deactivation
+
+A second scheduled task runs at 02:00 SGT every day. It deactivates any personnel whose batch's dekit date has already passed, and in the same operation cancels any pending leave requests they still have open. This ensures that a reservist whose cycle has ended cannot have outstanding leave requests approved after the fact. The app also performs this check on every login and on every midnight date rollover, so deactivation is enforced through three independent paths.
+
 ---
 
 ## Planned Enhancements
@@ -459,9 +463,11 @@ The following improvements are planned to make the system fully self-managed by 
      FOR SELECT TO authenticated
      USING (bucket_id = 'avatars');
    ```
-5. Run `scripts/sql/supabase_cron.sql` to enable the automatic absent job. Requires the `pg_cron` extension (enabled by default on Supabase Pro).
+5. Run `scripts/sql/supabase_cron.sql` to enable the automatic absent and auto-deactivation jobs. Requires the `pg_cron` extension (enabled by default on Supabase Pro).
 
 > **Upgrading an existing deployment?** If you already have the tables from an earlier version, run `scripts/sql/add_departments.sql` instead of re-creating the schema. It adds the `department_type` enum and the `department` column to `personnel`, `batches`, and `signup_requests`, defaulting all existing rows to `ops_security`.
+
+> **Updating the cron jobs on an existing deployment?** If you previously ran `supabase_cron.sql` and need to apply the updated version, unschedule the existing job first before re-running the file: `SELECT cron.unschedule('deactivate-expired-personnel');`
 
 **Full schema:**
 
@@ -740,6 +746,8 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Admin deactivates a reservist who had pending leave requests: all pending requests are cancelled (verify in DB or admin Requests tab shows none for that person)
 - [ ] Reservist self-deletes their account: pending leave requests cancelled, deactivation message shown on login screen
 - [ ] Adding a person whose contact has multiple DB records (e.g. old deactivated duplicate): active record is preferred, or if all inactive, the most recent is selected for re-enroll
+- [ ] Signup submitted using a contact number that belongs to an existing admin or superadmin account: if the admin approves the request, approval fails gracefully with a message and the signup is returned to pending status
+- [ ] Cron auto-deactivation: after a batch's dekit date passes and the cron runs, any pending leave requests for those personnel are also cancelled (verify in DB that no pending rows remain for deactivated personnel)
 
 #### Check-in (Ops Security - 4 phases)
 - [ ] Phase 1 (0900-1200): Locate Me button appears, GPS resolves within range, Check In button becomes active, tap to record
