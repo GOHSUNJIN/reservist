@@ -23,7 +23,7 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 - **Department-based check-in flow**: Ops Security reservists log four phases (check in, lunch out, return from lunch, end of shift). Crime Prevention Office (CPO) reservists use a simplified two-phase flow: check in and check out only. Each phase is timestamped to the minute.
 - **GPS verification**: Tapping a check-in phase shows a "Locate me" button first. After GPS confirms you are within range of HQ, the button swaps to "Check in to work" (or the phase-specific label). Distance from HQ is recorded. The radius is configurable (default: 250 m).
 - **GPS bypass**: If GPS cannot detect your location at all (permission denied, signal unavailable, or timeout), a bypass option appears immediately so you can check in without GPS. The bypass is not offered when GPS works but you are simply out of range; in that case you must move closer to HQ and try again. Bypassed records are permanently flagged in the log.
-- **Leave and MC requests**: Submit requests digitally through the app. They go directly to the supervisor for approval with no phone calls or messages needed. Only one leave type is supported per day: MC (sick leave) or Personal Leave (other absences).
+- **Leave and MC requests**: Submit requests digitally through the app. They go directly to the supervisor for approval with no phone calls or messages needed. Only one leave type is supported per day: MC (sick leave) or Personal Leave (other absences). When an MC is approved for today, the check-in phases are replaced with a "Marked as MC" card. When a Personal Leave is approved for today, the status chip switches to amber "Personal Leave" and an "On Personal Leave" card is shown instead.
 - **Cancel pending requests**: A leave or MC request can be withdrawn by the reservist before the supervisor has acted on it, from both the check-in screen and the Requests history tab.
 - **Request history**: The Requests tab shows the full history of submitted leave and MC requests, each with a coloured left bar, a type badge (MC and Personal Leave both in amber), and a status badge (Submitted, Approved, Declined, or Withdrawn). Records are deduplicated by date: if multiple requests exist for the same date, only the most relevant one is shown (pending takes priority over approved, approved over declined). Filter pills let you narrow the list by status. Pending requests can be withdrawn inline.
 - **Info and Attendance tabs**: The Info tab shows shift details, meal allowance information, leave request history, and a team directory listing batchmates with contact links. The Attendance tab shows the personal attendance calendar and history.
@@ -761,7 +761,9 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Multiple requests for the same date: only one entry shown in history (pending shown over approved, approved over declined)
 - [ ] View Requests history: type badge (MC and Personal Leave both amber) and status badge (Submitted, Approved, Declined, Withdrawn) shown correctly
 - [ ] View a declined request: supervisor's decline reason displayed
-- [ ] Approved MC for today: check-in is blocked with a message explaining leave is pending
+- [ ] Approved MC for today: check-in phases hidden, "Marked as MC" card shown with Share to group and Request absence buttons
+- [ ] Approved Personal Leave for today: status chip shows amber "Personal Leave", "On Personal Leave" card shown with Request absence button
+- [ ] Absent with no approved leave (auto-marked or admin-marked): status chip shows red "Absent", "Marked absent" card shown
 - [ ] After admin voids an approved leave (marks present): reservist can re-submit a new request for that date
 
 #### Calendar (Attendance tab)
