@@ -35,7 +35,10 @@ const CheckinBuilders = {
         if(hr.status==='present'&&!hr.work_end_time) return {label:'No clock-out',sub:'You did not clock out. Inform your supervisor. Meal allowance may not apply.',color:'#c2410c',bg:'#fff3e0'};
         if(hr.status==='present') return {label:'Present',sub:'Reported at '+t,color:'#1f8a5b',bg:'#e7f3ec'};
         if(hr.status==='mc')     return {label:'MC',sub:'Sick leave recorded',color:'#b9791a',bg:'#f7efdc'};
-        if(hr.status==='absent') return {label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
+        if(hr.status==='absent'){
+          const pl=(this.state.myLeaveHistory||[]).find(r=>r.date===dk&&r.status==='approved'&&r.type!=='mc');
+          return pl?{label:'Personal Leave',sub:'Personal leave approved',color:'#b9791a',bg:'#f7efdc'}:{label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
+        }
       }
       return {label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
     }
@@ -51,7 +54,10 @@ const CheckinBuilders = {
           if(hr.status==='present'&&!hr.work_end_time) return {label:'No clock-out',sub:'You did not clock out. Inform your supervisor. Meal allowance may not apply.',color:'#c2410c',bg:'#fff3e0'};
           if(hr.status==='present') return {label:'Present',sub:'Reported at '+t,color:'#1f8a5b',bg:'#e7f3ec'};
           if(hr.status==='mc')     return {label:'MC',sub:'Sick leave recorded',color:'#b9791a',bg:'#f7efdc'};
-          if(hr.status==='absent') return {label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
+          if(hr.status==='absent'){
+            const pl=(this.state.myLeaveHistory||[]).find(r=>r.date===dk&&r.status==='approved'&&r.type!=='mc');
+            return pl?{label:'Personal Leave',sub:'Personal leave approved',color:'#b9791a',bg:'#f7efdc'}:{label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
+          }
         }
         return {label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
       }
@@ -385,7 +391,10 @@ const CheckinBuilders = {
         if(pst==='present'&&!hr?.work_end_time) style=cellBase+'background:#fff3e0;color:#c2410c;border:2px dashed #fb923c;cursor:pointer;';
         else if(pst==='present') style=cellBase+'background:#e7f3ec;color:#1f8a5b;border:2px solid #a8d5bb;cursor:pointer;';
         else if(pst==='mc') style=cellBase+'background:#f7efdc;color:#b9791a;border:2px solid #e8c77a;cursor:pointer;';
-        else style=cellBase+'background:#f7e4e1;color:#c0392b;border:2px solid #e5a9a4;cursor:pointer;';
+        else if(pst==='absent'){
+          const pl=(s.myLeaveHistory||[]).find(r=>r.date===dk&&r.status==='approved'&&r.type!=='mc');
+          style=pl?cellBase+'background:#f7efdc;color:#b9791a;border:2px solid #e8c77a;cursor:pointer;':cellBase+'background:#f7e4e1;color:#c0392b;border:2px solid #e5a9a4;cursor:pointer;';
+        } else style=cellBase+'background:#f7e4e1;color:#c0392b;border:2px solid #e5a9a4;cursor:pointer;';
       }
       if(dst==='work'&&off>0){
         const fl=(s.myLeaveHistory||[]).find(r=>r.date===dk&&(r.status==='approved'||r.status==='pending'));
