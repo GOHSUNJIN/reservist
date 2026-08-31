@@ -5,6 +5,8 @@
 CREATE EXTENSION IF NOT EXISTS pg_cron;
 
 -- Schedule daily at 18:00 UTC (02:00 SGT) to deactivate expired personnel
+-- and cancel any pending leave requests they still have open.
+-- To update an existing deployment: run SELECT cron.unschedule('deactivate-expired-personnel'); first.
 SELECT cron.schedule(
   'deactivate-expired-personnel',
   '0 18 * * *',
@@ -18,6 +20,17 @@ SELECT cron.schedule(
       AND batch_id IN (
         SELECT id FROM batches
         WHERE dekit_date < CURRENT_DATE
+      );
+
+    UPDATE leave_requests lr
+    SET status = 'cancelled'
+    WHERE lr.status = 'pending'
+      AND EXISTS (
+        SELECT 1 FROM personnel p
+        JOIN batches b ON p.batch_id = b.id
+        WHERE p.id = lr.personnel_id
+          AND p.is_active = false
+          AND b.dekit_date < CURRENT_DATE
       );
   $$
 );
