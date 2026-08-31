@@ -145,10 +145,10 @@ const CheckinHandlers = {
 
   _haptic: function(ms=60) { if(navigator.vibrate) navigator.vibrate(ms); },
 
-  // Adds an action to the offline queue and persists it to sessionStorage for retry on reconnect.
+  // Adds an action to the offline queue and persists it to localStorage for retry on reconnect.
   _queuePush: function(item) {
     this._offlineQueues.push(item);
-    try{ sessionStorage.setItem('offlineQ', JSON.stringify(this._offlineQueues)); }catch{}
+    try{ localStorage.setItem('offlineQ', JSON.stringify(this._offlineQueues)); }catch{}
     this.setState({offlinePending:true});
   },
 
