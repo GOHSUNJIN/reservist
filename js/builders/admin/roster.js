@@ -10,7 +10,7 @@ const AdminRoster = {
     const visibleMembers=beforeBatchStart?[]:activeMembers;
     const approvedLeavesForView=s.approvedLeavesCache?.[viewDateKey]||{};
     const roster=visibleMembers.map(p=>{
-      const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, _bMm=Utils.meta(r.status), mm=r.status==='absent'&&approvedLeavesForView[p.id]?Utils.leaveMeta(approvedLeavesForView[p.id]):_bMm;
+      const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, _bMm=Utils.meta(r.status), mm=r.status==='absent'&&approvedLeavesForView[p.id]?Utils.leaveMeta(approvedLeavesForView[p.id]?.type):_bMm;
       const cardStyle='background:#fff;border:1px solid #e3e6ec;border-left:3px solid '+mm.color+';border-radius:12px;padding:11px 13px;box-shadow:0 1px 5px rgba(20,30,50,.06);overflow:hidden;';
       const av=s.avatars[p.id]||'';
       const avatarStyle=Utils.avatarStyle(av);
@@ -22,6 +22,7 @@ const AdminRoster = {
         lowAttendance:s.peopleStatsLoaded&&_pct!==null&&_pct<75,
         statPctText:s.peopleStatsLoaded&&_pct!==null?(_pct+'%'):'',
         statPctNum:_pct??-1,
+        leaveReason:approvedLeavesForView[p.id]?.reason||'',showLeaveReason:!!(approvedLeavesForView[p.id]?.reason),
         onCopyContact:self.copyContact(p.contact||'')};
     });
     const search=(s.rosterSearch||'').toLowerCase();
@@ -56,7 +57,7 @@ const AdminRoster = {
     const nowHhmm=Utils.hhmm(s.now);
     const isLiveView=viewOffset===0;
     const logRows=visibleMembers.map(p=>{
-      const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent'}, _bMm2=Utils.meta(r.status), mm=r.status==='absent'&&approvedLeavesForView[p.id]?Utils.leaveMeta(approvedLeavesForView[p.id]):_bMm2;
+      const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent'}, _bMm2=Utils.meta(r.status), mm=r.status==='absent'&&approvedLeavesForView[p.id]?Utils.leaveMeta(approvedLeavesForView[p.id]?.type):_bMm2;
       const [_cc,_ccm]='09:00'.split(':').map(Number);
       const _lm=r.p1?(()=>{const[h,m]=r.p1.split(':').map(Number);return(h*60+m)-(_cc*60+_ccm);})():0;
       const isLate=r.status==='present'&&_lm>=60;
@@ -151,7 +152,7 @@ const AdminRoster = {
     const showRepToggle=viewReportDay&&!isDekit, repToggleLocked=!!viewHoliday, repToggleOn=viewBlocked;
     const noRepMsg=viewHoliday?('Public holiday ('+viewHoliday+'). Auto no-reporting, locked.'):repToggleOn?'Reservists are not required to report this day.':'Off. Reservists report and check in as normal.';
     const viewRoster=visibleMembers.map(p=>{
-      const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, _bMm3=Utils.meta(r.status), mm=r.status==='absent'&&approvedLeavesForView[p.id]?Utils.leaveMeta(approvedLeavesForView[p.id]):_bMm3;
+      const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, _bMm3=Utils.meta(r.status), mm=r.status==='absent'&&approvedLeavesForView[p.id]?Utils.leaveMeta(approvedLeavesForView[p.id]?.type):_bMm3;
       const av=s.avatars[p.id]||'';
       const _vpct=s.peopleStats[p.id]?.pct??null;
       const _mealBadge=(()=>{
@@ -169,7 +170,9 @@ const AdminRoster = {
       return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),status:r.status,label:mm.label,color:mm.color,bg:mm.bg,timeText:_timeText,showTimeText:!!_timeText,avatarStyle:Utils.avatarStyle(av),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),onViewHistory:self.openPersonHistory(p.id),onCopyContact:self.copyContact(p.contact||''),
         missingClockOut:_missingClockOut,
         showStatPct:s.peopleStatsLoaded&&_vpct!==null, statPct:_vpct!==null?(_vpct+'%'):'', lowAttendancePct:s.peopleStatsLoaded&&_vpct!==null&&_vpct<75,
-        statPctColor:(_vpct!==null&&_vpct<75)?'#c0392b':'#8a94a3',..._mealBadge};
+        statPctColor:(_vpct!==null&&_vpct<75)?'#c0392b':'#8a94a3',
+        leaveReason:approvedLeavesForView[p.id]?.reason||'',showLeaveReason:!!(approvedLeavesForView[p.id]?.reason),
+        ..._mealBadge};
     });
     const vPresent=viewRoster.filter(r=>r.status==='present').length, vMc=viewRoster.filter(r=>r.status==='mc').length, vAbsent=viewRoster.filter(r=>r.status==='absent').length, vPending=viewRoster.filter(r=>r.status==='pending').length, vTotal=viewRoster.length;
     const vPercent=vTotal?Math.round((vPresent+vMc)/vTotal*100):0;
