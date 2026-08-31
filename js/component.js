@@ -11,7 +11,7 @@ class AppComponent extends DCLogic {
       PeopleHandlers, MemberSearchHandlers, AdminMgmtHandlers,
       BatchHandlers, ExportHandlers,
       RosterHandlers, AccountHandlers, MiscHandlers,
-      AuthBuilders, NavBuilders, CheckinBuilders, BriefingsBuilders, AdminBuilders, AccountBuilders,
+      AuthBuilders, NavBuilders, CheckinBuilders, CalendarBuilders, BriefingsBuilders, AdminBuilders, AccountBuilders,
     ]) {
       for (const [key, fn] of Object.entries(methods)) {
         if (typeof fn === 'function') this[key] = fn.bind(this);
