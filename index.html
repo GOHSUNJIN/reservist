@@ -1598,15 +1598,15 @@
                     <span style="font-size:13.5px;font-weight:700;color:#161f30;">{{ row.name }}</span>
                     <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
                       <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
+                      <sc-if value="{{ row.showNoGps }}" hint-placeholder-val="">
+                        <span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:#eef0f4;color:#5c6678;white-space:nowrap;">No GPS</span>
+                      </sc-if>
                       <div onClick="{{ row.onCopyContact }}" style="font-size:11px;color:#b0b8c7;font-family:'IBM Plex Mono',monospace;cursor:pointer;">{{ row.contact }}</div>
                     </div>
                     <sc-if value="{{ row.showAnyFlags }}" hint-placeholder-val="">
                       <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:7px;">
                         <sc-if value="{{ row.isLate }}" hint-placeholder-val="">
                           <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;background:#fdecea;color:#c0392b;display:inline-block;max-width:200px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;vertical-align:middle;">{{ row.lateTagLabel }}</span>
-                        </sc-if>
-                        <sc-if value="{{ row.showNoGps }}" hint-placeholder-val="">
-                          <span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:#eef0f4;color:#5c6678;white-space:nowrap;">No GPS</span>
                         </sc-if>
                       </div>
                     </sc-if>

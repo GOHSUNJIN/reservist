@@ -66,7 +66,7 @@ const AdminRoster = {
       const showNoLateReason=isLate&&!lateReason;
       const lateTagLabel=isLate?('Late · '+(lateReason||'No reason')):'';
       const _missingCo=!isLiveView&&r.status==='present'&&!!r.p1&&!r.p4;
-      const showAnyFlags=showNoLateReason||showLateReason||!!(r.gpsBypassed);
+      const showAnyFlags=showNoLateReason||showLateReason;
       const av=s.avatars[p.id]||'';
       const avatarStyle=Utils.avatarStyle(av);
       return {
