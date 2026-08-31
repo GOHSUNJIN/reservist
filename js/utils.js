@@ -11,7 +11,7 @@ const Utils = {
     return {label:'Pending',color:'#2f5fd0',bg:'#eef3fc'};
   },
   leaveMeta(type){
-    if(type==='personal'||type==='other') return {label:'Personal Leave',color:'#c0392b',bg:'#f7e4e1'};
+    if(type==='personal'||type==='other') return {label:'Personal Leave',color:'#7c5e00',bg:'#fefce8'};
     return {label:'Absent',color:'#c0392b',bg:'#f7e4e1'};
   },
   hhmm(d){ const p=n=>String(n).padStart(2,'0'); return p(d.getHours())+':'+p(d.getMinutes()); },
