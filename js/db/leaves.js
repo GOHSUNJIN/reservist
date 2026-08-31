@@ -56,6 +56,12 @@ const DB_Leaves = {
     return data || [];
   },
 
+  async approvedByPerson(personnelId) {
+    const { data } = await _db.from('leave_requests')
+      .select('date, type').eq('personnel_id', personnelId).eq('status', 'approved').neq('type', 'mc');
+    return data || [];
+  },
+
   async listApprovedForDate(date) {
     const { data } = await _db.from('leave_requests')
       .select('personnel_id, type, reason').eq('date', date).eq('status', 'approved');
