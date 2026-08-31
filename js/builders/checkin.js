@@ -232,7 +232,7 @@ const CheckinBuilders = {
     const waMsg=status==='present'
       ?`✅ *${me.name}* | ${Utils.shiftLabel(me.shift)}\n${_waDate}${_waLateNote}\n\n${_waTimes.join('  ·  ')}`
       :status==='mc'
-      ?`🤒 *${me.name}* | On MC today\n${Utils.shiftLabel(me.shift)}  ·  ${_waDate}`
+      ?`🤒 *${me.name}* | MC today\n${Utils.shiftLabel(me.shift)}  ·  ${_waDate}`
       :'';
     const whatsappLink=waMsg?'https://api.whatsapp.com/send?text='+encodeURIComponent(waMsg):'';
     const showWaShare=!!(status==='present'||status==='mc');
