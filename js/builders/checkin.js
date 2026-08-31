@@ -312,6 +312,7 @@ const CheckinBuilders = {
       isInAppBrowser:s.isInAppBrowser, inAppBrowserName:s.inAppBrowserName,
       openLeaveRequest:this.openLeaveRequest(Utils.dateKey(this.baseDate())),
       leaveOpen:s.leaveOpen, leaveDate:s.leaveDate, leaveType:s.leaveType, leaveReason:s.leaveReason, leaveReady:!!(s.leaveDate),
+      leaveSubmittingOpacity:s.leaveSubmitting?'0.55':'1', leaveSubmittingPE:s.leaveSubmitting?'none':'auto',
       onLeaveDate:this.onLeaveDate,
       leaveIsPersonal:s.leaveType==='personal', leaveIsMc:s.leaveType==='mc',
       onLeaveTypePersonal:this.onLeaveType('personal'), onLeaveTypeMc:this.onLeaveType('mc'),

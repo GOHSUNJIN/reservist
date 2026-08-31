@@ -32,7 +32,7 @@ class AppComponent extends DCLogic {
         if(live !== this.state.realtimeLive) this.setState({realtimeLive:live});
       }
     }, 1000);
-    try{ this._offlineQueues = JSON.parse(sessionStorage.getItem('offlineQ')||'[]'); }catch{ this._offlineQueues=[]; }
+    try{ this._offlineQueues = JSON.parse(localStorage.getItem('offlineQ')||'[]'); }catch{ this._offlineQueues=[]; }
     if(this._offlineQueues.length) this.setState({offlinePending:true});
     const {detected, name} = this._detectInAppBrowser();
     if(detected) this.setState({isInAppBrowser:true, inAppBrowserName:name});
@@ -56,7 +56,7 @@ class AppComponent extends DCLogic {
           }
         }
         this._offlineQueues = failed;
-        try{ sessionStorage.setItem('offlineQ', JSON.stringify(failed)); }catch{}
+        try{ localStorage.setItem('offlineQ', JSON.stringify(failed)); }catch{}
         if(!failed.length){ this.setState({offlinePending:false}); }
         else { this._toast('Some check-ins failed to sync. Tap Retry.','error'); }
       }

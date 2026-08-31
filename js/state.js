@@ -98,7 +98,7 @@ const makeInitialState = () => ({
   rejectedSignupsHidden: true,
 
   // ── Leave requests ───────────────────────────────────────────────────────
-  leaveOpen: false, leaveDate: '', leaveType: 'mc', leaveReason: '',
+  leaveOpen: false, leaveDate: '', leaveType: 'mc', leaveReason: '', leaveSubmitting: false,
   leaveHistFilter: 'all',
   myPendingRequests: [],
   myLeaveHistory: [], myLeaveHistoryLoaded: false,

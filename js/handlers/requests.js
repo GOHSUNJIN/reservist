@@ -142,7 +142,8 @@ const RequestHandlers = {
   onLeaveReason: function(e) { this.setState({leaveReason:e.target.value}); },
 
   submitLeaveRequest: async function() {
-    const {currentUserId,leaveDate,leaveType,leaveReason,demo,myLeaveHistory,myLeaveHistoryLoaded}=this.state;
+    const {currentUserId,leaveDate,leaveType,leaveReason,demo,myLeaveHistoryLoaded,leaveSubmitting}=this.state;
+    if(leaveSubmitting) return;
     if(!demo&&!myLeaveHistoryLoaded){this._toast('Loading your history, please wait a moment.','error');return;}
     if(!leaveDate){this._toast('Please select a date.','error');return;}
     if(leaveDate<Utils.dateKey(this.baseDate())){this._toast('Cannot submit a request for a past date.','error');return;}
@@ -154,11 +155,13 @@ const RequestHandlers = {
     if(_myBatch&&(leaveDate<_myBatch.start_date||leaveDate>_myBatch.end_date)){this._toast('The selected date is outside your current cycle.','error');return;}
     if(_myBatch?.dekit_date===leaveDate){this._toast('Cannot submit a request for dekit day.','error');return;}
     if((this.state.myPendingRequests||[]).some(r=>r.date===leaveDate)){this._toast('You already have a pending request for this date.','error');return;}
+    this.setState({leaveSubmitting:true});
     if(!demo){
       const {data,error}=await DB.leaves.request(currentUserId,leaveDate,leaveType,leaveReason).catch(e=>({error:e}));
       if(error){
         const isDuplicate=error?.code==='23505'||error?.message?.includes('leave_requests_one_active_per_day');
         this._toast(isDuplicate?'You already have an active request for this date.':'Failed to submit request.','error');
+        this.setState({leaveSubmitting:false});
         return;
       }
       const newReq=data||{personnel_id:currentUserId,date:leaveDate,type:leaveType,reason:leaveReason||null,status:'pending',created_at:new Date().toISOString()};
@@ -168,7 +171,7 @@ const RequestHandlers = {
       this.setState(s=>({myPendingRequests:[demoReq,...s.myPendingRequests],myLeaveHistory:[demoReq,...s.myLeaveHistory]}));
     }
     this._toast('Request submitted for approval.');
-    this.setState({leaveOpen:false});
+    this.setState({leaveOpen:false,leaveSubmitting:false});
   },
 
   cancelLeaveRequest: function(id) {
