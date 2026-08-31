@@ -1,4 +1,4 @@
-// ── Attendance export handlers (XLS spreadsheet and print report) ──────────
+// ── Attendance export handlers (Excel .xlsx and print report) ──────────────
 const ExportHandlers = {
 
   _getExportData: async function() {
@@ -37,113 +37,254 @@ const ExportHandlers = {
   },
 
   exportCsv: async function() {
+    if(typeof JSZip==='undefined'){this._toast('Export library not loaded. Please refresh and try again.','error');return;}
     const exportData=await this._getExportData();
-    if(!exportData){ this._toast('No reservists found in this cycle.','error'); return; }
+    if(!exportData){this._toast('No reservists found in this cycle.','error');return;}
+
     const {batch,members,start,end,dates,attCache,todayKey}=exportData;
     const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const fmtDate=d=>d.getDate()+' '+MO[d.getMonth()];
     const fmtDay=d=>DAYS[d.getDay()];
-    const ac=this.props.accent||'#2f5fd0';
+    const acc=(this.props.accent||'#2f5fd0').slice(1).toUpperCase();
 
     const rowData=this._buildExportMembers(members,dates,attCache,todayKey).map(r=>({
       ...r,
       cells:r.entries.map(e=>{
-        if(!e?.status) return {code:'-',sid:'sD'};
-        if(e.status==='absent'||e.status==='missed') return {code:'A',sid:'sA'};
-        if(e.status==='mc') return {code:'MC',sid:'sMC'};
-        return {code:e.editLog?.length>0?'P*':'P',sid:e.editLog?.length>0?'sPs':'sP'};
+        if(!e?.status) return {code:'-',alt:true};
+        if(e.status==='absent'||e.status==='missed') return {code:'A',xf:'absent'};
+        if(e.status==='mc') return {code:'MC',xf:'mc'};
+        return {code:e.editLog?.length>0?'P*':'P',xf:e.editLog?.length>0?'presentStar':'present'};
       }),
     }));
 
     const totPres=rowData.reduce((a,r)=>a+r.pres,0);
-    const totMc=rowData.reduce((a,r)=>a+r.mc,0);
-    const totAbs=rowData.reduce((a,r)=>a+r.abs,0);
+    const totMc  =rowData.reduce((a,r)=>a+r.mc,0);
+    const totAbs =rowData.reduce((a,r)=>a+r.abs,0);
     const totMeal=rowData.reduce((a,r)=>a+r.meal,0);
     const totDays=members.length*dates.length;
-    const totPct=totDays>0?Math.round(totPres/totDays*100):null;
-
-    const xe=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    const sc=(sid,val)=>`<Cell ss:StyleID="${sid}"><Data ss:Type="String">${xe(String(val))}</Data></Cell>`;
-    const ec=sid=>`<Cell ss:StyleID="${sid}"/>`;
-    const rateSidE=n=>n==null?'sDashE':n>=80?'sRateGE':n>=60?'sRateAE':'sRateRE';
-    const rateSidO=n=>n==null?'sDashO':n>=80?'sRateGO':n>=60?'sRateAO':'sRateRO';
-    const rateSidT=n=>n==null?'sTot':n>=80?'sTotG':n>=60?'sTotA':'sTotR';
+    const totPct =totDays>0?Math.round(totPres/totDays*100):null;
 
     const now=new Date();
-    const exportedStr=`${fmtDay(now)} ${fmtDate(now)} ${now.getFullYear()} ${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}`;
-    const span=2+dates.length+5;
+    const exportedStr=fmtDay(now)+' '+fmtDate(now)+' '+now.getFullYear()+' '+
+      now.getHours().toString().padStart(2,'0')+':'+now.getMinutes().toString().padStart(2,'0');
 
-    const colDefs=`<Column ss:Width="180"/><Column ss:Width="55"/>${dates.map(()=>'<Column ss:Width="88"/>').join('')}<Column ss:Width="62"/><Column ss:Width="45"/><Column ss:Width="62"/><Column ss:Width="55"/><Column ss:Width="58"/>`;
+    // ── OOXML utilities ─────────────────────────────────────────────────────
+    const xe=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    const col=n=>{let s='';while(n>0){const r=(n-1)%26;s=String.fromCharCode(65+r)+s;n=Math.floor((n-1)/26);}return s;};
+    const cr=(row,c)=>col(c)+row;
+    const sc=(row,c,val,xf)=>`<c r="${cr(row,c)}" s="${xf}" t="inlineStr"><is><t>${xe(String(val))}</t></is></c>`;
+    const ec=(row,c,xf)=>`<c r="${cr(row,c)}" s="${xf}"/>`;
 
-    const titleFill=Array(span-1).fill('<Cell ss:StyleID="sTitleHdr"/>').join('');
-    const metaRows=`<Row ss:Height="30"><Cell ss:StyleID="sTitleHdr"><Data ss:Type="String">${xe(batch.label)}: Attendance Report</Data></Cell>${titleFill}</Row><Row ss:Height="4"/><Row ss:Height="18">${sc('sMetaLbl','Cycle')}<Cell ss:StyleID="sMeta" ss:MergeAcross="${span-2}"><Data ss:Type="String">${xe(batch.label)}</Data></Cell></Row><Row ss:Height="18">${sc('sMetaLbl','Period')}<Cell ss:StyleID="sMeta" ss:MergeAcross="${span-2}"><Data ss:Type="String">${xe(fmtDate(start)+' to '+fmtDate(end)+' '+end.getFullYear())}</Data></Cell></Row><Row ss:Height="18">${sc('sMetaLbl','Exported')}<Cell ss:StyleID="sMeta" ss:MergeAcross="${span-2}"><Data ss:Type="String">${xe(exportedStr)}</Data></Cell></Row><Row ss:Height="10"/>`;
+    const D=dates.length, TC=7+D, lastCol=col(TC);
 
-    const headerRow=`<Row ss:Height="20">${sc('sHdrL','Name')}${sc('sHdrC','Shift')}${dates.map(d=>sc('sHdrC',fmtDay(d)+' '+fmtDate(d))).join('')}${sc('sHdrC','Present')}${sc('sHdrC','MC')}${sc('sHdrC','Absent')}${sc('sHdrC','Meal')}${sc('sHdrC','Rate')}</Row>`;
+    // ── Font definitions ────────────────────────────────────────────────────
+    // Index:  0=normal-black  1=bold-navy  2=normal-slate  3=bold-white
+    //         4=bold-white-13pt  5=normal-grey  6=normal-dark
+    //         7=bold-green  8=bold-dkgreen  9=bold-amber  10=bold-red
+    //         11=normal-ltgrey  12=normal-legend-grey
+    const mkFont=(bold,sz,color)=>`<font>${bold?'<b/>':''}<sz val="${sz}"/><color rgb="FF${color}"/><name val="Arial"/></font>`;
+    const fontDefs=[
+      mkFont(false,10,'000000'), mkFont(true,10,'1A2233'), mkFont(false,10,'5C6678'),
+      mkFont(true,10,'FFFFFF'),  mkFont(true,13,'FFFFFF'),
+      mkFont(false,10,'888888'), mkFont(false,10,'333333'),
+      mkFont(true,10,'155724'),  mkFont(true,10,'0D3D1A'),
+      mkFont(true,10,'856404'),  mkFont(true,10,'721C24'),
+      mkFont(false,10,'B0B8C4'), mkFont(false,10,'9AA3B2'),
+    ];
 
-    const dataRows=rowData.map((r,i)=>{
-      const even=i%2===0;
-      const dashSid=even?'sDashE':'sDashO';
-      const cellXml=r.cells.map(c=>sc(c.sid==='sD'?dashSid:c.sid,c.code)).join('');
-      return `<Row ss:Height="20">${sc(even?'sNameE':'sNameO',r.name)}${sc(even?'sShiftE':'sShiftO',r.shift)}${cellXml}${sc(even?'sNumGE':'sNumGO',r.pres)}${sc(even?'sNumAE':'sNumAO',r.mc)}${sc(even?'sNumRE':'sNumRO',r.abs)}${sc(even?'sNumAE':'sNumAO',r.meal)}${sc((even?rateSidE:rateSidO)(r.pct),r.pct!=null?r.pct+'%':'-')}</Row>`;
-    }).join('');
+    // ── Fill definitions ────────────────────────────────────────────────────
+    // Index: 0=none(req)  1=gray125(req)  2=white  3=lightRow  4=accent
+    //        5=green  6=dkGreen  7=amber  8=red  9=total
+    const mkFill=c=>c==='none'?'<fill><patternFill patternType="none"/></fill>':
+      c==='gray125'?'<fill><patternFill patternType="gray125"/></fill>':
+      `<fill><patternFill patternType="solid"><fgColor rgb="FF${c}"/><bgColor indexed="64"/></patternFill></fill>`;
+    const fillKeys=['none','gray125','FFFFFF','F5F7FB',acc,'D4EDDA','B8DAC4','FFF3CD','F8D7DA','EDF0F5'];
+    const FI={none:0,gray:1,white:2,light:3,accent:4,green:5,dkGreen:6,amber:7,red:8,total:9};
 
-    const totalRow=`<Row><Cell ss:StyleID="sTotL" ss:MergeAcross="1"><Data ss:Type="String">TOTAL</Data></Cell>${dates.map(()=>ec('sTot')).join('')}${sc('sTotG',totPres)}${sc('sTotA',totMc)}${sc('sTotR',totAbs)}${sc('sTotA',totMeal)}${sc(rateSidT(totPct),totPct!=null?totPct+'%':'-')}</Row>`;
+    // ── Border definitions ──────────────────────────────────────────────────
+    // Index: 0=none  1=thin-all  2=medium-top+thin-rest
+    const mkBorder=t=>{
+      const thin=p=>`<${p} style="thin"><color rgb="FFD0D8E4"/></${p}>`;
+      if(t==='none') return '<border><left/><right/><top/><bottom/><diagonal/></border>';
+      if(t==='thin') return `<border>${thin('left')}${thin('right')}${thin('top')}${thin('bottom')}<diagonal/></border>`;
+      return `<border>${thin('left')}${thin('right')}<top style="medium"><color rgb="FFB0B8CC"/></top>${thin('bottom')}<diagonal/></border>`;
+    };
+    const BI={none:0,thin:1,thickTop:2};
 
-    const legendRow=`<Row ss:Height="8"/><Row><Cell ss:StyleID="sLegend" ss:MergeAcross="${span-1}"><Data ss:Type="String">P = Present  |  P* = Present (admin-corrected)  |  MC = Medical / Leave  |  A = Absent  |  Meal = Days eligible for meal allowance (6h+ worked, clocked out)</Data></Cell></Row>`;
+    // ── Cell format (xf) definitions ────────────────────────────────────────
+    // [fontId, fillId, borderId, halign]
+    const mkXf=(f,fi,b,h)=>`<xf numFmtId="0" fontId="${f}" fillId="${fi}" borderId="${b}" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment horizontal="${h}" vertical="center"/></xf>`;
+    const xfDefs=[
+      [0,FI.none, BI.none,    'left'],    // 0  def
+      [4,FI.accent,BI.none,   'left'],    // 1  titleHdr
+      [5,FI.none, BI.none,    'left'],    // 2  metaLbl
+      [6,FI.none, BI.none,    'left'],    // 3  meta
+      [3,FI.accent,BI.thin,   'left'],    // 4  hdrL
+      [3,FI.accent,BI.thin,   'center'],  // 5  hdrC
+      [1,FI.white,BI.thin,    'left'],    // 6  nameE
+      [1,FI.light,BI.thin,    'left'],    // 7  nameO
+      [2,FI.white,BI.thin,    'left'],    // 8  shiftE
+      [2,FI.light,BI.thin,    'left'],    // 9  shiftO
+      [7,FI.green,BI.thin,    'center'],  // 10 present
+      [8,FI.dkGreen,BI.thin,  'center'],  // 11 presentStar
+      [9,FI.amber,BI.thin,    'center'],  // 12 mc
+      [10,FI.red, BI.thin,    'center'],  // 13 absent
+      [11,FI.white,BI.thin,   'center'],  // 14 dashE
+      [11,FI.light,BI.thin,   'center'],  // 15 dashO
+      [7, FI.white,BI.thin,   'center'],  // 16 numGE / rateGE
+      [7, FI.light,BI.thin,   'center'],  // 17 numGO / rateGO
+      [9, FI.white,BI.thin,   'center'],  // 18 numAE / rateAE
+      [9, FI.light,BI.thin,   'center'],  // 19 numAO / rateAO
+      [10,FI.white,BI.thin,   'center'],  // 20 numRE / rateRE
+      [10,FI.light,BI.thin,   'center'],  // 21 numRO / rateRO
+      [1, FI.total,BI.thickTop,'center'], // 22 totC
+      [1, FI.total,BI.thickTop,'left'],   // 23 totL
+      [7, FI.total,BI.thickTop,'center'], // 24 totG
+      [9, FI.total,BI.thickTop,'center'], // 25 totA
+      [10,FI.total,BI.thickTop,'center'], // 26 totR
+      [12,FI.none, BI.none,   'left'],    // 27 legend
+    ];
+    const XF={
+      def:0,titleHdr:1,metaLbl:2,meta:3,hdrL:4,hdrC:5,
+      nameE:6,nameO:7,shiftE:8,shiftO:9,
+      present:10,presentStar:11,mc:12,absent:13,
+      dashE:14,dashO:15,
+      numGE:16,numGO:17,numAE:18,numAO:19,numRE:20,numRO:21,
+      totC:22,totL:23,totG:24,totA:25,totR:26,
+      legend:27,
+    };
+    const rateSid=(n,E)=>n==null?(E?XF.dashE:XF.dashO):n>=80?(E?XF.numGE:XF.numGO):n>=60?(E?XF.numAE:XF.numAO):(E?XF.numRE:XF.numRO);
+    const rateSidTot=n=>n==null?XF.totC:n>=80?XF.totG:n>=60?XF.totA:XF.totR;
 
-    const b1=pos=>`<Border ss:Position="${pos}" ss:LineStyle="Continuous" ss:Weight="1" ss:Color="#D0D8E4"/>`;
-    const allB=`<Borders>${b1('Bottom')}${b1('Left')}${b1('Right')}${b1('Top')}</Borders>`;
-    const totB=`<Borders><Border ss:Position="Top" ss:LineStyle="Continuous" ss:Weight="2" ss:Color="#B0B8CC"/>${b1('Bottom')}${b1('Left')}${b1('Right')}</Borders>`;
-    const mk=(id,hal,bold,fc,bg,bdr,sz=10)=>`<Style ss:ID="${id}"><Alignment ss:Horizontal="${hal}" ss:Vertical="Center"/><Font ss:FontName="Arial" ss:Size="${sz}"${bold?' ss:Bold="1"':''}${fc?` ss:Color="${fc}"`:''}/>${bg?`<Interior ss:Color="${bg}" ss:Pattern="Solid"/>`:''}${bdr}</Style>`;
+    // ── styles.xml ──────────────────────────────────────────────────────────
+    const styles=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<fonts count="${fontDefs.length}">${fontDefs.join('')}</fonts>
+<fills count="${fillKeys.length}">${fillKeys.map(mkFill).join('')}</fills>
+<borders count="3">${['none','thin','thickTop'].map(mkBorder).join('')}</borders>
+<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>
+<cellXfs count="${xfDefs.length}">${xfDefs.map(([f,fi,b,h])=>mkXf(f,fi,b,h)).join('')}</cellXfs>
+</styleSheet>`;
 
-    const styles=`<Styles>
-      <Style ss:ID="Default"><Font ss:FontName="Arial" ss:Size="10"/></Style>
-      ${mk('sTitleHdr','Left',true,'#FFFFFF',ac,'',13)}
-      ${mk('sMetaLbl','Left',true,'#888888','','')}
-      ${mk('sMeta','Left',false,'#333333','','')}
-      ${mk('sHdrL','Left',true,'#FFFFFF',ac,allB)}
-      ${mk('sHdrC','Center',true,'#FFFFFF',ac,allB)}
-      ${mk('sNameE','Left',true,'#1A2233','#FFFFFF',allB)}
-      ${mk('sNameO','Left',true,'#1A2233','#F5F7FB',allB)}
-      ${mk('sShiftE','Center',false,'#5C6678','#FFFFFF',allB)}
-      ${mk('sShiftO','Center',false,'#5C6678','#F5F7FB',allB)}
-      ${mk('sP','Center',true,'#155724','#D4EDDA',allB)}
-      ${mk('sPs','Center',true,'#0D3D1A','#B8DAC4',allB)}
-      ${mk('sMC','Center',true,'#856404','#FFF3CD',allB)}
-      ${mk('sA','Center',true,'#721C24','#F8D7DA',allB)}
-      ${mk('sDashE','Center',false,'#B0B8C4','#FFFFFF',allB)}
-      ${mk('sDashO','Center',false,'#B0B8C4','#F5F7FB',allB)}
-      ${mk('sNumGE','Center',true,'#155724','#FFFFFF',allB)}
-      ${mk('sNumGO','Center',true,'#155724','#F5F7FB',allB)}
-      ${mk('sNumAE','Center',true,'#856404','#FFFFFF',allB)}
-      ${mk('sNumAO','Center',true,'#856404','#F5F7FB',allB)}
-      ${mk('sNumRE','Center',true,'#721C24','#FFFFFF',allB)}
-      ${mk('sNumRO','Center',true,'#721C24','#F5F7FB',allB)}
-      ${mk('sRateGE','Center',true,'#155724','#FFFFFF',allB)}
-      ${mk('sRateGO','Center',true,'#155724','#F5F7FB',allB)}
-      ${mk('sRateAE','Center',true,'#856404','#FFFFFF',allB)}
-      ${mk('sRateAO','Center',true,'#856404','#F5F7FB',allB)}
-      ${mk('sRateRE','Center',true,'#721C24','#FFFFFF',allB)}
-      ${mk('sRateRO','Center',true,'#721C24','#F5F7FB',allB)}
-      ${mk('sTot','Center',true,'','#EDF0F5',totB)}
-      ${mk('sTotL','Left',true,'','#EDF0F5',totB)}
-      ${mk('sTotG','Center',true,'#155724','#EDF0F5',totB)}
-      ${mk('sTotA','Center',true,'#856404','#EDF0F5',totB)}
-      ${mk('sTotR','Center',true,'#721C24','#EDF0F5',totB)}
-      ${mk('sLegend','Left',false,'#9AA3B2','','')}
-    </Styles>`;
+    // ── sheet1.xml ──────────────────────────────────────────────────────────
+    const col3=D>0?`<col min="3" max="${2+D}" width="11" customWidth="1"/>`:'';
+    const colsXml=`<cols><col min="1" max="1" width="24" customWidth="1"/><col min="2" max="2" width="8" customWidth="1"/>${col3}<col min="${3+D}" max="${7+D}" width="8" customWidth="1"/></cols>`;
 
-    const freezeOpts=`<WorksheetOptions xmlns="urn:schemas-microsoft-com:office:excel"><FreezePanes/><FrozenNoSplit/><SplitHorizontal>7</SplitHorizontal><TopRowBottomPane>7</TopRowBottomPane><ActivePane>2</ActivePane></WorksheetOptions>`;
-    const xml=`<?xml version="1.0" encoding="UTF-8"?>\n<?mso-application progid="Excel.Sheet"?>\n<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns:o="urn:schemas-microsoft-com:office:office">\n${styles}\n<Worksheet ss:Name="Attendance"><Table ss:DefaultColumnWidth="60">\n${colDefs}\n${metaRows}\n${headerRow}\n${dataRows}\n${totalRow}\n${legendRow}\n</Table>${freezeOpts}</Worksheet>\n</Workbook>`;
+    const rows=[];
+    let r=1;
 
-    const blob=new Blob([xml],{type:'application/vnd.ms-excel;charset=utf-8'});
+    // Title row (merged A1:lastCol)
+    rows.push(`<row r="${r}" ht="30" customHeight="1">${sc(r,1,batch.label+': Attendance Report',XF.titleHdr)}${Array.from({length:TC-1},(_,i)=>ec(r,i+2,XF.titleHdr)).join('')}</row>`);
+
+    // Spacer
+    rows.push(`<row r="${++r}" ht="4" customHeight="1"/>`);
+
+    // Meta rows
+    const metaRow=(label,val)=>{r++;return `<row r="${r}" ht="18" customHeight="1">${sc(r,1,label,XF.metaLbl)}${sc(r,2,val,XF.meta)}${Array.from({length:TC-2},(_,i)=>ec(r,i+3,XF.meta)).join('')}</row>`;};
+    rows.push(metaRow('Cycle',batch.label));
+    rows.push(metaRow('Period',fmtDate(start)+' to '+fmtDate(end)+' '+end.getFullYear()));
+    rows.push(metaRow('Exported',exportedStr));
+
+    // Spacer
+    rows.push(`<row r="${++r}" ht="10" customHeight="1"/>`);
+
+    // Header row (row 7)
+    r++;
+    rows.push(`<row r="${r}" ht="20" customHeight="1">${[
+      sc(r,1,'Name',XF.hdrL),sc(r,2,'Shift',XF.hdrC),
+      ...dates.map((d,i)=>sc(r,3+i,fmtDay(d)+' '+fmtDate(d),XF.hdrC)),
+      sc(r,3+D,'Present',XF.hdrC),sc(r,4+D,'MC',XF.hdrC),
+      sc(r,5+D,'Absent',XF.hdrC),sc(r,6+D,'Meal',XF.hdrC),sc(r,7+D,'Rate',XF.hdrC),
+    ].join('')}</row>`);
+
+    // Data rows (start at row 8)
+    rowData.forEach((rd,idx)=>{
+      r++;
+      const E=idx%2===0;
+      const dataCells=rd.cells.map((c,i)=>{
+        const xf=c.xf?XF[c.xf]:(E?XF.dashE:XF.dashO);
+        return sc(r,3+i,c.code,xf);
+      });
+      rows.push(`<row r="${r}" ht="20" customHeight="1">${[
+        sc(r,1,rd.name,E?XF.nameE:XF.nameO),sc(r,2,rd.shift,E?XF.shiftE:XF.shiftO),
+        ...dataCells,
+        sc(r,3+D,rd.pres,E?XF.numGE:XF.numGO),sc(r,4+D,rd.mc,E?XF.numAE:XF.numAO),
+        sc(r,5+D,rd.abs,E?XF.numRE:XF.numRO),sc(r,6+D,rd.meal,E?XF.numAE:XF.numAO),
+        sc(r,7+D,rd.pct!=null?rd.pct+'%':'-',rateSid(rd.pct,E)),
+      ].join('')}</row>`);
+    });
+
+    // Total row
+    const totRow=++r;
+    rows.push(`<row r="${totRow}" ht="20" customHeight="1">${[
+      sc(totRow,1,'TOTAL',XF.totL),ec(totRow,2,XF.totC),
+      ...Array.from({length:D},(_,i)=>ec(totRow,3+i,XF.totC)),
+      sc(totRow,3+D,totPres,XF.totG),sc(totRow,4+D,totMc,XF.totA),
+      sc(totRow,5+D,totAbs,XF.totR),sc(totRow,6+D,totMeal,XF.totA),
+      sc(totRow,7+D,totPct!=null?totPct+'%':'-',rateSidTot(totPct)),
+    ].join('')}</row>`);
+
+    // Spacer + legend
+    rows.push(`<row r="${++r}" ht="8" customHeight="1"/>`);
+    const legRow=++r;
+    rows.push(`<row r="${legRow}">${sc(legRow,1,'P = Present  |  P* = Present (admin-corrected)  |  MC = Medical / Leave  |  A = Absent  |  Meal = Days eligible for meal allowance (6h+ worked, clocked out)',XF.legend)}</row>`);
+
+    const merges=[
+      `<mergeCell ref="A1:${lastCol}1"/>`,
+      `<mergeCell ref="B3:${lastCol}3"/>`,
+      `<mergeCell ref="B4:${lastCol}4"/>`,
+      `<mergeCell ref="B5:${lastCol}5"/>`,
+      `<mergeCell ref="A${totRow}:B${totRow}"/>`,
+      `<mergeCell ref="A${legRow}:${lastCol}${legRow}"/>`,
+    ];
+
+    const sheetXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+<sheetViews><sheetView workbookViewId="0">
+<pane ySplit="7" topLeftCell="A8" activePane="bottomLeft" state="frozen"/>
+<selection pane="bottomLeft" activeCell="A8" sqref="A8"/>
+</sheetView></sheetViews>
+<sheetFormatPr defaultColWidth="8" defaultRowHeight="15"/>
+${colsXml}
+<sheetData>${rows.join('')}</sheetData>
+<mergeCells count="${merges.length}">${merges.join('')}</mergeCells>
+</worksheet>`;
+
+    // ── Package OOXML into .xlsx (ZIP) ──────────────────────────────────────
+    const zip=new JSZip();
+    zip.file('[Content_Types].xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types">
+<Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/>
+<Default Extension="xml" ContentType="application/xml"/>
+<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/>
+<Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>
+<Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>
+</Types>`);
+    zip.file('_rels/.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/>
+</Relationships>`);
+    zip.file('xl/workbook.xml',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+<sheets><sheet name="Attendance" sheetId="1" r:id="rId1"/></sheets>
+</workbook>`);
+    zip.file('xl/_rels/workbook.xml.rels',`<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+<Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
+<Relationship Id="rId2" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/>
+</Relationships>`);
+    zip.file('xl/styles.xml',styles);
+    zip.file('xl/worksheets/sheet1.xml',sheetXml);
+
+    const blob=await zip.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    const filename=(batch.label.replace(/[\s/#]+/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'')||'batch')+'_attendance.xlsx';
     const url=URL.createObjectURL(blob);
     const a=document.createElement('a');
-    a.href=url; a.download=(batch.label.replace(/[\s/#]+/g,'_').replace(/_+/g,'_').replace(/^_|_$/g,'')||'batch')+'_attendance.xls';
+    a.href=url; a.download=filename;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    this._toast('Excel file saved to Downloads.','info');
+    this._toast('Excel file saved to Downloads.');
   },
 
   exportPrint: async function() {
