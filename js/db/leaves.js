@@ -62,6 +62,18 @@ const DB_Leaves = {
     return data || [];
   },
 
+  async listProcessed(dept, since) {
+    let q = _db.from('leave_requests')
+      .select('*, personnel!inner(name, contact, department)')
+      .in('status', ['approved', 'rejected'])
+      .order('date', { ascending: false })
+      .limit(50);
+    if (since) q = q.gte('date', since);
+    if (dept) q = q.eq('personnel.department', dept);
+    const { data } = await q;
+    return data || [];
+  },
+
   async deleteOld(cutoffDate) {
     const { error } = await _db.from('leave_requests').delete().lt('date', cutoffDate);
     return { error };
