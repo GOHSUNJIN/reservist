@@ -3,17 +3,20 @@ const MemberSearchHandlers = {
 
   openPersonHistory: function(id) {
     return async () => {
-      this.setState({personHistoryId:id,personHistoryRows:[],personHistoryLoading:true});
+      this.setState({personHistoryId:id,personHistoryRows:[],personHistoryLeaves:[],personHistoryLoading:true});
       if(!this.state.demo){
-        const data=await DB.attendance.getHistory(id,Utils.dateKey(Utils.addDays(new Date(),1))).catch(()=>[]);
-        this.setState({personHistoryRows:data,personHistoryLoading:false});
+        const [data,leaves]=await Promise.all([
+          DB.attendance.getHistory(id,Utils.dateKey(Utils.addDays(new Date(),1))).catch(()=>[]),
+          DB.leaves.approvedByPerson(id).catch(()=>[]),
+        ]);
+        this.setState({personHistoryRows:data,personHistoryLeaves:leaves,personHistoryLoading:false});
       } else {
         this.setState({personHistoryLoading:false});
       }
     };
   },
 
-  closePersonHistory: function() { this.setState({personHistoryId:null,personHistoryRows:[],personHistoryLoading:false,confirmWipeHistoryId:null}); },
+  closePersonHistory: function() { this.setState({personHistoryId:null,personHistoryRows:[],personHistoryLeaves:[],personHistoryLoading:false,confirmWipeHistoryId:null}); },
 
   askWipeHistory:    function() { this.setState({confirmWipeHistoryId:this.state.personHistoryId}); },
   cancelWipeHistory: function() { this.setState({confirmWipeHistoryId:null}); },
