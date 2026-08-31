@@ -106,7 +106,7 @@ const makeInitialState = () => ({
   leaveSearch: '', leaveTypeFilter: 'all', leaveSearchOpen: false,
   rejectLeaveId: null, rejectLeaveReason: '',
   approvingLeaveId: null, confirmingDecline: false,
-  processedLeaves: [], processedLeavesLoaded: false,
+  processedLeaves: [], processedLeavesLoaded: false, processedLeavesHidden: true,
   leaveSelectedIds: [], confirmBulkLeaveReject: false, bulkLeaveRejectReason: '', bulkApprovingLeaves: false,
 
   // ── Notes and welfare ────────────────────────────────────────────────────

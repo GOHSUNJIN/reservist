@@ -90,7 +90,7 @@ const MiscHandlers = {
   go: function(t) { return () => { this.setState({tab:t}); this._scrollTop(); }; },
 
   goPeople: function() {
-    this.setState({tab:'people',peopleStatsLoaded:false,rejectedSignupsHidden:true,leaveSearch:'',leaveSearchOpen:false,leaveTypeFilter:'all',signupSearch:'',signupSearchOpen:false,signupTypeFilter:'all'});
+    this.setState({tab:'people',peopleStatsLoaded:false,rejectedSignupsHidden:true,processedLeavesHidden:true,leaveSearch:'',leaveSearchOpen:false,leaveTypeFilter:'all',signupSearch:'',signupSearchOpen:false,signupTypeFilter:'all'});
     this.loadPeopleStats();
     this.loadRosterAvatars();
     this.loadPendingLeaves();

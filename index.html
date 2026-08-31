@@ -1226,37 +1226,6 @@
           </div>
           </sc-if>
 
-          <!-- Processed leave requests -->
-          <sc-if value="{{ hasProcessedLeaves }}" hint-placeholder-val="">
-          <div class="card-flush mb-14">
-            <div style="padding:11px 16px;border-bottom:1px solid #eef0f4;">
-              <span style="font-size:11.5px;font-weight:700;color:#8a94a3;letter-spacing:.06em;">PROCESSED REQUESTS</span>
-            </div>
-            <sc-for list="{{ processedLeavesItems }}" as="pl" hint-placeholder-count="2">
-            <div style="display:flex;border-bottom:1px solid #f2f4f7;">
-              <div style="width:3px;flex-shrink:0;background:{{ pl.leftBar }};"></div>
-              <div style="flex:1;padding:11px 14px;">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                  <div style="font-size:13px;font-weight:600;color:#161f30;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ pl.personName }}</div>
-                  <div style="font-size:11.5px;color:#a0a8b4;white-space:nowrap;flex-shrink:0;">{{ pl.dateLabel }}</div>
-                </div>
-                <div style="display:flex;align-items:center;gap:5px;margin-top:4px;flex-wrap:wrap;">
-                  <span style="font-size:11px;font-weight:600;padding:1px 7px;border-radius:20px;background:{{ pl.typeBg }};color:{{ pl.typeColor }};border:1px solid {{ pl.typeBorder }};">{{ pl.typeLabel }}</span>
-                  <span style="font-size:11px;font-weight:600;padding:1px 7px;border-radius:20px;background:{{ pl.statusBg }};color:{{ pl.statusColor }};border:1px solid {{ pl.statusBorder }};">{{ pl.statusLabel }}</span>
-                  <sc-if value="{{ pl.reviewedBy }}" hint-placeholder-val=""><span style="font-size:11px;color:#a0a8b4;">by {{ pl.reviewedBy }}</span></sc-if>
-                </div>
-                <sc-if value="{{ pl.hasReason }}" hint-placeholder-val="">
-                  <div style="margin-top:5px;font-size:12px;color:#5c6678;font-style:italic;">"{{ pl.reason }}"</div>
-                </sc-if>
-                <sc-if value="{{ pl.hasRejectionReason }}" hint-placeholder-val="">
-                  <div style="margin-top:4px;font-size:11.5px;color:#9a3328;">Reason declined: {{ pl.rejectionReason }}</div>
-                </sc-if>
-              </div>
-            </div>
-            </sc-for>
-          </div>
-          </sc-if>
-
           <!-- Report day: stats + roster -->
           <sc-if value="{{ viewShowReporting }}" hint-placeholder-val="{{ true }}">
           <div>
@@ -1865,29 +1834,41 @@
           <div class="card-flush mb-14">
             <div class="section-row" style="border-bottom:1px solid #eef0f4;">
               <span class="text-label">PROCESSED REQUESTS</span>
+              <div style="flex:1;"></div>
+              <button onClick="{{ toggleProcessedLeaves }}" style="-webkit-appearance:none;background:none;border:none;cursor:pointer;padding:2px 4px;display:flex;align-items:center;gap:4px;font-size:11.5px;color:#8a94a3;font-weight:500;">
+                <sc-if value="{{ processedLeavesHidden }}" hint-placeholder-val="{{ true }}">Show</sc-if>
+                <sc-if value="{{ !processedLeavesHidden }}" hint-placeholder-val="">Hide</sc-if>
+              </button>
             </div>
+            <sc-if value="{{ !processedLeavesHidden }}" hint-placeholder-val="">
             <sc-for list="{{ processedLeavesItems }}" as="pl" hint-placeholder-count="2">
             <div style="display:flex;border-bottom:1px solid #f2f4f7;">
               <div style="width:3px;flex-shrink:0;background:{{ pl.leftBar }};"></div>
               <div style="flex:1;padding:11px 14px;">
-                <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                  <div class="text-body-bold" style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ pl.personName }}</div>
-                  <div style="font-size:11.5px;color:#a0a8b4;white-space:nowrap;flex-shrink:0;">{{ pl.dateLabel }}</div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <div class="avatar-sm" onClick="{{ pl.onViewAvatar }}" style="flex:0 0 auto;{{ pl.avatarStyle }}{{ pl.avatarCursor }}">{{ pl.avatarInitials }}</div>
+                  <div style="flex:1;min-width:0;">
+                    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
+                      <div class="text-body-bold" style="flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ pl.personName }}</div>
+                      <div style="font-size:11.5px;color:#a0a8b4;white-space:nowrap;flex-shrink:0;">{{ pl.dateLabel }}</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:5px;margin-top:3px;flex-wrap:wrap;">
+                      <span style="font-size:11px;font-weight:600;padding:1px 7px;border-radius:20px;background:{{ pl.typeBg }};color:{{ pl.typeColor }};border:1px solid {{ pl.typeBorder }};">{{ pl.typeLabel }}</span>
+                      <span style="font-size:11px;font-weight:600;padding:1px 7px;border-radius:20px;background:{{ pl.statusBg }};color:{{ pl.statusColor }};border:1px solid {{ pl.statusBorder }};">{{ pl.statusLabel }}</span>
+                      <sc-if value="{{ pl.reviewedBy }}" hint-placeholder-val=""><span style="font-size:11px;color:#a0a8b4;">by {{ pl.reviewedBy }}</span></sc-if>
+                    </div>
+                    <sc-if value="{{ pl.hasReason }}" hint-placeholder-val="">
+                      <div style="margin-top:4px;font-size:11.5px;color:#5c6678;font-style:italic;">"{{ pl.reason }}"</div>
+                    </sc-if>
+                    <sc-if value="{{ pl.hasRejectionReason }}" hint-placeholder-val="">
+                      <div style="margin-top:3px;font-size:11.5px;color:#9a3328;">Reason declined: {{ pl.rejectionReason }}</div>
+                    </sc-if>
+                  </div>
                 </div>
-                <div style="display:flex;align-items:center;gap:5px;margin-top:4px;flex-wrap:wrap;">
-                  <span style="font-size:11px;font-weight:600;padding:1px 7px;border-radius:20px;background:{{ pl.typeBg }};color:{{ pl.typeColor }};border:1px solid {{ pl.typeBorder }};">{{ pl.typeLabel }}</span>
-                  <span style="font-size:11px;font-weight:600;padding:1px 7px;border-radius:20px;background:{{ pl.statusBg }};color:{{ pl.statusColor }};border:1px solid {{ pl.statusBorder }};">{{ pl.statusLabel }}</span>
-                  <sc-if value="{{ pl.reviewedBy }}" hint-placeholder-val=""><span style="font-size:11px;color:#a0a8b4;">by {{ pl.reviewedBy }}</span></sc-if>
-                </div>
-                <sc-if value="{{ pl.hasReason }}" hint-placeholder-val="">
-                  <div style="margin-top:5px;font-size:12px;color:#5c6678;font-style:italic;">"{{ pl.reason }}"</div>
-                </sc-if>
-                <sc-if value="{{ pl.hasRejectionReason }}" hint-placeholder-val="">
-                  <div style="margin-top:4px;font-size:11.5px;color:#9a3328;">Reason declined: {{ pl.rejectionReason }}</div>
-                </sc-if>
               </div>
             </div>
             </sc-for>
+            </sc-if>
           </div>
           </sc-if>
 
