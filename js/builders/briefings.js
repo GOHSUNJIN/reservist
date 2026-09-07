@@ -59,17 +59,10 @@ const BriefingsBuilders = {
       mealStatusBanner:mealActive?'Active: submit your form daily (Mon-Fri).':'On hold: do not submit the form for now.',
       mealStatusStyle:mealActive?'background:#e7f3ec;border:1px solid #a8d5bb;border-radius:8px;padding:7px 10px;font-size:12px;color:#1f8a5b;font-weight:600;margin-bottom:8px;':'background:#fdf6e9;border:1px solid #f0e2c2;border-radius:8px;padding:7px 10px;font-size:12px;color:#8a6d2a;font-weight:600;margin-bottom:8px;',
       mealFormLink:'https://go.gov.sg/gdiv-pnsmen-meal-allowance',
-      mealItems:mealActive?[
-        'Mark PRESENT if you completed your shift, MC if on sick leave.',
-        'Upload a copy of your MC when declaring sick leave.',
-        "Supervisor's email is sent daily via the WhatsApp group.",
-        'No submission needed on public holidays or no-reporting days.',
+      mealItems:[
         '6 or more hours worked with a clock-out counts as 1 eligible meal claim.',
-      ]:[
-        'When active: submit daily Monday to Friday, including MC days.',
-        'Mark PRESENT if shift completed, MC if on sick leave.',
         'No submission needed on public holidays or no-reporting days.',
-        '6 or more hours worked with a clock-out counts as 1 eligible meal claim.',
+        'Upload a copy of your MC when submitting sick leave.',
       ],
       dekitItems:[
         'Fill meal allowance forms and submit to the Manpower Officer, endorsed by Ops Branch supervisor.',
