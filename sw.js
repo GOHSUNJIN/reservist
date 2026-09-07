@@ -1,4 +1,4 @@
-const CACHE = 'ops-v26';
+const CACHE = 'ops-v27';
 const APP_ASSETS = [
   './',
   './index.html',
@@ -61,8 +61,8 @@ self.addEventListener('fetch', e => {
     return;
   }
 
-  // Network-first for local JS files - always fetch fresh code, fall back to cache offline
-  if (url.pathname.endsWith('.js')) {
+  // Network-first for local JS and CSS - always fetch fresh, fall back to cache offline
+  if (url.pathname.endsWith('.js') || url.pathname.endsWith('.css')) {
     e.respondWith(
       fetch(e.request).then(res => {
         if (res.ok) {
