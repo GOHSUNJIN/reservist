@@ -60,14 +60,18 @@ CREATE POLICY "personnel_select" ON personnel FOR SELECT TO authenticated
 CREATE POLICY "personnel_insert" ON personnel FOR INSERT TO authenticated
   WITH CHECK (_auth_role() IN ('admin','superadmin'));
 
--- Admins can update reservist rows; only superadmins can set role to admin or superadmin
+-- Admins can update any reservist row; reservists can update their own row (e.g. self-deactivation)
+-- WITH CHECK prevents reservists from escalating their own role
 CREATE POLICY "personnel_update" ON personnel FOR UPDATE TO authenticated
-  USING (_auth_role() IN ('admin','superadmin'))
+  USING (
+    _auth_role() IN ('admin','superadmin')
+    OR auth_id = auth.uid()
+  )
   WITH CHECK (
     CASE
-      WHEN role = 'superadmin' THEN _auth_role() = 'superadmin'
-      WHEN role = 'admin'      THEN _auth_role() = 'superadmin'
-      ELSE _auth_role() IN ('admin','superadmin')
+      WHEN _auth_role() = 'superadmin' THEN true
+      WHEN _auth_role() = 'admin'      THEN role != 'superadmin'
+      ELSE auth_id = auth.uid() AND role = 'reservist'
     END
   );
 
