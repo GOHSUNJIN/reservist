@@ -170,7 +170,7 @@ const CalendarBuilders = {
     const _dc='#c2c8d2';
 
     const _exDates=s.historyExpandedDates||[];
-    const todayRow=(Utils.isReportDay(todayD)&&!this.isNoReport(0)&&(!activeBatch||today>=activeBatch.start_date))
+    const todayRow=(Utils.isReportDay(todayD)&&!this.isNoReport(0)&&(!activeBatch||today>=activeBatch.start_date)&&(!activeBatch||today<=activeBatch.end_date))
       ?[{date:Utils.fmtMed(todayD)+', Today',dateKey:today,shift:Utils.shiftLabel(me.shift),status,
          p1:rec.p1||'-',p2:rec.p2||'-',p3:rec.p3||'-',p4:rec.p4||'-',
          p1Color:_tc(rec.p1,'#161f30',_dc),p2Color:_tc(rec.p2,'#161f30',_dc),p3Color:_tc(rec.p3,'#161f30',_dc),p4Color:_tc(rec.p4,'#161f30',_dc),
@@ -261,11 +261,16 @@ const CalendarBuilders = {
 
     const hasMissingClockOut=s.history.slice(0,14).some(r=>r.status==='present'&&!r.work_end_time);
 
+    const bEnd=activeBatch?.end_date||'';
+    const bDekit=activeBatch?.dekit_date||'';
+    const showDekitNotice=!!(bEnd&&bDekit&&today>bEnd&&today<=bDekit);
+    const dekitNoticeDateFmt=bDekit?Utils.fmtShort(new Date(bDekit+'T00:00:00')):'';
+
     const PAGE=10, page=s.historyPage||1;
     const pagedHistory=myHistory.slice(0,page*PAGE);
     const historyHasMore=myHistory.length>page*PAGE;
     const historyRemaining=myHistory.length-pagedHistory.length;
-    return {myHistory:pagedHistory,historyHasMore,historyRemaining,showMoreHistory:this.showMoreHistory,statMyPresent,statMyMc,statMyMissed,statMyAbsent,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:pagedHistory.length===0,totalRecorded,attendanceRate,attendanceRateText,showAttendanceSummary,streak,streakLabel,cycleNotStarted,cycleStartsLabel,hasMissingClockOut,historyLoaded:s.historyLoaded,
+    return {myHistory:pagedHistory,historyHasMore,historyRemaining,showMoreHistory:this.showMoreHistory,statMyPresent,statMyMc,statMyMissed,statMyAbsent,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:pagedHistory.length===0,totalRecorded,attendanceRate,attendanceRateText,showAttendanceSummary,streak,streakLabel,cycleNotStarted,cycleStartsLabel,hasMissingClockOut,showDekitNotice,dekitNoticeDateFmt,historyLoaded:s.historyLoaded,
       missedNoteOpen:s.missedNoteOpen,missedNoteText:s.missedNoteText,missedNoteReady:true,closeMissedNote:this.closeMissedNote,onMissedNoteText:this.onMissedNoteText,saveMissedNote:this.saveMissedNote};
   },
 
