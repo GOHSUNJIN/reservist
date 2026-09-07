@@ -1,37 +1,43 @@
+const _rtErrHandler = name => (status, err) => {
+  if (status === 'CHANNEL_ERROR' || status === 'TIMED_OUT') {
+    console.warn(`[realtime] ${name} ${status}`, err||'');
+  }
+};
+
 const DB_Realtime = {
   subscribeAttendance(dateStr, onUpdate) {
     return _db.channel('attendance-' + dateStr)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance', filter: `date=eq.${dateStr}` },
         payload => { if (payload.new) onUpdate(payload.new); })
-      .subscribe();
+      .subscribe(_rtErrHandler('attendance'));
   },
 
   subscribeMyAttendance(personnelId, onUpdate) {
     return _db.channel('my-att-' + personnelId)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance', filter: `personnel_id=eq.${personnelId}` },
         payload => { if (payload.new) onUpdate(payload.new); })
-      .subscribe();
+      .subscribe(_rtErrHandler('my-attendance'));
   },
 
   subscribeLeaveStatus(personnelId, onUpdate) {
     return _db.channel('leave-status-' + personnelId)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'leave_requests', filter: `personnel_id=eq.${personnelId}` },
         payload => { if (payload.new) onUpdate(payload.new); })
-      .subscribe();
+      .subscribe(_rtErrHandler('leave-status'));
   },
 
   subscribePersonnelStatus(personnelId, onUpdate) {
     return _db.channel('my-personnel-' + personnelId)
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'personnel', filter: `id=eq.${personnelId}` },
         payload => { if (payload.new) onUpdate(payload.new); })
-      .subscribe();
+      .subscribe(_rtErrHandler('personnel-status'));
   },
 
   subscribePersonnelDeactivations(onUpdate) {
     return _db.channel('personnel-deactivations')
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'personnel' },
         payload => { if(payload.new && payload.new.is_active === false) onUpdate(payload.new); })
-      .subscribe();
+      .subscribe(_rtErrHandler('personnel-deactivations'));
   },
 
   subscribeAdminRequests(dept, onNew) {
@@ -41,7 +47,7 @@ const DB_Realtime = {
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'signup_requests',
         ...(dept ? { filter: `department=eq.${dept}` } : {}) },
         payload => { if (payload.new) onNew({ _type: 'signup', ...payload.new }); })
-      .subscribe();
+      .subscribe(_rtErrHandler('admin-requests'));
   },
 
   unsubscribe(channel) {
