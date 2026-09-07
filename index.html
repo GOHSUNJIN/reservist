@@ -1154,25 +1154,6 @@
             <div style="display:flex;align-items:center;justify-content:center;padding:14px;background:#f6f8fa;border-radius:11px;font-size:15px;font-weight:600;color:#b0b8c6;">Form unavailable</div>
             <div style="font-size:12px;color:#8a94a3;text-align:center;margin-top:9px;">Your meal allowance will be tracked through your daily check-ins.</div>
           </div>
-          <sc-if value="{{ mealHasHistory }}" hint-placeholder-val="">
-          <div class="card" style="padding:0;overflow:hidden;">
-            <div style="padding:11px 14px;border-bottom:1px solid #f0f2f5;"><span style="font-size:11px;font-weight:600;color:#9aa3b2;letter-spacing:.07em;">THIS CYCLE</span></div>
-            <div style="display:grid;grid-template-columns:repeat(3,1fr);">
-              <div class="tab-cell">
-                <div style="font-size:20px;font-weight:700;color:#1f8a5b;line-height:1;">{{ mealPresent }}</div>
-                <div style="font-size:11px;color:#8a94a3;margin-top:3px;">Present</div>
-              </div>
-              <div class="tab-cell">
-                <div style="font-size:20px;font-weight:700;color:#b9791a;line-height:1;">{{ mealMc }}</div>
-                <div style="font-size:11px;color:#8a94a3;margin-top:3px;">MC</div>
-              </div>
-              <div style="padding:13px 8px;text-align:center;">
-                <div style="font-size:20px;font-weight:700;color:#c0392b;line-height:1;">{{ mealAbsent }}</div>
-                <div style="font-size:11px;color:#8a94a3;margin-top:3px;">Absent</div>
-              </div>
-            </div>
-          </div>
-          </sc-if>
           </sc-if>
         </div>
         </sc-if>
