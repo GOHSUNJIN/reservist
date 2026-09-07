@@ -210,7 +210,12 @@
       <div style="display:flex;align-items:center;gap:10px;">
         <div onClick="{{ headerChipClick }}" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
           <div style="text-align:right;white-space:nowrap;"><div style="font-size:12px;font-weight:600;color:#36404f;line-height:1.2;">{{ userName }}</div></div>
-          <div style="width:36px;height:36px;border-radius:50%;background:#161f30;background-image:{{ headerAvatarBg }};background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;"><sc-if value="{{ headerNoAvatar }}" hint-placeholder-val="{{ true }}">{{ userInitials }}</sc-if></div>
+          <div style="position:relative;width:36px;height:36px;flex-shrink:0;">
+            <div style="width:36px;height:36px;border-radius:50%;background:#161f30;background-image:{{ headerAvatarBg }};background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;"><sc-if value="{{ headerNoAvatar }}" hint-placeholder-val="{{ true }}">{{ userInitials }}</sc-if></div>
+            <sc-if value="{{ headerNoAvatar }}" hint-placeholder-val="">
+            <span style="position:absolute;right:-2px;bottom:-2px;width:15px;height:15px;border-radius:50%;background:{{ accent }};border:2px solid #fff;display:flex;align-items:center;justify-content:center;pointer-events:none;"><svg width="7" height="7" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></span>
+            </sc-if>
+          </div>
         </div>
       </div>
     </div>
