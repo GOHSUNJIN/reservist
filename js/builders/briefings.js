@@ -62,7 +62,6 @@ const BriefingsBuilders = {
       mealItems:[
         '6 or more hours worked with a clock-out counts as 1 eligible meal claim.',
         'No submission needed on public holidays or no-reporting days.',
-        'Upload a copy of your MC when submitting sick leave.',
       ],
       dekitItems:[
         'Fill meal allowance forms and submit to the Manpower Officer, endorsed by Ops Branch supervisor.',
