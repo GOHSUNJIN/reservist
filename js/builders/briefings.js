@@ -51,7 +51,7 @@ const BriefingsBuilders = {
     return {
       myShiftTitle:OFFICE_ROLE.title, myShiftWindow:OFFICE_ROLE.window, myShiftItems:OFFICE_ROLE.items, myShiftNote:'',
       briefLocation:(this.props.hqName||'Bedok DHQ')+' Canteen',
-      briefAttire:'Civilian: pants and covered shoes',
+      briefAttire:'Civilian',
       briefAttireRowBorder:showBriefTransport?'1px solid #f2f4f7':'none',
       briefTransport, showBriefTransport,
       mealActive,
