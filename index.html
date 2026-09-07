@@ -2355,20 +2355,27 @@
     <!-- ===== DEACTIVATE CONFIRM SHEET (reservist) ===== -->
     <sc-if value="{{ confirmDelete }}" hint-placeholder-val="">
     <div style="position:absolute;inset:0;background:rgba(15,20,35,.55);z-index:100;display:flex;align-items:flex-end;">
-      <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:22px 20px 34px;box-shadow:0 -8px 32px rgba(20,30,50,.18);box-sizing:border-box;">
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-          <div style="font-size:16px;font-weight:700;color:#c0392b;">Deactivate account</div>
+      <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:24px 20px 36px;box-shadow:0 -8px 32px rgba(20,30,50,.18);box-sizing:border-box;">
+        <div style="display:flex;justify-content:flex-end;margin-bottom:4px;">
           <button onClick="{{ cancelDelete }}" class="btn-circle">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
           </button>
         </div>
-        <p style="font-size:13.5px;color:#5c6678;margin:0 0 6px;line-height:1.55;">Your attendance history is preserved for supervisor records. You will not be able to log in after this.</p>
+        <div style="display:flex;flex-direction:column;align-items:center;text-align:center;margin-bottom:20px;">
+          <div style="width:54px;height:54px;border-radius:50%;background:#fef2f2;display:flex;align-items:center;justify-content:center;margin-bottom:14px;">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div style="font-size:16px;font-weight:700;color:#161f30;">Deactivate account</div>
+        </div>
+        <p style="font-size:13.5px;color:#5c6678;margin:0 0 20px;line-height:1.6;text-align:center;">Your attendance history will be preserved for supervisor records. You will not be able to log in after this.</p>
         <sc-if value="{{ dekitDateFull }}" hint-placeholder-val="">
-          <p style="font-size:12px;color:#8a94a3;margin:0 0 20px;line-height:1.5;">Your account is deactivated automatically on your dekit day ({{ dekitDateFull }}).</p>
+          <div style="background:#f8f9fb;border:1px solid #e8eaed;border-radius:10px;padding:10px 14px;margin-bottom:20px;">
+            <p style="font-size:12px;color:#8a94a3;margin:0;line-height:1.5;">Your account will also be deactivated automatically on your dekit day ({{ dekitDateFull }}).</p>
+          </div>
         </sc-if>
-        <div style="display:flex;gap:10px;">
-          <button onClick="{{ deleteAccount }}" style="-webkit-appearance:none;flex:1;padding:13px;background:#c0392b;color:#fff;border:none;border-radius:11px;font-size:14px;font-weight:700;cursor:pointer;">Deactivate</button>
-          <button onClick="{{ cancelDelete }}" style="-webkit-appearance:none;padding:13px 20px;background:#fff;border:1px solid #d4d9e2;border-radius:11px;font-size:14px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <button onClick="{{ deleteAccount }}" style="-webkit-appearance:none;width:100%;padding:14px;background:#c0392b;color:#fff;border:none;border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;">Deactivate</button>
+          <button onClick="{{ cancelDelete }}" style="-webkit-appearance:none;width:100%;padding:14px;background:#fff;border:1px solid #d4d9e2;border-radius:12px;font-size:14px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
         </div>
       </div>
     </div>
