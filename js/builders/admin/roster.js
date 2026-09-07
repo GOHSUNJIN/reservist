@@ -51,7 +51,7 @@ const AdminRoster = {
     const rosterStatusAllStyle=_rSBtn('all'),rosterStatusPresentStyle=_rSBtn('present'),rosterStatusMcStyle=_rSBtn('mc'),rosterStatusAbsentStyle=_rSBtn('absent'),rosterStatusPendingStyle=_rSBtn('pending');
     const total=roster.length;
     const snapshotLastLine=viewIsToday?('⏳ Pending ('+pending+'): '+(roster.filter(r=>r.status==='pending').map(r=>r.name).join(', ')||'(none)')):('❌ Absent ('+absent+'): '+(roster.filter(r=>r.status==='absent'&&!r.hasApprovedLeave).map(r=>r.name).join(', ')||'(none)'));
-    const _orgN=self.props.orgName||'Ops Security';
+    const _orgN=self.props.orgName||'ReservistGO';
     const snapshotLines=['📋 *'+_orgN+', '+Utils.fmtMed(viewDate)+'*','✅ Present ('+present+'): '+(roster.filter(r=>r.status==='present').map(r=>r.name).join(', ')||'(none)'),'🤒 Leave ('+mc+'): '+(roster.filter(r=>r.status==='mc'||r.hasApprovedLeave).map(r=>r.name).join(', ')||'(none)'),snapshotLastLine];
     const snapshotLink='https://api.whatsapp.com/send?text='+encodeURIComponent(snapshotLines.join('\n'));
     const nowHhmm=Utils.hhmm(s.now);

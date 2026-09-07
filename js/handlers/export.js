@@ -295,7 +295,7 @@ ${colsXml}
     const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const fmtDate=d=>d.getDate()+' '+MO[d.getMonth()];
     const fmtDay=d=>DAYS[d.getDay()];
-    const orgName=this.props.orgName||'Ops Security';
+    const orgName=this.props.orgName||'ReservistGO';
     const accent=this.props.accent||'#2f5fd0';
     const xe=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 

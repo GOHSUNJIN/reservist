@@ -101,7 +101,7 @@ class AppComponent extends DCLogic {
   renderVals(){
     const s=this.state;
     const accent=this.props.accent||'#2f5fd0';
-    const orgName=this.props.orgName||'Ops Security';
+    const orgName=this.props.orgName||'ReservistGO';
     const hqName=this.props.hqName||'Bedok DHQ';
     return {
       accent, orgName, hqName,
