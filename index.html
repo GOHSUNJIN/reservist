@@ -210,7 +210,12 @@
       <div style="display:flex;align-items:center;gap:10px;">
         <div onClick="{{ headerChipClick }}" style="display:flex;align-items:center;gap:9px;cursor:pointer;">
           <div style="text-align:right;white-space:nowrap;"><div style="font-size:12px;font-weight:600;color:#36404f;line-height:1.2;">{{ userName }}</div></div>
-          <div style="width:36px;height:36px;border-radius:50%;background:#161f30;background-image:{{ headerAvatarBg }};background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;"><sc-if value="{{ headerNoAvatar }}" hint-placeholder-val="{{ true }}">{{ userInitials }}</sc-if></div>
+          <div style="position:relative;width:36px;height:36px;flex-shrink:0;">
+            <div style="width:36px;height:36px;border-radius:50%;background:#161f30;background-image:{{ headerAvatarBg }};background-size:cover;background-position:center;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:#fff;"><sc-if value="{{ headerNoAvatar }}" hint-placeholder-val="{{ true }}">{{ userInitials }}</sc-if></div>
+            <sc-if value="{{ headerNoAvatar }}" hint-placeholder-val="">
+            <span style="position:absolute;right:-1px;bottom:-1px;width:11px;height:11px;border-radius:50%;background:#e53e3e;border:2px solid #fff;pointer-events:none;"></span>
+            </sc-if>
+          </div>
         </div>
       </div>
     </div>
