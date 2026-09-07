@@ -234,7 +234,8 @@ const CalendarBuilders = {
     const myHistory=[...todayRow,...allPast];
     const statMyPresent=myHistory.filter(h=>h.status==='present').length;
     const statMyMc=myHistory.filter(h=>h.status==='mc').length;
-    const statMyMissed=missedRows.length;
+    const statMyAbsent=myHistory.filter(h=>h.status==='absent'||h.status==='missed').length;
+    const statMyMissed=statMyAbsent; // kept for back-compat
 
     let cycleTotal=0, cycleDone=0;
     if(activeBatch){
@@ -243,7 +244,7 @@ const CalendarBuilders = {
         if(Utils.isReportDay(d)&&!Utils.holidayName(d)&&!s.noReportDays.has(Utils.dateKey(d))){cycleTotal++;if(d<=now)cycleDone++;}
       }
     }
-    const totalRecorded=statMyPresent+statMyMc+statMyMissed;
+    const totalRecorded=statMyPresent+statMyMc+statMyAbsent;
     const attendanceRate=cycleDone>0?Math.round((statMyPresent+statMyMc)/cycleDone*100):null;
     const attendanceRateText=attendanceRate!==null?attendanceRate+'%':'-';
     const showAttendanceSummary=totalRecorded>0||cycleDone>0;
@@ -263,7 +264,7 @@ const CalendarBuilders = {
     const pagedHistory=myHistory.slice(0,page*PAGE);
     const historyHasMore=myHistory.length>page*PAGE;
     const historyRemaining=myHistory.length-pagedHistory.length;
-    return {myHistory:pagedHistory,historyHasMore,historyRemaining,showMoreHistory:this.showMoreHistory,statMyPresent,statMyMc,statMyMissed,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:pagedHistory.length===0,totalRecorded,attendanceRate,attendanceRateText,showAttendanceSummary,streak,streakLabel,cycleNotStarted,cycleStartsLabel,hasMissingClockOut,historyLoaded:s.historyLoaded,
+    return {myHistory:pagedHistory,historyHasMore,historyRemaining,showMoreHistory:this.showMoreHistory,statMyPresent,statMyMc,statMyMissed,statMyAbsent,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:pagedHistory.length===0,totalRecorded,attendanceRate,attendanceRateText,showAttendanceSummary,streak,streakLabel,cycleNotStarted,cycleStartsLabel,hasMissingClockOut,historyLoaded:s.historyLoaded,
       missedNoteOpen:s.missedNoteOpen,missedNoteText:s.missedNoteText,missedNoteReady:true,closeMissedNote:this.closeMissedNote,onMissedNoteText:this.onMissedNoteText,saveMissedNote:this.saveMissedNote};
   },
 
