@@ -834,7 +834,7 @@
             <div style="display:grid;grid-template-columns:1fr 1fr;">
               <div style="padding:12px 15px;border-right:1px solid #f2f4f7;">
                 <div style="font-size:10px;font-weight:700;color:#9aa3b2;letter-spacing:.06em;margin-bottom:4px;">DAYS</div>
-                <div style="font-size:13px;font-weight:600;color:#161f30;">Mon - Fri</div>
+                <div style="font-size:13px;font-weight:600;color:#161f30;">Monday to Friday</div>
               </div>
               <div style="padding:12px 15px;">
                 <div style="font-size:10px;font-weight:700;color:#9aa3b2;letter-spacing:.06em;margin-bottom:4px;">ATTIRE</div>
@@ -851,10 +851,21 @@
 
           <!-- About -->
           <div class="card" style="padding:14px 15px;">
-            <span class="section-label" style="display:block;margin-bottom:10px;">ABOUT THIS APP</span>
-            <p style="font-size:12.5px;color:#5c6678;line-height:1.7;margin:0 0 9px;">This app was built to help PNSMEN manage their reservist cycle at G Division. Instead of tracking attendance manually, you check in and out directly through the app using GPS verification at the reporting location.</p>
-            <p style="font-size:12.5px;color:#5c6678;line-height:1.7;margin:0 0 9px;">All records are stored securely and visible to your supervisor in real time. Leave requests submitted here go directly for approval, and approved or declined requests are reflected immediately in your record.</p>
-            <p style="font-size:12.5px;color:#5c6678;line-height:1.7;margin:0;">The app also tracks your meal allowance eligibility based on your attendance, so you can submit your claim accurately on dekit day.</p>
+            <span class="section-label" style="display:block;margin-bottom:12px;">ABOUT THIS APP</span>
+            <div style="display:flex;flex-direction:column;gap:12px;">
+              <div style="display:flex;gap:11px;align-items:flex-start;">
+                <div style="width:20px;height:20px;border-radius:50%;background:#eef3fc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:10px;font-weight:700;color:#2f5fd0;margin-top:1px;">1</div>
+                <div style="font-size:12.5px;color:#5c6678;line-height:1.65;padding-top:1px;">Built for PNSMen serving their reservist cycle at G Division (SPF). Manage attendance, leave, and meal allowance in one place instead of tracking things manually.</div>
+              </div>
+              <div style="display:flex;gap:11px;align-items:flex-start;">
+                <div style="width:20px;height:20px;border-radius:50%;background:#eef3fc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:10px;font-weight:700;color:#2f5fd0;margin-top:1px;">2</div>
+                <div style="font-size:12.5px;color:#5c6678;line-height:1.65;padding-top:1px;">Check in and out daily via GPS at the reporting location. Your supervisor sees attendance in real time, and leave requests submitted here go directly to them for approval.</div>
+              </div>
+              <div style="display:flex;gap:11px;align-items:flex-start;">
+                <div style="width:20px;height:20px;border-radius:50%;background:#eef3fc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-size:10px;font-weight:700;color:#2f5fd0;margin-top:1px;">3</div>
+                <div style="font-size:12.5px;color:#5c6678;line-height:1.65;padding-top:1px;">Meal allowance eligibility is tracked automatically based on your attendance, so you can submit an accurate claim on dekit day.</div>
+              </div>
+            </div>
           </div>
 
           <!-- If You're Sick -->
@@ -883,8 +894,11 @@
 
           <!-- Meal Allowance -->
           <div class="card" style="overflow:hidden;padding:0;">
-            <div style="padding:11px 15px;border-bottom:1px solid #f2f4f7;display:flex;align-items:center;justify-content:space-between;">
-              <span class="section-label">MEAL ALLOWANCE</span>
+            <div style="background:#fdf6e9;padding:11px 15px;border-bottom:1px solid #f0dfc0;display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:8px;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                <span class="section-label" style="color:#b9791a;">MEAL ALLOWANCE</span>
+              </div>
               <sc-if value="{{ mealActive }}" hint-placeholder-val="">
               <span style="font-size:11px;font-weight:600;color:#1f8a5b;background:#e7f3ec;padding:3px 9px;border-radius:20px;">Active</span>
               </sc-if>
