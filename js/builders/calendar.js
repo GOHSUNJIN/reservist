@@ -265,12 +265,14 @@ const CalendarBuilders = {
     const bDekit=activeBatch?.dekit_date||'';
     const showDekitNotice=!!(bEnd&&bDekit&&today>bEnd&&today<=bDekit);
     const dekitNoticeDateFmt=bDekit?Utils.fmtShort(new Date(bDekit+'T00:00:00')):'';
+    const dekitDiff=bDekit?Math.round((new Date(bDekit+'T00:00:00')-new Date(today+'T00:00:00'))/86400000):null;
+    const dekitTimingText=dekitDiff===0?`Dekit is today (${dekitNoticeDateFmt}).`:dekitDiff===1?`Dekit is tomorrow (${dekitNoticeDateFmt}).`:`Dekit is on ${dekitNoticeDateFmt}.`;
 
     const PAGE=10, page=s.historyPage||1;
     const pagedHistory=myHistory.slice(0,page*PAGE);
     const historyHasMore=myHistory.length>page*PAGE;
     const historyRemaining=myHistory.length-pagedHistory.length;
-    return {myHistory:pagedHistory,historyHasMore,historyRemaining,showMoreHistory:this.showMoreHistory,statMyPresent,statMyMc,statMyMissed,statMyAbsent,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:pagedHistory.length===0,totalRecorded,attendanceRate,attendanceRateText,showAttendanceSummary,streak,streakLabel,cycleNotStarted,cycleStartsLabel,hasMissingClockOut,showDekitNotice,dekitNoticeDateFmt,historyLoaded:s.historyLoaded,
+    return {myHistory:pagedHistory,historyHasMore,historyRemaining,showMoreHistory:this.showMoreHistory,statMyPresent,statMyMc,statMyMissed,statMyAbsent,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:pagedHistory.length===0,totalRecorded,attendanceRate,attendanceRateText,showAttendanceSummary,streak,streakLabel,cycleNotStarted,cycleStartsLabel,hasMissingClockOut,showDekitNotice,dekitNoticeDateFmt,dekitTimingText,historyLoaded:s.historyLoaded,
       missedNoteOpen:s.missedNoteOpen,missedNoteText:s.missedNoteText,missedNoteReady:true,closeMissedNote:this.closeMissedNote,onMissedNoteText:this.onMissedNoteText,saveMissedNote:this.saveMissedNote};
   },
 
