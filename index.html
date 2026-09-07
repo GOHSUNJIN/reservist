@@ -769,12 +769,15 @@
               </a>
               </sc-if>
             </div>
-            <div style="height:1px;background:rgba(255,255,255,.18);margin-bottom:11px;"></div>
-            <div style="display:flex;flex-direction:column;gap:7px;">
+            <div style="height:1px;background:rgba(255,255,255,.18);margin-bottom:10px;"></div>
+            <div style="font-size:9.5px;font-weight:700;color:rgba(255,255,255,.5);letter-spacing:.1em;margin-bottom:8px;">RESPONSIBILITIES</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
               <sc-for list="{{ myShiftItems }}" as="it" hint-placeholder-count="3">
               <div style="display:flex;gap:9px;align-items:flex-start;">
-                <div style="width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.5);flex:0 0 auto;margin-top:5px;"></div>
-                <span style="font-size:12px;color:rgba(255,255,255,.92);line-height:1.5;text-wrap:pretty;">{{ it }}</span>
+                <div style="width:17px;height:17px;border-radius:5px;background:rgba(255,255,255,.18);display:flex;align-items:center;justify-content:center;flex:0 0 auto;margin-top:1px;">
+                  <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.95)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <span style="font-size:12.5px;color:rgba(255,255,255,.92);line-height:1.45;text-wrap:pretty;">{{ it }}</span>
               </div>
               </sc-for>
             </div>
@@ -809,20 +812,47 @@
           <sc-if value="{{ !casInfoBlocked }}" hint-placeholder-val="">
 
           <!-- Reporting + Attire -->
-          <div class="card" style="padding:13px 15px;">
-            <span class="section-label" style="display:block;margin-bottom:9px;">REPORTING</span>
-            <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;">
-              <div class="info-cell"><div class="info-cell-label">Location</div><div class="info-cell-val">{{ briefLocation }}</div></div>
-              <div class="info-cell"><div class="info-cell-label">Days</div><div class="info-cell-val">Mon to Fri</div></div>
-              <div class="info-cell" style="grid-column:1/-1;"><div class="info-cell-label">Attire</div><div class="info-cell-val">{{ briefAttire }}</div></div>
+          <div class="card" style="padding:14px 15px;">
+            <span class="section-label" style="display:block;margin-bottom:12px;">REPORTING</span>
+            <div style="display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid #f2f4f7;">
+              <div style="width:32px;height:32px;border-radius:9px;background:#f0f2f7;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#9aa3b2;letter-spacing:.06em;margin-bottom:2px;">LOCATION</div>
+                <div style="font-size:13px;font-weight:600;color:#161f30;">{{ briefLocation }}</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:11px;padding:8px 0;border-bottom:1px solid #f2f4f7;">
+              <div style="width:32px;height:32px;border-radius:9px;background:#f0f2f7;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#9aa3b2;letter-spacing:.06em;margin-bottom:2px;">DAYS</div>
+                <div style="font-size:13px;font-weight:600;color:#161f30;">Mon to Fri</div>
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:11px;padding:8px 0;">
+              <div style="width:32px;height:32px;border-radius:9px;background:#f0f2f7;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              </div>
+              <div>
+                <div style="font-size:10px;font-weight:700;color:#9aa3b2;letter-spacing:.06em;margin-bottom:2px;">ATTIRE</div>
+                <div style="font-size:13px;font-weight:600;color:#161f30;">{{ briefAttire }}</div>
+              </div>
             </div>
           </div>
 
-          <!-- Meal + Dekit -->
-          <div class="card" style="padding:13px 15px;">
-            <span class="section-label" style="display:block;margin-bottom:7px;">MEAL ALLOWANCE</span>
+          <!-- Meal Allowance -->
+          <div class="card" style="padding:14px 15px;">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px;">
+              <div style="width:30px;height:30px;border-radius:8px;background:#fdf6e9;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+              </div>
+              <span class="section-label">MEAL ALLOWANCE</span>
+            </div>
             <div style="{{ mealStatusStyle }}">{{ mealStatusBanner }}</div>
-            <div style="display:flex;flex-direction:column;gap:4px;margin-bottom:11px;">
+            <div style="display:flex;flex-direction:column;gap:5px;">
               <sc-for list="{{ mealItems }}" as="it" hint-placeholder-count="3">
               <div style="display:flex;gap:7px;align-items:flex-start;">
                 <div style="width:4px;height:4px;border-radius:50%;background:#d4c9b0;flex:0 0 auto;margin-top:5px;"></div>
@@ -830,9 +860,17 @@
               </div>
               </sc-for>
             </div>
-            <div style="height:1px;background:#eef0f4;margin-bottom:10px;"></div>
-            <span class="section-label" style="display:block;margin-bottom:7px;">DEKIT DAY</span>
-            <div style="display:flex;flex-direction:column;gap:4px;">
+          </div>
+
+          <!-- Dekit Day -->
+          <div class="card" style="padding:14px 15px;">
+            <div style="display:flex;align-items:center;gap:9px;margin-bottom:10px;">
+              <div style="width:30px;height:30px;border-radius:8px;background:#eef3fc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#2f5fd0" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 00-1-1.73l-7-4a2 2 0 00-2 0l-7 4A2 2 0 003 8v8a2 2 0 001 1.73l7 4a2 2 0 002 0l7-4A2 2 0 0021 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>
+              </div>
+              <span class="section-label">DEKIT DAY</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:5px;">
               <sc-for list="{{ dekitItems }}" as="it" hint-placeholder-count="3">
               <div style="display:flex;gap:7px;align-items:flex-start;">
                 <div style="width:4px;height:4px;border-radius:50%;background:#b8bec9;flex:0 0 auto;margin-top:5px;"></div>
