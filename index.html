@@ -77,7 +77,7 @@
   <div class="scroll" style="flex:1;overflow:auto;display:flex;flex-direction:column;background:#131a27;">
     <div style="padding:40px 28px 30px;color:#e8ecf3;position:relative;overflow:hidden;flex:0 0 auto;">
       <div style="display:flex;align-items:center;gap:12px;z-index:1;position:relative;">
-        <div style="width:42px;height:42px;border-radius:9px;background:{{ accent }};display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'IBM Plex Mono',monospace;font-size:17px;color:#fff;box-shadow:0 6px 18px rgba(47,95,208,.4);">OS</div>
+        <div style="width:42px;height:42px;border-radius:9px;background:{{ accent }};display:flex;align-items:center;justify-content:center;font-weight:700;font-family:'IBM Plex Mono',monospace;font-size:17px;color:#fff;box-shadow:0 6px 18px rgba(47,95,208,.4);">GO</div>
         <div style="font-weight:600;font-size:15px;">{{ orgName }}</div>
       </div>
       <div style="margin-top:28px;z-index:1;position:relative;">
@@ -154,7 +154,7 @@
         <!-- Department picker -->
         <div style="margin-bottom:18px;">
           <label class="text-field-label" style="margin-bottom:8px;display:block;">Department</label>
-          <select value="{{ signupDeptSelectVal }}" onChange="{{ onSignupDeptSelect }}" style="width:100%;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:15px;font-weight:500;color:#161f30;background:#fff;outline:none;cursor:pointer;box-sizing:border-box;">
+          <select value="{{ signupDeptSelectVal }}" onChange="{{ onSignupDeptSelect }}" style="width:100%;padding:11px 36px 11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:15px;font-weight:500;color:#161f30;background:#fff;outline:none;cursor:pointer;box-sizing:border-box;">
             <option value="">Select your department</option>
             <sc-for list="{{ signupDeptOptions }}" as="opt">
               <option value="{{ opt.value }}">{{ opt.label }}</option>
@@ -3166,7 +3166,7 @@
 </div>
 </div>
 </x-dc>
-<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#2f5fd0&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;orgName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Ops Security&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Bedok DHQ&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqLat&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;1.332572&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqLon&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;103.937189&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;waGroupLink&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqRange&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;250&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:390,&quot;height&quot;:844},&quot;accent&quot;:{&quot;editor&quot;:&quot;color&quot;,&quot;default&quot;:&quot;#2f5fd0&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;orgName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;ReservistGO&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqName&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Bedok DHQ&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqLat&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;1.332572&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqLon&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;103.937189&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;waGroupLink&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;hqRange&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;250&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
 class Component extends makeAppComponent(DCLogic) {}
 </script>
 <script>
