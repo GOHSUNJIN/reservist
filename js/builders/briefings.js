@@ -65,9 +65,9 @@ const BriefingsBuilders = {
         'Fill up the physical meal allowance form using your clock-in and clock-out times recorded in this app.',
       ],
       dekitItems:[
-        'Fill meal allowance forms and submit to the Manpower Officer, endorsed by Ops Branch supervisor.',
-        'Bring hardcopies of any MCs taken.',
-        'Update WhatsApp once all PNSMEN have arrived.',
+        {n:'1',text:'Fill meal allowance forms and submit to the Manpower Officer, endorsed by Ops Branch supervisor.'},
+        {n:'2',text:'Bring hardcopies of any MCs taken.'},
+        {n:'3',text:'Update WhatsApp once all PNSMEN have arrived.'},
       ],
       cycleDayLabel, cycleProgressPct, showCycleProgress,
       infoDekitCountdown, showInfoDekitCountdown,
