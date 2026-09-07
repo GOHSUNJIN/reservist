@@ -1146,21 +1146,17 @@
           </div>
           </sc-if>
           <sc-if value="{{ !mealActive }}" hint-placeholder-val="{{ true }}">
-          <div class="card" style="padding:0;overflow:hidden;">
-            <div style="background:#fdf0dc;padding:20px 18px 18px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-                <div style="font-size:11px;font-weight:700;color:#a07c3a;letter-spacing:.08em;">MEAL ALLOWANCE</div>
-                <div style="display:flex;align-items:center;gap:6px;background:rgba(185,121,26,.15);color:#8a6d2a;padding:4px 11px;border-radius:20px;font-size:11.5px;font-weight:600;">
-                  <svg width="8" height="10" viewBox="0 0 24 24" fill="none" stroke="#8a6d2a" stroke-width="3.2" stroke-linecap="round"><line x1="8" y1="4" x2="8" y2="20"/><line x1="16" y1="4" x2="16" y2="20"/></svg>
-                  On hold
-                </div>
-              </div>
-              <div style="font-size:21px;font-weight:700;color:#7a5c1e;margin-bottom:5px;">Submissions paused</div>
-              <div style="font-size:13px;color:#a07c3a;line-height:1.5;">Do not submit the form for now.</div>
+          <div class="card" style="padding:28px 22px 22px;text-align:center;">
+            <div style="display:inline-flex;align-items:center;gap:6px;background:#fdf0dc;color:#8a6d2a;padding:5px 13px;border-radius:20px;font-size:12px;font-weight:600;margin-bottom:22px;">
+              <svg width="8" height="10" viewBox="0 0 24 24" fill="none" stroke="#8a6d2a" stroke-width="3.2" stroke-linecap="round"><line x1="8" y1="4" x2="8" y2="20"/><line x1="16" y1="4" x2="16" y2="20"/></svg>
+              On hold
             </div>
-            <div style="padding:14px 18px;border-top:1px solid #f0e2c2;">
-              <div style="font-size:12.5px;color:#5c6678;line-height:1.6;text-wrap:pretty;">Your attendance is captured through check-in only. You'll be notified via WhatsApp when submissions resume.</div>
+            <div style="width:58px;height:58px;border-radius:50%;background:#fdf0dc;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+              <svg width="20" height="24" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.8" stroke-linecap="round"><line x1="8" y1="4" x2="8" y2="20"/><line x1="16" y1="4" x2="16" y2="20"/></svg>
             </div>
+            <div style="font-size:18px;font-weight:700;color:#161f30;margin-bottom:7px;">Submissions paused</div>
+            <div style="font-size:13px;color:#5c6678;line-height:1.6;text-wrap:pretty;">Do not submit the meal allowance form. Your attendance is recorded through check-in only.</div>
+            <div style="margin-top:18px;padding-top:16px;border-top:1px solid #f0f2f7;font-size:12px;color:#9aa3b2;line-height:1.5;">You'll be notified via WhatsApp when submissions resume.</div>
           </div>
           </sc-if>
         </div>
