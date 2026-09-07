@@ -4,7 +4,7 @@ const BriefingsBuilders = {
   _buildBriefings: function(s, accent) {
     const activeBatch=s.batches[s.activeBatchIdx||0];
     const mealActive=!!(activeBatch?.meal_active);
-    const OFFICE_ROLE={title:'Office Hours',window:'0900 to 1800, Lunch 1200 to 1400',items:['Escort contractors when required.','Assist with Red Teaming exercises if needed.']};
+    const OFFICE_ROLE={title:'Office Hours',window:'0900 to 1800, Lunch 1200 to 1400',items:['Escort contractors when required.','Check signages and designated spots.','Assist with Red Teaming exercises if needed.']};
     const me=this.cur();
     const briefTab=s.briefTab||'info';
     const briefTabs=[{key:'info',label:'Info'},{key:'history',label:'Requests'}].map(t=>({
