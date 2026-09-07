@@ -26,7 +26,7 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 - **Leave and MC requests**: Submit requests digitally through the app. They go directly to the supervisor for approval with no phone calls or messages needed. Only one leave type is supported per day: MC (sick leave) or Personal Leave (other absences). When an MC is approved for today, the check-in phases are replaced with a "Marked as MC" card. When a Personal Leave is approved for today, the status chip switches to amber "Personal Leave" and an "On Personal Leave" card is shown instead.
 - **Cancel pending requests**: A leave or MC request can be withdrawn by the reservist before the supervisor has acted on it, from both the check-in screen and the Requests history tab.
 - **Request history**: The Requests tab shows the full history of submitted leave and MC requests, each with a coloured left bar, a type badge (MC and Personal Leave both in amber), and a status badge (Submitted, Approved, Declined, or Withdrawn). Records are deduplicated by date: if multiple requests exist for the same date, only the most relevant one is shown (pending takes priority over approved, approved over declined). Filter pills let you narrow the list by status. Pending requests can be withdrawn inline.
-- **Info and Attendance tabs**: The Info tab shows shift details, meal allowance information, leave request history, and a team directory listing batchmates with contact links. The Attendance tab shows the personal attendance calendar and history.
+- **Info and Attendance tabs**: The Info tab shows an About section explaining the app, shift and reporting details, dekit day steps, leave request history, and a team directory listing batchmates with contact links. The Attendance tab shows the personal attendance calendar and history.
 - **Attendance history**: View your full record for the cycle, including total days present, MC, absent, and your attendance rate.
 - **Copyable contact numbers**: Tap any batchmate's phone number in the team directory to copy it to the clipboard.
 - **Calendar coloring**: The attendance calendar uses colour to distinguish day types at a glance. Present days are green. MC and approved personal leave days are amber with a solid border. Pending MC or personal leave requests appear with a lighter amber tint and a dashed border. Days with a missing clock-out are orange with a dashed border. No-report days are slate blue. Absent days are red.
@@ -806,8 +806,8 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Tap a past day with approved personal leave: detail panel shows "Personal Leave" in amber, not "Absent"
 
 #### Info tab
+- [ ] About section shown with correct app description
 - [ ] Shift info shown correctly (title, window, items)
-- [ ] Meal allowance banner shows active or on-hold state
 - [ ] Team directory lists batchmates (not the logged-in user, not admins)
 - [ ] Tap a contact number in team directory: copies to clipboard, toast appears
 - [ ] WhatsApp link button opens WA chat with the correct number
