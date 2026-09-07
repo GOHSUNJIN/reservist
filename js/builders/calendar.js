@@ -180,6 +180,8 @@ const CalendarBuilders = {
          isMissedRow:false,showMissedNote:false,missedNote:'',onOpenMissedNote:()=>{},
          showTimingWarning:status==='present'&&(isCas?!rec.p4:(!rec.p2||!rec.p3||!rec.p4)),
          showLunchTimes:!isCas, histGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',
+         missingClockOut:status==='present'&&!rec.p4,
+         hasIncompleteTimes:status==='present'&&!!rec.p4&&(isCas?false:(!rec.p2||!rec.p3))&&_exDates.includes(today),
          ...Utils.meta(status)}]:[];
 
     const _nc='#b9791a'; // amber for unrecorded slots
