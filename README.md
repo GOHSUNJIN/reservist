@@ -28,6 +28,7 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 - **Request history**: The Requests tab shows the full history of submitted leave and MC requests, each with a coloured left bar, a type badge (MC and Personal Leave both in amber), and a status badge (Submitted, Approved, Declined, or Withdrawn). Records are deduplicated by date: if multiple requests exist for the same date, only the most relevant one is shown (pending takes priority over approved, approved over declined). Filter pills let you narrow the list by status. Pending requests can be withdrawn inline.
 - **Info and Attendance tabs**: The Info tab shows an About section explaining the app, shift and reporting details, dekit day steps, leave request history, and a team directory listing batchmates with contact links. The Attendance tab shows the personal attendance calendar and history.
 - **Attendance history**: View your full record for the cycle, including total days present, MC, absent, and your attendance rate.
+- **End-of-cycle notice**: When the reporting cycle ends, the Attendance tab shows a congratulations card and a reminder of the dekit date when the account will be deactivated. Today's row is suppressed for post-cycle days so no false Pending entry appears.
 - **Copyable contact numbers**: Tap any batchmate's phone number in the team directory to copy it to the clipboard.
 - **Calendar coloring**: The attendance calendar uses colour to distinguish day types at a glance. Present days are green. MC and approved personal leave days are amber with a solid border. Pending MC or personal leave requests appear with a lighter amber tint and a dashed border. Days with a missing clock-out are orange with a dashed border. No-report days are slate blue. Absent days are red.
 - **Phase reminder banner**: A banner appears automatically when a check-in phase window is open and you have not yet logged it. It disappears once the phase is recorded.
@@ -812,6 +813,11 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Tap a contact number in team directory: copies to clipboard, toast appears
 - [ ] WhatsApp link button opens WA chat with the correct number
 - [ ] WA group link shown only if configured
+
+#### Attendance tab (post-cycle)
+- [ ] After batch end date: no Pending row shown for today in Shift History
+- [ ] Congrats card and deactivation notice appear in Attendance tab during post-cycle window (after end date, up to and including dekit date)
+- [ ] Deactivation notice shows the correct dekit date
 
 #### Account settings
 - [ ] Change display name: saved and reflected in header immediately
