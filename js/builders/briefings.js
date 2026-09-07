@@ -67,7 +67,7 @@ const BriefingsBuilders = {
       dekitItems:[
         {n:'1',text:'Fill meal allowance forms and submit to the Manpower Officer, endorsed by Ops Branch supervisor.'},
         {n:'2',text:'Bring hardcopies of any MCs taken.'},
-        {n:'3',text:'Update WhatsApp once all PNSMEN have arrived.'},
+        {n:'3',text:'Update the Manpower Officer in charge once all PNSMEN have arrived.'},
       ],
       cycleDayLabel, cycleProgressPct, showCycleProgress,
       infoDekitCountdown, showInfoDekitCountdown,
