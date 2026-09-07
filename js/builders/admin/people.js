@@ -316,7 +316,7 @@ const AdminPeople = {
       })(),
       promoteNextPage:self.promoteNextPage, promotePrevPage:self.promotePrevPage,
       ...((pab=>{
-        const PROMOTE_PAGE_SIZE=8;
+        const PROMOTE_PAGE_SIZE=5;
         const all=(s.personnel||[]).filter(p=>p.is_active!==false&&(p.role||'reservist')==='reservist');
         const base=s.promoteShowAllCycles?all:all.filter(p=>pab&&p.batch_id===pab.id);
         const q=(s.promoteSearch||'').toLowerCase().trim();
