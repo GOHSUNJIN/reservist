@@ -27,6 +27,13 @@ const DB_Realtime = {
       .subscribe();
   },
 
+  subscribePersonnelDeactivations(onUpdate) {
+    return _db.channel('personnel-deactivations')
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'personnel' },
+        payload => { if(payload.new && payload.new.is_active === false) onUpdate(payload.new); })
+      .subscribe();
+  },
+
   subscribeAdminRequests(dept, onNew) {
     return _db.channel('admin-new-requests-' + (dept||'all'))
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'leave_requests' },

@@ -96,6 +96,7 @@ const makeInitialState = () => ({
   selectedSignupIds: [],
   signupSearch: '', signupTypeFilter: 'all', signupSearchOpen: false,
   rejectedSignupsHidden: true,
+  signupContactToId: {},
 
   // ── Leave requests ───────────────────────────────────────────────────────
   leaveOpen: false, leaveDate: '', leaveType: 'mc', leaveReason: '', leaveSubmitting: false,

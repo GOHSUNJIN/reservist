@@ -1797,7 +1797,7 @@
             <sc-for list="{{ pendingSignups }}" as="sr">
             <div style="padding:12px 16px;border-bottom:1px solid #f2f4f7;">
               <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
-                <div class="avatar-sm" style="flex:0 0 auto;background:#eceef2;color:#5c6678;font-size:12px;font-weight:700;">{{ sr.initials }}</div>
+                <div class="avatar-sm" onClick="{{ sr.onViewAvatar }}" style="flex:0 0 auto;{{ sr.avatarStyle }}font-size:12px;font-weight:700;{{ sr.avatarCursor }}">{{ sr.avatarInitials }}</div>
                 <div class="flex-fill">
                   <div style="display:flex;align-items:center;gap:6px;">
                     <span class="text-body-bold">{{ sr.name }}</span>

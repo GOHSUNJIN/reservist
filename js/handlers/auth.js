@@ -137,7 +137,7 @@ const AuthHandlers = {
       signupPending:false,
       pendingSignups:[], pendingSignupsLoaded:false, approvedSignups:[], rejectedSignups:[], rejectedSignupsLoaded:false,
       selectedSignupIds:[],
-      signupSearch:'', signupTypeFilter:'all', signupSearchOpen:false,
+      signupSearch:'', signupTypeFilter:'all', signupSearchOpen:false, signupContactToId:{},
       leaveSearch:'', addPersonnelOpen:false, npReenrollRecord:null,
       rejectLeaveId:null, rejectLeaveReason:'', approvingLeaveId:null, confirmingDecline:false, logNoteSaving:false,
       leaveSelectedIds:[], confirmBulkLeaveReject:false, bulkLeaveRejectReason:'', bulkApprovingLeaves:false,

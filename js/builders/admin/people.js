@@ -370,7 +370,10 @@ const AdminPeople = {
             const isReactivation=_approvedContacts.has(_rc);
             const prevDept=isReactivation?(_prevDeptMap[_rc]||null):null;
             const isCrossDept=isReactivation&&!!prevDept&&prevDept!==r.department;
+            const _matchId=(s.signupContactToId||{})[_rc]||null;
+            const _av=_matchId?(s.avatars[_matchId]||''):'';
             return {id:r.id,name:r.name,contact:r.contact,shift:r.shift,batchLabel:b?b.label:'',initials:Utils.initials(r.name)||'?',
+              avatarStyle:Utils.avatarStyle(_av),avatarInitials:_av?'':Utils.initials(r.name)||'?',hasAvatar:!!_av,avatarCursor:_av?'cursor:pointer;':'',onViewAvatar:_av?self.openAvatarLightbox(_av):null,
               createdAt:r.created_at?(new Date(r.created_at).toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'})+' · '+Utils.hhmm(new Date(r.created_at))):'',
               deptLabel:Utils.deptLabel(r.department),
               isReactivation,isNew:!isReactivation,
