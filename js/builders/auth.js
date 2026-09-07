@@ -14,7 +14,13 @@ const AuthBuilders = {
     const tb=a=>`flex:1;padding:11px;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;${a?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`;
     const bs=targetBatch?new Date(targetBatch.start_date+'T00:00:00'):null;
     const be=targetBatch?new Date(targetBatch.end_date+'T00:00:00'):null;
-    const intakeLabel=targetBatch?.label||'';
+    let intakeLabel=targetBatch?.label||'';
+    if(isLastDay&&liveBatch){
+      const liveM=liveBatch.label?.match(/^Cycle (\d+)\/(.*)/);
+      const targetM=intakeLabel.match(/^Cycle (\d+)\/(.*)/);
+      if(liveM&&targetM&&parseInt(targetM[1])<=parseInt(liveM[1]))
+        intakeLabel=`Cycle ${parseInt(liveM[1])+1}/${liveM[2]}`;
+    }
     const intakeRangeFull=bs&&be?(Utils.fmtShort(bs)+' to '+Utils.fmtShort(be)+' '+bs.getFullYear()):'';
     const signupDeptOptions=Object.entries(Utils.DEPARTMENTS).map(([value,{label}])=>({value,label}));
     return {
