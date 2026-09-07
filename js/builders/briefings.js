@@ -62,6 +62,7 @@ const BriefingsBuilders = {
       mealItems:[
         '6 or more hours worked with a clock-out counts as 1 eligible meal claim.',
         'No submission needed on public holidays or no-reporting days.',
+        'Fill up the physical meal allowance form using your clock-in and clock-out times recorded in this app.',
       ],
       dekitItems:[
         'Fill meal allowance forms and submit to the Manpower Officer, endorsed by Ops Branch supervisor.',
