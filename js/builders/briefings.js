@@ -12,12 +12,43 @@ const BriefingsBuilders = {
       style:`flex:1;padding:8px 4px;border:none;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;${briefTab===t.key?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`,
     }));
     const waGroupUrl=this.props.waGroupLink||'';
+    // Meal stats
+    const _h=(s.history||[]).filter(r=>Utils.isReportDay(new Date(r.date+'T00:00:00')));
+    const mealPresent=_h.filter(r=>r.status==='present').length;
+    const mealMc=_h.filter(r=>r.status==='mc').length;
+    const mealAbsent=_h.filter(r=>r.status==='absent'||r.status==='missed').length;
+    const mealHasHistory=!!_h.length;
+    const mealEligibleDays=mealPresent+mealMc;
+    // Cycle progress
+    const today=Utils.dateKey(this.baseDate());
+    const bStart=activeBatch?.start_date||'';
+    const bEnd=activeBatch?.end_date||'';
+    const bDekit=activeBatch?.dekit_date||'';
+    let cycleDayLabel='',cycleProgressPct=0,showCycleProgress=false;
+    if(bStart&&bEnd&&today>=bStart&&today<=bEnd){
+      const tMs=new Date(today+'T00:00:00').getTime(),sMs=new Date(bStart+'T00:00:00').getTime(),eMs=new Date(bEnd+'T00:00:00').getTime();
+      const total=Math.round((eMs-sMs)/86400000)+1,elapsed=Math.round((tMs-sMs)/86400000)+1;
+      cycleDayLabel=`Day ${elapsed} of ${total}`;cycleProgressPct=Math.round((elapsed/total)*100);showCycleProgress=true;
+    }
+    // Dekit countdown
+    let infoDekitCountdown='',showInfoDekitCountdown=false;
+    if(bDekit&&today<=bDekit){
+      const diff=Math.round((new Date(bDekit+'T00:00:00')-new Date(today+'T00:00:00'))/86400000);
+      const fmt=Utils.fmtShort(new Date(bDekit+'T00:00:00'));
+      infoDekitCountdown=diff===0?`Today (${fmt})`:`${diff} day${diff===1?'':'s'} away (${fmt})`;
+      showInfoDekitCountdown=true;
+    }
+    // Transport
+    const briefTransport=this.props.hqTransport||'';
+    const showBriefTransport=!!briefTransport;
     return {
       myShiftTitle:OFFICE_ROLE.title, myShiftWindow:OFFICE_ROLE.window, myShiftItems:OFFICE_ROLE.items, myShiftNote:'',
       briefLocation:(this.props.hqName||'Bedok DHQ')+' Canteen',
       briefAttire:'Civilian: pants and covered shoes',
+      briefAttireRowBorder:showBriefTransport?'1px solid #f2f4f7':'none',
+      briefTransport, showBriefTransport,
       mealActive,
-      ...(()=>{const _h=(s.history||[]).filter(r=>Utils.isReportDay(new Date(r.date+'T00:00:00')));return{mealPresent:_h.filter(r=>r.status==='present').length,mealMc:_h.filter(r=>r.status==='mc').length,mealAbsent:_h.filter(r=>r.status==='absent'||r.status==='missed').length,mealHasHistory:!!_h.length};})(),
+      mealPresent, mealMc, mealAbsent, mealHasHistory, mealEligibleDays,
       mealStatusBanner:mealActive?'Active: submit your form daily (Mon-Fri).':'On hold: do not submit the form for now.',
       mealStatusStyle:mealActive?'background:#e7f3ec;border:1px solid #a8d5bb;border-radius:8px;padding:7px 10px;font-size:12px;color:#1f8a5b;font-weight:600;margin-bottom:8px;':'background:#fdf6e9;border:1px solid #f0e2c2;border-radius:8px;padding:7px 10px;font-size:12px;color:#8a6d2a;font-weight:600;margin-bottom:8px;',
       mealFormLink:'https://go.gov.sg/gdiv-pnsmen-meal-allowance',
@@ -26,15 +57,24 @@ const BriefingsBuilders = {
         'Upload a copy of your MC when declaring sick leave.',
         "Supervisor's email is sent daily via the WhatsApp group.",
         'No submission needed on public holidays or no-reporting days.',
+        '6 or more hours worked with a clock-out counts as 1 eligible meal claim.',
       ]:[
-        'When active: submit daily Mon-Fri, including MC days.',
+        'When active: submit daily Monday to Friday, including MC days.',
         'Mark PRESENT if shift completed, MC if on sick leave.',
         'No submission needed on public holidays or no-reporting days.',
+        '6 or more hours worked with a clock-out counts as 1 eligible meal claim.',
       ],
       dekitItems:[
         'Fill meal allowance forms and submit to the Manpower Officer, endorsed by Ops Branch supervisor.',
         'Bring hardcopies of any MCs taken.',
         'Update WhatsApp once all PNSMEN have arrived.',
+      ],
+      cycleDayLabel, cycleProgressPct, showCycleProgress,
+      infoDekitCountdown, showInfoDekitCountdown,
+      sickItems:[
+        'Inform your supervisor as early as possible.',
+        'Submit an MC or Personal Leave request in the app - your record updates immediately.',
+        'Keep your MC hardcopy. You will need it for dekit day.',
       ],
       briefTabs, briefTabInfo:briefTab==='info', briefTabHistory:briefTab==='history',
       waGroupUrl, showWaGroup:!!waGroupUrl,
