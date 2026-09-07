@@ -135,5 +135,5 @@ const Utils = {
   },
   deptLabel(dept) { return this.DEPARTMENTS[dept]?.label || dept || ''; },
   deptShort(dept) { return this.DEPARTMENTS[dept]?.short || 'OPS'; },
-  avatarStyle(av) { return av ? `background-image:url("${av.replace(/"/g,'%22')}");background-size:cover;background-position:center;color:transparent;` : ''; },
+  avatarStyle(av) { return av ? `background-image:url("${av.replace(/\\/g,'%5C').replace(/"/g,'%22').replace(/\)/g,'%29')}");background-size:cover;background-position:center;color:transparent;` : ''; },
 };

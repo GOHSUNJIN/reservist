@@ -25,6 +25,11 @@ RETURNS UUID AS $$
   SELECT batch_id FROM personnel WHERE auth_id = auth.uid() LIMIT 1;
 $$ LANGUAGE sql SECURITY DEFINER STABLE;
 
+CREATE OR REPLACE FUNCTION _sg_today()
+RETURNS DATE AS $$
+  SELECT (NOW() AT TIME ZONE 'Asia/Singapore')::DATE;
+$$ LANGUAGE sql SECURITY DEFINER STABLE;
+
 -- ── Enable RLS on all tables ─────────────────────────────────
 ALTER TABLE personnel       ENABLE ROW LEVEL SECURITY;
 ALTER TABLE batches         ENABLE ROW LEVEL SECURITY;
@@ -98,14 +103,14 @@ CREATE POLICY "attendance_select" ON attendance FOR SELECT TO authenticated
 CREATE POLICY "attendance_insert" ON attendance FOR INSERT TO authenticated
   WITH CHECK (
     _auth_role() IN ('admin','superadmin')
-    OR (personnel_id = _auth_pid() AND date = CURRENT_DATE)
+    OR (personnel_id = _auth_pid() AND date = _sg_today())
   );
 
 CREATE POLICY "attendance_update" ON attendance FOR UPDATE TO authenticated
   USING (personnel_id = _auth_pid() OR _auth_role() IN ('admin','superadmin'))
   WITH CHECK (
     _auth_role() IN ('admin','superadmin')
-    OR (personnel_id = _auth_pid() AND date = CURRENT_DATE)
+    OR (personnel_id = _auth_pid() AND date = _sg_today())
   );
 
 CREATE POLICY "attendance_delete" ON attendance FOR DELETE TO authenticated
@@ -128,16 +133,27 @@ CREATE POLICY "leave_delete" ON leave_requests FOR DELETE TO authenticated
 
 -- ── signup_requests ──────────────────────────────────────────
 CREATE POLICY "signup_select" ON signup_requests FOR SELECT TO authenticated
-  USING (auth_id = auth.uid() OR _auth_role() IN ('admin','superadmin'));
+  USING (
+    auth_id = auth.uid()
+    OR (_auth_role() = 'superadmin')
+    OR (_auth_role() = 'admin' AND department::text = _auth_dept())
+  );
 
 CREATE POLICY "signup_insert" ON signup_requests FOR INSERT TO authenticated
   WITH CHECK (auth_id = auth.uid());
 
 CREATE POLICY "signup_update" ON signup_requests FOR UPDATE TO authenticated
-  USING (auth_id = auth.uid() OR _auth_role() IN ('admin','superadmin'));
+  USING (
+    auth_id = auth.uid()
+    OR (_auth_role() = 'superadmin')
+    OR (_auth_role() = 'admin' AND department::text = _auth_dept())
+  );
 
 CREATE POLICY "signup_delete" ON signup_requests FOR DELETE TO authenticated
-  USING (_auth_role() IN ('admin','superadmin'));
+  USING (
+    (_auth_role() = 'superadmin')
+    OR (_auth_role() = 'admin' AND department::text = _auth_dept())
+  );
 
 -- ── no_report_days ───────────────────────────────────────────
 CREATE POLICY "nrd_select" ON no_report_days FOR SELECT TO authenticated USING (true);

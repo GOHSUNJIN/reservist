@@ -48,7 +48,7 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 ### For Supervisors (Admin)
 
 **Attendance Roster:**
-- **Live attendance board**: Updates in real time as reservists check in, with no manual refresh needed.
+- **Live attendance board**: Updates in real time as reservists check in, with no manual refresh needed. When a reservist self-deactivates their account, the admin receives a toast notification immediately and the person is removed from the active roster without requiring a page refresh.
 - **Status filter chips**: Filter the roster by All, Present, MC, Absent, or Pending to see only the group you need.
 - **Roster search**: Filter roster entries by name. The filter persists while navigating dates.
 - **Manual status override**: Mark any reservist as Present, MC, or Absent directly from the roster.
@@ -70,7 +70,7 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 - **Missing clock-out display**: When a reservist is marked present but has no Phase 4 clock-out, the OUT column of their log card shows a dash on an orange background instead of a time. This keeps the missing clock-out visible without adding a separate badge row, making it easy to scan and correct before payroll.
 
 **Requests and Leave:**
-- **Unified requests inbox**: All pending signup requests, MC requests, and personal leave requests appear in one place. Each signup is labelled New or Returning so the supervisor knows at a glance whether they are onboarding a first-timer or re-enrolling someone from a previous cycle.
+- **Unified requests inbox**: All pending signup requests, MC requests, and personal leave requests appear in one place. Each signup is labelled New or Returning so the supervisor knows at a glance whether they are onboarding a first-timer or re-enrolling someone from a previous cycle. Returning reservists who have a profile photo on file have it displayed on their signup card automatically.
 - **Leave type badges**: Pending leave requests display amber type badges for both MC and Personal Leave. The same colour is used consistently across the admin view and the reservist's own request history.
 - **Submission timestamps**: Pending requests and signups show the exact submission time (HH:MM) rather than a relative label. The time resets daily so context is always accurate.
 - **Signup search and filters**: The Pending Signups panel has a collapsible search bar with filter pills (All, New, Returning). A red dot on the search icon indicates when a filter is active.
@@ -193,6 +193,11 @@ The system uses three permission levels:
 
 Accounts are tied to Singapore mobile numbers. All sessions expire when the browser is closed. Idle sessions time out after 20 minutes.
 
+Row-level security policies are enforced at the database level, not just in the app:
+
+- Reservists can only write attendance records for today in SGT (Asia/Singapore timezone), not UTC, so a reservist cannot exploit a UTC midnight window to submit records for the wrong date.
+- Admin accounts can only read, update, or delete signup requests that belong to their own department. Superadmins retain full cross-department visibility.
+
 ---
 
 ## No Installation Required
@@ -299,7 +304,7 @@ docs/
 
 **Offline queue**: When the device is offline, check-in actions are pushed to `this._offlineQueues` and persisted to `sessionStorage`. On reconnect, `_onOnline` replays the queue in order against the database.
 
-**Realtime**: Supabase Realtime channels push row-level changes for attendance (admin view), leave status (reservist view), new requests (admin notifications), and personnel status changes (reservist view) without polling. If a reservist's account is deactivated while they are logged in, the personnel status channel fires immediately, shows a toast, and logs them out within a few seconds.
+**Realtime**: Supabase Realtime channels push row-level changes for attendance (admin view), leave status (reservist view), new requests (admin notifications), and personnel status changes (reservist view) without polling. If a reservist's account is deactivated while they are logged in, the personnel status channel fires immediately, shows a toast, and logs them out within a few seconds. If a reservist self-deactivates, the admin's personnel deactivation channel fires and removes the person from the active roster in real time. All subscription errors (channel errors, timeouts) are logged to the console for debugging rather than failing silently.
 
 **Batch provisioning**: On every admin login, the system ensures a live batch exists and that 8 future batches are pre-created. This prevents the cycle selector from being empty when a new cycle starts.
 
@@ -739,6 +744,7 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Leave tab idle for 18 minutes - idle warning banner appears
 - [ ] Leave tab idle for 20 minutes - session ends, redirected to login
 - [ ] Admin deactivates a reservist who is currently logged in: reservist sees a toast within a few seconds and is logged out automatically
+- [ ] Reservist self-deactivates while admin is logged in: admin sees a real-time toast naming the reservist and the person is removed from the active roster immediately, no page refresh needed
 - [ ] Deactivated reservist logs in with a live batch: re-enrollment request auto-submitted, error shown with instructions if submission fails
 - [ ] Deactivated reservist logs in with no live batch: clear error shown, no re-enrollment request created
 - [ ] Deactivated reservist logs in with a pending re-enrollment request: message shown that the request is awaiting approval, no duplicate request created
@@ -856,7 +862,7 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] WhatsApp summary button: generates text, preview modal opens, copy and send both work
 
 #### Requests tab (Signups)
-- [ ] Pending signups listed with avatar initials, name, contact, timestamp, New or Returning badge
+- [ ] Pending signups listed with name, contact, timestamp, New or Returning badge; returning reservists who have a profile photo show it on the card instead of initials
 - [ ] Tap contact number: copies to clipboard
 - [ ] Approve a signup: person appears in roster on next load; request disappears from pending list
 - [ ] Decline a signup: request moves to Declined section

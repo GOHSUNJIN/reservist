@@ -90,8 +90,9 @@ const CheckinHandlers = {
       if(!demo){
         if(!me?.batch_id){this._toast('You are not assigned to a reporting cycle. Please contact your supervisor.','error');return;}
         const _b=this.state.batches.find(b=>b.id===me?.batch_id), _dk=Utils.dateKey(this.baseDate());
-        if(_b&&_dk<_b.start_date){this._toast('Your reporting period has not started yet.','error');return;}
-        if(_b&&_dk>_b.end_date){this._toast('Your reporting period has ended.','error');return;}
+        if(!_b){this._toast('Your reporting cycle could not be found. Please contact your supervisor.','error');return;}
+        if(_dk<_b.start_date){this._toast('Your reporting period has not started yet.','error');return;}
+        if(_dk>_b.end_date){this._toast('Your reporting period has ended.','error');return;}
       }
       const _pre={p2:'p1',p3:'p2',p4:'p3'}, _preMsg={p2:'Check in first.',p3:'Record your break out first.',p4:'Record your return before checking out.'};
       if(_pre[key]&&!this.myRec()?.[_pre[key]]){this._toast(_preMsg[key],'error');return;}
