@@ -140,6 +140,11 @@ const InitHandlers = {
         this.loadRejectedSignups(),
       ]), 0);
       this._subscribeAdminRequests();
+      this._personnelDeactivationChannel = DB.realtime.subscribePersonnelDeactivations((row) => {
+        if(!this.state.personnel.some(p=>p.id===row.id)) return;
+        this._toast((row.name||'A reservist')+' has self-deactivated.');
+        this.setState(s=>({personnel:s.personnel.filter(p=>p.id!==row.id)}));
+      });
       if(typeof Notification !== 'undefined' && Notification.permission !== 'granted'){
         localStorage.removeItem('admin_notif');
         this.setState({adminNotifGranted:false});
@@ -370,6 +375,7 @@ const InitHandlers = {
     if(this._myLeaveChannel){ DB.realtime.unsubscribe(this._myLeaveChannel); this._myLeaveChannel = null; }
     if(this._myAttendanceChannel){ DB.realtime.unsubscribe(this._myAttendanceChannel); this._myAttendanceChannel = null; }
     if(this._adminRequestsChannel){ DB.realtime.unsubscribe(this._adminRequestsChannel); this._adminRequestsChannel = null; }
+    if(this._personnelDeactivationChannel){ DB.realtime.unsubscribe(this._personnelDeactivationChannel); this._personnelDeactivationChannel = null; }
   },
 
 };

@@ -1,7 +1,30 @@
 // ── Signup request handlers (admin) ───────────────────────────────────────
 const SignupHandlers = {
 
-  loadPendingSignups:  async function() { const dept=this._myDept(); const data=await DB.signupRequests.listPending(dept).catch(()=>[]); this.setState({pendingSignups:data,pendingSignupsLoaded:true}); },
+  loadPendingSignups: async function() {
+    const dept=this._myDept();
+    const data=await DB.signupRequests.listPending(dept).catch(()=>[]);
+    this.setState({pendingSignups:data,pendingSignupsLoaded:true});
+    if(data.length) this.loadSignupAvatars(data);
+  },
+
+  loadSignupAvatars: async function(signups) {
+    if(this.state.demo) return;
+    const list = signups || this.state.pendingSignups;
+    if(!list.length) return;
+    const dept=this._myDept();
+    const allPersonnel=await DB.personnel.list(null,false,dept).catch(()=>[]);
+    const contactToId={};
+    for(const p of allPersonnel){const c=(p.contact||'').replace(/[\s-]/g,'');if(c) contactToId[c]=p.id;}
+    this.setState({signupContactToId:contactToId});
+    const ids=list.map(r=>contactToId[(r.contact||'').replace(/[\s-]/g,'')]).filter(id=>id&&!this.state.avatars[id]);
+    if(!ids.length) return;
+    const existing=await DB.storage.listAvatarIds().catch(()=>new Set());
+    const withAvatar=ids.filter(id=>existing.has(id));
+    if(!withAvatar.length) return;
+    const urls=DB.storage.getAvatarUrls(withAvatar);
+    this.setState(s=>({avatars:{...s.avatars,...urls}}));
+  },
   loadApprovedSignups: async function() { const dept=this._myDept(); const data=await DB.signupRequests.listApproved(dept).catch(()=>[]); this.setState({approvedSignups:data}); },
   loadRejectedSignups: async function() { const dept=this._myDept(); const data=await DB.signupRequests.listRejected(dept).catch(()=>[]); this.setState({rejectedSignups:data,rejectedSignupsLoaded:true}); },
 

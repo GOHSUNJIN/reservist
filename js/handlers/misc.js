@@ -96,6 +96,7 @@ const MiscHandlers = {
     this.loadProcessedLeaves();
     this.loadPendingLeaves();
     this.loadPendingSignups();
+    this.loadSignupAvatars();
     this.loadRejectedSignups();
     this._scrollTop();
   },
