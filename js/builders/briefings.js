@@ -3,9 +3,11 @@ const BriefingsBuilders = {
 
   _buildBriefings: function(s, accent) {
     const activeBatch=s.batches[s.activeBatchIdx||0];
-    const mealActive=!!(activeBatch?.meal_active);
-    const OFFICE_ROLE={title:'Office Hours',window:'0900 to 1800, Lunch 1200 to 1400',items:['Escort contractors when required.','Check signages and designated spots.','Assist with Red Teaming exercises if needed.']};
     const me=this.cur();
+    // Use the user's own batch for personal progress and dekit info
+    const myBatch=(me?.batch_id?s.batches.find(b=>b.id===me.batch_id):null)||activeBatch;
+    const mealActive=!!(myBatch?.meal_active);
+    const OFFICE_ROLE={title:'Office Hours',window:'0900 to 1800, Lunch 1200 to 1400',items:['Escort contractors when required.','Check signages and designated spots.','Assist with Red Teaming exercises if needed.']};
     const briefTab=s.briefTab||'info';
     const briefTabs=[{key:'info',label:'Info'},{key:'history',label:'Requests'}].map(t=>({
       ...t, onClick:this.setBriefTab(t.key),
@@ -19,16 +21,21 @@ const BriefingsBuilders = {
     const mealAbsent=_h.filter(r=>r.status==='absent'||r.status==='missed').length;
     const mealHasHistory=!!_h.length;
     const mealEligibleDays=mealPresent+mealMc;
-    // Cycle progress
+    // Cycle progress - count weekdays excluding public holidays and custom no-report days
     const today=Utils.dateKey(this.baseDate());
-    const bStart=activeBatch?.start_date||'';
-    const bEnd=activeBatch?.end_date||'';
-    const bDekit=activeBatch?.dekit_date||'';
+    const bStart=myBatch?.start_date||'';
+    const bEnd=myBatch?.end_date||'';
+    const bDekit=myBatch?.dekit_date||'';
+    const _nrd=s.noReportDays instanceof Set?s.noReportDays:new Set(s.noReportDays||[]);
+    const _countRptDays=(from,to)=>{
+      let n=0;const cur=new Date(from+'T00:00:00'),end=new Date(to+'T00:00:00');
+      while(cur<=end){const dk=Utils.dateKey(cur);if(Utils.isReportDay(cur)&&!_nrd.has(dk)&&!Utils.holidayName(cur))n++;cur.setDate(cur.getDate()+1);}
+      return n;
+    };
     let cycleDayLabel='',cycleProgressPct=0,showCycleProgress=false;
     if(bStart&&bEnd&&today>=bStart&&today<=bEnd){
-      const tMs=new Date(today+'T00:00:00').getTime(),sMs=new Date(bStart+'T00:00:00').getTime(),eMs=new Date(bEnd+'T00:00:00').getTime();
-      const total=Math.round((eMs-sMs)/86400000)+1,elapsed=Math.round((tMs-sMs)/86400000)+1;
-      cycleDayLabel=`Day ${elapsed} of ${total}`;cycleProgressPct=Math.round((elapsed/total)*100);showCycleProgress=true;
+      const total=_countRptDays(bStart,bEnd),elapsed=_countRptDays(bStart,today);
+      if(total>0){cycleDayLabel=`Day ${elapsed} of ${total}`;cycleProgressPct=Math.round((elapsed/total)*100);showCycleProgress=true;}
     }
     // Dekit countdown
     let infoDekitCountdown='',showInfoDekitCountdown=false;
@@ -72,9 +79,9 @@ const BriefingsBuilders = {
       cycleDayLabel, cycleProgressPct, showCycleProgress,
       infoDekitCountdown, showInfoDekitCountdown,
       sickItems:[
-        'Inform your supervisor as early as possible.',
-        'Submit an MC or Personal Leave request in the app - your record updates immediately.',
-        'Keep your MC hardcopy. You will need it for dekit day.',
+        {n:'1',text:'Inform your supervisor as early as possible.'},
+        {n:'2',text:'Submit an MC or Personal Leave request in the app. Your record updates immediately.'},
+        {n:'3',text:'Keep your MC hardcopy. You will need it for dekit day.'},
       ],
       briefTabs, briefTabInfo:briefTab==='info', briefTabHistory:briefTab==='history',
       waGroupUrl, showWaGroup:!!waGroupUrl,
