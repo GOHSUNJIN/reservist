@@ -39,6 +39,7 @@ const AuthBuilders = {
       doLogin:this.doLogin, demoReservist:this.demoReservist, demoAdmin:this.demoAdmin,
       suName:s.suName, suContact:s.suContact, suPassword:s.suPassword,
       onSuName:this.onSuName, onSuContact:this.onSuContact, onSuPassword:this.onSuPassword,
+      onSuKeyDown:this.onSuKeyDown,
       doSignup:this.doSignup,
       intakeLabel, intakeRangeFull,
       showIntakeBadge:!!targetBatch&&!!suDept,

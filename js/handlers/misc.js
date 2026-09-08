@@ -158,6 +158,13 @@ const MiscHandlers = {
     });
   },
 
+  // ── Admin: generate random reset password ────────────────────────────
+  generateResetPw: function() {
+    const chars='abcdefghjkmnpqrstuvwxyz23456789';
+    let pw='';for(let i=0;i<8;i++)pw+=chars[Math.floor(Math.random()*chars.length)];
+    this.setState({resetPwNew:pw,showResetPw:true});
+  },
+
   // ── Password visibility toggles ───────────────────────────────────────
   toggleLoginPw:   function() { this.setState(s=>({showLoginPw:!s.showLoginPw})); },
   toggleSuPw:      function() { this.setState(s=>({showSuPw:!s.showSuPw})); },

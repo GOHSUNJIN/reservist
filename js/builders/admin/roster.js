@@ -179,6 +179,8 @@ const AdminRoster = {
       askMarkAllAbsent:self.askMarkAllAbsent, markAllAbsent:self.markAllAbsent,
       cancelMarkAllAbsent:self.cancelMarkAllAbsent,
       markingAllAbsent:s.markingAllAbsent, confirmMarkAllAbsent:s.confirmMarkAllAbsent, notConfirmMarkAllAbsent:!s.confirmMarkAllAbsent,
+      markAllAbsentPendingCount:pendingCount,
+      markAllAbsentConfirmLabel:'Mark '+pendingCount+' pending as absent',
       markAllAbsentStyle:`padding:5px 9px;border-radius:7px;cursor:pointer;border:1px solid #f7e4e1;background:#fff;color:#c0392b;opacity:${s.markingAllAbsent?'0.45':'1'};display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;white-space:nowrap;`,
       markAllAbsentConfirmStyle:`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:700;cursor:pointer;border:none;background:#c0392b;color:#fff;`,
       pendingCount,
@@ -298,6 +300,7 @@ const AdminRoster = {
       resetPwSavingOpacity:s.resetPwSaving?0.6:1,
       resetPwType:s.showResetPw?'text':'password', showResetPw:!!s.showResetPw, hideResetPw:!s.showResetPw, toggleResetPw:self.toggleResetPw,
       onResetPwNew:self.onResetPwNew, submitResetPw:self.submitResetPw, closeResetPw:self.closeResetPw,
+      generateResetPw:self.generateResetPw,
     };
   },
 

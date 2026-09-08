@@ -292,7 +292,12 @@ const CalendarBuilders = {
       const sorted=[...todayEntry,...s.history.filter(r=>r.date!==today)].sort((a,b)=>b.date.localeCompare(a.date));
       let n=0;for(const r of sorted){if(r.status==='present')n++;else break;}return n;
     })();
-    const streakLabel=streak===0?'No streak':streak===1?'1-day streak':streak+'-day streak';
+    const streakLabel=(()=>{
+      if(streak>0) return streak===1?'1-day streak':streak+'-day streak';
+      const lastPresent=[...s.history].sort((a,b)=>b.date.localeCompare(a.date)).find(r=>r.status==='present');
+      if(!lastPresent) return 'No streak';
+      return 'Last present: '+Utils.fmtShort(new Date(lastPresent.date+'T00:00:00'));
+    })();
     const cycleNotStarted=!!(activeBatch&&today<activeBatch.start_date);
     const cycleStartsLabel=activeBatch?Utils.fmtLong(new Date(activeBatch.start_date+'T00:00:00')):'';
 

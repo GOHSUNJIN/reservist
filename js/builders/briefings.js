@@ -123,6 +123,8 @@ const BriefingsBuilders = {
         const lhf=s.leaveHistFilter||'all';
         const _fPill=(active)=>active?'-webkit-appearance:none;padding:5px 13px;border-radius:20px;border:none;font-size:12px;font-weight:600;background:#161f30;color:#fff;cursor:pointer;':'-webkit-appearance:none;padding:5px 13px;border-radius:20px;border:none;font-size:12px;font-weight:500;color:#8a94a3;background:#f1f3f6;cursor:pointer;';
         const filtered=lhf==='all'?deduped:deduped.filter(r=>r.status===lhf);
+        // Auto-reset filter to 'all' when active filter yields no results
+        if(lhf!=='all'&&filtered.length===0&&deduped.length>0) setTimeout(()=>this.setState({leaveHistFilter:'all'}),0);
         return {
           leaveHistFilter:lhf,
           setLeaveHistAll:()=>this.setState({leaveHistFilter:'all'}),
@@ -161,7 +163,10 @@ const BriefingsBuilders = {
             showReviewedByApproved:!!(r.reviewed_by&&r.status==='approved'),
             reviewedBy:r.reviewed_by||'',
             canCancel:r.status==='pending',
-            onCancel:this.cancelLeaveRequest(r.id),
+            isCancelConfirming:s.cancelLeaveId===r.id,
+            onAskCancel:this.askCancelLeave(r.id),
+            onConfirmCancel:this.cancelLeaveRequest(r.id),
+            onDismissCancel:this.dismissCancelLeave,
           })),
         };
       })(),

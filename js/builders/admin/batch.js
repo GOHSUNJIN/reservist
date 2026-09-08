@@ -77,6 +77,9 @@ const AdminBatch = {
     const lbs=liveBatch?new Date(liveBatch.start_date+'T00:00:00'):null, lbe=liveBatch?new Date(liveBatch.end_date+'T00:00:00'):null;
     const intakeRange=lbs&&lbe?(Utils.fmtShort(lbs)+' to '+Utils.fmtShort(lbe)):'';
 
+    const _liveIdx=batches.findIndex(b=>b.id===liveBatch?.id);
+    const jumpToLiveCycle=_liveIdx>=0?()=>{ self.closeCyclePicker(); self.setBatch(_liveIdx)(); }:null;
+    const showJumpToLive=!!liveBatch&&!activeBatch?.is_live;
     return {
       activeChips,
       cyclePickerGroups, cyclePickerOpen:s.cyclePickerOpen,
@@ -85,6 +88,7 @@ const AdminBatch = {
       cyclePickerPrevColor, cyclePickerPrevCursor, cyclePickerNextColor, cyclePickerNextCursor,
       cyclePickerNext:self.cyclePickerNext, cyclePickerPrev:self.cyclePickerPrev,
       openCyclePicker:self.openCyclePicker, closeCyclePicker:self.closeCyclePicker,
+      jumpToLiveCycle, showJumpToLive,
       activeCycleLabel, activeCycleRange,
       editTargetLabel, editTargetIsLive, editTargetRange, editTargetStatus, editTargetStatusChipBg, editTargetStatusChipColor,
       signupTargetLabel, adminSignupIsNextCycle,
@@ -115,6 +119,8 @@ const AdminBatch = {
       broadcastOpen:s.broadcastOpen, broadcastText:s.broadcastText||'', broadcastSaving:s.broadcastSaving,
       broadcastSavingOpacity:s.broadcastSaving?0.6:1,
       broadcastBtnLabel:s.broadcastSaving?'Saving...':'Post notice',
+      broadcastCharCount:(s.broadcastText||'').length,
+      clearBroadcastText:()=>self.setState({broadcastText:''}),
       openBroadcast:self.openBroadcast, closeBroadcast:self.closeBroadcast,
       onBroadcastText:self.onBroadcastText, saveBroadcast:self.saveBroadcast,
       activeBatchNotice:activeBatch?.notice_text||'', hasActiveBatchNotice:!!(activeBatch?.notice_text),
