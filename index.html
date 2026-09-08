@@ -175,9 +175,9 @@
         </div>
         </sc-if>
         <label class="text-field-label">Full name</label>
-        <input value="{{ suName }}" onInput="{{ onSuName }}" placeholder="Full name" autocapitalize="words" autocorrect="off" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;margin-bottom:14px;" />
+        <input value="{{ suName }}" onInput="{{ onSuName }}" onKeyDown="{{ onSuKeyDown }}" placeholder="Full name" autocapitalize="words" autocorrect="off" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;margin-bottom:14px;" />
         <label class="text-field-label">Contact number</label>
-        <input value="{{ suContact }}" onInput="{{ onSuContact }}" placeholder="9xxx xxxx" type="tel" inputmode="numeric" autocomplete="off" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;margin-bottom:14px;" />
+        <input value="{{ suContact }}" onInput="{{ onSuContact }}" onKeyDown="{{ onSuKeyDown }}" placeholder="9xxx xxxx" type="tel" inputmode="numeric" autocomplete="off" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;margin-bottom:14px;" />
         <label class="text-field-label">Password</label>
         <div style="position:relative;">
           <input value="{{ suPassword }}" onInput="{{ onSuPassword }}" onKeyDown="{{ onPwKeyDown }}" type="{{ suPwType }}" autocomplete="off" placeholder="Create a password (min 6 chars)" style="width:100%;padding:12px 14px;padding-right:42px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;box-sizing:border-box;" />
@@ -370,6 +370,7 @@
               </div>
               <div style="background:#fdf0dc;border:1px solid #f0e2c2;border-radius:14px;padding:13px 15px;font-size:13px;color:#b9791a;line-height:1.6;margin-bottom:10px;">
                 Your <strong>{{ pendingRequestLabel }}</strong> request for <strong>{{ pendingRequestDate }}</strong> is pending approval. Check-in is paused until the admin reviews it.
+                <sc-if value="{{ hasPendingRequestReason }}" hint-placeholder-val=""><div style="margin-top:6px;font-size:12px;color:#a0714a;font-style:italic;">"{{ pendingRequestReason }}"</div></sc-if>
               </div>
               <div style="display:flex;gap:8px;margin-top:0;">
                 <button onClick="{{ onCancelPendingRequest }}" style="-webkit-appearance:none;flex:1;padding:10px;background:none;border:1px solid #e3e6ec;border-radius:9px;font-size:13px;font-weight:600;color:#8a94a3;cursor:pointer;">Withdraw request</button>
@@ -391,7 +392,7 @@
                   <span style="font-size:11px;color:#a0a8b4;margin-left:auto;">{{ pendingRequestTimeAgo }}</span>
                 </div>
                 <p style="font-size:12px;color:#8a94a3;margin:0 0 10px;line-height:1.5;">Your <strong>{{ pendingRequestLabel }}</strong> request was not reviewed within 2 days. You can submit a new request.</p>
-                <button onClick="{{ openLeaveRequest }}" style="-webkit-appearance:none;width:100%;padding:10px;background:#161f30;border:none;border-radius:9px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;">Submit new request</button>
+                <button onClick="{{ onResubmitExpiredRequest }}" style="-webkit-appearance:none;width:100%;padding:10px;background:#161f30;border:none;border-radius:9px;font-size:13px;font-weight:600;color:#fff;cursor:pointer;">Submit new request</button>
               </div>
             </div>
             </sc-if>
@@ -983,7 +984,16 @@
                   <div style="margin-top:5px;font-size:11.5px;color:#6aad87;">Approved by {{ rh.reviewedBy }}</div>
                 </sc-if>
                 <sc-if value="{{ rh.canCancel }}" hint-placeholder-val="">
-                  <button onClick="{{ rh.onCancel }}" style="-webkit-appearance:none;margin-top:9px;padding:0;background:none;border:none;font-size:12px;font-weight:500;color:#9aa3b2;cursor:pointer;text-decoration:underline;text-underline-offset:2px;">Withdraw request</button>
+                  <sc-if value="{{ rh.isCancelConfirming }}" hint-placeholder-val="">
+                    <div style="display:flex;align-items:center;gap:8px;margin-top:9px;">
+                      <span style="font-size:12px;color:#8a94a3;flex:1;">Withdraw this request?</span>
+                      <button onClick="{{ rh.onDismissCancel }}" style="-webkit-appearance:none;padding:4px 10px;border:1px solid #d4d9e2;border-radius:7px;font-size:11.5px;font-weight:600;color:#5c6678;background:#fff;cursor:pointer;">No</button>
+                      <button onClick="{{ rh.onConfirmCancel }}" style="-webkit-appearance:none;padding:4px 10px;border:none;border-radius:7px;font-size:11.5px;font-weight:600;color:#fff;background:#c0392b;cursor:pointer;">Withdraw</button>
+                    </div>
+                  </sc-if>
+                  <sc-if value="{{ !rh.isCancelConfirming }}" hint-placeholder-val="">
+                    <button onClick="{{ rh.onAskCancel }}" style="-webkit-appearance:none;margin-top:9px;padding:0;background:none;border:none;font-size:12px;font-weight:500;color:#9aa3b2;cursor:pointer;text-decoration:underline;text-underline-offset:2px;">Withdraw request</button>
+                  </sc-if>
                 </sc-if>
               </div>
             </div>
@@ -1257,9 +1267,12 @@
         <sc-if value="{{ cyclePickerOpen }}" hint-placeholder-val="">
         <div onClick="{{ closeCyclePicker }}" style="position:absolute;inset:0;background:rgba(0,0,0,.45);z-index:40;"></div>
         <div style="position:absolute;bottom:0;left:0;right:0;background:#fff;border-radius:20px 20px 0 0;z-index:41;max-height:78%;display:flex;flex-direction:column;">
-          <div style="padding:14px 18px 12px;border-bottom:1px solid #e3e6ec;display:flex;align-items:center;justify-content:space-between;flex:0 0 auto;">
+          <div style="padding:14px 18px 12px;border-bottom:1px solid #e3e6ec;display:flex;align-items:center;justify-content:space-between;gap:10px;flex:0 0 auto;">
             <div class="text-title">Select cycle</div>
-            <button onClick="{{ closeCyclePicker }}" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;color:#8a94a3;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+            <sc-if value="{{ showJumpToLive }}" hint-placeholder-val="">
+              <button onClick="{{ jumpToLiveCycle }}" style="-webkit-appearance:none;padding:5px 11px;border:none;border-radius:7px;font-size:12px;font-weight:600;background:#e7f3ec;color:#1f8a5b;cursor:pointer;white-space:nowrap;">Go to live</button>
+            </sc-if>
+            <button onClick="{{ closeCyclePicker }}" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;color:#8a94a3;flex-shrink:0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
           </div>
           <div style="overflow-y:auto;flex:1;">
             <sc-for list="{{ cyclePickerGroups }}" as="grp" hint-placeholder-count="2">
@@ -1555,7 +1568,7 @@
           </sc-if>
           <sc-if value="{{ confirmMarkAllAbsent }}" hint-placeholder-val="">
           <div style="display:flex;gap:5px;align-items:center;justify-content:flex-end;margin-bottom:12px;">
-            <span style="font-size:12px;color:#8a94a3;flex:1;">Mark all pending as absent?</span>
+            <span style="font-size:12px;color:#8a94a3;flex:1;">{{ markAllAbsentConfirmLabel }}?</span>
             <button onClick="{{ cancelMarkAllAbsent }}" style="padding:5px 10px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;border:1px solid #d4d9e2;background:#fff;color:#5c6678;">Cancel</button>
             <button onClick="{{ markAllAbsent }}" style="{{ markAllAbsentConfirmStyle }}">Confirm</button>
           </div>
@@ -2673,6 +2686,7 @@
           </div>
         </div>
         <textarea onInput="{{ onLateReasonText }}" value="{{ lateReasonText }}" placeholder="State your reason for being late and the time you arrived at the office." style="width:100%;height:90px;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>
+        <div style="text-align:right;font-size:11px;color:#a0a8b4;margin-top:4px;margin-bottom:2px;">{{ lateReasonLen }}/{{ lateReasonMax }}</div>
         <sc-if value="{{ lateReasonReady }}" hint-placeholder-val="">
           <button onClick="{{ submitLateReason }}" style="-webkit-appearance:none;display:block;width:100%;margin-top:12px;padding:14px;background:#2f5fd0;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;text-align:center;box-sizing:border-box;line-height:1;">Submit reason</button>
         </sc-if>
@@ -2739,7 +2753,8 @@
         </div>
         <p style="font-size:13px;color:#5c6678;margin:0 0 14px;line-height:1.5;">Add a brief note for today. Your supervisor will be able to see it.</p>
         <textarea onInput="{{ onWelfareNoteText }}" value="{{ welfareNoteText }}" placeholder="e.g. Feeling unwell but reporting. Slight headache." style="width:100%;height:90px;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>
-        <button onClick="{{ submitWelfareNote }}" disabled="{{ welfareNoteSaving }}" style="width:100%;margin-top:12px;padding:13px;background:{{ accent }};border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ welfareNoteSavingOpacity }};">Save note</button>
+        <div style="text-align:right;font-size:11px;color:#a0a8b4;margin-top:4px;margin-bottom:2px;">{{ welfareNoteLen }}/{{ welfareNoteMax }}</div>
+        <button onClick="{{ submitWelfareNote }}" disabled="{{ welfareNoteSaving }}" style="width:100%;margin-top:8px;padding:13px;background:{{ accent }};border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ welfareNoteSavingOpacity }};">Save note</button>
         <button onClick="{{ closeWelfareNote }}" class="btn-subtle">Cancel</button>
       </div>
     </div>
@@ -2975,7 +2990,10 @@
           </div>
           <button onClick="{{ closeResetPw }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
-        <div class="text-tag">NEW TEMPORARY PASSWORD</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <div class="text-tag" style="margin:0;">NEW TEMPORARY PASSWORD</div>
+          <button onClick="{{ generateResetPw }}" style="-webkit-appearance:none;padding:4px 10px;border:1px solid #d4d9e2;border-radius:7px;font-size:12px;font-weight:600;color:#2f5fd0;background:#eef3fc;cursor:pointer;">Generate</button>
+        </div>
         <div style="position:relative;margin-bottom:14px;">
           <input type="{{ resetPwType }}" value="{{ resetPwNew }}" onInput="{{ onResetPwNew }}" placeholder="Min. 6 characters" style="width:100%;padding:12px 14px;padding-right:42px;border:1px solid #d4d9e2;border-radius:9px;font-size:15px;background:#f6f8fa;outline:none;box-sizing:border-box;" />
           <button type="button" onClick="{{ toggleResetPw }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#9aa3b2;padding:4px;display:flex;align-items:center;">
@@ -2999,7 +3017,11 @@
           <button onClick="{{ closeBroadcast }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
         <p style="font-size:13px;color:#5c6678;margin:0 0 14px;line-height:1.5;">Type a message to show as a banner on every reservist's check-in screen. Leave blank to clear any existing notice.</p>
-        <textarea onInput="{{ onBroadcastText }}" value="{{ broadcastText }}" placeholder="e.g. Welfare test tomorrow. All to report by 0800." style="width:100%;height:90px;padding:12px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;margin-bottom:16px;" rows="4"></textarea>
+        <textarea onInput="{{ onBroadcastText }}" value="{{ broadcastText }}" placeholder="e.g. Welfare test tomorrow. All to report by 0800." style="width:100%;height:90px;padding:12px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="4"></textarea>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:5px;margin-bottom:12px;">
+          <button onClick="{{ clearBroadcastText }}" style="-webkit-appearance:none;padding:0;background:none;border:none;font-size:12px;color:#c0392b;cursor:pointer;font-weight:500;">Clear</button>
+          <span style="font-size:11px;color:#a0a8b4;">{{ broadcastCharCount }} chars</span>
+        </div>
         <button onClick="{{ saveBroadcast }}" disabled="{{ broadcastSaving }}" style="width:100%;padding:13px;background:#2f5fd0;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ broadcastSavingOpacity }};">{{ broadcastBtnLabel }}</button>
         <button onClick="{{ closeBroadcast }}" class="btn-subtle">Cancel</button>
       </div>

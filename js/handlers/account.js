@@ -122,7 +122,15 @@ const AccountHandlers = {
       this._subscribeAdminRequests();
       this._toast('Notifications enabled!');
     } else {
-      this._toast('Notification permission denied.','error');
+      const ua=navigator.userAgent||'';
+      const isIos=/iPhone|iPad|iPod/i.test(ua);
+      const isSafari=/Safari/i.test(ua)&&!/Chrome/i.test(ua);
+      const isChrome=/Chrome/i.test(ua)&&!/Edge/i.test(ua);
+      let msg;
+      if(isIos&&isSafari) msg='Notifications blocked. Go to Settings > Safari > Notifications and allow for this site.';
+      else if(isChrome) msg='Notifications blocked. Tap the lock icon in the address bar, then set Notifications to Allow.';
+      else msg='Notifications blocked. Check your browser site settings to enable notifications.';
+      this._toast(msg,'error');
     }
   },
 

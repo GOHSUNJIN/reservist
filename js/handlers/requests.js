@@ -65,6 +65,7 @@ const RequestHandlers = {
   confirmRejectLeave: async function() {
     const {rejectLeaveId,rejectLeaveReason,demo}=this.state;
     if(!rejectLeaveId) return;
+    if(!rejectLeaveReason.trim()){this._toast('Please provide a reason for declining.','error');return;}
     this.setState({confirmingDecline:true});
     if(!demo){
       const reviewMeta={reviewed_by:this.cur()?.name||null,reviewed_at:new Date().toISOString(),rejection_reason:rejectLeaveReason.trim()||null};
@@ -135,7 +136,7 @@ const RequestHandlers = {
     else this.loadPendingLeaves();
   },
 
-  openLeaveRequest:  function(date) { return () => this.setState({leaveOpen:true,leaveDate:date,leaveType:'mc',leaveReason:''}); },
+  openLeaveRequest:  function(date, type) { return () => this.setState({leaveOpen:true,leaveDate:date,leaveType:type||'mc',leaveReason:''}); },
   closeLeaveRequest: function() { this.setState({leaveOpen:false}); },
   onLeaveDate:   function(e) { this.setState({leaveDate:e.target.value}); },
   onLeaveType:   function(v) { return () => this.setState({leaveType:v}); },
@@ -174,6 +175,9 @@ const RequestHandlers = {
     this._toast('Request submitted for approval.');
     this.setState({leaveOpen:false,leaveSubmitting:false});
   },
+
+  askCancelLeave:    function(id) { return () => this.setState({cancelLeaveId:id}); },
+  dismissCancelLeave: function() { this.setState({cancelLeaveId:null}); },
 
   cancelLeaveRequest: function(id) {
     return async () => {

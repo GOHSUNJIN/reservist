@@ -1,13 +1,13 @@
 // ── Auth handlers ─────────────────────────────────────────────────────────
 const AuthHandlers = {
 
-  goLogin: function() { this.setState({authMode:'login', authError:'', showLoginPw:false, showSuPw:false}); },
+  goLogin: function() { this.setState({authMode:'login', authError:'', showLoginPw:false, showSuPw:false, accountDeleted:false}); },
 
   askLogout:    function() { this.setState({logoutConfirmOpen:true}); },
   cancelLogout: function() { this.setState({logoutConfirmOpen:false}); },
 
   goSignup: async function() {
-    this.setState({authMode:'signup', authError:'', showLoginPw:false, showSuPw:false});
+    this.setState({authMode:'signup', authError:'', showLoginPw:false, showSuPw:false, accountDeleted:false});
     await this._refreshSignupSlots();
   },
 
@@ -127,7 +127,7 @@ const AuthHandlers = {
       sessionExpiring:false, idleWarning:false, showA2hs:false, forgotPasswordOpen:false,
       showLateWarning:false, lateReasonOpen:false, lateReasonText:'', lateReasonSubmitting:false,
       pendingLeaves:[], pendingLeavesLoaded:false,
-      leaveOpen:false, leaveDate:'', leaveType:'mc', leaveReason:'',
+      leaveOpen:false, leaveDate:'', leaveType:'mc', leaveReason:'', cancelLeaveId:null,
       myPendingRequests:[],
       adminNotifGranted:false,
       myLeaveHistory:[], myLeaveHistoryLoaded:false,
@@ -191,10 +191,16 @@ const AuthHandlers = {
   onLoginPassword: function(e) { this.setState({loginPassword:e.target.value}); },
   onPwKeyDown:     function(e) {
     this.setState({capsLock:!!e.getModifierState('CapsLock')});
-    if(e.key==='Enter' && this.state.authMode==='login') this.doLogin();
+    if(e.key==='Enter'){
+      if(this.state.authMode==='login') this.doLogin();
+      else if(this.state.authMode==='signup') this.doSignup();
+    }
   },
   onLoginContactKeyDown: function(e) {
     if(e.key==='Enter' && this.state.authMode==='login') this.doLogin();
+  },
+  onSuKeyDown: function(e) {
+    if(e.key==='Enter' && this.state.authMode==='signup') this.doSignup();
   },
   onSuName:        function(e) { this.setState({suName:e.target.value}); },
   onSuContact:     function(e) { this.setState({suContact:e.target.value}); },

@@ -175,7 +175,7 @@ const BatchHandlers = {
   jumpToDate: async function() {
     const {batchJumpDate, demo}=this.state;
     if(!batchJumpDate) return;
-    this.setState({batchLoading:true, batchJumpDate:''});
+    this.setState({batchLoading:true});
     let batches=this.state.batches;
     if(!demo){
       const sorted=[...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);

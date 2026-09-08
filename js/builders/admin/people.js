@@ -299,6 +299,7 @@ const AdminPeople = {
       npPwType:s.showNpPw?'text':'password', showNpPw:!!s.showNpPw, hideNpPw:!s.showNpPw, toggleNpPw:self.toggleNpPw,
       npAdminPwType:s.showNpAdminPw?'text':'password', showNpAdminPw:!!s.showNpAdminPw, hideNpAdminPw:!s.showNpAdminPw, toggleNpAdminPw:self.toggleNpAdminPw,
       resetPwType:s.showResetPw?'text':'password', showResetPw:!!s.showResetPw, hideResetPw:!s.showResetPw, toggleResetPw:self.toggleResetPw,
+      generateResetPw:self.generateResetPw,
       promoteAdminId:s.promoteAdminId, promoteSearch:s.promoteSearch,
       onPromoteSearch:self.onPromoteSearch, onPromoteSearchKeyDown:self.onPromoteSearchKeyDown,
       promoteShowAllCycles:s.promoteShowAllCycles,
