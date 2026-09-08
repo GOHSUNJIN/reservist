@@ -374,7 +374,7 @@ const AdminPeople = {
             const _av=_matchId?(s.avatars[_matchId]||''):'';
             return {id:r.id,name:r.name,contact:r.contact,shift:r.shift,batchLabel:b?b.label:'',initials:Utils.initials(r.name)||'?',
               avatarStyle:Utils.avatarStyle(_av),avatarInitials:_av?'':Utils.initials(r.name)||'?',hasAvatar:!!_av,avatarCursor:_av?'cursor:pointer;':'',onViewAvatar:_av?self.openAvatarLightbox(_av):null,
-              createdAt:r.created_at?(new Date(r.created_at).toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'})+' · '+Utils.hhmm(new Date(r.created_at))):'',
+              createdAt:r.created_at?(new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+' · '+Utils.hhmm(new Date(r.created_at))):'',
               deptLabel:Utils.deptLabel(r.department),
               isReactivation,isNew:!isReactivation,
               isCrossDept, prevDeptLabel:isCrossDept?('Previously: '+Utils.deptLabel(prevDept)):'',
@@ -389,7 +389,7 @@ const AdminPeople = {
       pendingSignupCount:s.pendingSignups.length,
       rejectedSignups:(s.rejectedSignups||[]).map(r=>{
         const b=(s.batches||[]).find(b=>b.id===r.batch_id);
-        const reviewedAt=r.reviewed_at?new Date(r.reviewed_at).toLocaleDateString('en-SG',{day:'numeric',month:'short',year:'numeric'}):'';
+        const reviewedAt=r.reviewed_at?new Date(r.reviewed_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
         return {id:r.id,name:r.name,contact:r.contact,batchLabel:b?b.label:'',initials:Utils.initials(r.name)||'?',reviewedAt,reviewedBy:r.reviewed_by||'',onReopen:self.reopenSignup(r.id)};
       }),
       hasRejectedSignups:(s.rejectedSignups||[]).length>0,
