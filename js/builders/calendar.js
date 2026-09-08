@@ -186,7 +186,7 @@ const CalendarBuilders = {
          ...Utils.meta(status)}]:[];
 
     const _nc='#b9791a'; // amber for unrecorded slots
-    const _histFiltered=s.history.filter(r=>Utils.isReportDay(new Date(r.date+'T00:00:00')));
+    const _histFiltered=s.history.filter(r=>Utils.isReportDay(new Date(r.date+'T00:00:00'))&&(!activeBatch||r.date>=activeBatch.start_date));
     const histKeys=new Set(_histFiltered.map(r=>r.date));
     const histRows=_histFiltered.map(r=>{
       const d=new Date(r.date+'T00:00:00');
