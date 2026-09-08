@@ -18,8 +18,9 @@ const BriefingsBuilders = {
     const mealPresent=_h.filter(r=>r.status==='present').length;
     const mealMc=_h.filter(r=>r.status==='mc').length;
     const mealAbsent=_h.filter(r=>r.status==='absent'||r.status==='missed').length;
-    const mealHasHistory=!!_h.length;
+    const mealTotalDays=_h.length;
     const mealEligibleDays=mealPresent;
+    const mealProgressPct=mealTotalDays>0?Math.round(mealEligibleDays/mealTotalDays*100):0;
     // Cycle progress - count weekdays excluding public holidays and custom no-report days
     const today=Utils.dateKey(this.baseDate());
     const bStart=myBatch?.start_date||'';
@@ -53,7 +54,7 @@ const BriefingsBuilders = {
       briefAttire:'Civilian',
       briefAttireRowBorder:showBriefTransport?'1px solid #f2f4f7':'none',
       briefTransport, showBriefTransport,
-      mealPresent, mealMc, mealAbsent, mealHasHistory, mealEligibleDays,
+      mealPresent, mealMc, mealAbsent, mealTotalDays, mealEligibleDays, mealProgressPct,
       dekitItems:[
         {n:'1',text:'Confirm your meal allowance entitlement count with the Manpower Officer.'},
         {n:'2',text:'Bring hardcopies of any MCs taken.'},
