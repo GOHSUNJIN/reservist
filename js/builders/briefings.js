@@ -35,11 +35,11 @@ const BriefingsBuilders = {
       if(r.p2&&r.p3) return (_toM(r.p2)-_toM(r.p1))+(_toM(r.p4)-_toM(r.p3));
       return _toM(r.p4)-_toM(r.p1);
     };
-    const mealPresent=_h.filter(r=>r.status==='present'&&!!r.p4&&_workMins(r)>=360).length;
+    const mealPresent=_h.filter(r=>r.status==='present').length;
+    const mealEligibleDays=_h.filter(r=>r.status==='present'&&!!r.p4&&_workMins(r)>=360).length;
     const mealMc=_h.filter(r=>r.status==='mc').length;
     const mealAbsent=_h.filter(r=>(r.status==='absent'||r.status==='missed')&&r.date<=today).length;
     const mealTotalDays=_h.filter(r=>r.date<=today).length;
-    const mealEligibleDays=mealPresent;
     const mealProgressPct=mealTotalDays>0?Math.round(mealEligibleDays/mealTotalDays*100):0;
     const mealDayLabel=mealEligibleDays===1?'day':'days';
     const mealAllowanceLabel=mealEligibleDays===1?'allowance':'allowances';
