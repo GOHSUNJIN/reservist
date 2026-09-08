@@ -321,7 +321,7 @@ const AdminPeople = {
         const base=s.promoteShowAllCycles?all:all.filter(p=>pab&&p.batch_id===pab.id);
         const q=(s.promoteSearch||'').toLowerCase().trim();
         const filtered=q?base.filter(p=>p.name.toLowerCase().includes(q)||(p.contact||'').includes(q)):base;
-        const allRows=filtered.map(p=>{
+        const allRows=[...filtered].sort((a,b)=>a.name.localeCompare(b.name)).map(p=>{
           const b=(s.batches||[]).find(b=>b.id===p.batch_id);
           const av=(s.avatars||{})[p.id];
           return {id:p.id,name:p.name,contact:p.contact||'',batchLabel:b?b.label:'',contactBatchLine:(p.contact||'')+(b?' · '+b.label:''),initials:Utils.initials(p.name)||'?',avatarStyle:Utils.avatarStyle(av),
