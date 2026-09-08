@@ -96,6 +96,8 @@ const BriefingsBuilders = {
         }) : [],
       showTeam: !!(me?.batch_id && s.personnel.some(p=>p.batch_id===me.batch_id&&p.id!==s.currentUserId&&(p.role||'reservist')==='reservist')),
       casInfoBlocked: s.role==='reservist' && this._myDept()==='cas',
+      lfInfoBlocked:  s.role==='reservist' && this._myDept()==='lnf',
+      showFullInfo:   s.role!=='reservist' || (this._myDept()!=='cas' && this._myDept()!=='lnf'),
       ...(()=>{
         const raw=s.myLeaveHistory||[];
         const pends=s.myPendingRequests||[];

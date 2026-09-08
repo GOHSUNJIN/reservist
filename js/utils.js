@@ -91,8 +91,12 @@ const Utils = {
   PHASE_WINDOWS:{
     OFFICE:{p1:['07:30','10:00'],p2:['11:00','14:00'],p3:['12:00','15:00'],p4:['14:00','23:59']},
     CAS:  {p1:['07:30','12:00'],p2:['11:00','14:00'],p3:['12:00','15:00'],p4:['14:00','23:59']},
+    LNF:  {p1:['07:30','12:00'],p2:['11:00','14:00'],p3:['12:00','15:00'],p4:['14:00','23:59']},
   },
-  phaseWindow(shift,key,dept){return (dept==='cas'?this.PHASE_WINDOWS.CAS:this.PHASE_WINDOWS.OFFICE)[key]||null;},
+  phaseWindow(shift,key,dept){
+    const w=dept==='cas'?this.PHASE_WINDOWS.CAS:dept==='lnf'?this.PHASE_WINDOWS.LNF:this.PHASE_WINDOWS.OFFICE;
+    return w[key]||null;
+  },
   phaseInWindow(shift,key,now,dept){
     const w=this.phaseWindow(shift,key,dept);if(!w)return false;
     const p=n=>String(n).padStart(2,'0');
@@ -132,6 +136,7 @@ const Utils = {
   DEPARTMENTS: {
     ops_security: { label: 'Ops Security', short: 'OPS' },
     cas:          { label: 'Crime Prevention', short: 'CAS' },
+    lnf:          { label: 'Lost & Found', short: 'LNF' },
   },
   deptLabel(dept) { return this.DEPARTMENTS[dept]?.label || dept || ''; },
   deptShort(dept) { return this.DEPARTMENTS[dept]?.short || 'OPS'; },
