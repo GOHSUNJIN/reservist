@@ -18,20 +18,26 @@ const BriefingsBuilders = {
     const bStart=myBatch?.start_date||'';
     const bEnd=myBatch?.end_date||'';
     const _todayLive=s.attendance?.[s.currentUserId];
+    console.log('[Meal] today=',today,'bStart=',bStart,'bEnd=',bEnd,'dept=',this._myDept());
+    console.log('[Meal] history records=',s.history?.length,'_todayLive=',_todayLive);
     const _h=(()=>{
       // history now includes today (fetched with tomorrow cutoff in goMeal)
       // only fall back to _todayLive if today not yet in history
       const hist=(s.history||[]).slice();
       if(_todayLive&&!hist.some(r=>r.date===today))
         hist.push({date:today,..._todayLive});
-      return hist.filter(r=>
+      const filtered=hist.filter(r=>
         Utils.isReportDay(new Date(r.date+'T00:00:00'),this._myDept())&&
         (!bStart||r.date>=bStart)&&(!bEnd||r.date<=bEnd)
       );
+      console.log('[Meal] hist before filter=',hist.map(r=>({date:r.date,status:r.status,p4:r.p4})));
+      console.log('[Meal] _h after filter=',filtered.map(r=>({date:r.date,status:r.status,p4:r.p4})));
+      return filtered;
     })();
     const mealPresent=_h.filter(r=>r.status==='present'&&!!r.p4).length;
     const mealMc=_h.filter(r=>r.status==='mc').length;
     const mealAbsent=_h.filter(r=>r.status==='absent'||r.status==='missed').length;
+    console.log('[Meal] present=',mealPresent,'mc=',mealMc,'absent=',mealAbsent);
     const mealTotalDays=_h.length;
     const mealEligibleDays=mealPresent;
     const mealProgressPct=mealTotalDays>0?Math.round(mealEligibleDays/mealTotalDays*100):0;
