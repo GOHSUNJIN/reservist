@@ -137,16 +137,6 @@ const BatchHandlers = {
 
   onNewBatchDate: function(e) { this.setState({newBatchDate:e.target.value}); },
 
-  toggleMealActive: async function() {
-    const {batches,activeBatchIdx,demo}=this.state;
-    const idx=activeBatchIdx||0;
-    const activeBatch=batches[idx]; if(!activeBatch) return;
-    const next=!activeBatch.meal_active;
-    if(!demo) await DB.batches.setMealActive(activeBatch.id, next);
-    this.setState(s=>({batches:s.batches.map((b,i)=>i===idx?{...b,meal_active:next}:b)}));
-    this._toast('Meal allowance forms '+(next?'activated':'paused')+'.');
-  },
-
   // Returns true if the day at the given offset is a no-report day (weekend, holiday, or manually set).
   isNoReport: function(off) {
     const d=this.dateForOffset(off);

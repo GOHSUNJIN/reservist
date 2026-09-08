@@ -6,7 +6,6 @@ const BriefingsBuilders = {
     const me=this.cur();
     // Use the user's own batch for personal progress and dekit info
     const myBatch=(me?.batch_id?s.batches.find(b=>b.id===me.batch_id):null)||activeBatch;
-    const mealActive=!!(myBatch?.meal_active);
     const OFFICE_ROLE={title:'Office Hours',window:'0900 to 1800, Lunch 1200 to 1400',items:['Escort contractors when required.','Check signages and designated spots.','Assist with Red Teaming exercises if needed.']};
     const briefTab=s.briefTab||'info';
     const briefTabs=[{key:'info',label:'Info'},{key:'history',label:'Requests'}].map(t=>({
@@ -54,18 +53,9 @@ const BriefingsBuilders = {
       briefAttire:'Civilian',
       briefAttireRowBorder:showBriefTransport?'1px solid #f2f4f7':'none',
       briefTransport, showBriefTransport,
-      mealActive,
       mealPresent, mealMc, mealAbsent, mealHasHistory, mealEligibleDays,
-      mealStatusBanner:mealActive?'Active: submit your form on every reporting day.':'On hold: do not submit the form for now.',
-      mealStatusStyle:mealActive?'background:#e7f3ec;border:1px solid #a8d5bb;border-radius:8px;padding:7px 10px;font-size:12px;color:#1f8a5b;font-weight:600;margin-bottom:8px;':'background:#fdf6e9;border:1px solid #f0e2c2;border-radius:8px;padding:7px 10px;font-size:12px;color:#8a6d2a;font-weight:600;margin-bottom:8px;',
-      mealFormLink:'https://go.gov.sg/gdiv-pnsmen-meal-allowance',
-      mealItems:[
-        '6 or more hours worked with a clock-out counts as 1 eligible meal claim.',
-        'No submission needed on public holidays or no-reporting days.',
-        'Fill up the physical meal allowance form using your clock-in and clock-out times recorded in this app.',
-      ],
       dekitItems:[
-        {n:'1',text:'Fill meal allowance forms and submit to the Manpower Officer, endorsed by Ops Branch supervisor.'},
+        {n:'1',text:'Confirm your meal allowance entitlement count with the Manpower Officer.'},
         {n:'2',text:'Bring hardcopies of any MCs taken.'},
         {n:'3',text:'Update the Manpower Officer in charge once all PNSMEN have arrived.'},
       ],

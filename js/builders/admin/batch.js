@@ -112,10 +112,6 @@ const AdminBatch = {
         })):[];
         return {npAddSearchResults:results, npAddSearchHasResults:results.length>0, npAddSearchNoResults:!!(q&&!results.length)};
       })(),
-      mealActive:!!(activeBatch?.meal_active), toggleMealActive:self.toggleMealActive,
-      mealActiveText:activeBatch?.meal_active?'Active: reservists should submit daily.':'On hold: reservists should not submit.',
-      mealToggleTrackBg:activeBatch?.meal_active?accent:'#39435a',
-      mealToggleKnobX:activeBatch?.meal_active?'25px':'3px',
       batchLoading:s.batchLoading,
       exportCsv:self.exportCsv, exportPrint:self.exportPrint,
       // Feature: broadcast notice

@@ -1126,7 +1126,7 @@
                     <div>
                       <div style="font-size:11.5px;color:#c2410c;font-weight:700;line-height:1.3;">No clock-out recorded</div>
                       <sc-if value="{{ !row.isToday }}" hint-placeholder-val="">
-                      <div style="font-size:11px;color:#d4622a;font-weight:500;line-height:1.4;margin-top:1px;">Inform your supervisor. Meal allowance may not apply.</div>
+                      <div style="font-size:11px;color:#d4622a;font-weight:500;line-height:1.4;margin-top:1px;">Inform your supervisor.</div>
                       </sc-if>
                     </div>
                   </div>
@@ -1157,50 +1157,47 @@
         <!-- ===== MEAL ===== -->
         <sc-if value="{{ tabMeal }}" hint-placeholder-val="">
         <div>
-          <sc-if value="{{ mealActive }}" hint-placeholder-val="">
-          <div>
-            <div class="card" style="padding:18px 18px 14px;margin-bottom:12px;">
-              <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-                <div style="font-size:13px;font-weight:700;color:#161f30;">Meal Allowance Form</div>
-                <div style="display:flex;align-items:center;gap:6px;background:#e7f3ec;color:#1f8a5b;padding:4px 10px;border-radius:20px;font-size:11.5px;font-weight:600;"><span style="width:6px;height:6px;border-radius:50%;background:#1f8a5b;display:inline-block;"></span>Active</div>
+          <div class="card" style="padding:20px 18px 18px;margin-bottom:12px;">
+            <div style="font-size:13px;font-weight:700;color:#161f30;margin-bottom:16px;">Meal Allowance</div>
+            <div style="text-align:center;padding:10px 0 16px;">
+              <div style="font-size:48px;font-weight:700;color:#1f8a5b;line-height:1;">{{ mealEligibleDays }}</div>
+              <div style="font-size:13px;font-weight:600;color:#5c6678;margin-top:6px;">days entitled this cycle</div>
+            </div>
+            <sc-if value="{{ mealHasHistory }}" hint-placeholder-val="">
+            <div style="display:flex;gap:8px;margin-top:4px;">
+              <div style="flex:1;background:#f5faf7;border-radius:10px;padding:10px 6px;text-align:center;">
+                <div style="font-size:20px;font-weight:700;color:#1f8a5b;">{{ mealPresent }}</div>
+                <div style="font-size:10px;font-weight:600;color:#8a94a3;margin-top:3px;letter-spacing:.04em;">PRESENT</div>
               </div>
-              <a href="{{ mealFormLink }}" target="_blank" rel="noopener" style="display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;background:#1f8a5b;color:#fff;border-radius:11px;font-size:15px;font-weight:600;text-decoration:none;">
-                <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
-                Open form
-              </a>
-              <div style="font-size:12px;color:#8a94a3;text-align:center;margin-top:9px;">Submit on every reporting day, including MC days</div>
-            </div>
-
-            <div class="card" style="padding:16px 18px;">
-              <div style="font-size:11px;font-weight:600;color:#9aa3b2;letter-spacing:.07em;margin-bottom:12px;">HOW TO SUBMIT</div>
-              <div style="display:flex;flex-direction:column;gap:10px;">
-                <div style="display:flex;align-items:flex-start;gap:11px;">
-                  <div style="width:22px;height:22px;border-radius:50%;background:#e7f3ec;display:flex;align-items:center;justify-content:center;flex:0 0 auto;margin-top:1px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1f8a5b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"></polyline></svg></div>
-                  <div><div class="text-body-bold">Completed your shift</div><div class="text-micro">Select PRESENT on the form</div></div>
-                </div>
-                <div style="display:flex;align-items:flex-start;gap:11px;">
-                  <div style="width:22px;height:22px;border-radius:50%;background:#fdf0dc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;margin-top:1px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.27a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></div>
-                  <div><div class="text-body-bold">On sick leave (MC)</div><div class="text-micro">Select MC on the form</div></div>
-                </div>
-                <div style="display:flex;align-items:flex-start;gap:11px;">
-                  <div style="width:22px;height:22px;border-radius:50%;background:#eef3fc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;margin-top:1px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#2f5fd0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></div>
-                  <div><div class="text-body-bold">Supervisor email</div><div class="text-micro">Sent daily via the WhatsApp group</div></div>
-                </div>
+              <div style="flex:1;background:#fdf6e9;border-radius:10px;padding:10px 6px;text-align:center;">
+                <div style="font-size:20px;font-weight:700;color:#b9791a;">{{ mealMc }}</div>
+                <div style="font-size:10px;font-weight:600;color:#8a94a3;margin-top:3px;letter-spacing:.04em;">MC / LEAVE</div>
               </div>
-              <div style="margin-top:14px;padding:10px 12px;background:#f6f8fa;border-radius:9px;font-size:12px;color:#8a94a3;line-height:1.5;">Skip submission on public holidays and no-reporting days.</div>
+              <div style="flex:1;background:#f6f8fa;border-radius:10px;padding:10px 6px;text-align:center;">
+                <div style="font-size:20px;font-weight:700;color:#9aa3b2;">{{ mealAbsent }}</div>
+                <div style="font-size:10px;font-weight:600;color:#8a94a3;margin-top:3px;letter-spacing:.04em;">ABSENT</div>
+              </div>
             </div>
+            </sc-if>
           </div>
-          </sc-if>
-          <sc-if value="{{ !mealActive }}" hint-placeholder-val="{{ true }}">
-          <div class="card" style="padding:18px 18px 14px;margin-bottom:12px;">
-            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;">
-              <div style="font-size:13px;font-weight:700;color:#161f30;">Meal Allowance Form</div>
-              <div style="background:#fdf0dc;color:#b9791a;padding:4px 11px;border-radius:20px;font-size:11.5px;font-weight:600;">On hold</div>
+          <div class="card" style="padding:16px 18px;">
+            <div style="font-size:11px;font-weight:600;color:#9aa3b2;letter-spacing:.07em;margin-bottom:10px;">HOW IT WORKS</div>
+            <div style="display:flex;flex-direction:column;gap:10px;">
+              <div style="display:flex;align-items:flex-start;gap:11px;">
+                <div style="width:22px;height:22px;border-radius:50%;background:#e7f3ec;display:flex;align-items:center;justify-content:center;flex:0 0 auto;margin-top:1px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#1f8a5b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12 10 17 19 7"></polyline></svg></div>
+                <div><div class="text-body-bold">Reported present</div><div class="text-micro">Counts as 1 meal allowance for the day</div></div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:11px;">
+                <div style="width:22px;height:22px;border-radius:50%;background:#fdf0dc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;margin-top:1px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.6 1.18h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.27a16 16 0 0 0 6 6l.86-.86a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"></path></svg></div>
+                <div><div class="text-body-bold">On sick leave (MC)</div><div class="text-micro">Also counts as 1 meal allowance</div></div>
+              </div>
+              <div style="display:flex;align-items:flex-start;gap:11px;">
+                <div style="width:22px;height:22px;border-radius:50%;background:#f6f8fa;display:flex;align-items:center;justify-content:center;flex:0 0 auto;margin-top:1px;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg></div>
+                <div><div class="text-body-bold">Absent</div><div class="text-micro">Does not count</div></div>
+              </div>
             </div>
-            <div style="display:flex;align-items:center;justify-content:center;padding:14px;background:#f6f8fa;border-radius:11px;font-size:15px;font-weight:600;color:#b0b8c6;">Form unavailable</div>
-            <div style="font-size:12px;color:#8a94a3;text-align:center;margin-top:9px;">Your meal allowance will be tracked through your daily check-ins.</div>
+            <div style="margin-top:14px;padding:10px 12px;background:#f6f8fa;border-radius:9px;font-size:12px;color:#8a94a3;line-height:1.5;">Confirm your total with the Manpower Officer on dekit day.</div>
           </div>
-          </sc-if>
         </div>
         </sc-if>
 
@@ -2188,15 +2185,6 @@
               </div>
             </sc-if>
           </div>
-          <div class="card" style="padding:14px 16px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center;gap:12px;">
-            <div style="flex:1;">
-              <div class="text-body-bold">Meal allowance forms</div>
-              <div style="font-size:11.5px;color:#8a94a3;margin-top:2px;">{{ mealActiveText }}</div>
-            </div>
-            <div onClick="{{ toggleMealActive }}" style="width:50px;height:28px;border-radius:20px;background:{{ mealToggleTrackBg }};position:relative;cursor:pointer;flex:0 0 auto;">
-              <span style="position:absolute;top:3px;left:{{ mealToggleKnobX }};width:22px;height:22px;border-radius:50%;background:#fff;transition:left .15s;"></span>
-            </div>
-          </div>
           </sc-if>
 
           <!-- ── TEAM sub-tab ── -->
@@ -3093,12 +3081,12 @@
               <div style="font-size:13px;color:#5c6678;line-height:1.55;">Step outside to an open area with a clear view of the sky and try again. After several failed attempts a bypass option will appear. Use it only if GPS keeps failing, as bypassed check-ins are flagged for your supervisor.</div>
             </div>
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
-              <div class="text-strong">What is the work timer and meal allowance?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">When meal allowance is active for the cycle, a live work timer appears on the Check-In tab. Once you have worked 6 hours and recorded Phase 4, a "Meal eligible" badge appears. You must clock out (Phase 4) for the day to count toward your meal claim.</div>
+              <div class="text-strong">What is the work timer?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">A live work timer appears on the Check-In tab once you record Phase 1. It tracks how long you have been on duty. Your meal allowance entitlement for the cycle is shown on the <strong>Meal</strong> tab.</div>
             </div>
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;">
               <div class="text-strong">Why is there an orange warning on my calendar?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">An orange day means you checked in but did not record a Phase 4 clock-out. Inform your supervisor so they can correct the record. Without a clock-out, the day will not count toward your meal allowance.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">An orange day means you checked in but did not record a Phase 4 clock-out. Inform your supervisor so they can correct the record.</div>
             </div>
           </div>
           </sc-if>
@@ -3115,7 +3103,7 @@
             </div>
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I export attendance?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>Log</strong> tab. Tap <strong>Print</strong> for a printable PDF summary. Tap <strong>Excel</strong> for a spreadsheet download with per-person totals, attendance rates, and a Meal column showing how many days each person is eligible for meal allowance.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>Log</strong> tab. Tap <strong>Print</strong> for a printable PDF summary. Tap <strong>Excel</strong> for a spreadsheet download with per-person totals and attendance rates.</div>
             </div>
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I post a notice to reservists?</div>
