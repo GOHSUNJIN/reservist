@@ -1160,9 +1160,13 @@
           <!-- Entitlement card -->
           <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px;">
             <!-- Big number -->
-            <div style="padding:22px 18px 6px;text-align:center;">
+            <div style="padding:22px 18px 8px;text-align:center;">
               <div style="font-size:56px;font-weight:800;color:#1f8a5b;line-height:1;letter-spacing:-2px;">{{ mealEligibleDays }}</div>
-              <div style="font-size:13px;font-weight:500;color:#8a94a3;margin-top:6px;">{{ mealDayLabel }} entitled this cycle</div>
+              <div style="font-size:13px;font-weight:500;color:#8a94a3;margin-top:6px;">meal {{ mealAllowanceLabel }} entitled this cycle</div>
+              <div style="display:inline-flex;align-items:center;gap:5px;margin-top:10px;padding:4px 11px;background:#e7f3ec;border-radius:20px;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#1f8a5b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+                <span style="font-size:11.5px;font-weight:600;color:#1f8a5b;">6 hrs worked = 1 allowance</span>
+              </div>
             </div>
             <!-- Progress bar -->
             <div style="padding:14px 18px 18px;">
@@ -1191,11 +1195,14 @@
             <div style="font-size:11px;font-weight:700;color:#9aa3b2;letter-spacing:.07em;margin-bottom:10px;">HOW IT WORKS</div>
             <div style="display:flex;flex-direction:column;gap:0;">
               <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f2f4f7;">
-                <div style="display:flex;align-items:center;gap:9px;">
-                  <div style="width:8px;height:8px;border-radius:50%;background:#1f8a5b;flex:0 0 auto;"></div>
-                  <span style="font-size:13px;font-weight:600;color:#1f8a5b;">Reported present</span>
+                <div style="display:flex;align-items:flex-start;gap:9px;">
+                  <div style="width:8px;height:8px;border-radius:50%;background:#1f8a5b;flex:0 0 auto;margin-top:4px;"></div>
+                  <div>
+                    <div style="font-size:13px;font-weight:600;color:#1f8a5b;">Reported present</div>
+                    <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;">Worked 6 hrs and clocked out</div>
+                  </div>
                 </div>
-                <span style="font-size:12px;font-weight:600;color:#1f8a5b;">+1 day</span>
+                <span style="font-size:12px;font-weight:600;color:#1f8a5b;white-space:nowrap;margin-left:8px;">+1 allowance</span>
               </div>
               <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f2f4f7;">
                 <div style="display:flex;align-items:center;gap:9px;">

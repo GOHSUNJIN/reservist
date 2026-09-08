@@ -91,8 +91,11 @@ const MiscHandlers = {
 
   goMeal: function() {
     this.setState({tab:'meal'}); this._scrollTop();
-    if(this.state.role==='reservist'&&!this.state.demo&&this.state.currentUserId)
-      DB.attendance.getHistory(this.state.currentUserId).then(h=>{if(h)this.setState({history:h});}).catch(()=>{});
+    if(this.state.role==='reservist'&&!this.state.demo&&this.state.currentUserId){
+      // Include today so an MC approved for today is reflected immediately
+      const tomorrow=Utils.dateKey(Utils.addDays(this.baseDate(),1));
+      DB.attendance.getHistory(this.state.currentUserId,tomorrow).then(h=>{if(h)this.setState({history:h});}).catch(()=>{});
+    }
   },
 
   goPeople: function() {
