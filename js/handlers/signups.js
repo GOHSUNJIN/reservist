@@ -4,8 +4,18 @@ const SignupHandlers = {
   loadPendingSignups: async function() {
     const dept=this._myDept();
     const data=await DB.signupRequests.listPending(dept).catch(()=>[]);
-    this.setState({pendingSignups:data,pendingSignupsLoaded:true});
-    if(data.length) this.loadSignupAvatars(data);
+    // Deduplicate by contact: keep the latest request, delete older ones
+    const latestByContact=new Map();
+    for(const r of data){
+      const key=(r.contact||'').replace(/[\s-]/g,'');
+      const existing=latestByContact.get(key);
+      if(!existing||r.created_at>existing.created_at) latestByContact.set(key,r);
+    }
+    const toDelete=data.filter(r=>latestByContact.get((r.contact||'').replace(/[\s-]/g,''))?.id!==r.id);
+    for(const r of toDelete) DB.signupRequests.deletePendingById(r.id).catch(()=>{});
+    const deduped=[...latestByContact.values()].sort((a,b)=>a.created_at.localeCompare(b.created_at));
+    this.setState({pendingSignups:deduped,pendingSignupsLoaded:true});
+    if(deduped.length) this.loadSignupAvatars(deduped);
   },
 
   loadSignupAvatars: async function(signups) {
