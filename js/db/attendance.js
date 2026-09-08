@@ -137,6 +137,11 @@ const DB_Attendance = {
     return { error };
   },
 
+  async backfillAbsent(rows) {
+    if (!rows.length) return;
+    await _db.from('attendance').upsert(rows, { onConflict: 'personnel_id,date', ignoreDuplicates: true });
+  },
+
   async saveMissedNote(personnelId, dateStr, note) {
     const existingId = await this._findRow(personnelId, dateStr);
     if (existingId) {
