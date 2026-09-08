@@ -19,9 +19,9 @@ const BriefingsBuilders = {
     const bEnd=myBatch?.end_date||'';
     const _todayLive=s.attendance?.[s.currentUserId];
     const _h=(()=>{
-      const hist=(s.history||[]).map(r=>
-        (r.date===today&&_todayLive)?{...r,..._todayLive}:r
-      );
+      // history now includes today (fetched with tomorrow cutoff in goMeal)
+      // only fall back to _todayLive if today not yet in history
+      const hist=(s.history||[]).slice();
       if(_todayLive&&!hist.some(r=>r.date===today))
         hist.push({date:today,..._todayLive});
       return hist.filter(r=>
@@ -36,6 +36,7 @@ const BriefingsBuilders = {
     const mealEligibleDays=mealPresent;
     const mealProgressPct=mealTotalDays>0?Math.round(mealEligibleDays/mealTotalDays*100):0;
     const mealDayLabel=mealEligibleDays===1?'day':'days';
+    const mealAllowanceLabel=mealEligibleDays===1?'allowance':'allowances';
     // Cycle progress - count weekdays excluding public holidays and custom no-report days
     const bDekit=myBatch?.dekit_date||'';
     const _nrd=s.noReportDays instanceof Set?s.noReportDays:new Set(s.noReportDays||[]);
@@ -66,7 +67,7 @@ const BriefingsBuilders = {
       briefAttire:'Civilian',
       briefAttireRowBorder:showBriefTransport?'1px solid #f2f4f7':'none',
       briefTransport, showBriefTransport,
-      mealPresent, mealMc, mealAbsent, mealTotalDays, mealEligibleDays, mealProgressPct, mealDayLabel,
+      mealPresent, mealMc, mealAbsent, mealTotalDays, mealEligibleDays, mealProgressPct, mealDayLabel, mealAllowanceLabel,
       dekitItems:[
         {n:'1',text:'Confirm your meal allowance entitlement count with the Manpower Officer.'},
         {n:'2',text:'Bring hardcopies of any MCs taken.'},
