@@ -760,7 +760,7 @@
         <div style="display:flex;flex-direction:column;gap:10px;">
 
           <!-- YOUR SHIFT hero -->
-          <sc-if value="{{ !casInfoBlocked }}" hint-placeholder-val="">
+          <sc-if value="{{ showFullInfo }}" hint-placeholder-val="">
           <div style="background:{{ accent }};border-radius:16px;padding:16px 18px;">
             <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
               <div>
@@ -802,7 +802,7 @@
             <div style="margin-top:10px;background:rgba(255,255,255,.13);border-radius:8px;padding:9px 12px;font-size:12px;color:rgba(255,255,255,.88);line-height:1.5;text-wrap:pretty;">{{ myShiftNote }}</div>
             </sc-if>
           </div>
-          </sc-if><!-- end !casInfoBlocked hero -->
+          </sc-if><!-- end showFullInfo hero -->
 
           <!-- Sub-tabs -->
           <div style="display:flex;gap:4px;background:#f1f3f6;padding:4px;border-radius:10px;">
@@ -825,8 +825,19 @@
           </div>
           </sc-if><!-- end CAS placeholder -->
 
+          <!-- LNF placeholder -->
+          <sc-if value="{{ lfInfoBlocked }}" hint-placeholder-val="">
+          <div class="card" style="padding:36px 20px;text-align:center;">
+            <div style="width:44px;height:44px;border-radius:50%;background:#eef3fc;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#2f5fd0" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+            </div>
+            <div style="font-size:14px;font-weight:700;color:#161f30;margin-bottom:6px;">Details Coming Soon</div>
+            <div style="font-size:12px;color:#8a94a3;line-height:1.5;">Reporting information for Lost &amp; Found will be updated here shortly. Check back soon.</div>
+          </div>
+          </sc-if><!-- end LNF placeholder -->
+
           <!-- OPS content -->
-          <sc-if value="{{ !casInfoBlocked }}" hint-placeholder-val="">
+          <sc-if value="{{ showFullInfo }}" hint-placeholder-val="">
 
           <!-- Reporting -->
           <div class="card" style="overflow:hidden;padding:0;">
@@ -913,7 +924,7 @@
             </div>
           </div>
 
-          </sc-if><!-- end !casInfoBlocked OPS content -->
+          </sc-if><!-- end showFullInfo OPS content -->
 
           <!-- Team directory (CAS and OPS) -->
           <sc-if value="{{ showTeam }}" hint-placeholder-val="">
@@ -1201,6 +1212,9 @@
           <select value="{{ deptSelectVal }}" onChange="{{ onDeptSelect }}" style="flex:1;padding:6px 9px;border:1px solid #d4d9e2;border-radius:8px;font-size:13px;font-weight:600;color:#36404f;background:#fff;outline:none;cursor:pointer;box-sizing:border-box;min-width:0;">
             <option value="ops_security">Ops Security</option>
             <option value="cas">Crime Prevention</option>
+            <!-- LNF: uncomment after running scripts/sql/add_lnf_department.sql
+            <option value="lnf">Lost &amp; Found</option>
+            -->
           </select>
         </div>
         </sc-if>
