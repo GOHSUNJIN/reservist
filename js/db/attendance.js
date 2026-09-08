@@ -34,6 +34,10 @@ const DB_Attendance = {
     return result;
   },
 
+  async deleteByPerson(personnelId) {
+    await _db.from('attendance').delete().eq('personnel_id', personnelId);
+  },
+
   async getHistory(personnelId, cutoffDate) {
     const today = cutoffDate || Utils.dateKey(new Date());
     const { data } = await _db.from('attendance')
