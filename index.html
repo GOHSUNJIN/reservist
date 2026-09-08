@@ -1159,15 +1159,10 @@
         <div>
           <!-- Entitlement card -->
           <div class="card" style="padding:0;overflow:hidden;margin-bottom:12px;">
-            <!-- Header strip -->
-            <div style="background:#161f30;padding:14px 18px 12px;display:flex;align-items:center;justify-content:space-between;">
-              <div style="font-size:11px;font-weight:700;color:#7d8fa8;letter-spacing:.08em;">MEAL ALLOWANCE</div>
-              <div style="font-size:11px;font-weight:600;color:#4a6080;">{{ mealEligibleDays }} of {{ mealTotalDays }} days</div>
-            </div>
             <!-- Big number -->
-            <div style="padding:20px 18px 6px;text-align:center;">
+            <div style="padding:22px 18px 6px;text-align:center;">
               <div style="font-size:56px;font-weight:800;color:#1f8a5b;line-height:1;letter-spacing:-2px;">{{ mealEligibleDays }}</div>
-              <div style="font-size:13px;font-weight:500;color:#8a94a3;margin-top:6px;">days entitled this cycle</div>
+              <div style="font-size:13px;font-weight:500;color:#8a94a3;margin-top:6px;">{{ mealDayLabel }} entitled this cycle</div>
             </div>
             <!-- Progress bar -->
             <div style="padding:14px 18px 18px;">
@@ -1182,8 +1177,8 @@
                 <div style="font-size:10px;font-weight:600;color:#8a94a3;margin-top:3px;letter-spacing:.05em;">PRESENT</div>
               </div>
               <div style="flex:1;padding:14px 8px;text-align:center;border-right:1px solid #f2f4f7;">
-                <div style="font-size:22px;font-weight:700;color:#9aa3b2;">{{ mealMc }}</div>
-                <div style="font-size:10px;font-weight:600;color:#c2c8d4;margin-top:3px;letter-spacing:.05em;">MC / LEAVE</div>
+                <div style="font-size:22px;font-weight:700;color:#b9791a;">{{ mealMc }}</div>
+                <div style="font-size:10px;font-weight:600;color:#d4a04a;margin-top:3px;letter-spacing:.05em;">MC / LEAVE</div>
               </div>
               <div style="flex:1;padding:14px 8px;text-align:center;">
                 <div style="font-size:22px;font-weight:700;color:#c0392b;">{{ mealAbsent }}</div>
@@ -1204,10 +1199,10 @@
               </div>
               <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f2f4f7;">
                 <div style="display:flex;align-items:center;gap:9px;">
-                  <div style="width:8px;height:8px;border-radius:50%;background:#d4d9e2;flex:0 0 auto;"></div>
-                  <span style="font-size:13px;font-weight:600;color:#8a94a3;">MC / Leave</span>
+                  <div style="width:8px;height:8px;border-radius:50%;background:#f0be5a;flex:0 0 auto;"></div>
+                  <span style="font-size:13px;font-weight:600;color:#b9791a;">MC / Leave</span>
                 </div>
-                <span style="font-size:12px;font-weight:500;color:#b0b8c4;">Not counted</span>
+                <span style="font-size:12px;font-weight:500;color:#b9791a;">Not counted</span>
               </div>
               <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;">
                 <div style="display:flex;align-items:center;gap:9px;">
@@ -1217,7 +1212,6 @@
                 <span style="font-size:12px;font-weight:500;color:#b0b8c4;">Not counted</span>
               </div>
             </div>
-            <div style="margin-top:10px;padding:9px 11px;background:#f6f8fa;border-radius:8px;font-size:12px;color:#8a94a3;line-height:1.5;">Confirm your total with the Manpower Officer on dekit day.</div>
           </div>
         </div>
         </sc-if>
