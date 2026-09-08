@@ -13,7 +13,7 @@ const NavBuilders = {
       userInitials:s.role==='admin'?(me?.name?Utils.initials(me.name):'SV'):Utils.initials(me?.name||''),
       tabTitle:TITLES[s.tab]||'',
       headerKicker:(()=>{const dl=Utils.deptLabel(this._myDept());return s.isSuperAdmin?'Master, '+dl:s.role==='admin'?'Admin, '+dl:dl+', PNSMEN';})(),
-      goCheckin:this.go('checkin'), goBriefings:this.go('briefings'), goAttendance:this.go('attendance'), goMeal:this.go('meal'),
+      goCheckin:this.go('checkin'), goBriefings:this.go('briefings'), goAttendance:this.go('attendance'), goMeal:this.goMeal,
       goOverview:()=>{ this.setState({tab:'overview'}); setTimeout(()=>this.loadRosterAvatars(),0); this._scrollTop(); },
       goRoster:()=>{ this.setState({tab:'roster'}); setTimeout(()=>this.loadRosterAvatars(),0); this._scrollTop(); },
       goLog:()=>{ this.setState({tab:'log'}); setTimeout(()=>this.loadRosterAvatars(),0); this._scrollTop(); },
