@@ -448,6 +448,38 @@ Features that improve day-to-day operations but are not blockers for handover.
 
 14. **Equipment and dekit tracking**: Track issued items per reservist per cycle and record return status at dekit. Fits naturally into the existing cycle lifecycle alongside the dekit date.
 
+### Stage 4 - Ideas for future consideration
+
+Longer-horizon features that would meaningfully expand what the system can do. None of these are required for the app to run well, but each one addresses a real gap.
+
+15. **Meal allowance form auto-fill**: At dekit, reservists fill out a physical form using their clock-in and clock-out times. The app already holds all this data. Generating a pre-filled PDF from the app would eliminate manual transcription errors and save time on dekit day.
+
+16. **MC document upload**: Reservists currently bring physical MC hardcopies to dekit. Allowing them to photograph and upload the MC at the time of submission gives supervisors an immediate digital record and reduces the risk of lost paperwork.
+
+17. **QR code check-in (backup mode)**: A supervisor can display a time-limited QR code on a screen or printout. Scanning it records a check-in without GPS. Useful as a reliable fallback for venues with poor signal, or for roll calls at an off-site location.
+
+18. **Medical and fitness status per person**: Store per-person status flags such as RSI, Light Duty, or Restricted from physical activities. These appear on the roster card so supervisors know at a glance who has duty limitations without checking a separate spreadsheet.
+
+19. **Calendar export**: Let reservists add their cycle dates (start, end, dekit, no-report days) directly to their phone calendar (Google Calendar or Apple Calendar via ICS file). Reduces the need for supervisors to repeat this information verbally.
+
+20. **Attendance trend charts**: Visual graphs showing attendance rate over time, lateness frequency, and MC patterns across cycles. Surfaced in the admin Overview tab to help supervisors identify welfare concerns or accountability issues early.
+
+21. **Late arrival pattern detection**: Automatically flag reservists who have been late more than a set number of times within a cycle or across cycles. An amber indicator on their roster card prompts a welfare check without the supervisor needing to count manually.
+
+22. **Supervisor handover notes**: A structured notes field for the outgoing supervisor to leave context for their replacement: known welfare cases, ongoing issues, cycle quirks, and contacts. Stored in the database and accessible to the incoming admin immediately on their first login.
+
+23. **Emergency contact storage**: Store a next-of-kin name and contact number per reservist. Visible on the person's profile card and exportable. Useful for duty of care situations and for supervisors who may not have personal contact with all reservists.
+
+24. **Cross-cycle analytics**: A summary view for the Master account showing attendance rates, average lateness, and MC frequency across all past cycles. Useful for identifying long-term trends and for justifying manpower decisions.
+
+25. **Reservist self-service contact update**: Allow reservists to update their own contact number from account settings with a confirmation step. Currently only an admin can change this, which creates friction when a reservist changes their number between cycles.
+
+26. **Duty roster**: A separate tab or section where supervisors assign specific reservists to special duties (guard duty, escort, standby) on specific dates. This appears on the individual's check-in screen for that day and is visible on the admin roster.
+
+27. **Announcement board**: A persistent, pinned notice visible to all reservists across all cycles, separate from the cycle-specific broadcast. Useful for standing orders, dress code reminders, and permanent welfare resources that do not change cycle to cycle.
+
+28. **Bulk attendance import**: Accept a pasted or uploaded spreadsheet to back-fill attendance records for a past date range. Useful when the app was not in use for the start of a cycle and the supervisor needs to populate historical data without entering each record individually.
+
 ---
 
 ## Setup Guide
