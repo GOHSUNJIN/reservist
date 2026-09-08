@@ -96,9 +96,8 @@ const MiscHandlers = {
       const myBatch=(me?.batch_id?this.state.batches.find(b=>b.id===me.batch_id):null)||this.state.batches[this.state.activeBatchIdx||0];
       if(myBatch){
         DB.attendance.getForPerson(this.state.currentUserId,myBatch.start_date,myBatch.end_date).then(h=>{
-          console.log('[Meal] getForPerson returned',h?.length,'rows',h);
           if(h)this.setState({history:h});
-        }).catch(e=>console.error('[Meal] getForPerson error',e));
+        }).catch(()=>{});
       }
     }
   },
