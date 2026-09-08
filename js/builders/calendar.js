@@ -269,9 +269,10 @@ const CalendarBuilders = {
     }
 
     const myHistory=[...todayRow,...futureLeaveRows,...allPast];
-    const statMyPresent=myHistory.filter(h=>h.status==='present').length;
-    const statMyMc=myHistory.filter(h=>h.status==='mc').length;
-    const statMyAbsent=myHistory.filter(h=>h.status==='absent'||h.status==='missed').length;
+    const statRows=[...todayRow,...allPast];
+    const statMyPresent=statRows.filter(h=>h.status==='present').length;
+    const statMyMc=statRows.filter(h=>h.status==='mc').length;
+    const statMyAbsent=statRows.filter(h=>h.status==='absent'||h.status==='missed').length;
     const statMyMissed=statMyAbsent; // kept for back-compat
 
     let cycleTotal=0, cycleDone=0;
