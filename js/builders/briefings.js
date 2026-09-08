@@ -20,16 +20,16 @@ const BriefingsBuilders = {
     const _todayLive=s.attendance?.[s.currentUserId];
     const _h=(()=>{
       const hist=(s.history||[]).map(r=>
-        (r.date===today&&_todayLive)?{...r,status:_todayLive.status}:r
+        (r.date===today&&_todayLive)?{...r,..._todayLive}:r
       );
       if(_todayLive&&!hist.some(r=>r.date===today))
-        hist.push({date:today,status:_todayLive.status});
+        hist.push({date:today,..._todayLive});
       return hist.filter(r=>
         Utils.isReportDay(new Date(r.date+'T00:00:00'),this._myDept())&&
         (!bStart||r.date>=bStart)&&(!bEnd||r.date<=bEnd)
       );
     })();
-    const mealPresent=_h.filter(r=>r.status==='present').length;
+    const mealPresent=_h.filter(r=>r.status==='present'&&!!r.p4).length;
     const mealMc=_h.filter(r=>r.status==='mc').length;
     const mealAbsent=_h.filter(r=>r.status==='absent'||r.status==='missed').length;
     const mealTotalDays=_h.length;

@@ -89,6 +89,12 @@ const MiscHandlers = {
   _scrollTop: function() { document.getElementById('main-scroll')?.scrollTo(0,0); },
   go: function(t) { return () => { this.setState({tab:t}); this._scrollTop(); }; },
 
+  goMeal: function() {
+    this.setState({tab:'meal'}); this._scrollTop();
+    if(this.state.role==='reservist'&&!this.state.demo&&this.state.currentUserId)
+      DB.attendance.getHistory(this.state.currentUserId).then(h=>{if(h)this.setState({history:h});}).catch(()=>{});
+  },
+
   goPeople: function() {
     this.setState({tab:'people',peopleStatsLoaded:false,rejectedSignupsHidden:true,processedLeavesHidden:true,processedLeavesSearch:'',processedLeavesFilter:'all',processedLeavesPage:1,leaveSearch:'',leaveSearchOpen:false,leaveTypeFilter:'all',signupSearch:'',signupSearchOpen:false,signupTypeFilter:'all'});
     this.loadPeopleStats();
