@@ -482,6 +482,90 @@ Longer-horizon features that would meaningfully expand what the system can do. N
 
 ---
 
+## Implementation Order Guide
+
+The safest way to build these features is to work from the outside in: start with things that only read existing data, then add new data, then change how existing data is used, and leave schema migrations for last. Breaking the site almost always happens when existing queries or logic are changed without a fallback. The groups below follow that principle.
+
+### Group A: Zero risk - pure frontend, no database changes
+
+These only compute from data already in the app. A bug here shows a wrong UI value; it cannot corrupt data or break check-in.
+
+| Item | What makes it safe |
+|---|---|
+| 19 - Calendar export | Generates an ICS file from batch dates already in state. No DB write. |
+| 21 - Late pattern detection | Reads existing history records and computes in the builder. No DB change. |
+| 20 - Attendance trend charts | Reads existing data. Pure builder addition. |
+| 15 - Meal allowance PDF auto-fill | Formats existing clock-in/out times into a PDF. No DB change. |
+| 24 - Cross-cycle analytics | Aggregates existing tables. Read-only. |
+
+**Do these first.** Each one can be added and removed independently. None of them touch a handler, a DB write, or any existing logic path.
+
+### Group B: Very low risk - new columns on existing tables
+
+Adding a column to an existing table is safe as long as it is nullable (no default required). Existing rows are unaffected. Existing queries still work because they do not select the new column unless you ask them to.
+
+| Item | Column added to |
+|---|---|
+| 23 - Emergency contact | `personnel` (nok_name, nok_contact) |
+| 18 - Medical/fitness status | `personnel` (duty_status) |
+| 22 - Supervisor handover notes | `batches` (handover_notes) |
+| 4 - WA group link in DB | `batches` or new `dept_config` row |
+| 5 - Per-cycle GPS location | `batches` (hq_lat, hq_lon, hq_range) |
+
+The pattern for all of these: read the new column if it exists, otherwise fall back to the hardcoded value. This means the feature is opt-in and the site never breaks if the column is empty.
+
+### Group C: Low risk - new tables only
+
+New tables have no impact on anything existing. Existing queries do not touch them. The only risk is if a new handler writes bad data, which only affects the new feature.
+
+| Item | New table |
+|---|---|
+| 27 - Announcement board | `announcements` |
+| 14 - Equipment tracking | `equipment_issues` |
+| 12 - Audit log viewer | `audit_log` (or extend existing `edit_log` JSONB) |
+| 26 - Duty roster | `duty_assignments` |
+| 11 - Shift scheduler | `shift_schedule` |
+| 16 - MC document upload | New Supabase storage bucket only |
+| 1 - In-app settings panel | `app_settings` (key/value rows, fall back to hardcoded config if absent) |
+| 2 - Editable Info tab content | New column on `batches` or a `dept_content` table |
+
+### Group D: Medium risk - new logic paths in existing handlers
+
+These add new code paths to existing handlers or extend the service worker. A bug here can affect existing flows, but since you are adding new paths rather than replacing old ones, the existing functionality stays intact as a fallback.
+
+| Item | What to watch |
+|---|---|
+| 25 - Self-service contact update | Touches auth/contact flow. Validate contact format carefully and test login with new number before shipping. |
+| 28 - Bulk attendance import | Batch DB writes. Use a transaction or upsert so a partial import does not leave dirty data. |
+| 9 - Push notifications | Service worker extension. Test on both iOS and Android. A broken SW registration can prevent the app loading offline. |
+| 17 - QR code check-in | New check-in path, runs alongside GPS. The existing GPS path is untouched. |
+
+### Group E: Higher risk - replacing existing core logic
+
+These change code that the entire check-in flow depends on. The current constants are referenced in at least four places (utils.js, checkin.js, builders, the work timer). Replace them one file at a time, keep the hardcoded value as a fallback if the DB value is missing, and test each phase window end-to-end before shipping.
+
+| Item | Risk |
+|---|---|
+| 3 - Editable phase windows | Phase constants are used in check-in validation, the work timer, meal eligibility, and phase reminder banners. Touch all four or none. |
+| 10 - Multiple shifts | Depends on phase windows being dynamic first. Do not start this before item 3 is stable. |
+| 13 - Automated summaries | Requires an external API (WhatsApp Business or email). External dependency means new failure modes outside your control. |
+
+### Group F: Do last - schema migrations
+
+These change the shape of existing tables or convert a database enum to a table. A failed migration on a live database can take the app down. Always run these on a copy of the database first, test fully, then apply to production during a low-traffic window.
+
+| Item | Why it is last |
+|---|---|
+| 6 - Department CRUD | Converts `department_type` enum to a `departments` table. Every query that filters by department needs updating. |
+| 7 - Per-department config panel | Depends on item 6 being stable. |
+| 8 - Scoped department access | Requires RLS policy changes. A wrong policy can lock all users out immediately. Test on a staging project first. |
+
+### Golden rule
+
+Never change an existing query or logic path without keeping the old behaviour as a fallback. Read new data if it exists; use the hardcoded value if it does not. This way every feature in Group B, C, and D can be shipped incrementally and rolled back by removing a UI element without touching the database.
+
+---
+
 ## Setup Guide
 
 > This section is for the person deploying and configuring the system. Basic familiarity with running terminal commands is required.
