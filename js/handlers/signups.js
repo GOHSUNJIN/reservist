@@ -73,6 +73,7 @@ const SignupHandlers = {
       if(!approvedRow){this.setState(s=>({pendingSignups:s.pendingSignups.filter(r=>r.id!==id)}));this._toast('Already approved by another admin.','error');return;}
       const {finalPerson,existed,wasInactive,error:personErr,message:personMsg}=await this._ensurePersonnelForSignup(req,id);
       if(personErr){this._toast(personMsg,'error');return;}
+      if(finalPerson?.id){const _rb=this.state.batches.find(b=>b.id===req.batch_id);this._backfillAbsent(finalPerson.id,_rb,req.department||'ops_security').catch(()=>{});}
       const freshPersonnel=await DB.personnel.list(null,true,this._myDept()).catch(()=>null);
       this.setState(s=>({
         pendingSignups:s.pendingSignups.filter(r=>r.id!==id),
@@ -120,6 +121,7 @@ const SignupHandlers = {
       if(approveErr||!approvedRow) continue;
       const {finalPerson,existed,wasInactive,error:personErr,message:personMsg}=await this._ensurePersonnelForSignup(req,req.id);
       if(personErr){this._toast(personMsg,'error');continue;}
+      if(finalPerson?.id){const _rb=this.state.batches.find(b=>b.id===req.batch_id);this._backfillAbsent(finalPerson.id,_rb,req.department||'ops_security').catch(()=>{});}
       this.setState(s=>({
         pendingSignups:s.pendingSignups.filter(r=>r.id!==req.id),
         approvedSignups:[{...req,status:'approved',reviewed_by:reviewerName,reviewed_at:new Date().toISOString()},...s.approvedSignups],

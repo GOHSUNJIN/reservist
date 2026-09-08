@@ -28,6 +28,7 @@ const PeopleHandlers = {
       const {data,error:addErr}=await DB.personnel.add({authId:user.id,name:npName.trim(),contact:cleanContact,shift:npShift,batchId:activeBatch.id,department:this._myDept()});
       if(addErr||!data){await DB.auth.deleteUser(user.id).catch(()=>{});this._toast('Failed to add to roster. Try again.','error');return;}
       if(me?.name&&data?.id) DB.personnel.setCreatedBy(data.id,me.name).catch(()=>{});
+      this._backfillAbsent(data.id, activeBatch, this._myDept()).catch(()=>{});
       this.setState(s=>({personnel:[...s.personnel,data],npName:'',npContact:'',npShift:'OFFICE',npPassword:'',rosterSearch:'',addPersonnelOpen:false,npAddSearch:'',showNpPw:false}));
       DB.personnel.list(null,true,this._myDept()).then(fresh=>this.setState({personnel:fresh})).catch(()=>{});
     } else {
@@ -47,6 +48,7 @@ const PeopleHandlers = {
     if(reactErr||!reactivated){this._toast('Failed to re-enroll. Try again.','error');return;}
     if(addedName&&addedName!==npReenrollRecord.name) await DB.personnel.updateName(npReenrollRecord.id,addedName).catch(()=>{});
     if(me?.name&&reactivated?.id) DB.personnel.setCreatedBy(reactivated.id,me.name).catch(()=>{});
+    this._backfillAbsent(reactivated.id, activeBatch, this._myDept()).catch(()=>{});
     const finalName=addedName||npReenrollRecord.name;
     this.setState(s=>({personnel:[...s.personnel,{...reactivated,name:finalName}],npName:'',npContact:'',npShift:'OFFICE',npPassword:'',npReenrollRecord:null,rosterSearch:'',addPersonnelOpen:false,npAddSearch:'',showNpPw:false}));
     DB.personnel.list(null,true,this._myDept()).then(fresh=>this.setState({personnel:fresh})).catch(()=>{});
@@ -54,6 +56,20 @@ const PeopleHandlers = {
   },
 
   cancelReenroll: function() { this.setState({npReenrollRecord:null,npAddSearch:'',npName:'',npContact:''}); },
+
+  _backfillAbsent: async function(personId, batch, dept) {
+    if(!personId || !batch?.start_date) return;
+    const today = Utils.dateKey(this.baseDate());
+    if(batch.start_date >= today) return;
+    const nrd = this.state.noReportDays;
+    const rows = [];
+    for(let d = new Date(batch.start_date+'T00:00:00'); Utils.dateKey(d) < today; d = Utils.addDays(d,1)) {
+      const dk = Utils.dateKey(d);
+      if(Utils.isReportDay(d, dept) && !Utils.holidayName(d) && !nrd.has(dk))
+        rows.push({personnel_id: personId, date: dk, status: 'absent'});
+    }
+    if(rows.length) await DB.attendance.backfillAbsent(rows).catch(()=>{});
+  },
 
   toggleAddPersonnel: function() {
     const opening=!this.state.addPersonnelOpen;
