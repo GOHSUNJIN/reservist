@@ -34,8 +34,9 @@ const AuthHandlers = {
       if(allBatches.length) this.setState({batches:allBatches});
     }
     const allSorted = [...allBatches].sort((a,b)=>a.start_date>b.start_date?1:-1);
-    const deptBatches = allSorted.filter(b=>!b.department||b.department===suDepartment);
-    const liveBatch = deptBatches.find(b=>today>=b.start_date&&today<=b.end_date) || deptBatches.find(b=>b.is_live);
+    const strictDept = allSorted.filter(b=>b.department===suDepartment);
+    const deptBatches = strictDept.length ? strictDept : allSorted.filter(b=>!b.department);
+    const liveBatch = deptBatches.find(b=>b.is_live) || deptBatches.find(b=>today>=b.start_date&&today<=b.end_date);
     if(!liveBatch){
       this.setState({authError:'No active intake batch is open for sign-up right now.'});
       return;

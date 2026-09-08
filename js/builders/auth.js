@@ -6,8 +6,9 @@ const AuthBuilders = {
     const suDept=s.suDepartment||'';
     // Filter batches by selected department for the intake badge
     const allSorted=[...(s.batches||[])].sort((a,b)=>a.start_date>b.start_date?1:-1);
-    const deptBatches=suDept?allSorted.filter(b=>!b.department||b.department===suDept):allSorted;
-    const liveBatch=deptBatches.find(b=>today>=b.start_date&&today<=b.end_date)||(deptBatches.find(b=>b.is_live));
+    const strictDept=suDept?allSorted.filter(b=>b.department===suDept):allSorted;
+    const deptBatches=suDept?(strictDept.length?strictDept:allSorted.filter(b=>!b.department)):allSorted;
+    const liveBatch=deptBatches.find(b=>b.is_live)||deptBatches.find(b=>today>=b.start_date&&today<=b.end_date);
     const isLastDay=!!(liveBatch&&today===liveBatch.end_date);
     const nextBatch=isLastDay?deptBatches.find(b=>b.start_date>(liveBatch?.end_date||'')):null;
     const targetBatch=nextBatch||liveBatch;

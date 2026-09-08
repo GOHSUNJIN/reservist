@@ -82,9 +82,13 @@ const InitHandlers = {
     const role = (me.role === 'superadmin' || me.role === 'admin') ? 'admin' : me.role || 'reservist';
     const today = Utils.dateKey(this.baseDate());
 
-    let batches = (prefetchedBatches?.length)
-      ? prefetchedBatches.filter(b=>!b.department||b.department===dept)
-      : await DB.batches.list(dept).catch(()=>[]);
+    let batches;
+    if(prefetchedBatches?.length){
+      const strict=prefetchedBatches.filter(b=>b.department===dept);
+      batches=strict.length?strict:prefetchedBatches.filter(b=>!b.department);
+    } else {
+      batches=await DB.batches.list(dept).catch(()=>[]);
+    }
     if(!batches.length) batches = await DB.batches.list(dept).catch(()=>[]);
     if(role==='admin'){
       batches = await this._ensureLiveBatch(batches, null, dept);
