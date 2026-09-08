@@ -1196,6 +1196,23 @@
               </div>
             </div>
           </div>
+          <!-- Daily breakdown -->
+          <sc-if value="{{ hasMealDays }}">
+          <div class="card" style="padding:14px 16px;margin-bottom:12px;">
+            <div style="font-size:11px;font-weight:700;color:#9aa3b2;letter-spacing:.07em;margin-bottom:10px;">DAILY BREAKDOWN</div>
+            <sc-for items="{{ mealDays }}" as="day">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:{{ day.borderBottom }};">
+                <div>
+                  <div style="font-size:13px;font-weight:600;color:#161f30;">{{ day.dateLabel }}</div>
+                  <sc-if value="{{ day.showTimes }}">
+                    <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;">{{ day.checkIn }} → {{ day.checkOut }}</div>
+                  </sc-if>
+                </div>
+                <span style="font-size:11.5px;font-weight:700;color:{{ day.color }};background:{{ day.bg }};padding:3px 10px;border-radius:20px;white-space:nowrap;margin-left:10px;">{{ day.label }}</span>
+              </div>
+            </sc-for>
+          </div>
+          </sc-if>
           <!-- How it works -->
           <div class="card" style="padding:14px 16px;">
             <div style="font-size:11px;font-weight:700;color:#9aa3b2;letter-spacing:.07em;margin-bottom:10px;">HOW IT WORKS</div>

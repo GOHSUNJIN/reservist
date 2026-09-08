@@ -43,6 +43,28 @@ const BriefingsBuilders = {
     const mealProgressPct=mealTotalDays>0?Math.round(mealEligibleDays/mealTotalDays*100):0;
     const mealDayLabel=mealEligibleDays===1?'day':'days';
     const mealAllowanceLabel=mealEligibleDays===1?'allowance':'allowances';
+    const _DW=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],_DM=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    const mealDays=[..._h].filter(r=>r.date<=today).sort((a,b)=>b.date.localeCompare(a.date)).map((r,i,arr)=>{
+      const d=new Date(r.date+'T00:00:00');
+      const isEligible=r.status==='present'&&!!r.p4&&_workMins(r)>=360;
+      const isPresentNoOut=r.status==='present'&&!r.p4;
+      const isPresentUnder=r.status==='present'&&!!r.p4&&!isEligible;
+      const isMc=r.status==='mc';
+      let label,color,bg;
+      if(isEligible){label='Entitled';color='#1f8a5b';bg='#e7f3ec';}
+      else if(isPresentNoOut){label='No clock-out';color='#c2410c';bg='#fff3e0';}
+      else if(isPresentUnder){label='Under 6 hrs';color='#b9791a';bg='#fdf6e9';}
+      else if(isMc){label='MC / Leave';color='#b9791a';bg='#fdf6e9';}
+      else{label='Absent';color='#c0392b';bg='#f7e4e1';}
+      return {
+        dateLabel:_DW[d.getDay()]+' '+d.getDate()+' '+_DM[d.getMonth()],
+        label,color,bg,isEligible,
+        showTimes:r.status==='present',
+        checkIn:r.p1||'-',checkOut:r.p4||'–',
+        borderBottom:i===arr.length-1?'none':'1px solid #f2f4f7',
+      };
+    });
+    const hasMealDays=mealDays.length>0;
     // Cycle progress - count weekdays excluding public holidays and custom no-report days
     const bDekit=myBatch?.dekit_date||'';
     const _nrd=s.noReportDays instanceof Set?s.noReportDays:new Set(s.noReportDays||[]);
@@ -76,7 +98,7 @@ const BriefingsBuilders = {
       briefAttire:'Civilian',
       briefAttireRowBorder:showBriefTransport?'1px solid #f2f4f7':'none',
       briefTransport, showBriefTransport,
-      mealPresent, mealMc, mealAbsent, mealTotalDays, mealEligibleDays, mealProgressPct, mealDayLabel, mealAllowanceLabel,
+      mealPresent, mealMc, mealAbsent, mealTotalDays, mealEligibleDays, mealProgressPct, mealDayLabel, mealAllowanceLabel, mealDays, hasMealDays,
       dekitItems:[
         {n:'1',text:'Confirm your meal allowance entitlement count with the Manpower Officer.'},
         {n:'2',text:'Bring hardcopies of any MCs taken.'},
