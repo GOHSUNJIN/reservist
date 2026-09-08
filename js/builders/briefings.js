@@ -36,9 +36,9 @@ const BriefingsBuilders = {
     })();
     const mealPresent=_h.filter(r=>r.status==='present'&&!!r.p4).length;
     const mealMc=_h.filter(r=>r.status==='mc').length;
-    const mealAbsent=_h.filter(r=>r.status==='absent'||r.status==='missed').length;
-    console.log('[Meal] present=',mealPresent,'mc=',mealMc,'absent=',mealAbsent);
-    const mealTotalDays=_h.length;
+    const mealAbsent=_h.filter(r=>(r.status==='absent'||r.status==='missed')&&r.date<=today).length;
+    const mealTotalDays=_h.filter(r=>r.date<=today).length;
+    console.log('[Meal] present=',mealPresent,'mc=',mealMc,'absent=',mealAbsent,'total(elapsed)=',mealTotalDays);
     const mealEligibleDays=mealPresent;
     const mealProgressPct=mealTotalDays>0?Math.round(mealEligibleDays/mealTotalDays*100):0;
     const mealDayLabel=mealEligibleDays===1?'day':'days';

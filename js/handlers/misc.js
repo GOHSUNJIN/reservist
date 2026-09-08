@@ -92,12 +92,14 @@ const MiscHandlers = {
   goMeal: function() {
     this.setState({tab:'meal'}); this._scrollTop();
     if(this.state.role==='reservist'&&!this.state.demo&&this.state.currentUserId){
-      // Include today so an MC approved for today is reflected immediately
-      const tomorrow=Utils.dateKey(Utils.addDays(this.baseDate(),1));
-      DB.attendance.getHistory(this.state.currentUserId,tomorrow).then(h=>{
-        console.log('[Meal] getHistory returned',h?.length,'rows',h);
-        if(h)this.setState({history:h});
-      }).catch(e=>console.error('[Meal] getHistory error',e));
+      const me=this.cur();
+      const myBatch=(me?.batch_id?this.state.batches.find(b=>b.id===me.batch_id):null)||this.state.batches[this.state.activeBatchIdx||0];
+      if(myBatch){
+        DB.attendance.getForPerson(this.state.currentUserId,myBatch.start_date,myBatch.end_date).then(h=>{
+          console.log('[Meal] getForPerson returned',h?.length,'rows',h);
+          if(h)this.setState({history:h});
+        }).catch(e=>console.error('[Meal] getForPerson error',e));
+      }
     }
   },
 
