@@ -6,7 +6,7 @@ const MemberSearchHandlers = {
       this.setState({personHistoryId:id,personHistoryRows:[],personHistoryLeaves:[],personHistoryLoading:true});
       if(!this.state.demo){
         const [data,leaves]=await Promise.all([
-          DB.attendance.getHistory(id,Utils.dateKey(Utils.addDays(new Date(),1))).catch(()=>[]),
+          DB.attendance.getHistory(id,Utils.dateKey(Utils.addDays(this.baseDate(),1))).catch(()=>[]),
           DB.leaves.approvedByPerson(id).catch(()=>[]),
         ]);
         this.setState({personHistoryRows:data,personHistoryLeaves:leaves,personHistoryLoading:false});

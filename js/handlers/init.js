@@ -252,30 +252,39 @@ const InitHandlers = {
         }
         return;
       }
-      const [att, hist] = await Promise.all([
+      const meId = this.state.currentUserId;
+      const [att, hist, pendingReqs, leaveHist] = await Promise.all([
         DB.attendance.getForDate(newDate).catch(()=>({})),
-        DB.attendance.getHistory(this.state.currentUserId).catch(()=>[]),
+        DB.attendance.getHistory(meId).catch(()=>[]),
+        DB.leaves.myPending(meId).catch(()=>this.state.myPendingRequests),
+        DB.leaves.myHistory(meId).catch(()=>this.state.myLeaveHistory),
       ]);
-      this.setState({attendance:att, attendanceDate:newDate, history:hist, historyLoaded:true});
+      this.setState({attendance:att, attendanceDate:newDate, history:hist, historyLoaded:true, myPendingRequests:pendingReqs, myLeaveHistory:leaveHist, myLeaveHistoryLoaded:true});
     }
   },
 
   // Activates a batch if none is live for today's date; creates new batches as needed to cover the current date.
   _ensureLiveBatch: async function(batches, overrideDate, dept) {
+    if(this._ensureLiveBatchRunning) return DB.batches.list(dept).catch(()=>batches);
+    this._ensureLiveBatchRunning = true;
     const today = overrideDate || Utils.dateKey(this.baseDate());
     const live = batches.find(b=>b.is_live);
-    if(live && live.start_date<=today && today<=live.end_date) return batches;
+    if(live && live.start_date<=today && today<=live.end_date){ this._ensureLiveBatchRunning=false; return batches; }
     const current = batches.find(b=>b.start_date<=today && today<=b.end_date);
     if(current){
       await DB.batches.activate(current.id, dept).catch(()=>{});
-      return DB.batches.list(dept).catch(()=>batches);
+      const r = await DB.batches.list(dept).catch(()=>batches);
+      this._ensureLiveBatchRunning = false;
+      return r;
     }
     let sorted = [...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
     // If today falls before all existing batches (e.g. dept deployed mid-cycle with a 1-day gap),
     // activate the nearest upcoming batch instead of creating more batches further in the future.
     if(sorted.length && sorted[0].start_date>today){
       await DB.batches.activate(sorted[0].id, dept).catch(()=>{});
-      return DB.batches.list(dept).catch(()=>batches);
+      const r = await DB.batches.list(dept).catch(()=>batches);
+      this._ensureLiveBatchRunning = false;
+      return r;
     }
     const allBatches = await DB.batches.list().catch(()=>[]);
     for(let attempt=0; attempt<20; attempt++){
@@ -300,7 +309,9 @@ const InitHandlers = {
       }
       if(startStr>today) break;
     }
-    return DB.batches.list(dept).catch(()=>sorted);
+    const result = await DB.batches.list(dept).catch(()=>sorted);
+    this._ensureLiveBatchRunning = false;
+    return result;
   },
 
   // Pre-creates upcoming batches so admins can navigate forward without gaps.

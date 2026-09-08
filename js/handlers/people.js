@@ -61,9 +61,10 @@ const PeopleHandlers = {
     if(!personId || !batch?.start_date) return;
     const today = Utils.dateKey(this.baseDate());
     if(batch.start_date >= today) return;
+    const endDate = (batch.dekit_date && batch.dekit_date < today) ? batch.dekit_date : today;
     const nrd = this.state.noReportDays;
     const rows = [];
-    for(let d = new Date(batch.start_date+'T00:00:00'); Utils.dateKey(d) < today; d = Utils.addDays(d,1)) {
+    for(let d = new Date(batch.start_date+'T00:00:00'); Utils.dateKey(d) < endDate; d = Utils.addDays(d,1)) {
       const dk = Utils.dateKey(d);
       if(Utils.isReportDay(d, dept) && !Utils.holidayName(d) && !nrd.has(dk))
         rows.push({personnel_id: personId, date: dk, status: 'absent'});
