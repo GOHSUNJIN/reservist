@@ -22,11 +22,18 @@ class AppComponent extends DCLogic {
   // ── Lifecycle ─────────────────────────────────────────────────────────────
   componentDidMount(){
     this._lastDate = Utils.dateKey(new Date());
+    this._lastMinute = Utils.hhmm(new Date());
     this._t = setInterval(()=>{
       const newNow = new Date();
-      this.setState({now:newNow});
       const newDate = Utils.dateKey(newNow);
-      if(newDate !== this._lastDate){ this._lastDate = newDate; this._onDateChange(newDate); }
+      const newMinute = Utils.hhmm(newNow);
+      if(newDate !== this._lastDate){
+        this._lastDate = newDate; this._lastMinute = newMinute;
+        this.setState({now:newNow}); this._onDateChange(newDate);
+      } else if(newMinute !== this._lastMinute){
+        this._lastMinute = newMinute;
+        this.setState({now:newNow});
+      }
       if(this.state.role==='admin' && this.state.realtimeChannel){
         const live = this.state.realtimeChannel.state === 'joined';
         if(live !== this.state.realtimeLive) this.setState({realtimeLive:live});
@@ -60,7 +67,10 @@ class AppComponent extends DCLogic {
         if(!failed.length){ this.setState({offlinePending:false}); }
         else { this._toast('Some check-ins failed to sync. Tap Retry.','error'); }
       }
-      if(this.state.authed && !this.state.demo) this.refreshPage().catch(()=>{});
+      if(this.state.authed && !this.state.demo){
+        if(this._refreshDebounce) clearTimeout(this._refreshDebounce);
+        this._refreshDebounce = setTimeout(()=>this.refreshPage().catch(()=>{}), 2000);
+      }
     };
     this._onOffline = () => this.setState({isOnline:false});
     window.addEventListener('online', this._onOnline);
@@ -88,6 +98,7 @@ class AppComponent extends DCLogic {
     if(this._sessionWarnTimer) clearTimeout(this._sessionWarnTimer);
     if(this._idleWarnTimer) clearTimeout(this._idleWarnTimer);
     if(this._idleLogoutTimer) clearTimeout(this._idleLogoutTimer);
+    if(this._refreshDebounce) clearTimeout(this._refreshDebounce);
     clearInterval(this._t);
     this._unsubscribeRealtime();
     document.removeEventListener('visibilitychange', this._onVisibilityChange);

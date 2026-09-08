@@ -246,7 +246,18 @@ assets/                 - Static icons (PWA home screen, apple-touch-icon)
 
 js/
 ├── support.js          - Compiled declarative component runtime (do not edit)
-├── db.js               - All Supabase queries, namespaced by table (DB.auth, DB.personnel, DB.attendance, etc.)
+├── db-client.js        - Supabase client initialisation (creates the shared _db instance)
+├── db.js               - DB namespace aggregator; collects all sub-modules into a single DB.* object
+├── db/                 - Individual query modules, one per table
+│   ├── auth.js         - Authentication (login, logout, session, password)
+│   ├── attendance.js   - Attendance CRUD, phase logging, time correction, welfare notes
+│   ├── batches.js      - Cycle management queries
+│   ├── leaves.js       - Leave request queries
+│   ├── no-report-days.js - No-report day queries
+│   ├── personnel.js    - Personnel queries
+│   ├── realtime.js     - Realtime subscription setup
+│   ├── signups.js      - Signup request queries
+│   └── storage.js      - Avatar storage queries
 ├── state.js            - Initial application state factory
 ├── utils.js            - Date helpers, contact validation, phase window logic, formatting, SG holiday data
 ├── component.js        - Component lifecycle, realtime wiring, offline queue retry logic
@@ -328,7 +339,7 @@ All data is stored in a structured cloud database (PostgreSQL), with six tables:
 | Contact | Phone number (used as login) |
 | Shift | Office (0900 to 1800) |
 | Role | Reservist, Admin, or Master |
-| Department | Which department the person belongs to (ops_security or cpo) |
+| Department | Which department the person belongs to (ops_security, cas, or lnf) |
 | Cycle | Which reporting cycle they belong to |
 | Active | Whether the account is currently active |
 | Notes | Supervisor notes on the person |
@@ -440,7 +451,7 @@ A second scheduled task runs at 02:00 SGT every day. It deactivates any personne
 **Full schema:**
 
 ```sql
-CREATE TYPE department_type AS ENUM ('ops_security', 'cas');
+CREATE TYPE department_type AS ENUM ('ops_security', 'cas', 'lnf');
 
 CREATE TABLE personnel (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,

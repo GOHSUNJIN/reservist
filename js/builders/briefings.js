@@ -46,14 +46,17 @@ const BriefingsBuilders = {
     // Cycle progress - count weekdays excluding public holidays and custom no-report days
     const bDekit=myBatch?.dekit_date||'';
     const _nrd=s.noReportDays instanceof Set?s.noReportDays:new Set(s.noReportDays||[]);
-    const _countRptDays=(from,to)=>{
-      let n=0;const cur=new Date(from+'T00:00:00'),end=new Date(to+'T00:00:00');
-      while(cur<=end){const dk=Utils.dateKey(cur);if(Utils.isReportDay(cur,this._myDept())&&!_nrd.has(dk)&&!Utils.holidayName(cur))n++;cur.setDate(cur.getDate()+1);}
-      return n;
-    };
     let cycleDayLabel='',cycleProgressPct=0,showCycleProgress=false;
     if(bStart&&bEnd&&today>=bStart&&today<=bEnd){
-      const total=_countRptDays(bStart,bEnd),elapsed=_countRptDays(bStart,today);
+      let total=0,elapsed=0;
+      const todayD=new Date(today+'T00:00:00');
+      for(const d=new Date(bStart+'T00:00:00'),end=new Date(bEnd+'T00:00:00');d<=end;d.setDate(d.getDate()+1)){
+        const dk=Utils.dateKey(d);
+        if(Utils.isReportDay(d,this._myDept())&&!_nrd.has(dk)&&!Utils.holidayName(d)){
+          total++;
+          if(d<=todayD) elapsed++;
+        }
+      }
       if(total>0){cycleDayLabel=`Day ${elapsed} of ${total}`;cycleProgressPct=Math.round((elapsed/total)*100);showCycleProgress=true;}
     }
     // Dekit countdown

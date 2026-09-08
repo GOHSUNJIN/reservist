@@ -35,7 +35,7 @@ const makeInitialState = () => ({
   isInAppBrowser: false, inAppBrowserName: '',
   toast: null,
   viewOffset: 0, selectedCalOffset: null,
-  avatars: {}, noAvatarIds: new Set(),
+  avatars: {},
   showA2hs: false, a2hsIsIos: false,
   helpOpen: false,
 
