@@ -16,6 +16,19 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 
 ---
 
+## No Installation Required
+
+ReservistGO runs directly in the phone's browser. Personnel access it through a URL. It can be saved to the home screen for one-tap access, where it behaves exactly like a downloaded app, without going through the App Store or Google Play.
+
+| What is needed | What is not needed |
+|---|---|
+| Any smartphone with a browser | App Store or Google Play installation |
+| An internet connection (for live sync) | Dedicated devices or terminals |
+| A phone number and password | VPN or special network access |
+| | IT setup per individual user |
+
+---
+
 ## Features
 
 ### For Reservists
@@ -68,7 +81,7 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 - **Click name to open history**: In the Log tab, clicking a reservist's name opens their full attendance history without needing to navigate to the People tab.
 - **Shift label on log cards**: Each log card shows the reservist's shift alongside their check-in times.
 - **Admin log note**: Add a free-text note against any person's attendance entry for the current view date.
-- **Late check-in alerts**: Anyone who checks in more than one hour after shift start is automatically flagged. The late badge shows the written reason inline (for example: "Late · Dental appointment") so supervisors do not need to expand anything to read it. If no reason was given, the badge shows "Late · No reason".
+- **Late check-in alerts**: Anyone who checks in more than one hour after shift start is automatically flagged. The late badge shows the written reason inline (for example: "Late - Dental appointment") so supervisors do not need to expand anything to read it. If no reason was given, the badge shows "Late - No reason".
 - **Missing clock-out display**: When a reservist is marked present but has no Phase 4 clock-out, the OUT column of their log card shows a dash on an orange background instead of a time. This keeps the missing clock-out visible without adding a separate badge row, making it easy to scan and correct before payroll.
 
 **Requests and Leave:**
@@ -151,38 +164,6 @@ Every action in the system is recorded:
 
 ---
 
-## Returning Reservist Workflow
-
-When a reservist's account is deactivated at the end of a cycle, their login credentials are preserved but access is blocked. If they return for a new cycle:
-
-1. The reservist logs in with their existing phone number and password.
-2. The app detects the inactive account and automatically submits a re-enrollment request on their behalf. If the request cannot be submitted (network failure), a clear error message is shown with instructions to contact the supervisor directly.
-3. The supervisor sees the request in the Requests tab, labelled **Returning**, and approves it with one tap.
-4. The reservist's account is reactivated and assigned to the current cycle. They can log in immediately.
-
-No manual coordination, no new account creation, no password reset needed.
-
-If the supervisor adds a returning reservist directly via the Add Personnel form, they can search by name or contact to find the removed record. Selecting it triggers the re-enroll flow, reactivating the existing account without creating a new one.
-
-When a supervisor deactivates a reservist or when a cycle ends and auto-deactivation fires, all pending leave requests for that person are cancelled automatically. Approved leaves already on record are preserved for audit purposes.
-
----
-
-## Data Privacy
-
-ReservistGO collects only what is operationally necessary:
-
-- **No NRIC, rank, or service details**: accounts require only a name, phone number, and password.
-- **No location history**: GPS is used solely at the moment of check-in to verify proximity to HQ. Exact coordinates are never recorded; only the distance from HQ in metres is stored.
-- **No device data**: the app does not collect device identifiers, browser fingerprints, or any information about the user's phone.
-- **Passwords are never stored in plain text**: all passwords are encrypted by the authentication service before storage. Even administrators cannot view a user's password.
-- **Profile photos are optional**: avatars are stored only if the user chooses to upload one, and can be removed at any time.
-- **Sessions leave no permanent trace**: login sessions are held in the browser's temporary memory and are cleared when the tab is closed or after 20 minutes of inactivity.
-
-The only personal data held in the system is: name, phone number, and attendance records.
-
----
-
 ## Access Control
 
 The system uses three permission levels:
@@ -202,16 +183,35 @@ Row-level security policies are enforced at the database level, not just in the 
 
 ---
 
-## No Installation Required
+## Data Privacy
 
-ReservistGO runs directly in the phone's browser. Personnel access it through a URL. It can be saved to the home screen for one-tap access, where it behaves exactly like a downloaded app, without going through the App Store or Google Play.
+ReservistGO collects only what is operationally necessary:
 
-| What is needed | What is not needed |
-|---|---|
-| Any smartphone with a browser | App Store or Google Play installation |
-| An internet connection (for live sync) | Dedicated devices or terminals |
-| A phone number and password | VPN or special network access |
-| | IT setup per individual user |
+- **No NRIC, rank, or service details**: accounts require only a name, phone number, and password.
+- **No location history**: GPS is used solely at the moment of check-in to verify proximity to HQ. Exact coordinates are never recorded; only the distance from HQ in metres is stored.
+- **No device data**: the app does not collect device identifiers, browser fingerprints, or any information about the user's phone.
+- **Passwords are never stored in plain text**: all passwords are encrypted by the authentication service before storage. Even administrators cannot view a user's password.
+- **Profile photos are optional**: avatars are stored only if the user chooses to upload one, and can be removed at any time.
+- **Sessions leave no permanent trace**: login sessions are held in the browser's temporary memory and are cleared when the tab is closed or after 20 minutes of inactivity.
+
+The only personal data held in the system is: name, phone number, and attendance records.
+
+---
+
+## Returning Reservist Workflow
+
+When a reservist's account is deactivated at the end of a cycle, their login credentials are preserved but access is blocked. If they return for a new cycle:
+
+1. The reservist logs in with their existing phone number and password.
+2. The app detects the inactive account and automatically submits a re-enrollment request on their behalf. If the request cannot be submitted (network failure), a clear error message is shown with instructions to contact the supervisor directly.
+3. The supervisor sees the request in the Requests tab, labelled **Returning**, and approves it with one tap.
+4. The reservist's account is reactivated and assigned to the current cycle. They can log in immediately.
+
+No manual coordination, no new account creation, no password reset needed.
+
+If the supervisor adds a returning reservist directly via the Add Personnel form, they can search by name or contact to find the removed record. Selecting it triggers the re-enroll flow, reactivating the existing account without creating a new one.
+
+When a supervisor deactivates a reservist or when a cycle ends and auto-deactivation fires, all pending leave requests for that person are cancelled automatically. Approved leaves already on record are preserved for audit purposes.
 
 ---
 
@@ -401,168 +401,6 @@ Reservists who do not check in on a reporting day are marked absent automaticall
 ### Auto-Deactivation
 
 A second scheduled task runs at 02:00 SGT every day. It deactivates any personnel whose batch's dekit date has already passed, and in the same operation cancels any pending leave requests they still have open. This ensures that a reservist whose cycle has ended cannot have outstanding leave requests approved after the fact. The app also performs this check on every login and on every midnight date rollover, so deactivation is enforced through three independent paths.
-
----
-
-## Planned Enhancements
-
-The goal for the next stage of development is to make ReservistGO fully self-managed: a successor with no technical background should be able to run, configure, and hand it off again without touching any code or deployment files. Everything below is ordered by how directly it unblocks that goal.
-
-### Stage 1 - Zero-code configuration (highest priority)
-
-These are the things that currently require a developer to change. Eliminating them means the app is truly self-contained after initial deployment.
-
-1. **In-app settings panel (Master account)**: Move all deployment-time config into a Settings tab editable from within the app. This covers org name, HQ name, GPS coordinates, check-in radius, accent colour, and the WhatsApp group link. Once done, the `index.html` config block and Vercel environment variables are set once and never touched again.
-
-2. **Editable Info tab content**: The About text, attire requirement, dekit checklist steps, and reporting details are currently hardcoded. Moving them to a database record per department and exposing an edit form in the cycle management panel means a supervisor can update them each cycle without a code change.
-
-3. **Editable phase windows**: Check-in phase times (0900, 1200, 1400, 1800) are fixed constants. Storing them per cycle in the database lets supervisors set different hours for each cycle. Phase banners, the work timer, and meal eligibility all derive from these values automatically.
-
-4. **WhatsApp group link in database**: Currently set at deployment. Moving it to a department-level record lets supervisors update it from the app when the group changes.
-
-5. **Per-cycle GPS location and radius**: HQ coordinates are deployment-level. Storing them per cycle lets supervisors run cycles at different venues (exercises, off-site operations) without redeployment.
-
-### Stage 2 - Department self-management
-
-These items require database schema work but unlock full multi-department control from within the app.
-
-6. **Department CRUD**: Departments are currently a fixed enum in the database schema. Migrating to a `departments` table lets the Master account create and manage departments from within the app. This is the prerequisite for everything below.
-
-7. **Per-department configuration panel**: Once departments are table-driven, each department stores its own HQ coordinates, GPS radius, phase windows, WA group link, accent colour, and Info tab content. The Master account edits these from a Settings panel. No config files need to be touched after initial deployment.
-
-8. **Scoped department access for supervisors**: Currently all admins in a department see all data for that department. As more departments are added, this may need tightening so each supervisor is scoped to one department, with the Master account retaining full cross-department visibility.
-
-### Stage 3 - Operational upgrades
-
-Features that improve day-to-day operations but are not blockers for handover.
-
-9. **Push notifications**: The service worker is already in place. Adding Web Push lets reservists receive phase reminders and supervisors get alerted on new requests without having the app open.
-
-10. **Multiple shifts**: The system tracks shift assignments but only supports "Office". Extending to AM, PM, Night, and custom shifts with their own phase windows supports departments with rotating schedules.
-
-11. **Shift scheduler**: Pre-assign which reservists report on which days. Mark-all-absent then only targets scheduled personnel, which is useful when not all reservists report every weekday.
-
-12. **Audit log viewer**: A read-only tab for the Master account showing all supervisor actions (overrides, time corrections, approvals, account changes). Useful for accountability without database access.
-
-13. **Automated attendance summaries**: Scheduled daily or weekly reports to the supervisor's WhatsApp or email covering attendance rate, pending requests, and missing clock-outs. Requires a messaging API integration.
-
-14. **Equipment and dekit tracking**: Track issued items per reservist per cycle and record return status at dekit. Fits naturally into the existing cycle lifecycle alongside the dekit date.
-
-### Stage 4 - Ideas for future consideration
-
-Longer-horizon features that would meaningfully expand what the system can do. None of these are required for the app to run well, but each one addresses a real gap.
-
-15. **Meal allowance form auto-fill**: At dekit, reservists fill out a physical form using their clock-in and clock-out times. The app already holds all this data. Generating a pre-filled PDF from the app would eliminate manual transcription errors and save time on dekit day.
-
-16. **MC document upload**: Reservists currently bring physical MC hardcopies to dekit. Allowing them to photograph and upload the MC at the time of submission gives supervisors an immediate digital record and reduces the risk of lost paperwork.
-
-17. **QR code check-in (backup mode)**: A supervisor can display a time-limited QR code on a screen or printout. Scanning it records a check-in without GPS. Useful as a reliable fallback for venues with poor signal, or for roll calls at an off-site location.
-
-18. **Medical and fitness status per person**: Store per-person status flags such as RSI, Light Duty, or Restricted from physical activities. These appear on the roster card so supervisors know at a glance who has duty limitations without checking a separate spreadsheet.
-
-19. **Calendar export**: Let reservists add their cycle dates (start, end, dekit, no-report days) directly to their phone calendar (Google Calendar or Apple Calendar via ICS file). Reduces the need for supervisors to repeat this information verbally.
-
-20. **Attendance trend charts**: Visual graphs showing attendance rate over time, lateness frequency, and MC patterns across cycles. Surfaced in the admin Overview tab to help supervisors identify welfare concerns or accountability issues early.
-
-21. **Late arrival pattern detection**: Automatically flag reservists who have been late more than a set number of times within a cycle or across cycles. An amber indicator on their roster card prompts a welfare check without the supervisor needing to count manually.
-
-22. **Supervisor handover notes**: A structured notes field for the outgoing supervisor to leave context for their replacement: known welfare cases, ongoing issues, cycle quirks, and contacts. Stored in the database and accessible to the incoming admin immediately on their first login.
-
-23. **Emergency contact storage**: Store a next-of-kin name and contact number per reservist. Visible on the person's profile card and exportable. Useful for duty of care situations and for supervisors who may not have personal contact with all reservists.
-
-24. **Cross-cycle analytics**: A summary view for the Master account showing attendance rates, average lateness, and MC frequency across all past cycles. Useful for identifying long-term trends and for justifying manpower decisions.
-
-25. **Reservist self-service contact update**: Allow reservists to update their own contact number from account settings with a confirmation step. Currently only an admin can change this, which creates friction when a reservist changes their number between cycles.
-
-26. **Duty roster**: A separate tab or section where supervisors assign specific reservists to special duties (guard duty, escort, standby) on specific dates. This appears on the individual's check-in screen for that day and is visible on the admin roster.
-
-27. **Announcement board**: A persistent, pinned notice visible to all reservists across all cycles, separate from the cycle-specific broadcast. Useful for standing orders, dress code reminders, and permanent welfare resources that do not change cycle to cycle.
-
-28. **Bulk attendance import**: Accept a pasted or uploaded spreadsheet to back-fill attendance records for a past date range. Useful when the app was not in use for the start of a cycle and the supervisor needs to populate historical data without entering each record individually.
-
----
-
-## Implementation Order Guide
-
-The safest way to build these features is to work from the outside in: start with things that only read existing data, then add new data, then change how existing data is used, and leave schema migrations for last. Breaking the site almost always happens when existing queries or logic are changed without a fallback. The groups below follow that principle.
-
-### Group A: Zero risk - pure frontend, no database changes
-
-These only compute from data already in the app. A bug here shows a wrong UI value; it cannot corrupt data or break check-in.
-
-| Item | What makes it safe |
-|---|---|
-| 19 - Calendar export | Generates an ICS file from batch dates already in state. No DB write. |
-| 21 - Late pattern detection | Reads existing history records and computes in the builder. No DB change. |
-| 20 - Attendance trend charts | Reads existing data. Pure builder addition. |
-| 15 - Meal allowance PDF auto-fill | Formats existing clock-in/out times into a PDF. No DB change. |
-| 24 - Cross-cycle analytics | Aggregates existing tables. Read-only. |
-
-**Do these first.** Each one can be added and removed independently. None of them touch a handler, a DB write, or any existing logic path.
-
-### Group B: Very low risk - new columns on existing tables
-
-Adding a column to an existing table is safe as long as it is nullable (no default required). Existing rows are unaffected. Existing queries still work because they do not select the new column unless you ask them to.
-
-| Item | Column added to |
-|---|---|
-| 23 - Emergency contact | `personnel` (nok_name, nok_contact) |
-| 18 - Medical/fitness status | `personnel` (duty_status) |
-| 22 - Supervisor handover notes | `batches` (handover_notes) |
-| 4 - WA group link in DB | `batches` or new `dept_config` row |
-| 5 - Per-cycle GPS location | `batches` (hq_lat, hq_lon, hq_range) |
-
-The pattern for all of these: read the new column if it exists, otherwise fall back to the hardcoded value. This means the feature is opt-in and the site never breaks if the column is empty.
-
-### Group C: Low risk - new tables only
-
-New tables have no impact on anything existing. Existing queries do not touch them. The only risk is if a new handler writes bad data, which only affects the new feature.
-
-| Item | New table |
-|---|---|
-| 27 - Announcement board | `announcements` |
-| 14 - Equipment tracking | `equipment_issues` |
-| 12 - Audit log viewer | `audit_log` (or extend existing `edit_log` JSONB) |
-| 26 - Duty roster | `duty_assignments` |
-| 11 - Shift scheduler | `shift_schedule` |
-| 16 - MC document upload | New Supabase storage bucket only |
-| 1 - In-app settings panel | `app_settings` (key/value rows, fall back to hardcoded config if absent) |
-| 2 - Editable Info tab content | New column on `batches` or a `dept_content` table |
-
-### Group D: Medium risk - new logic paths in existing handlers
-
-These add new code paths to existing handlers or extend the service worker. A bug here can affect existing flows, but since you are adding new paths rather than replacing old ones, the existing functionality stays intact as a fallback.
-
-| Item | What to watch |
-|---|---|
-| 25 - Self-service contact update | Touches auth/contact flow. Validate contact format carefully and test login with new number before shipping. |
-| 28 - Bulk attendance import | Batch DB writes. Use a transaction or upsert so a partial import does not leave dirty data. |
-| 9 - Push notifications | Service worker extension. Test on both iOS and Android. A broken SW registration can prevent the app loading offline. |
-| 17 - QR code check-in | New check-in path, runs alongside GPS. The existing GPS path is untouched. |
-
-### Group E: Higher risk - replacing existing core logic
-
-These change code that the entire check-in flow depends on. The current constants are referenced in at least four places (utils.js, checkin.js, builders, the work timer). Replace them one file at a time, keep the hardcoded value as a fallback if the DB value is missing, and test each phase window end-to-end before shipping.
-
-| Item | Risk |
-|---|---|
-| 3 - Editable phase windows | Phase constants are used in check-in validation, the work timer, meal eligibility, and phase reminder banners. Touch all four or none. |
-| 10 - Multiple shifts | Depends on phase windows being dynamic first. Do not start this before item 3 is stable. |
-| 13 - Automated summaries | Requires an external API (WhatsApp Business or email). External dependency means new failure modes outside your control. |
-
-### Group F: Do last - schema migrations
-
-These change the shape of existing tables or convert a database enum to a table. A failed migration on a live database can take the app down. Always run these on a copy of the database first, test fully, then apply to production during a low-traffic window.
-
-| Item | Why it is last |
-|---|---|
-| 6 - Department CRUD | Converts `department_type` enum to a `departments` table. Every query that filters by department needs updating. |
-| 7 - Per-department config panel | Depends on item 6 being stable. |
-| 8 - Scoped department access | Requires RLS policy changes. A wrong policy can lock all users out immediately. Test on a staging project first. |
-
-### Golden rule
-
-Never change an existing query or logic path without keeping the old behaviour as a fallback. Read new data if it exists; use the hardcoded value if it does not. This way every feature in Group B, C, and D can be shipped incrementally and rolled back by removing a UI element without touching the database.
 
 ---
 
@@ -985,8 +823,8 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Edit times for a present record: all 4 phase fields editable, save updates the record and flags it as admin-entered
 - [ ] Add a welfare note to a record: note saved and visible on next load
 - [ ] Tap a person's name in the log: opens their full history modal
-- [ ] Late check-in: "Late" badge shows the written reason inline (e.g. "Late · Dental appointment")
-- [ ] Late check-in with no reason given: badge shows "Late · No reason"
+- [ ] Late check-in: "Late" badge shows the written reason inline (e.g. "Late - Dental appointment")
+- [ ] Late check-in with no reason given: badge shows "Late - No reason"
 - [ ] Missing clock-out: OUT column shows a dash on orange background (no separate badge row)
 - [ ] WhatsApp summary button: generates text, preview modal opens, copy and send both work
 
@@ -1081,7 +919,230 @@ All admin checks above apply. Run them for both departments. Then verify the fol
 ## Known Limitations
 
 - **CPO Info tab content is a placeholder.** The Info tab for Crime Prevention Office (CPO) reservists currently shows placeholder text. The attire, location, and operational details for CPO have not yet been configured in the codebase.
-- **Phase windows are hardcoded.** The check-in phase times (0900, 1200, 1400, 1800) are fixed constants and cannot be changed from within the app. Changing them requires a code update and redeployment. This is tracked as item 1 in the Planned Enhancements section.
+- **Phase windows are hardcoded.** The check-in phase times (0900, 1200, 1400, 1800) are fixed constants and cannot be changed from within the app. Changing them requires a code update and redeployment. This is tracked as item 3 in the Planned Enhancements section.
 - **Departments cannot be added or removed from within the app.** The department list (Ops Security and CPO) is defined in the database schema as an enum. Adding a new department requires a schema migration. This is tracked as item 6 in the Planned Enhancements section.
 - **No push notifications.** Supervisors must have the app open to see new leave requests or signup requests. There is no background alert. This is tracked as item 9 in the Planned Enhancements section.
 - **RLS batch-mate visibility requires a manual SQL step.** If the Supabase project is ever recreated from scratch, the `_auth_batch_id()` function and the updated `personnel_select` policy in `scripts/sql/rls_policies.sql` must be re-run in the Supabase SQL editor for the YOUR TEAM section to appear correctly for reservists.
+
+---
+
+## Planned Enhancements
+
+The goal for the next stage of development is to make ReservistGO fully self-managed: a successor with no technical background should be able to run, configure, and hand it off again without touching any code or deployment files. Everything below is ordered by how directly it unblocks that goal.
+
+Each item is annotated with its current build status based on a code audit:
+- **Done** - fully implemented and live
+- **Partial** - groundwork exists in the codebase; the feature is incomplete
+- **Not started** - no code exists for this yet
+
+### Stage 1 - Zero-code configuration (highest priority)
+
+These are the things that currently require a developer to change. Eliminating them means the app is truly self-contained after initial deployment.
+
+1. **In-app settings panel (Master account)**: Move all deployment-time config into a Settings tab editable from within the app. This covers org name, HQ name, GPS coordinates, check-in radius, accent colour, and the WhatsApp group link. Once done, the `index.html` config block and Vercel environment variables are set once and never touched again.
+
+   _Partial: all config values (orgName, hqLat, hqLon, hqRange, waGroupLink, accent) exist as data-props in index.html and are read at runtime, but no DB settings table or in-app edit UI exists yet._
+
+2. **Editable Info tab content**: The About text, attire requirement, dekit checklist steps, and reporting details are currently hardcoded. Moving them to a database record per department and exposing an edit form in the cycle management panel means a supervisor can update them each cycle without a code change.
+
+   _Not started: content is hardcoded in briefings.js with no DB backing._
+
+3. **Editable phase windows**: Check-in phase times (0900, 1200, 1400, 1800) are fixed constants. Storing them per cycle in the database lets supervisors set different hours for each cycle. Phase banners, the work timer, and meal eligibility all derive from these values automatically.
+
+   _Not started: phase times are hardcoded constants in utils.js and referenced in at least four places._
+
+4. **WhatsApp group link in database**: Currently set at deployment. Moving it to a department-level record lets supervisors update it from the app when the group changes.
+
+   _Partial: the link is a runtime data-prop but is deployment-level only, not stored in the database._
+
+5. **Per-cycle GPS location and radius**: HQ coordinates are deployment-level. Storing them per cycle lets supervisors run cycles at different venues (exercises, off-site operations) without redeployment.
+
+   _Not started: hqLat, hqLon, and hqRange are deployment-level data-props with no per-cycle equivalent in the batches table._
+
+### Stage 2 - Department self-management
+
+These items require database schema work but unlock full multi-department control from within the app.
+
+6. **Department CRUD**: Departments are currently a fixed enum in the database schema. Migrating to a `departments` table lets the Master account create and manage departments from within the app. This is the prerequisite for everything below.
+
+   _Partial: department scoping is enforced throughout the codebase (_myDept() helper, all queries), but departments are a fixed enum - not a table - so there is no Master UI to add or remove them._
+
+7. **Per-department configuration panel**: Once departments are table-driven, each department stores its own HQ coordinates, GPS radius, phase windows, WA group link, accent colour, and Info tab content. The Master account edits these from a Settings panel. No config files need to be touched after initial deployment.
+
+   _Not started: depends on item 6._
+
+8. **Scoped department access for supervisors**: Currently all admins in a department see all data for that department. As more departments are added, this may need tightening so each supervisor is scoped to one department, with the Master account retaining full cross-department visibility.
+
+   **Done:** department scoping is fully enforced via _myDept() across all queries, realtime subscriptions, and state updates. RLS policies reinforce this at the database level.
+
+### Stage 3 - Operational upgrades
+
+Features that improve day-to-day operations but are not blockers for handover.
+
+9. **Push notifications**: The service worker is already in place. Adding Web Push lets reservists receive phase reminders and supervisors get alerted on new requests without having the app open.
+
+   _Not started: the service worker handles caching and offline but has no PushManager or VAPID subscription code._
+
+10. **Multiple shifts**: The system tracks shift assignments but only supports "Office". Extending to AM, PM, Night, and custom shifts with their own phase windows supports departments with rotating schedules.
+
+    _Not started: shiftLabel() and shiftWindow() in utils.js always return hardcoded "Office" values regardless of shift field. Depends on item 3 (editable phase windows) being done first._
+
+11. **Shift scheduler**: Pre-assign which reservists report on which days. Mark-all-absent then only targets scheduled personnel, which is useful when not all reservists report every weekday.
+
+    _Not started: no shift_schedule table or per-person per-day scheduling logic exists._
+
+12. **Audit log viewer**: A read-only tab for the Master account showing all supervisor actions (overrides, time corrections, approvals, account changes). Useful for accountability without database access.
+
+    _Partial: admin edits are recorded inline in the attendance.edit_log JSONB field and displayed on log cards. There is no dedicated audit_log table or Master-level viewer showing actions across all personnel and cycles._
+
+13. **Automated attendance summaries**: Scheduled daily or weekly reports to the supervisor's WhatsApp or email covering attendance rate, pending requests, and missing clock-outs. Requires a messaging API integration.
+
+    _Not started: the WhatsApp summary exists as a manual one-tap flow only, with no scheduled or automated sending._
+
+14. **Equipment and dekit tracking**: Track issued items per reservist per cycle and record return status at dekit. Fits naturally into the existing cycle lifecycle alongside the dekit date.
+
+    _Not started: no equipment or dekit items table exists._
+
+### Stage 4 - Ideas for future consideration
+
+Longer-horizon features that would meaningfully expand what the system can do. None of these are required for the app to run well, but each one addresses a real gap.
+
+15. **Meal allowance form auto-fill**: At dekit, reservists fill out a physical form using their clock-in and clock-out times. The app already holds all this data. Generating a pre-filled PDF from the app would eliminate manual transcription errors and save time on dekit day.
+
+    _Partial: meal eligibility is calculated per day and included in the Excel export and print report. No PDF form generation exists._
+
+16. **MC document upload**: Reservists currently bring physical MC hardcopies to dekit. Allowing them to photograph and upload the MC at the time of submission gives supervisors an immediate digital record and reduces the risk of lost paperwork.
+
+    _Not started: the avatar upload pipeline (Supabase Storage, handlers/account.js) exists and could be extended, but no MC upload UI or storage bucket is set up._
+
+17. **QR code check-in (backup mode)**: A supervisor can display a time-limited QR code on a screen or printout. Scanning it records a check-in without GPS. Useful as a reliable fallback for venues with poor signal, or for roll calls at an off-site location.
+
+    _Not started: QR references in the codebase are for the WhatsApp share/export flow, not for check-in._
+
+18. **Medical and fitness status per person**: Store per-person status flags such as RSI, Light Duty, or Restricted from physical activities. These appear on the roster card so supervisors know at a glance who has duty limitations without checking a separate spreadsheet.
+
+    _Not started: no medical or fitness status field in the personnel table._
+
+19. **Calendar export**: Let reservists add their cycle dates (start, end, dekit, no-report days) directly to their phone calendar (Google Calendar or Apple Calendar via ICS file). Reduces the need for supervisors to repeat this information verbally.
+
+    _Not started: all cycle dates are available in state but no ICS file generation exists._
+
+20. **Attendance trend charts**: Visual graphs showing attendance rate over time, lateness frequency, and MC patterns across cycles. Surfaced in the admin Overview tab to help supervisors identify welfare concerns or accountability issues early.
+
+    _Not started: no charting library is loaded and no chart UI exists._
+
+21. **Late arrival pattern detection**: Automatically flag reservists who have been late more than a set number of times within a cycle or across cycles. An amber indicator on their roster card prompts a welfare check without the supervisor needing to count manually.
+
+    _Partial: late_reason is stored per attendance record and displayed inline on log cards. No cumulative count or roster-level flag exists._
+
+22. **Supervisor handover notes**: A structured notes field for the outgoing supervisor to leave context for their replacement: known welfare cases, ongoing issues, cycle quirks, and contacts. Stored in the database and accessible to the incoming admin immediately on their first login.
+
+    _Not started: no handover notes field in the batches table and no UI for it._
+
+23. **Emergency contact storage**: Store a next-of-kin name and contact number per reservist. Visible on the person's profile card and exportable. Useful for duty of care situations and for supervisors who may not have personal contact with all reservists.
+
+    _Not started: no emergency contact fields in the personnel table._
+
+24. **Cross-cycle analytics**: A summary view for the Master account showing attendance rates, average lateness, and MC frequency across all past cycles. Useful for identifying long-term trends and for justifying manpower decisions.
+
+    _Not started: cross-cycle member search exists but no analytics aggregation or summary view._
+
+25. **Reservist self-service contact update**: Allow reservists to update their own contact number from account settings with a confirmation step. Currently only an admin can change this, which creates friction when a reservist changes their number between cycles.
+
+    _Not started: account settings allow name and password changes only; contact number is read-only for reservists._
+
+26. **Duty roster**: A separate tab or section where supervisors assign specific reservists to special duties (guard duty, escort, standby) on specific dates. This appears on the individual's check-in screen for that day and is visible on the admin roster.
+
+    _Not started: no duty_assignments table or duty display in the check-in or roster views._
+
+27. **Announcement board**: A persistent, pinned notice visible to all reservists across all cycles, separate from the cycle-specific broadcast. Useful for standing orders, dress code reminders, and permanent welfare resources that do not change cycle to cycle.
+
+    _Partial: the cycle notice_text field already broadcasts a message per cycle. There is no separate global/persistent announcement table for cross-cycle notices._
+
+28. **Bulk attendance import**: Accept a pasted or uploaded spreadsheet to back-fill attendance records for a past date range. Useful when the app was not in use for the start of a cycle and the supervisor needs to populate historical data without entering each record individually.
+
+    _Not started: bulk add exists for personnel (People tab) but not for attendance records._
+
+---
+
+## Implementation Order Guide
+
+The safest way to build these features is to work from the outside in: start with things that only read existing data, then add new data, then change how existing data is used, and leave schema migrations for last. Breaking the site almost always happens when existing queries or logic are changed without a fallback. The groups below follow that principle.
+
+### Group A: Zero risk - pure frontend, no database changes
+
+These only compute from data already in the app. A bug here shows a wrong UI value; it cannot corrupt data or break check-in.
+
+| Item | What makes it safe |
+|---|---|
+| 19 - Calendar export | Generates an ICS file from batch dates already in state. No DB write. |
+| 21 - Late pattern detection | Reads existing history records and computes in the builder. No DB change. |
+| 20 - Attendance trend charts | Reads existing data. Pure builder addition. |
+| 15 - Meal allowance PDF auto-fill | Formats existing clock-in/out times into a PDF. No DB change. |
+| 24 - Cross-cycle analytics | Aggregates existing tables. Read-only. |
+
+**Do these first.** Each one can be added and removed independently. None of them touch a handler, a DB write, or any existing logic path.
+
+### Group B: Very low risk - new columns on existing tables
+
+Adding a column to an existing table is safe as long as it is nullable (no default required). Existing rows are unaffected. Existing queries still work because they do not select the new column unless you ask them to.
+
+| Item | Column added to |
+|---|---|
+| 23 - Emergency contact | `personnel` (nok_name, nok_contact) |
+| 18 - Medical/fitness status | `personnel` (duty_status) |
+| 22 - Supervisor handover notes | `batches` (handover_notes) |
+| 4 - WA group link in DB | `batches` or new `dept_config` row |
+| 5 - Per-cycle GPS location | `batches` (hq_lat, hq_lon, hq_range) |
+
+The pattern for all of these: read the new column if it exists, otherwise fall back to the hardcoded value. This means the feature is opt-in and the site never breaks if the column is empty.
+
+### Group C: Low risk - new tables only
+
+New tables have no impact on anything existing. Existing queries do not touch them. The only risk is if a new handler writes bad data, which only affects the new feature.
+
+| Item | New table |
+|---|---|
+| 27 - Announcement board | `announcements` |
+| 14 - Equipment tracking | `equipment_issues` |
+| 12 - Audit log viewer | `audit_log` (or extend existing `edit_log` JSONB) |
+| 26 - Duty roster | `duty_assignments` |
+| 11 - Shift scheduler | `shift_schedule` |
+| 16 - MC document upload | New Supabase storage bucket only |
+| 1 - In-app settings panel | `app_settings` (key/value rows, fall back to hardcoded config if absent) |
+| 2 - Editable Info tab content | New column on `batches` or a `dept_content` table |
+
+### Group D: Medium risk - new logic paths in existing handlers
+
+These add new code paths to existing handlers or extend the service worker. A bug here can affect existing flows, but since you are adding new paths rather than replacing old ones, the existing functionality stays intact as a fallback.
+
+| Item | What to watch |
+|---|---|
+| 25 - Self-service contact update | Touches auth/contact flow. Validate contact format carefully and test login with new number before shipping. |
+| 28 - Bulk attendance import | Batch DB writes. Use a transaction or upsert so a partial import does not leave dirty data. |
+| 9 - Push notifications | Service worker extension. Test on both iOS and Android. A broken SW registration can prevent the app loading offline. |
+| 17 - QR code check-in | New check-in path, runs alongside GPS. The existing GPS path is untouched. |
+
+### Group E: Higher risk - replacing existing core logic
+
+These change code that the entire check-in flow depends on. The current constants are referenced in at least four places (utils.js, checkin.js, builders, the work timer). Replace them one file at a time, keep the hardcoded value as a fallback if the DB value is missing, and test each phase window end-to-end before shipping.
+
+| Item | Risk |
+|---|---|
+| 3 - Editable phase windows | Phase constants are used in check-in validation, the work timer, meal eligibility, and phase reminder banners. Touch all four or none. |
+| 10 - Multiple shifts | Depends on phase windows being dynamic first. Do not start this before item 3 is stable. |
+| 13 - Automated summaries | Requires an external API (WhatsApp Business or email). External dependency means new failure modes outside your control. |
+
+### Group F: Do last - schema migrations
+
+These change the shape of existing tables or convert a database enum to a table. A failed migration on a live database can take the app down. Always run these on a copy of the database first, test fully, then apply to production during a low-traffic window.
+
+| Item | Why it is last |
+|---|---|
+| 6 - Department CRUD | Converts `department_type` enum to a `departments` table. Every query that filters by department needs updating. |
+| 7 - Per-department config panel | Depends on item 6 being stable. |
+| 8 - Scoped department access | Already done. No action needed. |
+
+### Golden rule
+
+Never change an existing query or logic path without keeping the old behaviour as a fallback. Read new data if it exists; use the hardcoded value if it does not. This way every feature in Group B, C, and D can be shipped incrementally and rolled back by removing a UI element without touching the database.
