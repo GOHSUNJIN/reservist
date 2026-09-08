@@ -146,7 +146,7 @@ const CalendarBuilders = {
       const sd=this.dateForOffset(selOff);
       const selCell=calCells.find(c=>c.off===selOff);
       const info=this._calDayDetail(selOff,selCell?selCell.st:'off');
-      calSelLabel=Utils.fmtMed(sd)+(selOff===0?', today':'');
+      calSelLabel=Utils.fmtMed(sd)+(selOff===0?', Today':'');
       calSelStatus=info.label; calSelSub=info.sub; calSelColor=info.color; calSelBg=info.bg;
     }
     return {
