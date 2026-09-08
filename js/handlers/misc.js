@@ -42,7 +42,7 @@ const MiscHandlers = {
     const [personnel, attendance, noReportDays] = await Promise.all([
       DB.personnel.list(null, true, dept),
       DB.attendance.getForDate(today),
-      activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date) : Promise.resolve(new Set()),
+      activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date, dept) : Promise.resolve(new Set()),
     ]);
     this._unsubscribeRealtime();
     this.setState({batches, activeBatchIdx, personnel, attendance, attendanceDate:today, noReportDays, batchLoading:false});
@@ -74,7 +74,7 @@ const MiscHandlers = {
     const activeBatch = batches[activeBatchIdx];
     const [attendance, noReportDays] = await Promise.all([
       DB.attendance.getForDate(today),
-      activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date) : Promise.resolve(new Set()),
+      activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date, dept) : Promise.resolve(new Set()),
     ]);
     const history = role==='reservist' ? await DB.attendance.getHistory(me.id).catch(()=>[]) : this.state.history;
     let attendanceCache = {};
