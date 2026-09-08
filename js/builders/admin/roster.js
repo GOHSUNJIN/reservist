@@ -219,7 +219,9 @@ const AdminRoster = {
       wipeHistoryBtnOpacity:s.wipingHistory?'0.55':'1',
       askWipeHistory:self.askWipeHistory, confirmWipeHistory:self.confirmWipeHistory, cancelWipeHistory:self.cancelWipeHistory,
       ...(()=>{
-        const _phAll=s.personHistoryRows||[];
+        const _phPerson=(s.personnel||[]).find(p=>p.id===s.personHistoryId);
+        const _phBatch=_phPerson?.batch_id?(s.batches||[]).find(b=>b.id===_phPerson.batch_id):null;
+        const _phAll=(_phBatch?(s.personHistoryRows||[]).filter(r=>r.date>=_phBatch.start_date):(s.personHistoryRows||[]));
         const _phLeaveSet=new Set((s.personHistoryLeaves||[]).map(l=>l.date));
         const _phFilter=s.personHistoryFilter||'all';
         const _M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],_W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
