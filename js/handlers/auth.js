@@ -67,9 +67,13 @@ const AuthHandlers = {
     }
     const existingReq = await DB.signupRequests.getByContact(cleanContact).catch(()=>null);
     if(existingReq?.status==='pending'){
-      await DB.auth.logout();
-      this.setState({loading:false, authError:'A signup request for this number is already pending admin approval.'});
-      return;
+      if(existingReq.department===suDepartment){
+        await DB.auth.logout();
+        this.setState({loading:false, authError:'A signup request for this number is already pending admin approval.'});
+        return;
+      }
+      // Different department selected - replace the old pending request
+      await DB.signupRequests.deletePendingById(existingReq.id).catch(()=>{});
     }
     if(existingReq?.status==='rejected'){
       await DB.auth.logout();

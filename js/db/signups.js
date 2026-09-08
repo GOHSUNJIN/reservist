@@ -37,6 +37,11 @@ const DB_Signups = {
     return data || [];
   },
 
+  async deletePendingById(id) {
+    const { error } = await _db.from('signup_requests').delete().eq('id', id).eq('status', 'pending');
+    return { error };
+  },
+
   async reopen(id) {
     const { error } = await _db.from('signup_requests')
       .update({ status: 'pending', reviewed_by: null, reviewed_at: null })
