@@ -43,7 +43,7 @@ const DB_Attendance = {
     const { data } = await _db.from('attendance')
       .select('*').eq('personnel_id', personnelId).lt('date', today)
       .order('date', { ascending: false }).limit(500);
-    return data || [];
+    return (data || []).map(r => ({ date: r.date, ...this._toEntry(r) }));
   },
 
   async _findRow(personnelId, dateStr) {
