@@ -14,7 +14,7 @@ const BatchHandlers = {
       }
       const cachedNrd=this.state.noReportDaysCache[b.id];
       const [noReportDays, batchAttMap] = await Promise.all([
-        cachedNrd?Promise.resolve(cachedNrd):DB.noReportDays.list(b.start_date, b.dekit_date||b.end_date).catch(()=>new Set()),
+        cachedNrd?Promise.resolve(cachedNrd):DB.noReportDays.list(b.start_date, b.dekit_date||b.end_date, this._myDept()).catch(()=>new Set()),
         b.is_live ? Promise.resolve({}) : DB.attendance.getForBatch(b.start_date, b.end_date).catch(()=>({})),
       ]);
       this.setState(s=>({
@@ -126,11 +126,11 @@ const BatchHandlers = {
     let added=0;
     for(const dk of dates){
       if(!_existingNrd.has(dk)){
-        const {error:nrErr} = await DB.noReportDays.ensure(dk).catch(()=>({error:true}));
+        const {error:nrErr} = await DB.noReportDays.ensure(dk, this._myDept()).catch(()=>({error:true}));
         if(!nrErr) added++;
       }
     }
-    const nrd = await DB.noReportDays.list(batch.start_date, batchEnd).catch(()=>this.state.noReportDays);
+    const nrd = await DB.noReportDays.list(batch.start_date, batchEnd, this._myDept()).catch(()=>this.state.noReportDays);
     this.setState({noReportDays:nrd, noReportBulkOpen:false, noReportBulkText:''});
     this._toast(added+' no-report day'+(added!==1?'s':'')+' added.');
   },
@@ -163,7 +163,7 @@ const BatchHandlers = {
     if(this.state.demo){
       isNowOn = !this.state.noReportDays.has(dk);
     } else {
-      const {error:_nrErr, isOn} = await DB.noReportDays.toggle(dk);
+      const {error:_nrErr, isOn} = await DB.noReportDays.toggle(dk, this._myDept());
       if(_nrErr){ this._toast('Failed to update. Try again.','error'); return; }
       isNowOn = isOn;
     }

@@ -50,7 +50,7 @@ const InitHandlers = {
         if(reqErr){
           this.setState({authed:false,loading:false,authError:'Your account is inactive. We could not send a re-enrollment request automatically. Please contact your supervisor directly.'});
         } else {
-          this.setState({authed:false,loading:false,authError:'Your account is inactive for this cycle. A re-enrollment request has been sent to your supervisor. You will be able to log in once they approve it.'});
+          this.setState({authed:false,loading:false,authError:'Your account is inactive for this cycle. A re-enrollment request has been sent to your supervisor. If you need to change departments, sign up again and select the correct department.'});
         }
       } else {
         await DB.auth.logout();
@@ -114,7 +114,7 @@ const InitHandlers = {
       DB.personnel.list(null, true, dept),
       DB.attendance.getForDate(today),
       DB.leaves.listApprovedForDate(today).catch(()=>[]),
-      activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date) : Promise.resolve(new Set()),
+      activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date, dept) : Promise.resolve(new Set()),
       DB.attendance.getHistory(me.id),
     ]);
     const _alMap={};
@@ -228,7 +228,7 @@ const InitHandlers = {
       const activeBatch = batches[liveIdx>=0?liveIdx:0];
       const [att, nrd, newDateLeaves] = await Promise.all([
         DB.attendance.getForDate(newDate).catch(()=>({})),
-        activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date).catch(()=>new Set()) : Promise.resolve(new Set()),
+        activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date, dept).catch(()=>new Set()) : Promise.resolve(new Set()),
         DB.leaves.listApprovedForDate(newDate).catch(()=>[]),
       ]);
       const _ndAlMap={};
