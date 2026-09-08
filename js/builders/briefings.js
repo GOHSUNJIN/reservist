@@ -19,7 +19,7 @@ const BriefingsBuilders = {
     const bEnd=myBatch?.end_date||'';
     const _todayLive=s.attendance?.[s.currentUserId];
     const _h=(()=>{
-      const hist=(s.history||[]).slice();
+      const hist=(s.mealHistory||[]).slice();
       if(_todayLive&&!hist.some(r=>r.date===today))
         hist.push({date:today,..._todayLive});
       return hist.filter(r=>

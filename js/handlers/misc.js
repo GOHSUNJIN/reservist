@@ -101,7 +101,7 @@ const MiscHandlers = {
           const today=Utils.dateKey(this.baseDate());
           const todayEntry=h.find(r=>r.date===today);
           this.setState(s=>({
-            history:h,
+            mealHistory:h,
             attendance:todayEntry?{...s.attendance,[uid]:todayEntry}:s.attendance,
           }));
         }).catch(()=>{});
