@@ -4,7 +4,7 @@ const CalendarBuilders = {
   _calDayDetail: function(off, dst) {
     const d=this.dateForOffset(off), hol=Utils.holidayName(d), dk=Utils.dateKey(d);
     if(off===0){
-      if(!Utils.isReportDay(d)) return {label:'Weekend',sub:'No reporting required',color:'#8a94a3',bg:'#f6f8fa'};
+      if(!Utils.isReportDay(d,this._myDept())) return {label:'Weekend',sub:'No reporting required',color:'#8a94a3',bg:'#f6f8fa'};
       if(this.isNoReport(0)) return {label:'No reporting',sub:hol||'Marked as a no-reporting day',color:'#b9791a',bg:'#f7efdc'};
       const rec=this.myRec(), st=rec.status||'pending';
       if(st==='present') return {label:'Checked in',sub:'Reported at '+(rec.p1||'-'),color:'#1f8a5b',bg:'#e7f3ec'};
@@ -101,7 +101,7 @@ const CalendarBuilders = {
     const calCells=Array.from({length:21},(_,i)=>{
       const d=Utils.addDays(gridStart,i), dk=Utils.dateKey(d);
       const off=Math.round((d-today)/86400000);
-      const isHol=!!Utils.holidayName(d), isNoRep=s.noReportDays.has(dk), isWknd=!Utils.isReportDay(d);
+      const isHol=!!Utils.holidayName(d), isNoRep=s.noReportDays.has(dk), isWknd=!Utils.isReportDay(d,this._myDept());
       let dst;
       if(dk===todayKey) dst='today';
       else if(dk<bsKey) dst='pre';
@@ -161,7 +161,7 @@ const CalendarBuilders = {
 
   _buildAttendance: function(s) {
     const me=this.cur(); if(!me) return {myHistory:[],statMyPresent:0,statMyMc:0,statMyMissed:0,statMyDays:0,cycleDone:0,cycleTotal:0,cyclePct:0};
-    const isCas=this._myDept()==='cas'||this._myDept()==='lnf';
+    const isCas=this._myDept()==='cas';
     const rec=this.myRec(), status=rec.status||'pending';
     const todayD=this.baseDate(), today=Utils.dateKey(todayD);
     const activeBatch=s.batches.find(b=>b.id===me.batch_id)||s.batches[s.activeBatchIdx||0];
@@ -170,7 +170,7 @@ const CalendarBuilders = {
     const _dc='#c2c8d2';
 
     const _exDates=s.historyExpandedDates||[];
-    const todayRow=(Utils.isReportDay(todayD)&&!this.isNoReport(0)&&(!activeBatch||today>=activeBatch.start_date)&&(!activeBatch||today<=activeBatch.end_date))
+    const todayRow=(Utils.isReportDay(todayD,this._myDept())&&!this.isNoReport(0)&&(!activeBatch||today>=activeBatch.start_date)&&(!activeBatch||today<=activeBatch.end_date))
       ?[{date:Utils.fmtMed(todayD)+', Today',dateKey:today,shift:Utils.shiftLabel(me.shift),status,
          p1:rec.p1||'-',p2:rec.p2||'-',p3:rec.p3||'-',p4:rec.p4||'-',
          p1Color:_tc(rec.p1,'#161f30',_dc),p2Color:_tc(rec.p2,'#161f30',_dc),p3Color:_tc(rec.p3,'#161f30',_dc),p4Color:_tc(rec.p4,'#161f30',_dc),
@@ -186,7 +186,7 @@ const CalendarBuilders = {
          ...Utils.meta(status)}]:[];
 
     const _nc='#b9791a'; // amber for unrecorded slots
-    const _histFiltered=s.history.filter(r=>Utils.isReportDay(new Date(r.date+'T00:00:00'))&&(!activeBatch||r.date>=activeBatch.start_date));
+    const _histFiltered=s.history.filter(r=>Utils.isReportDay(new Date(r.date+'T00:00:00'),this._myDept())&&(!activeBatch||r.date>=activeBatch.start_date));
     const histKeys=new Set(_histFiltered.map(r=>r.date));
     const histRows=_histFiltered.map(r=>{
       const d=new Date(r.date+'T00:00:00');
@@ -221,7 +221,7 @@ const CalendarBuilders = {
       const bStart=new Date(activeBatch.start_date+'T00:00:00'), yesterday=Utils.addDays(todayD,-1);
       for(let d=new Date(bStart);d<=yesterday;d=Utils.addDays(d,1)){
         const dk=Utils.dateKey(d);
-        if(Utils.isReportDay(d)&&dk<=activeBatch.end_date&&!Utils.holidayName(d)&&!s.noReportDays.has(dk)&&!histKeys.has(dk)){
+        if(Utils.isReportDay(d,this._myDept())&&dk<=activeBatch.end_date&&!Utils.holidayName(d)&&!s.noReportDays.has(dk)&&!histKeys.has(dk)){
           missedRows.push({date:Utils.fmtMed(d),dateKey:dk,shift:Utils.shiftLabel(me.shift),status:'missed',
             p1:'-',p2:'-',p3:'-',p4:'-',p1Color:_dc,p2Color:_dc,p3Color:_dc,p4Color:_dc,
             showTimes:false,rowMarginBot:'0',chevronRotate:'0',hasExpandToggle:true,isExpanded:false,onToggleExpand:this.openMissedNote(dk,''),showTimingWarning:false,
@@ -242,7 +242,7 @@ const CalendarBuilders = {
     if(activeBatch){
       const bStart=new Date(activeBatch.start_date+'T00:00:00'),bEnd=new Date(activeBatch.end_date+'T00:00:00'),now=this.baseDate();
       for(let d=new Date(bStart);d<=bEnd;d=Utils.addDays(d,1)){
-        if(Utils.isReportDay(d)&&!Utils.holidayName(d)&&!s.noReportDays.has(Utils.dateKey(d))){cycleTotal++;if(d<=now)cycleDone++;}
+        if(Utils.isReportDay(d,this._myDept())&&!Utils.holidayName(d)&&!s.noReportDays.has(Utils.dateKey(d))){cycleTotal++;if(d<=now)cycleDone++;}
       }
     }
     const totalRecorded=statMyPresent+statMyMc+statMyAbsent;
@@ -251,7 +251,7 @@ const CalendarBuilders = {
     const showAttendanceSummary=totalRecorded>0||cycleDone>0;
     const streak=(()=>{
       const myRec=s.attendance[s.currentUserId]||{};
-      const todayEntry=(Utils.isReportDay(todayD)&&!this.isNoReport(0)&&myRec.status==='present')?[{date:today,status:'present'}]:[];
+      const todayEntry=(Utils.isReportDay(todayD,this._myDept())&&!this.isNoReport(0)&&myRec.status==='present')?[{date:today,status:'present'}]:[];
       const sorted=[...todayEntry,...s.history.filter(r=>r.date!==today)].sort((a,b)=>b.date.localeCompare(a.date));
       let n=0;for(const r of sorted){if(r.status==='present')n++;else break;}return n;
     })();

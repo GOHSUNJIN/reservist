@@ -21,7 +21,7 @@ const CheckinBuilders = {
     };
     const rec=this.myRec(), status=rec.status||'pending', m=Utils.meta(status);
     const todayD=this.dateForOffset(0);
-    const isOffDay=!Utils.isReportDay(todayD);
+    const isOffDay=!Utils.isReportDay(todayD,this._myDept());
     const noRep=isOffDay||this.isNoReport(0);
     const todayKey=Utils.dateKey(todayD);
     const myBatch=s.batches.find(b=>b.id===me.batch_id);
@@ -68,7 +68,7 @@ const CheckinBuilders = {
     const shift='OFFICE';
     const now=s.now;
     const testMode=s.demo;
-    const isCas=this._myDept()==='cas'||this._myDept()==='lnf';
+    const isCas=this._myDept()==='cas';
     const phaseDefs=isCas?[
       {key:'p1',num:1,label:'Check in to work',needsGps:true,depends:null},
       {key:'p4',num:2,label:'Check out',needsGps:true,depends:'p1'},
@@ -240,7 +240,7 @@ const CheckinBuilders = {
         const days=[];
         for(let d=new Date(tomorrow);Utils.dateKey(d)<=myBatch.end_date;d=Utils.addDays(d,1)){
           const dk=Utils.dateKey(d), holName=Utils.holidayName(d);
-          if(Utils.isReportDay(d)&&(holName||s.noReportDays.has(dk))){
+          if(Utils.isReportDay(d,this._myDept())&&(holName||s.noReportDays.has(dk))){
             days.push({label:Utils.fmtMed(d)+(holName?' · '+holName:'')});
           }
         }
@@ -259,7 +259,7 @@ const CheckinBuilders = {
       onLeaveReason:this.onLeaveReason, submitLeaveRequest:this.submitLeaveRequest, closeLeaveRequest:this.closeLeaveRequest,
       welfareNote:rec.welfareNote||'', hasWelfareNote:!!(rec.welfareNote),
       welfareNoteBtnLabel:rec.welfareNote?'Edit daily note':'Add a note for today',
-      canAddWelfareNote:s.role==='admin'&&!outOfCycle&&!noRep&&Utils.isReportDay(todayD),
+      canAddWelfareNote:s.role==='admin'&&!outOfCycle&&!noRep&&Utils.isReportDay(todayD,this._myDept()),
       supervisorNote:rec.welfareNote||'', hasSupervisorNote:s.role==='reservist'&&!!(rec.welfareNote),
       openWelfareNote:this.openWelfareNote, closeWelfareNote:this.closeWelfareNote,
       welfareNoteOpen:s.welfareNoteOpen, welfareNoteText:s.welfareNoteText, welfareNoteSaving:s.welfareNoteSaving, welfareNoteSavingOpacity:s.welfareNoteSaving?0.6:1,

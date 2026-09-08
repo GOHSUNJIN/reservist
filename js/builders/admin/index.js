@@ -6,7 +6,7 @@ const AdminBuilders = {
     const activeMembers=(activeBatch?.is_live?s.personnel.filter(p=>p.batch_id===activeBatch.id):(s.batchMembersCache?.[activeBatch?.id]||[])).filter(p=>(p.role||'reservist')==='reservist');
     const npShift='OFFICE';
     const todayForChips=Utils.dateKey(this.baseDate());
-    const viewOffset=s.viewOffset||0, viewDate=this.dateForOffset(viewOffset), viewIsToday=viewOffset===0, viewReportDay=Utils.isReportDay(viewDate);
+    const viewOffset=s.viewOffset||0, viewDate=this.dateForOffset(viewOffset), viewIsToday=viewOffset===0, viewReportDay=Utils.isReportDay(viewDate,this._myDept());
     const viewDateKey=Utils.dateKey(viewDate);
     const viewMap=viewIsToday?s.attendance:(s.attendanceCache?.[viewDateKey]||{});
     const viewBlocked=this.isNoReport(viewOffset);

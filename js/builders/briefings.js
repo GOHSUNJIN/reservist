@@ -15,7 +15,7 @@ const BriefingsBuilders = {
     }));
     const waGroupUrl=this.props.waGroupLink||'';
     // Meal stats
-    const _h=(s.history||[]).filter(r=>Utils.isReportDay(new Date(r.date+'T00:00:00')));
+    const _h=(s.history||[]).filter(r=>Utils.isReportDay(new Date(r.date+'T00:00:00'),this._myDept()));
     const mealPresent=_h.filter(r=>r.status==='present').length;
     const mealMc=_h.filter(r=>r.status==='mc').length;
     const mealAbsent=_h.filter(r=>r.status==='absent'||r.status==='missed').length;
@@ -29,7 +29,7 @@ const BriefingsBuilders = {
     const _nrd=s.noReportDays instanceof Set?s.noReportDays:new Set(s.noReportDays||[]);
     const _countRptDays=(from,to)=>{
       let n=0;const cur=new Date(from+'T00:00:00'),end=new Date(to+'T00:00:00');
-      while(cur<=end){const dk=Utils.dateKey(cur);if(Utils.isReportDay(cur)&&!_nrd.has(dk)&&!Utils.holidayName(cur))n++;cur.setDate(cur.getDate()+1);}
+      while(cur<=end){const dk=Utils.dateKey(cur);if(Utils.isReportDay(cur,this._myDept())&&!_nrd.has(dk)&&!Utils.holidayName(cur))n++;cur.setDate(cur.getDate()+1);}
       return n;
     };
     let cycleDayLabel='',cycleProgressPct=0,showCycleProgress=false;

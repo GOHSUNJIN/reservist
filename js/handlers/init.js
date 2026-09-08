@@ -206,7 +206,7 @@ const InitHandlers = {
     if(this.state.role==='admin'){
       const {attendanceDate:yesterday, attendance:yesterdayAtt, personnel, noReportDays} = this.state;
       const _batchForYesterday=this.state.batches.find(b=>b.start_date<=yesterday&&yesterday<=(b.dekit_date||b.end_date));
-      if(yesterday && _batchForYesterday && Utils.isReportDay(new Date(yesterday+'T00:00:00')) && !noReportDays.has(yesterday)){
+      if(yesterday && _batchForYesterday && Utils.isReportDay(new Date(yesterday+'T00:00:00'), dept) && !noReportDays.has(yesterday)){
         const [approvedLeaves, freshPendingLeaves] = await Promise.all([
           DB.leaves.listApprovedForDate(yesterday).catch(()=>[]),
           DB.leaves.listPending(dept).catch(()=>[]),
@@ -279,8 +279,8 @@ const InitHandlers = {
       const fromDate = lastBatch?.end_date
         ? Utils.addDays(new Date(lastBatch.end_date+'T00:00:00'), 1)
         : new Date(today+'T00:00:00');
-      const nextTue = Utils.nextBatchTuesday(fromDate);
-      const {start,end,dekit} = Utils.batchDatesFrom(nextTue);
+      const nextStart = dept==='lnf' ? Utils.nextBatchMonday(fromDate) : Utils.nextBatchTuesday(fromDate);
+      const {start,end,dekit} = dept==='lnf' ? Utils.lnfBatchDatesFrom(nextStart) : Utils.batchDatesFrom(nextStart);
       const startStr=Utils.dateKey(start), endStr=Utils.dateKey(end), dekitStr=Utils.dateKey(dekit);
       const sameYear = [...allBatches, ...sorted].filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
       const maxNum = sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0, 10)),0);
@@ -313,8 +313,8 @@ const InitHandlers = {
       const fromDate = lastBatch?.end_date
         ? Utils.addDays(new Date(lastBatch.end_date+'T00:00:00'), 1)
         : new Date(today+'T00:00:00');
-      const nextTue = Utils.nextBatchTuesday(fromDate);
-      const {start,end,dekit} = Utils.batchDatesFrom(nextTue);
+      const nextStart = dept==='lnf' ? Utils.nextBatchMonday(fromDate) : Utils.nextBatchTuesday(fromDate);
+      const {start,end,dekit} = dept==='lnf' ? Utils.lnfBatchDatesFrom(nextStart) : Utils.batchDatesFrom(nextStart);
       const startStr=Utils.dateKey(start), endStr=Utils.dateKey(end), dekitStr=Utils.dateKey(dekit);
       const sameYear = [...allBatches, ...sorted].filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
       const maxNum = sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0, 10)),0);

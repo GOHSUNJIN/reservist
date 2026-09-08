@@ -148,7 +148,7 @@ const RequestHandlers = {
     if(!leaveDate){this._toast('Please select a date.','error');return;}
     if(leaveDate<Utils.dateKey(this.baseDate())){this._toast('Cannot submit a request for a past date.','error');return;}
     const _ld=new Date(leaveDate+'T00:00:00');
-    if(!Utils.isReportDay(_ld)){this._toast('Cannot submit a request for a weekend.','error');return;}
+    if(!Utils.isReportDay(_ld,this._myDept())){this._toast('Cannot submit a request for a non-reporting day.','error');return;}
     if(Utils.holidayName(_ld)){this._toast('Cannot submit a request for a public holiday.','error');return;}
     if(this.state.noReportDays.has(leaveDate)){this._toast('Cannot submit a request for a no-reporting day.','error');return;}
     const _myBatch=this.state.batches.find(b=>b.id===this.state.me?.batch_id);

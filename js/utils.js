@@ -18,7 +18,7 @@ const Utils = {
   dateKey(d){ const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); },
   addDays(d,n){ const r=new Date(d); r.setDate(r.getDate()+n); return r; },
   mondayOf(d){ const wd=d.getDay(); return this.addDays(d, wd===0?-6:1-wd); },
-  isReportDay(d){ const w=d.getDay(); return w>=1&&w<=5; },
+  isReportDay(d, dept){ const w=d.getDay(); return dept==='lnf' ? w>=1&&w<=6 : w>=1&&w<=5; },
   _MS:['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
   _WS:['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],
   _ML:['January','February','March','April','May','June','July','August','September','October','November','December'],
@@ -28,7 +28,7 @@ const Utils = {
   fmtLong(d){ return this._WL[d.getDay()]+', '+d.getDate()+' '+this._ML[d.getMonth()]+' '+d.getFullYear(); },
 
   // ── Batch cycle helpers ────────────────────────────────────────────────────
-  // Cycles run Tue→Mon (13 days), dekit on Wed (+15 days from start).
+  // OPS/CAS cycles run Tue→Mon (13 days), dekit on Wed (+15 days from start).
   // Example: 16 Jun (Tue) → 29 Jun (Mon) → 1 Jul (Wed dekit).
   nextBatchTuesday(from){
     const d=new Date(from); d.setHours(0,0,0,0);
@@ -41,6 +41,21 @@ const Utils = {
     const start=new Date(startTue); start.setHours(0,0,0,0);
     const end=this.addDays(start,13);   // Monday
     const dekit=this.addDays(start,15); // Wednesday
+    return {start,end,dekit};
+  },
+  // LNF cycles run Mon→Sat (12 days across 2 weeks), dekit on Wed (+16 days from start).
+  // Example: 16 Jun (Mon) → 28 Jun (Sat) → 1 Jul (Wed dekit).
+  nextBatchMonday(from){
+    const d=new Date(from); d.setHours(0,0,0,0);
+    const dow=d.getDay();
+    if(dow===1) return d;
+    const days=dow===0?1:8-dow;
+    return this.addDays(d,days);
+  },
+  lnfBatchDatesFrom(startMon){
+    const start=new Date(startMon); start.setHours(0,0,0,0);
+    const end=this.addDays(start,12);   // Saturday
+    const dekit=this.addDays(start,16); // Wednesday
     return {start,end,dekit};
   },
   batchLabel(startDate, endDate, num){

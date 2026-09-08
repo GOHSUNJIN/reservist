@@ -3,7 +3,7 @@ const AdminRoster = {
 
   build: function(self, s, accent, ctx) {
     const {activeBatch,activeMembers,viewOffset,viewDate,viewIsToday,viewReportDay,viewDateKey,viewMap,viewBlocked,isDekit,viewShowReporting,present,mc,pending,absent} = ctx;
-    const isCas=self._myDept()==='cas'||self._myDept()==='lnf';
+    const isCas=self._myDept()==='cas';
     const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const beforeBatchStart=!!(activeBatch?.start_date&&viewDateKey<activeBatch.start_date);
