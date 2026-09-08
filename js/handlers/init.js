@@ -286,7 +286,7 @@ const InitHandlers = {
       const maxNum = sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0, 10)),0);
       const sameDateBatch = allBatches.find(b=>b.start_date===startStr&&b.department!==dept);
       const sameDateCycleNum = sameDateBatch ? (parseInt((sameDateBatch.label||'').match(/^Cycle (\d+)\//)?.[1]||0,10)||0) : 0;
-      const cycleNum = sameDateCycleNum > maxNum ? sameDateCycleNum : maxNum + 1;
+      const cycleNum = sameDateCycleNum || maxNum + 1;
       const label = Utils.batchLabel(startStr, endStr, cycleNum);
       const {data} = await DB.batches.create(label, startStr, endStr, dekitStr, dept).catch(()=>({}));
       if(data){ sorted.push(data); }
@@ -320,7 +320,7 @@ const InitHandlers = {
       const maxNum = sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0, 10)),0);
       const sameDateBatch = allBatches.find(b=>b.start_date===startStr&&b.department!==dept);
       const sameDateCycleNum = sameDateBatch ? (parseInt((sameDateBatch.label||'').match(/^Cycle (\d+)\//)?.[1]||0,10)||0) : 0;
-      const cycleNum = sameDateCycleNum > maxNum ? sameDateCycleNum : maxNum + 1;
+      const cycleNum = sameDateCycleNum || maxNum + 1;
       const label = Utils.batchLabel(startStr, endStr, cycleNum);
       const {data} = await DB.batches.create(label, startStr, endStr, dekitStr, dept).catch(()=>({}));
       if(data) sorted.push(data); else break;
