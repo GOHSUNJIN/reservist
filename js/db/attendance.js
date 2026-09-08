@@ -46,6 +46,14 @@ const DB_Attendance = {
     return (data || []).map(r => ({ date: r.date, ...this._toEntry(r) }));
   },
 
+  async getForPerson(personnelId, startDate, endDate) {
+    const { data } = await _db.from('attendance')
+      .select('*').eq('personnel_id', personnelId)
+      .gte('date', startDate).lte('date', endDate)
+      .order('date', { ascending: false });
+    return (data || []).map(r => ({ date: r.date, ...this._toEntry(r) }));
+  },
+
   async _findRow(personnelId, dateStr) {
     const { data } = await _db.from('attendance')
       .select('id').eq('personnel_id', personnelId).eq('date', dateStr).limit(1);
