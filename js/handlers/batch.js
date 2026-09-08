@@ -59,7 +59,10 @@ const BatchHandlers = {
   deleteBatch: async function() {
     const {batches, activeBatchIdx, demo} = this.state;
     const batch = batches[activeBatchIdx||0]; if(!batch) return;
-    if(!demo) await DB.batches.remove(batch.id).catch(()=>{});
+    if(!demo){
+      const {error} = await DB.batches.remove(batch.id).catch(()=>({error:true}));
+      if(error){ this._toast('Failed to remove batch. It may have linked records.','error'); return; }
+    }
     const newBatches = batches.filter(b=>b.id!==batch.id);
     this.setState({batches:newBatches, activeBatchIdx:0});
     this._toast('Batch removed.');

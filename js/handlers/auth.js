@@ -101,6 +101,7 @@ const AuthHandlers = {
     if(this._idleLogoutTimer) clearTimeout(this._idleLogoutTimer);
     if(this._sessionWarnTimer) clearTimeout(this._sessionWarnTimer);
     this._unsubscribeRealtime();
+    try { localStorage.removeItem('admin_notif'); } catch(e) {}
     if(!this.state.demo) await DB.auth.logout();
     this.setState({
       authed:false, role:null, authMode:'login', demo:false,

@@ -47,9 +47,10 @@ const DB_Personnel = {
     const { error: aErr } = await _db.from('attendance').delete().eq('personnel_id', personnelId);
     if (lErr || aErr) return { error: lErr || aErr };
     await _db.storage.from('avatars').remove([personnelId]).catch(()=>{});
-    const { error } = await _db.from('personnel').delete().eq('id', personnelId);
+    const { error: pErr } = await _db.from('personnel').delete().eq('id', personnelId);
+    if (pErr) return { error: pErr };
     if (authId) await _db.rpc('delete_auth_user', { p_user_id: authId }).catch(()=>{});
-    return { error };
+    return { error: null };
   },
 
   async setCreatedBy(personnelId, createdBy) {

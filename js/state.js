@@ -35,7 +35,7 @@ const makeInitialState = () => ({
   isInAppBrowser: false, inAppBrowserName: '',
   toast: null,
   viewOffset: 0, selectedCalOffset: null,
-  avatars: {},
+  avatars: {}, noAvatarIds: new Set(),
   showA2hs: false, a2hsIsIos: false,
   helpOpen: false,
 
@@ -83,7 +83,7 @@ const makeInitialState = () => ({
   memberSearchStatus: 'all', memberSearchCycle: 'all', memberSearchSelected: [], memberSearchPage: 1,
   confirmDeleteMemberId: null, deletingMember: false,
   confirmBulkDelete: false, bulkDeleting: false,
-  personHistoryId: null, personHistoryRows: [], personHistoryLoading: false,
+  personHistoryId: null, personHistoryRows: [], personHistoryLeaves: [], personHistoryLoading: false,
   personHistoryFilter: 'all', personHistoryPage: 1,
   confirmWipeHistoryId: null, wipingHistory: false,
   resetPwId: null, resetPwNew: '', resetPwSaving: false, showResetPw: false,
@@ -117,7 +117,7 @@ const makeInitialState = () => ({
 
   // ── History tab (reservist) ──────────────────────────────────────────────
   historyPage: 1, historyExpandedDates: [], historyLoaded: false,
-  briefTab: 'info',
+  briefTab: 'info', mealHistory: [],
 
   // ── Avatar lightbox ──────────────────────────────────────────────────────
   avatarLightboxUrl: null,
