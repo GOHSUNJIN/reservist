@@ -232,7 +232,43 @@ const CalendarBuilders = {
     }
 
     const allPast=[...histRows,...missedRows].sort((a,b)=>a.dateKey>b.dateKey?-1:1);
-    const myHistory=[...todayRow,...allPast];
+
+    // Future leave/MC rows: approved or pending requests after today within the cycle
+    const futureLeaveRows=[];
+    if(activeBatch){
+      const allLeaves=[...(s.myPendingRequests||[]),...(s.myLeaveHistory||[])];
+      const pri={approved:0,pending:1};
+      const byDate=new Map();
+      for(const r of allLeaves){
+        if(r.date<=today||r.date>activeBatch.end_date) continue;
+        if(r.status!=='approved'&&r.status!=='pending') continue;
+        const d=new Date(r.date+'T00:00:00');
+        if(!Utils.isReportDay(d,this._myDept())||s.noReportDays.has(r.date)) continue;
+        const prev=byDate.get(r.date);
+        if(!prev||(pri[r.status]??99)<(pri[prev.status]??99)) byDate.set(r.date,r);
+      }
+      for(const [dk,r] of [...byDate.entries()].sort((a,b)=>a[0].localeCompare(b[0]))){
+        const d=new Date(dk+'T00:00:00');
+        const isMc=r.type==='mc';
+        const isApproved=r.status==='approved';
+        const lbl=isMc?'MC':'Personal Leave';
+        futureLeaveRows.push({
+          date:Utils.fmtMed(d),dateKey:dk,shift:Utils.shiftLabel(me.shift),
+          status:isApproved?(isMc?'mc':'absent'):'pending',
+          label:lbl,color:'#b9791a',bg:isApproved?'#f7efdc':'#fdf6e9',
+          p1:'-',p2:'-',p3:'-',p4:'-',
+          p1Color:_dc,p2Color:_dc,p3Color:_dc,p4Color:_dc,
+          hasExpandToggle:false,isExpanded:false,onToggleExpand:()=>{},
+          showTimes:false,rowMarginBot:'0',chevronRotate:'0',
+          showTimingWarning:false,isMissedRow:false,missedNote:'',showMissedNote:false,
+          onOpenMissedNote:()=>{},missingClockOut:false,hasIncompleteTimes:false,
+          showLunchTimes:!isCas,histGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',
+          lateReason:'',showLateReason:false,isToday:false,
+        });
+      }
+    }
+
+    const myHistory=[...todayRow,...futureLeaveRows,...allPast];
     const statMyPresent=myHistory.filter(h=>h.status==='present').length;
     const statMyMc=myHistory.filter(h=>h.status==='mc').length;
     const statMyAbsent=myHistory.filter(h=>h.status==='absent'||h.status==='missed').length;
