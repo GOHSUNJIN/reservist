@@ -83,15 +83,15 @@ const CheckinBuilders = {
       const dist=rec[pd.key+'dist']??null;
       const done=!!time;
       const locked=!!pd.depends&&!rec[pd.depends];
-      const inWin=testMode||Utils.phaseInWindow(shift,pd.key,now,isCas?this._myDept():null);
-      const pastWin=!testMode&&Utils.phaseWindowPast(shift,pd.key,now,isCas?this._myDept():null);
+      const inWin=testMode||Utils.phaseInWindow(shift,pd.key,now,this._myDept());
+      const pastWin=!testMode&&Utils.phaseWindowPast(shift,pd.key,now,this._myDept());
       const upcoming=!done&&!locked&&!inWin&&!pastWin;
       const lateActive=pd.key!=='p4'&&!done&&!locked&&pastWin;
       const isActive=!done&&!locked&&(inWin||pastWin);
       const myGpsActive=isActive&&pd.needsGps&&s.locPhase===pd.key;
       const doneText=done?(pd.needsGps?(dist!=null?'GPS verified · '+dist+' m from '+hqName:'GPS verified'):'Recorded'):'';
       const btnLabel=pd.key==='p1'?'Check in to work':pd.key==='p2'?'Record lunch break':pd.key==='p3'?'Return from lunch':'Check out';
-      const win=Utils.phaseWindow(shift,pd.key,isCas?this._myDept():null);
+      const win=Utils.phaseWindow(shift,pd.key,this._myDept());
       const locIsOutOfRange=myGpsActive&&locOutOfRange;
       const _waPhaseLabel=pd.key==='p1'?'Check in':pd.key==='p2'?'Lunch break':pd.key==='p3'?'Return from lunch':'Check out';
       const _waGeoMsg=`Hi, I need help with my attendance.\n\nName: ${me.name}\nPhase: ${_waPhaseLabel}\nDate: ${Utils.dateKey(this.baseDate())}\n\nGPS shows me ${s.locDistance!=null?s.locDistance+'m ':''}out of range. Please assist with a manual record.`;
@@ -214,7 +214,7 @@ const CheckinBuilders = {
       lateReasonEmpty:!(s.lateReasonText||'').trim(),
       lateReasonReady:!!(s.lateReasonText||'').trim()&&!s.lateReasonSubmitting,
       batchLabel, dekitCountdown, batchRange, showBatchInfo:!!activeBatch,
-      showCheckinReminder:!outOfCycle&&!noRep&&status==='pending'&&!s.demo&&(Utils.phaseInWindow(shift,'p1',now,isCas?this._myDept():null)||Utils.phaseWindowPast(shift,'p1',now,isCas?this._myDept():null)),
+      showCheckinReminder:!outOfCycle&&!noRep&&status==='pending'&&!s.demo&&(Utils.phaseInWindow(shift,'p1',now,this._myDept())||Utils.phaseWindowPast(shift,'p1',now,this._myDept())),
       // Work timer and meal eligibility
       ...(() => {
         const nowHhmm=Utils.hhmm(s.now);
