@@ -104,24 +104,7 @@ const AdminRoster = {
         isTimesEditing:s.timesEditId===p.id,
         onEditTimes:self.openTimesEdit(p.id),
         missingClockOut: !isLiveView && r.status==='present' && !!r.p1 && !r.p4,
-        ...(() => {
-          const showMealBadge=r.status==='present'&&!!r.p1&&(!!r.p4||isLiveView);
-          if(!showMealBadge) return {showMealBadge:false};
-          const mealOk=Utils.mealEligible(r,nowHhmm);
-          const workMinsVal=Utils.workMins(r,nowHhmm);
-          const done=!!r.p4;
-          const inProgress=!done&&!mealOk;
-          if(inProgress) return {showMealBadge:false};
-          return {
-            showMealBadge:true,
-            mealBadgeText:mealOk?(done?'Meal eligible':'On track'):(done?'No meal allowance':'No meal claim'),
-            mealBadgeColor:mealOk?'#1f8a5b':'#c0392b',
-            mealBadgeBg:mealOk?'#e7f3ec':'#f7e4e1',
-            mealBadgeBorder:mealOk?'#a8d5bb':'#e5a9a4',
-            showWorkTime:workMinsVal>0,
-            workTimeText:Utils.fmtMins(workMinsVal)+' worked',
-          };
-        })(),
+        showMealBadge:false,
       };
     });
     const logStatusFilter=s.logStatusFilter||'all';
@@ -155,16 +138,6 @@ const AdminRoster = {
       const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, _bMm3=Utils.meta(r.status), mm=r.status==='absent'&&approvedLeavesForView[p.id]?Utils.leaveMeta(approvedLeavesForView[p.id]?.type):_bMm3;
       const av=s.avatars[p.id]||'';
       const _vpct=s.peopleStats[p.id]?.pct??null;
-      const _mealBadge=(()=>{
-        const showMealBadge=r.status==='present'&&!!r.p1&&(!!r.p4||isLiveView);
-        if(!showMealBadge) return {showMealBadge:false};
-        const mealOk=Utils.mealEligible(r,nowHhmm);
-        const workMinsVal=Utils.workMins(r,nowHhmm);
-        const done=!!r.p4;
-        const inProgress=!done&&!mealOk;
-        if(inProgress) return {showMealBadge:false};
-        return {showMealBadge:true,mealBadgeText:mealOk?(done?'Meal eligible':'On track'):(done?'No meal allowance':'No meal claim'),mealBadgeColor:mealOk?'#1f8a5b':'#c0392b',mealBadgeBg:mealOk?'#e7f3ec':'#fef0ef',mealBadgeBorder:mealOk?'#a8d5bb':'#f5c0bb',showWorkTime:workMinsVal>0,workTimeText:Utils.fmtMins(workMinsVal)+' worked'};
-      })();
       const _timeText=(r.status==='present'&&r.p1)?r.p1:'';
       const _missingClockOut=!isLiveView&&r.status==='present'&&!!r.p1&&!r.p4;
       return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),status:r.status,label:mm.label,color:mm.color,bg:mm.bg,timeText:_timeText,showTimeText:!!_timeText,avatarStyle:Utils.avatarStyle(av),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),onViewHistory:self.openPersonHistory(p.id),onCopyContact:self.copyContact(p.contact||''),
@@ -172,7 +145,7 @@ const AdminRoster = {
         showStatPct:s.peopleStatsLoaded&&_vpct!==null, statPct:_vpct!==null?(_vpct+'%'):'', lowAttendancePct:s.peopleStatsLoaded&&_vpct!==null&&_vpct<75,
         statPctColor:(_vpct!==null&&_vpct<75)?'#c0392b':'#8a94a3',
         hasApprovedLeave:!!(approvedLeavesForView[p.id]),leaveReason:approvedLeavesForView[p.id]?.reason||'',showLeaveReason:!!(approvedLeavesForView[p.id]?.reason),
-        ..._mealBadge};
+        showMealBadge:false};
     });
     const vPresent=viewRoster.filter(r=>r.status==='present').length, vMc=viewRoster.filter(r=>r.status==='mc'||(r.status==='absent'&&r.hasApprovedLeave)).length, vAbsent=viewRoster.filter(r=>r.status==='absent'&&!r.hasApprovedLeave).length, vPending=viewRoster.filter(r=>r.status==='pending').length, vTotal=viewRoster.length;
     const vPercent=vTotal?Math.round((vPresent+vMc)/vTotal*100):0;
