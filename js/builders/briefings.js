@@ -15,6 +15,8 @@ const BriefingsBuilders = {
     const waGroupUrl=this.props.waGroupLink||'';
     // Meal stats — merge today's live attendance over stale history / backfill
     const today=Utils.dateKey(this.baseDate());
+    const bStart=myBatch?.start_date||'';
+    const bEnd=myBatch?.end_date||'';
     const _todayLive=s.attendance?.[s.currentUserId];
     const _h=(()=>{
       const hist=(s.history||[]).map(r=>
@@ -22,7 +24,10 @@ const BriefingsBuilders = {
       );
       if(_todayLive&&!hist.some(r=>r.date===today))
         hist.push({date:today,status:_todayLive.status});
-      return hist.filter(r=>Utils.isReportDay(new Date(r.date+'T00:00:00'),this._myDept()));
+      return hist.filter(r=>
+        Utils.isReportDay(new Date(r.date+'T00:00:00'),this._myDept())&&
+        (!bStart||r.date>=bStart)&&(!bEnd||r.date<=bEnd)
+      );
     })();
     const mealPresent=_h.filter(r=>r.status==='present').length;
     const mealMc=_h.filter(r=>r.status==='mc').length;
@@ -30,9 +35,8 @@ const BriefingsBuilders = {
     const mealTotalDays=_h.length;
     const mealEligibleDays=mealPresent;
     const mealProgressPct=mealTotalDays>0?Math.round(mealEligibleDays/mealTotalDays*100):0;
+    const mealDayLabel=mealEligibleDays===1?'day':'days';
     // Cycle progress - count weekdays excluding public holidays and custom no-report days
-    const bStart=myBatch?.start_date||'';
-    const bEnd=myBatch?.end_date||'';
     const bDekit=myBatch?.dekit_date||'';
     const _nrd=s.noReportDays instanceof Set?s.noReportDays:new Set(s.noReportDays||[]);
     const _countRptDays=(from,to)=>{
@@ -62,7 +66,7 @@ const BriefingsBuilders = {
       briefAttire:'Civilian',
       briefAttireRowBorder:showBriefTransport?'1px solid #f2f4f7':'none',
       briefTransport, showBriefTransport,
-      mealPresent, mealMc, mealAbsent, mealTotalDays, mealEligibleDays, mealProgressPct,
+      mealPresent, mealMc, mealAbsent, mealTotalDays, mealEligibleDays, mealProgressPct, mealDayLabel,
       dekitItems:[
         {n:'1',text:'Confirm your meal allowance entitlement count with the Manpower Officer.'},
         {n:'2',text:'Bring hardcopies of any MCs taken.'},
