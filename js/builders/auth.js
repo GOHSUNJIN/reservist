@@ -9,6 +9,13 @@ const AuthBuilders = {
     const strictDept=suDept?allSorted.filter(b=>b.department===suDept):allSorted;
     const deptBatches=suDept?(strictDept.length?strictDept:allSorted.filter(b=>!b.department)):allSorted;
     const liveBatch=deptBatches.find(b=>b.is_live)||deptBatches.find(b=>today>=b.start_date&&today<=b.end_date);
+    if(suDept){
+      console.log('[Signup] dept=',suDept,'today=',today);
+      console.log('[Signup] allBatches=',allSorted.map(b=>({label:b.label,dept:b.department,live:b.is_live,start:b.start_date,end:b.end_date})));
+      console.log('[Signup] strictDept=',strictDept.map(b=>({label:b.label,dept:b.department,live:b.is_live})));
+      console.log('[Signup] deptBatches=',deptBatches.map(b=>({label:b.label,dept:b.department,live:b.is_live})));
+      console.log('[Signup] liveBatch=',liveBatch?{label:liveBatch.label,dept:liveBatch.department,live:liveBatch.is_live}:null);
+    }
     const isLastDay=!!(liveBatch&&today===liveBatch.end_date);
     const nextBatch=isLastDay?deptBatches.find(b=>b.start_date>(liveBatch?.end_date||'')):null;
     const targetBatch=nextBatch||liveBatch;
