@@ -35,7 +35,7 @@ const BatchHandlers = {
     this.setState({batchCreating:true});
     const dept=this._myDept();
     const start=new Date(newBatchDate+'T00:00:00');
-    const {start:s,end:e,dekit:dk}=Utils.batchDatesFrom(start);
+    const {start:s,end:e,dekit:dk}=dept==='lnf'?Utils.lnfBatchDatesFrom(start):Utils.batchDatesFrom(start);
     const startStr=Utils.dateKey(s),endStr=Utils.dateKey(e),dekitStr=Utils.dateKey(dk);
     const allBatches=await DB.batches.list().catch(()=>batches);
     const sameYear=allBatches.filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
@@ -150,14 +150,14 @@ const BatchHandlers = {
   // Returns true if the day at the given offset is a no-report day (weekend, holiday, or manually set).
   isNoReport: function(off) {
     const d=this.dateForOffset(off);
-    if(!Utils.isReportDay(d)) return false;
+    if(!Utils.isReportDay(d,this._myDept())) return false;
     return this.state.noReportDays.has(Utils.dateKey(d)) || !!Utils.holidayName(d);
   },
 
   toggleNoReporting: async function() {
     const off=this.state.viewOffset, d=this.dateForOffset(off);
     if(off < 0) return;
-    if(!Utils.isReportDay(d)||Utils.holidayName(d)) return;
+    if(!Utils.isReportDay(d,this._myDept())||Utils.holidayName(d)) return;
     const dk=Utils.dateKey(d);
     let isNowOn;
     if(this.state.demo){

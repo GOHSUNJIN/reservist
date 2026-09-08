@@ -9,7 +9,7 @@ const ExportHandlers = {
     const start=new Date(batch.start_date+'T00:00:00'), end=new Date(batch.end_date+'T00:00:00');
     const dates=[];
     for(let d=new Date(start);d<=end;d=Utils.addDays(d,1)){
-      if(Utils.isReportDay(d)&&!Utils.holidayName(d)&&!noReportDays.has(Utils.dateKey(d))) dates.push(new Date(d));
+      if(Utils.isReportDay(d,this._myDept())&&!Utils.holidayName(d)&&!noReportDays.has(Utils.dateKey(d))) dates.push(new Date(d));
     }
     let attCache=this.state.attendanceCache;
     if(!demo){
