@@ -73,9 +73,8 @@ const AdminBatch = {
     const _isLastDay=!!(liveBatch&&todayForChips===liveBatch.end_date);
     const _nextBatch=_isLastDay?_sortedBatches.find(b=>b.start_date>liveBatch.end_date):null;
     const signupTargetLabel=_nextBatch?_nextBatch.label:(liveBatch?.label||'');
-    const signupIsNextCycle=!!_nextBatch;
+    const adminSignupIsNextCycle=!!_nextBatch;
     const lbs=liveBatch?new Date(liveBatch.start_date+'T00:00:00'):null, lbe=liveBatch?new Date(liveBatch.end_date+'T00:00:00'):null;
-    const intakeLabel=liveBatch?liveBatch.label:'';
     const intakeRange=lbs&&lbe?(Utils.fmtShort(lbs)+' to '+Utils.fmtShort(lbe)):'';
 
     return {
@@ -88,9 +87,7 @@ const AdminBatch = {
       openCyclePicker:self.openCyclePicker, closeCyclePicker:self.closeCyclePicker,
       activeCycleLabel, activeCycleRange,
       editTargetLabel, editTargetIsLive, editTargetRange, editTargetStatus, editTargetStatusChipBg, editTargetStatusChipColor,
-      signupTargetLabel, signupIsNextCycle,
-      signupCycleNote:signupIsNextCycle?' (next cycle)':'',
-      intakeLabel,
+      signupTargetLabel, adminSignupIsNextCycle,
       editingBatchLabel:s.editingBatchLabel, batchLabelText:s.batchLabelText,
       startEditBatchLabel:self.startEditBatchLabel, onBatchLabelText:self.onBatchLabelText,
       saveBatchLabel:self.saveBatchLabel, cancelBatchLabel:self.cancelBatchLabel,

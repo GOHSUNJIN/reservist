@@ -9,7 +9,6 @@ const AuthBuilders = {
     const strictDept=suDept?allSorted.filter(b=>b.department===suDept):allSorted;
     const deptBatches=suDept?(strictDept.length?strictDept:allSorted.filter(b=>!b.department)):allSorted;
     const liveBatch=deptBatches.find(b=>b.is_live)||deptBatches.find(b=>today>=b.start_date&&today<=b.end_date);
-    if(suDept) console.log('[Signup] liveBatch=',liveBatch?.label,'isLive=',liveBatch?.is_live);
     const isLastDay=!!(liveBatch&&today===liveBatch.end_date);
     const nextBatch=isLastDay?deptBatches.find(b=>b.start_date>(liveBatch?.end_date||'')):null;
     const targetBatch=nextBatch||liveBatch;
@@ -23,7 +22,6 @@ const AuthBuilders = {
       if(liveM&&targetM&&parseInt(targetM[1])<=parseInt(liveM[1]))
         intakeLabel=`Cycle ${parseInt(liveM[1])+1}/${liveM[2]}`;
     }
-    if(suDept) console.log('[Signup] targetBatch=',targetBatch?.label,'isLastDay=',isLastDay,'intakeLabel=',intakeLabel);
     const intakeRangeFull=bs&&be?(Utils.fmtShort(bs)+' to '+Utils.fmtShort(be)+' '+bs.getFullYear()):'';
     const signupDeptOptions=Object.entries(Utils.DEPARTMENTS).map(([value,{label}])=>({value,label}));
     return {

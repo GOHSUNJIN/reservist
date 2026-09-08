@@ -2077,11 +2077,11 @@
                   <div style="font-size:11.5px;color:#7d899b;font-family:'IBM Plex Mono',monospace;margin-top:4px;">{{ editTargetRange }}</div>
                   <sc-if value="{{ editTargetIsLive }}" hint-placeholder-val="">
                     <div style="margin-top:8px;padding:7px 10px;background:rgba(255,255,255,.07);border-radius:8px;">
-                      <sc-if value="{{ signupIsNextCycle }}" hint-placeholder-val="">
+                      <sc-if value="{{ adminSignupIsNextCycle }}" hint-placeholder-val="">
                         <div style="font-size:11px;color:#f0a500;font-weight:600;margin-bottom:1px;">Last day of cycle</div>
                         <div style="font-size:11.5px;color:#cdd4df;">New signups → <strong style="color:#fff;">{{ signupTargetLabel }}</strong></div>
                       </sc-if>
-                      <sc-if value="{{ !signupIsNextCycle }}" hint-placeholder-val="">
+                      <sc-if value="{{ !adminSignupIsNextCycle }}" hint-placeholder-val="">
                         <div style="font-size:11.5px;color:#cdd4df;">New signups enroll in this cycle</div>
                       </sc-if>
                     </div>
