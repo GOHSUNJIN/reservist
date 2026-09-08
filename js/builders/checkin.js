@@ -108,7 +108,7 @@ const CheckinBuilders = {
         stepShadow:done?'0 0 0 3px #d4ede0':isActive?'0 0 0 3px #dbe6fa':'none',
         connectorBg:done?'#1f8a5b':'#eceef2',
         rowPadBot:done?'8px':'16px',
-        subLabel:win?(pd.key==='p4'?'From '+win[0]:win[0]+' to '+win[1]):'',
+        subLabel:win?'From '+win[0]:'',
         btnLabel,
         onStart:this.startPhaseGps(pd.key),
         onSubmit:this.doPhase(pd.key),
