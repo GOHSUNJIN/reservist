@@ -96,7 +96,14 @@ const MiscHandlers = {
       const myBatch=(me?.batch_id?this.state.batches.find(b=>b.id===me.batch_id):null)||this.state.batches[this.state.activeBatchIdx||0];
       if(myBatch){
         DB.attendance.getForPerson(this.state.currentUserId,myBatch.start_date,myBatch.end_date).then(h=>{
-          if(h)this.setState({history:h});
+          if(!h) return;
+          const uid=this.state.currentUserId;
+          const today=Utils.dateKey(this.baseDate());
+          const todayEntry=h.find(r=>r.date===today);
+          this.setState(s=>({
+            history:h,
+            attendance:todayEntry?{...s.attendance,[uid]:todayEntry}:s.attendance,
+          }));
         }).catch(()=>{});
       }
     }
