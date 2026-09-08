@@ -29,6 +29,7 @@ ReservistGO provides end-to-end attendance accountability for reservist cycles. 
 - **Info and Attendance tabs**: The Info tab shows an About section explaining the app, shift and reporting details, dekit day steps, leave request history, and a team directory listing batchmates with contact links. The Attendance tab shows the personal attendance calendar and history.
 - **Attendance history**: View your full record for the cycle, including total days present, MC, absent, and your attendance rate.
 - **End-of-cycle notice**: When the reporting cycle ends, the Attendance tab shows a congratulations card and a reminder of the dekit date when the account will be deactivated. Today's row is suppressed for post-cycle days so no false Pending entry appears.
+- **Cycle-scoped history**: Attendance records from before a reservist's current batch start date are excluded from both the reservist's own Shift History and the admin's person history modal. This prevents pre-cycle auto-absent records from appearing as if they belong to the current cycle.
 - **Copyable contact numbers**: Tap any batchmate's phone number in the team directory to copy it to the clipboard.
 - **Calendar coloring**: The attendance calendar uses colour to distinguish day types at a glance. Present days are green. MC and approved personal leave days are amber with a solid border. Pending MC or personal leave requests appear with a lighter amber tint and a dashed border. Days with a missing clock-out are orange with a dashed border. No-report days are slate blue. Absent days are red.
 - **Phase reminder banner**: A banner appears automatically when a check-in phase window is open and you have not yet logged it. It disappears once the phase is recorded.
@@ -405,41 +406,47 @@ A second scheduled task runs at 02:00 SGT every day. It deactivates any personne
 
 ## Planned Enhancements
 
-The following improvements are planned to make the system fully self-managed by supervisors, requiring no developer involvement after initial deployment. Items are ordered from lowest to highest implementation effort.
+The goal for the next stage of development is to make ReservistGO fully self-managed: a successor with no technical background should be able to run, configure, and hand it off again without touching any code or deployment files. Everything below is ordered by how directly it unblocks that goal.
 
-### Quick wins
+### Stage 1 - Zero-code configuration (highest priority)
 
-1. **Editable reporting timings**: Phase windows (0900, 1200, 1400, 1800) are currently fixed constants in code. Moving them to the database per cycle allows supervisors to set different reporting hours for each cycle from within the app. Phase reminder banners, the work timer, and meal eligibility all update automatically.
+These are the things that currently require a developer to change. Eliminating them means the app is truly self-contained after initial deployment.
 
-2. **Editable Info tab content**: Attire requirements, meal form links, dekit checklists, and meal instructions are currently hardcoded. Storing them in the cycle record and exposing an edit form in the cycle management panel means supervisors can keep this content up to date without a code change.
+1. **In-app settings panel (Master account)**: Move all deployment-time config into a Settings tab editable from within the app. This covers org name, HQ name, GPS coordinates, check-in radius, accent colour, and the WhatsApp group link. Once done, the `index.html` config block and Vercel environment variables are set once and never touched again.
 
-3. **WhatsApp group link in database**: The unit WA group link is currently set once at deployment in the app's configuration file. Moving it to a department-level database record lets supervisors update it from within the app when the group changes.
+2. **Editable Info tab content**: The About text, attire requirement, dekit checklist steps, and reporting details are currently hardcoded. Moving them to a database record per department and exposing an edit form in the cycle management panel means a supervisor can update them each cycle without a code change.
 
-4. **Multiple shifts per department**: The system already tracks shift assignments but only supports a single "Office" shift. Extending this to AM, PM, Night, and custom shifts (each with their own phase windows) allows departments with rotating shift schedules to use the system correctly.
+3. **Editable phase windows**: Check-in phase times (0900, 1200, 1400, 1800) are fixed constants. Storing them per cycle in the database lets supervisors set different hours for each cycle. Phase banners, the work timer, and meal eligibility all derive from these values automatically.
 
-5. **Per-cycle GPS location and radius**: HQ coordinates and the accepted check-in radius are currently deployment-level settings. Storing these per cycle allows supervisors to run cycles at different venues (exercises, off-site operations) without requiring a code deployment.
+4. **WhatsApp group link in database**: Currently set at deployment. Moving it to a department-level record lets supervisors update it from the app when the group changes.
 
-### Medium effort
+5. **Per-cycle GPS location and radius**: HQ coordinates are deployment-level. Storing them per cycle lets supervisors run cycles at different venues (exercises, off-site operations) without redeployment.
 
-6. **Department CRUD**: Departments are currently defined as a fixed database type, so adding a new department requires a database schema change. Migrating to a departments table lets the Master account create and manage departments from within the app. This is the prerequisite for all department-level configuration below.
+### Stage 2 - Department self-management
 
-7. **Per-department configuration panel**: Once departments are table-driven, each department can store its own HQ coordinates, GPS radius, phase windows, WA group link, accent colour, and Info tab content. The Master account edits these from a Settings panel. After initial deployment, no configuration files need to be touched again.
+These items require database schema work but unlock full multi-department control from within the app.
 
-8. **Shift scheduler**: Pre-assign which reservists report on which days. This generates the expected attendance list per date, so mark-all-absent only targets scheduled personnel. Useful when not all reservists report every weekday.
+6. **Department CRUD**: Departments are currently a fixed enum in the database schema. Migrating to a `departments` table lets the Master account create and manage departments from within the app. This is the prerequisite for everything below.
 
-9. **Push notifications**: The app's service worker is already in place. Adding Web Push allows reservists to receive reminders when a phase window opens, and supervisors to be alerted on new leave requests or pending signups, without needing to have the app open.
+7. **Per-department configuration panel**: Once departments are table-driven, each department stores its own HQ coordinates, GPS radius, phase windows, WA group link, accent colour, and Info tab content. The Master account edits these from a Settings panel. No config files need to be touched after initial deployment.
 
-10. **Audit log viewer**: A read-only log of all supervisor actions (status overrides, time corrections, approvals, account changes) surfaced as a tab for the Master account. Useful for accountability without needing database access.
+8. **Scoped department access for supervisors**: Currently all admins in a department see all data for that department. As more departments are added, this may need tightening so each supervisor is scoped to one department, with the Master account retaining full cross-department visibility.
 
-### Larger scope
+### Stage 3 - Operational upgrades
 
-11. **In-app configuration editor**: Replace all deployment-time configuration (org name, accent colour, HQ location) with a Settings panel inside the app. After initial deployment, the system is entirely self-contained and no files ever need to be edited again.
+Features that improve day-to-day operations but are not blockers for handover.
 
-12. **Scoped department access for supervisors**: Currently all admins in a department see all data in that department. As more departments are added, this may need to be tightened so that each supervisor is scoped to one department, with the Master account retaining full cross-department visibility.
+9. **Push notifications**: The service worker is already in place. Adding Web Push lets reservists receive phase reminders and supervisors get alerted on new requests without having the app open.
 
-13. **Automated attendance summaries**: Scheduled daily and weekly reports sent to the supervisor's WhatsApp or email, covering attendance rate, pending leave requests, and missing clock-outs. Requires a messaging API integration.
+10. **Multiple shifts**: The system tracks shift assignments but only supports "Office". Extending to AM, PM, Night, and custom shifts with their own phase windows supports departments with rotating schedules.
 
-14. **Equipment and dekit tracking**: Track issued items per reservist per cycle and record return status at dekit. Fits naturally into the existing cycle lifecycle alongside the dekit date already stored on each cycle.
+11. **Shift scheduler**: Pre-assign which reservists report on which days. Mark-all-absent then only targets scheduled personnel, which is useful when not all reservists report every weekday.
+
+12. **Audit log viewer**: A read-only tab for the Master account showing all supervisor actions (overrides, time corrections, approvals, account changes). Useful for accountability without database access.
+
+13. **Automated attendance summaries**: Scheduled daily or weekly reports to the supervisor's WhatsApp or email covering attendance rate, pending requests, and missing clock-outs. Requires a messaging API integration.
+
+14. **Equipment and dekit tracking**: Track issued items per reservist per cycle and record return status at dekit. Fits naturally into the existing cycle lifecycle alongside the dekit date.
 
 ---
 
