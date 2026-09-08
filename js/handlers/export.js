@@ -31,7 +31,8 @@ const ExportHandlers = {
       const mc=entries.filter(e=>e?.status==='mc').length;
       const abs=entries.filter(e=>e?.status==='absent'||e?.status==='missed').length;
       const meal=entries.filter(_mealElig).length;
-      const pct=dates.length>0?Math.round(pres/dates.length*100):null;
+      const recorded=pres+mc+abs;
+      const pct=recorded>0?Math.round(pres/recorded*100):null;
       return {name:p.name, shift:p.shift||'-', entries, pres, mc, abs, meal, pct};
     });
   },
@@ -62,8 +63,8 @@ const ExportHandlers = {
     const totMc  =rowData.reduce((a,r)=>a+r.mc,0);
     const totAbs =rowData.reduce((a,r)=>a+r.abs,0);
     const totMeal=rowData.reduce((a,r)=>a+r.meal,0);
-    const totDays=members.length*dates.length;
-    const totPct =totDays>0?Math.round(totPres/totDays*100):null;
+    const totRecorded=totPres+totMc+totAbs;
+    const totPct =totRecorded>0?Math.round(totPres/totRecorded*100):null;
 
     const now=new Date();
     const exportedStr=fmtDay(now)+' '+fmtDate(now)+' '+now.getFullYear()+' '+
@@ -313,8 +314,8 @@ ${colsXml}
     const totMc=rowData.reduce((a,r)=>a+r.mc,0);
     const totAbs=rowData.reduce((a,r)=>a+r.abs,0);
     const totMeal=rowData.reduce((a,r)=>a+r.meal,0);
-    const totDays=members.length*dates.length;
-    const totPct=totDays>0?Math.round(totPres/totDays*100):0;
+    const totRecorded=totPres+totMc+totAbs;
+    const totPct=totRecorded>0?Math.round(totPres/totRecorded*100):0;
     const exportedOn=fmtDate(new Date())+' '+new Date().getFullYear();
 
     const headCols=dates.map(d=>`<th>${fmtDay(d)}<br><span style="font-weight:400;font-size:9px;">${fmtDate(d)}</span></th>`).join('');
