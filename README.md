@@ -40,7 +40,7 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Cancel pending requests**: A leave or MC request can be withdrawn by the reservist before the supervisor has acted on it, from both the check-in screen and the Requests history tab.
 - **Request history**: The Requests tab shows the full history of submitted leave and MC requests, each with a coloured left bar, a type badge (MC and Personal Leave both in amber), and a status badge (Submitted, Approved, Declined, or Withdrawn). Records are deduplicated by date: if multiple requests exist for the same date, only the most relevant one is shown (pending takes priority over approved, approved over declined). Filter pills let you narrow the list by status. Pending requests can be withdrawn inline.
 - **Info and Attendance tabs**: The Info tab shows an About section explaining the app, shift and reporting details, dekit day steps, leave request history, and a team directory listing batchmates with contact links. The Attendance tab shows the personal attendance calendar and history.
-- **Attendance history**: View your full record for the cycle, including total days present, MC, absent, and your attendance rate.
+- **Attendance history**: View your full record for the cycle, including total days present, MC, absent, and your attendance rate. Future approved MC leave that is already visible in Shift History is included in the MC and Logged counts so the numbers stay consistent with what is shown on screen.
 - **End-of-cycle notice**: When the reporting cycle ends, the Attendance tab shows a congratulations card and a reminder of the dekit date when the account will be deactivated. Today's row is suppressed for post-cycle days so no false Pending entry appears.
 - **Cycle-scoped history**: Attendance records from before a reservist's current batch start date are excluded from both the reservist's own Shift History and the admin's person history modal. This prevents pre-cycle auto-absent records from appearing as if they belong to the current cycle.
 - **Copyable contact numbers**: Tap any batchmate's phone number in the team directory to copy it to the clipboard.
@@ -54,7 +54,7 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Logout confirmation**: Tapping Log Out shows a confirmation step before the session is ended, preventing accidental logouts.
 - **Session expiry warning**: A banner appears at 55 minutes into the session with a one-tap option to extend it before the session expires at 60 minutes.
 - **Idle timeout**: Sessions expire after 20 minutes of inactivity, with a warning at 18 minutes.
-- **Work timer and meal allowance**: When meal allowance is active for the cycle, a live timer shows total work time for the day, paused during lunch. Once 6 hours of work is reached, a "Meal eligible" badge appears. A reminder is shown inside the timer card when eligible but Phase 4 has not yet been recorded, to discourage leaving without clocking out.
+- **Work timer and meal allowance**: When meal allowance is active for the cycle, a live timer shows total work time for the day, paused during lunch. Once 6 hours of work is reached, a "Meal eligible" badge appears. A reminder is shown inside the timer card when eligible but Phase 4 has not yet been recorded, to discourage leaving without clocking out. The Meal tab shows a summary of total entitlements and a Daily Breakdown card listing every reporting day so far with a per-day status badge showing whether that day earned an allowance and why.
 - **Missing clock-out detection**: If a past day shows no clock-out, that calendar day is coloured orange with a dashed border. Tapping it shows a warning. A persistent orange banner also appears on the check-in screen if any day in the past two weeks is missing a clock-out, prompting the reservist to inform their supervisor so their meal allowance record can be corrected.
 - **Late check-in self-declaration**: If you check in more than one hour after shift start, you are prompted to provide a written reason for the lateness before the check-in is accepted.
 - **In-app browser detection**: If opened from WhatsApp, Instagram, or another in-app browser where GPS is blocked, the app shows specific instructions for opening in the device's real browser.
@@ -730,11 +730,11 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Cron auto-deactivation: after a batch's dekit date passes and the cron runs, any pending leave requests for those personnel are also cancelled (verify in DB that no pending rows remain for deactivated personnel)
 
 #### Check-in (Ops Security - 4 phases)
-- [ ] Phase 1 (0900-1200): Locate Me button appears, GPS resolves within range, Check In button becomes active, tap to record
+- [ ] Phase 1 (from 08:00): Locate Me button appears, GPS resolves within range, Check In button becomes active, tap to record
 - [ ] Phase 1 outside window: card is visible but button is greyed out
-- [ ] Phase 2 (Lunch out, 1200-1400): Locate Me not required, button is direct
-- [ ] Phase 3 (Return from lunch, 1400-1800): GPS verify required, records on tap
-- [ ] Phase 4 (End of shift, after 1800): direct button, records timestamp
+- [ ] Phase 2 (Lunch out, from 11:00): Locate Me not required, button is direct
+- [ ] Phase 3 (Return from lunch, from 13:00): GPS verify required, records on tap
+- [ ] Phase 4 (Check out, from 14:00): direct button, records timestamp
 - [ ] All 4 phases done: "All done for today" state shown
 - [ ] Late check-in (more than 1 hour after 0900): late reason modal appears, reason recorded and visible inline on log card
 - [ ] GPS cannot detect location (permission denied or timeout): bypass option appears immediately
@@ -930,7 +930,7 @@ All admin checks above apply. Run them for both departments. Then verify the fol
 ## Known Limitations
 
 - **CPO Info tab content is a placeholder.** The Info tab for Crime Prevention Office (CPO) reservists currently shows placeholder text. The attire, location, and operational details for CPO have not yet been configured in the codebase.
-- **Phase windows are hardcoded.** The check-in phase times (0900, 1200, 1400, 1800) are fixed constants and cannot be changed from within the app. Changing them requires a code update and redeployment. This is tracked as item 3 in the Planned Enhancements section.
+- **Phase windows are hardcoded.** The check-in phase times (check-in from 08:00, lunch from 11:00, return from lunch from 13:00, check-out from 14:00) are fixed constants and cannot be changed from within the app. Changing them requires a code update and redeployment. This is tracked as item 3 in the Planned Enhancements section.
 - **Departments cannot be added or removed from within the app.** The department list (Ops Security and CPO) is defined in the database schema as an enum. Adding a new department requires a schema migration. This is tracked as item 6 in the Planned Enhancements section.
 - **No push notifications.** Supervisors must have the app open to see new leave requests or signup requests. There is no background alert. This is tracked as item 9 in the Planned Enhancements section.
 - **RLS batch-mate visibility requires a manual SQL step.** If the Supabase project is ever recreated from scratch, the `_auth_batch_id()` function and the updated `personnel_select` policy in `scripts/sql/rls_policies.sql` must be re-run in the Supabase SQL editor for the YOUR TEAM section to appear correctly for reservists.
@@ -960,7 +960,7 @@ These are the things that currently require a developer to change. Eliminating t
 
 3. **Editable phase windows**: Check-in phase times (0900, 1200, 1400, 1800) are fixed constants. Storing them per cycle in the database lets supervisors set different hours for each cycle. Phase banners, the work timer, and meal eligibility all derive from these values automatically.
 
-   _Not started: phase times are hardcoded constants in utils.js and referenced in at least four places._
+   _Not started: phase times are hardcoded constants in utils.js (currently 08:00, 11:00, 13:00, 14:00) and referenced in at least four places._
 
 4. **WhatsApp group link in database**: Currently set at deployment. Moving it to a department-level record lets supervisors update it from the app when the group changes.
 
