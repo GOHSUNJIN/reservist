@@ -13,8 +13,17 @@ const BriefingsBuilders = {
       style:`flex:1;padding:8px 4px;border:none;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;${briefTab===t.key?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`,
     }));
     const waGroupUrl=this.props.waGroupLink||'';
-    // Meal stats
-    const _h=(s.history||[]).filter(r=>Utils.isReportDay(new Date(r.date+'T00:00:00'),this._myDept()));
+    // Meal stats — merge today's live attendance over stale history / backfill
+    const today=Utils.dateKey(this.baseDate());
+    const _todayLive=s.attendance?.[s.currentUserId];
+    const _h=(()=>{
+      const hist=(s.history||[]).map(r=>
+        (r.date===today&&_todayLive)?{...r,status:_todayLive.status}:r
+      );
+      if(_todayLive&&!hist.some(r=>r.date===today))
+        hist.push({date:today,status:_todayLive.status});
+      return hist.filter(r=>Utils.isReportDay(new Date(r.date+'T00:00:00'),this._myDept()));
+    })();
     const mealPresent=_h.filter(r=>r.status==='present').length;
     const mealMc=_h.filter(r=>r.status==='mc').length;
     const mealAbsent=_h.filter(r=>r.status==='absent'||r.status==='missed').length;
@@ -22,7 +31,6 @@ const BriefingsBuilders = {
     const mealEligibleDays=mealPresent;
     const mealProgressPct=mealTotalDays>0?Math.round(mealEligibleDays/mealTotalDays*100):0;
     // Cycle progress - count weekdays excluding public holidays and custom no-report days
-    const today=Utils.dateKey(this.baseDate());
     const bStart=myBatch?.start_date||'';
     const bEnd=myBatch?.end_date||'';
     const bDekit=myBatch?.dekit_date||'';
