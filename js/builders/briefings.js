@@ -27,7 +27,15 @@ const BriefingsBuilders = {
         (!bStart||r.date>=bStart)&&(!bEnd||r.date<=bEnd)
       );
     })();
-    const mealPresent=_h.filter(r=>r.status==='present'&&!!r.p4).length;
+    const _toM=t=>{const[h,m]=t.split(':').map(Number);return h*60+m;};
+    const _workMins=r=>{
+      if(!r.p1||!r.p4) return 0;
+      const dept=this._myDept();
+      if(dept==='cas') return _toM(r.p4)-_toM(r.p1);
+      if(r.p2&&r.p3) return (_toM(r.p2)-_toM(r.p1))+(_toM(r.p4)-_toM(r.p3));
+      return _toM(r.p4)-_toM(r.p1);
+    };
+    const mealPresent=_h.filter(r=>r.status==='present'&&!!r.p4&&_workMins(r)>=360).length;
     const mealMc=_h.filter(r=>r.status==='mc').length;
     const mealAbsent=_h.filter(r=>(r.status==='absent'||r.status==='missed')&&r.date<=today).length;
     const mealTotalDays=_h.filter(r=>r.date<=today).length;
