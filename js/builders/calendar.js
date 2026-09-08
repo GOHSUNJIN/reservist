@@ -268,6 +268,8 @@ const CalendarBuilders = {
       }
     }
 
+    const futureApprovedMcCount=futureLeaveRows.filter(r=>r.status==='mc').length;
+
     const myHistory=[...todayRow,...futureLeaveRows,...allPast];
     const statRows=[...todayRow,...allPast];
     const statMyPresent=statRows.filter(h=>h.status==='present').length;
@@ -314,7 +316,7 @@ const CalendarBuilders = {
     const pagedHistory=myHistory.slice(0,page*PAGE);
     const historyHasMore=myHistory.length>page*PAGE;
     const historyRemaining=myHistory.length-pagedHistory.length;
-    return {myHistory:pagedHistory,historyHasMore,historyRemaining,showMoreHistory:this.showMoreHistory,statMyPresent,statMyMc,statMyMissed,statMyAbsent,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:pagedHistory.length===0,totalRecorded,attendanceRate,attendanceRateText,showAttendanceSummary,streak,streakLabel,cycleNotStarted,cycleStartsLabel,hasMissingClockOut,showDekitNotice,dekitNoticeDateFmt,dekitTimingText,historyLoaded:s.historyLoaded,
+    return {myHistory:pagedHistory,historyHasMore,historyRemaining,showMoreHistory:this.showMoreHistory,statMyPresent,statMyMc:statMyMc+futureApprovedMcCount,statMyMissed,statMyAbsent,statMyDays:statMyPresent+statMyMc,cycleDone,cycleTotal,cyclePct:cycleTotal?Math.round(cycleDone/cycleTotal*100):0,historyTruncated:s.history.length>=500,historyEmpty:pagedHistory.length===0,totalRecorded,attendanceRate,attendanceRateText,showAttendanceSummary,streak,streakLabel,cycleNotStarted,cycleStartsLabel,hasMissingClockOut,showDekitNotice,dekitNoticeDateFmt,dekitTimingText,historyLoaded:s.historyLoaded,
       missedNoteOpen:s.missedNoteOpen,missedNoteText:s.missedNoteText,missedNoteReady:true,closeMissedNote:this.closeMissedNote,onMissedNoteText:this.onMissedNoteText,saveMissedNote:this.saveMissedNote};
   },
 
