@@ -46,6 +46,7 @@ const SignupHandlers = {
       if(error){this._toast('Failed to re-open. Try again.','error');return;}
       this.setState(s=>({rejectedSignups:s.rejectedSignups.filter(r=>r.id!==id),pendingSignups:[{...req,status:'pending',reviewed_by:null,reviewed_at:null},...s.pendingSignups]}));
       this._toast(req.name+"'s signup re-opened.");
+      this._log('signup', 'signup.reopened', { target_name: req.name });
     };
   },
 
@@ -91,6 +92,7 @@ const SignupHandlers = {
         ...(freshPersonnel?{personnel:freshPersonnel}:finalPerson&&(!existed||wasInactive)?{personnel:[...s.personnel,finalPerson]}:{}),
       }));
       this._toast(req.name+' approved and added to the roster.');
+      this._log('signup', 'signup.approved', { target_id: req.auth_id || null, target_name: req.name });
     };
   },
 
@@ -109,6 +111,7 @@ const SignupHandlers = {
         rejectedSignupsLoaded:true,
       }));
       this._toast(req.name+"'s signup was declined.");
+      this._log('signup', 'signup.rejected', { target_name: req.name });
     };
   },
 
@@ -142,6 +145,7 @@ const SignupHandlers = {
     const freshPersonnel=await DB.personnel.list(null,true,this._myDept()).catch(()=>null);
     this.setState(s=>({selectedSignupIds:[],...(freshPersonnel?{personnel:freshPersonnel}:{})}));
     if(count) this._toast(count+' signup'+(count>1?'s':'')+' approved.');
+    if (count) this._log('signup', 'signup.bulk_approved', { count });
   },
 
   selectAllSignups: function() {

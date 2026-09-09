@@ -34,6 +34,7 @@ const MemberSearchHandlers = {
       const {error}=await DB.personnel.deletePermanently(id,authId).catch(()=>({error:true}));
       if(error){this._toast('Delete failed. Check your connection.','error');this.setState({wipingHistory:false});return;}
     }
+    const name = person?.name || '';
     this.setState(prev=>{
       const personnel=prev.personnel.filter(p=>p.id!==id);
       const batchMembersCache={...prev.batchMembersCache};
@@ -41,6 +42,7 @@ const MemberSearchHandlers = {
       return {personnel,batchMembersCache,wipingHistory:false,confirmWipeHistoryId:null,personHistoryId:null,personHistoryRows:[]};
     });
     this._toast((person?.name||'Member')+' permanently deleted.');
+    this._log('personnel', 'personnel.permanently_deleted', { target_name: name });
   },
 
   onMemberSearchStatus: function(v) { return () => this.setState({memberSearchStatus:v,memberSearchPage:1,confirmDeleteMemberId:null,memberSearchSelected:[],confirmBulkDelete:false}); },
@@ -78,6 +80,7 @@ const MemberSearchHandlers = {
       return {memberSearchList,personnel,batchMembersCache,deletingMember:false,confirmDeleteMemberId:null};
     });
     this._toast((person?.name||'Member')+' permanently deleted.');
+    this._log('personnel', 'personnel.permanently_deleted', { target_name: person?.name || '' });
   },
 
   toggleMemberSelect: function(id) { return () => this.setState(s=>{const sel=s.memberSearchSelected,next=sel.includes(id)?sel.filter(x=>x!==id):[...sel,id];return{memberSearchSelected:next,confirmBulkDelete:false,confirmDeleteMemberId:null};});},
@@ -192,6 +195,7 @@ const MemberSearchHandlers = {
     document.body.appendChild(a); a.click();
     setTimeout(()=>{document.body.removeChild(a);URL.revokeObjectURL(url);},3000);
     this._toast('Saved to Downloads.');
+    this._log('export', 'export.person_history', { target_name: name || '' });
   },
 
   openResetPw:  function(id) { return () => this.setState({resetPwId:id,resetPwNew:'',resetPwSaving:false}); },
@@ -220,6 +224,7 @@ const MemberSearchHandlers = {
       this.setState({resetPwSaving:false});
       if(error){this._toast('Failed to reset password.','error');return;}
       this._toast((p.name||'Person')+"'s password has been reset.");
+      this._log('personnel', 'personnel.password_reset', { target_id: resetPwId, target_name: p.name || '' });
     }
     this.setState({resetPwId:null,resetPwNew:'',showResetPw:false});
   },

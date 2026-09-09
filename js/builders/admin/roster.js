@@ -122,7 +122,7 @@ const AdminRoster = {
     const lateRows=viewIsToday?logRows.filter(r=>r.isLate):[];
     const lateCount=lateRows.length;
     const lateNames=lateRows.map(r=>r.name).join(', ');
-    const showLateAlert=viewIsToday&&lateCount>0&&lateCount>(s.lateAlertDismissedCount||0);
+    const showLateAlert=false;
     const lateAlertLabel=lateCount===1?'1 late check-in':lateCount+' late check-ins';
     const logDateLabel=viewIsToday?'TODAY\'S LOG':((WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()]).toUpperCase()+' LOG');
     const dlabel=WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()];
@@ -139,8 +139,13 @@ const AdminRoster = {
       const av=s.avatars[p.id]||'';
       const _vpct=s.peopleStats[p.id]?.pct??null;
       const _timeText=(r.status==='present'&&r.p1)?r.p1:'';
+      const [_rcc,_rccm]='09:00'.split(':').map(Number);
+      const _rlm=r.p1?(()=>{const[h,m]=r.p1.split(':').map(Number);return(h*60+m)-(_rcc*60+_rccm);})():0;
+      const _rLate=r.status==='present'&&_rlm>=60;
+      const _timeTextColor=_rLate?'#c0392b':'#9aa3b2';
+      const _timeTextWeight=_rLate?'700':'400';
       const _missingClockOut=!isLiveView&&r.status==='present'&&!!r.p1&&!r.p4;
-      return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),status:r.status,label:mm.label,color:mm.color,bg:mm.bg,timeText:_timeText,showTimeText:!!_timeText,avatarStyle:Utils.avatarStyle(av),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),onViewHistory:self.openPersonHistory(p.id),onCopyContact:self.copyContact(p.contact||''),
+      return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),status:r.status,label:mm.label,color:mm.color,bg:mm.bg,timeText:_timeText,showTimeText:!!_timeText,timeTextColor:_timeTextColor,timeTextWeight:_timeTextWeight,avatarStyle:Utils.avatarStyle(av),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),onViewHistory:self.openPersonHistory(p.id),onCopyContact:self.copyContact(p.contact||''),
         missingClockOut:_missingClockOut,
         showStatPct:s.peopleStatsLoaded&&_vpct!==null, statPct:_vpct!==null?(_vpct+'%'):'', lowAttendancePct:s.peopleStatsLoaded&&_vpct!==null&&_vpct<75,
         statPctColor:(_vpct!==null&&_vpct<75)?'#c0392b':'#8a94a3',

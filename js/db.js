@@ -8,4 +8,5 @@ const DB = {
   storage:       DB_Storage,
   signupRequests:DB_Signups,
   realtime:      DB_Realtime,
+  audit:         DB_Audit,
 };

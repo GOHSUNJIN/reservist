@@ -286,6 +286,7 @@ ${colsXml}
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
     this._toast('Saved to Downloads.');
+    this._log('export', 'export.excel', { target_name: batch?.label || '' });
   },
 
   exportPrint: async function() {
@@ -443,6 +444,7 @@ ${colsXml}
 </div>`;
 
     document.body.appendChild(overlay);
+    this._log('export', 'export.print', { target_name: batch?.label || '' });
 
     const close=()=>{ overlay.remove(); document.getElementById('print-report-css')?.remove(); };
     overlay.addEventListener('click',e=>{ if(e.target===overlay) close(); });

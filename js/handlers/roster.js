@@ -55,6 +55,8 @@ const RosterHandlers = {
       this._statusSubmitting.delete(id);
       this._haptic(40);
       this._toast({present:'Marked present',mc:'Marked MC',absent:'Marked absent'}[status]||'Updated');
+      const person = this.state.personnel.find(p => p.id === id);
+      this._log('attendance', 'roster.status_set', { date: dk, status, target_id: id, target_name: person?.name || '' });
     };
   },
 
@@ -80,6 +82,7 @@ const RosterHandlers = {
     }
     this.setState({markingAllAbsent:false});
     this._toast(pending.length+' member'+(pending.length>1?'s':'')+' marked absent.');
+    this._log('attendance', 'roster.mark_all_absent', { date: dk, count: pending.length });
   },
 
   askMarkAllPresent:    function() { this.setState({confirmMarkAllPresent:true}); },
@@ -107,6 +110,7 @@ const RosterHandlers = {
     else this.setState(s=>({attendanceCache:{...s.attendanceCache,[dk]:{...(s.attendanceCache?.[dk]||{}),...updates}},markAllPresenting:false}));
     if(failed) this._toast(failed+' save'+(failed>1?'s':'')+' failed. Check your connection.','error');
     else this._toast(pending.length+' member'+(pending.length>1?'s':'')+' marked present.');
+    this._log('attendance', 'roster.mark_all_present', { date: dk, count: pending.length });
   },
 
   prevDay: function() { this._navToOffset(this.state.viewOffset-1); },
@@ -180,6 +184,8 @@ const RosterHandlers = {
     if(!demo) await DB.personnel.updateNote(editingNoteId, editingNoteText).catch(()=>{});
     this.setState(s=>({personnel:s.personnel.map(p=>p.id===editingNoteId?{...p,notes:editingNoteText}:p),editingNoteId:null,editingNoteText:''}));
     this._toast('Note saved.');
+    const person = this.state.personnel.find(p => p.id === editingNoteId);
+    this._log('attendance', 'roster.person_note_saved', { target_id: editingNoteId, target_name: person?.name || '' });
   },
 
   openTimesEdit: function(id) {
@@ -242,6 +248,8 @@ const RosterHandlers = {
     if(viewOffset===0) this.setState(s=>({attendance:{...s.attendance,[timesEditId]:entry},...clearEdit}));
     else this.setState(s=>({attendanceCache:{...s.attendanceCache,[dateKey]:{...(s.attendanceCache[dateKey]||{}),[timesEditId]:entry}},...clearEdit}));
     this._toast('Times updated.');
+    const person = this.state.personnel.find(p => p.id === timesEditId);
+    this._log('attendance', 'roster.times_corrected', { date: dateKey, p1: timesEditP1 || null, p2: timesEditP2 || null, p3: timesEditP3 || null, p4: timesEditP4 || null, target_id: timesEditId, target_name: person?.name || '' });
   },
 
   // Subscribes to Supabase realtime updates for attendance on the given date.

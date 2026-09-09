@@ -108,6 +108,30 @@ class AppComponent extends DCLogic {
     window.removeEventListener('keydown', this._onActivity);
   }
 
+  // ── Audit logging ─────────────────────────────────────────────────────────
+  _log(category, action, meta) {
+    if (this.state.demo) return;
+    const me = this.cur();
+    if (!me) return;
+    const entry = {
+      actor_id: me.id,
+      actor_name: me.name,
+      actor_role: me.role || 'reservist',
+      department: (meta && meta.department !== undefined) ? meta.department : this._myDept(),
+      category,
+      action,
+      target_id: (meta && meta.target_id) || null,
+      target_name: (meta && meta.target_name) || null,
+      meta: null,
+    };
+    if (meta) {
+      const m = { ...meta };
+      delete m.target_id; delete m.target_name; delete m.department;
+      if (Object.keys(m).length) entry.meta = m;
+    }
+    DB.audit.log(entry).catch(() => {});
+  }
+
   // ── Render ────────────────────────────────────────────────────────────────
   renderVals(){
     const s=this.state;
