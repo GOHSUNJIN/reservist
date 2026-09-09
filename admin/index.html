@@ -280,7 +280,7 @@ const _db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 let _me = null, _isSA = false, _filterDept = null;
 let _cat = 'all', _search = '', _from = '', _to = '';
 let _offset = 0, _total = 0, _rows = [];
-let _searchTimer = null;
+let _searchTimer = null, _loadSeq = 0, _loadingMore = false;
 const LIMIT = 100;
 
 const CAT = {
@@ -317,7 +317,7 @@ const ACTIONS = {
   'batch.created':'Created cycle','batch.deleted':'Deleted cycle',
   'batch.activated':'Activated cycle','batch.label_edited':'Edited cycle label',
   'batch.broadcast_updated':'Updated cycle notice','batch.no_report_toggled':'Toggled no-report day',
-  'batch.no_report_bulk':'Bulk added no-report days','batch.meal_toggled':'Toggled meal allowance',
+  'batch.no_report_bulk':'Bulk added no-report days',
   'admin.added':'Added supervisor','admin.demoted':'Demoted supervisor','admin.promoted':'Promoted to supervisor',
   'export.excel':'Exported Excel report','export.print':'Generated print report',
   'export.person_history':'Exported person history',
@@ -370,6 +370,7 @@ async function doLogin(){
   if(error||!data?.user){btn.disabled=false;btn.textContent='Sign in';showErr('Invalid contact number or password.');return;}
   const {data:p,error:pErr}=await _db.from('personnel').select('id,name,role,department,is_active').eq('auth_id',data.user.id).single();
   if(pErr||!p){await _db.auth.signOut({scope:'local'});btn.disabled=false;btn.textContent='Sign in';showErr('Account not found in personnel records.');return;}
+  if(!p.is_active){await _db.auth.signOut({scope:'local'});btn.disabled=false;btn.textContent='Sign in';showErr('Your account has been deactivated. Contact your system administrator.');return;}
   if(p.role!=='admin'&&p.role!=='superadmin'){await _db.auth.signOut({scope:'local'});btn.disabled=false;btn.textContent='Sign in';showErr('Access denied. Admin or master role required.');return;}
   _me=p; _isSA=p.role==='superadmin'; _filterDept=_isSA?null:(p.department||null);
   document.getElementById('login-screen').style.display='none';
@@ -427,6 +428,7 @@ async function doLogout(){
 
 // ── Stats ──────────────────────────────────────────────────────────────────
 async function loadStats(){
+  if(!_me) return;
   const dept=_isSA?(_filterDept||null):(_me.department||null);
   const today=new Date(); today.setHours(0,0,0,0);
   let q=_db.from('audit_log').select('category,actor_id');
@@ -473,18 +475,22 @@ function onSearch(){
 
 // ── Events ─────────────────────────────────────────────────────────────────
 async function loadEvents(reset){
-  if(reset){_offset=0;_rows=[];}
+  const seq=++_loadSeq;
+  if(reset){_offset=0;_rows=[];_loadingMore=false;}
   const list=document.getElementById('events-list');
   if(reset) list.innerHTML='<div class="spinner-wrap"><div class="spinner"></div></div>';
+  if(!_me) return;
   const dept=_isSA?(_filterDept||null):(_me.department||null);
   let q=_db.from('audit_log').select('*',{count:'exact'});
   if(dept) q=q.eq('department',dept);
   if(_cat&&_cat!=='all') q=q.eq('category',_cat);
   if(_from) q=q.gte('created_at',_from+'T00:00:00');
   if(_to) q=q.lte('created_at',_to+'T23:59:59');
-  if(_search){const s=_search.replace(/'/g,"''");q=q.or(`actor_name.ilike.%${s}%,action.ilike.%${s}%,target_name.ilike.%${s}%`);}
+  if(_search){const s=_search.replace(/[%_\\]/g,'\\$&').replace(/'/g,"''");q=q.or(`actor_name.ilike.%${s}%,action.ilike.%${s}%,target_name.ilike.%${s}%`);}
   q=q.order('created_at',{ascending:false}).range(_offset,_offset+LIMIT-1);
   const{data,count,error}=await q;
+  if(seq!==_loadSeq) return;
+  _loadingMore=false;
   if(error){list.innerHTML=`<div class="empty"><div class="empty-title">Failed to load</div><div class="empty-sub">${esc(error.message)}</div></div>`;return;}
   _total=count||0;
   const rows=data||[];
@@ -558,7 +564,7 @@ function buildRow(ev){
   return el;
 }
 
-function loadMore(){loadEvents(false);}
+function loadMore(){if(_loadingMore)return;_loadingMore=true;loadEvents(false);}
 
 // ── Session restore ────────────────────────────────────────────────────────
 // 1. Check sessionStorage first (survives refreshes within the same tab).

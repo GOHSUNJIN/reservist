@@ -129,8 +129,8 @@ const MemberSearchHandlers = {
     const rows=rawRows.map(r=>{
       const isPersonalLeave=r.status==='absent'&&leaveSet.has(r.date);
       const mm=isPersonalLeave?{label:'Personal Leave'}:Utils.meta(r.status);
-      const d=new Date(r.date+'T00:00:00'), editLog=r.edit_log||[], latestEdit=editLog.length?editLog[editLog.length-1]:null;
-      return {dateLabel:W[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,p1:r.check_in_time?r.check_in_time.slice(0,5):'-',p4:r.work_end_time?r.work_end_time.slice(0,5):'-',note:editLog.length>0?'Corrected by '+(latestEdit?.by||''):'',statusKey:r.status==='present'?'present':r.status==='mc'?'mc':(isPersonalLeave?'leave':'absent')};
+      const d=new Date(r.date+'T00:00:00'), editLog=r.editLog||[], latestEdit=editLog.length?editLog[editLog.length-1]:null;
+      return {dateLabel:W[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,p1:r.p1?r.p1.slice(0,5):'-',p4:r.p4?r.p4.slice(0,5):'-',note:editLog.length>0?'Corrected by '+(latestEdit?.by||''):'',statusKey:r.status==='present'?'present':r.status==='mc'?'mc':(isPersonalLeave?'leave':'absent')};
     });
 
     // ── OOXML utilities ──────────────────────────────────────────────────────

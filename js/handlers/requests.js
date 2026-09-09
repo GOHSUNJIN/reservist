@@ -195,13 +195,14 @@ const RequestHandlers = {
   cancelLeaveRequest: function(id) {
     return async () => {
       const {demo}=this.state;
+      const leave=this.state.myPendingRequests.find(r=>r.id===id)||this.state.myLeaveHistory.find(r=>r.id===id);
       if(!demo&&id&&id!=='demo'){
         const {error}=await DB.leaves.cancel(id).catch(()=>({error:true}));
         if(error){this._toast('Failed to cancel. Try again.','error');return;}
       }
       this.setState(s=>({myPendingRequests:s.myPendingRequests.filter(r=>r.id!==id),myLeaveHistory:s.myLeaveHistory.map(r=>r.id===id?{...r,status:'cancelled'}:r)}));
       this._toast('Request withdrawn.');
-      this._log('leave', 'leave.cancelled', {});
+      this._log('leave', 'leave.cancelled', { date: leave?.date||null, type: leave?.type||null });
       if(!demo) this.loadMyLeaveHistory();
     };
   },
