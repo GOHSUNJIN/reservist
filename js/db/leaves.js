@@ -46,7 +46,12 @@ const DB_Leaves = {
       .update({ status: 'cancelled' })
       .eq('status', 'pending')
       .lt('date', cutoffDate);
-    if (dept) q = q.eq('department', dept);
+    if (dept) {
+      const { data: people } = await _db.from('personnel').select('id').eq('department', dept);
+      const ids = (people || []).map(p => p.id);
+      if (!ids.length) return { error: null };
+      q = q.in('personnel_id', ids);
+    }
     const { error } = await q;
     return { error };
   },
@@ -93,7 +98,12 @@ const DB_Leaves = {
 
   async deleteOld(cutoffDate, dept) {
     let q = _db.from('leave_requests').delete().lt('date', cutoffDate);
-    if (dept) q = q.eq('department', dept);
+    if (dept) {
+      const { data: people } = await _db.from('personnel').select('id').eq('department', dept);
+      const ids = (people || []).map(p => p.id);
+      if (!ids.length) return { error: null };
+      q = q.in('personnel_id', ids);
+    }
     const { error } = await q;
     return { error };
   },
