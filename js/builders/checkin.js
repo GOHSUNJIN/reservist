@@ -204,7 +204,7 @@ const CheckinBuilders = {
       showLunchSummary:!isCas, summaryGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',
       isLate, lateShiftStart:shiftStart,
       hasIncompletePast, incompletePastDate,
-      canAddLateReason:isLate&&!rec.lateReason&&status==='present'&&!outOfCycle&&!noRep,
+      canAddLateReason:isLate&&!rec.lateReason&&status==='present'&&!outOfCycle&&!noRep&&!rec.p2,
       hasLateReason:isLate&&!!rec.lateReason,
       lateReasonDisplayText:rec.lateReason||'',
       openLateReason:this.openLateReason,
