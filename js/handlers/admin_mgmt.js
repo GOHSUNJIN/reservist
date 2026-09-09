@@ -32,7 +32,7 @@ const AdminMgmtHandlers = {
     if(!npAdminPassword||npAdminPassword.length<6){this._toast('Password must be at least 6 characters.','error');return;}
     this.setState({addingAdmin:true});
     if(!demo){
-      const existing=await DB.personnel.findByContact(cleanContact).catch(()=>null);
+      const existing=await DB.personnel.findByContact(cleanContact, this._myDept()).catch(()=>null);
       if(existing){this.setState({addingAdmin:false});this._toast('This contact is already registered.','error');return;}
       const {user,error}=await DB.auth.createUserAsAdmin(cleanContact,npAdminPassword,npAdminName.trim());
       if(error||!user){this.setState({addingAdmin:false});this._toast('Failed to create account. Try again.','error');return;}

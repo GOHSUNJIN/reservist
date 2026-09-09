@@ -10,8 +10,8 @@ const RequestHandlers = {
     if(demo) return;
     const liveBatch=this._liveBatch(this.state.batches);
     if(liveBatch?.start_date){
-      await DB.leaves.cancelStalePending(liveBatch.start_date).catch(()=>{});
-      await DB.leaves.deleteOld(liveBatch.start_date).catch(()=>{});
+      await DB.leaves.cancelStalePending(liveBatch.start_date, this._myDept()).catch(()=>{});
+      await DB.leaves.deleteOld(liveBatch.start_date, this._myDept()).catch(()=>{});
     }
     if(liveBatch?.id) await DB.signupRequests.deleteOldProcessed(liveBatch.id, this._myDept()).catch(()=>{});
     const data=await DB.leaves.listPending(this._myDept()).catch(()=>[]);
@@ -31,6 +31,7 @@ const RequestHandlers = {
     return async () => {
       const leave=this.state.pendingLeaves.find(l=>l.id===id);
       if(leave&&leave.personnel_id===this.state.currentUserId){this._toast('Cannot approve your own request.','error');return;}
+      if(leave&&!this.state.demo&&!this.state.personnel.some(p=>p.id===leave.personnel_id)){this._toast('This person does not belong to your department.','error');return;}
       this.setState({approvingLeaveId:id});
       if(!this.state.demo&&leave){
         const reviewMeta={reviewed_by:this.cur()?.name||null,reviewed_at:new Date().toISOString()};
@@ -66,6 +67,8 @@ const RequestHandlers = {
     const {rejectLeaveId,rejectLeaveReason,demo}=this.state;
     if(!rejectLeaveId) return;
     if(!rejectLeaveReason.trim()){this._toast('Please provide a reason for declining.','error');return;}
+    const _rLeave=this.state.pendingLeaves.find(l=>l.id===rejectLeaveId);
+    if(!demo&&_rLeave&&!this.state.personnel.some(p=>p.id===_rLeave.personnel_id)){this._toast('This person does not belong to your department.','error');this.setState({confirmingDecline:false});return;}
     this.setState({confirmingDecline:true});
     if(!demo){
       const reviewMeta={reviewed_by:this.cur()?.name||null,reviewed_at:new Date().toISOString(),rejection_reason:rejectLeaveReason.trim()||null};
@@ -98,10 +101,13 @@ const RequestHandlers = {
       const reviewMeta={reviewed_by:this.cur()?.name||null,reviewed_at:new Date().toISOString()};
       await Promise.all(leaveSelectedIds.map(async id=>{
         const leave=pendingLeaves.find(l=>l.id===id);
-        const ops=[DB.leaves.updateStatus(id,'approved',reviewMeta).catch(()=>{})];
-        if(leave?.type==='mc') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'mc',{}).catch(()=>{}));
-        else if(leave?.type==='personal'||leave?.type==='other') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'absent',{}).catch(()=>{}));
-        await Promise.all(ops);
+        if(!leave||!this.state.personnel.some(p=>p.id===leave.personnel_id)) return;
+        const {data:updated}=await DB.leaves.updateStatus(id,'approved',reviewMeta).catch(()=>({}));
+        if(!updated) return;
+        const ops=[];
+        if(leave.type==='mc') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'mc',{}).catch(()=>{}));
+        else if(leave.type==='personal'||leave.type==='other') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'absent',{}).catch(()=>{}));
+        if(ops.length) await Promise.all(ops);
       }));
       const todayKey=Utils.dateKey(this.baseDate?this.baseDate():new Date());
       if(leaveSelectedIds.some(id=>pendingLeaves.find(l=>l.id===id)?.date===todayKey)){
@@ -155,6 +161,7 @@ const RequestHandlers = {
     const _myBatch=this.state.batches.find(b=>b.id===this.state.me?.batch_id);
     if(_myBatch&&(leaveDate<_myBatch.start_date||leaveDate>_myBatch.end_date)){this._toast('The selected date is outside your current cycle.','error');return;}
     if(_myBatch?.dekit_date===leaveDate){this._toast('Cannot submit a request for dekit day.','error');return;}
+    if((this.state.myPendingRequests||[]).length>=10){this._toast('You have too many pending requests. Please wait for them to be reviewed.','error');return;}
     if((this.state.myPendingRequests||[]).some(r=>r.date===leaveDate)){this._toast('You already have a pending request for this date.','error');return;}
     if((this.state.myLeaveHistory||[]).some(r=>r.date===leaveDate&&r.status==='approved')){this._toast('You already have an approved request for this date.','error');return;}
     this.setState({leaveSubmitting:true});

@@ -41,11 +41,13 @@ const DB_Leaves = {
     return { error };
   },
 
-  async cancelStalePending(cutoffDate) {
-    const { error } = await _db.from('leave_requests')
+  async cancelStalePending(cutoffDate, dept) {
+    let q = _db.from('leave_requests')
       .update({ status: 'cancelled' })
       .eq('status', 'pending')
       .lt('date', cutoffDate);
+    if (dept) q = q.eq('department', dept);
+    const { error } = await q;
     return { error };
   },
 
@@ -89,8 +91,10 @@ const DB_Leaves = {
     return { error };
   },
 
-  async deleteOld(cutoffDate) {
-    const { error } = await _db.from('leave_requests').delete().lt('date', cutoffDate);
+  async deleteOld(cutoffDate, dept) {
+    let q = _db.from('leave_requests').delete().lt('date', cutoffDate);
+    if (dept) q = q.eq('department', dept);
+    const { error } = await q;
     return { error };
   },
 };

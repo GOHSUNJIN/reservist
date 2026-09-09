@@ -45,7 +45,7 @@ const DB_Signups = {
   async reopen(id) {
     const { error } = await _db.from('signup_requests')
       .update({ status: 'pending', reviewed_by: null, reviewed_at: null })
-      .eq('id', id);
+      .eq('id', id).eq('status', 'rejected');
     return { error };
   },
 
@@ -59,12 +59,12 @@ const DB_Signups = {
   async reject(id, reviewerName) {
     const { error } = await _db.from('signup_requests')
       .update({ status: 'rejected', reviewed_by: reviewerName, reviewed_at: new Date().toISOString() })
-      .eq('id', id);
+      .eq('id', id).eq('status', 'pending');
     return { error };
   },
 
   async deleteOldProcessed(currentBatchId, dept) {
-    if (!currentBatchId) return { error: null };
+    if (!currentBatchId || !dept) return { error: null };
     let q = _db.from('signup_requests')
       .delete()
       .in('status', ['approved', 'rejected'])

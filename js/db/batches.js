@@ -11,7 +11,7 @@ const DB_Batches = {
     let dupCheck = _db.from('batches').select('id').eq('start_date', startDate);
     if (dept) dupCheck = dupCheck.eq('department', dept);
     const { data: dup } = await dupCheck.maybeSingle();
-    if (dup) return { data: null, error: new Error('A batch with this start date already exists.') };
+    if (dup) return { data: dup, error: null };
 
     // Deactivate the previously live batch within the same department only
     let deactivateQ = _db.from('batches').update({ is_live: false }).eq('is_live', true);
@@ -24,6 +24,8 @@ const DB_Batches = {
   },
 
   async activate(batchId, dept) {
+    const {data:target} = await _db.from('batches').select('id,department').eq('id',batchId).maybeSingle();
+    if(dept && target?.department && target.department !== dept) return {error:'department_mismatch'};
     let deactivateQ = _db.from('batches').update({ is_live: false }).eq('is_live', true);
     if (dept) deactivateQ = deactivateQ.eq('department', dept);
     await deactivateQ;
