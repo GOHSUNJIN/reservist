@@ -37,6 +37,7 @@ ALTER TABLE attendance      ENABLE ROW LEVEL SECURITY;
 ALTER TABLE leave_requests  ENABLE ROW LEVEL SECURITY;
 ALTER TABLE signup_requests ENABLE ROW LEVEL SECURITY;
 ALTER TABLE no_report_days  ENABLE ROW LEVEL SECURITY;
+ALTER TABLE audit_log       ENABLE ROW LEVEL SECURITY;
 
 -- ── Drop old blanket policies ────────────────────────────────
 DROP POLICY IF EXISTS "authenticated" ON personnel;
@@ -45,6 +46,7 @@ DROP POLICY IF EXISTS "authenticated" ON attendance;
 DROP POLICY IF EXISTS "authenticated" ON leave_requests;
 DROP POLICY IF EXISTS "authenticated" ON signup_requests;
 DROP POLICY IF EXISTS "authenticated" ON no_report_days;
+DROP POLICY IF EXISTS "authenticated" ON audit_log;
 
 -- ── personnel ────────────────────────────────────────────────
 -- Reservists see their own row + teammates in the same batch; admins see all
@@ -163,3 +165,14 @@ CREATE POLICY "nrd_insert" ON no_report_days FOR INSERT TO authenticated
 
 CREATE POLICY "nrd_delete" ON no_report_days FOR DELETE TO authenticated
   USING (_auth_role() IN ('admin','superadmin'));
+
+-- ── audit_log ────────────────────────────────────────────────
+ALTER TABLE audit_log ENABLE ROW LEVEL SECURITY;
+
+-- Any authenticated user can write audit events (all roles log actions)
+CREATE POLICY "audit_log_insert" ON audit_log
+  FOR INSERT TO authenticated WITH CHECK (true);
+
+-- Any authenticated user can read the full log (Monitor scopes by dept in app layer)
+CREATE POLICY "audit_log_select" ON audit_log
+  FOR SELECT TO authenticated USING (true);
