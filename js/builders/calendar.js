@@ -29,10 +29,10 @@ const CalendarBuilders = {
       const myAtt = attendance[currentUserId];
       const hr = this.state.history.find(r=>r.date===dk)
         || (dk===attendanceDate && myAtt?.status && myAtt.status!=='pending'
-            ? {status:myAtt.status, check_in_time:myAtt.p1?myAtt.p1+':00':null} : null);
+            ? {status:myAtt.status, p1:myAtt.p1||null, p4:myAtt.p4||null} : null);
       if(hr){
-        const t=hr.check_in_time?hr.check_in_time.slice(0,5):'-';
-        if(hr.status==='present'&&!hr.work_end_time) return {label:'No clock-out',sub:'You did not clock out. Inform your supervisor. Meal allowance may not apply.',color:'#c2410c',bg:'#fff3e0'};
+        const t=hr.p1||'-';
+        if(hr.status==='present'&&!hr.p4) return {label:'No clock-out',sub:'You did not clock out. Inform your supervisor. Meal allowance may not apply.',color:'#c2410c',bg:'#fff3e0'};
         if(hr.status==='present') return {label:'Present',sub:'Reported at '+t,color:'#1f8a5b',bg:'#e7f3ec'};
         if(hr.status==='mc')     return {label:'MC',sub:'Sick leave recorded',color:'#b9791a',bg:'#f7efdc'};
         if(hr.status==='absent'){
@@ -48,10 +48,10 @@ const CalendarBuilders = {
         const myAtt = attendance[currentUserId];
         const hr = this.state.history.find(r=>r.date===dk)
           || (dk===attendanceDate && myAtt?.status && myAtt.status!=='pending'
-              ? {status:myAtt.status, check_in_time:myAtt.p1?myAtt.p1+':00':null} : null);
+              ? {status:myAtt.status, p1:myAtt.p1||null, p4:myAtt.p4||null} : null);
         if(hr){
-          const t=hr.check_in_time?hr.check_in_time.slice(0,5):'-';
-          if(hr.status==='present'&&!hr.work_end_time) return {label:'No clock-out',sub:'You did not clock out. Inform your supervisor. Meal allowance may not apply.',color:'#c2410c',bg:'#fff3e0'};
+          const t=hr.p1||'-';
+          if(hr.status==='present'&&!hr.p4) return {label:'No clock-out',sub:'You did not clock out. Inform your supervisor. Meal allowance may not apply.',color:'#c2410c',bg:'#fff3e0'};
           if(hr.status==='present') return {label:'Present',sub:'Reported at '+t,color:'#1f8a5b',bg:'#e7f3ec'};
           if(hr.status==='mc')     return {label:'MC',sub:'Sick leave recorded',color:'#b9791a',bg:'#f7efdc'};
           if(hr.status==='absent'){
@@ -120,7 +120,7 @@ const CalendarBuilders = {
           ||(dk===s.attendanceDate&&s.attendance[s.currentUserId]?.status&&s.attendance[s.currentUserId].status!=='pending'
              ?{status:s.attendance[s.currentUserId].status}:null);
         const pst=hr?.status;
-        if(pst==='present'&&!hr?.work_end_time) style=cellBase+'background:#fff3e0;color:#c2410c;border:2px dashed #fb923c;cursor:pointer;';
+        if(pst==='present'&&!hr?.p4) style=cellBase+'background:#fff3e0;color:#c2410c;border:2px dashed #fb923c;cursor:pointer;';
         else if(pst==='present') style=cellBase+'background:#e7f3ec;color:#1f8a5b;border:2px solid #a8d5bb;cursor:pointer;';
         else if(pst==='mc') style=cellBase+'background:#f7efdc;color:#b9791a;border:2px solid #e8c77a;cursor:pointer;';
         else if(pst==='absent'){
@@ -190,8 +190,7 @@ const CalendarBuilders = {
     const histKeys=new Set(_histFiltered.map(r=>r.date));
     const histRows=_histFiltered.map(r=>{
       const d=new Date(r.date+'T00:00:00');
-      const tk=s=>s?s.slice(0,5):null;
-      const p1=tk(r.check_in_time),p2=tk(r.lunch_out_time),p3=tk(r.work_return_time),p4=tk(r.work_end_time);
+      const p1=r.p1||null,p2=r.p2||null,p3=r.p3||null,p4=r.p4||null;
       const isPresent=r.status==='present';
       const missingClockOut=isPresent&&!p4;
       const hasIncompleteTimes=isPresent&&!missingClockOut&&(isCas?false:(!p2||!p3));
@@ -303,7 +302,7 @@ const CalendarBuilders = {
     const cycleNotStarted=!!(activeBatch&&today<activeBatch.start_date);
     const cycleStartsLabel=activeBatch?Utils.fmtLong(new Date(activeBatch.start_date+'T00:00:00')):'';
 
-    const hasMissingClockOut=s.history.slice(0,14).some(r=>r.status==='present'&&!r.work_end_time);
+    const hasMissingClockOut=s.history.slice(0,14).some(r=>r.status==='present'&&!r.p4);
 
     const bEnd=activeBatch?.end_date||'';
     const bDekit=activeBatch?.dekit_date||'';
