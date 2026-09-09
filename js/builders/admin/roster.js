@@ -60,14 +60,14 @@ const AdminRoster = {
       const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent'}, _bMm2=Utils.meta(r.status), mm=r.status==='absent'&&approvedLeavesForView[p.id]?Utils.leaveMeta(approvedLeavesForView[p.id]?.type):_bMm2;
       const _ef=new Set((r.editLog||[]).flatMap(e=>e.fields||[]));
       const _ec=accent;
-      const _adminEdited=_ef.size>0;
+      const _adminEditedP1=_ef.has('p1');
       const [_cc,_ccm]='09:00'.split(':').map(Number);
       const _lm=r.p1?(()=>{const[h,m]=r.p1.split(':').map(Number);return(h*60+m)-(_cc*60+_ccm);})():0;
       const isLate=r.status==='present'&&_lm>=60;
       const lateReason=r.lateReason||'';
-      const showLateReason=isLate&&!_adminEdited&&!!lateReason;
-      const showNoLateReason=isLate&&!_adminEdited&&!lateReason;
-      const lateTagLabel=(isLate&&!_adminEdited)?('Late · '+(lateReason||'No reason')):'';
+      const showLateReason=isLate&&!_adminEditedP1&&!!lateReason;
+      const showNoLateReason=isLate&&!_adminEditedP1&&!lateReason;
+      const lateTagLabel=(isLate&&!_adminEditedP1)?('Late · '+(lateReason||'No reason')):'';
       const _missingCo=!isLiveView&&r.status==='present'&&!!r.p1&&!r.p4;
       const showAnyFlags=showNoLateReason||showLateReason;
       const av=s.avatars[p.id]||'';
