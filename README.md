@@ -197,17 +197,60 @@ A separate, login-protected admin console accessible at `/admin`. Restricted to 
 
 ### Actions logged
 
-| Category | Actions recorded |
-|---|---|
-| Auth | Login, logout, session extended |
-| Attendance | Each check-in phase (P1–P4), late reason submitted, status set, mark-all absent, mark-all present, time correction, person note, log note, welfare note, missed-day note |
-| Leave | Submitted, approved, bulk approved, rejected, bulk rejected, withdrawn |
-| Signup | Request submitted, approved, bulk approved, rejected, re-opened |
-| Personnel | Added, re-enrolled, removed, bulk added, bulk permanently deleted, permanently deleted, password reset |
-| Cycle | Created, deleted, label edited, broadcast updated, no-report day toggled, bulk no-report days |
-| Export | Excel export, print report, person history export |
-| Account | Display name changed, password changed, photo uploaded, photo removed, account deleted |
-| Admin | Supervisor added, demoted, promoted |
+| Action key | Display label | Who triggers it |
+|---|---|---|
+| `auth.login` | Logged in | Any user on successful login |
+| `auth.logout` | Logged out | Any user on explicit logout |
+| `auth.session_extended` | Extended session | Any user who taps "Stay logged in" on the expiry warning |
+| `checkin.p1` | Phase 1: Checked in | Reservist |
+| `checkin.p2` | Phase 2: Lunch out | Reservist |
+| `checkin.p3` | Phase 3: Returned from lunch | Reservist |
+| `checkin.p4` | Phase 4: Checked out | Reservist |
+| `checkin.late_reason` | Submitted late reason | Reservist (when more than 1 hour late) |
+| `roster.status_set` | Set attendance status | Admin — manual mark Present / MC / Absent |
+| `roster.mark_all_absent` | Marked all absent | Admin |
+| `roster.mark_all_present` | Marked all present | Admin |
+| `roster.times_corrected` | Corrected attendance times | Admin — time correction modal |
+| `roster.person_note_saved` | Saved person note | Admin |
+| `roster.log_note_saved` | Saved log note | Admin |
+| `roster.welfare_note_saved` | Saved welfare note | Reservist (own record) or Admin |
+| `roster.missed_note_saved` | Saved missed-day note | Admin — note on a missed day in history |
+| `leave.submitted` | Submitted leave request | Reservist |
+| `leave.cancelled` | Withdrew leave request | Reservist |
+| `leave.approved` | Approved leave request | Admin |
+| `leave.rejected` | Declined leave request | Admin |
+| `leave.bulk_approved` | Bulk approved leave requests | Admin |
+| `leave.bulk_rejected` | Bulk declined leave requests | Admin |
+| `signup.request_submitted` | Submitted signup request | Reservist (new or returning) |
+| `signup.approved` | Approved signup | Admin |
+| `signup.rejected` | Declined signup | Admin |
+| `signup.reopened` | Re-opened signup | Admin |
+| `signup.bulk_approved` | Bulk approved signups | Admin |
+| `personnel.added` | Added to roster | Admin |
+| `personnel.re_enrolled` | Re-enrolled personnel | Admin |
+| `personnel.removed` | Removed from roster | Admin |
+| `personnel.bulk_added` | Bulk added personnel | Admin |
+| `personnel.permanently_deleted` | Permanently deleted record | Admin |
+| `personnel.bulk_deleted` | Bulk permanently deleted records | Admin |
+| `personnel.password_reset` | Reset password | Admin |
+| `batch.created` | Created cycle | Admin |
+| `batch.deleted` | Deleted cycle | Admin |
+| `batch.activated` | Activated cycle | System (auto-activation on login) |
+| `batch.label_edited` | Edited cycle label | Admin |
+| `batch.broadcast_updated` | Updated cycle notice | Admin |
+| `batch.no_report_toggled` | Toggled no-report day | Admin |
+| `batch.no_report_bulk` | Bulk added no-report days | Admin |
+| `export.excel` | Exported Excel report | Admin |
+| `export.print` | Generated print report | Admin |
+| `export.person_history` | Exported person history | Admin |
+| `account.name_changed` | Changed display name | Any user |
+| `account.password_changed` | Changed password | Any user |
+| `account.photo_uploaded` | Uploaded profile photo | Any user |
+| `account.photo_removed` | Removed profile photo | Any user |
+| `account.deleted` | Deleted own account | Any user |
+| `admin.added` | Added supervisor | Master |
+| `admin.demoted` | Demoted supervisor | Master |
+| `admin.promoted` | Promoted to supervisor | Master |
 
 ---
 
