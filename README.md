@@ -1083,6 +1083,7 @@ All admin checks above apply. Run them for both departments. Then verify the fol
 
 ## Known Limitations
 
+- **Audit log events are not currently being recorded.** The ReservistGO Monitor at `/admin` shows an empty feed regardless of actions taken. The `_log()` function in `component.js` returns early before reaching the database call; the exact return path (demo mode guard or null actor) is under investigation. The `audit_log` table, RLS policies, and schema are all correct. A fix will be deployed once the root cause is confirmed.
 - **CPO Info tab content is a placeholder.** The Info tab for Crime Prevention Office (CPO) reservists currently shows placeholder text. The attire, location, and operational details for CPO have not yet been configured in the codebase.
 - **Phase windows are hardcoded.** The check-in phase times (check-in from 08:00, lunch from 11:00, return from lunch from 13:00, check-out from 14:00) are fixed constants and cannot be changed from within the app. Changing them requires a code update and redeployment. This is tracked as item 3 in the Planned Enhancements section.
 - **Departments cannot be added or removed from within the app.** The department list (Ops Security and CPO) is defined in the database schema as an enum. Adding a new department requires a schema migration. This is tracked as item 6 in the Planned Enhancements section.
