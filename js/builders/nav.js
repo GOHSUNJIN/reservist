@@ -7,7 +7,7 @@ const NavBuilders = {
     const nc=t=>s.tab===t?accent:'#9aa3b2';
     const nb=t=>s.tab===t?'#eef3fc':'transparent';
     return {
-      isReservist:s.role==='reservist', isAdmin:s.role==='admin', isMaster:s.isSuperAdmin||false,
+      isReservist:s.role==='reservist', isAdmin:s.role==='admin', isMaster:s.isSuperAdmin||false, isAdminOnly:s.role==='admin'&&!(s.isSuperAdmin||false),
       headerChipClick:this.headerChipClick, logout:this.logout, askLogout:this.askLogout, cancelLogout:this.cancelLogout, logoutConfirmOpen:s.logoutConfirmOpen||false, logoutConfirmClosed:!(s.logoutConfirmOpen||false),
       userName:s.role==='admin'?(me?.name||'Supervisor'):(me?.name||''),
       userInitials:s.role==='admin'?(me?.name?Utils.initials(me.name):'SV'):Utils.initials(me?.name||''),
