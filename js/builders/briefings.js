@@ -7,7 +7,7 @@ const BriefingsBuilders = {
     // Use the user's own batch for personal progress and dekit info
     const myBatch=(me?.batch_id?s.batches.find(b=>b.id===me.batch_id):null)||activeBatch;
     const OFFICE_ROLE={title:'Office Hours',window:'0900 to 1800, Lunch 1200 to 1400',items:['Escort contractors when required.','Check signages and designated spots.','Assist with Red Teaming exercises if needed.']};
-    const LNF_ROLE={title:'Logistics and Finance',window:'0900 to 1700, Mon to Sat',items:['Escort contractors to and from the office.','During events, assist with deployments, refreshments and milk runs.','Assist NSFs with moving items from place to place when needed.','Collect and return keys from the Manpower Officer\'s office.']};
+    const LNF_ROLE={title:'Logistics and Finance',window:'0900 to 1700, Mon to Sat',items:['Escort contractors to and from the office.','During events, assist with deployments, refreshments and milk runs.','Assist NSFs with moving items from place to place when needed.','Collect and return keys in the LnF office.']};
     const isLnf=this._myDept()==='lnf';
     const activeRole=isLnf?LNF_ROLE:OFFICE_ROLE;
     const briefTab=s.briefTab||'info';
