@@ -93,6 +93,7 @@ const AuthHandlers = {
       this.setState({loading:false, authError:'Signup failed: '+(reqErr.message||'database error. Check Supabase grants.')});
       return;
     }
+    this._log('signup', 'signup.request_submitted', { target_name: suName.trim(), department: suDepartment });
     await DB.auth.logout();
     this.setState({loading:false, signupPending:true, suName:'', suContact:'', suPassword:'', suDepartment:''});
   },

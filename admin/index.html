@@ -305,19 +305,24 @@ const ACTIONS = {
   'leave.submitted':'Submitted leave request','leave.cancelled':'Withdrew leave request',
   'leave.approved':'Approved leave request','leave.rejected':'Declined leave request',
   'leave.bulk_approved':'Bulk approved leave requests','leave.bulk_rejected':'Bulk declined leave requests',
+  'signup.request_submitted':'Submitted signup request',
   'signup.approved':'Approved signup','signup.rejected':'Declined signup',
   'signup.reopened':'Re-opened signup','signup.bulk_approved':'Bulk approved signups',
   'personnel.added':'Added to roster','personnel.re_enrolled':'Re-enrolled personnel',
   'personnel.removed':'Removed from roster','personnel.bulk_added':'Bulk added personnel',
+  'personnel.bulk_deleted':'Bulk permanently deleted records',
   'personnel.password_reset':'Reset password','personnel.permanently_deleted':'Permanently deleted record',
+  'batch.created':'Created cycle','batch.deleted':'Deleted cycle',
   'batch.activated':'Activated cycle','batch.label_edited':'Edited cycle label',
   'batch.broadcast_updated':'Updated cycle notice','batch.no_report_toggled':'Toggled no-report day',
-  'batch.meal_toggled':'Toggled meal allowance',
+  'batch.no_report_bulk':'Bulk added no-report days','batch.meal_toggled':'Toggled meal allowance',
   'admin.added':'Added supervisor','admin.demoted':'Demoted supervisor','admin.promoted':'Promoted to supervisor',
   'export.excel':'Exported Excel report','export.print':'Generated print report',
   'export.person_history':'Exported person history',
   'account.name_changed':'Changed display name','account.password_changed':'Changed password',
   'account.photo_uploaded':'Uploaded profile photo','account.photo_removed':'Removed profile photo',
+  'account.deleted':'Deleted own account',
+  'roster.missed_note_saved':'Saved missed-day note',
 };
 
 const DEPT_LABELS = { ops_security:'Ops Security', cas:'CAS', lnf:'L&F' };
@@ -556,6 +561,10 @@ function loadMore(){loadEvents(false);}
       _me=p; _isSA=p.role==='superadmin'; _filterDept=_isSA?null:(p.department||null);
       document.getElementById('login-screen').style.display='none';
       showApp();
+    } else {
+      await _db.auth.signOut({scope:'local'}).catch(()=>{});
+      document.getElementById('login-screen').style.display='none';
+      document.getElementById('access-denied').style.display='block';
     }
   }
 })();

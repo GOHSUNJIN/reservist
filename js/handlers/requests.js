@@ -249,6 +249,7 @@ const RequestHandlers = {
       return {history:newHistory,missedNoteOpen:false,missedNoteDateKey:null,missedNoteText:''};
     });
     this._toast(note?'Note saved.':'Note cleared.');
+    this._log('attendance', 'roster.missed_note_saved', { target_id: currentUserId, date: missedNoteDateKey });
   },
 
   openLogNote:   function(id,text) { return () => this.setState({logNoteId:id,logNoteText:text||''}); },
