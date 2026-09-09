@@ -204,14 +204,14 @@ const CalendarBuilders = {
         p3Color:p3?'#161f30':(isPresent?_nc:_dc),
         p4Color:p4?'#161f30':(isPresent?_nc:_dc),
         hasExpandToggle:isPresent||isMissed,isExpanded:_rowEx,
-        onToggleExpand:isMissed?this.openMissedNote(r.date,r.welfare_note||''):this.toggleHistoryExpand(r.date),
+        onToggleExpand:isMissed?this.openMissedNote(r.date,r.welfareNote||''):this.toggleHistoryExpand(r.date),
         showTimes:isPresent&&_rowEx,rowMarginBot:(isPresent&&_rowEx)?'9px':'0',chevronRotate:_rowEx?'180':'0',hasIncompleteTimes:hasIncompleteTimes&&_rowEx,
         missingClockOut,
         showTimingWarning:isPresent&&(isCas?!p4:(!p2||!p3||!p4)),
         showLunchTimes:!isCas, histGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',
-        lateReason:r.late_reason||'',showLateReason:!!(r.late_reason)&&_rowEx,
-        isMissedRow:isMissed,missedNote:r.welfare_note||'',showMissedNote:false,
-        onOpenMissedNote:isMissed?this.openMissedNote(r.date,r.welfare_note||''):()=>{},
+        lateReason:r.lateReason||'',showLateReason:!!(r.lateReason)&&_rowEx,
+        isMissedRow:isMissed,missedNote:r.welfareNote||'',showMissedNote:false,
+        onOpenMissedNote:isMissed?this.openMissedNote(r.date,r.welfareNote||''):()=>{},
         ...Utils.meta(r.status)};
     });
 

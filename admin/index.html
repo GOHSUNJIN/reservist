@@ -415,6 +415,12 @@ async function doLogout(){
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('login-contact').value='';
   document.getElementById('login-password').value='';
+  const si=document.getElementById('search-inp'); if(si) si.value='';
+  const df=document.getElementById('date-from'); if(df) df.value='';
+  const dt=document.getElementById('date-to'); if(dt) dt.value='';
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  const allPill=document.querySelector('.pill[data-cat="all"]'); if(allPill) allPill.classList.add('active');
+  const ds=document.getElementById('dept-sel'); if(ds){ds.value='';ds.style.display='none';}
   const btn=document.getElementById('login-btn');
   btn.disabled=false; btn.textContent='Sign in';
 }
@@ -559,7 +565,7 @@ function loadMore(){loadEvents(false);}
 // 2. Fall back to main app's localStorage (first visit auto-login for admin/master).
 async function _restoreAndShow(userId){
   const{data:p}=await _db.from('personnel').select('id,name,role,department,is_active').eq('auth_id',userId).single();
-  if(p&&(p.role==='admin'||p.role==='superadmin')){
+  if(p&&p.is_active&&(p.role==='admin'||p.role==='superadmin')){
     _me=p; _isSA=p.role==='superadmin'; _filterDept=_isSA?null:(p.department||null);
     document.getElementById('login-screen').style.display='none';
     showApp();
