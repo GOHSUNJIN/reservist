@@ -96,7 +96,8 @@ const CheckinHandlers = {
       }
       const _pre={p2:'p1',p3:'p2',p4:'p3'}, _preMsg={p2:'Check in first.',p3:'Record your break out first.',p4:'Record your return before checking out.'};
       if(_pre[key]&&!this.myRec()?.[_pre[key]]){this._toast(_preMsg[key],'error');return;}
-      this.setState({phaseSubmitting:true});
+      const _lrClear=(key==='p2'||key==='p3')&&this.state.lateReasonOpen?{lateReasonOpen:false,lateReasonText:''}:{};
+      this.setState({phaseSubmitting:true,..._lrClear});
       const time=Utils.hhmm(new Date()), dist=bypassed?null:locDistance;
       if(key==='p1'){
         const [ch,cm]='09:00'.split(':').map(Number), [th,tm]=time.split(':').map(Number);
