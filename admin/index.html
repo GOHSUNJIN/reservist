@@ -372,6 +372,7 @@ async function doLogin(){
 function showApp(){
   document.getElementById('app-screen').style.display='flex';
   const av=document.getElementById('h-avatar');
+  av.innerHTML=''; av.textContent=''; av.style.background='';
   const {data:avData}=_db.storage.from('avatars').getPublicUrl(_me.id);
   const avUrl=avData?.publicUrl||null;
   if(avUrl){
