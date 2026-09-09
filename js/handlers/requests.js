@@ -42,8 +42,10 @@ const RequestHandlers = {
         else if(leave.type==='personal'||leave.type==='other') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'absent',{}).catch(()=>({error:true})));
         if(ops.length){
           const results=await Promise.all(ops);
-          if(results.some(r=>r?.error)){this._toast('Approved, but failed to update attendance record. Check the roster.','error');}
-          else {
+          if(results.some(r=>r?.error)){
+            this._toast('Approved, but failed to update attendance record. Check the roster.','error');
+            if(leave) this._log('leave', 'leave.approved', { target_id: leave.personnel_id, target_name: leave.personnel?.name || '', date: leave.date, type: leave.type });
+          } else {
             const todayKey=Utils.dateKey(this.baseDate());
             if(leave.date===todayKey){const freshAtt=await DB.attendance.getForDate(todayKey).catch(()=>null);if(freshAtt)this.setState({attendance:freshAtt,attendanceDate:todayKey});}
             if(leave.type==='personal'||leave.type==='other') this.setState(s=>({approvedLeavesCache:{...s.approvedLeavesCache,[leave.date]:{...(s.approvedLeavesCache?.[leave.date]||{}),[leave.personnel_id]:{type:leave.type,reason:leave.reason||''}}}}));
