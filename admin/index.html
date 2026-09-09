@@ -555,20 +555,27 @@ function buildRow(ev){
 function loadMore(){loadEvents(false);}
 
 // ── Session restore ────────────────────────────────────────────────────────
+// Reads the main app's localStorage session (never stored by this page since
+// persistSession:false), restores it in-memory only, then role-checks.
 (async()=>{
-  const{data}=await _db.auth.getSession();
-  if(data?.session?.user){
+  try {
+    const ref=SUPABASE_URL.split('//')[1].split('.')[0];
+    const raw=localStorage.getItem(`sb-${ref}-auth-token`);
+    if(!raw) return;
+    const{access_token,refresh_token}=JSON.parse(raw);
+    if(!access_token||!refresh_token) return;
+    const{data,error}=await _db.auth.setSession({access_token,refresh_token});
+    if(error||!data?.session?.user) return;
     const{data:p}=await _db.from('personnel').select('id,name,role,department,is_active').eq('auth_id',data.session.user.id).single();
     if(p&&(p.role==='admin'||p.role==='superadmin')){
       _me=p; _isSA=p.role==='superadmin'; _filterDept=_isSA?null:(p.department||null);
       document.getElementById('login-screen').style.display='none';
       showApp();
-    } else {
-      await _db.auth.signOut({scope:'local'}).catch(()=>{});
+    } else if(p){
       document.getElementById('login-screen').style.display='none';
       document.getElementById('access-denied').style.display='block';
     }
-  }
+  } catch(e){}
 })();
 </script>
 </body>
