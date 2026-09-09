@@ -54,6 +54,7 @@ const BatchHandlers = {
       this.setState(prev=>({batches:[...prev.batches,nb],newBatchDate:'',batchCreating:false}));
     }
     this._toast('Batch '+label+' created.');
+    this._log('batch', 'batch.created', { target_name: label });
   },
 
   deleteBatch: async function() {
@@ -66,6 +67,7 @@ const BatchHandlers = {
     const newBatches = batches.filter(b=>b.id!==batch.id);
     this.setState({batches:newBatches, activeBatchIdx:0});
     this._toast('Batch removed.');
+    this._log('batch', 'batch.deleted', { target_name: batch.label||batch.id });
   },
 
   startEditBatchLabel: function() {
@@ -138,6 +140,7 @@ const BatchHandlers = {
     const nrd = await DB.noReportDays.list(batch.start_date, batchEnd, this._myDept()).catch(()=>this.state.noReportDays);
     this.setState({noReportDays:nrd, noReportBulkOpen:false, noReportBulkText:''});
     this._toast(added+' no-report day'+(added!==1?'s':'')+' added.');
+    if(added) this._log('batch', 'batch.no_report_bulk', { count: added });
   },
 
   onNewBatchDate: function(e) { this.setState({newBatchDate:e.target.value}); },

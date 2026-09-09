@@ -111,7 +111,10 @@ const MemberSearchHandlers = {
       return {memberSearchList,personnel,batchMembersCache,memberSearchSelected:prev.memberSearchSelected.filter(id=>!ids.has(id)),confirmBulkDelete:false,bulkDeleting:false};
     });
     if(failedIds.length) this._toast(failedIds.length+' deletion'+(failedIds.length!==1?'s':'')+' failed. Check your connection.','error');
-    if(succeededIds.length) this._toast(succeededIds.length+' member'+(succeededIds.length!==1?'s':'')+' permanently deleted.');
+    if(succeededIds.length){
+      this._toast(succeededIds.length+' member'+(succeededIds.length!==1?'s':'')+' permanently deleted.');
+      this._log('personnel', 'personnel.bulk_deleted', { count: succeededIds.length });
+    }
   },
 
   exportPersonHistory: async function() {

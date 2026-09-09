@@ -18,6 +18,7 @@ const AccountHandlers = {
       const {error} = await DB.personnel.deactivate(this.state.currentUserId).catch(e=>({error:e}));
       if(error){ this._toast('Failed to delete account. Please try again.','error'); return; }
       DB.leaves.cancelAllPendingByPerson(this.state.currentUserId).catch(()=>{});
+      this._log('account', 'account.deleted');
     }
     await DB.auth.logout();
     this.setState({authed:false,role:null,authMode:'login',accountOpen:false,confirmDelete:false,accountDeleted:true,loginContact:'',loginPassword:'',demo:false});
