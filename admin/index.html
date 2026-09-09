@@ -361,7 +361,7 @@ async function doLogin(){
   const email=contact.replace(/[\s-]/g,'')+'@opsreservist.mil';
   const {data,error}=await _db.auth.signInWithPassword({email,password});
   if(error||!data?.user){btn.disabled=false;btn.textContent='Sign in';showErr('Invalid contact number or password.');return;}
-  const {data:p,error:pErr}=await _db.from('personnel').select('id,name,role,department,is_active,photo_url').eq('auth_id',data.user.id).single();
+  const {data:p,error:pErr}=await _db.from('personnel').select('id,name,role,department,is_active').eq('auth_id',data.user.id).single();
   if(pErr||!p){await _db.auth.signOut({scope:'local'});btn.disabled=false;btn.textContent='Sign in';showErr('Account not found in personnel records.');return;}
   if(p.role!=='admin'&&p.role!=='superadmin'){await _db.auth.signOut({scope:'local'});btn.disabled=false;btn.textContent='Sign in';showErr('Access denied. Admin or master role required.');return;}
   _me=p; _isSA=p.role==='superadmin'; _filterDept=_isSA?null:(p.department||null);
@@ -372,8 +372,17 @@ async function doLogin(){
 function showApp(){
   document.getElementById('app-screen').style.display='flex';
   const av=document.getElementById('h-avatar');
-  if(_me.photo_url){av.style.background='none';av.innerHTML=`<img src="${esc(_me.photo_url)}" style="width:100%;height:100%;border-radius:50%;object-fit:cover;">`;}
-  else{av.textContent=initials(_me.name);av.style.background=avatarBg(_me.role);}
+  const {data:avData}=_db.storage.from('avatars').getPublicUrl(_me.id);
+  const avUrl=avData?.publicUrl||null;
+  if(avUrl){
+    av.style.background='none';
+    const img=document.createElement('img');
+    img.src=avUrl; img.style.cssText='width:100%;height:100%;border-radius:50%;object-fit:cover;';
+    img.onerror=()=>{av.innerHTML='';av.textContent=initials(_me.name);av.style.background=avatarBg(_me.role);};
+    av.appendChild(img);
+  } else {
+    av.textContent=initials(_me.name); av.style.background=avatarBg(_me.role);
+  }
   document.getElementById('h-name').textContent=_me.name||'';
   const rc=document.getElementById('h-role-chip');
   rc.textContent=roleLabel(_me.role); rc.style.background=roleBg(_me.role); rc.style.color=roleColor(_me.role);
@@ -541,7 +550,7 @@ function loadMore(){loadEvents(false);}
 (async()=>{
   const{data}=await _db.auth.getSession();
   if(data?.session?.user){
-    const{data:p}=await _db.from('personnel').select('id,name,role,department,is_active,photo_url').eq('auth_id',data.session.user.id).single();
+    const{data:p}=await _db.from('personnel').select('id,name,role,department,is_active').eq('auth_id',data.session.user.id).single();
     if(p&&(p.role==='admin'||p.role==='superadmin')){
       _me=p; _isSA=p.role==='superadmin'; _filterDept=_isSA?null:(p.department||null);
       document.getElementById('login-screen').style.display='none';
