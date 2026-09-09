@@ -69,6 +69,8 @@ const AdminRoster = {
       const showAnyFlags=showNoLateReason||showLateReason;
       const av=s.avatars[p.id]||'';
       const avatarStyle=Utils.avatarStyle(av);
+      const _ef=new Set((r.editLog||[]).flatMap(e=>e.fields||[]));
+      const _ec=accent;
       return {
         id:p.id, name:p.name, contact:p.contact||'', initials:Utils.initials(p.name), shiftLabel:Utils.shiftLabel(p.shift),
         onViewHistory:self.openPersonHistory(p.id), onCopyContact:self.copyContact(p.contact||''),
@@ -87,14 +89,14 @@ const AdminRoster = {
         showLunchBoxes: !isCas,
         phaseGridCols: isCas?'repeat(2,1fr)':'repeat(4,1fr)',
         p1:r.p1||'-', p2:r.p2||'-', p3:r.p3||'-', p4:r.p4||'-',
-        p1Color:r.p1?(isLate?'#c0392b':'#161f30'):'#c2c8d2',
-        p2Color:r.p2?'#161f30':'#c2c8d2',
-        p3Color:r.p3?'#161f30':'#c2c8d2',
-        p4Color:r.p4?'#161f30':'#c2c8d2',
+        p1Color:r.p1?(isLate?'#c0392b':_ef.has('p1')?_ec:'#161f30'):'#c2c8d2',
+        p2Color:r.p2?(_ef.has('p2')?_ec:'#161f30'):'#c2c8d2',
+        p3Color:r.p3?(_ef.has('p3')?_ec:'#161f30'):'#c2c8d2',
+        p4Color:r.p4?(_ef.has('p4')?_ec:'#161f30'):'#c2c8d2',
         outCellBg:_missingCo?'#fff3e0':'transparent',
         outLabelColor:_missingCo?'#c2410c':'#9aa3b2',
         outValue:r.p4||'–',
-        outValueColor:_missingCo?'#c2410c':(r.p4?'#161f30':'#c2c8d2'),
+        outValueColor:_missingCo?'#c2410c':(r.p4?(_ef.has('p4')?_ec:'#161f30'):'#c2c8d2'),
         missingClockOut:_missingCo,
         hasApprovedLeave:!!(approvedLeavesForView[p.id]),avatarStyle, onViewAvatar:av?self.openAvatarLightbox(av):null, avatarCursor:av?'cursor:pointer;':'', shift:p.shift||'OFFICE',
         p2Label:'LCH',

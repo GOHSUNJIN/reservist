@@ -112,12 +112,18 @@ const DB_Attendance = {
 
   async setTimes(personnelId, dateStr, { p1, p2, p3, p4 }, editorName) {
     const { data: existing, error: fetchErr } = await _db.from('attendance')
-      .select('id, edit_log, check_in_time, gps_bypassed')
+      .select('id, edit_log, check_in_time, lunch_out_time, work_return_time, work_end_time, gps_bypassed')
       .eq('personnel_id', personnelId).eq('date', dateStr).maybeSingle();
     let editLog = [];
     if (!fetchErr) {
       const prevLog = Array.isArray(existing?.edit_log) ? existing.edit_log : [];
-      editLog = [...prevLog, { by: editorName, at: new Date().toISOString() }];
+      const _t = v => v ? v.slice(0, 5).trim() : null;
+      const changedFields = [];
+      if (_t(existing?.check_in_time)    !== (p1 || null)) changedFields.push('p1');
+      if (_t(existing?.lunch_out_time)   !== (p2 || null)) changedFields.push('p2');
+      if (_t(existing?.work_return_time) !== (p3 || null)) changedFields.push('p3');
+      if (_t(existing?.work_end_time)    !== (p4 || null)) changedFields.push('p4');
+      editLog = [...prevLog, { by: editorName, at: new Date().toISOString(), fields: changedFields }];
     }
     // Only mark gps_bypassed if the check-in time is being changed; preserve it otherwise
     const existingP1 = existing?.check_in_time ? existing.check_in_time.slice(0, 5).trim() : null;
