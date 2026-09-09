@@ -274,7 +274,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 <script src="../js/config.js"></script>
 <script>
 const _db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  auth: { storageKey: 'ops-monitor-session' }
+  auth: { persistSession: false }
 });
 
 let _me = null, _isSA = false, _filterDept = null;
