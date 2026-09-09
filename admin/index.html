@@ -4,159 +4,250 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Audit Log</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%234d79e8'/%3E%3Cstop offset='1' stop-color='%231e45c4'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='32' height='32' rx='8' fill='url(%23g)'/%3E%3Cpolyline points='7.5,17 13,22.5 24.5,10' stroke='white' stroke-width='3.2' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f7f9fc;color:#161f30;min-height:100vh;}
-a{color:inherit;text-decoration:none;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f3f9;color:#161f30;min-height:100vh;}
 button{cursor:pointer;font-family:inherit;}
-input{font-family:inherit;}
+input,select{font-family:inherit;}
 
-/* Login */
-#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
-.login-card{background:#fff;border-radius:14px;box-shadow:0 2px 8px rgba(20,30,50,.08);padding:36px 32px;width:100%;max-width:360px;}
-.login-logo{width:42px;height:42px;border-radius:9px;background:#2f5fd0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:16px;color:#fff;margin-bottom:20px;}
-.login-title{font-size:22px;font-weight:700;color:#161f30;margin-bottom:4px;}
-.login-sub{font-size:13px;color:#8a94a3;margin-bottom:28px;}
-.form-group{margin-bottom:16px;}
-.form-label{font-size:12px;font-weight:600;color:#8a94a3;text-transform:uppercase;letter-spacing:.05em;display:block;margin-bottom:6px;}
-.form-input{width:100%;border:1px solid #f0f2f7;border-radius:9px;padding:10px 12px;font-size:14px;color:#161f30;outline:none;transition:border-color .15s;}
-.form-input:focus{border-color:#2f5fd0;}
-.btn-primary{width:100%;background:#2f5fd0;color:#fff;border:none;border-radius:9px;padding:11px;font-size:14px;font-weight:600;transition:opacity .15s;}
-.btn-primary:hover{opacity:.88;}
-.btn-primary:disabled{opacity:.5;cursor:not-allowed;}
-.login-error{background:#f7e4e1;color:#c0392b;border-radius:8px;padding:10px 12px;font-size:13px;margin-top:14px;display:none;}
+/* ── Login ───────────────────────────────────────────────────────────── */
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px;background:linear-gradient(145deg,#f0f3f9 0%,#e8edf7 100%);}
+.login-card{background:#fff;border-radius:20px;box-shadow:0 8px 32px rgba(20,30,70,.10),0 2px 8px rgba(20,30,70,.06);padding:40px 36px;width:100%;max-width:380px;}
+.login-brand{display:flex;align-items:center;gap:10px;margin-bottom:28px;}
+.login-icon{width:40px;height:40px;border-radius:10px;background:linear-gradient(135deg,#4d79e8,#1e45c4);display:flex;align-items:center;justify-content:center;}
+.login-brand-name{font-size:17px;font-weight:700;color:#161f30;letter-spacing:-.01em;}
+.login-brand-sub{font-size:11px;color:#8a94a3;font-weight:500;}
+.login-heading{font-size:20px;font-weight:700;color:#161f30;margin-bottom:6px;}
+.login-sub{font-size:13px;color:#8a94a3;margin-bottom:28px;line-height:1.5;}
+.field{margin-bottom:14px;}
+.field-label{font-size:11.5px;font-weight:600;color:#5c6678;letter-spacing:.04em;text-transform:uppercase;display:block;margin-bottom:6px;}
+.field-input{width:100%;border:1.5px solid #e8ecf4;border-radius:10px;padding:11px 13px;font-size:14px;color:#161f30;outline:none;transition:border-color .15s,box-shadow .15s;background:#fafbfd;}
+.field-input:focus{border-color:#2f5fd0;box-shadow:0 0 0 3px rgba(47,95,208,.10);background:#fff;}
+.field-input::placeholder{color:#b8c0cc;}
+.btn-login{width:100%;background:linear-gradient(135deg,#3567e8,#1e45c4);color:#fff;border:none;border-radius:10px;padding:12px;font-size:14px;font-weight:600;letter-spacing:.01em;transition:opacity .15s,transform .1s;margin-top:4px;}
+.btn-login:hover{opacity:.92;}
+.btn-login:active{transform:scale(.99);}
+.btn-login:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.login-err{background:#fef2f2;border:1px solid #fecaca;color:#c0392b;border-radius:9px;padding:10px 13px;font-size:13px;margin-top:14px;display:none;line-height:1.4;}
 
-/* App shell */
+/* ── App shell ──────────────────────────────────────────────────────── */
 #app-screen{display:none;min-height:100vh;flex-direction:column;}
-header{background:#fff;border-bottom:1px solid #f0f2f7;padding:0 20px;height:56px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:10;}
-.header-left{display:flex;align-items:center;gap:12px;}
-.header-logo{width:32px;height:32px;border-radius:7px;background:#2f5fd0;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;color:#fff;flex-shrink:0;}
-.header-title{font-size:15px;font-weight:700;color:#161f30;}
-.dept-badge{font-size:11px;font-weight:600;background:#e8f0fd;color:#2f5fd0;border-radius:20px;padding:3px 9px;}
-.btn-logout{background:none;border:1px solid #f0f2f7;border-radius:8px;padding:6px 12px;font-size:13px;color:#8a94a3;transition:all .15s;}
+header{background:#fff;border-bottom:1px solid #e8ecf4;padding:0 24px;height:58px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:20;box-shadow:0 1px 4px rgba(20,30,70,.06);}
+.h-left{display:flex;align-items:center;gap:14px;}
+.h-icon{width:34px;height:34px;border-radius:9px;background:linear-gradient(135deg,#4d79e8,#1e45c4);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.h-title{font-size:15px;font-weight:700;color:#161f30;letter-spacing:-.01em;}
+.h-divider{width:1px;height:18px;background:#e8ecf4;}
+.h-user{display:flex;align-items:center;gap:7px;}
+.h-user-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;}
+.h-user-name{font-size:13px;font-weight:600;color:#161f30;}
+.role-chip{font-size:10px;font-weight:600;border-radius:5px;padding:2px 6px;white-space:nowrap;}
+.h-right{display:flex;align-items:center;gap:10px;}
+.dept-chip{font-size:11.5px;font-weight:600;border-radius:20px;padding:4px 11px;white-space:nowrap;}
+.btn-logout{background:none;border:1.5px solid #e8ecf4;border-radius:8px;padding:6px 13px;font-size:12.5px;font-weight:500;color:#8a94a3;transition:all .15s;}
 .btn-logout:hover{border-color:#c0392b;color:#c0392b;}
 
-main{flex:1;padding:20px;max-width:1100px;margin:0 auto;width:100%;}
+main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 
-/* Stat cards */
-.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px;}
-@media(max-width:640px){.stats-row{grid-template-columns:repeat(2,1fr);}}
-.stat-card{background:#fff;border-radius:14px;box-shadow:0 2px 8px rgba(20,30,50,.08);padding:16px 18px;border:1px solid #f0f2f7;}
-.stat-value{font-size:26px;font-weight:700;color:#161f30;line-height:1.1;}
-.stat-label{font-size:12px;color:#8a94a3;margin-top:4px;}
+/* ── Stats ──────────────────────────────────────────────────────────── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+@media(max-width:680px){.stats-row{grid-template-columns:repeat(2,1fr);}}
+.stat-card{background:#fff;border-radius:16px;box-shadow:0 2px 8px rgba(20,30,70,.07);padding:18px 20px;border:1px solid #e8ecf4;position:relative;overflow:hidden;}
+.stat-accent{position:absolute;top:0;left:0;right:0;height:3px;border-radius:16px 16px 0 0;}
+.stat-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;}
+.stat-value{font-size:28px;font-weight:800;color:#161f30;line-height:1;letter-spacing:-.02em;}
+.stat-label{font-size:12px;color:#8a94a3;margin-top:5px;font-weight:500;}
+.stat-sub{font-size:11px;color:#b8c0cc;margin-top:3px;}
 
-/* Filters */
-.filter-card{background:#fff;border-radius:14px;box-shadow:0 2px 8px rgba(20,30,50,.08);padding:14px 16px;margin-bottom:16px;border:1px solid #f0f2f7;}
-.pills{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px;}
-.pill{border:1px solid #f0f2f7;background:#f7f9fc;border-radius:20px;padding:5px 12px;font-size:12px;font-weight:500;color:#8a94a3;cursor:pointer;transition:all .15s;}
-.pill.active{background:#2f5fd0;color:#fff;border-color:#2f5fd0;}
-.pill:hover:not(.active){border-color:#2f5fd0;color:#2f5fd0;}
-.filter-row{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
-.filter-input{border:1px solid #f0f2f7;border-radius:8px;padding:8px 10px;font-size:13px;color:#161f30;outline:none;transition:border-color .15s;background:#fff;}
-.filter-input:focus{border-color:#2f5fd0;}
-.filter-search{flex:1;min-width:140px;}
-.filter-date{width:140px;}
-.dept-select{border:1px solid #f0f2f7;border-radius:8px;padding:8px 10px;font-size:13px;color:#161f30;outline:none;background:#fff;cursor:pointer;}
+/* ── Toolbar ─────────────────────────────────────────────────────────── */
+.toolbar{background:#fff;border-radius:16px;box-shadow:0 2px 8px rgba(20,30,70,.07);padding:16px 18px;margin-bottom:16px;border:1px solid #e8ecf4;display:flex;flex-direction:column;gap:12px;}
+.toolbar-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap;}
+.search-wrap{flex:1;min-width:200px;position:relative;}
+.search-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);pointer-events:none;color:#b8c0cc;}
+.search-inp{width:100%;border:1.5px solid #e8ecf4;border-radius:10px;padding:9px 12px 9px 35px;font-size:13.5px;color:#161f30;outline:none;transition:border-color .15s,box-shadow .15s;background:#fafbfd;}
+.search-inp:focus{border-color:#2f5fd0;box-shadow:0 0 0 3px rgba(47,95,208,.09);background:#fff;}
+.search-inp::placeholder{color:#b8c0cc;}
+.date-wrap{display:flex;align-items:center;gap:6px;}
+.date-sep{font-size:12px;color:#b8c0cc;font-weight:500;}
+.date-inp{border:1.5px solid #e8ecf4;border-radius:10px;padding:9px 10px;font-size:13px;color:#161f30;outline:none;transition:border-color .15s;background:#fafbfd;width:140px;}
+.date-inp:focus{border-color:#2f5fd0;background:#fff;}
+.dept-sel{border:1.5px solid #e8ecf4;border-radius:10px;padding:9px 12px;font-size:13px;color:#161f30;outline:none;background:#fafbfd;cursor:pointer;transition:border-color .15s;}
+.dept-sel:focus{border-color:#2f5fd0;}
+.pills-row{display:flex;gap:6px;flex-wrap:wrap;}
+.pill{border:1.5px solid #e8ecf4;background:#fafbfd;border-radius:20px;padding:5px 13px;font-size:12px;font-weight:500;color:#8a94a3;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.pill:hover:not(.active){border-color:#2f5fd0;color:#2f5fd0;background:#f0f4ff;}
+.pill.active{background:#2f5fd0;color:#fff;border-color:#2f5fd0;font-weight:600;}
 
-/* Events list */
-.events-card{background:#fff;border-radius:14px;box-shadow:0 2px 8px rgba(20,30,50,.08);border:1px solid #f0f2f7;overflow:hidden;}
-.events-header{padding:14px 16px;border-bottom:1px solid #f0f2f7;font-size:13px;font-weight:600;color:#8a94a3;display:flex;justify-content:space-between;align-items:center;}
-.event-row{padding:12px 16px;border-bottom:1px solid #f0f2f7;display:flex;align-items:flex-start;gap:12px;cursor:pointer;transition:background .12s;}
-.event-row:last-child{border-bottom:none;}
-.event-row:hover{background:#f7f9fc;}
-.cat-badge{border-radius:20px;padding:3px 9px;font-size:11px;font-weight:600;white-space:nowrap;flex-shrink:0;align-self:flex-start;margin-top:1px;}
-.actor-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;color:#fff;flex-shrink:0;}
-.event-body{flex:1;min-width:0;}
-.event-actor{font-size:13px;font-weight:600;color:#161f30;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
-.role-badge{font-size:10px;font-weight:600;border-radius:4px;padding:1px 5px;}
-.event-action{font-size:12px;color:#8a94a3;margin-top:2px;}
-.event-target{font-size:12px;color:#2f5fd0;margin-top:1px;}
-.event-dept{font-size:11px;color:#b0bec5;margin-top:1px;}
-.event-time-col{text-align:right;flex-shrink:0;}
-.event-rel-time{font-size:12px;color:#8a94a3;white-space:nowrap;}
-.event-meta{background:#f7f9fc;border-radius:8px;padding:10px 12px;margin-top:8px;font-size:12px;font-family:monospace;white-space:pre-wrap;word-break:break-all;color:#4a5568;display:none;}
-.event-row.expanded .event-meta{display:block;}
-.load-more-wrap{padding:14px;text-align:center;}
-.btn-load-more{background:#f7f9fc;border:1px solid #f0f2f7;border-radius:9px;padding:9px 20px;font-size:13px;font-weight:600;color:#2f5fd0;transition:all .15s;}
-.btn-load-more:hover{background:#e8f0fd;}
+/* ── Events panel ────────────────────────────────────────────────────── */
+.events-panel{background:#fff;border-radius:16px;box-shadow:0 2px 8px rgba(20,30,70,.07);border:1px solid #e8ecf4;overflow:hidden;}
+.events-header{padding:14px 20px;border-bottom:1px solid #f0f3f9;display:flex;align-items:center;justify-content:space-between;}
+.events-title{font-size:13px;font-weight:700;color:#161f30;}
+.events-count{font-size:12px;color:#8a94a3;font-weight:500;}
+.event-item{display:flex;align-items:flex-start;gap:0;border-bottom:1px solid #f7f9fc;transition:background .1s;cursor:default;}
+.event-item:last-child{border-bottom:none;}
+.event-item:hover{background:#fafbfd;}
+.event-item.clickable{cursor:pointer;}
+.event-stripe{width:3px;flex-shrink:0;align-self:stretch;border-radius:0;}
+.event-inner{display:flex;align-items:flex-start;gap:12px;padding:13px 18px;flex:1;min-width:0;}
+.event-avatar{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;flex-shrink:0;margin-top:1px;}
+.event-content{flex:1;min-width:0;}
+.event-top{display:flex;align-items:baseline;gap:7px;flex-wrap:wrap;margin-bottom:2px;}
+.event-name{font-size:13.5px;font-weight:700;color:#161f30;white-space:nowrap;}
+.event-role{font-size:10px;font-weight:600;border-radius:4px;padding:2px 5px;white-space:nowrap;}
+.event-action-text{font-size:13px;color:#3a4558;margin-bottom:2px;line-height:1.4;}
+.event-sub{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:3px;}
+.event-cat{font-size:10.5px;font-weight:600;border-radius:5px;padding:2px 7px;white-space:nowrap;}
+.event-target-text{font-size:12px;color:#5c6678;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:220px;}
+.event-dept-text{font-size:11px;color:#b8c0cc;}
+.event-time{flex-shrink:0;text-align:right;padding-top:2px;}
+.event-rel{font-size:12px;color:#8a94a3;white-space:nowrap;font-weight:500;}
+.event-abs{font-size:11px;color:#c0c8d8;margin-top:2px;white-space:nowrap;}
+.event-meta-wrap{background:#f7f9fc;border-top:1px solid #f0f3f9;padding:12px 18px 12px 57px;display:none;}
+.event-item.expanded .event-meta-wrap{display:block;}
+.meta-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px;}
+.meta-entry{background:#fff;border:1px solid #e8ecf4;border-radius:8px;padding:8px 10px;}
+.meta-key{font-size:10px;font-weight:600;color:#8a94a3;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
+.meta-val{font-size:12.5px;color:#161f30;font-weight:500;word-break:break-all;}
+.expand-hint{font-size:11px;color:#b8c0cc;margin-top:4px;font-style:italic;}
 
-/* Empty / loading */
-.empty-state{padding:48px 20px;text-align:center;color:#8a94a3;}
-.empty-icon{width:48px;height:48px;margin:0 auto 14px;opacity:.35;}
-.empty-title{font-size:15px;font-weight:600;margin-bottom:6px;}
-.empty-sub{font-size:13px;}
-.spinner{width:32px;height:32px;border:3px solid #f0f2f7;border-top-color:#2f5fd0;border-radius:50%;animation:spin .7s linear infinite;margin:40px auto;}
+/* ── Load more ───────────────────────────────────────────────────────── */
+.load-more-row{padding:16px;text-align:center;border-top:1px solid #f0f3f9;}
+.btn-load-more{background:#fff;border:1.5px solid #e8ecf4;border-radius:10px;padding:9px 24px;font-size:13px;font-weight:600;color:#2f5fd0;transition:all .15s;}
+.btn-load-more:hover{background:#f0f4ff;border-color:#2f5fd0;}
+
+/* ── Empty / Loading ─────────────────────────────────────────────────── */
+.empty{padding:56px 24px;text-align:center;}
+.empty-icon-wrap{width:56px;height:56px;border-radius:16px;background:#f0f3f9;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;}
+.empty-title{font-size:15px;font-weight:700;color:#161f30;margin-bottom:6px;}
+.empty-sub{font-size:13px;color:#8a94a3;line-height:1.5;}
+.spinner-wrap{padding:56px;display:flex;align-items:center;justify-content:center;}
+.spinner{width:28px;height:28px;border:3px solid #e8ecf4;border-top-color:#2f5fd0;border-radius:50%;animation:spin .65s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
 
-/* Access denied */
+/* ── Access denied ───────────────────────────────────────────────────── */
 #access-denied{display:none;padding:40px 20px;text-align:center;max-width:400px;margin:80px auto;}
-.denied-icon{font-size:40px;margin-bottom:16px;}
+.denied-icon{width:60px;height:60px;border-radius:16px;background:#fef2f2;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;}
 .denied-title{font-size:20px;font-weight:700;margin-bottom:8px;}
-.denied-sub{font-size:14px;color:#8a94a3;margin-bottom:24px;}
+.denied-sub{font-size:13.5px;color:#8a94a3;margin-bottom:24px;line-height:1.5;}
 </style>
 </head>
 <body>
 
-<!-- Login screen -->
+<!-- Login -->
 <div id="login-screen">
   <div class="login-card">
-    <div class="login-logo">GO</div>
-    <div class="login-title">Audit Log</div>
-    <div class="login-sub">Admin access only</div>
-    <div class="form-group">
-      <label class="form-label">Contact Number</label>
-      <input id="login-contact" class="form-input" type="tel" placeholder="e.g. 91234567" autocomplete="off">
+    <div class="login-brand">
+      <div class="login-icon">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
+      <div>
+        <div class="login-brand-name">ReservistGO</div>
+        <div class="login-brand-sub">Audit Log</div>
+      </div>
     </div>
-    <div class="form-group">
-      <label class="form-label">Password</label>
-      <input id="login-password" class="form-input" type="password" placeholder="Password">
+    <div class="login-heading">Sign in</div>
+    <div class="login-sub">Admin and superadmin access only.</div>
+    <div class="field">
+      <label class="field-label">Contact Number</label>
+      <input id="login-contact" class="field-input" type="tel" placeholder="Your contact number" autocomplete="off" inputmode="numeric">
     </div>
-    <button id="login-btn" class="btn-primary">Log In</button>
-    <div id="login-error" class="login-error"></div>
+    <div class="field">
+      <label class="field-label">Password</label>
+      <input id="login-password" class="field-input" type="password" placeholder="Your password" autocomplete="current-password">
+    </div>
+    <button id="login-btn" class="btn-login">Sign in</button>
+    <div id="login-err" class="login-err"></div>
   </div>
 </div>
 
-<!-- Access denied screen -->
+<!-- Access denied -->
 <div id="access-denied">
-  <div class="denied-icon">&#128274;</div>
-  <div class="denied-title">Access Denied</div>
+  <div class="denied-icon">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+  </div>
+  <div class="denied-title">Access denied</div>
   <div class="denied-sub">This page is restricted to admins and superadmins. Contact your system administrator if you believe this is an error.</div>
-  <button class="btn-primary" style="width:auto;padding:10px 24px;" onclick="doLogout()">Back to Login</button>
+  <button class="btn-login" style="width:auto;padding:11px 28px;" onclick="doLogout()">Back to login</button>
 </div>
 
-<!-- Main app -->
-<div id="app-screen" style="display:none;flex-direction:column;">
+<!-- App -->
+<div id="app-screen">
   <header>
-    <div class="header-left">
-      <div class="header-logo">GO</div>
-      <div class="header-title">Audit Log</div>
-      <div class="dept-badge" id="dept-badge"></div>
+    <div class="h-left">
+      <div class="h-icon">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
+      <div class="h-title">Audit Log</div>
+      <div class="h-divider"></div>
+      <div class="h-user">
+        <div class="h-user-avatar" id="h-avatar"></div>
+        <div class="h-user-name" id="h-name"></div>
+        <div class="role-chip" id="h-role-chip"></div>
+      </div>
     </div>
-    <button class="btn-logout" onclick="doLogout()">Log out</button>
+    <div class="h-right">
+      <div class="dept-chip" id="h-dept-chip" style="display:none;"></div>
+      <button class="btn-logout" onclick="doLogout()">Log out</button>
+    </div>
   </header>
+
   <main>
-    <!-- Stats row -->
-    <div class="stats-row" id="stats-row">
-      <div class="stat-card"><div class="stat-value" id="stat-today">-</div><div class="stat-label">Events Today</div></div>
-      <div class="stat-card"><div class="stat-value" id="stat-actors">-</div><div class="stat-label">Unique Actors</div></div>
-      <div class="stat-card"><div class="stat-value" id="stat-week">-</div><div class="stat-label">This Week</div></div>
-      <div class="stat-card"><div class="stat-value" id="stat-top-cat">-</div><div class="stat-label">Top Category</div></div>
+    <!-- Stats -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-accent" style="background:linear-gradient(90deg,#4d79e8,#2f5fd0);"></div>
+        <div class="stat-icon" style="background:#eef2fd;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#2f5fd0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        </div>
+        <div class="stat-value" id="stat-today">-</div>
+        <div class="stat-label">Events today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-accent" style="background:linear-gradient(90deg,#3bba8c,#1f8a5b);"></div>
+        <div class="stat-icon" style="background:#eaf5f0;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1f8a5b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        </div>
+        <div class="stat-value" id="stat-actors">-</div>
+        <div class="stat-label">Unique actors today</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-accent" style="background:linear-gradient(90deg,#e07b39,#c2410c);"></div>
+        <div class="stat-icon" style="background:#fef3ec;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e07b39" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        </div>
+        <div class="stat-value" id="stat-week">-</div>
+        <div class="stat-label">This week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-accent" style="background:linear-gradient(90deg,#9b7fd4,#6b52c8);"></div>
+        <div class="stat-icon" style="background:#f3f0fb;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b52c8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+        </div>
+        <div class="stat-value" id="stat-top-cat" style="font-size:16px;margin-top:4px;">-</div>
+        <div class="stat-label">Top category today</div>
+      </div>
     </div>
 
-    <!-- Filters -->
-    <div class="filter-card">
-      <!-- Dept selector (superadmin only) -->
-      <div id="dept-filter-wrap" style="margin-bottom:12px;display:none;">
-        <label class="form-label" style="margin-bottom:6px;">Department</label>
-        <select id="dept-select" class="dept-select" onchange="onDeptChange()">
-          <option value="">All Departments</option>
+    <!-- Toolbar -->
+    <div class="toolbar">
+      <div class="toolbar-top">
+        <div class="search-wrap">
+          <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          <input class="search-inp" type="search" id="search-inp" placeholder="Search by name, action or target..." oninput="onSearch()">
+        </div>
+        <div class="date-wrap">
+          <input class="date-inp" type="date" id="date-from" title="From" onchange="applyFilters()">
+          <span class="date-sep">to</span>
+          <input class="date-inp" type="date" id="date-to" title="To" onchange="applyFilters()">
+        </div>
+        <select class="dept-sel" id="dept-sel" onchange="onDeptChange()" style="display:none;">
+          <option value="">All departments</option>
           <option value="ops_security">Ops Security</option>
           <option value="cas">CAS</option>
-          <option value="lnf">LnF</option>
+          <option value="lnf">L&amp;F</option>
         </select>
       </div>
-      <!-- Category pills -->
-      <div class="pills" id="cat-pills">
+      <div class="pills-row">
         <button class="pill active" data-cat="all" onclick="setCat(this)">All</button>
         <button class="pill" data-cat="auth" onclick="setCat(this)">Auth</button>
         <button class="pill" data-cat="attendance" onclick="setCat(this)">Attendance</button>
@@ -166,23 +257,18 @@ main{flex:1;padding:20px;max-width:1100px;margin:0 auto;width:100%;}
         <button class="pill" data-cat="batch" onclick="setCat(this)">Cycle</button>
         <button class="pill" data-cat="export" onclick="setCat(this)">Export</button>
         <button class="pill" data-cat="account" onclick="setCat(this)">Account</button>
-        <button class="pill" data-cat="admin" onclick="setCat(this)">Admin Mgmt</button>
-      </div>
-      <!-- Date + search row -->
-      <div class="filter-row">
-        <input class="filter-input filter-date" type="date" id="date-from" placeholder="From" title="From date" onchange="applyFilters()">
-        <input class="filter-input filter-date" type="date" id="date-to" placeholder="To" title="To date" onchange="applyFilters()">
-        <input class="filter-input filter-search" type="search" id="search-input" placeholder="Search actor, action, target..." oninput="onSearchInput()">
+        <button class="pill" data-cat="admin" onclick="setCat(this)">Admin</button>
       </div>
     </div>
 
-    <!-- Events list -->
-    <div class="events-card" id="events-card">
+    <!-- Events -->
+    <div class="events-panel">
       <div class="events-header">
-        <span id="events-count-label">Events</span>
+        <span class="events-title">Activity feed</span>
+        <span class="events-count" id="events-count"></span>
       </div>
       <div id="events-list"></div>
-      <div class="load-more-wrap" id="load-more-wrap" style="display:none;">
+      <div id="load-more-row" class="load-more-row" style="display:none;">
         <button class="btn-load-more" onclick="loadMore()">Load more</button>
       </div>
     </div>
@@ -192,406 +278,277 @@ main{flex:1;padding:20px;max-width:1100px;margin:0 auto;width:100%;}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="../js/config.js"></script>
 <script>
-// ── Supabase client ───────────────────────────────────────────────────────
 const _db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// ── State ─────────────────────────────────────────────────────────────────
-let _session = null;
-let _myRecord = null;
-let _isSuperAdmin = false;
-let _filterDept = null;
-let _filterCat = 'all';
-let _filterSearch = '';
-let _filterFrom = '';
-let _filterTo = '';
-let _offset = 0;
-let _totalCount = 0;
-let _events = [];
+let _me = null, _isSA = false, _filterDept = null;
+let _cat = 'all', _search = '', _from = '', _to = '';
+let _offset = 0, _total = 0, _rows = [];
 let _searchTimer = null;
 const LIMIT = 100;
 
-// ── Color/label maps ──────────────────────────────────────────────────────
-const CAT_COLORS = {
-  auth:       { bg: '#e8f0fd', color: '#2f5fd0', label: 'Auth' },
-  attendance: { bg: '#e7f3ec', color: '#1f8a5b', label: 'Attendance' },
-  leave:      { bg: '#fdf6e9', color: '#b9791a', label: 'Leave' },
-  signup:     { bg: '#f0ecfd', color: '#6b52c8', label: 'Signup' },
-  personnel:  { bg: '#e6f7f9', color: '#0e7a8c', label: 'Personnel' },
-  batch:      { bg: '#edf2f7', color: '#4a5568', label: 'Cycle' },
-  export:     { bg: '#f0f2f7', color: '#2d3748', label: 'Export' },
-  account:    { bg: '#fdf0e9', color: '#e07b39', label: 'Account' },
-  admin:      { bg: '#f7e4e1', color: '#c0392b', label: 'Admin Mgmt' },
+const CAT = {
+  auth:       { bg:'#e8f0fd', color:'#2f5fd0', label:'Auth',       stripe:'#2f5fd0' },
+  attendance: { bg:'#e7f3ec', color:'#1f8a5b', label:'Attendance', stripe:'#1f8a5b' },
+  leave:      { bg:'#fdf6e9', color:'#b9791a', label:'Leave',      stripe:'#f0a030' },
+  signup:     { bg:'#f0ecfd', color:'#6b52c8', label:'Signup',     stripe:'#6b52c8' },
+  personnel:  { bg:'#e6f7f9', color:'#0e7a8c', label:'Personnel',  stripe:'#0e7a8c' },
+  batch:      { bg:'#edf2f7', color:'#4a5568', label:'Cycle',      stripe:'#718096' },
+  export:     { bg:'#f0f2f7', color:'#2d3748', label:'Export',     stripe:'#4a5568' },
+  account:    { bg:'#fdf0e9', color:'#e07b39', label:'Account',    stripe:'#e07b39' },
+  admin:      { bg:'#f7e4e1', color:'#c0392b', label:'Admin',      stripe:'#c0392b' },
 };
 
-const ACTION_LABELS = {
-  'auth.login': 'Logged in',
-  'auth.logout': 'Logged out',
-  'auth.session_extended': 'Extended session',
-  'checkin.p1': 'Checked in (Phase 1)',
-  'checkin.p2': 'Lunch out (Phase 2)',
-  'checkin.p3': 'Returned from lunch (Phase 3)',
-  'checkin.p4': 'Checked out (Phase 4)',
-  'checkin.late_reason': 'Submitted late reason',
-  'roster.status_set': 'Set attendance status',
-  'roster.mark_all_absent': 'Marked all absent',
-  'roster.mark_all_present': 'Marked all present',
-  'roster.times_corrected': 'Corrected attendance times',
-  'roster.person_note_saved': 'Saved person note',
-  'roster.log_note_saved': 'Saved log note',
-  'roster.welfare_note_saved': 'Saved welfare note',
-  'leave.submitted': 'Submitted leave request',
-  'leave.cancelled': 'Withdrew leave request',
-  'leave.approved': 'Approved leave request',
-  'leave.rejected': 'Declined leave request',
-  'leave.bulk_approved': 'Bulk approved leave requests',
-  'leave.bulk_rejected': 'Bulk declined leave requests',
-  'signup.approved': 'Approved signup',
-  'signup.rejected': 'Declined signup',
-  'signup.reopened': 'Re-opened signup',
-  'signup.bulk_approved': 'Bulk approved signups',
-  'personnel.added': 'Added to roster',
-  'personnel.re_enrolled': 'Re-enrolled personnel',
-  'personnel.removed': 'Removed from roster',
-  'personnel.bulk_added': 'Bulk added personnel',
-  'personnel.password_reset': 'Reset password',
-  'personnel.permanently_deleted': 'Permanently deleted record',
-  'batch.activated': 'Activated cycle',
-  'batch.label_edited': 'Edited cycle label',
-  'batch.broadcast_updated': 'Updated cycle notice',
-  'batch.no_report_toggled': 'Toggled no-report day',
-  'batch.meal_toggled': 'Toggled meal allowance',
-  'admin.added': 'Added supervisor',
-  'admin.demoted': 'Demoted supervisor',
-  'admin.promoted': 'Promoted to supervisor',
-  'export.excel': 'Exported Excel report',
-  'export.print': 'Generated print report',
-  'export.person_history': 'Exported person history',
-  'account.name_changed': 'Changed display name',
-  'account.password_changed': 'Changed password',
-  'account.photo_uploaded': 'Uploaded profile photo',
-  'account.photo_removed': 'Removed profile photo',
+const ACTIONS = {
+  'auth.login':'Logged in','auth.logout':'Logged out','auth.session_extended':'Extended session',
+  'checkin.p1':'Phase 1: Checked in','checkin.p2':'Phase 2: Lunch out',
+  'checkin.p3':'Phase 3: Returned from lunch','checkin.p4':'Phase 4: Checked out',
+  'checkin.late_reason':'Submitted late reason',
+  'roster.status_set':'Set attendance status','roster.mark_all_absent':'Marked all absent',
+  'roster.mark_all_present':'Marked all present','roster.times_corrected':'Corrected attendance times',
+  'roster.person_note_saved':'Saved person note','roster.log_note_saved':'Saved log note',
+  'roster.welfare_note_saved':'Saved welfare note',
+  'leave.submitted':'Submitted leave request','leave.cancelled':'Withdrew leave request',
+  'leave.approved':'Approved leave request','leave.rejected':'Declined leave request',
+  'leave.bulk_approved':'Bulk approved leave requests','leave.bulk_rejected':'Bulk declined leave requests',
+  'signup.approved':'Approved signup','signup.rejected':'Declined signup',
+  'signup.reopened':'Re-opened signup','signup.bulk_approved':'Bulk approved signups',
+  'personnel.added':'Added to roster','personnel.re_enrolled':'Re-enrolled personnel',
+  'personnel.removed':'Removed from roster','personnel.bulk_added':'Bulk added personnel',
+  'personnel.password_reset':'Reset password','personnel.permanently_deleted':'Permanently deleted record',
+  'batch.activated':'Activated cycle','batch.label_edited':'Edited cycle label',
+  'batch.broadcast_updated':'Updated cycle notice','batch.no_report_toggled':'Toggled no-report day',
+  'batch.meal_toggled':'Toggled meal allowance',
+  'admin.added':'Added supervisor','admin.demoted':'Demoted supervisor','admin.promoted':'Promoted to supervisor',
+  'export.excel':'Exported Excel report','export.print':'Generated print report',
+  'export.person_history':'Exported person history',
+  'account.name_changed':'Changed display name','account.password_changed':'Changed password',
+  'account.photo_uploaded':'Uploaded profile photo','account.photo_removed':'Removed profile photo',
 };
 
-const DEPT_LABELS = {
-  ops_security: 'Ops Security',
-  cas: 'CAS',
-  lnf: 'LnF',
-};
+const DEPT_LABELS = { ops_security:'Ops Security', cas:'CAS', lnf:'L&F' };
 
-// ── Utilities ─────────────────────────────────────────────────────────────
-function contactToEmail(contact) {
-  return contact.replace(/[\s-]/g, '') + '@opsreservist.mil';
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function initials(n){if(!n)return'?';const p=n.trim().split(/\s+/);return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():n.slice(0,2).toUpperCase();}
+function avatarBg(role){return role==='superadmin'?'#c0392b':role==='admin'?'#2f5fd0':'#8a94a3';}
+function roleLabel(role){return role==='superadmin'?'Superadmin':role==='admin'?'Admin':'Reservist';}
+function roleBg(role){return role==='superadmin'?'#fef2f2':role==='admin'?'#eef2fd':'#f0f2f7';}
+function roleColor(role){return role==='superadmin'?'#c0392b':role==='admin'?'#2f5fd0':'#8a94a3';}
+
+function relTime(iso){
+  const diff=Math.floor((Date.now()-new Date(iso).getTime())/1000);
+  if(diff<60) return 'Just now';
+  if(diff<3600) return Math.floor(diff/60)+'m ago';
+  if(diff<86400) return Math.floor(diff/3600)+'h ago';
+  if(diff<172800) return 'Yesterday';
+  return Math.floor(diff/86400)+'d ago';
+}
+function absTime(iso){
+  const d=new Date(iso);
+  return d.toLocaleDateString('en-SG',{day:'numeric',month:'short'})+', '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
 }
 
-function initials(name) {
-  if (!name) return '?';
-  const parts = name.trim().split(/\s+/);
-  if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
-  return name.slice(0, 2).toUpperCase();
-}
+function showErr(msg){const el=document.getElementById('login-err');el.textContent=msg;el.style.display='block';}
+function hideErr(){document.getElementById('login-err').style.display='none';}
 
-function avatarColor(role) {
-  if (role === 'superadmin') return '#c0392b';
-  if (role === 'admin') return '#2f5fd0';
-  return '#8a94a3';
-}
+// ── Login ──────────────────────────────────────────────────────────────────
+document.getElementById('login-contact').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('login-password').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin();});
+document.getElementById('login-btn').addEventListener('click',doLogin);
 
-function relTime(iso) {
-  const now = Date.now(), then = new Date(iso).getTime(), diff = Math.floor((now - then) / 1000);
-  if (diff < 60) return diff + 's ago';
-  if (diff < 3600) return Math.floor(diff / 60) + 'm ago';
-  if (diff < 86400) return Math.floor(diff / 3600) + 'h ago';
-  if (diff < 172800) return 'Yesterday';
-  return Math.floor(diff / 86400) + 'd ago';
-}
-
-function fmtAbsTime(iso) {
-  const d = new Date(iso);
-  return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-}
-
-function esc(s) {
-  return String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-
-function showError(msg) {
-  const el = document.getElementById('login-error');
-  el.textContent = msg;
-  el.style.display = 'block';
-}
-
-function hideError() {
-  document.getElementById('login-error').style.display = 'none';
-}
-
-// ── Login ─────────────────────────────────────────────────────────────────
-document.getElementById('login-contact').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-document.getElementById('login-password').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
-document.getElementById('login-btn').addEventListener('click', doLogin);
-
-async function doLogin() {
-  hideError();
-  const contact = document.getElementById('login-contact').value.trim();
-  const password = document.getElementById('login-password').value;
-  if (!contact) { showError('Enter your contact number.'); return; }
-  if (!password) { showError('Enter your password.'); return; }
-  const btn = document.getElementById('login-btn');
-  btn.disabled = true;
-  btn.textContent = 'Logging in...';
-
-  const email = contactToEmail(contact);
-  const { data, error } = await _db.auth.signInWithPassword({ email, password });
-  if (error || !data?.user) {
-    btn.disabled = false; btn.textContent = 'Log In';
-    showError('Invalid contact number or password.');
-    return;
-  }
-  _session = data.session;
-
-  // Check role in personnel table
-  const { data: personnel, error: pErr } = await _db.from('personnel')
-    .select('id, name, role, department, is_active')
-    .eq('auth_id', data.user.id)
-    .single();
-
-  if (pErr || !personnel) {
-    await _db.auth.signOut({ scope: 'local' });
-    btn.disabled = false; btn.textContent = 'Log In';
-    showError('Account not found in personnel records.');
-    return;
-  }
-
-  if (personnel.role !== 'admin' && personnel.role !== 'superadmin') {
-    await _db.auth.signOut({ scope: 'local' });
-    btn.disabled = false; btn.textContent = 'Log In';
-    showError('Access denied. Admin or superadmin role required.');
-    return;
-  }
-
-  _myRecord = personnel;
-  _isSuperAdmin = personnel.role === 'superadmin';
-  _filterDept = _isSuperAdmin ? null : (personnel.department || null);
-
-  document.getElementById('login-screen').style.display = 'none';
+async function doLogin(){
+  hideErr();
+  const contact=document.getElementById('login-contact').value.trim();
+  const password=document.getElementById('login-password').value;
+  if(!contact){showErr('Enter your contact number.');return;}
+  if(!password){showErr('Enter your password.');return;}
+  const btn=document.getElementById('login-btn');
+  btn.disabled=true; btn.textContent='Signing in...';
+  const email=contact.replace(/[\s-]/g,'')+'@opsreservist.mil';
+  const {data,error}=await _db.auth.signInWithPassword({email,password});
+  if(error||!data?.user){btn.disabled=false;btn.textContent='Sign in';showErr('Invalid contact number or password.');return;}
+  const {data:p,error:pErr}=await _db.from('personnel').select('id,name,role,department,is_active').eq('auth_id',data.user.id).single();
+  if(pErr||!p){await _db.auth.signOut({scope:'local'});btn.disabled=false;btn.textContent='Sign in';showErr('Account not found in personnel records.');return;}
+  if(p.role!=='admin'&&p.role!=='superadmin'){await _db.auth.signOut({scope:'local'});btn.disabled=false;btn.textContent='Sign in';showErr('Access denied. Admin or superadmin role required.');return;}
+  _me=p; _isSA=p.role==='superadmin'; _filterDept=_isSA?null:(p.department||null);
+  document.getElementById('login-screen').style.display='none';
   showApp();
 }
 
-function showApp() {
-  const app = document.getElementById('app-screen');
-  app.style.display = 'flex';
-
-  // Dept badge
-  const badge = document.getElementById('dept-badge');
-  if (_isSuperAdmin) {
-    badge.textContent = 'Superadmin';
-    badge.style.background = '#f7e4e1';
-    badge.style.color = '#c0392b';
+function showApp(){
+  document.getElementById('app-screen').style.display='flex';
+  const av=document.getElementById('h-avatar');
+  av.textContent=initials(_me.name); av.style.background=avatarBg(_me.role);
+  document.getElementById('h-name').textContent=_me.name||'';
+  const rc=document.getElementById('h-role-chip');
+  rc.textContent=roleLabel(_me.role); rc.style.background=roleBg(_me.role); rc.style.color=roleColor(_me.role);
+  if(_isSA){
+    document.getElementById('dept-sel').style.display='block';
+    const dc=document.getElementById('h-dept-chip');
+    dc.textContent='All departments'; dc.style.display='inline-block';
+    dc.style.background='#fef2f2'; dc.style.color='#c0392b';
   } else {
-    badge.textContent = DEPT_LABELS[_myRecord.department] || _myRecord.department || 'Admin';
+    const dl=DEPT_LABELS[_me.department]||_me.department||'';
+    const dc=document.getElementById('h-dept-chip');
+    if(dl){dc.textContent=dl;dc.style.display='inline-block';dc.style.background='#e8f0fd';dc.style.color='#2f5fd0';}
   }
-
-  // Show dept filter for superadmin
-  if (_isSuperAdmin) {
-    document.getElementById('dept-filter-wrap').style.display = 'block';
-  }
-
-  loadStats();
-  loadEvents(true);
+  loadStats(); loadEvents(true);
 }
 
-async function doLogout() {
-  await _db.auth.signOut({ scope: 'local' }).catch(() => {});
-  _session = null; _myRecord = null; _isSuperAdmin = false;
-  _filterDept = null; _filterCat = 'all'; _filterSearch = ''; _filterFrom = ''; _filterTo = '';
-  _offset = 0; _events = [];
-  document.getElementById('app-screen').style.display = 'none';
-  document.getElementById('access-denied').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
-  document.getElementById('login-contact').value = '';
-  document.getElementById('login-password').value = '';
-  const btn = document.getElementById('login-btn');
-  btn.disabled = false; btn.textContent = 'Log In';
+async function doLogout(){
+  await _db.auth.signOut({scope:'local'}).catch(()=>{});
+  _me=null; _isSA=false; _filterDept=null; _cat='all'; _search=''; _from=''; _to='';
+  _offset=0; _rows=[];
+  document.getElementById('app-screen').style.display='none';
+  document.getElementById('login-screen').style.display='flex';
+  document.getElementById('login-contact').value='';
+  document.getElementById('login-password').value='';
+  const btn=document.getElementById('login-btn');
+  btn.disabled=false; btn.textContent='Sign in';
 }
 
-// ── Stats ─────────────────────────────────────────────────────────────────
-async function loadStats() {
-  const dept = _isSuperAdmin ? (_filterDept || null) : (_myRecord.department || null);
+// ── Stats ──────────────────────────────────────────────────────────────────
+async function loadStats(){
+  const dept=_isSA?(_filterDept||null):(_me.department||null);
+  const today=new Date(); today.setHours(0,0,0,0);
+  let q=_db.from('audit_log').select('category,actor_id');
+  if(dept) q=q.eq('department',dept);
+  q=q.gte('created_at',today.toISOString());
+  const {data:td}=await q;
+  const todayRows=td||[];
+  document.getElementById('stat-today').textContent=todayRows.length;
+  document.getElementById('stat-actors').textContent=new Set(todayRows.map(r=>r.actor_id).filter(Boolean)).size;
+  const catCount={};
+  for(const r of todayRows) catCount[r.category]=(catCount[r.category]||0)+1;
+  let topCat='',topN=0;
+  for(const[k,v] of Object.entries(catCount)){if(v>topN){topN=v;topCat=k;}}
+  document.getElementById('stat-top-cat').textContent=topCat?(CAT[topCat]?.label||topCat):'-';
 
-  // Today stats
-  const today = new Date(); today.setHours(0, 0, 0, 0);
-  let q1 = _db.from('audit_log').select('category, actor_id, created_at');
-  if (dept) q1 = q1.eq('department', dept);
-  q1 = q1.gte('created_at', today.toISOString());
-  const { data: todayData } = await q1;
-  const todayRows = todayData || [];
-
-  document.getElementById('stat-today').textContent = todayRows.length;
-  const uniqueActors = new Set(todayRows.map(r => r.actor_id).filter(Boolean));
-  document.getElementById('stat-actors').textContent = uniqueActors.size;
-
-  // Category frequency
-  const catCount = {};
-  for (const r of todayRows) { catCount[r.category] = (catCount[r.category] || 0) + 1; }
-  let topCat = '-';
-  let topCount = 0;
-  for (const [k, v] of Object.entries(catCount)) { if (v > topCount) { topCount = v; topCat = k; } }
-  const topCatInfo = CAT_COLORS[topCat];
-  document.getElementById('stat-top-cat').textContent = topCatInfo ? topCatInfo.label : topCat;
-
-  // Week stats
-  const weekStart = new Date(); weekStart.setDate(weekStart.getDate() - 6); weekStart.setHours(0, 0, 0, 0);
-  let q2 = _db.from('audit_log').select('id', { count: 'exact', head: true });
-  if (dept) q2 = q2.eq('department', dept);
-  q2 = q2.gte('created_at', weekStart.toISOString());
-  const { count: weekCount } = await q2;
-  document.getElementById('stat-week').textContent = weekCount || 0;
+  const wk=new Date(); wk.setDate(wk.getDate()-6); wk.setHours(0,0,0,0);
+  let q2=_db.from('audit_log').select('id',{count:'exact',head:true});
+  if(dept) q2=q2.eq('department',dept);
+  q2=q2.gte('created_at',wk.toISOString());
+  const{count}=await q2;
+  document.getElementById('stat-week').textContent=count||0;
 }
 
-// ── Filters ───────────────────────────────────────────────────────────────
-function setCat(el) {
-  document.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  _filterCat = el.dataset.cat;
-  _offset = 0;
-  loadEvents(true);
+// ── Filters ────────────────────────────────────────────────────────────────
+function setCat(el){
+  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active'); _cat=el.dataset.cat; _offset=0; loadEvents(true);
 }
-
-function onDeptChange() {
-  _filterDept = document.getElementById('dept-select').value || null;
-  _offset = 0;
-  loadStats();
-  loadEvents(true);
+function onDeptChange(){
+  _filterDept=document.getElementById('dept-sel').value||null;
+  const dc=document.getElementById('h-dept-chip');
+  dc.textContent=_filterDept?(DEPT_LABELS[_filterDept]||_filterDept):'All departments';
+  _offset=0; loadStats(); loadEvents(true);
 }
-
-function applyFilters() {
-  _filterFrom = document.getElementById('date-from').value;
-  _filterTo = document.getElementById('date-to').value;
-  _offset = 0;
-  loadEvents(true);
+function applyFilters(){
+  _from=document.getElementById('date-from').value;
+  _to=document.getElementById('date-to').value;
+  _offset=0; loadEvents(true);
 }
-
-function onSearchInput() {
+function onSearch(){
   clearTimeout(_searchTimer);
-  _searchTimer = setTimeout(() => {
-    _filterSearch = document.getElementById('search-input').value.trim();
-    _offset = 0;
-    loadEvents(true);
-  }, 350);
+  _searchTimer=setTimeout(()=>{_search=document.getElementById('search-inp').value.trim();_offset=0;loadEvents(true);},300);
 }
 
-// ── Events ────────────────────────────────────────────────────────────────
-async function loadEvents(reset) {
-  if (reset) { _offset = 0; _events = []; }
-  const list = document.getElementById('events-list');
-  if (reset) list.innerHTML = '<div class="spinner"></div>';
+// ── Events ─────────────────────────────────────────────────────────────────
+async function loadEvents(reset){
+  if(reset){_offset=0;_rows=[];}
+  const list=document.getElementById('events-list');
+  if(reset) list.innerHTML='<div class="spinner-wrap"><div class="spinner"></div></div>';
+  const dept=_isSA?(_filterDept||null):(_me.department||null);
+  let q=_db.from('audit_log').select('*',{count:'exact'});
+  if(dept) q=q.eq('department',dept);
+  if(_cat&&_cat!=='all') q=q.eq('category',_cat);
+  if(_from) q=q.gte('created_at',_from+'T00:00:00');
+  if(_to) q=q.lte('created_at',_to+'T23:59:59');
+  if(_search){const s=_search.replace(/'/g,"''");q=q.or(`actor_name.ilike.%${s}%,action.ilike.%${s}%,target_name.ilike.%${s}%`);}
+  q=q.order('created_at',{ascending:false}).range(_offset,_offset+LIMIT-1);
+  const{data,count,error}=await q;
+  if(error){list.innerHTML=`<div class="empty"><div class="empty-title">Failed to load</div><div class="empty-sub">${esc(error.message)}</div></div>`;return;}
+  _total=count||0;
+  const rows=data||[];
+  if(reset) _rows=rows; else _rows=_rows.concat(rows);
+  _offset+=rows.length;
+  renderEvents(reset,rows);
+  const countEl=document.getElementById('events-count');
+  countEl.textContent=_total.toLocaleString()+' event'+(_total!==1?'s':'');
+}
 
-  const dept = _isSuperAdmin ? (_filterDept || null) : (_myRecord.department || null);
-
-  let q = _db.from('audit_log').select('*', { count: 'exact' });
-  if (dept) q = q.eq('department', dept);
-  if (_filterCat && _filterCat !== 'all') q = q.eq('category', _filterCat);
-  if (_filterFrom) q = q.gte('created_at', _filterFrom + 'T00:00:00');
-  if (_filterTo) q = q.lte('created_at', _filterTo + 'T23:59:59');
-  if (_filterSearch) {
-    const s = _filterSearch.replace(/'/g, "''");
-    q = q.or(`actor_name.ilike.%${s}%,action.ilike.%${s}%,target_name.ilike.%${s}%`);
-  }
-  q = q.order('created_at', { ascending: false }).range(_offset, _offset + LIMIT - 1);
-
-  const { data, count, error } = await q;
-  if (error) {
-    list.innerHTML = '<div class="empty-state"><div class="empty-title">Failed to load events</div><div class="empty-sub">' + esc(error.message) + '</div></div>';
+function renderEvents(reset,newRows){
+  const list=document.getElementById('events-list');
+  if(reset) list.innerHTML='';
+  if(_rows.length===0){
+    list.innerHTML=`<div class="empty"><div class="empty-icon-wrap"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8a94a3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div class="empty-title">No events found</div><div class="empty-sub">Try adjusting your filters or date range.</div></div>`;
+    document.getElementById('load-more-row').style.display='none';
     return;
   }
-
-  _totalCount = count || 0;
-  const rows = data || [];
-  if (reset) _events = rows;
-  else _events = _events.concat(rows);
-  _offset += rows.length;
-
-  renderEvents(reset, rows);
-  updateCountLabel();
+  const toRender=reset?_rows:newRows;
+  for(const ev of toRender) list.appendChild(buildRow(ev));
+  document.getElementById('load-more-row').style.display=_offset<_total?'block':'none';
 }
 
-function renderEvents(reset, newRows) {
-  const list = document.getElementById('events-list');
-  if (reset) list.innerHTML = '';
+function buildRow(ev){
+  const c=CAT[ev.category]||{bg:'#f0f2f7',color:'#4a5568',label:ev.category,stripe:'#8a94a3'};
+  const action=ACTIONS[ev.action]||ev.action.replace(/[._]/g,' ');
+  const meta=ev.meta&&Object.keys(ev.meta).length?ev.meta:null;
+  const deptLabel=DEPT_LABELS[ev.department]||ev.department||'';
+  const el=document.createElement('div');
+  el.className='event-item'+(meta?' clickable':'');
 
-  if (_events.length === 0) {
-    list.innerHTML = '<div class="empty-state"><svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div class="empty-title">No events found</div><div class="empty-sub">Try adjusting your filters or date range.</div></div>';
-    document.getElementById('load-more-wrap').style.display = 'none';
-    return;
+  let metaHtml='';
+  if(meta){
+    const entries=Object.entries(meta).filter(([,v])=>v!==null&&v!==undefined&&v!=='');
+    if(entries.length){
+      const cards=entries.map(([k,v])=>{
+        const key=k.replace(/_/g,' ');
+        const val=typeof v==='object'?JSON.stringify(v):String(v);
+        return `<div class="meta-entry"><div class="meta-key">${esc(key)}</div><div class="meta-val">${esc(val)}</div></div>`;
+      }).join('');
+      metaHtml=`<div class="event-meta-wrap"><div class="meta-grid">${cards}</div></div>`;
+    }
   }
 
-  const rowsToRender = reset ? _events : newRows;
-  for (const ev of rowsToRender) {
-    list.appendChild(buildEventRow(ev));
-  }
-
-  const wrap = document.getElementById('load-more-wrap');
-  wrap.style.display = _offset < _totalCount ? 'block' : 'none';
-}
-
-function buildEventRow(ev) {
-  const cat = CAT_COLORS[ev.category] || { bg: '#f0f2f7', color: '#4a5568', label: ev.category };
-  const actionLabel = ACTION_LABELS[ev.action] || ev.action;
-  const roleColor = ev.actor_role === 'superadmin' ? '#c0392b' : ev.actor_role === 'admin' ? '#2f5fd0' : '#8a94a3';
-  const roleLabel = ev.actor_role === 'superadmin' ? 'Superadmin' : ev.actor_role === 'admin' ? 'Admin' : 'Reservist';
-  const roleBg = ev.actor_role === 'superadmin' ? '#f7e4e1' : ev.actor_role === 'admin' ? '#e8f0fd' : '#f0f2f7';
-  const hasMeta = ev.meta && Object.keys(ev.meta).length > 0;
-  const deptLabel = DEPT_LABELS[ev.department] || ev.department || '';
-
-  const div = document.createElement('div');
-  div.className = 'event-row';
-  div.innerHTML = `
-    <span class="cat-badge" style="background:${esc(cat.bg)};color:${esc(cat.color)}">${esc(cat.label)}</span>
-    <div class="actor-avatar" style="background:${esc(avatarColor(ev.actor_role))}" title="${esc(ev.actor_name || '')}">${esc(initials(ev.actor_name))}</div>
-    <div class="event-body">
-      <div class="event-actor">
-        ${esc(ev.actor_name || 'Unknown')}
-        <span class="role-badge" style="background:${esc(roleBg)};color:${esc(roleColor)}">${esc(roleLabel)}</span>
+  el.innerHTML=`
+    <div class="event-stripe" style="background:${esc(c.stripe)};"></div>
+    <div class="event-inner">
+      <div class="event-avatar" style="background:${esc(avatarBg(ev.actor_role))};" title="${esc(ev.actor_name||'')}">${esc(initials(ev.actor_name))}</div>
+      <div class="event-content">
+        <div class="event-top">
+          <span class="event-name">${esc(ev.actor_name||'Unknown')}</span>
+          <span class="event-role" style="background:${esc(roleBg(ev.actor_role))};color:${esc(roleColor(ev.actor_role))};">${esc(roleLabel(ev.actor_role))}</span>
+        </div>
+        <div class="event-action-text">${esc(action)}</div>
+        <div class="event-sub">
+          <span class="event-cat" style="background:${esc(c.bg)};color:${esc(c.color)};">${esc(c.label)}</span>
+          ${ev.target_name?`<span class="event-target-text">&#8594; ${esc(ev.target_name)}</span>`:''}
+          ${deptLabel?`<span class="event-dept-text">${esc(deptLabel)}</span>`:''}
+          ${meta?`<span class="expand-hint">Tap for details</span>`:''}
+        </div>
       </div>
-      <div class="event-action">${esc(actionLabel)}</div>
-      ${ev.target_name ? `<div class="event-target">Re: ${esc(ev.target_name)}</div>` : ''}
-      ${deptLabel ? `<div class="event-dept">${esc(deptLabel)}</div>` : ''}
-      ${hasMeta ? `<div class="event-meta">${esc(JSON.stringify(ev.meta, null, 2))}</div>` : ''}
+      <div class="event-time">
+        <div class="event-rel">${esc(relTime(ev.created_at))}</div>
+        <div class="event-abs">${esc(absTime(ev.created_at))}</div>
+      </div>
     </div>
-    <div class="event-time-col">
-      <div class="event-rel-time" title="${esc(fmtAbsTime(ev.created_at))}">${esc(relTime(ev.created_at))}</div>
-    </div>
+    ${metaHtml}
   `;
 
-  if (hasMeta) {
-    div.addEventListener('click', () => div.classList.toggle('expanded'));
-  }
-
-  return div;
+  if(meta) el.addEventListener('click',()=>el.classList.toggle('expanded'));
+  return el;
 }
 
-function updateCountLabel() {
-  const label = document.getElementById('events-count-label');
-  label.textContent = _totalCount + ' event' + (_totalCount !== 1 ? 's' : '');
-}
+function loadMore(){loadEvents(false);}
 
-function loadMore() {
-  loadEvents(false);
-}
-
-// ── Init: check for existing session ─────────────────────────────────────
-(async () => {
-  const { data } = await _db.auth.getSession();
-  if (data?.session?.user) {
-    const { data: personnel } = await _db.from('personnel')
-      .select('id, name, role, department, is_active')
-      .eq('auth_id', data.session.user.id)
-      .single();
-    if (personnel && (personnel.role === 'admin' || personnel.role === 'superadmin')) {
-      _session = data.session;
-      _myRecord = personnel;
-      _isSuperAdmin = personnel.role === 'superadmin';
-      _filterDept = _isSuperAdmin ? null : (personnel.department || null);
-      document.getElementById('login-screen').style.display = 'none';
+// ── Session restore ────────────────────────────────────────────────────────
+(async()=>{
+  const{data}=await _db.auth.getSession();
+  if(data?.session?.user){
+    const{data:p}=await _db.from('personnel').select('id,name,role,department,is_active').eq('auth_id',data.session.user.id).single();
+    if(p&&(p.role==='admin'||p.role==='superadmin')){
+      _me=p; _isSA=p.role==='superadmin'; _filterDept=_isSA?null:(p.department||null);
+      document.getElementById('login-screen').style.display='none';
       showApp();
     }
   }
