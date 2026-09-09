@@ -7,6 +7,9 @@ const BriefingsBuilders = {
     // Use the user's own batch for personal progress and dekit info
     const myBatch=(me?.batch_id?s.batches.find(b=>b.id===me.batch_id):null)||activeBatch;
     const OFFICE_ROLE={title:'Office Hours',window:'0900 to 1800, Lunch 1200 to 1400',items:['Escort contractors when required.','Check signages and designated spots.','Assist with Red Teaming exercises if needed.']};
+    const LNF_ROLE={title:'Logistics and Finance',window:'0900 to 1700, Mon to Sat',items:['Escort contractors to and from the office.','During events, assist with deployments, refreshments and milk runs.','Work Saturdays when Saturday escorts are required.','Assist NSFs with moving items from place to place when needed.','Collect and return keys from the Manpower Officer\'s office.']};
+    const isLnf=this._myDept()==='lnf';
+    const activeRole=isLnf?LNF_ROLE:OFFICE_ROLE;
     const briefTab=s.briefTab||'info';
     const briefTabs=[{key:'info',label:'Info'},{key:'history',label:'Requests'}].map(t=>({
       ...t, onClick:this.setBriefTab(t.key),
@@ -93,7 +96,7 @@ const BriefingsBuilders = {
     const briefTransport=this.props.hqTransport||'';
     const showBriefTransport=!!briefTransport;
     return {
-      myShiftTitle:OFFICE_ROLE.title, myShiftWindow:OFFICE_ROLE.window, myShiftItems:OFFICE_ROLE.items, myShiftNote:'',
+      myShiftTitle:activeRole.title, myShiftWindow:activeRole.window, myShiftItems:activeRole.items, myShiftNote:'',
       briefLocation:(this.props.hqName||'Bedok DHQ')+' Canteen',
       briefAttire:'Civilian',
       briefAttireRowBorder:showBriefTransport?'1px solid #f2f4f7':'none',
@@ -131,8 +134,8 @@ const BriefingsBuilders = {
         }) : [],
       showTeam: !!(me?.batch_id && s.personnel.some(p=>p.batch_id===me.batch_id&&p.id!==s.currentUserId&&(p.role||'reservist')==='reservist')),
       casInfoBlocked: s.role==='reservist' && this._myDept()==='cas',
-      lfInfoBlocked:  s.role==='reservist' && this._myDept()==='lnf',
-      showFullInfo:   s.role!=='reservist' || (this._myDept()!=='cas' && this._myDept()!=='lnf'),
+      lfInfoBlocked:  false,
+      showFullInfo:   s.role!=='reservist' || this._myDept()!=='cas',
       ...(()=>{
         const raw=s.myLeaveHistory||[];
         const pends=s.myPendingRequests||[];
