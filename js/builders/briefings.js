@@ -98,6 +98,7 @@ const BriefingsBuilders = {
     return {
       myShiftTitle:activeRole.title, myShiftWindow:activeRole.window, myShiftItems:activeRole.items, myShiftNote:'',
       briefLocation:(this.props.hqName||'Bedok DHQ')+' Canteen',
+      briefDays:isLnf?'Monday to Saturday':'Monday to Friday',
       briefAttire:'Civilian',
       briefAttireRowBorder:showBriefTransport?'1px solid #f2f4f7':'none',
       briefTransport, showBriefTransport,
