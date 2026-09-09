@@ -180,6 +180,9 @@ Row-level security policies are enforced at the database level, not just in the 
 
 - Reservists can only write attendance records for today in SGT (Asia/Singapore timezone), not UTC, so a reservist cannot exploit a UTC midnight window to submit records for the wrong date.
 - Admin accounts can only read, update, or delete signup requests that belong to their own department. Superadmins retain full cross-department visibility.
+- Leave approval and rejection check department membership at the application layer before any database write, so an admin cannot action a request from a different department even if it reaches the handler.
+- Signup status transitions are guarded: reopen only works on rejected requests and reject only works on pending ones, preventing race conditions when two admins process the same request simultaneously.
+- Reservists are capped at 10 pending leave requests at any one time. Submitting beyond this limit returns an error.
 
 ---
 
@@ -317,15 +320,15 @@ docs/
 
 **Offline queue**: When the device is offline, check-in actions are pushed to `this._offlineQueues` and persisted to `sessionStorage`. On reconnect, `_onOnline` replays the queue in order against the database.
 
-**Realtime**: Supabase Realtime channels push row-level changes for attendance (admin view), leave status (reservist view), new requests (admin notifications), and personnel status changes (reservist view) without polling. If a reservist's account is deactivated while they are logged in, the personnel status channel fires immediately, shows a toast, and logs them out within a few seconds. If a reservist self-deactivates, the admin's personnel deactivation channel fires and removes the person from the active roster in real time. All subscription errors (channel errors, timeouts) are logged to the console for debugging rather than failing silently.
+**Realtime**: Supabase Realtime channels push row-level changes for attendance (admin view), leave status (reservist view), new requests (admin notifications), and personnel status changes (reservist view) without polling. If a reservist's account is deactivated while they are logged in, the personnel status channel fires immediately, shows a toast, and logs them out within a few seconds. If a reservist self-deactivates, the admin's personnel deactivation channel fires and removes the person from the active roster in real time. All subscription errors (channel errors, timeouts) are logged to the console for debugging rather than failing silently. When an admin corrects a past-date attendance record, the realtime channel fires on the reservist's session and updates their history state immediately, so edited times appear in the reservist's shift history without a page refresh.
 
-**Batch provisioning**: On every admin login, the system ensures a live batch exists and that 8 future batches are pre-created. This prevents the cycle selector from being empty when a new cycle starts.
+**Batch provisioning**: On every admin login, the system ensures a live batch exists and that 8 future batches are pre-created. This prevents the cycle selector from being empty when a new cycle starts. Batch creation is idempotent: if a batch with the same start date and department already exists, the existing record is returned rather than creating a duplicate.
 
 **Request deduplication**: The reservist's Requests history deduplicates entries by date. If multiple requests exist for the same date (for example, an approved request followed by a withdrawn re-submission), only the most relevant one is shown. Priority order: pending > approved > rejected > withdrawn. This prevents the list from showing confusing duplicate rows.
 
 **Person history pagination**: The person history modal is paginated at 15 records per page. Status filters (All, Present, MC, Absent) are applied before pagination. Page state is reset when the filter changes.
 
-**Department isolation**: All database queries, realtime subscriptions, and state updates are scoped to the active department. The `_myDept()` helper on handlers returns the superadmin's manually selected department or the user's own department (set at signup). Switching departments clears all cached data (personnel, batches, attendance, requests) and reloads from scratch for the new department. Realtime callbacks guard against cross-department rows arriving via shared channels.
+**Department isolation**: All database queries, realtime subscriptions, and state updates are scoped to the active department. The `_myDept()` helper on handlers returns the superadmin's manually selected department or the user's own department (set at signup). Switching departments clears all cached data (personnel, batches, attendance, requests) and reloads from scratch for the new department. Realtime callbacks guard against cross-department rows arriving via shared channels. Leave approval and rejection verify that the requester belongs to the admin's department before any database write. Contact lookups (`findByContact`) are scoped to the active department so a matching record in another department is never returned. Signup `reopen` is guarded to only act on rejected requests; `reject` is guarded to only act on pending ones, preventing double-processing in concurrent admin sessions.
 
 ### Database Schema
 
