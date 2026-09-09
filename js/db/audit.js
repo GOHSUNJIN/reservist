@@ -1,7 +1,8 @@
 const DB_Audit = {
   async log(entry) {
-    const { error } = await _db.from('audit_log').insert(entry).catch(e => ({ error: e }));
+    const { data, error } = await _db.from('audit_log').insert(entry).select().catch(e => ({ data: null, error: e }));
     if (error) console.error('[audit_log] insert failed:', error, entry);
+    else console.log('[audit_log] inserted:', data);
   },
 
   async query({ dept, category, search, dateFrom, dateTo, limit = 100, offset = 0 } = {}) {

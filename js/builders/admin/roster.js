@@ -58,19 +58,20 @@ const AdminRoster = {
     const isLiveView=viewOffset===0;
     const logRows=visibleMembers.map(p=>{
       const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent'}, _bMm2=Utils.meta(r.status), mm=r.status==='absent'&&approvedLeavesForView[p.id]?Utils.leaveMeta(approvedLeavesForView[p.id]?.type):_bMm2;
+      const _ef=new Set((r.editLog||[]).flatMap(e=>e.fields||[]));
+      const _ec=accent;
+      const _adminEdited=_ef.size>0;
       const [_cc,_ccm]='09:00'.split(':').map(Number);
       const _lm=r.p1?(()=>{const[h,m]=r.p1.split(':').map(Number);return(h*60+m)-(_cc*60+_ccm);})():0;
       const isLate=r.status==='present'&&_lm>=60;
       const lateReason=r.lateReason||'';
-      const showLateReason=isLate&&!!lateReason;
-      const showNoLateReason=isLate&&!lateReason;
-      const lateTagLabel=isLate?('Late · '+(lateReason||'No reason')):'';
+      const showLateReason=isLate&&!_adminEdited&&!!lateReason;
+      const showNoLateReason=isLate&&!_adminEdited&&!lateReason;
+      const lateTagLabel=(isLate&&!_adminEdited)?('Late · '+(lateReason||'No reason')):'';
       const _missingCo=!isLiveView&&r.status==='present'&&!!r.p1&&!r.p4;
       const showAnyFlags=showNoLateReason||showLateReason;
       const av=s.avatars[p.id]||'';
       const avatarStyle=Utils.avatarStyle(av);
-      const _ef=new Set((r.editLog||[]).flatMap(e=>e.fields||[]));
-      const _ec=accent;
       return {
         id:p.id, name:p.name, contact:p.contact||'', initials:Utils.initials(p.name), shiftLabel:Utils.shiftLabel(p.shift),
         onViewHistory:self.openPersonHistory(p.id), onCopyContact:self.copyContact(p.contact||''),
@@ -89,7 +90,7 @@ const AdminRoster = {
         showLunchBoxes: !isCas,
         phaseGridCols: isCas?'repeat(2,1fr)':'repeat(4,1fr)',
         p1:r.p1||'-', p2:r.p2||'-', p3:r.p3||'-', p4:r.p4||'-',
-        p1Color:r.p1?(isLate?'#c0392b':_ef.has('p1')?_ec:'#161f30'):'#c2c8d2',
+        p1Color:r.p1?(_ef.has('p1')?_ec:isLate?'#c0392b':'#161f30'):'#c2c8d2',
         p2Color:r.p2?(_ef.has('p2')?_ec:'#161f30'):'#c2c8d2',
         p3Color:r.p3?(_ef.has('p3')?_ec:'#161f30'):'#c2c8d2',
         p4Color:r.p4?(_ef.has('p4')?_ec:'#161f30'):'#c2c8d2',
