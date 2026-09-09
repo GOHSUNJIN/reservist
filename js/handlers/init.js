@@ -175,6 +175,15 @@ const InitHandlers = {
             for(const k of Object.keys(incoming)) merged[k]=incoming[k]??existing[k];
             return {attendance:{...s.attendance,[s.currentUserId]:merged}};
           });
+        } else if(row.date < todayKey){
+          const entry={date:row.date,...DB.attendance._toEntry(row)};
+          this.setState(s=>{
+            const exists=s.history.some(r=>r.date===row.date);
+            const history=exists
+              ? s.history.map(r=>r.date===row.date?entry:r)
+              : [...s.history,entry].sort((a,b)=>b.date.localeCompare(a.date));
+            return {history};
+          });
         }
       });
       this._myLeaveChannel = DB.realtime.subscribeLeaveStatus(me.id, async (row) => {
