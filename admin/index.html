@@ -566,6 +566,8 @@ function loadMore(){loadEvents(false);}
     const access_token=stored.access_token;
     const refresh_token=stored.refresh_token;
     if(!access_token||!refresh_token) return;
+    // Check JWT expiry locally — avoids a 400 if the token is already expired.
+    try{const exp=JSON.parse(atob(access_token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/'))).exp;if(Date.now()/1000>=exp) return;}catch(e){return;}
     const{data,error}=await _db.auth.setSession({access_token,refresh_token});
     if(error||!data?.session?.user) return;
     const{data:p}=await _db.from('personnel').select('id,name,role,department,is_active').eq('auth_id',data.session.user.id).single();
