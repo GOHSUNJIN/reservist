@@ -388,14 +388,17 @@ const AdminPeople = {
       hasPendingSignups:s.pendingSignups.length>0,
       pendingSignupsLoaded:!!(s.pendingSignupsLoaded),
       pendingSignupCount:s.pendingSignups.length,
-      rejectedSignups:(s.rejectedSignups||[]).map(r=>{
-        const b=(s.batches||[]).find(b=>b.id===r.batch_id);
-        const reviewedAt=r.reviewed_at?new Date(r.reviewed_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
-        return {id:r.id,name:r.name,contact:r.contact,batchLabel:b?b.label:'',initials:Utils.initials(r.name)||'?',reviewedAt,reviewedBy:r.reviewed_by||'',onReopen:self.reopenSignup(r.id)};
-      }),
-      hasRejectedSignups:(s.rejectedSignups||[]).length>0,
+      rejectedSignups:(()=>{
+        const pendingContacts=new Set((s.pendingSignups||[]).map(r=>(r.contact||'').replace(/[\s-]/g,'')));
+        return (s.rejectedSignups||[]).filter(r=>!pendingContacts.has((r.contact||'').replace(/[\s-]/g,''))).map(r=>{
+          const b=(s.batches||[]).find(b=>b.id===r.batch_id);
+          const reviewedAt=r.reviewed_at?new Date(r.reviewed_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
+          return {id:r.id,name:r.name,contact:r.contact,batchLabel:b?b.label:'',initials:Utils.initials(r.name)||'?',reviewedAt,reviewedBy:r.reviewed_by||'',onReopen:self.reopenSignup(r.id)};
+        });
+      })(),
+      hasRejectedSignups:(()=>{const pendingContacts=new Set((s.pendingSignups||[]).map(r=>(r.contact||'').replace(/[\s-]/g,'')));return (s.rejectedSignups||[]).some(r=>!pendingContacts.has((r.contact||'').replace(/[\s-]/g,'')));})(),
       rejectedSignupsLoaded:!!(s.rejectedSignupsLoaded),
-      rejectedSignupCount:(s.rejectedSignups||[]).length,
+      rejectedSignupCount:(()=>{const pendingContacts=new Set((s.pendingSignups||[]).map(r=>(r.contact||'').replace(/[\s-]/g,'')));return (s.rejectedSignups||[]).filter(r=>!pendingContacts.has((r.contact||'').replace(/[\s-]/g,''))).length;})(),
       rejectedSignupsHidden:!!(s.rejectedSignupsHidden),
       rejectedSignupsChevronRotate:s.rejectedSignupsHidden?'-90':'0',
       toggleRejectedSignups:()=>self.setState({rejectedSignupsHidden:!s.rejectedSignupsHidden}),
