@@ -574,9 +574,8 @@ async function _restoreAndShow(userId){
     // Phase 1: existing sessionStorage session (page refresh)
     const{data:sd}=await _db.auth.getSession();
     if(sd?.session?.user){await _restoreAndShow(sd.session.user.id);return;}
-    // Phase 2: main app localStorage session (first visit)
-    const ref=SUPABASE_URL.replace(/^https?:\/\//,'').split('.')[0];
-    const raw=localStorage.getItem(`sb-${ref}-auth-token`);
+    // Phase 2: main app sessionStorage session (first visit, same tab)
+    const raw=sessionStorage.getItem('ops-auth');
     if(!raw) return;
     const{access_token,refresh_token}=JSON.parse(raw);
     if(!access_token||!refresh_token) return;
