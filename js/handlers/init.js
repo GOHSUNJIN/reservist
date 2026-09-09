@@ -167,7 +167,9 @@ const InitHandlers = {
       });
       this._myAttendanceChannel = DB.realtime.subscribeMyAttendance(me.id, (row) => {
         const todayKey = Utils.dateKey(this.baseDate());
+        console.log('[myAtt] realtime row received', row.date, todayKey, row);
         if(row.date === todayKey){
+          console.log('[myAtt] updating today attendance');
           this.setState(s=>{
             const existing=s.attendance[s.currentUserId]||{};
             const incoming=DB.attendance._toEntry(row);
@@ -176,14 +178,19 @@ const InitHandlers = {
             return {attendance:{...s.attendance,[s.currentUserId]:merged}};
           });
         } else if(row.date < todayKey){
+          console.log('[myAtt] updating history for', row.date);
           const entry={date:row.date,...DB.attendance._toEntry(row)};
+          console.log('[myAtt] entry built', entry);
           this.setState(s=>{
             const exists=s.history.some(r=>r.date===row.date);
+            console.log('[myAtt] record exists in history:', exists, 'history length:', s.history.length);
             const history=exists
               ? s.history.map(r=>r.date===row.date?entry:r)
               : [...s.history,entry].sort((a,b)=>b.date.localeCompare(a.date));
             return {history};
           });
+        } else {
+          console.log('[myAtt] row date is in the future, ignoring', row.date);
         }
       });
       this._myLeaveChannel = DB.realtime.subscribeLeaveStatus(me.id, async (row) => {
