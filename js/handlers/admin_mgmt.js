@@ -44,6 +44,7 @@ const AdminMgmtHandlers = {
     }
     this.setState({addingAdmin:false,npAdminName:'',npAdminContact:'',npAdminPassword:'',addAdminOpen:false,showNpAdminPw:false});
     this._toast(npAdminName.trim()+' added as admin.');
+    this._log('admin', 'admin.added', { target_name: npAdminName.trim() });
   },
 
   askDeactivateAdmin:    function(id) { return () => this.setState({confirmDeactivateAdminId:id}); },
@@ -59,8 +60,10 @@ const AdminMgmtHandlers = {
       const {error}=await DB.personnel.demoteToReservist(id).catch(e=>({error:e}));
       if(error){this._toast('Failed to remove admin. Try again.','error');return;}
     }
+    const name = admin?.name || '';
     this.setState(s=>({adminsList:s.adminsList.filter(a=>a.id!==id),personnel:admin?[...s.personnel,{...admin,role:'reservist',batch_id:null,shift:null}]:s.personnel}));
     this._toast((admin?.name||'Admin')+' removed and returned to reservist pool.');
+    this._log('admin', 'admin.demoted', { target_id: id, target_name: name });
   },
 
   onPromoteAdminId:       function(e) { this.setState({promoteAdminId:e.target.value,confirmPromoteAdminId:null}); },
@@ -93,6 +96,7 @@ const AdminMgmtHandlers = {
     this.setState(s=>({personnel:s.personnel.filter(p=>p.id!==confirmPromoteAdminId),promoteAdminOpen:false}));
     await this.loadAdmins();
     this._toast(person.name+' promoted to admin.');
+    this._log('admin', 'admin.promoted', { target_id: confirmPromoteAdminId, target_name: person.name });
   },
 
 };

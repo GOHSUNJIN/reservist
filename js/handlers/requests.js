@@ -48,9 +48,11 @@ const RequestHandlers = {
             if(leave.date===todayKey){const freshAtt=await DB.attendance.getForDate(todayKey).catch(()=>null);if(freshAtt)this.setState({attendance:freshAtt,attendanceDate:todayKey});}
             if(leave.type==='personal'||leave.type==='other') this.setState(s=>({approvedLeavesCache:{...s.approvedLeavesCache,[leave.date]:{...(s.approvedLeavesCache?.[leave.date]||{}),[leave.personnel_id]:{type:leave.type,reason:leave.reason||''}}}}));
             this._toast('Request approved.');
+            if (leave) this._log('leave', 'leave.approved', { target_id: leave.personnel_id, target_name: leave.personnel?.name || '', date: leave.date, type: leave.type });
           }
         } else {
           this._toast('Request approved.');
+          if (leave) this._log('leave', 'leave.approved', { target_id: leave.personnel_id, target_name: leave.personnel?.name || '', date: leave.date, type: leave.type });
         }
       }
       this.setState({approvingLeaveId:null});
@@ -78,6 +80,7 @@ const RequestHandlers = {
     const _id=rejectLeaveId;
     this.setState({rejectLeaveId:null,rejectLeaveReason:'',confirmingDecline:false});
     this._toast('Request declined.');
+    if (_rLeave) this._log('leave', 'leave.rejected', { target_id: _rLeave.personnel_id, target_name: _rLeave.personnel?.name || '', date: _rLeave.date, type: _rLeave.type, reason: rejectLeaveReason.trim() });
     if(demo) this.setState(s=>({pendingLeaves:(s.pendingLeaves||[]).filter(l=>l.id!==_id)}));
     else this.loadPendingLeaves();
   },
@@ -120,6 +123,7 @@ const RequestHandlers = {
     const count=leaveSelectedIds.length, _approved=new Set(leaveSelectedIds);
     this.setState({leaveSelectedIds:[],bulkApprovingLeaves:false});
     this._toast(`${count} request${count!==1?'s':''} approved.`);
+    this._log('leave', 'leave.bulk_approved', { count });
     if(demo) this.setState(s=>({pendingLeaves:(s.pendingLeaves||[]).filter(l=>!_approved.has(l.id))}));
     else this.loadPendingLeaves();
   },
@@ -138,6 +142,7 @@ const RequestHandlers = {
     const count=leaveSelectedIds.length, _rejected=new Set(leaveSelectedIds);
     this.setState({leaveSelectedIds:[],confirmBulkLeaveReject:false,bulkLeaveRejectReason:''});
     this._toast(`${count} request${count!==1?'s':''} declined.`);
+    this._log('leave', 'leave.bulk_rejected', { count });
     if(demo) this.setState(s=>({pendingLeaves:(s.pendingLeaves||[]).filter(l=>!_rejected.has(l.id))}));
     else this.loadPendingLeaves();
   },
@@ -180,6 +185,7 @@ const RequestHandlers = {
       this.setState(s=>({myPendingRequests:[demoReq,...s.myPendingRequests],myLeaveHistory:[demoReq,...s.myLeaveHistory]}));
     }
     this._toast('Request submitted for approval.');
+    this._log('leave', 'leave.submitted', { date: leaveDate, type: leaveType });
     this.setState({leaveOpen:false,leaveSubmitting:false});
   },
 
@@ -195,6 +201,7 @@ const RequestHandlers = {
       }
       this.setState(s=>({myPendingRequests:s.myPendingRequests.filter(r=>r.id!==id),myLeaveHistory:s.myLeaveHistory.map(r=>r.id===id?{...r,status:'cancelled'}:r)}));
       this._toast('Request withdrawn.');
+      this._log('leave', 'leave.cancelled', {});
       if(!demo) this.loadMyLeaveHistory();
     };
   },
@@ -220,6 +227,7 @@ const RequestHandlers = {
     }
     this.setState(s=>({attendance:{...s.attendance,[s.currentUserId]:{...s.attendance[s.currentUserId],welfareNote:welfareNoteText.trim()}},welfareNoteOpen:false,welfareNoteSaving:false}));
     this._toast('Note saved.');
+    this._log('attendance', 'roster.welfare_note_saved', { date: Utils.dateKey(this.baseDate()) });
   },
 
   openMissedNote:   function(dateKey,existingText) { return () => this.setState({missedNoteOpen:true,missedNoteDateKey:dateKey,missedNoteText:existingText||''}); },
@@ -261,6 +269,8 @@ const RequestHandlers = {
     if(dateKey===today) this.setState(s=>({attendance:{...s.attendance,[logNoteId]:{...(s.attendance[logNoteId]||{}),welfareNote:logNoteText.trim()}},...clear}));
     else this.setState(s=>({attendanceCache:{...s.attendanceCache,[dateKey]:{...(s.attendanceCache[dateKey]||{}),[logNoteId]:{...(s.attendanceCache[dateKey]?.[logNoteId]||{}),welfareNote:logNoteText.trim()}}},...clear}));
     this._toast('Note saved.');
+    const person = this.state.personnel.find(p => p.id === logNoteId);
+    this._log('attendance', 'roster.log_note_saved', { date: dateKey, target_id: logNoteId, target_name: person?.name || '' });
   },
 
 };

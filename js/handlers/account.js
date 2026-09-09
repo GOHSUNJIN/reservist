@@ -59,6 +59,7 @@ const AccountHandlers = {
               const rawUrl=DB.storage.getAvatarUrl(uid);
               if(rawUrl){ const url=rawUrl+'?t='+Date.now(); localStorage.setItem('avatar_'+uid, url); this.setState(s=>({avatars:{...s.avatars,[uid]:url}})); }
               this._toast('Profile photo updated.');
+              this._log('account', 'account.photo_uploaded', {});
             }
           })
           .catch(()=>{
@@ -77,6 +78,7 @@ const AccountHandlers = {
     this.setState(s=>{const av={...s.avatars};delete av[uid];const noAv=new Set(s.noAvatarIds||[]);noAv.add(uid);return{avatars:av,noAvatarIds:noAv};});
     if(!this.state.demo) await DB.storage.deleteAvatar(uid).catch(()=>{});
     this._toast('Profile photo removed.');
+    this._log('account', 'account.photo_removed', {});
   },
 
   onAcctNameEdit:  function(e) { this.setState({acctNameEdit:e.target.value, acctNameError:'', acctNameSuccess:''}); },
@@ -87,6 +89,7 @@ const AccountHandlers = {
   saveAcctName: async function() {
     const name = this.state.acctNameEdit.trim();
     if(!name){ this.setState({acctNameError:'Name cannot be empty.'}); return; }
+    const prevName = this.cur()?.name || '';
     this.setState({acctSaving:true, acctNameError:'', acctNameSuccess:''});
     if(!this.state.demo){
       const {error} = await DB.personnel.updateName(this.state.currentUserId, name).catch(e=>({error:e}));
@@ -95,6 +98,7 @@ const AccountHandlers = {
     }
     this.setState(s=>({acctSaving:false, changeNameOpen:false, me:{...s.me, name}}));
     this._toast('Display name updated.');
+    this._log('account', 'account.name_changed', { old_name: prevName, new_name: name });
   },
 
   saveAcctPw: async function() {
@@ -111,6 +115,7 @@ const AccountHandlers = {
     }
     this.setState({acctSaving:false, changePwOpen:false, acctPwCurrent:'', acctPwNew:'', acctPwConfirm:''});
     this._toast('Password updated.');
+    this._log('account', 'account.password_changed', {});
   },
 
   requestAdminNotifs: async function() {

@@ -36,6 +36,7 @@ const PeopleHandlers = {
       this.setState(s=>({personnel:[...s.personnel,{id,name:npName.trim(),contact:cleanContact,shift:npShift,role:'reservist',batch_id:activeBatch.id,is_active:true}],npName:'',npContact:'',npShift:'OFFICE',npPassword:'',rosterSearch:'',addPersonnelOpen:false,npAddSearch:''}));
     }
     this._toast(npName.trim()+' added to roster.');
+    this._log('personnel', 'personnel.added', { target_name: npName.trim() });
   },
 
   confirmReenroll: async function() {
@@ -56,6 +57,7 @@ const PeopleHandlers = {
     this.setState(s=>({personnel:[...s.personnel,{...reactivated,name:finalName}],npName:'',npContact:'',npShift:'OFFICE',npPassword:'',npReenrollRecord:null,rosterSearch:'',addPersonnelOpen:false,npAddSearch:'',showNpPw:false}));
     DB.personnel.list(null,true,this._myDept()).then(fresh=>this.setState({personnel:fresh})).catch(()=>{});
     this._toast(finalName+' re-enrolled on the roster.');
+    this._log('personnel', 'personnel.re_enrolled', { target_id: npReenrollRecord.id, target_name: finalName });
   },
 
   cancelReenroll: function() { this.setState({npReenrollRecord:null,npAddSearch:'',npName:'',npContact:''}); },
@@ -101,6 +103,7 @@ const PeopleHandlers = {
       return {personnel,batchMembersCache,confirmDeactivateId:null};
     });
     this._toast(removedName+' removed from roster.');
+    this._log('personnel', 'personnel.removed', { target_id: confirmDeactivateId, target_name: removedName });
   },
 
   loadPeopleStats: async function() {
@@ -181,6 +184,7 @@ const PeopleHandlers = {
     this.closeBulkAdd();
     const msg=[added?added+' added':'',skipped?skipped+' already active':'',failed?failed+' failed':''].filter(Boolean).join(', ');
     this._toast(msg||'Done.',failed?'error':undefined);
+    if (added) this._log('personnel', 'personnel.bulk_added', { added, skipped, failed });
   },
 
 };

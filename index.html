@@ -29,6 +29,7 @@
 <script src="./js/db/storage.js" defer></script>
 <script src="./js/db/signups.js" defer></script>
 <script src="./js/db/realtime.js" defer></script>
+<script src="./js/db/audit.js" defer></script>
 <script src="./js/db.js" defer></script>
 <script src="./js/state.js" defer></script>
 <script src="./js/handlers/init.js" defer></script>
@@ -1459,7 +1460,7 @@
                       <div style="font-size:13.5px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</div>
                       <div style="display:flex;align-items:center;gap:5px;margin-top:2px;flex-wrap:wrap;">
                         <span onClick="{{ row.onCopyContact }}" style="font-size:11px;color:#9aa3b2;font-family:'IBM Plex Mono',monospace;cursor:pointer;" title="Tap to copy">{{ row.contact }}</span>
-                        <sc-if value="{{ row.showTimeText }}" hint-placeholder-val=""><span style="font-size:9px;color:#d4d9e2;">·</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;color:#8a94a3;">{{ row.timeText }}</span></sc-if>
+                        <sc-if value="{{ row.showTimeText }}" hint-placeholder-val=""><span style="font-size:9px;color:#d4d9e2;">·</span><span style="font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:{{ row.timeTextWeight }};color:{{ row.timeTextColor }};">{{ row.timeText }}</span></sc-if>
                         <sc-if value="{{ row.showStatPct }}" hint-placeholder-val=""><span style="font-size:9px;color:#d4d9e2;">·</span><span style="font-size:10px;font-weight:600;color:{{ row.statPctColor }};">{{ row.statPct }}</span></sc-if>
                       </div>
                       <sc-if value="{{ row.showMealBadge }}" hint-placeholder-val="">

@@ -114,6 +114,7 @@ const CheckinHandlers = {
       this.setState(s=>({attendance:{...s.attendance,[currentUserId]:rec},locStatus:'idle',locPhase:null,...(!bypassed&&key==='p1'?{showLateWarning:false}:{})}));
       this._haptic();
       this._toast({p1:'Checked in',p2:'Break recorded',p3:'Returned',p4:'Checked out'}[key]||'Recorded');
+      this._log('attendance', `checkin.${key}`, { date: Utils.dateKey(this.baseDate()), time, bypassed: bypassed || false });
       if(demo){this.setState({phaseSubmitting:false});return;}
       if(!isOnline){
         this._queuePush({type:'phase',id:currentUserId,date:today,key,time,dist,...(bypassed?{bypassed:true}:{})});
@@ -171,6 +172,7 @@ const CheckinHandlers = {
     }
     this.setState({lateReasonOpen:false,lateReasonText:'',lateReasonSubmitting:false});
     this._toast('Reason submitted.');
+    this._log('attendance', 'checkin.late_reason', { date: Utils.dateKey(this.baseDate()), reason: lateReasonText.trim() });
   },
 
 };

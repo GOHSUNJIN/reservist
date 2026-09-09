@@ -82,6 +82,7 @@ const BatchHandlers = {
     const newBatches = batches.map(b=>b.id===activeBatch.id?{...b,label:batchLabelText.trim()}:b);
     this.setState({batches:newBatches, editingBatchLabel:false});
     this._toast('Batch label updated.');
+    this._log('batch', 'batch.label_edited', { target_name: batchLabelText.trim() });
   },
 
   cancelBatchLabel: function() { this.setState({editingBatchLabel:false}); },
@@ -103,6 +104,7 @@ const BatchHandlers = {
     if(error) { this._toast('Failed to save notice.', 'error'); return; }
     this.setState(s=>({batches:s.batches.map(b=>b.id===batch.id?{...b,notice_text:text||null}:b), broadcastOpen:false}));
     this._toast(text ? `Notice posted to ${Utils.deptLabel(this._myDept())} reservists.` : 'Notice cleared.');
+    this._log('batch', 'batch.broadcast_updated', {});
   },
 
   openNoReportBulk: function() { this.setState({noReportBulkOpen:true, noReportBulkText:''}); },
@@ -168,6 +170,7 @@ const BatchHandlers = {
     });
     const _existingAtt = !isNowOn && Object.keys(this.state.attendanceCache[dk]||{}).length > 0;
     this._toast('No reporting '+(isNowOn?'enabled':'disabled')+' for '+Utils.fmtShort(d)+'.'+(_existingAtt?' Existing attendance records for this date are kept in the database.':''));
+    this._log('batch', 'batch.no_report_toggled', { date: dk });
   },
 
   onBatchJumpDate: function(e) { this.setState({batchJumpDate:e.target.value}); },
