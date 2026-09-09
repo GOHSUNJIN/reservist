@@ -1,4 +1,4 @@
-const CACHE = 'ops-v115';
+const CACHE = 'ops-v116';
 const APP_ASSETS = [
   './',
   './index.html',
@@ -21,6 +21,7 @@ const APP_ASSETS = [
   './js/db/realtime.js',
   './js/db/signups.js',
   './js/db/storage.js',
+  './js/db/audit.js',
   './js/handlers/auth.js',
   './js/handlers/init.js',
   './js/handlers/batch.js',
