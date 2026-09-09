@@ -43,7 +43,10 @@ const DB_Attendance = {
     const { data } = await _db.from('attendance')
       .select('*').eq('personnel_id', personnelId).lt('date', today)
       .order('date', { ascending: false }).limit(500);
-    return (data || []).map(r => ({ date: r.date, ...this._toEntry(r) }));
+    console.log('[getHistory] raw rows from DB:', data);
+    const mapped = (data || []).map(r => ({ date: r.date, ...this._toEntry(r) }));
+    console.log('[getHistory] mapped history:', mapped);
+    return mapped;
   },
 
   async getForPerson(personnelId, startDate, endDate) {
