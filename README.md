@@ -161,6 +161,53 @@ Every action in the system is recorded:
 - All leave and MC approvals record who approved them and when. Rejections record the reviewer and reason.
 - **Absences are written automatically.** If a reservist does not check in by midnight, the system marks them absent through two independent processes (one in the app, one on the server) to ensure no gaps occur even if the supervisor is offline. See [Auto-Absent](#auto-absent).
 - Data is stored in a managed cloud database. Nothing relies on a local file or spreadsheet.
+- Every significant user action — logins, check-in phases, roster changes, leave decisions, personnel management, exports, and account changes — is written to a dedicated `audit_log` table and visible in the ReservistGO Monitor.
+
+---
+
+## ReservistGO Monitor
+
+A separate, login-protected admin console accessible at `/admin`. Restricted to supervisor and master accounts only.
+
+**Access:** Navigate directly to `/admin`. If you are already logged into the main app as a supervisor or master, the monitor signs you in automatically using your existing session with no second login required. Reservists and guests are shown an access-denied screen.
+
+**Session isolation:** The monitor maintains its own session independently of the main app. Logging out of either does not affect the other. A deactivated account cannot access the monitor even if a session token is present.
+
+### What it shows
+
+**Live activity feed:** Every recorded action appears as a row in the feed, ordered newest first. Each row shows:
+- Who performed the action (name, role badge, avatar)
+- What they did (plain-language action label)
+- Which category and department the action belongs to
+- A relative timestamp ("2m ago") and an absolute time
+- Expandable metadata panel (tap any row with details to see the full payload: target IDs, dates, counts, corrected times, etc.)
+
+**Stats bar:** Four tiles at the top update on every load:
+- Total events today
+- Unique actors today
+- Total events this week
+- Top category today
+
+### Filtering
+
+- **Search:** Full-text filter across actor name, action, and target name with 300 ms debounce.
+- **Date range:** From/to date pickers to narrow to any window.
+- **Category pills:** Filter by Auth, Attendance, Leave, Signup, Personnel, Cycle, Export, Account, or Admin. Selecting a pill resets the offset and reloads.
+- **Department selector (master only):** Switch between departments to scope the entire feed to one department, or leave unset to view all.
+
+### Actions logged
+
+| Category | Actions recorded |
+|---|---|
+| Auth | Login, logout, session extended |
+| Attendance | Each check-in phase (P1–P4), late reason submitted, status set, mark-all absent, mark-all present, time correction, person note, log note, welfare note, missed-day note |
+| Leave | Submitted, approved, bulk approved, rejected, bulk rejected, withdrawn |
+| Signup | Request submitted, approved, bulk approved, rejected, re-opened |
+| Personnel | Added, re-enrolled, removed, bulk added, bulk permanently deleted, permanently deleted, password reset |
+| Cycle | Created, deleted, label edited, broadcast updated, no-report day toggled, bulk no-report days |
+| Export | Excel export, print report, person history export |
+| Account | Display name changed, password changed, photo uploaded, photo removed, account deleted |
+| Admin | Supervisor added, demoted, promoted |
 
 ---
 
@@ -312,6 +359,8 @@ docs/
 
 `index.html` is the single-page template that wires all builders and handlers together. The `<x-dc>` element at the top of the file is where all deployment-specific configuration lives.
 
+`admin/index.html` is the ReservistGO Monitor — a self-contained single-file admin console. It has its own Supabase client (separate session storage key `ops-monitor-session`), its own login form, and no dependency on the main app's JS files. On first visit within the same tab as an authenticated admin session, it auto-logs in by reading the main app's session from `sessionStorage` under `ops-auth`.
+
 ### Key Patterns
 
 **Attendance state cache**: Today's attendance is stored in `state.attendance`. Past and future dates are stored in `state.attendanceCache`, keyed by date string (`YYYY-MM-DD`). Roster handlers use `_viewAttMap`, `_setViewEntry`, and `_delViewEntry` helpers to read and write the correct map depending on the current view offset.
@@ -332,7 +381,7 @@ docs/
 
 ### Database Schema
 
-All data is stored in a structured cloud database (PostgreSQL), with six tables:
+All data is stored in a structured cloud database (PostgreSQL), with seven tables:
 
 **Personnel** - one row per person.
 
@@ -404,6 +453,21 @@ All data is stored in a structured cloud database (PostgreSQL), with six tables:
 | Status | Pending, Approved, or Rejected |
 | Reviewed by | Name of the supervisor who actioned it |
 | Created at | Submission timestamp |
+
+**Audit log** - one row per recorded user action, written by the app on every significant event.
+
+| Field | What it stores |
+|---|---|
+| Actor ID | Personnel ID of the person who performed the action |
+| Actor name | Display name at time of action |
+| Actor role | Role at time of action (reservist, admin, superadmin) |
+| Department | Department context in which the action occurred |
+| Category | Broad category (auth, attendance, leave, signup, personnel, batch, export, account, admin) |
+| Action | Specific action key (e.g. `checkin.p1`, `leave.approved`, `roster.times_corrected`) |
+| Target ID | Personnel ID of the person affected, if applicable |
+| Target name | Display name of the affected person, if applicable |
+| Meta | JSONB payload with action-specific details (dates, counts, corrected times, etc.) |
+| Created at | Timestamp of the action |
 
 ### Auto-Absent
 
@@ -531,6 +595,20 @@ CREATE TABLE signup_requests (
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
   reviewed_by TEXT,
   reviewed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+CREATE TABLE audit_log (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  actor_id UUID,
+  actor_name TEXT,
+  actor_role TEXT,
+  department department_type,
+  category TEXT NOT NULL,
+  action TEXT NOT NULL,
+  target_id UUID,
+  target_name TEXT,
+  meta JSONB,
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 ```
@@ -930,6 +1008,36 @@ All admin checks above apply. Run them for both departments. Then verify the fol
 
 ---
 
+### ReservistGO Monitor (`/admin`)
+
+- [ ] Navigate to `/admin` as a logged-in supervisor: auto-login fires, lands on monitor without a second login prompt
+- [ ] Navigate to `/admin` as a logged-in master: auto-login fires, department selector visible in header, "Full access" dept chip shown
+- [ ] Navigate to `/admin` as a logged-in reservist: access-denied screen shown, not the activity feed
+- [ ] Navigate to `/admin` with no main app session: login form shown
+- [ ] Log in via the monitor login form as an admin: activity feed loads, correct department scoped
+- [ ] Log in via the monitor login form as a deactivated account: access denied error shown, no feed access
+- [ ] Log in via the monitor login form as a reservist: access denied error shown
+- [ ] Refresh the monitor page while logged in: session persists, feed reloads without re-login
+- [ ] Log out of the monitor: login form shown, session cleared; main app session unaffected
+- [ ] Log out of the main app: monitor session unaffected (independent sessions)
+- [ ] Activity feed loads and shows events ordered newest first
+- [ ] Tap any row with metadata: expands to show meta payload; tap again to collapse
+- [ ] Search by actor name: feed filters correctly
+- [ ] Search by action text: feed filters correctly
+- [ ] Search by target name: feed filters correctly
+- [ ] Clear search: feed resets to all events
+- [ ] Select a category pill (e.g. Attendance): only attendance events shown, count updates
+- [ ] Select All pill: full feed restored
+- [ ] Set date From/To: feed scoped to that range
+- [ ] Click Load more: next page appended, no duplicate rows
+- [ ] Double-click Load more rapidly: no duplicate rows (guard prevents concurrent fetches)
+- [ ] Stat tiles show correct counts: Events today, Unique actors today, This week, Top category
+- [ ] Master dept selector: switch to a department, feed and stats re-scope; switch back, previous context restored
+- [ ] Perform a check-in phase in the main app, then view the monitor: auth.login and checkin.p1 events appear
+- [ ] Admin approves a leave request: leave.approved event appears in monitor with target name and date in metadata
+
+---
+
 ## Known Limitations
 
 - **CPO Info tab content is a placeholder.** The Info tab for Crime Prevention Office (CPO) reservists currently shows placeholder text. The attire, location, and operational details for CPO have not yet been configured in the codebase.
@@ -1007,7 +1115,7 @@ Features that improve day-to-day operations but are not blockers for handover.
 
 12. **Audit log viewer**: A read-only tab for the Master account showing all supervisor actions (overrides, time corrections, approvals, account changes). Useful for accountability without database access.
 
-    _Partial: admin edits are recorded inline in the attendance.edit_log JSONB field and displayed on log cards. There is no dedicated audit_log table or Master-level viewer showing actions across all personnel and cycles._
+    **Done:** a dedicated `audit_log` table records every significant action across all roles and departments. The ReservistGO Monitor at `/admin` provides a searchable, filterable live feed of all events with expandable metadata, stat tiles, category pills, date range filters, and department scoping for master accounts. Auto-logs in from the main app session when navigating as an authenticated supervisor or master.
 
 13. **Automated attendance summaries**: Scheduled daily or weekly reports to the supervisor's WhatsApp or email covering attendance rate, pending requests, and missing clock-outs. Requires a messaging API integration.
 
@@ -1119,7 +1227,7 @@ New tables have no impact on anything existing. Existing queries do not touch th
 |---|---|
 | 27 - Announcement board | `announcements` |
 | 14 - Equipment tracking | `equipment_issues` |
-| 12 - Audit log viewer | `audit_log` (or extend existing `edit_log` JSONB) |
+| ~~12 - Audit log viewer~~ | Done. `audit_log` table live; ReservistGO Monitor at `/admin`. |
 | 26 - Duty roster | `duty_assignments` |
 | 11 - Shift scheduler | `shift_schedule` |
 | 16 - MC document upload | New Supabase storage bucket only |
