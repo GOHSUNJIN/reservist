@@ -18,7 +18,7 @@ const PeopleHandlers = {
     const activeBatch=batches[activeBatchIdx||0];
     if(!activeBatch){this._toast('No active batch selected. Create a batch first.','error');return;}
     if(!demo){
-      const existingRecord=await DB.personnel.findByContact(cleanContact).catch(()=>null);
+      const existingRecord=await DB.personnel.findByContact(cleanContact, this._myDept()).catch(()=>null);
       if(existingRecord&&!existingRecord.is_active){this.setState({npReenrollRecord:existingRecord});return;}
       if(existingRecord&&existingRecord.is_active){this._toast('This contact is already registered.','error');return;}
       if(!npPassword.trim()){this._toast('Password is required for new personnel.','error');return;}
@@ -43,6 +43,9 @@ const PeopleHandlers = {
     if(!npReenrollRecord) return;
     const activeBatch=batches[activeBatchIdx||0];
     if(!activeBatch){this._toast('No active batch selected.','error');return;}
+    if(npReenrollRecord.department && npReenrollRecord.department !== this._myDept()){
+      console.warn('[confirmReenroll] cross-department re-enrollment: person dept='+npReenrollRecord.department+', admin dept='+this._myDept());
+    }
     const addedName=npName.trim();
     const {data:reactivated,error:reactErr}=await DB.personnel.reactivate(npReenrollRecord.id,{batchId:activeBatch?.id,shift:npShift,department:this._myDept()});
     if(reactErr||!reactivated){this._toast('Failed to re-enroll. Try again.','error');return;}
@@ -162,7 +165,7 @@ const PeopleHandlers = {
     this.setState({bulkAddAdding:true});
     let added=0, skipped=0, failed=0;
     for(const r of valid){
-      const existing=await DB.personnel.findByContact(r.contact).catch(()=>null);
+      const existing=await DB.personnel.findByContact(r.contact, this._myDept()).catch(()=>null);
       if(existing){
         if(!existing.is_active){const {error}=await DB.personnel.reactivate(existing.id,{batchId:batch.id,shift:r.shift});error?failed++:added++;}
         else skipped++;

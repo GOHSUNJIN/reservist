@@ -50,9 +50,13 @@ const DB_Auth = {
     const { data: sd } = await _db.auth.getSession();
     const session = sd?.session;
     const result = await this.signup(contact, password, name);
+    const signedUpUser = result?.user;
     if (session) {
       try { await _db.auth.setSession({ access_token: session.access_token, refresh_token: session.refresh_token }); }
-      catch { await _db.auth.refreshSession().catch(()=>{}); }
+      catch {
+        const { error: refreshErr } = await _db.auth.refreshSession().catch(()=>({error:true}));
+        if (refreshErr) console.warn('[createUserAsAdmin] session restore failed — orphan auth user may exist:', signedUpUser?.id);
+      }
     }
     return result;
   },

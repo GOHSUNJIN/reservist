@@ -20,9 +20,13 @@ const DB_Personnel = {
     return data || null;
   },
 
-  async findByContact(contact) {
+  async findByContact(contact, dept) {
     const { data } = await _db.from('personnel').select('*').eq('contact', contact);
     if (!data || !data.length) return null;
+    if (dept) {
+      const deptMatch = data.find(p => p.is_active && p.department === dept) || data.find(p => p.department === dept);
+      if (deptMatch) return deptMatch;
+    }
     return data.find(p => p.is_active) || data[0];
   },
 

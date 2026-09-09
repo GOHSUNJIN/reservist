@@ -124,12 +124,16 @@ const InitHandlers = {
     const _alMap={};
     for(const l of approvedLeaves) _alMap[l.personnel_id]={type:l.type,reason:l.reason||''};
 
+    const _myPersonnelIds = new Set(personnel.map(p=>p.id));
+    const _filteredAtt = role==='admin'
+      ? Object.fromEntries(Object.entries(attendance).filter(([id])=>_myPersonnelIds.has(id)))
+      : (attendance[me.id] !== undefined ? {[me.id]: attendance[me.id]} : {});
     this.setState({
       authed:true, role,
       tab: role==='admin'?'overview':'checkin',
       currentUserId: me.id,
       me, personnel, batches, activeBatchIdx,
-      attendance, noReportDays, history, attendanceDate: today, historyLoaded: true,
+      attendance: _filteredAtt, noReportDays, history, attendanceDate: today, historyLoaded: true,
       authError:'', loading:false, accountDeleted:false, demo:false, isSuperAdmin,
       adminDeptFilter: dept,
       approvedLeavesCache: {[today]: _alMap},
@@ -246,9 +250,11 @@ const InitHandlers = {
       ]);
       const _ndAlMap={};
       for(const l of newDateLeaves) _ndAlMap[l.personnel_id]={type:l.type,reason:l.reason||''};
+      const _ndPersonnelIds=new Set(this.state.personnel.map(p=>p.id));
+      const _ndFilteredAtt=Object.fromEntries(Object.entries(att).filter(([id])=>_ndPersonnelIds.has(id)));
       this._unsubscribeRealtime();
       this._subscribeRealtime(newDate);
-      this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0, attendance:att, attendanceDate:newDate, noReportDays:nrd, viewOffset:0, attendanceCache:{}, approvedLeavesCache:{[newDate]:_ndAlMap}, confirmMarkAllAbsent:false, lateAlertDismissedCount:0});
+      this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0, attendance:_ndFilteredAtt, attendanceDate:newDate, noReportDays:nrd, viewOffset:0, attendanceCache:{}, approvedLeavesCache:{[newDate]:_ndAlMap}, confirmMarkAllAbsent:false, lateAlertDismissedCount:0});
     } else if(this.state.role==='reservist'){
       const myBatch=this.state.batches.find(b=>b.id===this.state.me?.batch_id);
       if(myBatch?.dekit_date && newDate>=myBatch.dekit_date){
@@ -278,7 +284,7 @@ const InitHandlers = {
     this._ensureLiveBatchRunning = true;
     const today = overrideDate || Utils.dateKey(this.baseDate());
     const live = batches.find(b=>b.is_live);
-    if(live && live.start_date<=today && today<=live.end_date){ this._ensureLiveBatchRunning=false; return batches; }
+    if(live && live.start_date<=today && live.end_date && today<=live.end_date){ this._ensureLiveBatchRunning=false; return batches; }
     const current = batches.find(b=>b.start_date<=today && today<=b.end_date);
     if(current){
       await DB.batches.activate(current.id, dept).catch(()=>{});
@@ -296,7 +302,7 @@ const InitHandlers = {
       return r;
     }
     const allBatches = await DB.batches.list().catch(()=>[]);
-    for(let attempt=0; attempt<20; attempt++){
+    for(let attempt=0; attempt<6; attempt++){
       const lastBatch = sorted[sorted.length-1];
       const fromDate = lastBatch?.end_date
         ? Utils.addDays(new Date(lastBatch.end_date+'T00:00:00'), 1)

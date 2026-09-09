@@ -61,6 +61,7 @@ const DB_Attendance = {
   },
 
   async upsert(personnelId, dateStr, status, extras = {}) {
+    if (extras.time && !/^\d{2}:\d{2}$/.test(extras.time)) return {error:'invalid_time'};
     const payload = { status };
     if (extras.time && extras.time !== '-') payload.check_in_time = extras.time + ':00';
     if (extras.dist != null) payload.gps_distance_m = extras.dist;

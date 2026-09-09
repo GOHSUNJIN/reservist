@@ -44,8 +44,10 @@ const MiscHandlers = {
       DB.attendance.getForDate(today),
       activeBatch ? DB.noReportDays.list(activeBatch.start_date, activeBatch.dekit_date||activeBatch.end_date, dept) : Promise.resolve(new Set()),
     ]);
+    const _swPersonnelIds=new Set(personnel.map(p=>p.id));
+    const _swFilteredAtt=Object.fromEntries(Object.entries(attendance).filter(([id])=>_swPersonnelIds.has(id)));
     this._unsubscribeRealtime();
-    this.setState({batches, activeBatchIdx, personnel, attendance, attendanceDate:today, noReportDays, batchLoading:false});
+    this.setState({batches, activeBatchIdx, personnel, attendance:_swFilteredAtt, attendanceDate:today, noReportDays, batchLoading:false});
     this._subscribeRealtime(today);
     this._subscribeAdminRequests();
     setTimeout(()=>Promise.all([
@@ -82,7 +84,11 @@ const MiscHandlers = {
       attendanceCache = await DB.attendance.getForBatch(activeBatch.start_date, activeBatch.end_date).catch(()=>({}));
     }
     const noReportDaysCache = activeBatch ? {[activeBatch.id]: noReportDays} : {};
-    this.setState({batches, activeBatchIdx, attendance, noReportDays, history, attendanceCache, noReportDaysCache, historyLoaded:true});
+    const _rpPersonnelIds=new Set(this.state.personnel.map(p=>p.id));
+    const _rpFilteredAtt=role==='admin'
+      ? Object.fromEntries(Object.entries(attendance).filter(([id])=>_rpPersonnelIds.has(id)))
+      : (attendance[me.id] !== undefined ? {[me.id]: attendance[me.id]} : {});
+    this.setState({batches, activeBatchIdx, attendance:_rpFilteredAtt, noReportDays, history, attendanceCache, noReportDaysCache, historyLoaded:true});
   },
 
   // ── Navigation ─────────────────────────────────────────────────────────
