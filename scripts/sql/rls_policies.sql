@@ -169,6 +169,9 @@ CREATE POLICY "nrd_delete" ON no_report_days FOR DELETE TO authenticated
 -- ── audit_log ────────────────────────────────────────────────
 ALTER TABLE audit_log ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "audit_log_insert" ON audit_log;
+DROP POLICY IF EXISTS "audit_log_select" ON audit_log;
+
 -- Any authenticated user can write audit events (all roles log actions)
 CREATE POLICY "audit_log_insert" ON audit_log
   FOR INSERT TO authenticated WITH CHECK (true);
