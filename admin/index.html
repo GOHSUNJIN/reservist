@@ -555,14 +555,14 @@ function buildRow(ev){
 function loadMore(){loadEvents(false);}
 
 // ── Session restore ────────────────────────────────────────────────────────
-// Reads the main app's localStorage session (never stored by this page since
-// persistSession:false), restores it in-memory only, then role-checks.
+// Uses a temporary standard client to read the main app's persisted session,
+// then hands the tokens to the non-persistent _db client (no writes to storage).
 (async()=>{
   try {
-    const ref=SUPABASE_URL.split('//')[1].split('.')[0];
-    const raw=localStorage.getItem(`sb-${ref}-auth-token`);
-    if(!raw) return;
-    const{access_token,refresh_token}=JSON.parse(raw);
+    const _reader=supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+    const{data:rd}=await _reader.auth.getSession();
+    if(!rd?.session) return;
+    const{access_token,refresh_token}=rd.session;
     if(!access_token||!refresh_token) return;
     const{data,error}=await _db.auth.setSession({access_token,refresh_token});
     if(error||!data?.session?.user) return;
