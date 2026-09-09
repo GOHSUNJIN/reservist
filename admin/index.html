@@ -488,7 +488,9 @@ async function loadEvents(reset){
   if(_to) q=q.lte('created_at',_to+'T23:59:59');
   if(_search){const s=_search.replace(/[%_\\]/g,'\\$&').replace(/'/g,"''");q=q.or(`actor_name.ilike.%${s}%,action.ilike.%${s}%,target_name.ilike.%${s}%`);}
   q=q.order('created_at',{ascending:false}).range(_offset,_offset+LIMIT-1);
+  console.log('[monitor] loadEvents query — dept:', dept, 'cat:', _cat, 'search:', _search, 'from:', _from, 'to:', _to, 'offset:', _offset);
   const{data,count,error}=await q;
+  console.log('[monitor] loadEvents result — count:', count, 'rows:', data?.length, 'error:', error);
   if(seq!==_loadSeq) return;
   _loadingMore=false;
   if(error){list.innerHTML=`<div class="empty"><div class="empty-title">Failed to load</div><div class="empty-sub">${esc(error.message)}</div></div>`;return;}
