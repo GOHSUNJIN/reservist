@@ -571,7 +571,7 @@ async function loadStats(){
   if(!_me) return;
   const dept=_isSA?(_filterDept||null):(_me.department||null);
   const today=new Date(); today.setHours(0,0,0,0);
-  let q=_db.from('audit_log').select('category,actor_id');
+  let q=_db.from('audit_log').select('category,actor_id').neq('category','auth');
   if(dept) q=q.eq('department',dept);
   q=q.gte('created_at',today.toISOString());
   const {data:td}=await q;
@@ -585,7 +585,7 @@ async function loadStats(){
   document.getElementById('stat-top-cat').textContent=topCat?(CAT[topCat]?.label||topCat):'-';
 
   const wk=new Date(); wk.setDate(wk.getDate()-6); wk.setHours(0,0,0,0);
-  let q2=_db.from('audit_log').select('id',{count:'exact',head:true});
+  let q2=_db.from('audit_log').select('id',{count:'exact',head:true}).neq('category','auth');
   if(dept) q2=q2.eq('department',dept);
   q2=q2.gte('created_at',wk.toISOString());
   const{count}=await q2;
@@ -641,7 +641,7 @@ async function loadEvents(resetPage){
   list.innerHTML='<div class="spinner-wrap"><div class="spinner"></div></div>';
   if(!_me) return;
   const dept=_isSA?(_filterDept||null):(_me.department||null);
-  let q=_db.from('audit_log').select('*',{count:'exact'});
+  let q=_db.from('audit_log').select('*',{count:'exact'}).neq('category','auth');
   if(dept) q=q.eq('department',dept);
   if(_cats.size>0) q=q.in('category',[..._cats]);
   if(_from) q=q.gte('created_at',_from+'T00:00:00');
@@ -756,7 +756,7 @@ function subscribeRealtime(){
   _realtimeCh=_db.channel('monitor-audit-live')
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'audit_log'},payload=>{
       const ev=payload.new;
-      if(!ev||!_me) return;
+      if(!ev||!_me||ev.category==='auth') return;
       const dept=_isSA?(_filterDept||null):(_me.department||null);
       if(dept&&ev.department!==dept) return;
       if(_page!==0||_search||_from||_to||(_cats.size>0&&!_cats.has(ev.category))){
