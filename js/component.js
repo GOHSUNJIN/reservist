@@ -54,6 +54,8 @@ class AppComponent extends DCLogic {
           let ok = true;
           if(pend.type==='phase'){
             await DB.attendance.logPhase(pend.id, pend.date, pend.key, pend.time, pend.dist, pend.bypassed||false).catch(()=>{ ok=false; });
+          } else if(pend.type==='audit_log'){
+            await DB.audit.log(pend.entry).catch(()=>{ ok=false; });
           } else {
             await DB.attendance.upsert(pend.id, pend.date, pend.status, pend.extras).catch(()=>{ ok=false; });
           }
@@ -129,7 +131,11 @@ class AppComponent extends DCLogic {
       delete m.target_id; delete m.target_name; delete m.department;
       if (Object.keys(m).length) entry.meta = m;
     }
-    DB.audit.log(entry).catch(() => {});
+    if (!this.state.isOnline) {
+      this._queuePush({ type: 'audit_log', entry });
+      return;
+    }
+    DB.audit.log(entry).catch(() => { this._queuePush({ type: 'audit_log', entry }); });
   }
 
   // ── Render ────────────────────────────────────────────────────────────────
