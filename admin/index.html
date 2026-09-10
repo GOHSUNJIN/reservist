@@ -915,8 +915,8 @@ function buildActionText(ev){
       const labels={'checkin.p1':'Checked in','checkin.p2':'Went on lunch break','checkin.p3':'Returned from lunch','checkin.p4':'Checked out'};
       const m2=ev.meta||{};
       let s=labels[ev.action];
-      if(m2.date) s+=` on <strong>${esc(fmtDk(m2.date))}</strong>`;
       if(m2.time) s+=` at <strong>${esc(m2.time)}</strong>`;
+      if(m2.date) s+=` on <strong>${esc(fmtDk(m2.date))}</strong>`;
       if(m2.gps_bypassed) s+=` <span class="dbypass">GPS bypass</span>`;
       return s;
     }
