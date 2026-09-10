@@ -31,6 +31,7 @@ const NavBuilders = {
       offlineQueueMsg:(()=>{const n=this._offlineQueues?.length||0;return s.offlinePending?': '+n+' action'+(n===1?'':'s')+' queued':'';})(),
       showIdleWarning: !!(s.idleWarning && !s.sessionExpiring),
       hasPendingLeave: !!(s.myPendingRequests?.length),
+      openMonitor: () => window.open('./admin/', '_blank'),
     };
   },
 
