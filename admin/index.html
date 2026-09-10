@@ -109,6 +109,13 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 .meta-key{font-size:10px;font-weight:600;color:#8a94a3;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px;}
 .meta-val{font-size:12.5px;color:#161f30;font-weight:500;word-break:break-all;}
 .expand-hint{font-size:11px;color:#b8c0cc;margin-top:4px;font-style:italic;}
+.event-detail{font-size:12px;color:#3a4558;margin:4px 0 2px;line-height:1.8;display:flex;flex-wrap:wrap;gap:2px 14px;}
+.dphase{white-space:nowrap;display:flex;align-items:center;gap:3px;}
+.dlabel{color:#8a94a3;font-size:11px;font-weight:600;}
+.dv{color:#161f30;font-weight:500;}
+.darr{color:#2f5fd0;font-weight:700;}
+.dbypass{background:#fef3ec;color:#e07b39;font-size:10px;font-weight:600;border-radius:4px;padding:1px 5px;margin-left:2px;}
+.event-dept-chip{font-size:10.5px;font-weight:600;border-radius:5px;padding:2px 7px;white-space:nowrap;}
 
 /* ── Load more ───────────────────────────────────────────────────────── */
 .load-more-row{padding:16px;text-align:center;border-top:1px solid #f0f3f9;}
@@ -328,6 +335,12 @@ const ACTIONS = {
 };
 
 const DEPT_LABELS = { ops_security:'Ops Security', cas:'CAS', lnf:'L&F' };
+const DEPT_CHIPS = {
+  ops_security:{bg:'#e8edf8',color:'#2f5fd0',label:'Ops Security'},
+  cas:         {bg:'#e7f3ec',color:'#1f8a5b',label:'CAS'},
+  lnf:         {bg:'#fdf6e9',color:'#b9791a',label:'L&F'},
+  nrd:         {bg:'#f0ecfd',color:'#6b52c8',label:'NRD'},
+};
 
 const META_LABELS = {
   date:'Date', time:'Time', status:'Status', prev_status:'Prev status',
@@ -538,12 +551,113 @@ function buildAvatarHtml(actorId, actorName, actorRole){
   </div>`;
 }
 
+function buildActionText(ev){
+  const m=ev.meta||{};
+  const tn=ev.target_name?`<strong>${esc(ev.target_name)}</strong>`:'';
+  switch(ev.action){
+    case 'roster.times_corrected': return tn?`Corrected ${tn}'s attendance times`:'Corrected attendance times';
+    case 'roster.status_set':
+      if(tn&&m.status) return `Marked ${tn} <strong>${esc(m.status)}</strong>`;
+      return tn?`Set ${tn}'s attendance status`:'Set attendance status';
+    case 'roster.mark_all_absent':   return 'Marked all absent';
+    case 'roster.mark_all_present':  return 'Marked all present';
+    case 'roster.person_note_saved': return tn?`Saved note for ${tn}`:'Saved person note';
+    case 'roster.log_note_saved':    return 'Saved log note';
+    case 'roster.welfare_note_saved':return tn?`Saved welfare note for ${tn}`:'Saved welfare note';
+    case 'roster.missed_note_saved': return tn?`Saved missed-day note for ${tn}`:'Saved missed-day note';
+    case 'checkin.p1':               return 'Checked in';
+    case 'checkin.p2':               return 'Went on lunch break';
+    case 'checkin.p3':               return 'Returned from lunch';
+    case 'checkin.p4':               return 'Checked out';
+    case 'checkin.late_reason':      return 'Submitted late reason';
+    case 'leave.submitted':          return tn?`Submitted leave request for ${tn}`:'Submitted leave request';
+    case 'leave.approved':           return tn?`Approved ${tn}'s leave request`:'Approved leave request';
+    case 'leave.rejected':           return tn?`Declined ${tn}'s leave request`:'Declined leave request';
+    case 'leave.cancelled':          return tn?`Withdrew ${tn}'s leave request`:'Withdrew leave request';
+    case 'leave.bulk_approved':      return 'Bulk approved leave requests';
+    case 'leave.bulk_rejected':      return 'Bulk declined leave requests';
+    case 'signup.request_submitted': return 'Submitted signup request';
+    case 'signup.approved':          return tn?`Approved ${tn}'s signup`:'Approved signup';
+    case 'signup.rejected':          return tn?`Declined ${tn}'s signup`:'Declined signup';
+    case 'signup.reopened':          return tn?`Re-opened ${tn}'s signup`:'Re-opened signup';
+    case 'signup.bulk_approved':     return 'Bulk approved signups';
+    case 'personnel.added':          return tn?`Added ${tn} to roster`:'Added to roster';
+    case 'personnel.removed':        return tn?`Removed ${tn} from roster`:'Removed from roster';
+    case 'personnel.re_enrolled':    return tn?`Re-enrolled ${tn}`:'Re-enrolled personnel';
+    case 'personnel.permanently_deleted': return tn?`Permanently deleted ${tn}'s record`:'Permanently deleted record';
+    case 'personnel.bulk_added':     return 'Bulk added personnel';
+    case 'personnel.bulk_deleted':   return 'Bulk permanently deleted records';
+    case 'personnel.password_reset': return tn?`Reset ${tn}'s password`:'Reset password';
+    case 'admin.added':              return tn?`Added ${tn} as supervisor`:'Added supervisor';
+    case 'admin.demoted':            return tn?`Demoted ${tn}`:'Demoted supervisor';
+    case 'admin.promoted':           return tn?`Promoted ${tn} to supervisor`:'Promoted to supervisor';
+    case 'batch.created':            return 'Created reporting cycle';
+    case 'batch.deleted':            return 'Deleted reporting cycle';
+    case 'batch.activated':          return 'Activated reporting cycle';
+    case 'batch.label_edited':       return 'Edited cycle label';
+    case 'batch.broadcast_updated':  return 'Updated cycle notice';
+    case 'batch.no_report_toggled':  return 'Toggled no-report day';
+    case 'batch.no_report_bulk':     return 'Bulk set no-report days';
+    case 'account.name_changed':     return m.new_name?`Changed name to <strong>${esc(m.new_name)}</strong>`:'Changed display name';
+    case 'account.password_changed': return 'Changed account password';
+    case 'account.photo_uploaded':   return 'Uploaded profile photo';
+    case 'account.photo_removed':    return 'Removed profile photo';
+    case 'account.deleted':          return 'Deleted own account';
+    case 'export.excel':             return 'Exported Excel report';
+    case 'export.print':             return 'Generated print report';
+    case 'export.person_history':    return tn?`Exported ${tn}'s history`:'Exported person history';
+    case 'auth.login':               return 'Logged in';
+    case 'auth.logout':              return 'Logged out';
+    case 'auth.session_extended':    return 'Extended session';
+    default: return esc(ACTIONS[ev.action]||ev.action.replace(/[._]/g,' '));
+  }
+}
+
+function buildInlineDetail(ev){
+  const m=ev.meta||{};
+  if(ev.action==='roster.times_corrected'){
+    const phases=[
+      ['Check-in',m.check_in,m.prev_check_in],
+      ['Lunch out',m.lunch_out,m.prev_lunch_out],
+      ['Return',m.return,m.prev_return],
+      ['Check-out',m.check_out,m.prev_check_out],
+    ];
+    const parts=phases.filter(([,c,p])=>c||p).map(([label,curr,prev])=>{
+      const from=prev||'—', to=curr||'—';
+      const arrow=from!==to?`<span class="darr">→</span><span class="dv">${esc(to)}</span>`:'';
+      return `<span class="dphase"><span class="dlabel">${esc(label)}</span><span class="dv">${esc(from)}</span>${arrow}</span>`;
+    });
+    if(!parts.length) return '';
+    const dateStr=m.date?`<span class="dphase"><span class="dlabel">on</span><span class="dv">${esc(m.date)}</span></span>`:'';
+    return `<div class="event-detail">${parts.join('')}${dateStr}</div>`;
+  }
+  if(ev.action==='roster.status_set'){
+    const from=m.prev_status||'—', to=m.status||'—';
+    const arrow=from!==to?`<span class="darr">→</span><span class="dv">${esc(to)}</span>`:'';
+    const dateStr=m.date?`<span class="dphase"><span class="dlabel">on</span><span class="dv">${esc(m.date)}</span></span>`:'';
+    return `<div class="event-detail"><span class="dphase"><span class="dlabel">Status</span><span class="dv">${esc(from)}</span>${arrow}</span>${dateStr}</div>`;
+  }
+  if(ev.action.startsWith('checkin.')&&ev.action!=='checkin.late_reason'){
+    if(!m.time) return '';
+    const bypass=m.gps_bypassed?`<span class="dbypass">GPS bypass</span>`:'';
+    const dateStr=m.date?`<span class="dphase"><span class="dlabel">on</span><span class="dv">${esc(m.date)}</span></span>`:'';
+    return `<div class="event-detail">${dateStr}<span class="dphase"><span class="dlabel">at</span><span class="dv">${esc(m.time)}</span>${bypass}</span></div>`;
+  }
+  if(ev.action==='checkin.late_reason'&&m.reason){
+    return `<div class="event-detail"><span class="dphase"><span class="dlabel">Reason</span><span class="dv">${esc(m.reason)}</span></span></div>`;
+  }
+  return '';
+}
+
 function buildRow(ev){
   const c=CAT[ev.category]||{bg:'#f0f2f7',color:'#4a5568',label:ev.category,stripe:'#8a94a3'};
-  const action=ACTIONS[ev.action]||ev.action.replace(/[._]/g,' ');
   const rawMeta=ev.meta&&Object.keys(ev.meta).length?ev.meta:null;
-  const deptLabel=DEPT_LABELS[ev.department]||ev.department||'';
-  const el=document.createElement('div');
+  const dc=DEPT_CHIPS[ev.department]||null;
+  const deptHtml=dc
+    ?`<span class="event-dept-chip" style="background:${esc(dc.bg)};color:${esc(dc.color)};">${esc(dc.label)}</span>`
+    :(ev.department?`<span class="event-dept-chip" style="background:#f0f2f7;color:#8a94a3;">${esc(ev.department)}</span>`:'');
+  const inlineDetail=buildInlineDetail(ev);
+  const actionHtml=buildActionText(ev);
 
   let metaHtml='';
   if(rawMeta){
@@ -575,6 +689,7 @@ function buildRow(ev){
     if(cards) metaHtml=`<div class="event-meta-wrap"><div class="meta-grid">${cards}</div></div>`;
   }
 
+  const el=document.createElement('div');
   el.className='event-item'+(metaHtml?' clickable':'');
   el.innerHTML=`
     <div class="event-stripe" style="background:${esc(c.stripe)};"></div>
@@ -586,12 +701,12 @@ function buildRow(ev){
             <span class="event-name">${esc(ev.actor_name||'Unknown')}</span>
             <span class="event-role" style="background:${esc(roleBg(ev.actor_role))};color:${esc(roleColor(ev.actor_role))};">${esc(roleLabel(ev.actor_role))}</span>
           </div>
-          <div class="event-action-text">${esc(action)}</div>
+          <div class="event-action-text">${actionHtml}</div>
+          ${inlineDetail}
           <div class="event-sub">
             <span class="event-cat" style="background:${esc(c.bg)};color:${esc(c.color)};">${esc(c.label)}</span>
-            ${ev.target_name?`<span class="event-target-text">&#8594; ${esc(ev.target_name)}</span>`:''}
-            ${deptLabel?`<span class="event-dept-text">${esc(deptLabel)}</span>`:''}
-            ${metaHtml?`<span class="expand-hint">Tap for details</span>`:''}
+            ${deptHtml}
+            ${metaHtml?`<span class="expand-hint">More details</span>`:''}
           </div>
         </div>
         <div class="event-time">
