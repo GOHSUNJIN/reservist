@@ -100,8 +100,7 @@ const CheckinHandlers = {
       this.setState({phaseSubmitting:true,..._lrClear});
       const time=Utils.hhmm(new Date()), dist=bypassed?null:locDistance;
       if(key==='p1'){
-        const [ch,cm]='09:00'.split(':').map(Number), [th,tm]=time.split(':').map(Number);
-        const ml=(th*60+tm)-(ch*60+cm);
+        const ml=Utils._hmToMins(time)-Utils._hmToMins(Utils.LATE_CUTOFF.OFFICE);
         if(ml>=60) this.setState({lateReasonOpen:true,lateReasonText:''});
         else if(ml>=30) this.setState({showLateWarning:true});
       }
