@@ -86,8 +86,7 @@ const CheckinBuilders = {
       const inWin=testMode||Utils.phaseInWindow(shift,pd.key,now,this._myDept());
       const pastWin=!testMode&&Utils.phaseWindowPast(shift,pd.key,now,this._myDept());
       const upcoming=!done&&!locked&&!inWin&&!pastWin;
-      const lateActive=pd.key!=='p4'&&!done&&!locked&&pastWin;
-      const showLateMsg=pd.key==='p1'&&lateActive;
+      const lateActive=pd.key==='p1'&&!done&&!locked&&pastWin;
       const isActive=!done&&!locked&&(inWin||pastWin);
       const myGpsActive=isActive&&pd.needsGps&&s.locPhase===pd.key;
       const doneText=done?(pd.needsGps?(dist!=null?'GPS verified · '+dist+' m from '+hqName:'GPS verified'):'Recorded'):'';
@@ -103,7 +102,7 @@ const CheckinBuilders = {
         done, notDone:!done, time:time||'-', doneText,
         labelColor:done?'#1f8a5b':isActive?'#161f30':'#a0a8b4',
         locked, upcoming, isActive, notActive:!isActive||done,
-        lateActive, showLateMsg, btnBg:lateActive?'#b9791a':accent,
+        lateActive, btnBg:lateActive?'#b9791a':accent,
         stepBg:done?'#1f8a5b':isActive?(lateActive?'#b9791a':accent):'#eceef2',
         stepColor:done||isActive?'#fff':'#8a94a3',
         stepShadow:done?'0 0 0 3px #d4ede0':isActive?'0 0 0 3px #dbe6fa':'none',
