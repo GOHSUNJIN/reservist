@@ -146,7 +146,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 
 /* ── Mobile block ────────────────────────────────────────────────────── */
 #mobile-block{display:none;position:fixed;inset:0;background:#f0f3f9;z-index:9999;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:32px;}
-@media(max-width:900px){#mobile-block{display:flex !important;}}
+@media(max-width:1024px){#mobile-block{display:flex !important;}}
 
 /* ── Empty / Loading ─────────────────────────────────────────────────── */
 .empty{padding:56px 24px;text-align:center;}
@@ -156,6 +156,11 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 .spinner-wrap{padding:56px;display:flex;align-items:center;justify-content:center;}
 .spinner{width:28px;height:28px;border:3px solid #e8ecf4;border-top-color:#2f5fd0;border-radius:50%;animation:spin .65s linear infinite;}
 @keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── Info tooltip ────────────────────────────────────────────────────── */
+.info-tip{display:inline-flex;align-items:center;justify-content:center;width:14px;height:14px;border-radius:50%;background:#eef0f5;color:#8a94a3;font-size:9px;font-weight:800;cursor:default;margin-left:5px;position:relative;vertical-align:middle;flex-shrink:0;}
+.info-tip::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 7px);left:50%;transform:translateX(-50%);background:#1e293b;color:#fff;font-size:11.5px;font-weight:400;line-height:1.45;padding:8px 11px;border-radius:9px;white-space:normal;max-width:200px;width:max-content;pointer-events:none;opacity:0;transition:opacity .15s;z-index:200;text-align:center;}
+.info-tip:hover::after{opacity:1;}
 
 /* ── Access denied ───────────────────────────────────────────────────── */
 #access-denied{display:none;padding:40px 20px;text-align:center;max-width:400px;margin:80px auto;}
@@ -222,8 +227,17 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 <div id="app-screen">
   <header>
     <div class="h-left">
+      <div class="h-icon">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
+      <div>
+        <div class="h-title">ReservistGO</div>
+        <div style="font-size:10px;color:#8a94a3;font-weight:500;letter-spacing:.03em;margin-top:1px;">Monitor</div>
+      </div>
+    </div>
+    <div class="h-right">
       <a href="../" class="btn-home" title="Back to app">
-        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         Home
       </a>
       <div class="h-divider"></div>
@@ -232,9 +246,6 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
         <div class="h-user-name" id="h-name"></div>
         <div class="role-chip" id="h-role-chip"></div>
       </div>
-    </div>
-    <div class="h-right">
-      <div class="dept-chip" id="h-dept-chip" style="display:none;"></div>
       <button class="btn-logout" onclick="doLogout()">Log out</button>
     </div>
   </header>
@@ -256,7 +267,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1f8a5b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
         <div class="stat-value" id="stat-actors">-</div>
-        <div class="stat-label">Unique actors today</div>
+        <div class="stat-label" style="display:flex;align-items:center;">Unique actors today<span class="info-tip" data-tip="Number of different people who performed at least one action today">?</span></div>
       </div>
       <div class="stat-card">
         <div class="stat-accent" style="background:linear-gradient(90deg,#e07b39,#c2410c);"></div>
@@ -272,7 +283,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b52c8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
         </div>
         <div class="stat-value" id="stat-top-cat" style="font-size:16px;margin-top:4px;">-</div>
-        <div class="stat-label">Top category today</div>
+        <div class="stat-label" style="display:flex;align-items:center;">Top category today<span class="info-tip" data-tip="The activity type with the most events logged today (e.g. Attendance, Session, Leave)">?</span></div>
       </div>
     </div>
 
@@ -325,6 +336,11 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="../js/config.js"></script>
 <script>
+// Block touch/mobile devices regardless of viewport width
+(function(){
+  const isTouch='ontouchstart' in window||navigator.maxTouchPoints>0;
+  if(isTouch){const mb=document.getElementById('mobile-block');if(mb) mb.style.display='flex';}
+})();
 const _db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { storage: window.sessionStorage, storageKey: 'ops-monitor-session', persistSession: true, autoRefreshToken: true }
 });
@@ -467,16 +483,7 @@ function showApp(){
   document.getElementById('h-name').textContent=_me.name||'';
   const rc=document.getElementById('h-role-chip');
   rc.textContent=roleLabel(_me.role); rc.style.background=roleBg(_me.role); rc.style.color=roleColor(_me.role);
-  if(_isSA){
-    document.getElementById('dept-sel').style.display='block';
-    const dc=document.getElementById('h-dept-chip');
-    dc.textContent='Full access'; dc.style.display='inline-block';
-    dc.style.background='#fef2f2'; dc.style.color='#c0392b';
-  } else {
-    const dl=DEPT_LABELS[_me.department]||_me.department||'';
-    const dc=document.getElementById('h-dept-chip');
-    if(dl){dc.textContent=dl;dc.style.display='inline-block';dc.style.background='#e8f0fd';dc.style.color='#2f5fd0';}
-  }
+  if(_isSA) document.getElementById('dept-sel').style.display='block';
   loadStats(); loadEvents(true); subscribeRealtime();
 }
 
@@ -532,8 +539,6 @@ function setCat(el){
 }
 function onDeptChange(){
   _filterDept=document.getElementById('dept-sel').value||null;
-  const dc=document.getElementById('h-dept-chip');
-  dc.textContent=_filterDept?(DEPT_LABELS[_filterDept]||_filterDept):'Full access';
   _offset=0; loadStats(); loadEvents(true);
 }
 function applyFilters(){
