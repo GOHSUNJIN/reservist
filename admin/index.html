@@ -352,7 +352,13 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
     <div class="events-panel">
       <div class="events-header">
         <span class="events-title">Activity feed</span>
-        <span class="events-count" id="events-count"></span>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div id="live-badge" style="display:flex;align-items:center;gap:5px;font-size:11px;font-weight:600;color:#8a94a3;">
+            <span id="live-dot" style="width:7px;height:7px;border-radius:50%;background:#d1d5db;flex-shrink:0;"></span>
+            <span id="live-label">Connecting...</span>
+          </div>
+          <span class="events-count" id="events-count"></span>
+        </div>
       </div>
       <div id="new-events-bar" onclick="onNewEventsBanner()" style="display:none;padding:10px 20px;background:#eef3ff;border-bottom:1px solid #dce8ff;cursor:pointer;text-align:center;font-size:13px;font-weight:600;color:#2f5fd0;">New activity — click to refresh</div>
       <div id="events-list"></div>
@@ -673,9 +679,19 @@ async function applyAvatars(root){
 }
 
 // ── Realtime live feed ─────────────────────────────────────────────────────
-let _realtimeCh=null;
+let _realtimeCh=null, _rtReconnectTimer=null;
+function _setLiveDot(state){
+  const dot=document.getElementById('live-dot');
+  const lbl=document.getElementById('live-label');
+  if(!dot||!lbl) return;
+  if(state==='live'){dot.style.background='#22c55e';lbl.style.color='#16a34a';lbl.textContent='Live';}
+  else if(state==='connecting'){dot.style.background='#f59e0b';lbl.style.color='#b45309';lbl.textContent='Connecting...';}
+  else{dot.style.background='#ef4444';lbl.style.color='#dc2626';lbl.textContent='Disconnected';}
+}
 function subscribeRealtime(){
-  if(_realtimeCh) _db.removeChannel(_realtimeCh);
+  clearTimeout(_rtReconnectTimer);
+  if(_realtimeCh){_db.removeChannel(_realtimeCh);_realtimeCh=null;}
+  _setLiveDot('connecting');
   _realtimeCh=_db.channel('monitor-audit-live')
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'audit_log'},payload=>{
       const ev=payload.new;
@@ -697,7 +713,13 @@ function subscribeRealtime(){
       document.getElementById('events-count').textContent=_total.toLocaleString()+' event'+(_total!==1?'s':'');
       loadStats();
     })
-    .subscribe();
+    .subscribe((status,err)=>{
+      if(status==='SUBSCRIBED'){_setLiveDot('live');}
+      else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'||status==='CLOSED'){
+        _setLiveDot('error');
+        if(_me) _rtReconnectTimer=setTimeout(()=>subscribeRealtime(),5000);
+      }
+    });
 }
 function onNewEventsBanner(){
   document.getElementById('new-events-bar').style.display='none';
@@ -836,7 +858,7 @@ function buildActionText(ev){
       if(m2.gps_bypassed) s+=` <span class="dbypass">GPS bypass</span>`;
       return s;
     }
-    case 'checkin.late_reason':      return 'Submitted late reason';
+    case 'checkin.late_reason':      return ev.meta?.prev_reason?'Updated late reason':'Submitted late reason';
     case 'leave.submitted':          return tn?`Submitted leave request for ${tn}`:'Submitted leave request';
     case 'leave.approved':           return tn?`Approved ${tn}'s leave request`:'Approved leave request';
     case 'leave.rejected':           return tn?`Declined ${tn}'s leave request`:'Declined leave request';
@@ -891,6 +913,9 @@ function buildInlineDetail(ev){
   }
   if(ev.action.startsWith('checkin.')&&ev.action!=='checkin.late_reason') return '';
   if(ev.action==='checkin.late_reason'&&m.reason){
+    if(m.prev_reason&&m.prev_reason!==m.reason){
+      return `<div class="event-detail"><span class="dphase"><span class="dlabel">Reason</span><span class="dv" style="color:#8a94a3;text-decoration:line-through;">${esc(m.prev_reason)}</span><span class="darr">→</span><span class="dv" style="color:#2f5fd0;font-weight:700;">${esc(m.reason)}</span></span></div>`;
+    }
     return `<div class="event-detail"><span class="dphase"><span class="dlabel">Reason</span><span class="dv">${esc(m.reason)}</span></span></div>`;
   }
   return '';
