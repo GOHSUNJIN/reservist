@@ -7,12 +7,12 @@ const NavBuilders = {
     const nc=t=>s.tab===t?accent:'#9aa3b2';
     const nb=t=>s.tab===t?'#eef3fc':'transparent';
     return {
-      isReservist:s.role==='reservist', isAdmin:s.role==='admin', isMaster:s.isSuperAdmin||false, isAdminOnly:s.role==='admin'&&!(s.isSuperAdmin||false),
+      isReservist:s.role==='reservist', isAdmin:s.role==='admin', isMaster:s.isMaster||false, isAdminOnly:s.role==='admin'&&!(s.isMaster||false),
       headerChipClick:this.headerChipClick, logout:this.logout, askLogout:this.askLogout, cancelLogout:this.cancelLogout, logoutConfirmOpen:s.logoutConfirmOpen||false, logoutConfirmClosed:!(s.logoutConfirmOpen||false),
       userName:s.role==='admin'?(me?.name||'Supervisor'):(me?.name||''),
       userInitials:s.role==='admin'?(me?.name?Utils.initials(me.name):'SV'):Utils.initials(me?.name||''),
       tabTitle:TITLES[s.tab]||'',
-      headerKicker:(()=>{const dl=Utils.deptLabel(this._myDept());return s.isSuperAdmin?'Master, '+dl:s.role==='admin'?'Admin, '+dl:dl+', PNSMEN';})(),
+      headerKicker:(()=>{const dl=Utils.deptLabel(this._myDept());return s.isMaster?'Master, '+dl:s.role==='admin'?'Admin, '+dl:dl+', PNSMEN';})(),
       goCheckin:this.go('checkin'), goBriefings:this.go('briefings'), goAttendance:this.go('attendance'), goMeal:this.goMeal,
       goOverview:()=>{ this.setState({tab:'overview'}); setTimeout(()=>this.loadRosterAvatars(),0); this._scrollTop(); },
       goRoster:()=>{ this.setState({tab:'roster'}); setTimeout(()=>this.loadRosterAvatars(),0); this._scrollTop(); },

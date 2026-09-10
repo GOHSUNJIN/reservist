@@ -78,8 +78,8 @@ const InitHandlers = {
         }
       }).catch(()=>{});
     }
-    const isSuperAdmin = me.role === 'superadmin';
-    const role = (me.role === 'superadmin' || me.role === 'admin') ? 'admin' : me.role || 'reservist';
+    const isMaster = me.role === 'master';
+    const role = (me.role === 'master' || me.role === 'admin') ? 'admin' : me.role || 'reservist';
     const today = Utils.dateKey(this.baseDate());
 
     let batches;
@@ -134,7 +134,7 @@ const InitHandlers = {
       currentUserId: me.id,
       me, personnel, batches, activeBatchIdx,
       attendance: _filteredAtt, noReportDays, history, attendanceDate: today, historyLoaded: true,
-      authError:'', loading:false, accountDeleted:false, demo:false, isSuperAdmin,
+      authError:'', loading:false, accountDeleted:false, demo:false, isMaster,
       adminDeptFilter: dept,
       approvedLeavesCache: {[today]: _alMap},
     });

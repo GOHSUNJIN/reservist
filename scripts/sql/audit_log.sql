@@ -1,4 +1,4 @@
--- Audit log table: captures all user actions across reservists, admins, and superadmins
+-- Audit log table: captures all user actions across reservists, admins, and masters
 CREATE TABLE IF NOT EXISTS audit_log (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   created_at TIMESTAMPTZ DEFAULT NOW(),

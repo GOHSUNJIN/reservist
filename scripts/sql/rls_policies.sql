@@ -54,7 +54,7 @@ DROP POLICY IF EXISTS "personnel_select" ON personnel;
 CREATE POLICY "personnel_select" ON personnel FOR SELECT TO authenticated
   USING (
     auth_id = auth.uid()
-    OR _auth_role() IN ('admin','superadmin')
+    OR _auth_role() IN ('admin','master')
     OR (
       _auth_role() = 'reservist'
       AND batch_id IS NOT NULL
@@ -65,62 +65,62 @@ CREATE POLICY "personnel_select" ON personnel FOR SELECT TO authenticated
 
 -- Only admins can add people
 CREATE POLICY "personnel_insert" ON personnel FOR INSERT TO authenticated
-  WITH CHECK (_auth_role() IN ('admin','superadmin'));
+  WITH CHECK (_auth_role() IN ('admin','master'));
 
 -- Admins can update any reservist row; reservists can update their own row (e.g. self-deactivation)
 -- WITH CHECK prevents reservists from escalating their own role
 CREATE POLICY "personnel_update" ON personnel FOR UPDATE TO authenticated
   USING (
-    _auth_role() IN ('admin','superadmin')
+    _auth_role() IN ('admin','master')
     OR auth_id = auth.uid()
   )
   WITH CHECK (
     CASE
-      WHEN _auth_role() = 'superadmin' THEN true
-      WHEN _auth_role() = 'admin'      THEN role != 'superadmin'
+      WHEN _auth_role() = 'master' THEN true
+      WHEN _auth_role() = 'admin'      THEN role != 'master'
       ELSE auth_id = auth.uid() AND role = 'reservist'
     END
   );
 
--- Only superadmins can permanently delete accounts
+-- Only masters can permanently delete accounts
 CREATE POLICY "personnel_delete" ON personnel FOR DELETE TO authenticated
-  USING (_auth_role() = 'superadmin');
+  USING (_auth_role() = 'master');
 
 -- ── batches ──────────────────────────────────────────────────
 CREATE POLICY "batches_select" ON batches FOR SELECT TO authenticated USING (true);
 
 CREATE POLICY "batches_insert" ON batches FOR INSERT TO authenticated
-  WITH CHECK (_auth_role() IN ('admin','superadmin'));
+  WITH CHECK (_auth_role() IN ('admin','master'));
 
 CREATE POLICY "batches_update" ON batches FOR UPDATE TO authenticated
-  USING (_auth_role() IN ('admin','superadmin'));
+  USING (_auth_role() IN ('admin','master'));
 
 CREATE POLICY "batches_delete" ON batches FOR DELETE TO authenticated
-  USING (_auth_role() IN ('admin','superadmin'));
+  USING (_auth_role() IN ('admin','master'));
 
 -- ── attendance ───────────────────────────────────────────────
 CREATE POLICY "attendance_select" ON attendance FOR SELECT TO authenticated
-  USING (personnel_id = _auth_pid() OR _auth_role() IN ('admin','superadmin'));
+  USING (personnel_id = _auth_pid() OR _auth_role() IN ('admin','master'));
 
 CREATE POLICY "attendance_insert" ON attendance FOR INSERT TO authenticated
   WITH CHECK (
-    _auth_role() IN ('admin','superadmin')
+    _auth_role() IN ('admin','master')
     OR (personnel_id = _auth_pid() AND date = _sg_today())
   );
 
 CREATE POLICY "attendance_update" ON attendance FOR UPDATE TO authenticated
-  USING (personnel_id = _auth_pid() OR _auth_role() IN ('admin','superadmin'))
+  USING (personnel_id = _auth_pid() OR _auth_role() IN ('admin','master'))
   WITH CHECK (
-    _auth_role() IN ('admin','superadmin')
+    _auth_role() IN ('admin','master')
     OR (personnel_id = _auth_pid() AND date = _sg_today())
   );
 
 CREATE POLICY "attendance_delete" ON attendance FOR DELETE TO authenticated
-  USING (_auth_role() IN ('admin','superadmin'));
+  USING (_auth_role() IN ('admin','master'));
 
 -- ── leave_requests ───────────────────────────────────────────
 CREATE POLICY "leave_select" ON leave_requests FOR SELECT TO authenticated
-  USING (personnel_id = _auth_pid() OR _auth_role() IN ('admin','superadmin'));
+  USING (personnel_id = _auth_pid() OR _auth_role() IN ('admin','master'));
 
 -- Reservists can only submit requests for themselves
 CREATE POLICY "leave_insert" ON leave_requests FOR INSERT TO authenticated
@@ -128,16 +128,16 @@ CREATE POLICY "leave_insert" ON leave_requests FOR INSERT TO authenticated
 
 -- Reservists can cancel their own pending requests; admins can approve/reject any
 CREATE POLICY "leave_update" ON leave_requests FOR UPDATE TO authenticated
-  USING (personnel_id = _auth_pid() OR _auth_role() IN ('admin','superadmin'));
+  USING (personnel_id = _auth_pid() OR _auth_role() IN ('admin','master'));
 
 CREATE POLICY "leave_delete" ON leave_requests FOR DELETE TO authenticated
-  USING (personnel_id = _auth_pid() OR _auth_role() IN ('admin','superadmin'));
+  USING (personnel_id = _auth_pid() OR _auth_role() IN ('admin','master'));
 
 -- ── signup_requests ──────────────────────────────────────────
 CREATE POLICY "signup_select" ON signup_requests FOR SELECT TO authenticated
   USING (
     auth_id = auth.uid()
-    OR (_auth_role() = 'superadmin')
+    OR (_auth_role() = 'master')
     OR (_auth_role() = 'admin' AND department::text = _auth_dept())
   );
 
@@ -147,13 +147,13 @@ CREATE POLICY "signup_insert" ON signup_requests FOR INSERT TO authenticated
 CREATE POLICY "signup_update" ON signup_requests FOR UPDATE TO authenticated
   USING (
     auth_id = auth.uid()
-    OR (_auth_role() = 'superadmin')
+    OR (_auth_role() = 'master')
     OR (_auth_role() = 'admin' AND department::text = _auth_dept())
   );
 
 CREATE POLICY "signup_delete" ON signup_requests FOR DELETE TO authenticated
   USING (
-    (_auth_role() = 'superadmin')
+    (_auth_role() = 'master')
     OR (_auth_role() = 'admin' AND department::text = _auth_dept())
   );
 
@@ -161,10 +161,10 @@ CREATE POLICY "signup_delete" ON signup_requests FOR DELETE TO authenticated
 CREATE POLICY "nrd_select" ON no_report_days FOR SELECT TO authenticated USING (true);
 
 CREATE POLICY "nrd_insert" ON no_report_days FOR INSERT TO authenticated
-  WITH CHECK (_auth_role() IN ('admin','superadmin'));
+  WITH CHECK (_auth_role() IN ('admin','master'));
 
 CREATE POLICY "nrd_delete" ON no_report_days FOR DELETE TO authenticated
-  USING (_auth_role() IN ('admin','superadmin'));
+  USING (_auth_role() IN ('admin','master'));
 
 -- ── audit_log ────────────────────────────────────────────────
 ALTER TABLE audit_log ENABLE ROW LEVEL SECURITY;

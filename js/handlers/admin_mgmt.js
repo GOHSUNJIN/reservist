@@ -23,8 +23,8 @@ const AdminMgmtHandlers = {
 
   addAdmin: async function() {
     if(this.state.addingAdmin) return;
-    const {npAdminName,npAdminContact,npAdminPassword,adminsList,demo,isSuperAdmin}=this.state;
-    if(!demo&&!isSuperAdmin){this._toast('Access denied.','error');return;}
+    const {npAdminName,npAdminContact,npAdminPassword,adminsList,demo,isMaster}=this.state;
+    if(!demo&&!isMaster){this._toast('Access denied.','error');return;}
     if(!npAdminName.trim()){this._toast('Name is required.','error');return;}
     const {clean:cleanContact,error:contactErr}=Utils.validateSGContact(npAdminContact);
     if(contactErr){this._toast(contactErr,'error');return;}
@@ -53,7 +53,7 @@ const AdminMgmtHandlers = {
   confirmDeactivateAdmin: async function() {
     const id=this.state.confirmDeactivateAdminId;
     if(!id) return;
-    if(!this.state.demo&&!this.state.isSuperAdmin){this._toast('Access denied.','error');this.setState({confirmDeactivateAdminId:null});return;}
+    if(!this.state.demo&&!this.state.isMaster){this._toast('Access denied.','error');this.setState({confirmDeactivateAdminId:null});return;}
     const admin=(this.state.adminsList||[]).find(a=>a.id===id);
     this.setState({confirmDeactivateAdminId:null});
     if(!this.state.demo){
@@ -83,9 +83,9 @@ const AdminMgmtHandlers = {
   cancelPromoteAdmin: function() { this.setState({confirmPromoteAdminId:null}); },
 
   confirmPromoteAdmin: async function() {
-    const {confirmPromoteAdminId,personnel,demo,isSuperAdmin}=this.state;
+    const {confirmPromoteAdminId,personnel,demo,isMaster}=this.state;
     if(!confirmPromoteAdminId) return;
-    if(!demo&&!isSuperAdmin){this._toast('Access denied.','error');this.setState({confirmPromoteAdminId:null});return;}
+    if(!demo&&!isMaster){this._toast('Access denied.','error');this.setState({confirmPromoteAdminId:null});return;}
     const person=personnel.find(p=>p.id===confirmPromoteAdminId);
     if(!person) return;
     this.setState({confirmPromoteAdminId:null,promoteAdminId:'',promoteAdminName:'',promoteAdminContact:'',promoteSearch:''});

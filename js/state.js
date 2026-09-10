@@ -8,7 +8,7 @@ const makeInitialState = () => ({
   authed: false, role: null, authMode: 'login',
   currentUserId: null, me: null,
   authError: '', loading: false, accountDeleted: false,
-  isSuperAdmin: false,
+  isMaster: false,
   realtimeChannel: null, realtimeLive: false,
   sessionExpiring: false, idleWarning: false,
   adminNotifGranted: false,
