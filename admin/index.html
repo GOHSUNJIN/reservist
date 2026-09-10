@@ -268,11 +268,11 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
         <div class="h-user-name" id="h-name"></div>
         <div class="role-chip" id="h-role-chip"></div>
       </div>
-      <button class="btn-logout" onclick="doLogout()">Log out</button>
       <a href="../" class="btn-home" title="Back to app">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         Home
       </a>
+      <button class="btn-logout" onclick="doLogout()">Log out</button>
     </div>
   </header>
 
@@ -328,7 +328,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
         <select class="dept-sel" id="dept-sel" onchange="onDeptChange()" style="display:none;">
           <option value="">All departments</option>
           <option value="ops_security">Ops Security</option>
-          <option value="cas">CPO</option>
+          <option value="cas">Crime Prevention</option>
           <option value="lnf">L&amp;F</option>
         </select>
       </div>
@@ -425,10 +425,10 @@ const ACTIONS = {
   'roster.missed_note_saved':'Saved missed-day note',
 };
 
-const DEPT_LABELS = { ops_security:'Ops Security', cas:'CPO', lnf:'L&F' };
+const DEPT_LABELS = { ops_security:'Ops Security', cas:'Crime Prevention', lnf:'L&F' };
 const DEPT_CHIPS = {
   ops_security:{bg:'#e8edf8',color:'#2f5fd0',label:'Ops Security'},
-  cas:         {bg:'#e7f3ec',color:'#1f8a5b',label:'CPO'},
+  cas:         {bg:'#e7f3ec',color:'#1f8a5b',label:'Crime Prevention'},
   lnf:         {bg:'#fdf6e9',color:'#b9791a',label:'L&F'},
 };
 
