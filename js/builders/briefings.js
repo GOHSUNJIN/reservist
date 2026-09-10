@@ -75,7 +75,7 @@ const BriefingsBuilders = {
     if(bStart&&bEnd&&today>=bStart&&today<=bEnd){
       let total=0,elapsed=0;
       const todayD=new Date(today+'T00:00:00');
-      for(const d=new Date(bStart+'T00:00:00'),end=new Date(bEnd+'T00:00:00');d<=end;d.setDate(d.getDate()+1)){
+      for(let d=new Date(bStart+'T00:00:00'),end=new Date(bEnd+'T00:00:00');d<=end;d.setDate(d.getDate()+1)){
         const dk=Utils.dateKey(d);
         if(Utils.isReportDay(d,this._myDept())&&!_nrd.has(dk)&&!Utils.holidayName(d)){
           total++;

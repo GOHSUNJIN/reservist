@@ -98,7 +98,6 @@ const AdminRoster = {
         outLabelColor:_missingCo?'#c2410c':'#9aa3b2',
         outValue:r.p4||'–',
         outValueColor:_missingCo?'#c2410c':(r.p4?(_ef.has('p4')?_ec:'#161f30'):'#c2c8d2'),
-        missingClockOut:_missingCo,
         hasApprovedLeave:!!(approvedLeavesForView[p.id]),avatarStyle, onViewAvatar:av?self.openAvatarLightbox(av):null, avatarCursor:av?'cursor:pointer;':'', shift:p.shift||'OFFICE',
         p2Label:'LCH',
         p2FormLabel:'Lunch',
