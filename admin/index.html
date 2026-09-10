@@ -130,12 +130,18 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 .pag-ellipsis{font-size:13px;color:#b8c0cc;padding:0 2px;line-height:34px;}
 
 /* ── Person tooltip ──────────────────────────────────────────────────── */
-#person-tip{position:fixed;background:#fff;border:1px solid #e8ecf4;border-radius:12px;box-shadow:0 8px 28px rgba(20,30,70,.14);padding:14px 16px;z-index:999;display:none;min-width:178px;pointer-events:none;}
-.ptip-head{font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;}
-.ptip-row{margin-bottom:6px;}
+#person-tip{position:fixed;background:#fff;border:1px solid #e8ecf4;border-radius:13px;box-shadow:0 8px 32px rgba(20,30,70,.16),0 2px 8px rgba(20,30,70,.07);z-index:999;display:none;min-width:200px;overflow:hidden;}
+.ptip-head{font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;text-transform:uppercase;padding:12px 14px 6px;}
+#ptip-body{padding:0 12px 12px;}
+.ptip-contact-row{display:flex;align-items:center;justify-content:space-between;background:#f7f9fc;border-radius:9px;padding:8px 10px;margin-bottom:8px;cursor:pointer;transition:background .12s;border:1px solid #eef0f5;}
+.ptip-contact-row:hover{background:#eef3ff;border-color:#dce8ff;}
+.ptip-contact-num{font-size:13.5px;font-weight:700;color:#161f30;margin-top:2px;}
+.ptip-copy-hint{font-size:10px;color:#b8c0cc;font-weight:500;}
+.ptip-copy-fb{font-size:10px;color:#1f8a5b;font-weight:700;display:none;}
+.ptip-row{margin-bottom:5px;}
 .ptip-row:last-child{margin-bottom:0;}
-.ptip-label{font-size:10px;font-weight:600;color:#8a94a3;margin-bottom:2px;}
-.ptip-val{font-size:13px;font-weight:600;color:#161f30;}
+.ptip-label{font-size:10px;font-weight:600;color:#b8c0cc;margin-bottom:1px;}
+.ptip-val{font-size:12.5px;font-weight:600;color:#161f30;}
 .has-person-tip{cursor:default;}
 
 /* ── Mobile block ────────────────────────────────────────────────────── */
@@ -291,7 +297,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
       </div>
       <div class="pills-row">
         <button class="pill active" data-cat="all" onclick="setCat(this)">All</button>
-        <button class="pill" data-cat="auth" onclick="setCat(this)">Auth</button>
+        <button class="pill" data-cat="auth" onclick="setCat(this)">Session</button>
         <button class="pill" data-cat="attendance" onclick="setCat(this)">Attendance</button>
         <button class="pill" data-cat="leave" onclick="setCat(this)">Leave</button>
         <button class="pill" data-cat="signup" onclick="setCat(this)">Signup</button>
@@ -333,7 +339,7 @@ const _tipCache = {};
 let _tipHideTimer = null;
 
 const CAT = {
-  auth:       { bg:'#e8f0fd', color:'#2f5fd0', label:'Auth',       stripe:'#2f5fd0' },
+  auth:       { bg:'#e8f0fd', color:'#2f5fd0', label:'Session',    stripe:'#2f5fd0' },
   attendance: { bg:'#e7f3ec', color:'#1f8a5b', label:'Attendance', stripe:'#1f8a5b' },
   leave:      { bg:'#fdf6e9', color:'#b9791a', label:'Leave',      stripe:'#f0a030' },
   signup:     { bg:'#f0ecfd', color:'#6b52c8', label:'Signup',     stripe:'#6b52c8' },
@@ -663,11 +669,12 @@ async function showPersonTip(el,pid){
   const tip=document.getElementById('person-tip');
   const body=document.getElementById('ptip-body');
   const rect=el.getBoundingClientRect();
-  tip.style.top=(rect.bottom+8)+'px';
-  tip.style.left=Math.min(rect.left,window.innerWidth-210)+'px';
+  const tipW=210;
+  tip.style.top=(rect.bottom+6)+'px';
+  tip.style.left=Math.min(rect.left,window.innerWidth-tipW-12)+'px';
   tip.style.display='block';
   if(_tipCache[pid]===undefined){
-    body.innerHTML='<div style="color:#8a94a3;font-size:12px;">Loading...</div>';
+    body.innerHTML='<div style="color:#8a94a3;font-size:12px;padding:2px 0 4px;">Loading...</div>';
     const{data}=await _db.from('personnel').select('contact,department,role,batches(label)').eq('id',pid).maybeSingle();
     if(!data){_tipCache[pid]=null;}
     else if(data.role==='admin'||data.role==='superadmin'){_tipCache[pid]='skip';}
@@ -676,9 +683,18 @@ async function showPersonTip(el,pid){
   if(tip.style.display==='none') return;
   const info=_tipCache[pid];
   if(!info||info==='skip'){tip.style.display='none';return;}
-  body.innerHTML=`<div class="ptip-row"><div class="ptip-label">Contact</div><div class="ptip-val">${esc(info.contact)}</div></div><div class="ptip-row"><div class="ptip-label">Department</div><div class="ptip-val">${esc(info.dept)}</div></div><div class="ptip-row"><div class="ptip-label">Cycle</div><div class="ptip-val">${esc(info.cycle)}</div></div>`;
+  body.innerHTML=`<div class="ptip-contact-row" onclick="copyPtipContact('${esc(info.contact)}')"><div><div class="ptip-label">Contact</div><div class="ptip-contact-num">${esc(info.contact)}</div></div><div><span class="ptip-copy-hint" id="ptip-copy-hint">Copy</span><span class="ptip-copy-fb" id="ptip-copy-fb">Copied!</span></div></div><div class="ptip-row"><div class="ptip-label">Department</div><div class="ptip-val">${esc(info.dept)}</div></div><div class="ptip-row"><div class="ptip-label">Cycle</div><div class="ptip-val">${esc(info.cycle)}</div></div>`;
 }
-function hidePersonTip(){_tipHideTimer=setTimeout(()=>{document.getElementById('person-tip').style.display='none';},150);}
+function hidePersonTip(){_tipHideTimer=setTimeout(()=>{document.getElementById('person-tip').style.display='none';},180);}
+function copyPtipContact(num){
+  navigator.clipboard.writeText(num).catch(()=>{});
+  const hint=document.getElementById('ptip-copy-hint');
+  const fb=document.getElementById('ptip-copy-fb');
+  if(hint&&fb){hint.style.display='none';fb.style.display='inline';setTimeout(()=>{hint.style.display='inline';fb.style.display='none';},1500);}
+}
+const _tipEl=document.getElementById('person-tip');
+_tipEl.addEventListener('mouseenter',()=>clearTimeout(_tipHideTimer));
+_tipEl.addEventListener('mouseleave',()=>hidePersonTip());
 document.addEventListener('mouseover',e=>{const el=e.target.closest('.has-person-tip');if(el?.dataset.pid) showPersonTip(el,el.dataset.pid);});
 document.addEventListener('mouseout',e=>{if(e.target.closest('.has-person-tip')) hidePersonTip();});
 
