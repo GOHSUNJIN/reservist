@@ -388,7 +388,7 @@ const _db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 });
 
 let _me = null, _isSA = false, _filterDept = null;
-let _cat = 'all', _search = '', _from = '', _to = '';
+let _cats = new Set(), _search = '', _from = '', _to = '';
 let _page = 0, _total = 0, _rows = [];
 let _searchTimer = null, _loadSeq = 0;
 const LIMIT = 50;
@@ -473,6 +473,7 @@ function relTime(iso){
   return Math.floor(diff/86400)+'d ago';
 }
 const _MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtDk(dk){if(!dk) return '';const p=dk.split('-');if(p.length!==3) return dk;return parseInt(p[2],10)+' '+_MONTHS[parseInt(p[1],10)-1]+' '+p[0];}
 function absTime(iso){
   const d=new Date(iso);
   const time=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
@@ -538,7 +539,7 @@ function goHome(){
 async function doLogout(){
   if(_realtimeCh){_db.removeChannel(_realtimeCh);_realtimeCh=null;}
   await _db.auth.signOut({scope:'local'}).catch(()=>{});
-  _me=null; _isSA=false; _filterDept=null; _cat='all'; _search=''; _from=''; _to='';
+  _me=null; _isSA=false; _filterDept=null; _cats=new Set(); _search=''; _from=''; _to='';
   _page=0; _rows=[];
   document.getElementById('app-screen').style.display='none';
   document.getElementById('login-screen').style.display='flex';
@@ -583,11 +584,20 @@ async function loadStats(){
 // ── Filters ────────────────────────────────────────────────────────────────
 function _updateClearBtn(){
   const btn=document.getElementById('clear-filters-btn');
-  if(btn) btn.style.display=(_cat!=='all'||_search||_from||_to)?'inline-flex':'none';
+  if(btn) btn.style.display=(_cats.size>0||_search||_from||_to)?'inline-flex':'none';
 }
 function setCat(el){
-  document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active'); _cat=el.dataset.cat; _page=0; _updateClearBtn(); loadEvents(true);
+  const cat=el.dataset.cat;
+  if(cat==='all'){
+    _cats.clear();
+    document.querySelectorAll('.pill').forEach(p=>p.classList.toggle('active',p.dataset.cat==='all'));
+  } else {
+    if(_cats.has(cat)) _cats.delete(cat); else _cats.add(cat);
+    const allPill=document.querySelector('.pill[data-cat="all"]');
+    if(allPill) allPill.classList.toggle('active',_cats.size===0);
+    el.classList.toggle('active',_cats.has(cat));
+  }
+  _page=0; _updateClearBtn(); loadEvents(true);
 }
 function onDeptChange(){
   _filterDept=document.getElementById('dept-sel').value||null;
@@ -603,7 +613,7 @@ function onSearch(){
   _searchTimer=setTimeout(()=>{_search=document.getElementById('search-inp').value.trim();_page=0;_updateClearBtn();loadEvents(true);},300);
 }
 function clearFilters(){
-  _cat='all'; _search=''; _from=''; _to=''; _page=0;
+  _cats=new Set(); _search=''; _from=''; _to=''; _page=0;
   const si=document.getElementById('search-inp'); if(si) si.value='';
   const df=document.getElementById('date-from'); if(df) df.value='';
   const dt=document.getElementById('date-to'); if(dt) dt.value='';
@@ -622,7 +632,7 @@ async function loadEvents(resetPage){
   const dept=_isSA?(_filterDept||null):(_me.department||null);
   let q=_db.from('audit_log').select('*',{count:'exact'});
   if(dept) q=q.eq('department',dept);
-  if(_cat&&_cat!=='all') q=q.eq('category',_cat);
+  if(_cats.size>0) q=q.in('category',[..._cats]);
   if(_from) q=q.gte('created_at',_from+'T00:00:00');
   if(_to) q=q.lte('created_at',_to+'T23:59:59');
   if(_search){const s=_search.replace(/[%_\\]/g,'\\$&').replace(/'/g,"''");q=q.or(`actor_name.ilike.%${s}%,action.ilike.%${s}%,target_name.ilike.%${s}%`);}
@@ -738,7 +748,7 @@ function subscribeRealtime(){
       if(!ev||!_me) return;
       const dept=_isSA?(_filterDept||null):(_me.department||null);
       if(dept&&ev.department!==dept) return;
-      if(_page!==0||_search||_from||_to||(_cat!=='all'&&ev.category!==_cat)){
+      if(_page!==0||_search||_from||_to||(_cats.size>0&&!_cats.has(ev.category))){
         document.getElementById('new-events-bar').style.display='block';
         return;
       }
@@ -866,26 +876,27 @@ function buildActionText(ev){
       const phases=[['check-in',m.check_in,m.prev_check_in],['lunch out',m.lunch_out,m.prev_lunch_out],['return',m.return,m.prev_return],['check-out',m.check_out,m.prev_check_out]];
       const hasPrev='prev_check_in' in m||'prev_lunch_out' in m;
       const changed=hasPrev?phases.filter(([,c,p])=>c&&(c||null)!==(p||null)):[];
+      const dateSuffix=m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'';
       if(changed.length===1){
         const[lbl,curr,prev]=changed[0];
         const fromPart=prev?` from <span style="color:#8a94a3;text-decoration:line-through;">${esc(prev)}</span>`:'';
-        return (tn?`Corrected ${tn}'s `:'Corrected ')+lbl+fromPart+` to <strong style="color:#2f5fd0;">${esc(curr)}</strong>`;
+        return (tn?`Corrected ${tn}'s `:'Corrected ')+lbl+fromPart+` to <strong style="color:#2f5fd0;">${esc(curr)}</strong>`+dateSuffix;
       }
       if(changed.length===2){
         const fmt=([lbl,curr,prev])=>{const fp=prev?` from <span style="color:#8a94a3;text-decoration:line-through;">${esc(prev)}</span>`:'';return lbl+fp+` to <strong style="color:#2f5fd0;">${esc(curr)}</strong>`;};
-        return (tn?`Corrected ${tn}'s `:'Corrected ')+fmt(changed[0])+' and '+fmt(changed[1]);
+        return (tn?`Corrected ${tn}'s `:'Corrected ')+fmt(changed[0])+' and '+fmt(changed[1])+dateSuffix;
       }
-      return tn?`Corrected ${tn}'s attendance times`:'Corrected attendance times';
+      return (tn?`Corrected ${tn}'s attendance times`:'Corrected attendance times')+dateSuffix;
     }
     case 'roster.status_set':
       if(tn&&m.status) return `Marked ${tn} <strong>${esc(m.status)}</strong>`;
       return tn?`Set ${tn}'s attendance status`:'Set attendance status';
-    case 'roster.mark_all_absent':   return 'Marked all absent';
-    case 'roster.mark_all_present':  return 'Marked all present';
+    case 'roster.mark_all_absent':   return 'Marked all absent'+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
+    case 'roster.mark_all_present':  return 'Marked all present'+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
     case 'roster.person_note_saved': return tn?`Saved note for ${tn}`:'Saved person note';
-    case 'roster.log_note_saved':    return 'Saved log note';
-    case 'roster.welfare_note_saved':return tn?`Saved welfare note for ${tn}`:'Saved welfare note';
-    case 'roster.missed_note_saved': return tn?`Saved missed-day note for ${tn}`:'Saved missed-day note';
+    case 'roster.log_note_saved':    return 'Saved log note'+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
+    case 'roster.welfare_note_saved':return (tn?`Saved welfare note for ${tn}`:'Saved welfare note')+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
+    case 'roster.missed_note_saved': return (tn?`Saved missed-day note for ${tn}`:'Saved missed-day note')+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
     case 'checkin.p1':
     case 'checkin.p2':
     case 'checkin.p3':
@@ -898,11 +909,11 @@ function buildActionText(ev){
       if(m2.gps_bypassed) s+=` <span class="dbypass">GPS bypass</span>`;
       return s;
     }
-    case 'checkin.late_reason':      return ev.meta?.prev_reason?'Updated late reason':'Submitted late reason';
-    case 'leave.submitted':          return tn?`Submitted leave request for ${tn}`:'Submitted leave request';
-    case 'leave.approved':           return tn?`Approved ${tn}'s leave request`:'Approved leave request';
-    case 'leave.rejected':           return tn?`Declined ${tn}'s leave request`:'Declined leave request';
-    case 'leave.cancelled':          return tn?`Withdrew ${tn}'s leave request`:'Withdrew leave request';
+    case 'checkin.late_reason':      return (ev.meta?.prev_reason?'Updated late reason':'Submitted late reason')+(m.date?` for <strong>${esc(fmtDk(m.date))}</strong>`:'');
+    case 'leave.submitted':          return (tn?`Submitted leave request for ${tn}`:'Submitted leave request')+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
+    case 'leave.approved':           return (tn?`Approved ${tn}'s leave request`:'Approved leave request')+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
+    case 'leave.rejected':           return (tn?`Declined ${tn}'s leave request`:'Declined leave request')+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
+    case 'leave.cancelled':          return (tn?`Withdrew ${tn}'s leave request`:'Withdrew leave request')+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
     case 'leave.bulk_approved':      return 'Bulk approved leave requests';
     case 'leave.bulk_rejected':      return 'Bulk declined leave requests';
     case 'signup.request_submitted': return 'Submitted signup request';
@@ -925,7 +936,7 @@ function buildActionText(ev){
     case 'batch.activated':          return 'Activated reporting cycle';
     case 'batch.label_edited':       return 'Edited cycle label';
     case 'batch.broadcast_updated':  return 'Updated cycle notice';
-    case 'batch.no_report_toggled':  return 'Toggled no-report day';
+    case 'batch.no_report_toggled':  return 'Toggled no-report day'+(m.date?` for <strong>${esc(fmtDk(m.date))}</strong>`:'');
     case 'batch.no_report_bulk':     return 'Bulk set no-report days';
     case 'account.name_changed':     return m.new_name?`Changed name to <strong>${esc(m.new_name)}</strong>`:'Changed display name';
     case 'account.password_changed': return 'Changed account password';
