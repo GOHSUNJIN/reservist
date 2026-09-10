@@ -129,6 +129,17 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 .pag-num.active{background:#2f5fd0;border-color:#2f5fd0;color:#fff;}
 .pag-ellipsis{font-size:13px;color:#b8c0cc;padding:0 2px;line-height:34px;}
 
+/* ── Filter guide ────────────────────────────────────────────────────── */
+.filter-guide-btn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;border:1.5px solid #e8ecf4;background:#fafbfd;color:#8a94a3;font-size:11px;font-weight:700;cursor:default;flex-shrink:0;transition:border-color .15s,color .15s;}
+.filter-guide-btn:hover{border-color:#2f5fd0;color:#2f5fd0;background:#f0f4ff;}
+#filter-guide{position:fixed;background:#fff;border:1px solid #e8ecf4;border-radius:14px;box-shadow:0 10px 36px rgba(20,30,70,.15),0 2px 8px rgba(20,30,70,.07);z-index:998;display:none;width:310px;overflow:hidden;}
+.fg-head{font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;text-transform:uppercase;padding:13px 16px 8px;border-bottom:1px solid #f0f3f9;}
+.fg-list{padding:8px 12px 12px;}
+.fg-row{display:flex;align-items:flex-start;gap:10px;padding:6px 4px;}
+.fg-row+.fg-row{border-top:1px solid #f7f9fc;}
+.fg-pill{font-size:10px;font-weight:600;border-radius:5px;padding:2px 7px;white-space:nowrap;flex-shrink:0;margin-top:1px;}
+.fg-desc{font-size:12px;color:#5c6678;line-height:1.4;}
+
 /* ── Person tooltip ──────────────────────────────────────────────────── */
 #person-tip{position:fixed;background:#fff;border:1px solid #e8ecf4;border-radius:13px;box-shadow:0 8px 32px rgba(20,30,70,.16),0 2px 8px rgba(20,30,70,.07);z-index:999;display:none;min-width:200px;overflow:hidden;}
 .ptip-head{font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;text-transform:uppercase;padding:12px 14px 6px;}
@@ -178,6 +189,22 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
   </div>
   <div style="font-size:18px;font-weight:700;color:#161f30;margin-bottom:8px;">Desktop only</div>
   <div style="font-size:14px;color:#8a94a3;line-height:1.5;max-width:280px;">The Monitor is designed for desktop. Please open it on a laptop or computer.</div>
+</div>
+
+<!-- Filter guide popover -->
+<div id="filter-guide">
+  <div class="fg-head">Filter categories</div>
+  <div class="fg-list">
+    <div class="fg-row"><span class="fg-pill" style="background:#e8f0fd;color:#2f5fd0;">Session</span><span class="fg-desc">Login and logout events — who signed in or out and when</span></div>
+    <div class="fg-row"><span class="fg-pill" style="background:#e7f3ec;color:#1f8a5b;">Attendance</span><span class="fg-desc">Check-in phases, time corrections, and status changes</span></div>
+    <div class="fg-row"><span class="fg-pill" style="background:#fdf6e9;color:#b9791a;">Leave</span><span class="fg-desc">Leave requests submitted, approved, declined, or withdrawn</span></div>
+    <div class="fg-row"><span class="fg-pill" style="background:#f0ecfd;color:#6b52c8;">Signup</span><span class="fg-desc">New member signup requests, approvals, and rejections</span></div>
+    <div class="fg-row"><span class="fg-pill" style="background:#e6f7f9;color:#0e7a8c;">Personnel</span><span class="fg-desc">People added, removed, or re-enrolled on the roster</span></div>
+    <div class="fg-row"><span class="fg-pill" style="background:#edf2f7;color:#4a5568;">Cycle</span><span class="fg-desc">Reporting cycle creation, activation, and no-report days</span></div>
+    <div class="fg-row"><span class="fg-pill" style="background:#f0f2f7;color:#2d3748;">Export</span><span class="fg-desc">Excel or print reports that were generated</span></div>
+    <div class="fg-row"><span class="fg-pill" style="background:#fdf0e9;color:#e07b39;">Account</span><span class="fg-desc">Profile name, password, or photo changes</span></div>
+    <div class="fg-row"><span class="fg-pill" style="background:#f7e4e1;color:#c0392b;">Admin</span><span class="fg-desc">Supervisor accounts added, promoted, or demoted</span></div>
+  </div>
 </div>
 
 <!-- Person tooltip -->
@@ -316,6 +343,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
         <button class="pill" data-cat="export" onclick="setCat(this)">Export</button>
         <button class="pill" data-cat="account" onclick="setCat(this)">Account</button>
         <button class="pill" data-cat="admin" onclick="setCat(this)">Admin</button>
+        <button class="filter-guide-btn" id="filter-guide-btn" title="What are these?">?</button>
       </div>
     </div>
 
@@ -713,6 +741,30 @@ function copyPtipContact(num){
   const fb=document.getElementById('ptip-copy-fb');
   if(hint&&fb){hint.style.display='none';fb.style.display='inline';setTimeout(()=>{hint.style.display='inline';fb.style.display='none';},1500);}
 }
+// ── Filter guide popover ───────────────────────────────────────────────────
+(function(){
+  const btn=document.getElementById('filter-guide-btn');
+  const guide=document.getElementById('filter-guide');
+  let hideTimer=null;
+  function show(){
+    clearTimeout(hideTimer);
+    const r=btn.getBoundingClientRect();
+    guide.style.display='block';
+    const gw=guide.offsetWidth;
+    const left=Math.min(r.left,window.innerWidth-gw-12);
+    const spaceBelow=window.innerHeight-r.bottom;
+    const top=spaceBelow<guide.offsetHeight+10&&r.top>guide.offsetHeight+10
+      ?r.top-guide.offsetHeight-6:r.bottom+6;
+    guide.style.left=left+'px';
+    guide.style.top=top+'px';
+  }
+  function hide(){hideTimer=setTimeout(()=>{guide.style.display='none';},150);}
+  btn.addEventListener('mouseenter',show);
+  btn.addEventListener('mouseleave',hide);
+  guide.addEventListener('mouseenter',()=>clearTimeout(hideTimer));
+  guide.addEventListener('mouseleave',hide);
+})();
+
 const _tipEl=document.getElementById('person-tip');
 _tipEl.addEventListener('mouseenter',()=>clearTimeout(_tipHideTimer));
 _tipEl.addEventListener('mouseleave',()=>hidePersonTip());
