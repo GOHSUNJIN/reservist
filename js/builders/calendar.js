@@ -243,7 +243,7 @@ const CalendarBuilders = {
         const isApproved=r.status==='approved';
         const lbl=isMc?'MC':'Personal Leave';
         futureLeaveRows.push({
-          date:Utils.fmtMed(d),dateKey:dk,showMonthDivider:false,monthDividerLabel:'',shift:Utils.shiftLabel(me.shift),
+          date:Utils.fmtMed(d),dateKey:dk,showMonthDivider:futureLeaveRows.length===0,monthDividerLabel:'Upcoming',shift:Utils.shiftLabel(me.shift),
           status:isApproved?(isMc?'mc':'absent'):'pending',
           label:lbl,color:'#b9791a',bg:isApproved?'#f7efdc':'#fdf6e9',
           p1:'-',p2:'-',p3:'-',p4:'-',
