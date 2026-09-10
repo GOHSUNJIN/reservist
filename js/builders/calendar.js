@@ -170,13 +170,15 @@ const CalendarBuilders = {
     const _dc='#c2c8d2';
 
     const _exDates=s.historyExpandedDates||[];
+    const _ed=f=>!!(rec.editLog||[]).some(e=>e.fields?.includes(f));
     const todayRow=(Utils.isReportDay(todayD,this._myDept())&&!this.isNoReport(0)&&(!activeBatch||today>=activeBatch.start_date)&&(!activeBatch||today<=activeBatch.end_date))
       ?[{date:Utils.fmtMed(todayD)+', Today',dateKey:today,shift:Utils.shiftLabel(me.shift),status,
          p1:rec.p1||'-',p2:rec.p2||'-',p3:rec.p3||'-',p4:rec.p4||'-',
-         p1Color:_tc(rec.p1,'#161f30',_dc),p2Color:_tc(rec.p2,'#161f30',_dc),p3Color:_tc(rec.p3,'#161f30',_dc),p4Color:_tc(rec.p4,'#161f30',_dc),
+         p1Color:_ed('p1')?'#2f5fd0':_tc(rec.p1,'#161f30',_dc),p2Color:_ed('p2')?'#2f5fd0':_tc(rec.p2,'#161f30',_dc),p3Color:_ed('p3')?'#2f5fd0':_tc(rec.p3,'#161f30',_dc),p4Color:_ed('p4')?'#2f5fd0':_tc(rec.p4,'#161f30',_dc),
+         p1Edited:_ed('p1'),p2Edited:_ed('p2'),p3Edited:_ed('p3'),p4Edited:_ed('p4'),
          hasExpandToggle:status==='present'||status==='pending',isExpanded:_exDates.includes(today),onToggleExpand:this.toggleHistoryExpand(today),
          showTimes:status==='present'&&_exDates.includes(today),rowMarginBot:(status==='present'&&_exDates.includes(today))?'9px':'0',chevronRotate:_exDates.includes(today)?'180':'0',
-         lateReason:rec.lateReason||'',showLateReason:!!(rec.lateReason)&&_exDates.includes(today),
+         lateReason:rec.lateReason||'',showLateReason:!!(rec.lateReason)&&_exDates.includes(today)&&!_ed('p1'),
          isMissedRow:false,showMissedNote:false,missedNote:'',onOpenMissedNote:()=>{},
          showTimingWarning:status==='present'&&(isCas?!rec.p4:(!rec.p2||!rec.p3||!rec.p4)),
          showLunchTimes:!isCas, histGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',
@@ -196,20 +198,22 @@ const CalendarBuilders = {
       const hasIncompleteTimes=isPresent&&!missingClockOut&&(isCas?false:(!p2||!p3));
       const _rowEx=_exDates.includes(r.date);
       const isMissed=r.status==='missed';
+      const _ed2=f=>!!(r.editLog||[]).some(e=>e.fields?.includes(f));
       return {date:Utils.fmtMed(d),dateKey:r.date,shift:Utils.shiftLabel(me.shift),status:r.status,
         p1:p1||'-',
         p2:p2||(isPresent?'–':'-'), p3:p3||(isPresent?'–':'-'), p4:p4||(isPresent?'–':'-'),
-        p1Color:_tc(p1,'#161f30',_dc),
-        p2Color:p2?'#161f30':(isPresent?_nc:_dc),
-        p3Color:p3?'#161f30':(isPresent?_nc:_dc),
-        p4Color:p4?'#161f30':(isPresent?_nc:_dc),
+        p1Color:_ed2('p1')?'#2f5fd0':_tc(p1,'#161f30',_dc),
+        p2Color:_ed2('p2')?'#2f5fd0':(p2?'#161f30':(isPresent?_nc:_dc)),
+        p3Color:_ed2('p3')?'#2f5fd0':(p3?'#161f30':(isPresent?_nc:_dc)),
+        p4Color:_ed2('p4')?'#2f5fd0':(p4?'#161f30':(isPresent?_nc:_dc)),
+        p1Edited:_ed2('p1'),p2Edited:_ed2('p2'),p3Edited:_ed2('p3'),p4Edited:_ed2('p4'),
         hasExpandToggle:isPresent||isMissed,isExpanded:_rowEx,
         onToggleExpand:isMissed?this.openMissedNote(r.date,r.welfareNote||''):this.toggleHistoryExpand(r.date),
         showTimes:isPresent&&_rowEx,rowMarginBot:(isPresent&&_rowEx)?'9px':'0',chevronRotate:_rowEx?'180':'0',hasIncompleteTimes:hasIncompleteTimes&&_rowEx,
         missingClockOut,
         showTimingWarning:isPresent&&(isCas?!p4:(!p2||!p3||!p4)),
         showLunchTimes:!isCas, histGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',
-        lateReason:r.lateReason||'',showLateReason:!!(r.lateReason)&&_rowEx,
+        lateReason:r.lateReason||'',showLateReason:!!(r.lateReason)&&_rowEx&&!_ed2('p1'),
         isMissedRow:isMissed,missedNote:r.welfareNote||'',showMissedNote:false,
         onOpenMissedNote:isMissed?this.openMissedNote(r.date,r.welfareNote||''):()=>{},
         ...Utils.meta(r.status)};
@@ -223,6 +227,7 @@ const CalendarBuilders = {
         if(Utils.isReportDay(d,this._myDept())&&dk<=activeBatch.end_date&&!Utils.holidayName(d)&&!s.noReportDays.has(dk)&&!histKeys.has(dk)){
           missedRows.push({date:Utils.fmtMed(d),dateKey:dk,shift:Utils.shiftLabel(me.shift),status:'missed',
             p1:'-',p2:'-',p3:'-',p4:'-',p1Color:_dc,p2Color:_dc,p3Color:_dc,p4Color:_dc,
+            p1Edited:false,p2Edited:false,p3Edited:false,p4Edited:false,
             showTimes:false,rowMarginBot:'0',chevronRotate:'0',hasExpandToggle:true,isExpanded:false,onToggleExpand:this.openMissedNote(dk,''),showTimingWarning:false,
             isMissedRow:true,missedNote:'',showMissedNote:false,onOpenMissedNote:this.openMissedNote(dk,''),
             ...Utils.meta('missed')});
@@ -257,6 +262,7 @@ const CalendarBuilders = {
           label:lbl,color:'#b9791a',bg:isApproved?'#f7efdc':'#fdf6e9',
           p1:'-',p2:'-',p3:'-',p4:'-',
           p1Color:_dc,p2Color:_dc,p3Color:_dc,p4Color:_dc,
+          p1Edited:false,p2Edited:false,p3Edited:false,p4Edited:false,
           hasExpandToggle:false,isExpanded:false,onToggleExpand:()=>{},
           showTimes:false,rowMarginBot:'0',chevronRotate:'0',
           showTimingWarning:false,isMissedRow:false,missedNote:'',showMissedNote:false,
