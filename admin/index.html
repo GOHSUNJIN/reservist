@@ -140,9 +140,10 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 .fg-pill{font-size:10px;font-weight:600;border-radius:5px;padding:2px 7px;white-space:nowrap;flex-shrink:0;min-width:64px;text-align:center;}
 .fg-desc{font-size:11.5px;color:#5c6678;line-height:1.35;}
 
-/* ── Avatar zoom ─────────────────────────────────────────────────────── */
-#av-zoom{position:fixed;z-index:998;display:none;pointer-events:none;}
-#av-zoom img{width:96px;height:96px;border-radius:50%;object-fit:cover;display:block;box-shadow:0 6px 24px rgba(20,30,70,.22),0 2px 8px rgba(20,30,70,.10);border:3px solid #fff;}
+/* ── Avatar lightbox ─────────────────────────────────────────────────── */
+#av-lightbox{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.82);display:none;align-items:center;justify-content:center;pointer-events:none;}
+#av-lightbox.active{display:flex;}
+#av-lightbox-img{width:240px;height:240px;border-radius:50%;object-fit:cover;box-shadow:0 8px 40px rgba(0,0,0,0.5);flex-shrink:0;}
 
 /* ── Person tooltip ──────────────────────────────────────────────────── */
 #person-tip{position:fixed;background:#fff;border:1px solid #e8ecf4;border-radius:13px;box-shadow:0 8px 32px rgba(20,30,70,.16),0 2px 8px rgba(20,30,70,.07);z-index:999;display:none;min-width:200px;overflow:hidden;}
@@ -211,8 +212,8 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
   </div>
 </div>
 
-<!-- Avatar zoom -->
-<div id="av-zoom"><img id="av-zoom-img" src="" alt=""></div>
+<!-- Avatar lightbox -->
+<div id="av-lightbox"><img id="av-lightbox-img" src="" alt=""></div>
 
 <!-- Person tooltip -->
 <div id="person-tip">
@@ -666,23 +667,15 @@ function _showAvZoom(e){
   const el=e.currentTarget;
   const url=_avatarUrlCache[el.dataset.avid];
   if(!url) return;
-  const zEl=document.getElementById('av-zoom');
-  const zImg=document.getElementById('av-zoom-img');
-  if(!zEl||!zImg) return;
-  zImg.src=url;
-  const r=el.getBoundingClientRect(), size=96;
-  let left=r.left+r.width/2-size/2;
-  let top=r.top-size-12;
-  if(top<8) top=r.bottom+12;
-  if(left<8) left=8;
-  if(left+size>window.innerWidth-8) left=window.innerWidth-size-8;
-  zEl.style.left=left+'px';
-  zEl.style.top=top+'px';
-  zEl.style.display='block';
+  const lEl=document.getElementById('av-lightbox');
+  const lImg=document.getElementById('av-lightbox-img');
+  if(!lEl||!lImg) return;
+  lImg.src=url;
+  lEl.classList.add('active');
 }
 function _hideAvZoom(){
-  const zEl=document.getElementById('av-zoom');
-  if(zEl) zEl.style.display='none';
+  const lEl=document.getElementById('av-lightbox');
+  if(lEl) lEl.classList.remove('active');
 }
 async function applyAvatars(root){
   const els=(root||document).querySelectorAll('.event-avatar[data-avid]');
