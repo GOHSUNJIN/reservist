@@ -141,7 +141,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 .fg-desc{font-size:11.5px;color:#5c6678;line-height:1.35;}
 
 /* ── Avatar lightbox ─────────────────────────────────────────────────── */
-#av-lightbox{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.82);display:none;align-items:center;justify-content:center;pointer-events:none;}
+#av-lightbox{position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.82);display:none;align-items:center;justify-content:center;cursor:pointer;}
 #av-lightbox.active{display:flex;}
 #av-lightbox-img{width:240px;height:240px;border-radius:50%;object-fit:cover;box-shadow:0 8px 40px rgba(0,0,0,0.5);flex-shrink:0;}
 
@@ -664,6 +664,7 @@ function goToPage(p){
 
 // ── Avatars (async signed URLs) ────────────────────────────────────────────
 function _showAvZoom(e){
+  e.stopPropagation();
   const el=e.currentTarget;
   const url=_avatarUrlCache[el.dataset.avid];
   if(!url) return;
@@ -677,6 +678,7 @@ function _hideAvZoom(){
   const lEl=document.getElementById('av-lightbox');
   if(lEl) lEl.classList.remove('active');
 }
+document.addEventListener('click',_hideAvZoom);
 async function applyAvatars(root){
   const els=(root||document).querySelectorAll('.event-avatar[data-avid]');
   if(!els.length) return;
@@ -697,8 +699,8 @@ async function applyAvatars(root){
     img.onerror=()=>img.remove();
     el.style.position='relative'; el.style.overflow='hidden';
     el.appendChild(img);
-    el.addEventListener('mouseenter',_showAvZoom);
-    el.addEventListener('mouseleave',_hideAvZoom);
+    el.style.cursor='pointer';
+    el.addEventListener('click',_showAvZoom);
   });
 }
 
