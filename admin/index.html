@@ -537,10 +537,20 @@ function goHome(){
 }
 
 async function doLogout(){
+  clearTimeout(_searchTimer); _searchTimer=null;
   if(_realtimeCh){_db.removeChannel(_realtimeCh);_realtimeCh=null;}
   await _db.auth.signOut({scope:'local'}).catch(()=>{});
   _me=null; _isSA=false; _filterDept=null; _cats=new Set(); _search=''; _from=''; _to='';
-  _page=0; _rows=[];
+  _page=0; _total=0; _rows=[];
+  // clear per-session caches so next user sees no data from this session
+  Object.keys(_tipCache).forEach(k=>delete _tipCache[k]);
+  Object.keys(_avatarUrlCache).forEach(k=>delete _avatarUrlCache[k]);
+  // clear DOM before hiding so next login starts clean
+  const list=document.getElementById('events-list'); if(list) list.innerHTML='';
+  const neb=document.getElementById('new-events-bar'); if(neb) neb.style.display='none';
+  const lb=document.getElementById('latest-btn'); if(lb) lb.style.display='none';
+  const ec=document.getElementById('events-count'); if(ec) ec.textContent='';
+  ['stat-today','stat-actors','stat-week','stat-top-cat'].forEach(id=>{const el=document.getElementById(id);if(el) el.textContent='-';});
   document.getElementById('app-screen').style.display='none';
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('login-contact').value='';
@@ -550,6 +560,7 @@ async function doLogout(){
   const dt=document.getElementById('date-to'); if(dt) dt.value='';
   document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
   const allPill=document.querySelector('.pill[data-cat="all"]'); if(allPill) allPill.classList.add('active');
+  _updateClearBtn();
   const ds=document.getElementById('dept-sel'); if(ds){ds.value='';ds.style.display='none';}
   const btn=document.getElementById('login-btn');
   btn.disabled=false; btn.textContent='Sign in';
@@ -904,7 +915,7 @@ function buildActionText(ev){
       const labels={'checkin.p1':'Checked in','checkin.p2':'Went on lunch break','checkin.p3':'Returned from lunch','checkin.p4':'Checked out'};
       const m2=ev.meta||{};
       let s=labels[ev.action];
-      if(m2.date) s+=` on <strong>${esc(m2.date)}</strong>`;
+      if(m2.date) s+=` on <strong>${esc(fmtDk(m2.date))}</strong>`;
       if(m2.time) s+=` at <strong>${esc(m2.time)}</strong>`;
       if(m2.gps_bypassed) s+=` <span class="dbypass">GPS bypass</span>`;
       return s;
@@ -959,7 +970,7 @@ function buildInlineDetail(ev){
   if(ev.action==='roster.status_set'){
     const from=m.prev_status||'—', to=m.status||'—';
     const arrow=from!==to?`<span class="darr">→</span><span class="dv">${esc(to)}</span>`:'';
-    const dateStr=m.date?`<span class="dphase"><span class="dlabel">on</span><span class="dv">${esc(m.date)}</span></span>`:'';
+    const dateStr=m.date?`<span class="dphase"><span class="dlabel">on</span><span class="dv">${esc(fmtDk(m.date))}</span></span>`:'';
     return `<div class="event-detail"><span class="dphase"><span class="dlabel">Status</span><span class="dv">${esc(from)}</span>${arrow}</span>${dateStr}</div>`;
   }
   if(ev.action.startsWith('checkin.')&&ev.action!=='checkin.late_reason') return '';
