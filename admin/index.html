@@ -140,6 +140,10 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 .fg-pill{font-size:10px;font-weight:600;border-radius:5px;padding:2px 7px;white-space:nowrap;flex-shrink:0;min-width:64px;text-align:center;}
 .fg-desc{font-size:11.5px;color:#5c6678;line-height:1.35;}
 
+/* ── Avatar zoom ─────────────────────────────────────────────────────── */
+#av-zoom{position:fixed;z-index:998;display:none;pointer-events:none;}
+#av-zoom img{width:96px;height:96px;border-radius:50%;object-fit:cover;display:block;box-shadow:0 6px 24px rgba(20,30,70,.22),0 2px 8px rgba(20,30,70,.10);border:3px solid #fff;}
+
 /* ── Person tooltip ──────────────────────────────────────────────────── */
 #person-tip{position:fixed;background:#fff;border:1px solid #e8ecf4;border-radius:13px;box-shadow:0 8px 32px rgba(20,30,70,.16),0 2px 8px rgba(20,30,70,.07);z-index:999;display:none;min-width:200px;overflow:hidden;}
 .ptip-head{font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;text-transform:uppercase;padding:12px 14px 6px;}
@@ -206,6 +210,9 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
     <div class="fg-row"><span class="fg-pill" style="background:#f7e4e1;color:#c0392b;">Admin</span><span class="fg-desc">Supervisor accounts added, promoted, or demoted</span></div>
   </div>
 </div>
+
+<!-- Avatar zoom -->
+<div id="av-zoom"><img id="av-zoom-img" src="" alt=""></div>
 
 <!-- Person tooltip -->
 <div id="person-tip">
@@ -531,7 +538,7 @@ async function doLogout(){
   if(_realtimeCh){_db.removeChannel(_realtimeCh);_realtimeCh=null;}
   await _db.auth.signOut({scope:'local'}).catch(()=>{});
   _me=null; _isSA=false; _filterDept=null; _cat='all'; _search=''; _from=''; _to='';
-  _offset=0; _rows=[];
+  _page=0; _rows=[];
   document.getElementById('app-screen').style.display='none';
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('login-contact').value='';
@@ -575,20 +582,20 @@ async function loadStats(){
 // ── Filters ────────────────────────────────────────────────────────────────
 function setCat(el){
   document.querySelectorAll('.pill').forEach(p=>p.classList.remove('active'));
-  el.classList.add('active'); _cat=el.dataset.cat; _offset=0; loadEvents(true);
+  el.classList.add('active'); _cat=el.dataset.cat; _page=0; loadEvents(true);
 }
 function onDeptChange(){
   _filterDept=document.getElementById('dept-sel').value||null;
-  _offset=0; loadStats(); loadEvents(true);
+  _page=0; loadStats(); loadEvents(true);
 }
 function applyFilters(){
   _from=document.getElementById('date-from').value;
   _to=document.getElementById('date-to').value;
-  _offset=0; loadEvents(true);
+  _page=0; loadEvents(true);
 }
 function onSearch(){
   clearTimeout(_searchTimer);
-  _searchTimer=setTimeout(()=>{_search=document.getElementById('search-inp').value.trim();_offset=0;loadEvents(true);},300);
+  _searchTimer=setTimeout(()=>{_search=document.getElementById('search-inp').value.trim();_page=0;loadEvents(true);},300);
 }
 
 // ── Events ─────────────────────────────────────────────────────────────────
@@ -655,6 +662,28 @@ function goToPage(p){
 }
 
 // ── Avatars (async signed URLs) ────────────────────────────────────────────
+function _showAvZoom(e){
+  const el=e.currentTarget;
+  const url=_avatarUrlCache[el.dataset.avid];
+  if(!url) return;
+  const zEl=document.getElementById('av-zoom');
+  const zImg=document.getElementById('av-zoom-img');
+  if(!zEl||!zImg) return;
+  zImg.src=url;
+  const r=el.getBoundingClientRect(), size=96;
+  let left=r.left+r.width/2-size/2;
+  let top=r.top-size-12;
+  if(top<8) top=r.bottom+12;
+  if(left<8) left=8;
+  if(left+size>window.innerWidth-8) left=window.innerWidth-size-8;
+  zEl.style.left=left+'px';
+  zEl.style.top=top+'px';
+  zEl.style.display='block';
+}
+function _hideAvZoom(){
+  const zEl=document.getElementById('av-zoom');
+  if(zEl) zEl.style.display='none';
+}
 async function applyAvatars(root){
   const els=(root||document).querySelectorAll('.event-avatar[data-avid]');
   if(!els.length) return;
@@ -675,6 +704,8 @@ async function applyAvatars(root){
     img.onerror=()=>img.remove();
     el.style.position='relative'; el.style.overflow='hidden';
     el.appendChild(img);
+    el.addEventListener('mouseenter',_showAvZoom);
+    el.addEventListener('mouseleave',_hideAvZoom);
   });
 }
 

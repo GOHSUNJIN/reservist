@@ -146,7 +146,7 @@ const RosterHandlers = {
     if(off===0 && !this.state.demo && this.state.isOnline){
       const _today=Utils.dateKey(this.dateForOffset(0));
       DB.attendance.getForDate(_today).then(att=>{if(this.state.viewOffset===0)this.setState({attendance:att});}).catch(()=>{});
-      DB.leaves.listApprovedForDate(_today).then(leaves=>{const alMap={};for(const l of leaves)alMap[l.personnel_id]=l.type;this.setState(s=>({approvedLeavesCache:{...s.approvedLeavesCache,[_today]:alMap}}));}).catch(()=>{});
+      DB.leaves.listApprovedForDate(_today).then(leaves=>{const alMap={};for(const l of leaves)alMap[l.personnel_id]={type:l.type,reason:l.reason||''};this.setState(s=>({approvedLeavesCache:{...s.approvedLeavesCache,[_today]:alMap}}));}).catch(()=>{});
     }
     this._loadDateAttendance(off);
   },
@@ -219,9 +219,13 @@ const RosterHandlers = {
     for(const [key,val] of [['p1',timesEditP1],['p2',timesEditP2],['p3',timesEditP3],['p4',timesEditP4]]){
       if(val&&!validTime(val)){this.setState({timesEditErrField:key});this._toast('Times must be in HH:MM format (24h).','error');return;}
     }
-    if(timesEditP3&&!timesEditP2){this.setState({timesEditErrField:'p2'});this._toast('Lunch out time is required when recording a return.','error');return;}
-    if(timesEditP4&&!timesEditP3){this.setState({timesEditErrField:'p3'});this._toast('Return from lunch time is required when recording checkout.','error');return;}
-    if(timesEditP4&&!timesEditP2){this.setState({timesEditErrField:'p2'});this._toast('Lunch out time is required when recording checkout.','error');return;}
+    const _editPerson=this.state.personnel.find(p=>p.id===timesEditId);
+    const _editIsCas=(_editPerson?.department||this._myDept())==='cas';
+    if(!_editIsCas){
+      if(timesEditP3&&!timesEditP2){this.setState({timesEditErrField:'p2'});this._toast('Lunch out time is required when recording a return.','error');return;}
+      if(timesEditP4&&!timesEditP3){this.setState({timesEditErrField:'p3'});this._toast('Return from lunch time is required when recording checkout.','error');return;}
+      if(timesEditP4&&!timesEditP2){this.setState({timesEditErrField:'p2'});this._toast('Lunch out time is required when recording checkout.','error');return;}
+    }
     const slots=[{t:timesEditP1,label:'Check-in',key:'p1'},{t:timesEditP2||null,label:'Lunch out',key:'p2'},{t:timesEditP3||null,label:'Return from lunch',key:'p3'},{t:timesEditP4||null,label:'Check-out',key:'p4'}];
     let prevMins=null, prevLabel='';
     for(const sl of slots){

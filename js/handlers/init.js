@@ -282,51 +282,49 @@ const InitHandlers = {
   _ensureLiveBatch: async function(batches, overrideDate, dept) {
     if(this._ensureLiveBatchRunning) return DB.batches.list(dept).catch(()=>batches);
     this._ensureLiveBatchRunning = true;
-    const today = overrideDate || Utils.dateKey(this.baseDate());
-    const live = batches.find(b=>b.is_live);
-    if(live && live.start_date<=today && live.end_date && today<=live.end_date){ this._ensureLiveBatchRunning=false; return batches; }
-    const current = batches.find(b=>b.start_date<=today && today<=b.end_date);
-    if(current){
-      await DB.batches.activate(current.id, dept).catch(()=>{});
-      const r = await DB.batches.list(dept).catch(()=>batches);
-      this._ensureLiveBatchRunning = false;
-      return r;
-    }
-    let sorted = [...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
-    // If today falls before all existing batches (e.g. dept deployed mid-cycle with a 1-day gap),
-    // activate the nearest upcoming batch instead of creating more batches further in the future.
-    if(sorted.length && sorted[0].start_date>today){
-      await DB.batches.activate(sorted[0].id, dept).catch(()=>{});
-      const r = await DB.batches.list(dept).catch(()=>batches);
-      this._ensureLiveBatchRunning = false;
-      return r;
-    }
-    const allBatches = await DB.batches.list().catch(()=>[]);
-    for(let attempt=0; attempt<6; attempt++){
-      const lastBatch = sorted[sorted.length-1];
-      const fromDate = lastBatch?.end_date
-        ? Utils.addDays(new Date(lastBatch.end_date+'T00:00:00'), 1)
-        : new Date(today+'T00:00:00');
-      const nextStart = dept==='lnf' ? Utils.nextBatchMonday(fromDate) : Utils.nextBatchTuesday(fromDate);
-      const {start,end,dekit} = dept==='lnf' ? Utils.lnfBatchDatesFrom(nextStart) : Utils.batchDatesFrom(nextStart);
-      const startStr=Utils.dateKey(start), endStr=Utils.dateKey(end), dekitStr=Utils.dateKey(dekit);
-      const sameYear = [...allBatches, ...sorted].filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
-      const maxNum = sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0, 10)),0);
-      const sameDateBatch = allBatches.find(b=>b.start_date===startStr&&b.department!==dept);
-      const sameDateCycleNum = sameDateBatch ? (parseInt((sameDateBatch.label||'').match(/^Cycle (\d+)\//)?.[1]||0,10)||0) : 0;
-      const cycleNum = sameDateCycleNum || maxNum + 1;
-      const label = Utils.batchLabel(startStr, endStr, cycleNum);
-      const {data} = await DB.batches.create(label, startStr, endStr, dekitStr, dept).catch(()=>({}));
-      if(data){ sorted.push(data); }
-      if(startStr<=today && today<=dekitStr){
-        if(data?.id) await DB.personnel.assignBatch(data.id, dept).catch(()=>{});
-        break;
+    try {
+      const today = overrideDate || Utils.dateKey(this.baseDate());
+      const live = batches.find(b=>b.is_live);
+      if(live && live.start_date<=today && live.end_date && today<=live.end_date){ return batches; }
+      const current = batches.find(b=>b.start_date<=today && today<=b.end_date);
+      if(current){
+        await DB.batches.activate(current.id, dept).catch(()=>{});
+        return await DB.batches.list(dept).catch(()=>batches);
       }
-      if(startStr>today) break;
+      let sorted = [...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
+      // If today falls before all existing batches (e.g. dept deployed mid-cycle with a 1-day gap),
+      // activate the nearest upcoming batch instead of creating more batches further in the future.
+      if(sorted.length && sorted[0].start_date>today){
+        await DB.batches.activate(sorted[0].id, dept).catch(()=>{});
+        return await DB.batches.list(dept).catch(()=>batches);
+      }
+      const allBatches = await DB.batches.list().catch(()=>[]);
+      for(let attempt=0; attempt<6; attempt++){
+        const lastBatch = sorted[sorted.length-1];
+        const fromDate = lastBatch?.end_date
+          ? Utils.addDays(new Date(lastBatch.end_date+'T00:00:00'), 1)
+          : new Date(today+'T00:00:00');
+        const nextStart = dept==='lnf' ? Utils.nextBatchMonday(fromDate) : Utils.nextBatchTuesday(fromDate);
+        const {start,end,dekit} = dept==='lnf' ? Utils.lnfBatchDatesFrom(nextStart) : Utils.batchDatesFrom(nextStart);
+        const startStr=Utils.dateKey(start), endStr=Utils.dateKey(end), dekitStr=Utils.dateKey(dekit);
+        const sameYear = [...allBatches, ...sorted].filter(b=>b.start_date.slice(0,4)===startStr.slice(0,4));
+        const maxNum = sameYear.reduce((m,b)=>Math.max(m,parseInt((b.label||'').match(/^Cycle (\d+)\//)?.[1]||0, 10)),0);
+        const sameDateBatch = allBatches.find(b=>b.start_date===startStr&&b.department!==dept);
+        const sameDateCycleNum = sameDateBatch ? (parseInt((sameDateBatch.label||'').match(/^Cycle (\d+)\//)?.[1]||0,10)||0) : 0;
+        const cycleNum = sameDateCycleNum || maxNum + 1;
+        const label = Utils.batchLabel(startStr, endStr, cycleNum);
+        const {data} = await DB.batches.create(label, startStr, endStr, dekitStr, dept).catch(()=>({}));
+        if(data){ sorted.push(data); }
+        if(startStr<=today && today<=dekitStr){
+          if(data?.id) await DB.personnel.assignBatch(data.id, dept).catch(()=>{});
+          break;
+        }
+        if(startStr>today) break;
+      }
+      return await DB.batches.list(dept).catch(()=>sorted);
+    } finally {
+      this._ensureLiveBatchRunning = false;
     }
-    const result = await DB.batches.list(dept).catch(()=>sorted);
-    this._ensureLiveBatchRunning = false;
-    return result;
   },
 
   // Pre-creates upcoming batches so admins can navigate forward without gaps.
