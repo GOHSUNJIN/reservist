@@ -1,8 +1,23 @@
 const DB_Audit = {
   async log(entry) {
-    const { data, error } = await _db.from('audit_log').insert(entry).select().catch(e => ({ data: null, error: e }));
-    if (error) console.error('[audit_log] insert failed:', error, entry);
-    else console.log('[audit_log] inserted:', data);
+    try {
+      const { data: sd } = await _db.auth.getSession();
+      const token = sd?.session?.access_token;
+      if (!token) return;
+      const res = await fetch(`${SUPABASE_URL}/rest/v1/audit_log`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'apikey': SUPABASE_ANON_KEY,
+          'Authorization': `Bearer ${token}`,
+          'Prefer': 'return=minimal',
+        },
+        body: JSON.stringify(entry),
+      });
+      if (!res.ok) console.error('[audit_log] insert failed:', res.status, await res.text());
+    } catch (e) {
+      console.error('[audit_log] insert error:', e);
+    }
   },
 
   async query({ dept, category, search, dateFrom, dateTo, limit = 100, offset = 0 } = {}) {

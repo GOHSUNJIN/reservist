@@ -110,9 +110,9 @@ class AppComponent extends DCLogic {
 
   // ── Audit logging ─────────────────────────────────────────────────────────
   _log(category, action, meta) {
-    if (this.state.demo) { console.warn('[_log] skipped: demo mode', action); return; }
+    if (this.state.demo) return;
     const me = this.cur();
-    if (!me) { console.warn('[_log] skipped: cur() returned null', action, 'state.me=', this.state.me, 'currentUserId=', this.state.currentUserId); return; }
+    if (!me) return;
     const entry = {
       actor_id: me.id,
       actor_name: me.name,
@@ -129,7 +129,6 @@ class AppComponent extends DCLogic {
       delete m.target_id; delete m.target_name; delete m.department;
       if (Object.keys(m).length) entry.meta = m;
     }
-    console.log('[_log] firing', action, entry);
     DB.audit.log(entry).catch(() => {});
   }
 
