@@ -979,7 +979,7 @@ function buildRow(ev){
       cards+=`<div class="meta-entry"><div class="meta-key">Status</div><div class="meta-val">${val}</div></div>`;
       if(rawMeta.date) cards+=`<div class="meta-entry"><div class="meta-key">Date</div><div class="meta-val">${esc(rawMeta.date)}</div></div>`;
     } else {
-      const entries=Object.entries(rawMeta).filter(([k,v])=>k!=='date'&&k!=='type'&&v!==null&&v!==undefined&&v!==''&&v!==false);
+      const entries=Object.entries(rawMeta).filter(([k,v])=>k!=='date'&&k!=='time'&&k!=='type'&&v!==null&&v!==undefined&&v!==''&&v!==false);
       cards=entries.map(([k,v])=>{
         const key=META_LABELS[k]||k.replace(/_/g,' ');
         const val=typeof v==='object'?JSON.stringify(v):String(v);
