@@ -261,17 +261,18 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
         <div class="h-title">ReservistGO</div>
         <div style="font-size:10px;color:#8a94a3;font-weight:500;letter-spacing:.03em;margin-top:1px;">Monitor</div>
       </div>
-    </div>
-    <div class="h-right">
+      <div class="h-divider"></div>
       <div class="h-user">
         <div class="h-user-avatar" id="h-avatar"></div>
         <div class="h-user-name" id="h-name"></div>
         <div class="role-chip" id="h-role-chip"></div>
       </div>
-      <a href="../" class="btn-home" title="Back to app">
+    </div>
+    <div class="h-right">
+      <button class="btn-home" onclick="goHome()">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         Home
-      </a>
+      </button>
       <button class="btn-logout" onclick="doLogout()">Log out</button>
     </div>
   </header>
@@ -512,6 +513,12 @@ function showApp(){
   rc.textContent=roleLabel(_me.role); rc.style.background=roleBg(_me.role); rc.style.color=roleColor(_me.role);
   if(_isSA) document.getElementById('dept-sel').style.display='block';
   loadStats(); loadEvents(true); subscribeRealtime();
+}
+
+function goHome(){
+  const monitorSession=sessionStorage.getItem('ops-monitor-session');
+  if(monitorSession) sessionStorage.setItem('ops-auth',monitorSession);
+  window.location.href='../';
 }
 
 async function doLogout(){
