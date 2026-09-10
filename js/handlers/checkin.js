@@ -165,6 +165,7 @@ const CheckinHandlers = {
   submitLateReason: async function() {
     const {lateReasonText,currentUserId,demo,isOnline}=this.state;
     if(!lateReasonText.trim()) return;
+    const prevReason=this.myRec()?.lateReason||null;
     this.setState({lateReasonSubmitting:true});
     if(!demo){
       if(!isOnline){this._toast('No connection. Reason not saved. Try again when online.','error');this.setState({lateReasonSubmitting:false});return;}
@@ -173,7 +174,9 @@ const CheckinHandlers = {
     }
     this.setState({lateReasonOpen:false,lateReasonText:'',lateReasonSubmitting:false});
     this._toast('Reason submitted.');
-    this._log('attendance', 'checkin.late_reason', { date: Utils.dateKey(this.baseDate()), reason: lateReasonText.trim() });
+    const meta={date:Utils.dateKey(this.baseDate()),reason:lateReasonText.trim()};
+    if(prevReason&&prevReason!==lateReasonText.trim()) meta.prev_reason=prevReason;
+    this._log('attendance','checkin.late_reason',meta);
   },
 
 };
