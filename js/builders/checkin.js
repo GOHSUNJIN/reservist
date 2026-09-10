@@ -144,6 +144,7 @@ const CheckinBuilders = {
     const [_sc,_sm]=shiftStart.split(':').map(Number);
     const _lateMs=rec.p1?(()=>{const[h,m]=rec.p1.split(':').map(Number);return(h*60+m)-(_sc*60+_sm);})():0;
     const isLate=_lateMs>=60;
+    const p1AdminEdited=(rec.editLog||[]).some(e=>e.fields?.includes('p1'));
     const incompletePastRec=s.history.find(r=>r.status==='present'&&(isCas?!r.p4:(!r.p2||!r.p3||!r.p4)));
     const hasIncompletePast=!!incompletePastRec;
     const incompletePastDate=hasIncompletePast?Utils.fmtMed(new Date(incompletePastRec.date+'T00:00:00')):'';
@@ -204,8 +205,8 @@ const CheckinBuilders = {
       showLunchSummary:!isCas, summaryGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',
       isLate, lateShiftStart:shiftStart,
       hasIncompletePast, incompletePastDate,
-      canAddLateReason:isLate&&!rec.lateReason&&status==='present'&&!outOfCycle&&!noRep,
-      hasLateReason:isLate&&!!rec.lateReason,
+      canAddLateReason:isLate&&!p1AdminEdited&&!rec.lateReason&&status==='present'&&!outOfCycle&&!noRep,
+      hasLateReason:isLate&&!p1AdminEdited&&!!rec.lateReason,
       lateReasonDisplayText:rec.lateReason||'',
       openLateReason:this.openLateReason,
       lateReasonModalTitle:rec.lateReason?'Edit late reason':'Late check-in',
