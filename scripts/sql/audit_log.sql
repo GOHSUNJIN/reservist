@@ -23,9 +23,13 @@ CREATE INDEX IF NOT EXISTS audit_log_action_idx ON audit_log (action);
 -- RLS policies
 ALTER TABLE audit_log ENABLE ROW LEVEL SECURITY;
 
--- Any authenticated user can insert (reservists log their own actions)
+-- Any authenticated user can insert, except auth/session category rows (no longer logged by app)
+-- Run this in Supabase SQL editor to replace the old policy:
+--   DROP POLICY IF EXISTS "audit_log_insert" ON audit_log;
+--   CREATE POLICY "audit_log_insert" ON audit_log
+--     FOR INSERT TO authenticated WITH CHECK (category NOT IN ('auth', 'session'));
 CREATE POLICY "audit_log_insert" ON audit_log
-  FOR INSERT TO authenticated WITH CHECK (true);
+  FOR INSERT TO authenticated WITH CHECK (category NOT IN ('auth', 'session'));
 
 -- Only authenticated users can select (app layer enforces admin-only access)
 CREATE POLICY "audit_log_select" ON audit_log
