@@ -414,9 +414,11 @@ function relTime(iso){
   if(diff<172800) return 'Yesterday';
   return Math.floor(diff/86400)+'d ago';
 }
+const _MONTHS=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function absTime(iso){
   const d=new Date(iso);
-  return d.toLocaleDateString('en-SG',{day:'numeric',month:'short'})+', '+d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  const time=d.toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  return d.getDate()+' '+_MONTHS[d.getMonth()]+', '+time;
 }
 
 function showErr(msg){const el=document.getElementById('login-err');el.textContent=msg;el.style.display='block';}
@@ -664,14 +666,28 @@ function onNewEventsBanner(){
 }
 
 // ── Person tooltip ─────────────────────────────────────────────────────────
+let _tipAnchorEl=null;
+function _positionTip(){
+  const tip=document.getElementById('person-tip');
+  const el=_tipAnchorEl;
+  if(!el||tip.style.display==='none') return;
+  const rect=el.getBoundingClientRect();
+  const tipH=tip.offsetHeight;
+  const tipW=tip.offsetWidth||210;
+  const left=Math.min(rect.left,window.innerWidth-tipW-12);
+  const spaceBelow=window.innerHeight-rect.bottom;
+  const top=spaceBelow<tipH+10&&rect.top>tipH+10?rect.top-tipH-6:rect.bottom+6;
+  tip.style.left=left+'px';
+  tip.style.top=top+'px';
+}
 async function showPersonTip(el,pid){
   clearTimeout(_tipHideTimer);
+  _tipAnchorEl=el;
   const tip=document.getElementById('person-tip');
   const body=document.getElementById('ptip-body');
   const rect=el.getBoundingClientRect();
-  const tipW=210;
   tip.style.top=(rect.bottom+6)+'px';
-  tip.style.left=Math.min(rect.left,window.innerWidth-tipW-12)+'px';
+  tip.style.left=Math.min(rect.left,window.innerWidth-222)+'px';
   tip.style.display='block';
   if(_tipCache[pid]===undefined){
     body.innerHTML='<div style="color:#8a94a3;font-size:12px;padding:2px 0 4px;">Loading...</div>';
@@ -684,6 +700,7 @@ async function showPersonTip(el,pid){
   const info=_tipCache[pid];
   if(!info||info==='skip'){tip.style.display='none';return;}
   body.innerHTML=`<div class="ptip-contact-row" onclick="copyPtipContact('${esc(info.contact)}')"><div><div class="ptip-label">Contact</div><div class="ptip-contact-num">${esc(info.contact)}</div></div><div><span class="ptip-copy-hint" id="ptip-copy-hint">Copy</span><span class="ptip-copy-fb" id="ptip-copy-fb">Copied!</span></div></div><div class="ptip-row"><div class="ptip-label">Department</div><div class="ptip-val">${esc(info.dept)}</div></div><div class="ptip-row"><div class="ptip-label">Cycle</div><div class="ptip-val">${esc(info.cycle)}</div></div>`;
+  requestAnimationFrame(()=>_positionTip());
 }
 function hidePersonTip(){_tipHideTimer=setTimeout(()=>{document.getElementById('person-tip').style.display='none';},180);}
 function copyPtipContact(num){
