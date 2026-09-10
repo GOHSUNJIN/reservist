@@ -1,6 +1,18 @@
 // ── Calendar and attendance view builders ─────────────────────────────────
 const CalendarBuilders = {
 
+  _findHistRecord: function(dk) {
+    const {attendanceDate, attendance, currentUserId, history} = this.state;
+    const myAtt = attendance[currentUserId];
+    return history.find(r=>r.date===dk)
+      || (dk===attendanceDate && myAtt?.status && myAtt.status!=='pending'
+          ? {status:myAtt.status, p1:myAtt.p1||null, p4:myAtt.p4||null} : null);
+  },
+
+  _findApprovedLeave: function(dk) {
+    return (this.state.myLeaveHistory||[]).find(r=>r.date===dk&&r.status==='approved'&&r.type!=='mc');
+  },
+
   _calDayDetail: function(off, dst) {
     const d=this.dateForOffset(off), hol=Utils.holidayName(d), dk=Utils.dateKey(d);
     if(off===0){
@@ -10,8 +22,7 @@ const CalendarBuilders = {
       if(st==='present') return {label:'Checked in',sub:'Reported at '+(rec.p1||'-'),color:'#1f8a5b',bg:'#e7f3ec'};
       if(st==='mc')      return {label:'MC',sub:'Sick leave declared for today',color:'#b9791a',bg:'#f7efdc'};
       if(st==='absent'){
-        const pl=(this.state.myLeaveHistory||[]).find(r=>r.date===dk&&r.status==='approved'&&r.type!=='mc');
-        return pl
+        return this._findApprovedLeave(dk)
           ? {label:'Personal Leave',sub:'Personal leave approved for today',color:'#b9791a',bg:'#f7efdc'}
           : {label:'Absent',sub:'You have been marked absent',color:'#c0392b',bg:'#f7e4e1'};
       }
@@ -24,43 +35,22 @@ const CalendarBuilders = {
     if(dst==='end') return {label:off<0?'Reporting day':'Upcoming',sub:'Last reporting day of your cycle',color:'#5c6678',bg:'#eceef2'};
     if(dst==='post') return {label:'No reporting',sub:'Reporting cycle ended, await dekit',color:'#8a94a3',bg:'#f0f2f7'};
     if(dst==='wknd') return {label:'Weekend',sub:'No reporting required',color:'#8a94a3',bg:'#f6f8fa'};
-    if(dst==='past'){
-      const {attendanceDate, attendance, currentUserId} = this.state;
-      const myAtt = attendance[currentUserId];
-      const hr = this.state.history.find(r=>r.date===dk)
-        || (dk===attendanceDate && myAtt?.status && myAtt.status!=='pending'
-            ? {status:myAtt.status, p1:myAtt.p1||null, p4:myAtt.p4||null} : null);
+    if(dst==='past'||dst==='work'&&off<0){
+      const hr=this._findHistRecord(dk);
       if(hr){
         const t=hr.p1||'-';
         if(hr.status==='present'&&!hr.p4) return {label:'No clock-out',sub:'You did not clock out. Inform your supervisor. Meal allowance may not apply.',color:'#c2410c',bg:'#fff3e0'};
         if(hr.status==='present') return {label:'Present',sub:'Reported at '+t,color:'#1f8a5b',bg:'#e7f3ec'};
         if(hr.status==='mc')     return {label:'MC',sub:'Sick leave recorded',color:'#b9791a',bg:'#f7efdc'};
         if(hr.status==='absent'){
-          const pl=(this.state.myLeaveHistory||[]).find(r=>r.date===dk&&r.status==='approved'&&r.type!=='mc');
-          return pl?{label:'Personal Leave',sub:'Personal leave approved',color:'#b9791a',bg:'#f7efdc'}:{label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
+          return this._findApprovedLeave(dk)
+            ?{label:'Personal Leave',sub:'Personal leave approved',color:'#b9791a',bg:'#f7efdc'}
+            :{label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
         }
       }
       return {label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
     }
     if(dst==='work'){
-      if(off<0){
-        const {attendanceDate, attendance, currentUserId} = this.state;
-        const myAtt = attendance[currentUserId];
-        const hr = this.state.history.find(r=>r.date===dk)
-          || (dk===attendanceDate && myAtt?.status && myAtt.status!=='pending'
-              ? {status:myAtt.status, p1:myAtt.p1||null, p4:myAtt.p4||null} : null);
-        if(hr){
-          const t=hr.p1||'-';
-          if(hr.status==='present'&&!hr.p4) return {label:'No clock-out',sub:'You did not clock out. Inform your supervisor. Meal allowance may not apply.',color:'#c2410c',bg:'#fff3e0'};
-          if(hr.status==='present') return {label:'Present',sub:'Reported at '+t,color:'#1f8a5b',bg:'#e7f3ec'};
-          if(hr.status==='mc')     return {label:'MC',sub:'Sick leave recorded',color:'#b9791a',bg:'#f7efdc'};
-          if(hr.status==='absent'){
-            const pl=(this.state.myLeaveHistory||[]).find(r=>r.date===dk&&r.status==='approved'&&r.type!=='mc');
-            return pl?{label:'Personal Leave',sub:'Personal leave approved',color:'#b9791a',bg:'#f7efdc'}:{label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
-          }
-        }
-        return {label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
-      }
       // Future reporting day - check for approved or pending leave
       const futureLeave=(this.state.myLeaveHistory||[]).find(r=>r.date===dk&&(r.status==='approved'||r.status==='pending'));
       if(futureLeave){
@@ -116,30 +106,26 @@ const CalendarBuilders = {
       else dst='work';
       let style=cellStyle(dst)+'cursor:pointer;';
       if(dst==='past'){
-        const hr=s.history.find(r=>r.date===dk)
-          ||(dk===s.attendanceDate&&s.attendance[s.currentUserId]?.status&&s.attendance[s.currentUserId].status!=='pending'
-             ?{status:s.attendance[s.currentUserId].status}:null);
+        const hr=this._findHistRecord(dk);
         const pst=hr?.status;
         if(pst==='present'&&!hr?.p4) style=cellBase+'background:#fff3e0;color:#c2410c;border:2px dashed #fb923c;cursor:pointer;';
         else if(pst==='present') style=cellBase+'background:#e7f3ec;color:#1f8a5b;border:2px solid #a8d5bb;cursor:pointer;';
         else if(pst==='mc') style=cellBase+'background:#f7efdc;color:#b9791a;border:2px solid #e8c77a;cursor:pointer;';
         else if(pst==='absent'){
-          const pl=(s.myLeaveHistory||[]).find(r=>r.date===dk&&r.status==='approved'&&r.type!=='mc');
-          style=pl?cellBase+'background:#f7efdc;color:#b9791a;border:2px solid #e8c77a;cursor:pointer;':cellBase+'background:#f7e4e1;color:#c0392b;border:2px solid #e5a9a4;cursor:pointer;';
+          style=this._findApprovedLeave(dk)?cellBase+'background:#f7efdc;color:#b9791a;border:2px solid #e8c77a;cursor:pointer;':cellBase+'background:#f7e4e1;color:#c0392b;border:2px solid #e5a9a4;cursor:pointer;';
         } else style=cellBase+'background:#f7e4e1;color:#c0392b;border:2px solid #e5a9a4;cursor:pointer;';
       }
       if(dst==='work'&&off>0){
-        const fl=(s.myLeaveHistory||[]).find(r=>r.date===dk&&(r.status==='approved'||r.status==='pending'));
+        const fl=(this.state.myLeaveHistory||[]).find(r=>r.date===dk&&(r.status==='approved'||r.status==='pending'));
         if(fl?.status==='approved') style=cellBase+'background:#f7efdc;color:#b9791a;border:2px solid #e8c77a;cursor:pointer;';
         else if(fl?.status==='pending') style=cellBase+'background:#fdf6e9;color:#b9791a;border:1px dashed #e8c77a;cursor:pointer;';
       }
       if(s.selectedCalOffset===off) style+='outline:2px solid '+accent+';outline-offset:1px;';
       return {num:d.getDate(),style,off,st:dst,onClick:this.selectCalDay(off)};
     });
-    const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'], MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-    const dekitLabel='Dekit, '+WD[dd.getDay()]+' '+dd.getDate()+' '+MON[dd.getMonth()];
-    const dekitSub='Last report: '+WD[be.getDay()]+' '+be.getDate()+' '+MON[be.getMonth()];
-    const dekitDateFull=WD[dd.getDay()]+' '+dd.getDate()+' '+MON[dd.getMonth()];
+    const dekitLabel='Dekit, '+Utils.fmtMed(dd);
+    const dekitSub='Last report: '+Utils.fmtMed(be);
+    const dekitDateFull=Utils.fmtMed(dd);
     const selOff=s.selectedCalOffset, calSelected=selOff!=null;
     let calSelLabel='',calSelStatus='',calSelSub='',calSelColor='',calSelBg='';
     if(calSelected){
@@ -154,7 +140,7 @@ const CalendarBuilders = {
       cycleStart:Utils.fmtShort(bs), cycleEnd:Utils.fmtShort(be),
       calSelected, calNoneSelected:!calSelected,
       calSelLabel, calSelStatus, calSelSub, calSelColor, calSelBg,
-      dekitMonth:MON[dd.getMonth()].toUpperCase(), dekitDay:dd.getDate(),
+      dekitMonth:Utils._MS[dd.getMonth()].toUpperCase(), dekitDay:dd.getDate(),
       dekitLabel, dekitSub, dekitDateFull,
     };
   },
@@ -275,12 +261,11 @@ const CalendarBuilders = {
 
     const futureApprovedMcCount=futureLeaveRows.filter(r=>r.status==='mc').length;
 
-    const MON2=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     let _lastMonth='';
     allPast.forEach(r=>{
       const m=r.dateKey.slice(0,7);
       r.showMonthDivider=m!==_lastMonth;
-      r.monthDividerLabel=r.showMonthDivider?(MON2[parseInt(r.dateKey.slice(5,7),10)-1]+' '+r.dateKey.slice(0,4)):'';
+      r.monthDividerLabel=r.showMonthDivider?(Utils._MS[parseInt(r.dateKey.slice(5,7),10)-1]+' '+r.dateKey.slice(0,4)):'';
       _lastMonth=m;
     });
     const myHistory=[...todayRow,...futureLeaveRows,...allPast];

@@ -126,7 +126,7 @@ const InitHandlers = {
 
     const _myPersonnelIds = new Set(personnel.map(p=>p.id));
     const _filteredAtt = role==='admin'
-      ? Object.fromEntries(Object.entries(attendance).filter(([id])=>_myPersonnelIds.has(id)))
+      ? Utils.filterByIds(attendance, _myPersonnelIds)
       : (attendance[me.id] !== undefined ? {[me.id]: attendance[me.id]} : {});
     this.setState({
       authed:true, role,
@@ -251,7 +251,7 @@ const InitHandlers = {
       const _ndAlMap={};
       for(const l of newDateLeaves) _ndAlMap[l.personnel_id]={type:l.type,reason:l.reason||''};
       const _ndPersonnelIds=new Set(this.state.personnel.map(p=>p.id));
-      const _ndFilteredAtt=Object.fromEntries(Object.entries(att).filter(([id])=>_ndPersonnelIds.has(id)));
+      const _ndFilteredAtt=Utils.filterByIds(att, _ndPersonnelIds);
       this._unsubscribeRealtime();
       this._subscribeRealtime(newDate);
       this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0, attendance:_ndFilteredAtt, attendanceDate:newDate, noReportDays:nrd, viewOffset:0, attendanceCache:{}, approvedLeavesCache:{[newDate]:_ndAlMap}, confirmMarkAllAbsent:false, lateAlertDismissedCount:0});

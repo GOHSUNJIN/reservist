@@ -1,15 +1,18 @@
+const _t = v => v ? v.slice(0, 5) : null;
+const _COL_MAP  = {p1:'check_in_time',  p2:'lunch_out_time', p3:'work_return_time', p4:'work_end_time'};
+const _DIST_MAP = {p1:'gps_distance_m', p2:'lunch_out_dist', p3:'work_return_dist', p4:'work_end_dist'};
+
 const DB_Attendance = {
   _toEntry(r) {
-    const t=s=>s?s.slice(0,5):null;
     return {
       status: r.status,
-      p1: t(r.check_in_time),
+      p1: _t(r.check_in_time),
       p1dist: r.gps_distance_m,
-      p2: t(r.lunch_out_time),
+      p2: _t(r.lunch_out_time),
       p2dist: r.lunch_out_dist,
-      p3: t(r.work_return_time),
+      p3: _t(r.work_return_time),
       p3dist: r.work_return_dist,
-      p4: t(r.work_end_time),
+      p4: _t(r.work_end_time),
       p4dist: r.work_end_dist,
       lateReason: r.late_reason || null,
       welfareNote: r.welfare_note || null,
@@ -75,10 +78,8 @@ const DB_Attendance = {
   },
 
   async logPhase(personnelId, dateStr, key, timeStr, dist, bypassed = false) {
-    const colMap = {p1:'check_in_time', p2:'lunch_out_time', p3:'work_return_time', p4:'work_end_time'};
-    const distMap = {p1:'gps_distance_m', p2:'lunch_out_dist', p3:'work_return_dist', p4:'work_end_dist'};
-    const payload = { status: 'present', [colMap[key]]: timeStr + ':00' };
-    if (distMap[key] && dist != null) payload[distMap[key]] = dist;
+    const payload = { status: 'present', [_COL_MAP[key]]: timeStr + ':00' };
+    if (_DIST_MAP[key] && dist != null) payload[_DIST_MAP[key]] = dist;
     if (bypassed) payload.gps_bypassed = true;
     const existingId = await this._findRow(personnelId, dateStr);
     if (existingId) {
@@ -117,7 +118,6 @@ const DB_Attendance = {
     let editLog = [];
     if (!fetchErr) {
       const prevLog = Array.isArray(existing?.edit_log) ? existing.edit_log : [];
-      const _t = v => v ? v.slice(0, 5).trim() : null;
       const changedFields = [];
       if (_t(existing?.check_in_time)    !== (p1 || null)) changedFields.push('p1');
       if (_t(existing?.lunch_out_time)   !== (p2 || null)) changedFields.push('p2');
