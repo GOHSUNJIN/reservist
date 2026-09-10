@@ -117,10 +117,25 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 .dbypass{background:#fef3ec;color:#e07b39;font-size:10px;font-weight:600;border-radius:4px;padding:1px 5px;margin-left:2px;}
 .event-dept-chip{font-size:10.5px;font-weight:600;border-radius:5px;padding:2px 7px;white-space:nowrap;}
 
-/* ── Load more ───────────────────────────────────────────────────────── */
-.load-more-row{padding:16px;text-align:center;border-top:1px solid #f0f3f9;}
-.btn-load-more{background:#fff;border:1.5px solid #e8ecf4;border-radius:10px;padding:9px 24px;font-size:13px;font-weight:600;color:#2f5fd0;transition:all .15s;}
-.btn-load-more:hover{background:#f0f4ff;border-color:#2f5fd0;}
+/* ── Pagination ──────────────────────────────────────────────────────── */
+.pag-row{padding:14px 20px;display:none;align-items:center;justify-content:center;gap:12px;border-top:1px solid #f0f3f9;}
+.pag-btn{background:#fff;border:1.5px solid #e8ecf4;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;color:#2f5fd0;transition:all .15s;cursor:pointer;}
+.pag-btn:hover:not(:disabled){background:#f0f4ff;border-color:#2f5fd0;}
+.pag-btn:disabled{opacity:.38;cursor:not-allowed;}
+.pag-info{font-size:13px;color:#5c6678;font-weight:500;}
+
+/* ── Person tooltip ──────────────────────────────────────────────────── */
+#person-tip{position:fixed;background:#fff;border:1px solid #e8ecf4;border-radius:12px;box-shadow:0 8px 28px rgba(20,30,70,.14);padding:14px 16px;z-index:999;display:none;min-width:178px;pointer-events:none;}
+.ptip-head{font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px;}
+.ptip-row{margin-bottom:6px;}
+.ptip-row:last-child{margin-bottom:0;}
+.ptip-label{font-size:10px;font-weight:600;color:#8a94a3;margin-bottom:2px;}
+.ptip-val{font-size:13px;font-weight:600;color:#161f30;}
+.has-person-tip{cursor:default;}
+
+/* ── Mobile block ────────────────────────────────────────────────────── */
+#mobile-block{display:none;position:fixed;inset:0;background:#f0f3f9;z-index:9999;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:32px;}
+@media(max-width:900px){#mobile-block{display:flex !important;}}
 
 /* ── Empty / Loading ─────────────────────────────────────────────────── */
 .empty{padding:56px 24px;text-align:center;}
@@ -139,6 +154,21 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 </style>
 </head>
 <body>
+
+<!-- Mobile block -->
+<div id="mobile-block">
+  <div style="width:52px;height:52px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:20px;box-shadow:0 4px 16px rgba(20,30,70,.10);">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2f5fd0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+  </div>
+  <div style="font-size:18px;font-weight:700;color:#161f30;margin-bottom:8px;">Desktop only</div>
+  <div style="font-size:14px;color:#8a94a3;line-height:1.5;max-width:280px;">The Monitor is designed for desktop. Please open it on a laptop or computer.</div>
+</div>
+
+<!-- Person tooltip -->
+<div id="person-tip">
+  <div class="ptip-head">Person info</div>
+  <div id="ptip-body"></div>
+</div>
 
 <!-- Login -->
 <div id="login-screen">
@@ -270,8 +300,10 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
         <span class="events-count" id="events-count"></span>
       </div>
       <div id="events-list"></div>
-      <div id="load-more-row" class="load-more-row" style="display:none;">
-        <button class="btn-load-more" onclick="loadMore()">Load more</button>
+      <div id="pag-row" class="pag-row">
+        <button class="pag-btn" id="pag-prev" onclick="goPage(-1)">&#8592; Prev</button>
+        <span class="pag-info" id="pag-info"></span>
+        <button class="pag-btn" id="pag-next" onclick="goPage(1)">Next &#8594;</button>
       </div>
     </div>
   </main>
@@ -286,9 +318,12 @@ const _db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 
 let _me = null, _isSA = false, _filterDept = null;
 let _cat = 'all', _search = '', _from = '', _to = '';
-let _offset = 0, _total = 0, _rows = [];
-let _searchTimer = null, _loadSeq = 0, _loadingMore = false;
-const LIMIT = 100;
+let _page = 0, _total = 0, _rows = [];
+let _searchTimer = null, _loadSeq = 0;
+const LIMIT = 50;
+const _avatarUrlCache = {};
+const _tipCache = {};
+let _tipHideTimer = null;
 
 const CAT = {
   auth:       { bg:'#e8f0fd', color:'#2f5fd0', label:'Auth',       stripe:'#2f5fd0' },
@@ -496,11 +531,12 @@ function onSearch(){
 }
 
 // ── Events ─────────────────────────────────────────────────────────────────
-async function loadEvents(reset){
+async function loadEvents(resetPage){
   const seq=++_loadSeq;
-  if(reset){_offset=0;_rows=[];_loadingMore=false;}
+  if(resetPage) _page=0;
+  const offset=_page*LIMIT;
   const list=document.getElementById('events-list');
-  if(reset) list.innerHTML='<div class="spinner-wrap"><div class="spinner"></div></div>';
+  list.innerHTML='<div class="spinner-wrap"><div class="spinner"></div></div>';
   if(!_me) return;
   const dept=_isSA?(_filterDept||null):(_me.department||null);
   let q=_db.from('audit_log').select('*',{count:'exact'});
@@ -509,50 +545,106 @@ async function loadEvents(reset){
   if(_from) q=q.gte('created_at',_from+'T00:00:00');
   if(_to) q=q.lte('created_at',_to+'T23:59:59');
   if(_search){const s=_search.replace(/[%_\\]/g,'\\$&').replace(/'/g,"''");q=q.or(`actor_name.ilike.%${s}%,action.ilike.%${s}%,target_name.ilike.%${s}%`);}
-  q=q.order('created_at',{ascending:false}).range(_offset,_offset+LIMIT-1);
-  console.log('[monitor] loadEvents query — dept:', dept, 'cat:', _cat, 'search:', _search, 'from:', _from, 'to:', _to, 'offset:', _offset);
+  q=q.order('created_at',{ascending:false}).range(offset,offset+LIMIT-1);
   const{data,count,error}=await q;
-  console.log('[monitor] loadEvents result — count:', count, 'rows:', data?.length, 'error:', error);
   if(seq!==_loadSeq) return;
-  _loadingMore=false;
   if(error){list.innerHTML=`<div class="empty"><div class="empty-title">Failed to load</div><div class="empty-sub">${esc(error.message)}</div></div>`;return;}
   _total=count||0;
-  const rows=data||[];
-  if(reset) _rows=rows; else _rows=_rows.concat(rows);
-  _offset+=rows.length;
-  renderEvents(reset,rows);
-  const countEl=document.getElementById('events-count');
-  countEl.textContent=_total.toLocaleString()+' event'+(_total!==1?'s':'');
+  _rows=data||[];
+  renderEvents();
+  renderPagination();
+  document.getElementById('events-count').textContent=_total.toLocaleString()+' event'+(_total!==1?'s':'');
 }
 
-function renderEvents(reset,newRows){
+function renderEvents(){
   const list=document.getElementById('events-list');
-  if(reset) list.innerHTML='';
+  list.innerHTML='';
   if(_rows.length===0){
     list.innerHTML=`<div class="empty"><div class="empty-icon-wrap"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#8a94a3" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div class="empty-title">No events found</div><div class="empty-sub">Try adjusting your filters or date range.</div></div>`;
-    document.getElementById('load-more-row').style.display='none';
     return;
   }
-  const toRender=reset?_rows:newRows;
-  for(const ev of toRender) list.appendChild(buildRow(ev));
-  document.getElementById('load-more-row').style.display=_offset<_total?'block':'none';
+  for(const ev of _rows) list.appendChild(buildRow(ev));
+  applyAvatars();
 }
+
+function renderPagination(){
+  const totalPages=Math.max(1,Math.ceil(_total/LIMIT));
+  const pRow=document.getElementById('pag-row');
+  if(_total<=LIMIT){pRow.style.display='none';return;}
+  pRow.style.display='flex';
+  document.getElementById('pag-info').textContent=`Page ${_page+1} of ${totalPages}`;
+  document.getElementById('pag-prev').disabled=_page===0;
+  document.getElementById('pag-next').disabled=_page>=totalPages-1;
+}
+
+function goPage(delta){
+  const totalPages=Math.ceil(_total/LIMIT);
+  const np=_page+delta;
+  if(np<0||np>=totalPages) return;
+  _page=np;
+  loadEvents(false);
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// ── Avatars (async signed URLs) ────────────────────────────────────────────
+async function applyAvatars(){
+  const els=document.querySelectorAll('.event-avatar[data-avid]');
+  if(!els.length) return;
+  const ids=[...new Set([...els].map(el=>el.dataset.avid).filter(id=>id&&_avatarUrlCache[id]===undefined))];
+  await Promise.all(ids.map(async id=>{
+    const ls=localStorage.getItem('avatar_'+id);
+    if(ls&&ls!=='REMOVED'&&(ls.startsWith('http')||ls.startsWith('data:'))){_avatarUrlCache[id]=ls;return;}
+    const{data}=await _db.storage.from('avatars').createSignedUrl(id,3600);
+    _avatarUrlCache[id]=data?.signedUrl||null;
+  }));
+  els.forEach(el=>{
+    const url=_avatarUrlCache[el.dataset.avid];
+    if(!url) return;
+    const img=document.createElement('img');
+    img.src=url;
+    img.style.cssText='position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%;';
+    img.onerror=()=>img.remove();
+    el.style.position='relative'; el.style.overflow='hidden';
+    el.appendChild(img);
+  });
+}
+
+// ── Person tooltip ─────────────────────────────────────────────────────────
+async function showPersonTip(el,pid){
+  clearTimeout(_tipHideTimer);
+  const tip=document.getElementById('person-tip');
+  const body=document.getElementById('ptip-body');
+  const rect=el.getBoundingClientRect();
+  tip.style.top=(rect.bottom+8)+'px';
+  tip.style.left=Math.min(rect.left,window.innerWidth-200)+'px';
+  tip.style.display='block';
+  if(_tipCache[pid]===undefined){
+    body.innerHTML='<div style="color:#8a94a3;font-size:12px;">Loading...</div>';
+    const{data}=await _db.from('personnel').select('contact,batches(label)').eq('id',pid).maybeSingle();
+    _tipCache[pid]=data?{contact:data.contact||'—',cycle:data.batches?.label||'No cycle'}:null;
+  }
+  if(tip.style.display==='none') return;
+  const info=_tipCache[pid];
+  if(!info){body.innerHTML='<div style="color:#8a94a3;font-size:12px;">Not found</div>';return;}
+  body.innerHTML=`<div class="ptip-row"><div class="ptip-label">Contact</div><div class="ptip-val">${esc(info.contact)}</div></div><div class="ptip-row"><div class="ptip-label">Cycle</div><div class="ptip-val">${esc(info.cycle)}</div></div>`;
+}
+function hidePersonTip(){_tipHideTimer=setTimeout(()=>{document.getElementById('person-tip').style.display='none';},150);}
+document.addEventListener('mouseover',e=>{const el=e.target.closest('.has-person-tip');if(el?.dataset.pid) showPersonTip(el,el.dataset.pid);});
+document.addEventListener('mouseout',e=>{if(e.target.closest('.has-person-tip')) hidePersonTip();});
 
 function buildAvatarHtml(actorId, actorName, actorRole){
   const bg=esc(avatarBg(actorRole)), ini=esc(initials(actorName)), t=esc(actorName||'');
-  const base=`style="background:${bg};overflow:hidden;position:relative;" title="${t}"`;
-  if(!actorId) return `<div class="event-avatar" ${base}>${ini}</div>`;
-  const {data}=_db.storage.from('avatars').getPublicUrl(actorId);
-  const url=esc(data?.publicUrl||'');
-  return `<div class="event-avatar" ${base}>
-    <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">${ini}</span>
-    <img src="${url}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" onerror="this.remove()">
-  </div>`;
+  if(!actorId) return `<div class="event-avatar" style="background:${bg};" title="${t}">${ini}</div>`;
+  return `<div class="event-avatar" style="background:${bg};" title="${t}" data-avid="${esc(actorId)}">${ini}</div>`;
 }
 
 function buildActionText(ev){
   const m=ev.meta||{};
-  const tn=ev.target_name?`<strong>${esc(ev.target_name)}</strong>`:'';
+  const tn=ev.target_name
+    ?(ev.target_id
+      ?`<strong class="has-person-tip" data-pid="${esc(ev.target_id)}">${esc(ev.target_name)}</strong>`
+      :`<strong>${esc(ev.target_name)}</strong>`)
+    :'';
   switch(ev.action){
     case 'roster.times_corrected': return tn?`Corrected ${tn}'s attendance times`:'Corrected attendance times';
     case 'roster.status_set':
@@ -678,7 +770,7 @@ function buildRow(ev){
       cards+=`<div class="meta-entry"><div class="meta-key">Status</div><div class="meta-val">${val}</div></div>`;
       if(rawMeta.date) cards+=`<div class="meta-entry"><div class="meta-key">Date</div><div class="meta-val">${esc(rawMeta.date)}</div></div>`;
     } else {
-      const entries=Object.entries(rawMeta).filter(([,v])=>v!==null&&v!==undefined&&v!=='');
+      const entries=Object.entries(rawMeta).filter(([,v])=>v!==null&&v!==undefined&&v!==''&&v!==false);
       cards=entries.map(([k,v])=>{
         const key=META_LABELS[k]||k.replace(/_/g,' ');
         const val=typeof v==='object'?JSON.stringify(v):String(v);
@@ -697,7 +789,7 @@ function buildRow(ev){
         ${buildAvatarHtml(ev.actor_id,ev.actor_name,ev.actor_role)}
         <div class="event-content">
           <div class="event-top">
-            <span class="event-name">${esc(ev.actor_name||'Unknown')}</span>
+            <span class="event-name has-person-tip" data-pid="${esc(ev.actor_id||'')}">${esc(ev.actor_name||'Unknown')}</span>
             <span class="event-role" style="background:${esc(roleBg(ev.actor_role))};color:${esc(roleColor(ev.actor_role))};">${esc(roleLabel(ev.actor_role))}</span>
           </div>
           <div class="event-action-text">${actionHtml}</div>
@@ -720,8 +812,6 @@ function buildRow(ev){
   if(metaHtml) el.addEventListener('click',()=>el.classList.toggle('expanded'));
   return el;
 }
-
-function loadMore(){if(_loadingMore)return;_loadingMore=true;loadEvents(false);}
 
 // ── Session restore ────────────────────────────────────────────────────────
 // 1. Check sessionStorage first (survives refreshes within the same tab).

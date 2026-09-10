@@ -231,6 +231,7 @@ const RosterHandlers = {
     }
     const d=new Date(this.baseDate()); d.setDate(d.getDate()+(viewOffset||0));
     const dateKey=Utils.dateKey(d);
+    const prevEntry=(this.state.attendanceCache[dateKey]||this.state.attendance)[timesEditId]||{};
     this.setState({timesEditSaving:true});
     let savedEditLog=[];
     if(!demo){
@@ -238,7 +239,6 @@ const RosterHandlers = {
       if(error){this.setState({timesEditSaving:false});this._toast('Failed to save. Try again.','error');return;}
       savedEditLog=editLog||[];
     }
-    const prevEntry=(this.state.attendanceCache[dateKey]||this.state.attendance)[timesEditId]||{};
     if(!demo&&(prevEntry.status==='mc'||prevEntry.status==='absent')){
       DB.leaves.voidApprovedForDate(timesEditId,dateKey).catch(()=>{});
       this.setState(s=>{const c={...s.approvedLeavesCache};if(c[dateKey]){const d={...c[dateKey]};delete d[timesEditId];c[dateKey]=d;}return{approvedLeavesCache:c};});
