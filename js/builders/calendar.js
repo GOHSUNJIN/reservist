@@ -172,7 +172,7 @@ const CalendarBuilders = {
     const _exDates=s.historyExpandedDates||[];
     const _ed=f=>!!(rec.editLog||[]).some(e=>e.fields?.includes(f));
     const todayRow=(Utils.isReportDay(todayD,this._myDept())&&!this.isNoReport(0)&&(!activeBatch||today>=activeBatch.start_date)&&(!activeBatch||today<=activeBatch.end_date))
-      ?[{date:Utils.fmtMed(todayD)+', Today',dateKey:today,shift:Utils.shiftLabel(me.shift),status,
+      ?[{date:Utils.fmtMed(todayD)+', Today',dateKey:today,showMonthDivider:false,monthDividerLabel:'',shift:Utils.shiftLabel(me.shift),status,
          p1:rec.p1||'-',p2:rec.p2||'-',p3:rec.p3||'-',p4:rec.p4||'-',
          p1Color:_ed('p1')?'#2f5fd0':_tc(rec.p1,'#161f30',_dc),p2Color:_ed('p2')?'#2f5fd0':_tc(rec.p2,'#161f30',_dc),p3Color:_ed('p3')?'#2f5fd0':_tc(rec.p3,'#161f30',_dc),p4Color:_ed('p4')?'#2f5fd0':_tc(rec.p4,'#161f30',_dc),
          p1Edited:_ed('p1'),p2Edited:_ed('p2'),p3Edited:_ed('p3'),p4Edited:_ed('p4'),
@@ -257,7 +257,7 @@ const CalendarBuilders = {
         const isApproved=r.status==='approved';
         const lbl=isMc?'MC':'Personal Leave';
         futureLeaveRows.push({
-          date:Utils.fmtMed(d),dateKey:dk,shift:Utils.shiftLabel(me.shift),
+          date:Utils.fmtMed(d),dateKey:dk,showMonthDivider:false,monthDividerLabel:'',shift:Utils.shiftLabel(me.shift),
           status:isApproved?(isMc?'mc':'absent'):'pending',
           label:lbl,color:'#b9791a',bg:isApproved?'#f7efdc':'#fdf6e9',
           p1:'-',p2:'-',p3:'-',p4:'-',
@@ -275,6 +275,14 @@ const CalendarBuilders = {
 
     const futureApprovedMcCount=futureLeaveRows.filter(r=>r.status==='mc').length;
 
+    const MON2=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    let _lastMonth='';
+    allPast.forEach(r=>{
+      const m=r.dateKey.slice(0,7);
+      r.showMonthDivider=m!==_lastMonth;
+      r.monthDividerLabel=r.showMonthDivider?(MON2[parseInt(r.dateKey.slice(5,7),10)-1]+' '+r.dateKey.slice(0,4)):'';
+      _lastMonth=m;
+    });
     const myHistory=[...todayRow,...futureLeaveRows,...allPast];
     const statRows=[...todayRow,...allPast];
     const statMyPresent=statRows.filter(h=>h.status==='present').length;

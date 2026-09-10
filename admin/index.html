@@ -367,6 +367,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
         </div>
       </div>
       <div id="new-events-bar" onclick="onNewEventsBanner()" style="display:none;padding:10px 20px;background:#eef3ff;border-bottom:1px solid #dce8ff;cursor:pointer;text-align:center;font-size:13px;font-weight:600;color:#2f5fd0;">New activity — click to refresh</div>
+      <div id="latest-btn" onclick="goToPage(0)" style="display:none;padding:9px 20px;background:#f6f7f9;border-bottom:1px solid #eef0f4;cursor:pointer;text-align:center;font-size:12px;font-weight:600;color:#2f5fd0;">↑ Back to latest</div>
       <div id="events-list"></div>
       <div id="pag-row" class="pag-row"></div>
     </div>
@@ -637,6 +638,8 @@ function renderEvents(){
 function renderPagination(){
   const totalPages=Math.max(1,Math.ceil(_total/LIMIT));
   const pRow=document.getElementById('pag-row');
+  const latestBtn=document.getElementById('latest-btn');
+  if(latestBtn) latestBtn.style.display=_page>0?'block':'none';
   if(_total<=LIMIT){pRow.style.display='none';return;}
   pRow.style.display='flex';
   const pages=_pagNums(totalPages,_page);
@@ -968,6 +971,7 @@ function buildRow(ev){
             <span class="event-role" style="background:${esc(roleBg(ev.actor_role))};color:${esc(roleColor(ev.actor_role))};">${esc(roleLabel(ev.actor_role))}</span>
           </div>
           <div class="event-action-text">${actionHtml}</div>
+          ${ev.action?.startsWith('leave.')&&ev.meta?.reason?`<div style="font-size:11.5px;color:#8a94a3;font-style:italic;margin-top:2px;">${esc(ev.meta.reason)}</div>`:''}
           ${inlineDetail}
           <div class="event-sub">
             <span class="event-cat" style="background:${esc(c.bg)};color:${esc(c.color)};">${esc(c.label)}</span>
