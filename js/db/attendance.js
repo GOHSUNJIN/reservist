@@ -125,12 +125,9 @@ const DB_Attendance = {
       if (_t(existing?.work_end_time)    !== (p4 || null)) changedFields.push('p4');
       editLog = [...prevLog, { by: editorName, at: new Date().toISOString(), fields: changedFields }];
     }
-    // Only mark gps_bypassed if the check-in time is being changed; preserve it otherwise
-    const existingP1 = existing?.check_in_time ? existing.check_in_time.slice(0, 5).trim() : null;
-    const p1Changed = existingP1 !== (p1 ? p1.trim() : null);
     const payload = {
       status: p1 ? 'present' : 'absent',
-      gps_bypassed: p1Changed ? true : (existing?.gps_bypassed ?? false),
+      gps_bypassed: existing?.gps_bypassed ?? false,
       check_in_time:    p1 ? p1 + ':00' : null,
       lunch_out_time:   p2 ? p2 + ':00' : null,
       work_return_time: p3 ? p3 + ':00' : null,
