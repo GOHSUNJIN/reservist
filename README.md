@@ -41,6 +41,7 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Request history**: The Requests tab shows the full history of submitted leave and MC requests, each with a coloured left bar, a type badge (MC and Personal Leave both in amber), and a status badge (Submitted, Approved, Declined, or Withdrawn). Records are deduplicated by date: if multiple requests exist for the same date, only the most relevant one is shown (pending takes priority over approved, approved over declined). Filter pills let you narrow the list by status. Pending requests can be withdrawn inline.
 - **Info and Attendance tabs**: The Info tab shows an About section explaining the app, shift and reporting details, dekit day steps, leave request history, and a team directory listing batchmates with contact links. The Attendance tab shows the personal attendance calendar and history.
 - **Attendance history**: View your full record for the cycle, including total days present, MC, absent, and your attendance rate. Future approved MC leave that is already visible in Shift History is included in the MC and Logged counts so the numbers stay consistent with what is shown on screen. If a supervisor has manually corrected one of your check-in times, that time appears in blue in the Shift History grid so you can see at a glance which entries were admin-adjusted. The late check-in reason card is suppressed for any day where the supervisor has corrected the check-in time.
+- **Upcoming leave in Shift History**: Approved or pending leave requests for future dates appear in a separate "Upcoming" section at the top of the Shift History list, above past attendance records. Each entry shows the date and leave type (MC or Personal Leave) with an amber badge.
 - **End-of-cycle notice**: When the reporting cycle ends, the Attendance tab shows a congratulations card and a reminder of the dekit date when the account will be deactivated. Today's row is suppressed for post-cycle days so no false Pending entry appears.
 - **Cycle-scoped history**: Attendance records from before a reservist's current batch start date are excluded from both the reservist's own Shift History and the admin's person history modal. This prevents pre-cycle auto-absent records from appearing as if they belong to the current cycle.
 - **Copyable contact numbers**: Tap any batchmate's phone number in the team directory to copy it to the clipboard.
@@ -80,7 +81,8 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Log status filter**: Filter the log by attendance status (Present, MC, Absent) to focus on a specific group.
 - **Click name to open history**: In the Log tab, clicking a reservist's name opens their full attendance history without needing to navigate to the People tab.
 - **Shift label on log cards**: Each log card shows the reservist's shift alongside their check-in times.
-- **Admin log note**: Add a free-text note against any person's attendance entry for the current view date.
+- **Admin log note**: Add a free-text note against any person's attendance entry for the current view date. The note icon and the Edit button are both toggleable: clicking either a second time closes the panel without saving.
+- **GPS distance badge**: Each log card shows the GPS distance recorded at check-in as a small badge (for example: "GPS · 43 m" in green). A 0 m reading is highlighted in amber as a possible spoofing indicator.
 - **Late check-in alerts**: Anyone who checks in more than one hour after shift start is automatically flagged. The late badge shows the written reason inline (for example: "Late - Dental appointment") so supervisors do not need to expand anything to read it. If no reason was given, the badge shows "Late - No reason".
 - **Missing clock-out display**: When a reservist is marked present but has no Phase 4 clock-out, the OUT column of their log card shows a dash on an orange background instead of a time. This keeps the missing clock-out visible without adding a separate badge row, making it easy to scan and correct before payroll.
 
@@ -154,7 +156,8 @@ All supervisor capabilities, plus:
 
 Every action in the system is recorded:
 
-- Every check-in carries a timestamp and the GPS distance from HQ at the moment of submission.
+- Every check-in carries a timestamp and the GPS distance from HQ at the moment of submission. The distance is visible on each log card in the admin view. A 0 m reading is highlighted in amber as a possible GPS spoofing indicator.
+- Check-in times are stamped server-side at the moment the request is processed. Clients cannot supply a backdated or future time: offline check-ins are validated against server time and rejected if more than 4 hours old.
 - Late arrivals are flagged automatically. If more than one hour late, the reservist must submit a written reason, which is stored alongside the attendance record and displayed inline on the log card.
 - If GPS verification is bypassed (due to GPS failure or supervisor authorisation), this is permanently marked in the log with a visible indicator.
 - If a supervisor manually corrects a reservist's times, the record is flagged as admin-entered, and the edit log includes the editor's name and timestamp.
@@ -211,7 +214,7 @@ Hovering over a profile photo in the feed shows an enlarged version of the photo
 | `roster.mark_all_present` | Marked all present | Admin |
 | `roster.times_corrected` | Corrected attendance times | Admin: via time correction modal |
 | `roster.person_note_saved` | Saved person note | Admin |
-| `roster.log_note_saved` | Saved log note | Admin |
+| `roster.log_note_saved` | Saved log note (with note text shown below the action label; shows "Note cleared" if the note was saved empty; shows a strikethrough and new text if an existing note was overwritten) | Admin |
 | `roster.welfare_note_saved` | Saved welfare note | Reservist (own record) or Admin |
 | `roster.missed_note_saved` | Saved missed-day note | Admin: note on a missed day in history |
 | `leave.submitted` | Submitted leave request | Reservist |
