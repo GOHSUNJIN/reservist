@@ -132,7 +132,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 /* ── Filter guide ────────────────────────────────────────────────────── */
 .filter-guide-btn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;border:1.5px solid #c8cfd8;background:#f0f3f9;color:#5c6678;font-size:11px;font-weight:700;cursor:default;flex-shrink:0;align-self:center;transition:border-color .15s,background .15s,color .15s;}
 .filter-guide-btn:hover{border-color:#2f5fd0;color:#2f5fd0;background:#eef3ff;}
-#filter-guide{position:fixed;background:#fff;border:1px solid #e8ecf4;border-radius:14px;box-shadow:0 10px 36px rgba(20,30,70,.15),0 2px 8px rgba(20,30,70,.07);z-index:998;display:none;width:290px;overflow:hidden;}
+#filter-guide{position:fixed;background:#fff;border:1px solid #e8ecf4;border-radius:14px;box-shadow:0 10px 36px rgba(20,30,70,.15),0 2px 8px rgba(20,30,70,.07);z-index:998;display:none;width:300px;overflow:hidden;overflow-y:auto;}
 .fg-head{font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;text-transform:uppercase;padding:12px 14px 7px;border-bottom:1px solid #f0f3f9;}
 .fg-list{padding:6px 10px 10px;}
 .fg-row{display:flex;align-items:center;gap:10px;padding:5px 4px;}
@@ -199,7 +199,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
     <div class="fg-row"><span class="fg-pill" style="background:#e7f3ec;color:#1f8a5b;">Attendance</span><span class="fg-desc">Check-in phases, time corrections, and status changes</span></div>
     <div class="fg-row"><span class="fg-pill" style="background:#fdf6e9;color:#b9791a;">Leave</span><span class="fg-desc">Leave requests submitted, approved, declined, or withdrawn</span></div>
     <div class="fg-row"><span class="fg-pill" style="background:#f0ecfd;color:#6b52c8;">Signup</span><span class="fg-desc">New member signup requests, approvals, and rejections</span></div>
-    <div class="fg-row"><span class="fg-pill" style="background:#e6f7f9;color:#0e7a8c;">Personnel</span><span class="fg-desc">People added, removed, or re-enrolled on the roster</span></div>
+    <div class="fg-row"><span class="fg-pill" style="background:#e6f7f9;color:#0e7a8c;">Personnel</span><span class="fg-desc">Roster additions, removals, and re-enrolments</span></div>
     <div class="fg-row"><span class="fg-pill" style="background:#edf2f7;color:#4a5568;">Cycle</span><span class="fg-desc">Reporting cycle creation, activation, and no-report days</span></div>
     <div class="fg-row"><span class="fg-pill" style="background:#f0f2f7;color:#2d3748;">Export</span><span class="fg-desc">Excel or print reports that were generated</span></div>
     <div class="fg-row"><span class="fg-pill" style="background:#fdf0e9;color:#e07b39;">Account</span><span class="fg-desc">Profile name, password, or photo changes</span></div>
@@ -293,7 +293,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1f8a5b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
         <div class="stat-value" id="stat-actors">-</div>
-        <div class="stat-label" style="display:flex;align-items:center;">Unique actors today<span class="info-tip" data-tip="Distinct people who took at least one action today">?</span></div>
+        <div class="stat-label" style="display:flex;align-items:center;">Unique actors today<span class="info-tip" data-tip="People who took at least one action today">?</span></div>
       </div>
       <div class="stat-card">
         <div class="stat-accent" style="background:linear-gradient(90deg,#e07b39,#c2410c);"></div>
@@ -749,13 +749,21 @@ function copyPtipContact(num){
   function show(){
     clearTimeout(hideTimer);
     const r=btn.getBoundingClientRect();
+    guide.style.maxHeight='none';
     guide.style.display='block';
     const gw=guide.offsetWidth;
     const gh=guide.offsetHeight;
-    const left=Math.max(12,r.right-gw);
-    const spaceBelow=window.innerHeight-r.bottom;
-    const top=spaceBelow<gh+10&&r.top>gh+10?r.top-gh-6:r.bottom+6;
-    guide.style.left=left+'px';
+    const spaceBelow=window.innerHeight-r.bottom-10;
+    const spaceAbove=r.top-10;
+    let top;
+    if(spaceAbove>spaceBelow&&spaceAbove>100){
+      top=Math.max(10,r.top-gh-6);
+      guide.style.maxHeight=spaceAbove+'px';
+    } else {
+      top=r.bottom+6;
+      guide.style.maxHeight=spaceBelow+'px';
+    }
+    guide.style.left=Math.max(12,r.right-gw)+'px';
     guide.style.top=top+'px';
   }
   function hide(){hideTimer=setTimeout(()=>{guide.style.display='none';},150);}
