@@ -245,7 +245,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
         <select class="dept-sel" id="dept-sel" onchange="onDeptChange()" style="display:none;">
           <option value="">All departments</option>
           <option value="ops_security">Ops Security</option>
-          <option value="cas">CAS</option>
+          <option value="cas">CPO</option>
           <option value="lnf">L&amp;F</option>
         </select>
       </div>
@@ -334,12 +334,11 @@ const ACTIONS = {
   'roster.missed_note_saved':'Saved missed-day note',
 };
 
-const DEPT_LABELS = { ops_security:'Ops Security', cas:'CAS', lnf:'L&F' };
+const DEPT_LABELS = { ops_security:'Ops Security', cas:'CPO', lnf:'L&F' };
 const DEPT_CHIPS = {
   ops_security:{bg:'#e8edf8',color:'#2f5fd0',label:'Ops Security'},
-  cas:         {bg:'#e7f3ec',color:'#1f8a5b',label:'CAS'},
+  cas:         {bg:'#e7f3ec',color:'#1f8a5b',label:'CPO'},
   lnf:         {bg:'#fdf6e9',color:'#b9791a',label:'L&F'},
-  nrd:         {bg:'#f0ecfd',color:'#6b52c8',label:'NRD'},
 };
 
 const META_LABELS = {
