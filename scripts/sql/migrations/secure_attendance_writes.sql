@@ -127,47 +127,9 @@ BEGIN
 END;
 $$;
 
--- ── 3. Trigger: block direct REST time/status writes by reservists ────────────
--- Inside a SECURITY DEFINER function, current_user != session_user, so
--- log_phase_now and log_phase_offline pass through untouched.
--- Direct REST API calls (current_user = session_user = 'authenticated') by
--- reservists are blocked from writing time or status fields.
--- Admins and cron jobs (NULL auth role) are always allowed through.
-CREATE OR REPLACE FUNCTION _block_direct_time_writes()
-RETURNS TRIGGER LANGUAGE plpgsql AS $$
-DECLARE
-  v_role TEXT;
-BEGIN
-  -- SECURITY DEFINER context: current_user is the function owner, not 'authenticated'
-  IF current_user IS DISTINCT FROM session_user THEN RETURN NEW; END IF;
-
-  v_role := _auth_role();
-
-  -- No JWT context (cron jobs, service role) or admins: allow
-  IF v_role IS NULL OR v_role IN ('admin', 'superadmin') THEN RETURN NEW; END IF;
-
-  -- Reservists via direct REST: block time and status field writes
-  IF TG_OP = 'INSERT' THEN
-    IF NEW.check_in_time    IS NOT NULL OR NEW.lunch_out_time   IS NOT NULL OR
-       NEW.work_return_time IS NOT NULL OR NEW.work_end_time    IS NOT NULL OR
-       NEW.status = 'present' THEN
-      RAISE EXCEPTION 'attendance check-in must go through the app';
-    END IF;
-  ELSIF TG_OP = 'UPDATE' THEN
-    IF NEW.check_in_time    IS DISTINCT FROM OLD.check_in_time    OR
-       NEW.lunch_out_time   IS DISTINCT FROM OLD.lunch_out_time   OR
-       NEW.work_return_time IS DISTINCT FROM OLD.work_return_time OR
-       NEW.work_end_time    IS DISTINCT FROM OLD.work_end_time    OR
-       NEW.status           IS DISTINCT FROM OLD.status THEN
-      RAISE EXCEPTION 'attendance time/status cannot be set directly';
-    END IF;
-  END IF;
-
-  RETURN NEW;
-END;
-$$;
-
-DROP TRIGGER IF EXISTS block_direct_time_writes ON attendance;
-CREATE TRIGGER block_direct_time_writes
-  BEFORE INSERT OR UPDATE ON attendance
-  FOR EACH ROW EXECUTE FUNCTION _block_direct_time_writes();
+-- NOTE: The trigger approach (attack vector #4) was removed.
+-- The current_user / session_user distinction does not behave reliably
+-- in Supabase's connection pooler and blocked legitimate RPC calls.
+-- Protection against direct REST writes is provided by log_phase_offline
+-- (server-side time validation) and log_phase_now (SECURITY DEFINER,
+-- which stamps server time regardless of what the client sends).

@@ -124,7 +124,7 @@ const CheckinHandlers = {
         this.setState({phaseSubmitting:false});
         if(phErr){
           if(!bypassed){
-            const _mc=await DB.personnel.get(currentUserId).catch(()=>null);
+            const _mc=await DB.personnel.get(me?.auth_id).catch(()=>null);
             if(!_mc){this._toast('Your account no longer exists. Please contact your supervisor.','error');this.logout();return;}
             this._toast('Failed to sync check-in. Restoring previous state.','error');
             this.setState(s=>({attendance:{...s.attendance,[currentUserId]:prev}}));
