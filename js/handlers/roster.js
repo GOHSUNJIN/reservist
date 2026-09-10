@@ -191,6 +191,7 @@ const RosterHandlers = {
   openTimesEdit: function(id) {
     return () => {
       const s=this.state;
+      if(s.timesEditId===id){this.closeTimesEdit();return;}
       const d=new Date(this.baseDate()); d.setDate(d.getDate()+(s.viewOffset||0));
       const dateKey=Utils.dateKey(d), rec=(s.attendanceCache[dateKey]||s.attendance)[id]||{};
       this.setState({timesEditId:id,timesEditP1:rec.p1||'',timesEditP2:rec.p2||'',timesEditP3:rec.p3||'',timesEditP4:rec.p4||''});

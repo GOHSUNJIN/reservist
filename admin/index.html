@@ -910,6 +910,7 @@ function buildActionText(ev){
       if(m.date) s+=` on <strong>${esc(fmtDk(m.date))}</strong>`;
       if(m.prev_note&&m.note) s+=`<br><span style="font-size:11px;color:#8a94a3;"><span style="text-decoration:line-through;">${esc(m.prev_note)}</span> → <strong style="color:#161f30;">${esc(m.note)}</strong></span>`;
       else if(m.note) s+=`<br><span style="font-size:11px;color:#161f30;">${esc(m.note)}</span>`;
+      else if('note' in m) s+=`<br><span style="font-size:11px;color:#8a94a3;font-style:italic;">Note cleared</span>`;
       return s;
     }
     case 'roster.welfare_note_saved':return (tn?`Saved welfare note for ${tn}`:'Saved welfare note')+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');

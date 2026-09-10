@@ -255,7 +255,7 @@ const RequestHandlers = {
     this._log('attendance', 'roster.missed_note_saved', { target_id: currentUserId, date: missedNoteDateKey });
   },
 
-  openLogNote:   function(id,text) { return () => this.setState({logNoteId:id,logNoteText:text||''}); },
+  openLogNote:   function(id,text) { return () => this.setState(s => s.logNoteId===id ? {logNoteId:null,logNoteText:''} : {logNoteId:id,logNoteText:text||''}); },
   closeLogNote:  function() { this.setState({logNoteId:null,logNoteText:''}); },
   onLogNoteText: function(e) { this.setState({logNoteText:e.target.value}); },
 
