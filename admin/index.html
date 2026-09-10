@@ -905,7 +905,13 @@ function buildActionText(ev){
     case 'roster.mark_all_absent':   return 'Marked all absent'+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
     case 'roster.mark_all_present':  return 'Marked all present'+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
     case 'roster.person_note_saved': return tn?`Saved note for ${tn}`:'Saved person note';
-    case 'roster.log_note_saved':    return 'Saved log note'+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
+    case 'roster.log_note_saved': {
+      let s=tn?`Saved log note for ${tn}`:'Saved log note';
+      if(m.date) s+=` on <strong>${esc(fmtDk(m.date))}</strong>`;
+      if(m.prev_note&&m.note) s+=`<br><span style="font-size:11px;color:#8a94a3;"><span style="text-decoration:line-through;">${esc(m.prev_note)}</span> → <strong style="color:#161f30;">${esc(m.note)}</strong></span>`;
+      else if(m.note) s+=`<br><span style="font-size:11px;color:#161f30;">${esc(m.note)}</span>`;
+      return s;
+    }
     case 'roster.welfare_note_saved':return (tn?`Saved welfare note for ${tn}`:'Saved welfare note')+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
     case 'roster.missed_note_saved': return (tn?`Saved missed-day note for ${tn}`:'Saved missed-day note')+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
     case 'checkin.p1':
