@@ -692,8 +692,15 @@ function buildActionText(ev){
       const phases=[['check-in',m.check_in,m.prev_check_in],['lunch out',m.lunch_out,m.prev_lunch_out],['return',m.return,m.prev_return],['check-out',m.check_out,m.prev_check_out]];
       const hasPrev='prev_check_in' in m||'prev_lunch_out' in m;
       const changed=hasPrev?phases.filter(([,c,p])=>c&&(c||null)!==(p||null)):[];
-      if(changed.length===1) return (tn?`Corrected ${tn}'s `:'Corrected ')+`${changed[0][0]} to <strong>${esc(changed[0][1])}</strong>`;
-      if(changed.length===2) return (tn?`Corrected ${tn}'s `:'Corrected ')+`${changed[0][0]} to <strong>${esc(changed[0][1])}</strong> and ${changed[1][0]} to <strong>${esc(changed[1][1])}</strong>`;
+      if(changed.length===1){
+        const[lbl,curr,prev]=changed[0];
+        const fromPart=prev?` from <span style="color:#8a94a3;text-decoration:line-through;">${esc(prev)}</span>`:'';
+        return (tn?`Corrected ${tn}'s `:'Corrected ')+lbl+fromPart+` to <strong style="color:#2f5fd0;">${esc(curr)}</strong>`;
+      }
+      if(changed.length===2){
+        const fmt=([lbl,curr,prev])=>{const fp=prev?` from <span style="color:#8a94a3;text-decoration:line-through;">${esc(prev)}</span>`:'';return lbl+fp+` to <strong style="color:#2f5fd0;">${esc(curr)}</strong>`;};
+        return (tn?`Corrected ${tn}'s `:'Corrected ')+fmt(changed[0])+' and '+fmt(changed[1]);
+      }
       return tn?`Corrected ${tn}'s attendance times`:'Corrected attendance times';
     }
     case 'roster.status_set':
@@ -760,8 +767,8 @@ function buildInlineDetail(ev){
     const hasPrev='prev_check_in' in m||'prev_lunch_out' in m;
     const parts=phases.filter(([,c])=>c).map(([label,curr,prev])=>{
       const changed=hasPrev&&(curr||null)!==(prev||null);
-      const style=changed?'color:#2f5fd0;font-weight:700;':'';
-      return `<span class="dphase"><span class="dlabel">${esc(label)}</span><span class="dv" style="${style}">${esc(curr)}</span></span>`;
+      if(changed&&prev) return `<span class="dphase"><span class="dlabel">${esc(label)}</span><span class="dv" style="color:#8a94a3;text-decoration:line-through;">${esc(prev)}</span><span class="darr">→</span><span class="dv" style="color:#2f5fd0;font-weight:700;">${esc(curr)}</span></span>`;
+      return `<span class="dphase"><span class="dlabel">${esc(label)}</span><span class="dv" style="${changed?'color:#2f5fd0;font-weight:700;':''}">${esc(curr)}</span></span>`;
     });
     if(!parts.length) return '';
     const dateStr=m.date?`<span class="dphase"><span class="dlabel">on</span><span class="dv">${esc(m.date)}</span></span>`:'';
