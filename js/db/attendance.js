@@ -84,7 +84,7 @@ const DB_Attendance = {
     const existingId = await this._findRow(personnelId, dateStr);
     if (existingId) {
       // Prevent overwriting an approved MC and prevent stamping a time that's already recorded
-      let updateQ = _db.from('attendance').update(payload).eq('id', existingId).is(colMap[key], null);
+      let updateQ = _db.from('attendance').update(payload).eq('id', existingId).is(_COL_MAP[key], null);
       if (key === 'p1') updateQ = updateQ.neq('status', 'mc');
       const { error } = await updateQ;
       return { error };
