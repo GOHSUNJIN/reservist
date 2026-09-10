@@ -422,7 +422,7 @@ scripts/
 
 **Person history pagination**: The person history modal is paginated at 15 records per page. Status filters (All, Present, MC, Absent) are applied before pagination. Page state is reset when the filter changes.
 
-**Department isolation**: All database queries, realtime subscriptions, and state updates are scoped to the active department. The `_myDept()` helper on handlers returns the superadmin's manually selected department or the user's own department (set at signup). Switching departments clears all cached data (personnel, batches, attendance, requests) and reloads from scratch for the new department. Realtime callbacks guard against cross-department rows arriving via shared channels. Leave approval and rejection verify that the requester belongs to the admin's department before any database write. Contact lookups (`findByContact`) are scoped to the active department so a matching record in another department is never returned. Signup `reopen` is guarded to only act on rejected requests; `reject` is guarded to only act on pending ones, preventing double-processing in concurrent admin sessions.
+**Department isolation**: All database queries, realtime subscriptions, and state updates are scoped to the active department. The `_myDept()` helper on handlers returns the master account's manually selected department or the user's own department (set at signup). Switching departments clears all cached data (personnel, batches, attendance, requests) and reloads from scratch for the new department. Realtime callbacks guard against cross-department rows arriving via shared channels. Leave approval and rejection verify that the requester belongs to the admin's department before any database write. Contact lookups (`findByContact`) are scoped to the active department so a matching record in another department is never returned. Signup `reopen` is guarded to only act on rejected requests; `reject` is guarded to only act on pending ones, preventing double-processing in concurrent admin sessions.
 
 ### Database Schema
 
@@ -505,7 +505,7 @@ All data is stored in a structured cloud database (PostgreSQL), with seven table
 |---|---|
 | Actor ID | Personnel ID of the person who performed the action |
 | Actor name | Display name at time of action |
-| Actor role | Role at time of action (reservist, admin, superadmin) |
+| Actor role | Role at time of action (reservist, admin, master) |
 | Department | Department context in which the action occurred |
 | Category | Broad category (attendance, leave, signup, personnel, batch, export, account, admin) |
 | Action | Specific action key (e.g. `checkin.p1`, `leave.approved`, `roster.times_corrected`) |
@@ -571,7 +571,7 @@ CREATE TABLE personnel (
   name TEXT NOT NULL,
   contact TEXT,
   shift TEXT CHECK (shift IS NULL OR shift IN ('OFFICE')),
-  role TEXT NOT NULL DEFAULT 'reservist' CHECK (role IN ('reservist', 'admin', 'superadmin')),
+  role TEXT NOT NULL DEFAULT 'reservist' CHECK (role IN ('reservist', 'admin', 'master')),
   department department_type NOT NULL DEFAULT 'ops_security',
   batch_id UUID,
   is_active BOOLEAN NOT NULL DEFAULT true,
@@ -663,7 +663,7 @@ CREATE TABLE audit_log (
 Sign up through the app's login screen using your phone number. Then run this one-time command in the Supabase SQL editor to elevate that account to Master level:
 
 ```sql
-UPDATE personnel SET role = 'superadmin' WHERE contact = '<your_contact>';
+UPDATE personnel SET role = 'master' WHERE contact = '<your_contact>';
 ```
 
 After this, all supervisor accounts are managed entirely within the app. No further database access is needed for day-to-day administration.
@@ -852,7 +852,7 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Admin deactivates a reservist who had pending leave requests: all pending requests are cancelled (verify in DB or admin Requests tab shows none for that person)
 - [ ] Reservist self-deletes their account: pending leave requests cancelled, deactivation message shown on login screen
 - [ ] Adding a person whose contact has multiple DB records (e.g. old deactivated duplicate): active record is preferred, or if all inactive, the most recent is selected for re-enroll
-- [ ] Signup submitted using a contact number that belongs to an existing admin or superadmin account: if the admin approves the request, approval fails gracefully with a message and the signup is returned to pending status
+- [ ] Signup submitted using a contact number that belongs to an existing admin or master account: if the admin approves the request, approval fails gracefully with a message and the signup is returned to pending status
 - [ ] Cron auto-deactivation: after a batch's dekit date passes and the cron runs, any pending leave requests for those personnel are also cancelled (verify in DB that no pending rows remain for deactivated personnel)
 
 #### Check-in (Ops Security - 4 phases)
@@ -1046,7 +1046,7 @@ All admin checks above apply. Run them for both departments. Then verify the fol
 #### Access control verification
 - [ ] Reservist cannot access admin tabs (Overview, Roster, Log, People)
 - [ ] Admin cannot see other departments' data
-- [ ] Admin cannot promote accounts to admin or superadmin
+- [ ] Admin cannot promote accounts to admin or master
 - [ ] Reservist cannot submit a leave request on behalf of another user (RLS enforced)
 - [ ] Reservist cannot mark their own attendance as present without going through the check-in flow
 
