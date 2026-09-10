@@ -265,17 +265,18 @@ const RequestHandlers = {
     this.setState({logNoteSaving:true});
     const d=new Date(this.baseDate()); d.setDate(d.getDate()+(viewOffset||0));
     const dateKey=Utils.dateKey(d);
-    if(!demo){
-      const {error}=await DB.attendance.saveWelfareNote(logNoteId,dateKey,logNoteText.trim()).catch(e=>({error:e}));
-      if(error){this._toast('Failed to save note.','error');this.setState({logNoteSaving:false});return;}
-    }
-    const today=Utils.dateKey(this.baseDate()), clear={logNoteId:null,logNoteText:'',logNoteSaving:false};
-    if(dateKey===today) this.setState(s=>({attendance:{...s.attendance,[logNoteId]:{...(s.attendance[logNoteId]||{}),welfareNote:logNoteText.trim()}},...clear}));
-    else this.setState(s=>({attendanceCache:{...s.attendanceCache,[dateKey]:{...(s.attendanceCache[dateKey]||{}),[logNoteId]:{...(s.attendanceCache[dateKey]?.[logNoteId]||{}),welfareNote:logNoteText.trim()}}},...clear}));
-    this._toast('Note saved.');
+    const today=Utils.dateKey(this.baseDate());
     const person = this.state.personnel.find(p => p.id === logNoteId);
     const _prevNote = (dateKey === today ? this.state.attendance[logNoteId] : this.state.attendanceCache?.[dateKey]?.[logNoteId])?.welfareNote || null;
     const _newNote = logNoteText.trim();
+    if(!demo){
+      const {error}=await DB.attendance.saveWelfareNote(logNoteId,dateKey,_newNote).catch(e=>({error:e}));
+      if(error){this._toast('Failed to save note.','error');this.setState({logNoteSaving:false});return;}
+    }
+    const clear={logNoteId:null,logNoteText:'',logNoteSaving:false};
+    if(dateKey===today) this.setState(s=>({attendance:{...s.attendance,[logNoteId]:{...(s.attendance[logNoteId]||{}),welfareNote:_newNote}},...clear}));
+    else this.setState(s=>({attendanceCache:{...s.attendanceCache,[dateKey]:{...(s.attendanceCache[dateKey]||{}),[logNoteId]:{...(s.attendanceCache[dateKey]?.[logNoteId]||{}),welfareNote:_newNote}}},...clear}));
+    this._toast('Note saved.');
     const _logMeta = { date: dateKey, target_id: logNoteId, target_name: person?.name || '', note: _newNote };
     if (_prevNote && _prevNote !== _newNote) _logMeta.prev_note = _prevNote;
     this._log('attendance', 'roster.log_note_saved', _logMeta);
