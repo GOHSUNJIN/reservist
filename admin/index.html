@@ -786,18 +786,7 @@ function buildActionText(ev){
 
 function buildInlineDetail(ev){
   const m=ev.meta||{};
-  if(ev.action==='roster.times_corrected'){
-    const phases=[['Check-in',m.check_in,m.prev_check_in],['Lunch out',m.lunch_out,m.prev_lunch_out],['Return',m.return,m.prev_return],['Check-out',m.check_out,m.prev_check_out]];
-    const hasPrev='prev_check_in' in m||'prev_lunch_out' in m;
-    const parts=phases.filter(([,c])=>c).map(([label,curr,prev])=>{
-      const changed=hasPrev&&(curr||null)!==(prev||null);
-      if(changed&&prev) return `<span class="dphase"><span class="dlabel">${esc(label)}</span><span class="dv" style="color:#8a94a3;text-decoration:line-through;">${esc(prev)}</span><span class="darr">→</span><span class="dv" style="color:#2f5fd0;font-weight:700;">${esc(curr)}</span></span>`;
-      return `<span class="dphase"><span class="dlabel">${esc(label)}</span><span class="dv" style="${changed?'color:#2f5fd0;font-weight:700;':''}">${esc(curr)}</span></span>`;
-    });
-    if(!parts.length) return '';
-    const dateStr=m.date?`<span class="dphase"><span class="dlabel">on</span><span class="dv">${esc(m.date)}</span></span>`:'';
-    return `<div class="event-detail">${parts.join('')}${dateStr}</div>`;
-  }
+  if(ev.action==='roster.times_corrected') return '';
   if(ev.action==='roster.status_set'){
     const from=m.prev_status||'—', to=m.status||'—';
     const arrow=from!==to?`<span class="darr">→</span><span class="dv">${esc(to)}</span>`:'';
