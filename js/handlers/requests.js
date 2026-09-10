@@ -274,7 +274,11 @@ const RequestHandlers = {
     else this.setState(s=>({attendanceCache:{...s.attendanceCache,[dateKey]:{...(s.attendanceCache[dateKey]||{}),[logNoteId]:{...(s.attendanceCache[dateKey]?.[logNoteId]||{}),welfareNote:logNoteText.trim()}}},...clear}));
     this._toast('Note saved.');
     const person = this.state.personnel.find(p => p.id === logNoteId);
-    this._log('attendance', 'roster.log_note_saved', { date: dateKey, target_id: logNoteId, target_name: person?.name || '' });
+    const _prevNote = (dateKey === today ? this.state.attendance[logNoteId] : this.state.attendanceCache?.[dateKey]?.[logNoteId])?.welfareNote || null;
+    const _newNote = logNoteText.trim();
+    const _logMeta = { date: dateKey, target_id: logNoteId, target_name: person?.name || '', note: _newNote };
+    if (_prevNote && _prevNote !== _newNote) _logMeta.prev_note = _prevNote;
+    this._log('attendance', 'roster.log_note_saved', _logMeta);
   },
 
 };
