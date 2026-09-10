@@ -55,7 +55,7 @@ const SignupHandlers = {
     const dept = req.department || 'ops_security';
     const existing=await DB.personnel.findByContact(req.contact, dept).catch(()=>null);
     if(existing){
-      if(existing.role==='admin'||existing.role==='superadmin'){
+      if(existing.role==='admin'||existing.role==='master'){
         await DB.signupRequests.reopen(signupId).catch(()=>{});
         return {finalPerson:null,existed:true,wasInactive:false,error:true,message:'This contact belongs to a supervisor account and cannot be enrolled as a reservist. Please contact your system administrator.'};
       }

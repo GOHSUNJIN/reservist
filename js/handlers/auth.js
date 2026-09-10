@@ -133,7 +133,7 @@ const AuthHandlers = {
       adminNotifGranted:false,
       myLeaveHistory:[], myLeaveHistoryLoaded:false,
       welfareNoteOpen:false, welfareNoteText:'', welfareNoteSaving:false,
-      isSuperAdmin:false, adminsList:[], adminsLoaded:false,
+      isMaster:false, adminsList:[], adminsLoaded:false,
       npAdminName:'', npAdminContact:'', npAdminPassword:'', confirmDeactivateAdminId:null,
       promoteAdminId:'', promoteAdminName:'', promoteAdminContact:'', confirmPromoteAdminId:null, promoteSearch:'', promoteShowAllCycles:false, promoteListPage:1,
       peopleTab:'roster',

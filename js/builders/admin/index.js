@@ -20,7 +20,7 @@ const AdminBuilders = {
     const pending=activeMembers.filter(p=>_rmap(p)==='Pending').length;
     const absent=activeMembers.filter(p=>{const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent'};return r.status==='absent'&&!_alView[p.id];}).length;
     const approvedByContact=new Map((s.approvedSignups||[]).map(r=>[r.contact,r.reviewed_by||'Admin']));
-    // Department switcher (superadmin only)
+    // Department switcher (master only)
     const currentDept=this._myDept();
     return {
       batches,activeBatchIdx,activeBatch,activeMembers,
@@ -30,7 +30,7 @@ const AdminBuilders = {
       liveBatch,
       present,mc,pending,absent,
       approvedByContact,
-      showDeptSwitcher:!!s.isSuperAdmin,
+      showDeptSwitcher:!!s.isMaster,
       currentDeptLabel:Utils.deptLabel(currentDept),
       deptSelectVal:currentDept,
     };

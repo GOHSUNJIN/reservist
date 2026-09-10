@@ -14,17 +14,17 @@ const MiscHandlers = {
     this.setState({toast:null});
   },
 
-  // Returns the effective department for the current user, respecting the superadmin dept filter.
+  // Returns the effective department for the current user, respecting the master dept filter.
   _myDept: function() {
     const s = this.state;
-    if(s.isSuperAdmin && s.adminDeptFilter) return s.adminDeptFilter;
+    if(s.isMaster && s.adminDeptFilter) return s.adminDeptFilter;
     return s.me?.department || 'ops_security';
   },
 
   onDeptSelect: function(e) { this.switchAdminDept(e.target.value); },
 
   switchAdminDept: async function(dept) {
-    if(!this.state.isSuperAdmin || dept === this._myDept()) return;
+    if(!this.state.isMaster || dept === this._myDept()) return;
     if(this.state.timesEditId){this._toast('Close the time editor before switching departments.','error');return;}
     const currentDept = this._myDept();
     const currentBatchId = this.state.batches[this.state.activeBatchIdx||0]?.id;

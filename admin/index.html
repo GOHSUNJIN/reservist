@@ -459,10 +459,10 @@ const META_LABELS = {
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function initials(n){if(!n)return'?';const p=n.trim().split(/\s+/);return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():n.slice(0,2).toUpperCase();}
-function avatarBg(role){return role==='superadmin'?'#7c3aed':role==='admin'?'#2563eb':'#64748b';}
-function roleLabel(role){return role==='superadmin'?'Master':role==='admin'?'Admin':'Reservist';}
-function roleBg(role){return role==='superadmin'?'#ede9fe':role==='admin'?'#dbeafe':'#f1f5f9';}
-function roleColor(role){return role==='superadmin'?'#6d28d9':role==='admin'?'#1d4ed8':'#475569';}
+function avatarBg(role){return role==='master'?'#7c3aed':role==='admin'?'#2563eb':'#64748b';}
+function roleLabel(role){return role==='master'?'Master':role==='admin'?'Admin':'Reservist';}
+function roleBg(role){return role==='master'?'#ede9fe':role==='admin'?'#dbeafe':'#f1f5f9';}
+function roleColor(role){return role==='master'?'#6d28d9':role==='admin'?'#1d4ed8':'#475569';}
 
 function relTime(iso){
   const diff=Math.floor((Date.now()-new Date(iso).getTime())/1000);
@@ -502,8 +502,8 @@ async function doLogin(){
   const {data:p,error:pErr}=await _db.from('personnel').select('id,name,role,department,is_active').eq('auth_id',data.user.id).single();
   if(pErr||!p){await _db.auth.signOut({scope:'local'});btn.disabled=false;btn.textContent='Sign in';showErr('Account not found in personnel records.');return;}
   if(!p.is_active){await _db.auth.signOut({scope:'local'});btn.disabled=false;btn.textContent='Sign in';showErr('Your account has been deactivated. Contact your system administrator.');return;}
-  if(p.role!=='admin'&&p.role!=='superadmin'){await _db.auth.signOut({scope:'local'});btn.disabled=false;btn.textContent='Sign in';showErr('Access denied. Admin or master role required.');return;}
-  _me=p; _isSA=p.role==='superadmin'; _filterDept=_isSA?null:(p.department||null);
+  if(p.role!=='admin'&&p.role!=='master'){await _db.auth.signOut({scope:'local'});btn.disabled=false;btn.textContent='Sign in';showErr('Access denied. Admin or master role required.');return;}
+  _me=p; _isSA=p.role==='master'; _filterDept=_isSA?null:(p.department||null);
   document.getElementById('login-screen').style.display='none';
   showApp();
 }
@@ -815,7 +815,7 @@ async function showPersonTip(el,pid){
     body.innerHTML='<div style="color:#8a94a3;font-size:12px;padding:2px 0 4px;">Loading...</div>';
     const{data}=await _db.from('personnel').select('contact,department,role,batches(label)').eq('id',pid).maybeSingle();
     if(!data){_tipCache[pid]=null;}
-    else if(data.role==='admin'||data.role==='superadmin'){_tipCache[pid]='skip';}
+    else if(data.role==='admin'||data.role==='master'){_tipCache[pid]='skip';}
     else{_tipCache[pid]={contact:data.contact||'—',dept:DEPT_LABELS[data.department]||data.department||'—',cycle:data.batches?.label||'No cycle'};}
   }
   if(tip.style.display==='none') return;
@@ -1036,8 +1036,8 @@ function buildRow(ev){
 // 2. Fall back to main app's localStorage (first visit auto-login for admin/master).
 async function _restoreAndShow(userId){
   const{data:p}=await _db.from('personnel').select('id,name,role,department,is_active').eq('auth_id',userId).single();
-  if(p&&p.is_active&&(p.role==='admin'||p.role==='superadmin')){
-    _me=p; _isSA=p.role==='superadmin'; _filterDept=_isSA?null:(p.department||null);
+  if(p&&p.is_active&&(p.role==='admin'||p.role==='master')){
+    _me=p; _isSA=p.role==='master'; _filterDept=_isSA?null:(p.department||null);
     document.getElementById('login-screen').style.display='none';
     showApp();
   } else if(p){

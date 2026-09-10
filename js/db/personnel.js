@@ -94,7 +94,7 @@ const DB_Personnel = {
   },
 
   async listAdmins(dept) {
-    let q = _db.from('personnel').select('*').in('role', ['admin', 'superadmin']).eq('is_active', true).order('created_at');
+    let q = _db.from('personnel').select('*').in('role', ['admin', 'master']).eq('is_active', true).order('created_at');
     if (dept) q = q.eq('department', dept);
     const { data } = await q;
     return data || [];

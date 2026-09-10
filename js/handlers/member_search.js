@@ -213,8 +213,8 @@ const MemberSearchHandlers = {
     const _all=[...personnel,...Object.values(this.state.batchMembersCache||{}).flat(),...(this.state.adminsList||[])];
     const p=_all.find(x=>x.id===resetPwId);
     if(!p){this._toast('Person not found.','error');return;}
-    if((p.role==='admin'||p.role==='superadmin')&&!this.state.isSuperAdmin){this._toast('Access denied.','error');return;}
-    if(!this.state.isSuperAdmin&&p.department&&p.department!==this._myDept()){this._toast('Access denied.','error');return;}
+    if((p.role==='admin'||p.role==='master')&&!this.state.isMaster){this._toast('Access denied.','error');return;}
+    if(!this.state.isMaster&&p.department&&p.department!==this._myDept()){this._toast('Access denied.','error');return;}
     this.setState({resetPwSaving:true});
     if(!p.auth_id){
       const {user,error}=await DB.auth.createUserAsAdmin(p.contact,resetPwNew,p.name);
