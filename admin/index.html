@@ -329,6 +329,16 @@ const ACTIONS = {
 
 const DEPT_LABELS = { ops_security:'Ops Security', cas:'CAS', lnf:'L&F' };
 
+const META_LABELS = {
+  date:'Date', time:'Time', status:'Status', prev_status:'Prev status',
+  count:'Count', reason:'Reason', type:'Type', gps_bypassed:'GPS bypassed',
+  added:'Added', skipped:'Skipped', failed:'Failed', old_name:'Previous name', new_name:'New name',
+  check_in:'Check-in', lunch_out:'Lunch out', return:'Return', check_out:'Check-out',
+  prev_check_in:'Prev check-in', prev_lunch_out:'Prev lunch out',
+  prev_return:'Prev return', prev_check_out:'Prev check-out',
+  p1:'Check-in', p2:'Lunch out', p3:'Return', p4:'Check-out', bypassed:'GPS bypassed',
+};
+
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function initials(n){if(!n)return'?';const p=n.trim().split(/\s+/);return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():n.slice(0,2).toUpperCase();}
 function avatarBg(role){return role==='superadmin'?'#c0392b':role==='admin'?'#2f5fd0':'#8a94a3';}
@@ -516,53 +526,84 @@ function renderEvents(reset,newRows){
   document.getElementById('load-more-row').style.display=_offset<_total?'block':'none';
 }
 
+function buildAvatarHtml(actorId, actorName, actorRole){
+  const bg=esc(avatarBg(actorRole)), ini=esc(initials(actorName)), t=esc(actorName||'');
+  const base=`style="background:${bg};overflow:hidden;position:relative;" title="${t}"`;
+  if(!actorId) return `<div class="event-avatar" ${base}>${ini}</div>`;
+  const {data}=_db.storage.from('avatars').getPublicUrl(actorId);
+  const url=esc(data?.publicUrl||'');
+  return `<div class="event-avatar" ${base}>
+    <span style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">${ini}</span>
+    <img src="${url}" style="position:absolute;inset:0;width:100%;height:100%;object-fit:cover;" onerror="this.remove()">
+  </div>`;
+}
+
 function buildRow(ev){
   const c=CAT[ev.category]||{bg:'#f0f2f7',color:'#4a5568',label:ev.category,stripe:'#8a94a3'};
   const action=ACTIONS[ev.action]||ev.action.replace(/[._]/g,' ');
-  const meta=ev.meta&&Object.keys(ev.meta).length?ev.meta:null;
+  const rawMeta=ev.meta&&Object.keys(ev.meta).length?ev.meta:null;
   const deptLabel=DEPT_LABELS[ev.department]||ev.department||'';
   const el=document.createElement('div');
-  el.className='event-item'+(meta?' clickable':'');
 
   let metaHtml='';
-  if(meta){
-    const entries=Object.entries(meta).filter(([,v])=>v!==null&&v!==undefined&&v!=='');
-    if(entries.length){
-      const cards=entries.map(([k,v])=>{
-        const key=k.replace(/_/g,' ');
+  if(rawMeta){
+    const hasTimesChange='check_in' in rawMeta||'prev_check_in' in rawMeta||'lunch_out' in rawMeta||'prev_lunch_out' in rawMeta;
+    const hasStatusChange='prev_status' in rawMeta&&'status' in rawMeta;
+    let cards='';
+    if(hasTimesChange){
+      if(rawMeta.date) cards+=`<div class="meta-entry"><div class="meta-key">Date</div><div class="meta-val">${esc(rawMeta.date)}</div></div>`;
+      const phases=[['Check-in',rawMeta.check_in,rawMeta.prev_check_in],['Lunch out',rawMeta.lunch_out,rawMeta.prev_lunch_out],['Return',rawMeta.return,rawMeta.prev_return],['Check-out',rawMeta.check_out,rawMeta.prev_check_out]];
+      for(const [label,curr,prev] of phases){
+        if(!curr&&!prev) continue;
+        const from=prev||'—', to=curr||'—';
+        const val=from===to?esc(to):`${esc(from)} <span style="color:#2f5fd0;font-weight:700;">→</span> ${esc(to)}`;
+        cards+=`<div class="meta-entry"><div class="meta-key">${esc(label)}</div><div class="meta-val">${val}</div></div>`;
+      }
+    } else if(hasStatusChange){
+      const from=rawMeta.prev_status||'—', to=rawMeta.status||'—';
+      const val=from===to?esc(to):`${esc(from)} <span style="color:#2f5fd0;font-weight:700;">→</span> ${esc(to)}`;
+      cards+=`<div class="meta-entry"><div class="meta-key">Status</div><div class="meta-val">${val}</div></div>`;
+      if(rawMeta.date) cards+=`<div class="meta-entry"><div class="meta-key">Date</div><div class="meta-val">${esc(rawMeta.date)}</div></div>`;
+    } else {
+      const entries=Object.entries(rawMeta).filter(([,v])=>v!==null&&v!==undefined&&v!=='');
+      cards=entries.map(([k,v])=>{
+        const key=META_LABELS[k]||k.replace(/_/g,' ');
         const val=typeof v==='object'?JSON.stringify(v):String(v);
         return `<div class="meta-entry"><div class="meta-key">${esc(key)}</div><div class="meta-val">${esc(val)}</div></div>`;
       }).join('');
-      metaHtml=`<div class="event-meta-wrap"><div class="meta-grid">${cards}</div></div>`;
     }
+    if(cards) metaHtml=`<div class="event-meta-wrap"><div class="meta-grid">${cards}</div></div>`;
   }
 
+  el.className='event-item'+(metaHtml?' clickable':'');
   el.innerHTML=`
     <div class="event-stripe" style="background:${esc(c.stripe)};"></div>
-    <div class="event-inner">
-      <div class="event-avatar" style="background:${esc(avatarBg(ev.actor_role))};" title="${esc(ev.actor_name||'')}">${esc(initials(ev.actor_name))}</div>
-      <div class="event-content">
-        <div class="event-top">
-          <span class="event-name">${esc(ev.actor_name||'Unknown')}</span>
-          <span class="event-role" style="background:${esc(roleBg(ev.actor_role))};color:${esc(roleColor(ev.actor_role))};">${esc(roleLabel(ev.actor_role))}</span>
+    <div style="flex:1;min-width:0;">
+      <div class="event-inner">
+        ${buildAvatarHtml(ev.actor_id,ev.actor_name,ev.actor_role)}
+        <div class="event-content">
+          <div class="event-top">
+            <span class="event-name">${esc(ev.actor_name||'Unknown')}</span>
+            <span class="event-role" style="background:${esc(roleBg(ev.actor_role))};color:${esc(roleColor(ev.actor_role))};">${esc(roleLabel(ev.actor_role))}</span>
+          </div>
+          <div class="event-action-text">${esc(action)}</div>
+          <div class="event-sub">
+            <span class="event-cat" style="background:${esc(c.bg)};color:${esc(c.color)};">${esc(c.label)}</span>
+            ${ev.target_name?`<span class="event-target-text">&#8594; ${esc(ev.target_name)}</span>`:''}
+            ${deptLabel?`<span class="event-dept-text">${esc(deptLabel)}</span>`:''}
+            ${metaHtml?`<span class="expand-hint">Tap for details</span>`:''}
+          </div>
         </div>
-        <div class="event-action-text">${esc(action)}</div>
-        <div class="event-sub">
-          <span class="event-cat" style="background:${esc(c.bg)};color:${esc(c.color)};">${esc(c.label)}</span>
-          ${ev.target_name?`<span class="event-target-text">&#8594; ${esc(ev.target_name)}</span>`:''}
-          ${deptLabel?`<span class="event-dept-text">${esc(deptLabel)}</span>`:''}
-          ${meta?`<span class="expand-hint">Tap for details</span>`:''}
+        <div class="event-time">
+          <div class="event-rel">${esc(relTime(ev.created_at))}</div>
+          <div class="event-abs">${esc(absTime(ev.created_at))}</div>
         </div>
       </div>
-      <div class="event-time">
-        <div class="event-rel">${esc(relTime(ev.created_at))}</div>
-        <div class="event-abs">${esc(absTime(ev.created_at))}</div>
-      </div>
+      ${metaHtml}
     </div>
-    ${metaHtml}
   `;
 
-  if(meta) el.addEventListener('click',()=>el.classList.toggle('expanded'));
+  if(metaHtml) el.addEventListener('click',()=>el.classList.toggle('expanded'));
   return el;
 }
 
