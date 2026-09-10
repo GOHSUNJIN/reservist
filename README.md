@@ -161,7 +161,7 @@ Every action in the system is recorded:
 - All leave and MC approvals record who approved them and when. Rejections record the reviewer and reason.
 - **Absences are written automatically.** If a reservist does not check in by midnight, the system marks them absent through two independent processes (one in the app, one on the server) to ensure no gaps occur even if the supervisor is offline. See [Auto-Absent](#auto-absent).
 - Data is stored in a managed cloud database. Nothing relies on a local file or spreadsheet.
-- Every significant user action (logins, check-in phases, roster changes, leave decisions, personnel management, exports, and account changes) is written to a dedicated `audit_log` table and visible in the ReservistGO Monitor.
+- Every significant user action (check-in phases, roster changes, leave decisions, personnel management, exports, and account changes) is written to a dedicated `audit_log` table and visible in the ReservistGO Monitor.
 
 ---
 
@@ -194,16 +194,13 @@ Hovering over a profile photo in the feed shows an enlarged version of the photo
 
 - **Search:** Full-text filter across actor name, action, and target name with 300 ms debounce.
 - **Date range:** From/to date pickers to narrow to any window.
-- **Category pills:** Filter by Auth, Attendance, Leave, Signup, Personnel, Cycle, Export, Account, or Admin. Selecting a pill resets the offset and reloads.
+- **Category pills:** Filter by Attendance, Leave, Signup, Personnel, Cycle, Export, Account, or Admin. Selecting a pill resets the offset and reloads. Multiple pills can be active at once.
 - **Department selector (master only):** Switch between departments to scope the entire feed to one department, or leave unset to view all.
 
 ### Actions logged
 
 | Action key | Display label | Who triggers it |
 |---|---|---|
-| `auth.login` | Logged in | Any user on successful login |
-| `auth.logout` | Logged out | Any user on explicit logout |
-| `auth.session_extended` | Extended session | Any user who taps "Stay logged in" on the expiry warning |
 | `checkin.p1` | Phase 1: Checked in | Reservist |
 | `checkin.p2` | Phase 2: Lunch out | Reservist |
 | `checkin.p3` | Phase 3: Returned from lunch | Reservist |
@@ -346,6 +343,7 @@ js/
 ├── db/                 - Individual query modules, one per table
 │   ├── auth.js         - Authentication (login, logout, session, password)
 │   ├── attendance.js   - Attendance CRUD, phase logging, time correction, welfare notes
+│   ├── audit.js        - Audit log insert and query
 │   ├── batches.js      - Cycle management queries
 │   ├── leaves.js       - Leave request queries
 │   ├── no-report-days.js - No-report day queries
@@ -386,20 +384,19 @@ js/
     ├── account.js       - Profile photo upload/remove, password change, name change, notification permissions
     └── misc.js          - Toast, navigation helpers, department switching, WhatsApp share/copy, page refresh
 
-scripts/                - Offline tooling (not part of the web app)
+scripts/
     ├── build-config.js       - Generates js/config.js from environment variables at Vercel build time
-    ├── sql/
-    │   ├── supabase_cron.sql         - SQL to enable the auto-absent scheduled job
-    │   ├── rls_policies.sql          - Row-level security policies for Supabase
-    │   ├── add_departments.sql       - Migration to add department columns to an existing deployment
-    │   └── fix_avatar_storage_policy.sql - Storage policy fix for avatar uploads
-    └── python/
-        ├── generate_checklist.py     - Generates docs/testing_checklist.xlsx
-        └── build_pptx.py             - Generates the OpsTracker briefing deck
-
-docs/
-    ├── OpsTracker.pptx               - Operational briefing deck
-    └── testing_checklist.xlsx        - Generated QA checklist (167 test cases across 14 sections)
+    └── sql/
+        ├── audit_log.sql         - audit_log table schema and RLS policies
+        ├── rls_policies.sql      - Row-level security policies for all tables
+        ├── supabase_cron.sql     - SQL to enable the auto-absent and auto-deactivation scheduled jobs
+        └── migrations/           - One-time scripts already applied to the live database
+            ├── add_departments.sql           - Added department columns to an existing deployment
+            ├── add_lnf_department.sql        - Added L&F as a department
+            ├── add_nrd_department.sql        - Added NRD as a department
+            ├── fix_avatar_storage_policy.sql - Storage policy fix for avatar uploads
+            ├── fix_lnf_batch_dates.sql       - Corrected L&F cycle date values
+            └── renumber_lnf_cycles.sql       - Renumbered L&F cycle labels
 ```
 
 `index.html` is the single-page template that wires all builders and handlers together. The `<x-dc>` element at the top of the file is where all deployment-specific configuration lives.
@@ -507,7 +504,7 @@ All data is stored in a structured cloud database (PostgreSQL), with seven table
 | Actor name | Display name at time of action |
 | Actor role | Role at time of action (reservist, admin, superadmin) |
 | Department | Department context in which the action occurred |
-| Category | Broad category (auth, attendance, leave, signup, personnel, batch, export, account, admin) |
+| Category | Broad category (attendance, leave, signup, personnel, batch, export, account, admin) |
 | Action | Specific action key (e.g. `checkin.p1`, `leave.approved`, `roster.times_corrected`) |
 | Target ID | Personnel ID of the person affected, if applicable |
 | Target name | Display name of the affected person, if applicable |
@@ -556,7 +553,7 @@ A second scheduled task runs at 02:00 SGT every day. It deactivates any personne
    ```
 5. Run `scripts/sql/supabase_cron.sql` to enable the automatic absent and auto-deactivation jobs. Requires the `pg_cron` extension (enabled by default on Supabase Pro).
 
-> **Upgrading an existing deployment?** If you already have the tables from an earlier version, run `scripts/sql/add_departments.sql` instead of re-creating the schema. It adds the `department_type` enum and the `department` column to `personnel`, `batches`, and `signup_requests`, defaulting all existing rows to `ops_security`.
+> **Upgrading an existing deployment?** If you already have the tables from an earlier version, the migration scripts in `scripts/sql/migrations/` document every schema change applied since the initial release. Run only the ones that apply to your version.
 
 > **Updating the cron jobs on an existing deployment?** If you previously ran `supabase_cron.sql` and need to apply the updated version, unschedule the existing job first before re-running the file: `SELECT cron.unschedule('deactivate-expired-personnel');`
 
@@ -648,7 +645,7 @@ CREATE TABLE audit_log (
   actor_id UUID,
   actor_name TEXT,
   actor_role TEXT,
-  department department_type,
+  department TEXT,
   category TEXT NOT NULL,
   action TEXT NOT NULL,
   target_id UUID,
@@ -1013,7 +1010,6 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Bulk add no-report days: paste multiple dates, all applied
 - [ ] Toggle meal allowance: work timer and meal badge appear or disappear for reservists
 - [ ] Post broadcast notice: text appears on reservist check-in screen
-- [ ] Show/hide archived batches toggle works in the cycle picker
 
 #### Export and reporting
 - [ ] Export Excel: file downloads, all columns present, colour-coding correct, headers freeze
@@ -1072,20 +1068,20 @@ All admin checks above apply. Run them for both departments. Then verify the fol
 - [ ] Search by target name: feed filters correctly
 - [ ] Clear search: feed resets to all events
 - [ ] Select a category pill (e.g. Attendance): only attendance events shown, count updates
+- [ ] Select multiple category pills: events from all selected categories shown
 - [ ] Select All pill: full feed restored
 - [ ] Set date From/To: feed scoped to that range
 - [ ] Click Load more: next page appended, no duplicate rows
 - [ ] Double-click Load more rapidly: no duplicate rows (guard prevents concurrent fetches)
 - [ ] Stat tiles show correct counts: Events today, Unique actors today, This week, Top category
 - [ ] Master dept selector: switch to a department, feed and stats re-scope; switch back, previous context restored
-- [ ] Perform a check-in phase in the main app, then view the monitor: auth.login and checkin.p1 events appear
+- [ ] Perform a check-in phase in the main app, then view the monitor: a checkin.p1 event appears with the correct time and date
 - [ ] Admin approves a leave request: leave.approved event appears in monitor with target name and date in metadata
 
 ---
 
 ## Known Limitations
 
-- **Audit log events are not currently being recorded.** The ReservistGO Monitor at `/admin` shows an empty feed regardless of actions taken. The `_log()` function in `component.js` returns early before reaching the database call; the exact return path (demo mode guard or null actor) is under investigation. The `audit_log` table, RLS policies, and schema are all correct. A fix will be deployed once the root cause is confirmed.
 - **CPO Info tab content is a placeholder.** The Info tab for Crime Prevention Office (CPO) reservists currently shows placeholder text. The attire, location, and operational details for CPO have not yet been configured in the codebase.
 - **Phase windows are hardcoded.** The check-in phase times (check-in from 08:00, lunch from 11:00, return from lunch from 13:00, check-out from 14:00) are fixed constants and cannot be changed from within the app. Changing them requires a code update and redeployment. This is tracked as item 3 in the Planned Enhancements section.
 - **Departments cannot be added or removed from within the app.** The department list (Ops Security and CPO) is defined in the database schema as an enum. Adding a new department requires a schema migration. This is tracked as item 6 in the Planned Enhancements section.
