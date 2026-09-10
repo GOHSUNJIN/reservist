@@ -957,40 +957,8 @@ function buildRow(ev){
   const inlineDetail=buildInlineDetail(ev);
   const actionHtml=buildActionText(ev);
 
-  let metaHtml='';
-  if(rawMeta){
-    const hasTimesChange='check_in' in rawMeta||'prev_check_in' in rawMeta||'lunch_out' in rawMeta||'prev_lunch_out' in rawMeta;
-    const hasStatusChange='prev_status' in rawMeta&&'status' in rawMeta;
-    let cards='';
-    if(hasTimesChange){
-      if(rawMeta.date) cards+=`<div class="meta-entry"><div class="meta-key">Date</div><div class="meta-val">${esc(rawMeta.date)}</div></div>`;
-      const hasPrev='prev_check_in' in rawMeta||'prev_lunch_out' in rawMeta;
-      const phases=[['Check-in',rawMeta.check_in,rawMeta.prev_check_in],['Lunch out',rawMeta.lunch_out,rawMeta.prev_lunch_out],['Return',rawMeta.return,rawMeta.prev_return],['Check-out',rawMeta.check_out,rawMeta.prev_check_out]];
-      for(const [label,curr,prev] of phases){
-        if(!curr) continue;
-        const changed=hasPrev&&(curr||null)!==(prev||null);
-        const vs=changed?'color:#2f5fd0;font-weight:700;':'';
-        const es=changed?'border-color:#dce8ff;background:#f6f9ff;':'';
-        cards+=`<div class="meta-entry" style="${es}"><div class="meta-key">${esc(label)}</div><div class="meta-val" style="${vs}">${esc(curr)}</div></div>`;
-      }
-    } else if(hasStatusChange){
-      const from=rawMeta.prev_status||'—', to=rawMeta.status||'—';
-      const val=from===to?esc(to):`${esc(from)} <span style="color:#2f5fd0;font-weight:700;">→</span> ${esc(to)}`;
-      cards+=`<div class="meta-entry"><div class="meta-key">Status</div><div class="meta-val">${val}</div></div>`;
-      if(rawMeta.date) cards+=`<div class="meta-entry"><div class="meta-key">Date</div><div class="meta-val">${esc(rawMeta.date)}</div></div>`;
-    } else {
-      const entries=Object.entries(rawMeta).filter(([k,v])=>k!=='date'&&k!=='time'&&k!=='type'&&v!==null&&v!==undefined&&v!==''&&v!==false);
-      cards=entries.map(([k,v])=>{
-        const key=META_LABELS[k]||k.replace(/_/g,' ');
-        const val=typeof v==='object'?JSON.stringify(v):String(v);
-        return `<div class="meta-entry"><div class="meta-key">${esc(key)}</div><div class="meta-val">${esc(val)}</div></div>`;
-      }).join('');
-    }
-    if(cards) metaHtml=`<div class="event-meta-wrap"><div class="meta-grid">${cards}</div></div>`;
-  }
-
   const el=document.createElement('div');
-  el.className='event-item'+(metaHtml?' clickable':'');
+  el.className='event-item';
   el.innerHTML=`
     <div class="event-stripe" style="background:${esc(c.stripe)};"></div>
     <div style="flex:1;min-width:0;">
@@ -1013,11 +981,9 @@ function buildRow(ev){
           <div class="event-abs">${esc(absTime(ev.created_at))}</div>
         </div>
       </div>
-      ${metaHtml}
     </div>
   `;
 
-  if(metaHtml) el.addEventListener('click',()=>el.classList.toggle('expanded'));
   return el;
 }
 
