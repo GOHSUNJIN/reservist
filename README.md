@@ -40,7 +40,7 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Cancel pending requests**: A leave or MC request can be withdrawn by the reservist before the supervisor has acted on it, from both the check-in screen and the Requests history tab.
 - **Request history**: The Requests tab shows the full history of submitted leave and MC requests, each with a coloured left bar, a type badge (MC and Personal Leave both in amber), and a status badge (Submitted, Approved, Declined, or Withdrawn). Records are deduplicated by date: if multiple requests exist for the same date, only the most relevant one is shown (pending takes priority over approved, approved over declined). Filter pills let you narrow the list by status. Pending requests can be withdrawn inline.
 - **Info and Attendance tabs**: The Info tab shows an About section explaining the app, shift and reporting details, dekit day steps, leave request history, and a team directory listing batchmates with contact links. The Attendance tab shows the personal attendance calendar and history.
-- **Attendance history**: View your full record for the cycle, including total days present, MC, absent, and your attendance rate. Future approved MC leave that is already visible in Shift History is included in the MC and Logged counts so the numbers stay consistent with what is shown on screen.
+- **Attendance history**: View your full record for the cycle, including total days present, MC, absent, and your attendance rate. Future approved MC leave that is already visible in Shift History is included in the MC and Logged counts so the numbers stay consistent with what is shown on screen. If a supervisor has manually corrected one of your check-in times, that time appears in blue in the Shift History grid so you can see at a glance which entries were admin-adjusted. The late check-in reason card is suppressed for any day where the supervisor has corrected the check-in time.
 - **End-of-cycle notice**: When the reporting cycle ends, the Attendance tab shows a congratulations card and a reminder of the dekit date when the account will be deactivated. Today's row is suppressed for post-cycle days so no false Pending entry appears.
 - **Cycle-scoped history**: Attendance records from before a reservist's current batch start date are excluded from both the reservist's own Shift History and the admin's person history modal. This prevents pre-cycle auto-absent records from appearing as if they belong to the current cycle.
 - **Copyable contact numbers**: Tap any batchmate's phone number in the team directory to copy it to the clipboard.
@@ -75,7 +75,7 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Low attendance indicator**: Reservists with an attendance rate below 75% are flagged inline on their roster card. The amber percentage and a short indicator appear next to the contact number, keeping the card compact without a separate row.
 
 **Time Log:**
-- **Manual time correction**: Edit any reservist's check-in times for any day directly from the Log tab across all four phases. Corrected records are flagged as admin-entered in the database.
+- **Manual time correction**: Edit any reservist's check-in times for any day directly from the Log tab across all four phases. Corrected records are flagged as admin-entered in the database. When a supervisor corrects a reservist's check-in time, the late check-in reason (if one was submitted) is hidden from the reservist's view, since the original reason no longer applies to the corrected time. Crime Prevention reservists, who only use two phases, are not required to fill in lunch or return times when editing checkout.
 - **Log search**: Filter the log by name.
 - **Log status filter**: Filter the log by attendance status (Present, MC, Absent) to focus on a specific group.
 - **Click name to open history**: In the Log tab, clicking a reservist's name opens their full attendance history without needing to navigate to the People tab.
@@ -161,7 +161,7 @@ Every action in the system is recorded:
 - All leave and MC approvals record who approved them and when. Rejections record the reviewer and reason.
 - **Absences are written automatically.** If a reservist does not check in by midnight, the system marks them absent through two independent processes (one in the app, one on the server) to ensure no gaps occur even if the supervisor is offline. See [Auto-Absent](#auto-absent).
 - Data is stored in a managed cloud database. Nothing relies on a local file or spreadsheet.
-- Every significant user action — logins, check-in phases, roster changes, leave decisions, personnel management, exports, and account changes — is written to a dedicated `audit_log` table and visible in the ReservistGO Monitor.
+- Every significant user action (logins, check-in phases, roster changes, leave decisions, personnel management, exports, and account changes) is written to a dedicated `audit_log` table and visible in the ReservistGO Monitor.
 
 ---
 
@@ -181,6 +181,8 @@ A separate, login-protected admin console accessible at `/admin`. Restricted to 
 - Which category and department the action belongs to
 - A relative timestamp ("2m ago") and an absolute time
 - Expandable metadata panel (tap any row with details to see the full payload: target IDs, dates, counts, corrected times, etc.)
+
+Hovering over a profile photo in the feed shows an enlarged version of the photo directly above the avatar, without opening any modal.
 
 **Stats bar:** Four tiles at the top update on every load:
 - Total events today
@@ -207,14 +209,14 @@ A separate, login-protected admin console accessible at `/admin`. Restricted to 
 | `checkin.p3` | Phase 3: Returned from lunch | Reservist |
 | `checkin.p4` | Phase 4: Checked out | Reservist |
 | `checkin.late_reason` | Submitted late reason | Reservist (when more than 1 hour late) |
-| `roster.status_set` | Set attendance status | Admin — manual mark Present / MC / Absent |
+| `roster.status_set` | Set attendance status | Admin: manual mark Present, MC, or Absent |
 | `roster.mark_all_absent` | Marked all absent | Admin |
 | `roster.mark_all_present` | Marked all present | Admin |
-| `roster.times_corrected` | Corrected attendance times | Admin — time correction modal |
+| `roster.times_corrected` | Corrected attendance times | Admin: via time correction modal |
 | `roster.person_note_saved` | Saved person note | Admin |
 | `roster.log_note_saved` | Saved log note | Admin |
 | `roster.welfare_note_saved` | Saved welfare note | Reservist (own record) or Admin |
-| `roster.missed_note_saved` | Saved missed-day note | Admin — note on a missed day in history |
+| `roster.missed_note_saved` | Saved missed-day note | Admin: note on a missed day in history |
 | `leave.submitted` | Submitted leave request | Reservist |
 | `leave.cancelled` | Withdrew leave request | Reservist |
 | `leave.approved` | Approved leave request | Admin |
@@ -402,7 +404,7 @@ docs/
 
 `index.html` is the single-page template that wires all builders and handlers together. The `<x-dc>` element at the top of the file is where all deployment-specific configuration lives.
 
-`admin/index.html` is the ReservistGO Monitor — a self-contained single-file admin console. It has its own Supabase client (separate session storage key `ops-monitor-session`), its own login form, and no dependency on the main app's JS files. On first visit within the same tab as an authenticated admin session, it auto-logs in by reading the main app's session from `sessionStorage` under `ops-auth`.
+`admin/index.html` is the ReservistGO Monitor, a self-contained single-file admin console. It has its own Supabase client (separate session storage key `ops-monitor-session`), its own login form, and no dependency on the main app's JS files. On first visit within the same tab as an authenticated admin session, it auto-logs in by reading the main app's session from `sessionStorage` under `ops-auth`.
 
 ### Key Patterns
 
