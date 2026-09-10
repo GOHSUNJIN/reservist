@@ -56,7 +56,7 @@ const RosterHandlers = {
       this._haptic(40);
       this._toast({present:'Marked present',mc:'Marked MC',absent:'Marked absent'}[status]||'Updated');
       const person = this.state.personnel.find(p => p.id === id);
-      this._log('attendance', 'roster.status_set', { date: dk, status, target_id: id, target_name: person?.name || '' });
+      this._log('attendance', 'roster.status_set', { date: dk, status, prev_status: prev.status || null, target_id: id, target_name: person?.name || '' });
     };
   },
 
@@ -249,7 +249,18 @@ const RosterHandlers = {
     else this.setState(s=>({attendanceCache:{...s.attendanceCache,[dateKey]:{...(s.attendanceCache[dateKey]||{}),[timesEditId]:entry}},...clearEdit}));
     this._toast('Times updated.');
     const person = this.state.personnel.find(p => p.id === timesEditId);
-    this._log('attendance', 'roster.times_corrected', { date: dateKey, p1: timesEditP1 || null, p2: timesEditP2 || null, p3: timesEditP3 || null, p4: timesEditP4 || null, target_id: timesEditId, target_name: person?.name || '' });
+    this._log('attendance', 'roster.times_corrected', {
+      date: dateKey,
+      check_in:   timesEditP1 || null,
+      lunch_out:  timesEditP2 || null,
+      return:     timesEditP3 || null,
+      check_out:  timesEditP4 || null,
+      prev_check_in:  prevEntry.p1 || null,
+      prev_lunch_out: prevEntry.p2 || null,
+      prev_return:    prevEntry.p3 || null,
+      prev_check_out: prevEntry.p4 || null,
+      target_id: timesEditId, target_name: person?.name || '',
+    });
   },
 
   // Subscribes to Supabase realtime updates for attendance on the given date.
