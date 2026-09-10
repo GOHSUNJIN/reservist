@@ -130,15 +130,15 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 .pag-ellipsis{font-size:13px;color:#b8c0cc;padding:0 2px;line-height:34px;}
 
 /* ── Filter guide ────────────────────────────────────────────────────── */
-.filter-guide-btn{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:50%;border:1.5px solid #e8ecf4;background:#fafbfd;color:#8a94a3;font-size:11px;font-weight:700;cursor:default;flex-shrink:0;transition:border-color .15s,color .15s;}
-.filter-guide-btn:hover{border-color:#2f5fd0;color:#2f5fd0;background:#f0f4ff;}
-#filter-guide{position:fixed;background:#fff;border:1px solid #e8ecf4;border-radius:14px;box-shadow:0 10px 36px rgba(20,30,70,.15),0 2px 8px rgba(20,30,70,.07);z-index:998;display:none;width:310px;overflow:hidden;}
-.fg-head{font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;text-transform:uppercase;padding:13px 16px 8px;border-bottom:1px solid #f0f3f9;}
-.fg-list{padding:8px 12px 12px;}
-.fg-row{display:flex;align-items:flex-start;gap:10px;padding:6px 4px;}
+.filter-guide-btn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;border:1.5px solid #c8cfd8;background:#f0f3f9;color:#5c6678;font-size:11px;font-weight:700;cursor:default;flex-shrink:0;align-self:center;transition:border-color .15s,background .15s,color .15s;}
+.filter-guide-btn:hover{border-color:#2f5fd0;color:#2f5fd0;background:#eef3ff;}
+#filter-guide{position:fixed;background:#fff;border:1px solid #e8ecf4;border-radius:14px;box-shadow:0 10px 36px rgba(20,30,70,.15),0 2px 8px rgba(20,30,70,.07);z-index:998;display:none;width:290px;overflow:hidden;}
+.fg-head{font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;text-transform:uppercase;padding:12px 14px 7px;border-bottom:1px solid #f0f3f9;}
+.fg-list{padding:6px 10px 10px;}
+.fg-row{display:flex;align-items:center;gap:10px;padding:5px 4px;}
 .fg-row+.fg-row{border-top:1px solid #f7f9fc;}
-.fg-pill{font-size:10px;font-weight:600;border-radius:5px;padding:2px 7px;white-space:nowrap;flex-shrink:0;margin-top:1px;}
-.fg-desc{font-size:12px;color:#5c6678;line-height:1.4;}
+.fg-pill{font-size:10px;font-weight:600;border-radius:5px;padding:2px 7px;white-space:nowrap;flex-shrink:0;min-width:64px;text-align:center;}
+.fg-desc{font-size:11.5px;color:#5c6678;line-height:1.35;}
 
 /* ── Person tooltip ──────────────────────────────────────────────────── */
 #person-tip{position:fixed;background:#fff;border:1px solid #e8ecf4;border-radius:13px;box-shadow:0 8px 32px rgba(20,30,70,.16),0 2px 8px rgba(20,30,70,.07);z-index:999;display:none;min-width:200px;overflow:hidden;}
@@ -195,7 +195,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 <div id="filter-guide">
   <div class="fg-head">Filter categories</div>
   <div class="fg-list">
-    <div class="fg-row"><span class="fg-pill" style="background:#e8f0fd;color:#2f5fd0;">Session</span><span class="fg-desc">Login and logout events — who signed in or out and when</span></div>
+    <div class="fg-row"><span class="fg-pill" style="background:#e8f0fd;color:#2f5fd0;">Session</span><span class="fg-desc">Login and logout events</span></div>
     <div class="fg-row"><span class="fg-pill" style="background:#e7f3ec;color:#1f8a5b;">Attendance</span><span class="fg-desc">Check-in phases, time corrections, and status changes</span></div>
     <div class="fg-row"><span class="fg-pill" style="background:#fdf6e9;color:#b9791a;">Leave</span><span class="fg-desc">Leave requests submitted, approved, declined, or withdrawn</span></div>
     <div class="fg-row"><span class="fg-pill" style="background:#f0ecfd;color:#6b52c8;">Signup</span><span class="fg-desc">New member signup requests, approvals, and rejections</span></div>
@@ -293,7 +293,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#1f8a5b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
         </div>
         <div class="stat-value" id="stat-actors">-</div>
-        <div class="stat-label" style="display:flex;align-items:center;">Unique actors today<span class="info-tip" data-tip="Number of different people who performed at least one action today">?</span></div>
+        <div class="stat-label" style="display:flex;align-items:center;">Unique actors today<span class="info-tip" data-tip="Distinct people who took at least one action today">?</span></div>
       </div>
       <div class="stat-card">
         <div class="stat-accent" style="background:linear-gradient(90deg,#e07b39,#c2410c);"></div>
@@ -309,7 +309,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6b52c8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
         </div>
         <div class="stat-value" id="stat-top-cat" style="font-size:16px;margin-top:4px;">-</div>
-        <div class="stat-label" style="display:flex;align-items:center;">Top category today<span class="info-tip" data-tip="The activity type with the most events logged today (e.g. Attendance, Session, Leave)">?</span></div>
+        <div class="stat-label" style="display:flex;align-items:center;">Top category today<span class="info-tip" data-tip="The activity type with the most events today">?</span></div>
       </div>
     </div>
 
@@ -751,10 +751,10 @@ function copyPtipContact(num){
     const r=btn.getBoundingClientRect();
     guide.style.display='block';
     const gw=guide.offsetWidth;
-    const left=Math.min(r.left,window.innerWidth-gw-12);
+    const gh=guide.offsetHeight;
+    const left=Math.max(12,r.right-gw);
     const spaceBelow=window.innerHeight-r.bottom;
-    const top=spaceBelow<guide.offsetHeight+10&&r.top>guide.offsetHeight+10
-      ?r.top-guide.offsetHeight-6:r.bottom+6;
+    const top=spaceBelow<gh+10&&r.top>gh+10?r.top-gh-6:r.bottom+6;
     guide.style.left=left+'px';
     guide.style.top=top+'px';
   }
@@ -809,10 +809,18 @@ function buildActionText(ev){
     case 'roster.log_note_saved':    return 'Saved log note';
     case 'roster.welfare_note_saved':return tn?`Saved welfare note for ${tn}`:'Saved welfare note';
     case 'roster.missed_note_saved': return tn?`Saved missed-day note for ${tn}`:'Saved missed-day note';
-    case 'checkin.p1':               return 'Checked in';
-    case 'checkin.p2':               return 'Went on lunch break';
-    case 'checkin.p3':               return 'Returned from lunch';
-    case 'checkin.p4':               return 'Checked out';
+    case 'checkin.p1':
+    case 'checkin.p2':
+    case 'checkin.p3':
+    case 'checkin.p4': {
+      const labels={'checkin.p1':'Checked in','checkin.p2':'Went on lunch break','checkin.p3':'Returned from lunch','checkin.p4':'Checked out'};
+      const m2=ev.meta||{};
+      let s=labels[ev.action];
+      if(m2.date) s+=` on <strong>${esc(m2.date)}</strong>`;
+      if(m2.time) s+=` at <strong>${esc(m2.time)}</strong>`;
+      if(m2.gps_bypassed) s+=` <span class="dbypass">GPS bypass</span>`;
+      return s;
+    }
     case 'checkin.late_reason':      return 'Submitted late reason';
     case 'leave.submitted':          return tn?`Submitted leave request for ${tn}`:'Submitted leave request';
     case 'leave.approved':           return tn?`Approved ${tn}'s leave request`:'Approved leave request';
@@ -866,12 +874,7 @@ function buildInlineDetail(ev){
     const dateStr=m.date?`<span class="dphase"><span class="dlabel">on</span><span class="dv">${esc(m.date)}</span></span>`:'';
     return `<div class="event-detail"><span class="dphase"><span class="dlabel">Status</span><span class="dv">${esc(from)}</span>${arrow}</span>${dateStr}</div>`;
   }
-  if(ev.action.startsWith('checkin.')&&ev.action!=='checkin.late_reason'){
-    if(!m.time) return '';
-    const bypass=m.gps_bypassed?`<span class="dbypass">GPS bypass</span>`:'';
-    const dateStr=m.date?`<span class="dphase"><span class="dlabel">on</span><span class="dv">${esc(m.date)}</span></span>`:'';
-    return `<div class="event-detail">${dateStr}<span class="dphase"><span class="dlabel">at</span><span class="dv">${esc(m.time)}</span>${bypass}</span></div>`;
-  }
+  if(ev.action.startsWith('checkin.')&&ev.action!=='checkin.late_reason') return '';
   if(ev.action==='checkin.late_reason'&&m.reason){
     return `<div class="event-detail"><span class="dphase"><span class="dlabel">Reason</span><span class="dv">${esc(m.reason)}</span></span></div>`;
   }
@@ -937,7 +940,6 @@ function buildRow(ev){
           <div class="event-sub">
             <span class="event-cat" style="background:${esc(c.bg)};color:${esc(c.color)};">${esc(c.label)}</span>
             ${deptHtml}
-            ${metaHtml?`<span class="expand-hint">More details</span>`:''}
           </div>
         </div>
         <div class="event-time">
