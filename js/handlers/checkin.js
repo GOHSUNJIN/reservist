@@ -123,6 +123,7 @@ const CheckinHandlers = {
         const {time:serverTime,error:phErr}=await DB.attendance.logPhaseNow(currentUserId,today,key,dist,bypassed||false);
         this.setState({phaseSubmitting:false});
         if(phErr){
+          console.error('[checkin] phase='+key+' sync error:', phErr);
           if(!bypassed){
             const _mc=await DB.personnel.get(me?.auth_id).catch(()=>null);
             if(!_mc){this._toast('Your account no longer exists. Please contact your supervisor.','error');this.logout();return;}

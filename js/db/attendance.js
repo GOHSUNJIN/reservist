@@ -98,6 +98,7 @@ const DB_Attendance = {
       p_dist: dist ?? null,
       p_bypassed: bypassed || false,
     });
+    if (error) console.error('[logPhaseNow] phase='+key, error);
     return { time: data || null, error };
   },
 
