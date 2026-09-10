@@ -17,7 +17,6 @@ const AuthHandlers = {
     const {user,error} = await DB.auth.login(this.state.loginContact, this.state.loginPassword);
     if(error||!user){ this.setState({loading:false, authError:'Invalid contact number or password.'}); return; }
     await this._afterLogin(user);
-    this._log('auth', 'auth.login');
     this.setState({loginContact:'', loginPassword:''});
   },
 
@@ -104,7 +103,6 @@ const AuthHandlers = {
     if(this._sessionWarnTimer) clearTimeout(this._sessionWarnTimer);
     this._unsubscribeRealtime();
     try { localStorage.removeItem('admin_notif'); } catch(e) {}
-    this._log('auth', 'auth.logout');
     if(!this.state.demo) await DB.auth.logout();
     this.setState({
       authed:false, role:null, authMode:'login', demo:false,
@@ -242,7 +240,6 @@ const AuthHandlers = {
       this.setState({authed:false,role:null,authMode:'login',loading:false,authError:'Your session has expired. Please log in again.'});
       return;
     }
-    this._log('auth', 'auth.session_extended');
     this._sessionWarnTimer = setTimeout(()=>{ if(this.state.authed) this.setState({sessionExpiring:true}); }, 55*60*1000);
   },
 
