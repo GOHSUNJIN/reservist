@@ -1771,6 +1771,9 @@
                       <sc-if value="{{ row.showNoGps }}" hint-placeholder-val="">
                         <span style="font-size:10px;font-weight:500;padding:2px 7px;border-radius:4px;background:#eef0f4;color:#5c6678;white-space:nowrap;">No GPS</span>
                       </sc-if>
+                      <sc-if value="{{ row.showGpsDist }}" hint-placeholder-val="">
+                        <span style="font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;background:{{ row.gpsDistBg }};color:{{ row.gpsDistColor }};white-space:nowrap;">GPS · {{ row.gpsDistText }}</span>
+                      </sc-if>
                       <div onClick="{{ row.onCopyContact }}" style="font-size:11px;color:#b0b8c7;font-family:'IBM Plex Mono',monospace;cursor:pointer;">{{ row.contact }}</div>
                     </div>
                     <sc-if value="{{ row.showAnyFlags }}" hint-placeholder-val="">
