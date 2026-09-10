@@ -49,14 +49,14 @@ BEGIN
           SET status = ''present'', %I = $1, %I = $2, gps_bypassed = (gps_bypassed OR $3)
         WHERE id = $4 AND %I IS NULL AND status != ''mc''',
       v_time_col, v_dist_col, v_time_col
-    ) USING v_time || ':00', p_dist, p_bypassed, v_existing;
+    ) USING (v_time || ':00')::TIME, p_dist, p_bypassed, v_existing;
   ELSE
     EXECUTE format(
       'INSERT INTO attendance (personnel_id, date, status, %I, %I, gps_bypassed)
        VALUES ($1, $2, ''present'', $3, $4, $5)
        ON CONFLICT (personnel_id, date) DO NOTHING',
       v_time_col, v_dist_col
-    ) USING p_personnel_id, p_date, v_time || ':00', p_dist, p_bypassed;
+    ) USING p_personnel_id, p_date, (v_time || ':00')::TIME, p_dist, p_bypassed;
   END IF;
 
   RETURN v_time;
@@ -113,14 +113,14 @@ BEGIN
           SET status = ''present'', %I = $1, %I = $2, gps_bypassed = (gps_bypassed OR $3)
         WHERE id = $4 AND %I IS NULL AND status != ''mc''',
       v_time_col, v_dist_col, v_time_col
-    ) USING p_time || ':00', p_dist, p_bypassed, v_existing;
+    ) USING (p_time || ':00')::TIME, p_dist, p_bypassed, v_existing;
   ELSE
     EXECUTE format(
       'INSERT INTO attendance (personnel_id, date, status, %I, %I, gps_bypassed)
        VALUES ($1, $2, ''present'', $3, $4, $5)
        ON CONFLICT (personnel_id, date) DO NOTHING',
       v_time_col, v_dist_col
-    ) USING v_pid, p_date, p_time || ':00', p_dist, p_bypassed;
+    ) USING v_pid, p_date, (p_time || ':00')::TIME, p_dist, p_bypassed;
   END IF;
 
   RETURN 'ok';
