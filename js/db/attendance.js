@@ -78,19 +78,16 @@ const DB_Attendance = {
   },
 
   async logPhase(personnelId, dateStr, key, timeStr, dist, bypassed = false) {
-    const payload = { status: 'present', [_COL_MAP[key]]: timeStr + ':00' };
-    if (_DIST_MAP[key] && dist != null) payload[_DIST_MAP[key]] = dist;
-    if (bypassed) payload.gps_bypassed = true;
-    const existingId = await this._findRow(personnelId, dateStr);
-    if (existingId) {
-      // Prevent overwriting an approved MC and prevent stamping a time that's already recorded
-      let updateQ = _db.from('attendance').update(payload).eq('id', existingId).is(_COL_MAP[key], null);
-      if (key === 'p1') updateQ = updateQ.neq('status', 'mc');
-      const { error } = await updateQ;
-      return { error };
-    }
-    const { error } = await _db.from('attendance').insert({ personnel_id: personnelId, date: dateStr, ...payload });
-    return { error };
+    const { data, error } = await _db.rpc('log_phase_offline', {
+      p_phase: key,
+      p_date: dateStr,
+      p_time: timeStr,
+      p_dist: dist ?? null,
+      p_bypassed: bypassed || false,
+    });
+    if (error) return { error };
+    if (data && data !== 'ok') return { error: data };
+    return { error: null };
   },
 
   async logPhaseNow(personnelId, dateStr, key, dist, bypassed = false) {
