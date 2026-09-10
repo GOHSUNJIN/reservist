@@ -120,11 +120,14 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 .event-dept-chip{font-size:10.5px;font-weight:600;border-radius:5px;padding:2px 7px;white-space:nowrap;}
 
 /* ── Pagination ──────────────────────────────────────────────────────── */
-.pag-row{padding:14px 20px;display:none;align-items:center;justify-content:center;gap:12px;border-top:1px solid #f0f3f9;}
-.pag-btn{background:#fff;border:1.5px solid #e8ecf4;border-radius:8px;padding:7px 16px;font-size:13px;font-weight:600;color:#2f5fd0;transition:all .15s;cursor:pointer;}
+.pag-row{padding:14px 20px;display:none;align-items:center;justify-content:center;gap:6px;border-top:1px solid #f0f3f9;flex-wrap:wrap;}
+.pag-btn{background:#fff;border:1.5px solid #e8ecf4;border-radius:8px;padding:6px 14px;font-size:13px;font-weight:600;color:#2f5fd0;transition:all .15s;cursor:pointer;height:34px;display:flex;align-items:center;}
 .pag-btn:hover:not(:disabled){background:#f0f4ff;border-color:#2f5fd0;}
 .pag-btn:disabled{opacity:.38;cursor:not-allowed;}
-.pag-info{font-size:13px;color:#5c6678;font-weight:500;}
+.pag-num{background:#fff;border:1.5px solid #e8ecf4;border-radius:8px;width:34px;height:34px;font-size:13px;font-weight:600;color:#5c6678;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:center;}
+.pag-num:hover{background:#f0f4ff;border-color:#2f5fd0;color:#2f5fd0;}
+.pag-num.active{background:#2f5fd0;border-color:#2f5fd0;color:#fff;}
+.pag-ellipsis{font-size:13px;color:#b8c0cc;padding:0 2px;line-height:34px;}
 
 /* ── Person tooltip ──────────────────────────────────────────────────── */
 #person-tip{position:fixed;background:#fff;border:1px solid #e8ecf4;border-radius:12px;box-shadow:0 8px 28px rgba(20,30,70,.14);padding:14px 16px;z-index:999;display:none;min-width:178px;pointer-events:none;}
@@ -308,11 +311,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
       </div>
       <div id="new-events-bar" onclick="onNewEventsBanner()" style="display:none;padding:10px 20px;background:#eef3ff;border-bottom:1px solid #dce8ff;cursor:pointer;text-align:center;font-size:13px;font-weight:600;color:#2f5fd0;">New activity — click to refresh</div>
       <div id="events-list"></div>
-      <div id="pag-row" class="pag-row">
-        <button class="pag-btn" id="pag-prev" onclick="goPage(-1)">&#8592; Prev</button>
-        <span class="pag-info" id="pag-info"></span>
-        <button class="pag-btn" id="pag-next" onclick="goPage(1)">Next &#8594;</button>
-      </div>
+      <div id="pag-row" class="pag-row"></div>
     </div>
   </main>
 </div>
@@ -396,10 +395,10 @@ const META_LABELS = {
 
 function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 function initials(n){if(!n)return'?';const p=n.trim().split(/\s+/);return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():n.slice(0,2).toUpperCase();}
-function avatarBg(role){return role==='superadmin'?'#c0392b':role==='admin'?'#2f5fd0':'#8a94a3';}
+function avatarBg(role){return role==='superadmin'?'#7c3aed':role==='admin'?'#2563eb':'#64748b';}
 function roleLabel(role){return role==='superadmin'?'Master':role==='admin'?'Admin':'Reservist';}
-function roleBg(role){return role==='superadmin'?'#fef2f2':role==='admin'?'#eef2fd':'#f0f2f7';}
-function roleColor(role){return role==='superadmin'?'#c0392b':role==='admin'?'#2f5fd0':'#8a94a3';}
+function roleBg(role){return role==='superadmin'?'#ede9fe':role==='admin'?'#dbeafe':'#f1f5f9';}
+function roleColor(role){return role==='superadmin'?'#6d28d9':role==='admin'?'#1d4ed8':'#475569';}
 
 function relTime(iso){
   const diff=Math.floor((Date.now()-new Date(iso).getTime())/1000);
@@ -581,18 +580,25 @@ function renderPagination(){
   const pRow=document.getElementById('pag-row');
   if(_total<=LIMIT){pRow.style.display='none';return;}
   pRow.style.display='flex';
-  document.getElementById('pag-info').textContent=`Page ${_page+1} of ${totalPages}`;
-  document.getElementById('pag-prev').disabled=_page===0;
-  document.getElementById('pag-next').disabled=_page>=totalPages-1;
+  const pages=_pagNums(totalPages,_page);
+  let html=`<button class="pag-btn" ${_page===0?'disabled':''} onclick="goToPage(${_page-1})">&#8592;</button>`;
+  for(const p of pages){
+    if(p==='...') html+=`<span class="pag-ellipsis">…</span>`;
+    else html+=`<button class="pag-num${p===_page?' active':''}" onclick="goToPage(${p})">${p+1}</button>`;
+  }
+  html+=`<button class="pag-btn" ${_page>=totalPages-1?'disabled':''} onclick="goToPage(${_page+1})">&#8594;</button>`;
+  pRow.innerHTML=html;
 }
-
-function goPage(delta){
+function _pagNums(total,cur){
+  if(total<=7) return Array.from({length:total},(_,i)=>i);
+  if(cur<4) return [0,1,2,3,4,'...',total-1];
+  if(cur>total-5) return [0,'...',total-5,total-4,total-3,total-2,total-1];
+  return [0,'...',cur-1,cur,cur+1,'...',total-1];
+}
+function goToPage(p){
   const totalPages=Math.ceil(_total/LIMIT);
-  const np=_page+delta;
-  if(np<0||np>=totalPages) return;
-  _page=np;
-  loadEvents(false);
-  window.scrollTo({top:0,behavior:'smooth'});
+  if(p<0||p>=totalPages) return;
+  _page=p; loadEvents(false); window.scrollTo({top:0,behavior:'smooth'});
 }
 
 // ── Avatars (async signed URLs) ────────────────────────────────────────────
@@ -658,17 +664,19 @@ async function showPersonTip(el,pid){
   const body=document.getElementById('ptip-body');
   const rect=el.getBoundingClientRect();
   tip.style.top=(rect.bottom+8)+'px';
-  tip.style.left=Math.min(rect.left,window.innerWidth-200)+'px';
+  tip.style.left=Math.min(rect.left,window.innerWidth-210)+'px';
   tip.style.display='block';
   if(_tipCache[pid]===undefined){
     body.innerHTML='<div style="color:#8a94a3;font-size:12px;">Loading...</div>';
-    const{data}=await _db.from('personnel').select('contact,batches(label)').eq('id',pid).maybeSingle();
-    _tipCache[pid]=data?{contact:data.contact||'—',cycle:data.batches?.label||'No cycle'}:null;
+    const{data}=await _db.from('personnel').select('contact,department,role,batches(label)').eq('id',pid).maybeSingle();
+    if(!data){_tipCache[pid]=null;}
+    else if(data.role==='admin'||data.role==='superadmin'){_tipCache[pid]='skip';}
+    else{_tipCache[pid]={contact:data.contact||'—',dept:DEPT_LABELS[data.department]||data.department||'—',cycle:data.batches?.label||'No cycle'};}
   }
   if(tip.style.display==='none') return;
   const info=_tipCache[pid];
-  if(!info){body.innerHTML='<div style="color:#8a94a3;font-size:12px;">Not found</div>';return;}
-  body.innerHTML=`<div class="ptip-row"><div class="ptip-label">Contact</div><div class="ptip-val">${esc(info.contact)}</div></div><div class="ptip-row"><div class="ptip-label">Cycle</div><div class="ptip-val">${esc(info.cycle)}</div></div>`;
+  if(!info||info==='skip'){tip.style.display='none';return;}
+  body.innerHTML=`<div class="ptip-row"><div class="ptip-label">Contact</div><div class="ptip-val">${esc(info.contact)}</div></div><div class="ptip-row"><div class="ptip-label">Department</div><div class="ptip-val">${esc(info.dept)}</div></div><div class="ptip-row"><div class="ptip-label">Cycle</div><div class="ptip-val">${esc(info.cycle)}</div></div>`;
 }
 function hidePersonTip(){_tipHideTimer=setTimeout(()=>{document.getElementById('person-tip').style.display='none';},150);}
 document.addEventListener('mouseover',e=>{const el=e.target.closest('.has-person-tip');if(el?.dataset.pid) showPersonTip(el,el.dataset.pid);});
