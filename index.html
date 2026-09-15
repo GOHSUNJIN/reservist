@@ -3166,71 +3166,158 @@
           <button onClick="{{ closeHelp }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
         </div>
         <div style="overflow-y:auto;flex:1;padding:12px 20px 32px;">
+
+          <!-- RESERVIST FAQ -->
           <sc-if value="{{ isReservistRole }}" hint-placeholder-val="{{ true }}">
-          <div style="font-size:11px;font-weight:700;color:#8a94a3;letter-spacing:.07em;margin-bottom:10px;margin-top:4px;">FOR RESERVISTS</div>
+          <div style="font-size:11px;font-weight:700;color:#8a94a3;letter-spacing:.07em;margin-bottom:10px;margin-top:4px;">FOR RESERVISTS · {{ helpDeptLabel }}</div>
           <div style="display:flex;flex-direction:column;gap:2px;">
+
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I check in?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Open the Check-In tab and tap "Locate me" to verify your GPS. Once verified, tap Phase 1 to record your arrival. Complete Phase 2-4 as the day progresses.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Open the <strong>Check-In</strong> tab. Tap <strong>Locate me</strong> to verify your GPS position. Once GPS confirms you are within range of HQ, the button changes to <strong>Check in</strong>. Tap it to record your arrival.</div>
             </div>
+
+            <sc-if value="{{ isNotCas }}" hint-placeholder-val="{{ true }}">
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
-              <div class="text-strong">What do the four phases mean?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;"><strong>Phase 1:</strong> Arrive and check in to work.<br><strong>Phase 2:</strong> Leave for lunch or dinner break.<br><strong>Phase 3:</strong> Return from break.<br><strong>Phase 4:</strong> Check out at end of shift.</div>
+              <div class="text-strong">What are the four phases?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;"><strong>Phase 1:</strong> Arrive and check in. GPS required.<br><strong>Phase 2:</strong> Leave for lunch break.<br><strong>Phase 3:</strong> Return from lunch. GPS required.<br><strong>Phase 4:</strong> Check out at end of shift.</div>
             </div>
+            </sc-if>
+
+            <sc-if value="{{ isCas }}" hint-placeholder-val="">
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
-              <div class="text-strong">How do I request an absence?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Tap "Request absence" on the Check-In tab. Your supervisor will approve or decline, and you will be notified.</div>
+              <div class="text-strong">What are the two phases?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;"><strong>Phase 1:</strong> Arrive and check in. GPS required.<br><strong>Phase 2:</strong> Check out at end of shift.</div>
             </div>
+            </sc-if>
+
+            <sc-if value="{{ isNotLnf }}" hint-placeholder-val="{{ true }}">
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
-              <div class="text-strong">Can I check in if I'm offline?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Yes. Your check-in is queued and will sync automatically once your connection is restored.</div>
+              <div class="text-strong">What days do I report?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Monday to Friday during your active cycle. Public holidays and any stand-down days marked by your supervisor are non-reporting days. Weekends are not reporting days.</div>
             </div>
+            </sc-if>
+
+            <sc-if value="{{ isLnf }}" hint-placeholder-val="">
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
-              <div class="text-strong">What if the GPS fails?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Step outside to an open area with a clear view of the sky and try again. After several failed attempts a bypass option will appear. Use it only if GPS keeps failing, as bypassed check-ins are flagged for your supervisor.</div>
+              <div class="text-strong">What days do I report?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Monday to Saturday during your active cycle. Public holidays and any stand-down days marked by your supervisor are non-reporting days. Only Sundays are non-reporting days.</div>
             </div>
+            </sc-if>
+
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
-              <div class="text-strong">What is the work timer?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">A live work timer appears on the Check-In tab once you record Phase 1. It tracks how long you have been on duty. Your meal allowance entitlement for the cycle is shown on the <strong>Meal</strong> tab.</div>
+              <div class="text-strong">I arrived late. What do I do?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Check in as normal. If you are more than one hour late, an amber row labelled <strong>Late check-in</strong> appears on your screen. Tap it and enter a brief reason. The reason is stored and visible to your supervisor on their log.</div>
             </div>
+
+            <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
+              <div class="text-strong">How do I request MC or Personal Leave?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Tap <strong>Request absence</strong> on the Check-In tab. Select the date, choose <strong>MC</strong> or <strong>Personal Leave</strong>, add an optional reason, and submit. Your supervisor will approve or decline the request. Check the <strong>Requests</strong> tab under Info for status updates.</div>
+            </div>
+
+            <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
+              <div class="text-strong">Can I withdraw a pending request?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Yes, as long as it has not been actioned yet. Go to the <strong>Requests</strong> tab under Info, find the pending request, and tap <strong>Withdraw</strong>. Once approved or declined, it cannot be withdrawn.</div>
+            </div>
+
+            <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
+              <div class="text-strong">Can I check in if I am offline?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Yes. Your check-in is saved on the device and syncs automatically once your connection is restored. A badge appears on the nav bar while actions are queued.</div>
+            </div>
+
+            <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
+              <div class="text-strong">What if GPS cannot detect my location?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Step outside to an open area and try again. If GPS is blocked entirely (permission denied, timeout, or signal unavailable), a bypass option appears immediately. Use it only when GPS keeps failing. If GPS works but you are simply out of range, there is no bypass: move closer to HQ and retry. Bypassed check-ins are flagged for your supervisor.</div>
+            </div>
+
+            <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
+              <div class="text-strong">What is the work timer and meal allowance?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">When meal allowance is active for your cycle, a live timer on the Check-In tab tracks your total work time for the day. Once you reach 6 hours, a <strong>Meal eligible</strong> badge appears. Open the <strong>Meal</strong> tab to see your total entitlement count and a day-by-day breakdown showing MC, Personal Leave, or the reason a day was not eligible.</div>
+            </div>
+
+            <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
+              <div class="text-strong">Why is there an orange day on my calendar?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Orange means you checked in but did not record a Phase 4 clock-out. This also affects your meal allowance for that day. Inform your supervisor so they can add the correct end-of-shift time.</div>
+            </div>
+
+            <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
+              <div class="text-strong">Why is there an amber day on my calendar?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Amber means MC or approved Personal Leave. A solid amber border is an approved request. A dashed amber border is a request still awaiting approval. Red means absent with no approved leave.</div>
+            </div>
+
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;">
-              <div class="text-strong">Why is there an orange warning on my calendar?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">An orange day means you checked in but did not record a Phase 4 clock-out. Inform your supervisor so they can correct the record.</div>
+              <div class="text-strong">What happens on dekit day?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Dekit day is the equipment return and admin close-out day after your cycle ends. Bring hardcopies of any MCs submitted during the cycle. Confirm your meal allowance entitlement count with the Manpower Officer. No check-in is required on dekit day.</div>
             </div>
+
           </div>
           </sc-if>
+
+          <!-- ADMIN FAQ -->
           <sc-if value="{{ !isReservistRole }}" hint-placeholder-val="">
-          <div style="font-size:11px;font-weight:700;color:#8a94a3;letter-spacing:.07em;margin-bottom:10px;margin-top:4px;">FOR ADMINS</div>
+          <div style="font-size:11px;font-weight:700;color:#8a94a3;letter-spacing:.07em;margin-bottom:10px;margin-top:4px;">FOR ADMINS · {{ helpDeptLabel }}</div>
           <div style="display:flex;flex-direction:column;gap:2px;">
+
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I approve a new signup?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab and open the <strong>Requests</strong> sub-tab. Approve individually, or select multiple and tap "Approve selected".</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab and open the <strong>Requests</strong> sub-tab. Each signup is labelled New or Returning. Approve individually or select multiple and tap <strong>Approve selected</strong>. Approved signups are added to the active roster immediately.</div>
             </div>
+
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
-              <div class="text-strong">How do I add someone manually?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to <strong>People</strong> tab, tap <strong>Roster</strong>, then tap the <strong>+</strong> in the Personnel section. For multiple people, use the <strong>Bulk</strong> button instead.</div>
+              <div class="text-strong">How do I add personnel without a signup request?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab, open <strong>Roster</strong>, and tap the <strong>+</strong> button. For multiple people at once, tap <strong>Bulk</strong> and paste a list of names and contact numbers. To re-enroll a previously removed reservist, search by their contact number and select the match: their account and history are reactivated without creating a duplicate.</div>
             </div>
+
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
-              <div class="text-strong">How do I export attendance?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>Log</strong> tab. Tap <strong>Print</strong> for a printable PDF summary. Tap <strong>Excel</strong> for a spreadsheet download with per-person totals and attendance rates.</div>
+              <div class="text-strong">How do I approve or decline a leave or MC request?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab and open the <strong>Requests</strong> sub-tab. Pending MC and Personal Leave requests are listed there. Tap <strong>Approve</strong> to accept. Tap <strong>Decline</strong> and provide a written reason to reject. You can also select multiple requests and bulk-approve or bulk-decline in one action.</div>
             </div>
+
+            <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
+              <div class="text-strong">How do I correct a past attendance entry?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>Log</strong> tab and navigate to the date using the day arrows. Find the person's card and tap the edit icon to adjust their status or phase times. All corrections are flagged as admin-entered with your name and a timestamp.</div>
+            </div>
+
+            <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
+              <div class="text-strong">How do I close out the day and mark everyone absent?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">On the <strong>Roster</strong> tab, use the <strong>Mark all absent</strong> action. This writes an absent record for all reservists still showing as Pending. A confirmation step is required before committing. The system also does this automatically at midnight, but doing it manually confirms the day is closed.</div>
+            </div>
+
+            <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
+              <div class="text-strong">How do I find missing clock-outs?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">On the <strong>Log</strong> tab, filter by <strong>Present</strong>. Any reservist with no Phase 4 shows a dash on an orange background in the OUT column. Tap the edit icon on their card and add the correct end-of-shift time.</div>
+            </div>
+
+            <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
+              <div class="text-strong">How do I export attendance records?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>Overview</strong> tab. Tap <strong>Excel</strong> to download a colour-coded spreadsheet with per-person totals, attendance rates, and meal allowance counts. Tap <strong>Print</strong> to generate a formatted PDF-ready report. To export one person's history, open their history modal from the People or Log tab and tap <strong>Export</strong>.</div>
+            </div>
+
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I post a notice to reservists?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>Dashboard</strong> tab and tap <strong>Post notice to reservists</strong>. The message appears as a banner on every reservist's check-in screen for the duration of the cycle.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>Overview</strong> tab and scroll to the cycle management panel. Tap <strong>Post notice to reservists</strong>. The message appears as a banner on every reservist's check-in screen for the rest of the cycle.</div>
             </div>
+
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I reset a reservist's password?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to <strong>People</strong> tab, <strong>Roster</strong> sub-tab, find the person and tap <strong>Reset PW</strong>. Enter a temporary password and send it securely. They can update it in their account settings.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab, open the <strong>Roster</strong> sub-tab, find the person, and expand their card. Tap <strong>Reset PW</strong>, enter a temporary password, and share it with the reservist verbally. They can update it from their account settings.</div>
             </div>
+
+            <sc-if value="{{ isLnf }}" hint-placeholder-val="">
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
-              <div class="text-strong">How do I find reservists who forgot to clock out?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Any reservist marked Present with no Phase 4 is flagged with a "No clock-out" badge on the <strong>Log</strong> tab. Correct their time using the manual time fields on their log card.</div>
+              <div class="text-strong">Do reservists report on Saturdays?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Yes. Logistics and Finance reservists report Monday to Saturday. Saturdays are shown as normal reporting days on the Roster and Log tabs. Only Sundays and public holidays are non-reporting days. When marking stand-down days, do not mark Saturdays unless specifically directed.</div>
             </div>
+            </sc-if>
+
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;">
-              <div class="text-strong">How do I see who the other supervisors are?</div>
+              <div class="text-strong">How do I see the other supervisors?</div>
               <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab and tap the <strong>Team</strong> sub-tab. It lists all active supervisors in your department with their contacts and roles.</div>
             </div>
+
           </div>
+
+          <!-- MASTER SUB-SECTION -->
           <sc-if value="{{ isMaster }}" hint-placeholder-val="">
           <div style="font-size:11px;font-weight:700;color:#8a94a3;letter-spacing:.07em;margin-bottom:10px;margin-top:16px;">FOR MASTER ACCOUNT</div>
           <div style="display:flex;flex-direction:column;gap:2px;">
@@ -3238,12 +3325,17 @@
               <div class="text-strong">How do I switch between departments?</div>
               <div style="font-size:13px;color:#5c6678;line-height:1.55;">Use the <strong>DEPT</strong> dropdown in the header. Switching departments reloads all data for the selected department. Each department's last-selected cycle is remembered independently so switching back restores your previous context.</div>
             </div>
-            <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;">
+            <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I add or remove a supervisor?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab and open the <strong>Team</strong> sub-tab. Tap <strong>Add supervisor</strong> to create a new admin account. To remove one, tap <strong>Remove</strong> on their card. They return to the reservist pool. You can also promote any existing reservist to supervisor from the same tab.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab and open the <strong>Team</strong> sub-tab. Tap <strong>Add supervisor</strong> to create a new admin account. To remove one, tap <strong>Remove</strong> on their card and they return to the reservist pool automatically.</div>
+            </div>
+            <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;">
+              <div class="text-strong">How do I promote a reservist to supervisor?</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab, open the <strong>Team</strong> sub-tab, and tap <strong>Promote reservist</strong>. Search by name, select the person, and confirm. They are promoted to Admin immediately and will see the supervisor dashboard on their next login.</div>
             </div>
           </div>
           </sc-if>
+
           </sc-if>
         </div>
       </div>
