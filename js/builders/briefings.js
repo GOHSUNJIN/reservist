@@ -37,10 +37,11 @@ const BriefingsBuilders = {
       if(r.p2&&r.p3) return (Utils._hmToMins(r.p2)-Utils._hmToMins(r.p1))+(Utils._hmToMins(r.p4)-Utils._hmToMins(r.p3));
       return Utils._hmToMins(r.p4)-Utils._hmToMins(r.p1);
     };
+    const _leaveSet=new Set((s.myLeaveHistory||[]).filter(r=>r.status==='approved'&&r.type!=='mc').map(r=>r.date));
     const mealPresent=_h.filter(r=>r.status==='present').length;
     const mealEligibleDays=_h.filter(r=>r.status==='present'&&!!r.p4&&_workMins(r)>=360).length;
-    const mealMc=_h.filter(r=>r.status==='mc').length;
-    const mealAbsent=_h.filter(r=>(r.status==='absent'||r.status==='missed')&&r.date<=today).length;
+    const mealMc=_h.filter(r=>r.status==='mc'||(r.status==='absent'&&_leaveSet.has(r.date))).length;
+    const mealAbsent=_h.filter(r=>(r.status==='absent'||r.status==='missed')&&!_leaveSet.has(r.date)&&r.date<=today).length;
     const mealTotalDays=_h.filter(r=>r.date<=today).length;
     const mealProgressPct=mealTotalDays>0?Math.round(mealEligibleDays/mealTotalDays*100):0;
     const mealDayLabel=mealEligibleDays===1?'day':'days';
@@ -51,11 +52,12 @@ const BriefingsBuilders = {
       const isPresentNoOut=r.status==='present'&&!r.p4;
       const isPresentUnder=r.status==='present'&&!!r.p4&&!isEligible;
       const isMc=r.status==='mc';
+      const isLeave=r.status==='absent'&&_leaveSet.has(r.date);
       let label,color,bg;
       if(isEligible){label='Entitled';color='#1f8a5b';bg='#e7f3ec';}
       else if(isPresentNoOut){label='No clock-out';color='#c2410c';bg='#fff3e0';}
       else if(isPresentUnder){label='Under 6 hrs';color='#b9791a';bg='#fdf6e9';}
-      else if(isMc){label='MC / Leave';color='#b9791a';bg='#fdf6e9';}
+      else if(isMc||isLeave){label='MC / Leave';color='#b9791a';bg='#fdf6e9';}
       else{label='Absent';color='#c0392b';bg='#f7e4e1';}
       return {
         dateLabel:Utils.fmtMed(d),

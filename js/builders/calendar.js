@@ -185,6 +185,7 @@ const CalendarBuilders = {
       const _rowEx=_exDates.includes(r.date);
       const isMissed=r.status==='missed';
       const _ed2=f=>!!(r.editLog||[]).some(e=>e.fields?.includes(f));
+      const _approvedLeave=r.status==='absent'?this._findApprovedLeave(r.date):null;
       return {date:Utils.fmtMed(d),dateKey:r.date,shift:Utils.shiftLabel(me.shift),status:r.status,
         p1:p1||'-',
         p2:p2||(isPresent?'–':'-'), p3:p3||(isPresent?'–':'-'), p4:p4||(isPresent?'–':'-'),
@@ -202,7 +203,8 @@ const CalendarBuilders = {
         lateReason:r.lateReason||'',showLateReason:!!(r.lateReason)&&_rowEx&&!_ed2('p1'),
         isMissedRow:isMissed,missedNote:r.welfareNote||'',showMissedNote:false,
         onOpenMissedNote:isMissed?this.openMissedNote(r.date,r.welfareNote||''):()=>{},
-        ...Utils.meta(r.status)};
+        isPersonalLeave:!!_approvedLeave,
+        ...(_approvedLeave?{label:'Personal Leave',color:'#b9791a',bg:'#f7efdc'}:Utils.meta(r.status))};
     });
 
     const missedRows=[];
@@ -271,8 +273,8 @@ const CalendarBuilders = {
     const myHistory=[...todayRow,...futureLeaveRows,...allPast];
     const statRows=[...todayRow,...allPast];
     const statMyPresent=statRows.filter(h=>h.status==='present').length;
-    const statMyMc=statRows.filter(h=>h.status==='mc').length;
-    const statMyAbsent=statRows.filter(h=>h.status==='absent'||h.status==='missed').length;
+    const statMyMc=statRows.filter(h=>h.status==='mc'||h.isPersonalLeave).length;
+    const statMyAbsent=statRows.filter(h=>(h.status==='absent'||h.status==='missed')&&!h.isPersonalLeave).length;
     const statMyMissed=statMyAbsent; // kept for back-compat
 
     let cycleTotal=0, cycleDone=0;
