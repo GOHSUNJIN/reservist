@@ -1221,7 +1221,12 @@
                     <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;">{{ day.checkIn }} → {{ day.checkOut }}</div>
                   </sc-if>
                 </div>
-                <span style="font-size:11.5px;font-weight:700;color:{{ day.color }};background:{{ day.bg }};padding:3px 10px;border-radius:20px;white-space:nowrap;margin-left:10px;">{{ day.label }}</span>
+                <sc-if value="{{ day.isEligible }}">
+                  <span style="font-size:11.5px;font-weight:700;color:{{ day.color }};background:{{ day.bg }};padding:3px 10px;border-radius:20px;white-space:nowrap;margin-left:10px;">{{ day.label }}</span>
+                </sc-if>
+                <sc-if value="{{ !day.isEligible }}">
+                  <span style="font-size:12px;font-weight:500;color:{{ day.color }};white-space:nowrap;margin-left:10px;">{{ day.label }}</span>
+                </sc-if>
               </div>
             </sc-for>
           </div>
