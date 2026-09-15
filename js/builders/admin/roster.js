@@ -242,8 +242,8 @@ const AdminRoster = {
         const _M=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],_W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
         const _phFiltered=_phFilter==='all'?_phAll:_phAll.filter(r=>{
           if(_phFilter==='present') return r.status==='present';
-          if(_phFilter==='mc') return r.status==='mc';
-          if(_phFilter==='absent') return r.status==='absent';
+          if(_phFilter==='mc') return r.status==='mc'||(_phLeaveSet.has(r.date)&&r.status==='absent');
+          if(_phFilter==='absent') return r.status==='absent'&&!_phLeaveSet.has(r.date);
           return true;
         });
         const _phPS=15,_phTotalPages=Math.max(1,Math.ceil(_phFiltered.length/_phPS));

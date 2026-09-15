@@ -114,7 +114,7 @@ const RequestHandlers = {
         else if(leave.type==='personal'||leave.type==='other') ops.push(DB.attendance.upsert(leave.personnel_id,leave.date,'absent',{}).catch(()=>{}));
         if(ops.length) await Promise.all(ops);
       }));
-      const todayKey=Utils.dateKey(this.baseDate?this.baseDate():new Date());
+      const todayKey=Utils.dateKey(this.baseDate());
       if(leaveSelectedIds.some(id=>pendingLeaves.find(l=>l.id===id)?.date===todayKey)){
         const freshAtt=await DB.attendance.getForDate(todayKey).catch(()=>null);
         if(freshAtt) this.setState({attendance:freshAtt,attendanceDate:todayKey});
