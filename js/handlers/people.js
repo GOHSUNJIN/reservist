@@ -170,7 +170,7 @@ const PeopleHandlers = {
     for(const r of valid){
       const existing=await DB.personnel.findByContact(r.contact, this._myDept()).catch(()=>null);
       if(existing){
-        if(!existing.is_active){const {error}=await DB.personnel.reactivate(existing.id,{batchId:batch.id,shift:r.shift});error?failed++:added++;}
+        if(!existing.is_active){const {error}=await DB.personnel.reactivate(existing.id,{batchId:batch.id,shift:r.shift});if(!error){this._backfillAbsent(existing.id,batch,this._myDept()).catch(()=>{});added++;}else failed++;}
         else skipped++;
         continue;
       }

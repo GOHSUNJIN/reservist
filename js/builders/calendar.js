@@ -261,7 +261,7 @@ const CalendarBuilders = {
       }
     }
 
-    const futureApprovedMcCount=futureLeaveRows.filter(r=>r.status==='mc').length;
+    const futureApprovedMcCount=futureLeaveRows.filter(r=>r.status==='mc'||r.status==='absent').length;
 
     let _lastMonth='';
     allPast.forEach(r=>{
