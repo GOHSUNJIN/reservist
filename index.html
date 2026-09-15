@@ -1221,12 +1221,7 @@
                     <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;">{{ day.checkIn }} → {{ day.checkOut }}</div>
                   </sc-if>
                 </div>
-                <sc-if value="{{ day.isEligible }}">
-                  <span style="font-size:11.5px;font-weight:700;color:{{ day.color }};background:{{ day.bg }};padding:3px 10px;border-radius:20px;white-space:nowrap;margin-left:10px;">{{ day.label }}</span>
-                </sc-if>
-                <sc-if value="{{ !day.isEligible }}">
-                  <span style="font-size:12px;font-weight:500;color:{{ day.color }};white-space:nowrap;margin-left:10px;">{{ day.label }}</span>
-                </sc-if>
+                <span style="font-size:11.5px;font-weight:700;color:{{ day.color }};background:{{ day.bg }};padding:3px 10px;border-radius:20px;white-space:nowrap;margin-left:10px;">{{ day.label }}</span>
               </div>
             </sc-for>
           </div>
@@ -1245,7 +1240,7 @@
                 </div>
                 <span style="font-size:12px;font-weight:600;color:#1f8a5b;white-space:nowrap;margin-left:8px;margin-top:2px;">+1 allowance</span>
               </div>
-              <div style="display:flex;align-items:flex-start;padding:9px 0;border-bottom:1px solid #f2f4f7;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f2f4f7;">
                 <div style="display:flex;align-items:flex-start;gap:9px;">
                   <div style="width:8px;height:8px;border-radius:50%;background:#ea580c;flex:0 0 auto;margin-top:4px;"></div>
                   <div>
@@ -1253,8 +1248,9 @@
                     <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;">Checked in but did not clock out</div>
                   </div>
                 </div>
+                <span style="font-size:12px;font-weight:500;color:#8a94a3;white-space:nowrap;margin-left:8px;margin-top:2px;">No allowance</span>
               </div>
-              <div style="display:flex;align-items:flex-start;padding:9px 0;border-bottom:1px solid #f2f4f7;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f2f4f7;">
                 <div style="display:flex;align-items:flex-start;gap:9px;">
                   <div style="width:8px;height:8px;border-radius:50%;background:#e8a020;flex:0 0 auto;margin-top:4px;"></div>
                   <div>
@@ -1262,8 +1258,9 @@
                     <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;">Present but short, or on approved leave</div>
                   </div>
                 </div>
+                <span style="font-size:12px;font-weight:500;color:#8a94a3;white-space:nowrap;margin-left:8px;margin-top:2px;">No allowance</span>
               </div>
-              <div style="display:flex;align-items:flex-start;padding:9px 0 4px;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;padding:9px 0 4px;">
                 <div style="display:flex;align-items:flex-start;gap:9px;">
                   <div style="width:8px;height:8px;border-radius:50%;background:#c0392b;flex:0 0 auto;margin-top:4px;"></div>
                   <div>
@@ -1271,6 +1268,7 @@
                     <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;">Did not report for duty</div>
                   </div>
                 </div>
+                <span style="font-size:12px;font-weight:500;color:#8a94a3;white-space:nowrap;margin-left:8px;margin-top:2px;">No allowance</span>
               </div>
             </div>
           </div>
