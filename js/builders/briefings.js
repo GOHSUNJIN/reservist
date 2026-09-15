@@ -55,7 +55,7 @@ const BriefingsBuilders = {
       const isLeave=r.status==='absent'&&_leaveSet.has(r.date);
       let label,color,bg;
       if(isEligible){label='Entitled';color='#1f8a5b';bg='#e7f3ec';}
-      else if(isPresentNoOut){label='No clock-out';color='#c2410c';bg='#fff3e0';}
+      else if(isPresentNoOut){label='No clock-out';color='#ea580c';bg='#fff3e0';}
       else if(isPresentUnder){label='Under 6 hrs';color='#b9791a';bg='#fdf6e9';}
       else if(isMc){label='MC';color='#b9791a';bg='#fdf6e9';}
       else if(isLeave){label='Personal Leave';color='#b9791a';bg='#f7efdc';}
