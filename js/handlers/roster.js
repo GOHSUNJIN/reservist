@@ -37,7 +37,7 @@ const RosterHandlers = {
         if(!this.state.isOnline){
             this._queuePush({type:'status',id,date:dk,status,extras:status==='present'&&p1?{time:p1,dist:prev.p1dist}:{}});
           this._haptic(40);
-          this._toast({present:'Marked present (queued)',mc:'Marked MC (queued)',absent:'Marked absent (queued)'}[status]||'Queued');
+          this._toast({present:'Marked Present (queued)',mc:'Marked MC (queued)',absent:'Marked Absent (queued)'}[status]||'Queued');
           return;
         }
         const {error}=await DB.attendance.upsert(id,dk,status,status==='present'&&p1?{time:p1,dist:prev.p1dist}:{});
@@ -54,7 +54,7 @@ const RosterHandlers = {
       }
       this._statusSubmitting.delete(id);
       this._haptic(40);
-      this._toast({present:'Marked present',mc:'Marked MC',absent:'Marked absent'}[status]||'Updated');
+      this._toast({present:'Marked Present',mc:'Marked MC',absent:'Marked Absent'}[status]||'Updated');
       const person = this.state.personnel.find(p => p.id === id);
       this._log('attendance', 'roster.status_set', { date: dk, status, prev_status: prev.status || null, target_id: id, target_name: person?.name || '' });
     };
