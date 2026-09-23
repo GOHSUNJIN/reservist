@@ -420,7 +420,7 @@ ${colsXml}
   .P{background:#e8f5e9;color:#2e7d32;font-weight:700;}
   .Ps{background:#c8e6c9;color:#1b5e20;font-weight:700;}
   .MC{background:#fff8e1;color:#e65100;font-weight:700;}
-  .A{color:#9aa3b2;}
+  .A{background:#fde8e8;color:#c62828;font-weight:700;}
   .total-row td{background:#f5f7fa;font-weight:700;border-top:2px solid #c8d0dc;}
   .legend{margin-top:10px;font-size:10px;color:#9aa3b2;}
 </style>
