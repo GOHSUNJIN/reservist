@@ -123,13 +123,13 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Bulk no-report days**: Paste a list of dates to mark multiple non-reporting days in a single action.
 - **Cycle notice board (broadcast)**: Post a short notice that appears on every reservist's check-in screen for the duration of the cycle. The notice is scoped to the active department and does not appear to reservists in other departments.
 - **Meal allowance toggle**: Enable or disable meal allowance per cycle. When active, the work timer and meal eligibility calculations are shown to reservists.
-- **Cycle picker**: Browse all cycles grouped by year with a visual picker.
+- **Cycle picker**: Browse all cycles grouped by year with a visual picker. Each cycle row shows a colour-coded tag: Live (green) for the currently active cycle, Upcoming (grey) for future cycles, and Past (slate blue) for completed ones. The active cycle is always shown first in the list.
 - **Cycle management**: Create and label reporting cycles. The system prepares the next 8 cycles automatically on every admin login.
 - **Batch label editing**: Rename any cycle label inline without navigating away.
 
 **Export and Reporting:**
-- **Excel export**: Export the full attendance matrix for any cycle as a real Excel workbook (.xlsx). Includes per-person rates, totals, a legend, colour-coded status cells, and a dedicated Meal column showing how many days each reservist was eligible for meal allowance (clocked out with 6h+ worked). The sheet opens with a styled title row and consistent row heights. The header rows freeze so they stay visible when scrolling down. Attendance rates are calculated as present days divided by recorded days (present + MC + absent), matching the People tab, so mid-cycle exports show accurate rates rather than rates diluted by future unrecorded days.
-- **Print report**: Generate a formatted A4 attendance report, printable or saveable as PDF directly from the browser without leaving the app. Includes a Meal Claims summary stat and per-person meal-eligible day count alongside the attendance totals.
+- **Excel export**: Export the full attendance matrix for any cycle as a real Excel workbook (.xlsx). Includes per-person rates, totals, a legend, colour-coded status cells, and a dedicated Meal column showing how many days each reservist was eligible for meal allowance (clocked out with 6h+ worked). The Shift column shows the department label (Ops Security, Crime Prevention, or Logistics and Finance) and a Contact column shows each person's phone number. The sheet opens with a styled title row and consistent row heights. The header rows freeze so they stay visible when scrolling down. Attendance rates are calculated as present days divided by recorded days (present + MC + absent), matching the People tab, so mid-cycle exports show accurate rates rather than rates diluted by future unrecorded days.
+- **Print report**: Generate a formatted A4 attendance report, printable or saveable as PDF directly from the browser without leaving the app. Includes a Meal Claims summary stat and per-person meal-eligible day count alongside the attendance totals. The Shift column shows the department label and a Contact column shows each person's phone number. Absent cells are shown with a red background. Future dates with no record yet are shown as a blue P (Pending) rather than red A, so absences are not inflated by days that have not happened yet.
 - **WhatsApp attendance summary**: One tap generates the day's attendance summary. A preview modal lets you review and edit the text, copy it to clipboard, or send it directly to the unit group chat.
 - **Per-person history export**: Export any individual's attendance history to Excel (.xlsx) from within the history modal. Rows are colour-coded by status (present, MC, absent, leave).
 
@@ -1008,6 +1008,7 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 
 #### Cycle management
 - [ ] Open cycle picker from Overview tab
+- [ ] Cycle picker shows correct tags: Live (green) on the active cycle, Past (slate blue) on completed cycles, Upcoming (grey) on future cycles; active cycle shown first
 - [ ] Set a cycle as Live: only that cycle is live, previous live cycle is no longer live
 - [ ] Label editing: rename a cycle inline
 - [ ] Add a no-report day: date highlighted in slate on reservist calendar
@@ -1016,8 +1017,8 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Post broadcast notice: text appears on reservist check-in screen
 
 #### Export and reporting
-- [ ] Export Excel: file downloads, all columns present, colour-coding correct, headers freeze
-- [ ] Print report: print preview opens, A4 formatted, includes Meal column
+- [ ] Export Excel: file downloads, all columns present (Name, Shift showing department label, Contact, dates, P, MC, A, Meal, Rate), colour-coding correct, headers freeze
+- [ ] Print report: print preview opens, A4 formatted, includes Meal column, Contact column, department label in Shift, red absent cells, blue P for future pending dates
 - [ ] Export person history from history modal: file downloads with that person's records
 
 ---
