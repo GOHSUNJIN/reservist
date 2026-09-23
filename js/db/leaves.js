@@ -88,6 +88,17 @@ const DB_Leaves = {
     return data || [];
   },
 
+  async adminCreatePersonalLeave(personnelId, date, reviewedBy) {
+    await _db.from('leave_requests').delete()
+      .eq('personnel_id', personnelId).eq('date', date)
+      .in('status', ['pending', 'approved']).catch(() => {});
+    const { data, error } = await _db.from('leave_requests').insert({
+      personnel_id: personnelId, date, type: 'personal', status: 'approved',
+      reviewed_by: reviewedBy, reviewed_at: new Date().toISOString(),
+    }).select().maybeSingle();
+    return { data, error };
+  },
+
   async listApprovedInRange(startDate, endDate) {
     const { data } = await _db.from('leave_requests')
       .select('personnel_id, date, type')

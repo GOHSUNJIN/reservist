@@ -60,6 +60,40 @@ const RosterHandlers = {
     };
   },
 
+  setStatusFromSelect: function(id) {
+    return (e) => {
+      const val = e.target.value;
+      if(!val) return;
+      if(val === 'personal_leave') { this.markPersonalLeave(id)(); return; }
+      if(val === 'absent') {
+        const off=this.state.viewOffset||0, dk=Utils.dateKey(this.dateForOffset(off));
+        if(this.state.approvedLeavesCache?.[dk]?.[id]){
+          DB.leaves.voidApprovedForDate(id,dk).catch(()=>{});
+          this.setState(s=>{const c={...s.approvedLeavesCache};if(c[dk]){const d={...c[dk]};delete d[id];c[dk]=d;}return{approvedLeavesCache:c};});
+        }
+      }
+      this.setStatus(id, val)();
+    };
+  },
+
+  markPersonalLeave: function(id) {
+    return async () => {
+      const off=this.state.viewOffset||0;
+      if(off>0) return;
+      const dk=Utils.dateKey(this.dateForOffset(off));
+      await this.setStatus(id,'absent')();
+      if(this.state.demo) return;
+      const {error}=await DB.leaves.adminCreatePersonalLeave(id,dk,this.state.me?.name||'Admin').catch(e=>({error:e}));
+      if(error){this._toast('Could not set personal leave.','error');return;}
+      const leaves=await DB.leaves.listApprovedForDate(dk).catch(()=>[]);
+      const leaveMap={};for(const l of leaves)leaveMap[l.personnel_id]=l;
+      this.setState(s=>({approvedLeavesCache:{...s.approvedLeavesCache,[dk]:leaveMap}}));
+      this._toast('Marked as Personal Leave');
+      const person=this.state.personnel.find(p=>p.id===id);
+      this._log('attendance','roster.status_set',{date:dk,status:'personal_leave',target_id:id,target_name:person?.name||''});
+    };
+  },
+
   askMarkAllAbsent:    function() { this.setState({confirmMarkAllAbsent:true}); },
   cancelMarkAllAbsent: function() { this.setState({confirmMarkAllAbsent:false}); },
 
