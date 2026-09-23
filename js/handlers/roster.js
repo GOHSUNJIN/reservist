@@ -88,8 +88,9 @@ const RosterHandlers = {
       const dk=Utils.dateKey(this.dateForOffset(off));
       await this.setStatus(id,'absent')();
       if(this.state.demo) return;
-      const {error}=await DB.leaves.adminCreatePersonalLeave(id,dk,this.state.me?.name||'Admin').catch(e=>({error:e}));
-      if(error){this._toast('Could not set personal leave.','error');return;}
+      console.log('[PersonalLeave] attempting id:', id, 'date:', dk, 'admin:', this.state.me?.name||'Admin');
+      const {error}=await DB.leaves.adminCreatePersonalLeave(id,dk,this.state.me?.name||'Admin').catch(e=>{console.error('[PersonalLeave] exception caught',e);return{error:e};});
+      if(error){console.error('[PersonalLeave] insert failed', JSON.stringify(error));this._toast('Could not set personal leave.','error');return;}
       const leaves=await DB.leaves.listApprovedForDate(dk).catch(()=>[]);
       const leaveMap={};for(const l of leaves)leaveMap[l.personnel_id]=l;
       this.setState(s=>({approvedLeavesCache:{...s.approvedLeavesCache,[dk]:leaveMap}}));
