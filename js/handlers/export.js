@@ -33,7 +33,7 @@ const ExportHandlers = {
       const meal=entries.filter(_mealElig).length;
       const recorded=pres+mc+abs;
       const pct=recorded>0?Math.round(pres/recorded*100):null;
-      return {name:p.name, shift:Utils.deptLabel(p.department)||p.shift||'-', entries, pres, mc, abs, meal, pct};
+      return {name:p.name, shift:Utils.deptLabel(p.department)||p.shift||'-', contact:p.contact||'-', entries, pres, mc, abs, meal, pct};
     });
   },
 
@@ -77,7 +77,7 @@ const ExportHandlers = {
     const sc=(row,c,val,xf)=>`<c r="${cr(row,c)}" s="${xf}" t="inlineStr"><is><t>${xe(String(val))}</t></is></c>`;
     const ec=(row,c,xf)=>`<c r="${cr(row,c)}" s="${xf}"/>`;
 
-    const D=dates.length, TC=7+D, lastCol=col(TC);
+    const D=dates.length, TC=8+D, lastCol=col(TC);
 
     // ── Font definitions ────────────────────────────────────────────────────
     // Index:  0=normal-black  1=bold-navy  2=normal-slate  3=bold-white
@@ -169,8 +169,8 @@ const ExportHandlers = {
 </styleSheet>`;
 
     // ── sheet1.xml ──────────────────────────────────────────────────────────
-    const col3=D>0?`<col min="3" max="${2+D}" width="11" customWidth="1"/>`:'';
-    const colsXml=`<cols><col min="1" max="1" width="24" customWidth="1"/><col min="2" max="2" width="8" customWidth="1"/>${col3}<col min="${3+D}" max="${7+D}" width="8" customWidth="1"/></cols>`;
+    const col4=D>0?`<col min="4" max="${3+D}" width="11" customWidth="1"/>`:'';
+    const colsXml=`<cols><col min="1" max="1" width="24" customWidth="1"/><col min="2" max="2" width="8" customWidth="1"/><col min="3" max="3" width="14" customWidth="1"/>${col4}<col min="${4+D}" max="${8+D}" width="8" customWidth="1"/></cols>`;
 
     const rows=[];
     let r=1;
@@ -193,10 +193,10 @@ const ExportHandlers = {
     // Header row (row 7)
     r++;
     rows.push(`<row r="${r}" ht="20" customHeight="1">${[
-      sc(r,1,'Name',XF.hdrL),sc(r,2,'Shift',XF.hdrC),
-      ...dates.map((d,i)=>sc(r,3+i,fmtDay(d)+' '+fmtDate(d),XF.hdrC)),
-      sc(r,3+D,'Present',XF.hdrC),sc(r,4+D,'MC',XF.hdrC),
-      sc(r,5+D,'Absent',XF.hdrC),sc(r,6+D,'Meal',XF.hdrC),sc(r,7+D,'Rate',XF.hdrC),
+      sc(r,1,'Name',XF.hdrL),sc(r,2,'Shift',XF.hdrC),sc(r,3,'Contact',XF.hdrL),
+      ...dates.map((d,i)=>sc(r,4+i,fmtDay(d)+' '+fmtDate(d),XF.hdrC)),
+      sc(r,4+D,'Present',XF.hdrC),sc(r,5+D,'MC',XF.hdrC),
+      sc(r,6+D,'Absent',XF.hdrC),sc(r,7+D,'Meal',XF.hdrC),sc(r,8+D,'Rate',XF.hdrC),
     ].join('')}</row>`);
 
     // Data rows (start at row 8)
@@ -205,25 +205,25 @@ const ExportHandlers = {
       const E=idx%2===0;
       const dataCells=rd.cells.map((c,i)=>{
         const xf=c.xf?XF[c.xf]:(E?XF.dashE:XF.dashO);
-        return sc(r,3+i,c.code,xf);
+        return sc(r,4+i,c.code,xf);
       });
       rows.push(`<row r="${r}" ht="20" customHeight="1">${[
-        sc(r,1,rd.name,E?XF.nameE:XF.nameO),sc(r,2,rd.shift,E?XF.shiftE:XF.shiftO),
+        sc(r,1,rd.name,E?XF.nameE:XF.nameO),sc(r,2,rd.shift,E?XF.shiftE:XF.shiftO),sc(r,3,rd.contact,E?XF.shiftE:XF.shiftO),
         ...dataCells,
-        sc(r,3+D,rd.pres,E?XF.numGE:XF.numGO),sc(r,4+D,rd.mc,E?XF.numAE:XF.numAO),
-        sc(r,5+D,rd.abs,E?XF.numRE:XF.numRO),sc(r,6+D,rd.meal,E?XF.numAE:XF.numAO),
-        sc(r,7+D,rd.pct!=null?rd.pct+'%':'-',rateSid(rd.pct,E)),
+        sc(r,4+D,rd.pres,E?XF.numGE:XF.numGO),sc(r,5+D,rd.mc,E?XF.numAE:XF.numAO),
+        sc(r,6+D,rd.abs,E?XF.numRE:XF.numRO),sc(r,7+D,rd.meal,E?XF.numAE:XF.numAO),
+        sc(r,8+D,rd.pct!=null?rd.pct+'%':'-',rateSid(rd.pct,E)),
       ].join('')}</row>`);
     });
 
     // Total row
     const totRow=++r;
     rows.push(`<row r="${totRow}" ht="20" customHeight="1">${[
-      sc(totRow,1,'TOTAL',XF.totL),ec(totRow,2,XF.totC),
-      ...Array.from({length:D},(_,i)=>ec(totRow,3+i,XF.totC)),
-      sc(totRow,3+D,totPres,XF.totG),sc(totRow,4+D,totMc,XF.totA),
-      sc(totRow,5+D,totAbs,XF.totR),sc(totRow,6+D,totMeal,XF.totA),
-      sc(totRow,7+D,totPct!=null?totPct+'%':'-',rateSidTot(totPct)),
+      sc(totRow,1,'TOTAL',XF.totL),ec(totRow,2,XF.totC),ec(totRow,3,XF.totC),
+      ...Array.from({length:D},(_,i)=>ec(totRow,4+i,XF.totC)),
+      sc(totRow,4+D,totPres,XF.totG),sc(totRow,5+D,totMc,XF.totA),
+      sc(totRow,6+D,totAbs,XF.totR),sc(totRow,7+D,totMeal,XF.totA),
+      sc(totRow,8+D,totPct!=null?totPct+'%':'-',rateSidTot(totPct)),
     ].join('')}</row>`);
 
     // Spacer + legend
@@ -236,7 +236,7 @@ const ExportHandlers = {
       `<mergeCell ref="B3:${lastCol}3"/>`,
       `<mergeCell ref="B4:${lastCol}4"/>`,
       `<mergeCell ref="B5:${lastCol}5"/>`,
-      `<mergeCell ref="A${totRow}:B${totRow}"/>`,
+      `<mergeCell ref="A${totRow}:C${totRow}"/>`,
       `<mergeCell ref="A${legRow}:${lastCol}${legRow}"/>`,
     ];
 
@@ -326,6 +326,7 @@ ${colsXml}
       return `<tr>
         <td class="name">${xe(r.name)}</td>
         <td class="shift">${xe(r.shift)}</td>
+        <td class="shift">${xe(r.contact)}</td>
         ${dayCells}
         <td class="tot">${r.pres}</td>
         <td class="tot mc">${r.mc}</td>
@@ -355,13 +356,14 @@ ${colsXml}
   <thead><tr>
     <th style="text-align:left;position:sticky;left:0;background:#f0f2f5;z-index:1;">Name</th>
     <th style="text-align:left;">Shift</th>
+    <th style="text-align:left;">Contact</th>
     ${headCols}
     <th>P</th><th>MC</th><th>A</th><th>Meal</th><th>Rate</th>
   </tr></thead>
   <tbody>
     ${bodyRows}
     <tr class="total-row">
-      <td class="name" colspan="2">TOTAL</td>
+      <td class="name" colspan="3">TOTAL</td>
       ${dates.map(()=>'<td></td>').join('')}
       <td>${totPres}</td><td class="mc">${totMc}</td><td class="ab">${totAbs}</td><td class="meal">${totMeal}</td>
       <td style="color:${totPct>=80?'#2e7d32':totPct>=60?'#e65100':'#c62828'};font-weight:700;">${totPct}%</td>
