@@ -145,7 +145,7 @@ const CheckinBuilders = {
     const _lateMs=rec.p1?(()=>{const[h,m]=rec.p1.split(':').map(Number);return(h*60+m)-(_sc*60+_sm);})():0;
     const isLate=_lateMs>=60;
     const p1AdminEdited=(rec.editLog||[]).some(e=>e.fields?.includes('p1'));
-    const incompletePastRec=s.history.find(r=>r.status==='present'&&(isCas?!r.p4:(!r.p2||!r.p3||!r.p4)));
+    const incompletePastRec=myBatch?s.history.find(r=>r.date>=myBatch.start_date&&r.date<=myBatch.end_date&&r.status==='present'&&(isCas?!r.p4:(!r.p2||!r.p3||!r.p4))):null;
     const hasIncompletePast=!!incompletePastRec;
     const incompletePastDate=hasIncompletePast?Utils.fmtMed(new Date(incompletePastRec.date+'T00:00:00')):'';
     const _waDate=Utils.fmtMed(this.baseDate());
