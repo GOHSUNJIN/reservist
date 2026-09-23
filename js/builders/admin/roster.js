@@ -25,7 +25,7 @@ const AdminRoster = {
       const _bOff=(c)=>_bBase+'border:1.5px solid '+c+';color:'+c+';background:transparent;';
       const _sPending=r.status==='pending', _sPresent=_isPresent, _sMc=_isMc, _sPersonalLeave=_selPersonalLeave, _sAbsent=_isAbsent;
       const _selBase='padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;width:100%;box-sizing:border-box;margin-top:9px;';
-      const statusSelectStylePending=_selBase+'border:1.5px solid #9aa3b2;color:#5c6678;background:#f6f8fa;';
+      const statusSelectStylePending=_selBase+'border:1.5px solid #2f5fd0;color:#2f5fd0;background:#eef3fc;';
       const statusSelectStylePresent=_selBase+'border:1.5px solid #1f8a5b;color:#1f8a5b;background:#e7f3ec;';
       const statusSelectStyleMc=_selBase+'border:1.5px solid #b9791a;color:#b9791a;background:#fdf0dc;';
       const statusSelectStylePersonalLeave=_selBase+'border:1.5px solid #b9791a;color:#b9791a;background:#fdf0dc;';
