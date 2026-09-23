@@ -1,4 +1,4 @@
-const CACHE = 'ops-v182';
+const CACHE = 'ops-v183';
 const APP_ASSETS = [
   './',
   './index.html',

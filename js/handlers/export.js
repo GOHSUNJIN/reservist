@@ -33,7 +33,7 @@ const ExportHandlers = {
       const meal=entries.filter(_mealElig).length;
       const recorded=pres+mc+abs;
       const pct=recorded>0?Math.round(pres/recorded*100):null;
-      return {name:p.name, shift:p.shift||'-', entries, pres, mc, abs, meal, pct};
+      return {name:p.name, shift:Utils.deptLabel(p.department)||p.shift||'-', entries, pres, mc, abs, meal, pct};
     });
   },
 
