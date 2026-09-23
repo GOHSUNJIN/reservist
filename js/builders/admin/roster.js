@@ -25,12 +25,11 @@ const AdminRoster = {
       const _bOff=(c)=>_bBase+'border:1.5px solid '+c+';color:'+c+';background:transparent;';
       const _sPending=r.status==='pending', _sPresent=_isPresent, _sMc=_isMc, _sPersonalLeave=_selPersonalLeave, _sAbsent=_isAbsent;
       const _selBase='padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;width:100%;box-sizing:border-box;margin-top:9px;';
-      const _selColor='color:#161f30;';
-      const statusSelectStylePending=_selBase+'border:1.5px solid #2f5fd0;background:#eef3fc;'+_selColor;
-      const statusSelectStylePresent=_selBase+'border:1.5px solid #1f8a5b;background:#e7f3ec;'+_selColor;
-      const statusSelectStyleMc=_selBase+'border:1.5px solid #b9791a;background:#fdf0dc;'+_selColor;
-      const statusSelectStylePersonalLeave=_selBase+'border:1.5px solid #b9791a;background:#fdf0dc;'+_selColor;
-      const statusSelectStyleAbsent=_selBase+'border:1.5px solid #c0392b;background:#fdf4f3;'+_selColor;
+      const statusSelectStylePending=_selBase+'border:1.5px solid #2f5fd0;color:#2f5fd0;background:#fff;';
+      const statusSelectStylePresent=_selBase+'border:1.5px solid #1f8a5b;color:#1f8a5b;background:#fff;';
+      const statusSelectStyleMc=_selBase+'border:1.5px solid #b9791a;color:#b9791a;background:#fff;';
+      const statusSelectStylePersonalLeave=_selBase+'border:1.5px solid #b9791a;color:#b9791a;background:#fff;';
+      const statusSelectStyleAbsent=_selBase+'border:1.5px solid #c0392b;color:#c0392b;background:#fff;';
       return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shiftWindow:Utils.shiftWindow(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markStatusSelect:self.setStatusFromSelect(p.id),statusIsPending:_sPending,statusIsPresent:_sPresent,statusIsMc:_sMc,statusIsPersonalLeave:_sPersonalLeave,statusIsAbsent:_sAbsent,statusSelectStylePending,statusSelectStylePresent,statusSelectStyleMc,statusSelectStylePersonalLeave,statusSelectStyleAbsent,onViewHistory:self.openPersonHistory(p.id),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0,
         lowAttendance:s.peopleStatsLoaded&&_pct!==null&&_pct<75,
         statPctText:s.peopleStatsLoaded&&_pct!==null?(_pct+'%'):'',
