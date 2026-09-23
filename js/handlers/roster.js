@@ -175,7 +175,7 @@ const RosterHandlers = {
       if(!members&&!b.is_live){members=await DB.personnel.list(b.id,false,this._myDept()).catch(()=>[]);this.setState(s=>({batchMembersCache:{...s.batchMembersCache,[b.id]:members}}));}
       const cachedNrd=this.state.noReportDaysCache[b.id];
       const [nrd,attMap]=await Promise.all([
-        cachedNrd?Promise.resolve(cachedNrd):DB.noReportDays.list(b.start_date,b.dekit_date||b.end_date).catch(()=>new Set()),
+        cachedNrd?Promise.resolve(cachedNrd):DB.noReportDays.list(b.start_date,b.dekit_date||b.end_date,this._myDept()).catch(()=>new Set()),
         b.is_live?Promise.resolve({}):DB.attendance.getForBatch(b.start_date,b.end_date).catch(()=>({})),
       ]);
       this.setState(s=>({activeBatchIdx:ni,viewOffset:off,selectedCalOffset:null,attendanceCache:b.is_live?{}:{...s.attendanceCache,...attMap},noReportDays:nrd,noReportDaysCache:cachedNrd?s.noReportDaysCache:{...s.noReportDaysCache,[b.id]:nrd},batchLoading:false,rosterSearch:'',logSearch:'',confirmMarkAllAbsent:false}));
