@@ -219,6 +219,7 @@ const AdminPeople = {
             hasRejectionReason:!!(l.rejection_reason&&l.status==='rejected'),
           });}),
           hasProcessedLeaves:(s.processedLeaves||[]).length>0,
+          processedLeavesCount:(s.processedLeaves||[]).length,
           processedLeavesHidden:!!(s.processedLeavesHidden),
           toggleProcessedLeaves:()=>self.setState({processedLeavesHidden:!s.processedLeavesHidden}),
           processedLeavesSearch:s.processedLeavesSearch||'',
