@@ -16,7 +16,7 @@ const AdminBatch = {
       else if(isPast) chipStyle+='background:#f6f8fa;color:#8a94a3;border:1px solid #e3e6ec;';
       else chipStyle+='background:#fff;color:#5c6678;border:1px solid #d4d9e2;';
       return {label:b.label, range:Utils.fmtShort(bs)+' to '+Utils.fmtShort(be), onClick:self.setBatch(i), style:chipStyle, isPast, isActive, isFuture, startDate:b.start_date,
-        showPastTag:isPast&&!isActive, showUpcomingTag:isFuture&&!isActive,
+        showPastTag:isPast&&!isActive, showUpcomingTag:isFuture&&!isActive, showLiveTag:b.is_live&&!isActive,
         pickerBg:isActive?'#eef3fc':'#fff', pickerLabelColor:isActive?'#2f5fd0':'#161f30'};
     });
     const activeChips=allChips.filter(c=>!c.isPast);
