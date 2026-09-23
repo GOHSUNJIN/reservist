@@ -1662,12 +1662,47 @@
               </div>
             </sc-if>
             <sc-if value="{{ row.canMark }}" hint-placeholder-val="">
-              <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:9px;">
-                <button onClick="{{ row.markPresent }}" style="{{ row.btnPresentStyle }}">Present</button>
-                <button onClick="{{ row.markMc }}" style="{{ row.btnMcStyle }}">MC</button>
-                <button onClick="{{ row.markPersonalLeave }}" style="{{ row.btnPersonalLeaveStyle }}">Personal Leave</button>
-                <button onClick="{{ row.markAbsent }}" style="{{ row.btnAbsentStyle }}">Absent</button>
-              </div>
+              <sc-if value="{{ row.statusIsPending }}" hint-placeholder-val="">
+                <select onChange="{{ row.markStatusSelect }}" style="{{ row.statusSelectStylePending }}">
+                  <option value="" selected>— Mark status —</option>
+                  <option value="present">Present</option>
+                  <option value="mc">MC</option>
+                  <option value="personal_leave">Personal Leave</option>
+                  <option value="absent">Absent</option>
+                </select>
+              </sc-if>
+              <sc-if value="{{ row.statusIsPresent }}" hint-placeholder-val="">
+                <select onChange="{{ row.markStatusSelect }}" style="{{ row.statusSelectStylePresent }}">
+                  <option value="present" selected>Present</option>
+                  <option value="mc">MC</option>
+                  <option value="personal_leave">Personal Leave</option>
+                  <option value="absent">Absent</option>
+                </select>
+              </sc-if>
+              <sc-if value="{{ row.statusIsMc }}" hint-placeholder-val="">
+                <select onChange="{{ row.markStatusSelect }}" style="{{ row.statusSelectStyleMc }}">
+                  <option value="present">Present</option>
+                  <option value="mc" selected>MC</option>
+                  <option value="personal_leave">Personal Leave</option>
+                  <option value="absent">Absent</option>
+                </select>
+              </sc-if>
+              <sc-if value="{{ row.statusIsPersonalLeave }}" hint-placeholder-val="">
+                <select onChange="{{ row.markStatusSelect }}" style="{{ row.statusSelectStylePersonalLeave }}">
+                  <option value="present">Present</option>
+                  <option value="mc">MC</option>
+                  <option value="personal_leave" selected>Personal Leave</option>
+                  <option value="absent">Absent</option>
+                </select>
+              </sc-if>
+              <sc-if value="{{ row.statusIsAbsent }}" hint-placeholder-val="">
+                <select onChange="{{ row.markStatusSelect }}" style="{{ row.statusSelectStyleAbsent }}">
+                  <option value="present">Present</option>
+                  <option value="mc">MC</option>
+                  <option value="personal_leave">Personal Leave</option>
+                  <option value="absent" selected>Absent</option>
+                </select>
+              </sc-if>
             </sc-if>
             </div>
           </sc-for>
