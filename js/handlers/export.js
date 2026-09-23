@@ -12,24 +12,27 @@ const ExportHandlers = {
       if(Utils.isReportDay(d,this._myDept())&&!Utils.holidayName(d)&&!noReportDays.has(Utils.dateKey(d))) dates.push(new Date(d));
     }
     let attCache=this.state.attendanceCache;
+    let leaveSet=new Set();
     if(!demo){
       const allAtt=await DB.attendance.getForBatch(batch.start_date,batch.end_date).catch(()=>({}));
       attCache={...attCache,...allAtt};
+      const allLeaves=await DB.leaves.listApprovedInRange(batch.start_date,batch.end_date).catch(()=>[]);
+      leaveSet=new Set(allLeaves.map(l=>l.personnel_id+'_'+l.date));
     }
-    return {batch, members, start, end, dates, attCache, todayKey:Utils.dateKey(this.baseDate())};
+    return {batch, members, start, end, dates, attCache, todayKey:Utils.dateKey(this.baseDate()), leaveSet};
   },
 
-  _buildExportMembers: function(members, dates, attCache, todayKey) {
+  _buildExportMembers: function(members, dates, attCache, todayKey, leaveSet) {
     const {attendance}=this.state;
     const _mealElig=e=>{
       if(!e||e.status!=='present'||!e.p4) return false;
       return Utils.mealEligible(e, e.p4);
     };
     return members.map(p=>{
-      const entries=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return {rec:map[p.id]||null,dk};});
+      const entries=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});const isLeave=!!(leaveSet?.has(p.id+'_'+dk));return {rec:map[p.id]||null,dk,isLeave};});
       const pres=entries.filter(e=>e.rec?.status==='present').length;
-      const mc=entries.filter(e=>e.rec?.status==='mc').length;
-      const abs=entries.filter(e=>e.rec?.status==='absent'||e.rec?.status==='missed').length;
+      const mc=entries.filter(e=>e.rec?.status==='mc'||(e.isLeave&&e.rec?.status!=='present'&&e.rec?.status!=='mc')).length;
+      const abs=entries.filter(e=>(e.rec?.status==='absent'||e.rec?.status==='missed')&&!e.isLeave).length;
       const meal=entries.filter(e=>_mealElig(e.rec)).length;
       const recorded=pres+mc+abs;
       const pct=recorded>0?Math.round(pres/recorded*100):null;
@@ -49,10 +52,11 @@ const ExportHandlers = {
     const fmtDay=d=>DAYS[d.getDay()];
     const acc=(this.props.accent||'#2f5fd0').slice(1).toUpperCase();
 
-    const rowData=this._buildExportMembers(members,dates,attCache,todayKey).map(r=>({
+    const rowData=this._buildExportMembers(members,dates,attCache,todayKey,leaveSet).map(r=>({
       ...r,
       cells:r.entries.map(e=>{
         if(!e.rec?.status) return {code:'-',alt:true};
+        if((e.rec.status==='absent'||e.rec.status==='missed')&&e.isLeave) return {code:'PL',xf:'mc'};
         if(e.rec.status==='absent'||e.rec.status==='missed') return {code:'A',xf:'absent'};
         if(e.rec.status==='mc') return {code:'MC',xf:'mc'};
         return {code:e.rec.editLog?.length>0?'P*':'P',xf:e.rec.editLog?.length>0?'presentStar':'present'};
@@ -301,11 +305,12 @@ ${colsXml}
     const accent=this.props.accent||'#2f5fd0';
     const xe=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
 
-    const rowData=this._buildExportMembers(members,dates,attCache,todayKey).map(r=>({
+    const rowData=this._buildExportMembers(members,dates,attCache,todayKey,leaveSet).map(r=>({
       ...r,
       pct: r.pct ?? 0,
       cells:r.entries.map(e=>{
         if(!e.rec?.status) return e.dk>=todayKey ? {code:'P',cls:'Pend'} : {code:'A',cls:'A'};
+        if((e.rec.status==='absent'||e.rec.status==='missed')&&e.isLeave) return {code:'PL',cls:'PL'};
         if(e.rec.status==='absent'||e.rec.status==='missed') return {code:'A',cls:'A'};
         if(e.rec.status==='mc') return {code:'MC',cls:'MC'};
         return {code:e.rec.editLog?.length>0?'P*':'P',cls:e.rec.editLog?.length>0?'Ps':'P'};
@@ -372,7 +377,7 @@ ${colsXml}
   </tbody>
 </table>
 </div>
-<div class="legend">P = Present &nbsp;·&nbsp; P* = Present (admin-corrected) &nbsp;·&nbsp; MC = Medical / Leave &nbsp;·&nbsp; A = Absent / Missed &nbsp;·&nbsp; P (Blue) = Pending / Not yet reported &nbsp;·&nbsp; Meal = Days eligible for meal allowance (6h+ worked, clocked out)</div>`;
+<div class="legend">P = Present &nbsp;·&nbsp; P* = Present (admin-corrected) &nbsp;·&nbsp; MC = Medical Leave &nbsp;·&nbsp; PL = Personal Leave &nbsp;·&nbsp; A = Absent / Missed &nbsp;·&nbsp; P (Blue) = Pending / Not yet reported &nbsp;·&nbsp; Meal = Days eligible for meal allowance (6h+ worked, clocked out)</div>`;
 
     const printCss=`<style id="print-report-css">
       @media print {
@@ -423,6 +428,7 @@ ${colsXml}
   .P{background:#e8f5e9;color:#2e7d32;font-weight:700;}
   .Ps{background:#c8e6c9;color:#1b5e20;font-weight:700;}
   .MC{background:#fff8e1;color:#e65100;font-weight:700;}
+  .PL{background:#fff8e1;color:#e65100;font-weight:700;}
   .A{background:#fde8e8;color:#c62828;font-weight:700;}
   .Pend{background:#eef3fc;color:#2f5fd0;font-weight:700;}
   .total-row td{background:#f5f7fa;font-weight:700;border-top:2px solid #c8d0dc;}
