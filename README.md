@@ -67,13 +67,13 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Live attendance board**: Updates in real time as reservists check in, with no manual refresh needed. When a reservist self-deactivates their account, the admin receives a toast notification immediately and the person is removed from the active roster without requiring a page refresh.
 - **Status filter chips**: Filter the roster by All, Present, MC, Absent, or Pending to see only the group you need.
 - **Roster search**: Filter roster entries by name. The filter persists while navigating dates.
-- **Manual status override**: Mark any reservist as Present, MC, or Absent directly from the roster.
+- **Manual status override**: Mark any reservist as Present, MC, Personal Leave, or Absent directly from the roster using a status dropdown. The dropdown shows the current status and changes it with a single selection.
 - **Mark all absent**: Instantly mark all reservists with no status as absent for the current date, with a confirmation step before committing.
 - **Mark all present**: Instantly mark all pending reservists as present, also with a required confirmation step.
 - **Pending badge on Log nav**: The Log navigation button shows a badge when there are reservists with no attendance status for the current date, so you always know at a glance if action is needed.
 - **Day navigation**: Swipe left or right to move between dates, or use the previous/next day buttons. The calendar in the Overview tab can also be tapped to jump directly to any date. When navigating to a non-reporting day, the no-report message is department-aware: Ops Security shows "Weekend, no reporting" for Saturdays and Sundays, while Logistics and Finance (which reports Monday to Saturday) shows "Sunday, no reporting" for Sundays only.
 - **Jump to date**: Navigate directly to any date across any cycle using the date picker.
-- **Low attendance indicator**: Reservists with an attendance rate below 75% are flagged inline on their roster card. The amber percentage and a short indicator appear next to the contact number, keeping the card compact without a separate row.
+- **Attendance rate**: Each roster card shows the reservist's attendance percentage for the current cycle, loaded alongside the roster.
 
 **Time Log:**
 - **Manual time correction**: Edit any reservist's check-in times for any day directly from the Log tab across all four phases. Corrected records are flagged as admin-entered in the database. When a supervisor corrects a reservist's check-in time, the late check-in reason (if one was submitted) is hidden from the reservist's view, since the original reason no longer applies to the corrected time. Crime Prevention reservists, who only use two phases, are not required to fill in lunch or return times when editing checkout.
@@ -106,7 +106,7 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Missed attendance notes**: Add an inline note for reservists who did not report without an approved leave, directly from the attendance history view.
 
 **Personnel Management (People tab):**
-- **Roster view**: Lists all personnel in the current cycle with their attendance rate shown when stats are loaded. Low attendance (below 75%) is flagged inline next to the contact number in amber, keeping the card compact.
+- **Roster view**: Lists all personnel in the current cycle with their attendance rate shown when stats are loaded.
 - **Collapsible action bar**: Each roster card is collapsed by default. A chevron button in the top-right corner of each card expands the action bar, which contains History, Note, Reset PW, and Remove. Only one card can be expanded at a time, keeping the list compact.
 - **Roster search**: Filter the personnel list by name or contact number with a persistent search bar.
 - **Per-person attendance history**: Click any person's card to open their full attendance history across all cycles. The history modal includes status filter chips (All, Present, MC, Absent) and pagination (15 records per page). Time ranges are only shown for present days. Approved personal leave days are labelled "Personal Leave" in amber rather than "Absent". The history can be exported to Excel (.xlsx), with colour-coded status rows and personal leave days correctly labelled in the exported file.
@@ -934,7 +934,7 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Logout confirmation works
 
 #### Overview tab
-- [ ] Stat tiles show correct Present, MC, Absent, Pending counts for today
+- [ ] Stat tiles show correct Present, Leave, Absent, Pending counts for today
 - [ ] Pending requests card shows avatars, copyable contact numbers, type badges, and time
 - [ ] Tap Approve or Decline on a pending request from the Overview tab
 - [ ] Calendar shows current day highlighted
@@ -944,14 +944,16 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] All active reservists for the live cycle listed
 - [ ] Filter by Present, MC, Absent, Pending - list updates correctly
 - [ ] Search by name - list filters correctly
-- [ ] Mark a reservist as Present: status updates immediately in roster and log
-- [ ] Mark a reservist as MC: status updates
-- [ ] Mark a reservist as Absent: status updates
+- [ ] Status dropdown shows current status (Pending, Present, MC, Personal Leave, or Absent) with matching border colour
+- [ ] Select Present from dropdown: status updates immediately in roster and log
+- [ ] Select MC from dropdown: status updates
+- [ ] Select Personal Leave from dropdown: status set to absent with approved leave record created
+- [ ] Select Absent from dropdown: status updates, any approved leave for that day is voided
 - [ ] Mark All Absent: confirmation step shown, all Pending become Absent
 - [ ] Mark All Present: confirmation step shown, all Pending become Present
 - [ ] Navigate to yesterday (viewOffset -1): log reads from cache, not live attendance
-- [ ] Navigate to a future date (viewOffset +1 or more): status buttons not available
-- [ ] Reservist with attendance below 75%: amber percentage and indicator visible inline next to contact number
+- [ ] Navigate to a future date (viewOffset +1 or more): status dropdown not shown
+- [ ] Attendance percentage visible on each roster card when stats are loaded
 
 #### Log tab
 - [ ] All personnel listed for the viewed date
@@ -990,7 +992,6 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 
 #### People tab - Roster view
 - [ ] All personnel listed with name, contact, shift, attendance stats
-- [ ] Attendance rate below 75%: amber indicator visible inline next to contact number
 - [ ] Search by name or contact: filters correctly
 - [ ] Tap the chevron on a card: action bar expands (History, Note, Reset PW, Remove)
 - [ ] Only one card expanded at a time - opening another collapses the previous
