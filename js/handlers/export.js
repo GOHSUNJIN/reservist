@@ -305,7 +305,7 @@ ${colsXml}
       ...r,
       pct: r.pct ?? 0,
       cells:r.entries.map(e=>{
-        if(!e.rec?.status) return e.dk>todayKey ? {code:'P',cls:'Pend'} : {code:'A',cls:'A'};
+        if(!e.rec?.status) return e.dk>=todayKey ? {code:'P',cls:'Pend'} : {code:'A',cls:'A'};
         if(e.rec.status==='absent'||e.rec.status==='missed') return {code:'A',cls:'A'};
         if(e.rec.status==='mc') return {code:'MC',cls:'MC'};
         return {code:e.rec.editLog?.length>0?'P*':'P',cls:e.rec.editLog?.length>0?'Ps':'P'};
