@@ -173,8 +173,12 @@ const ExportHandlers = {
 </styleSheet>`;
 
     // ── sheet1.xml ──────────────────────────────────────────────────────────
+    const _fw=s=>Math.min(50,Math.max(0,(s||'').length)+3);
+    const nameW=Math.max(_fw('Name'),...rowData.map(r=>_fw(r.name)));
+    const shiftW=Math.max(_fw('Shift'),...rowData.map(r=>_fw(r.shift)));
+    const ctctW=Math.max(_fw('Contact'),...rowData.map(r=>_fw(r.contact)));
     const col4=D>0?`<col min="4" max="${3+D}" width="11" customWidth="1"/>`:'';
-    const colsXml=`<cols><col min="1" max="1" width="24" customWidth="1"/><col min="2" max="2" width="8" customWidth="1"/><col min="3" max="3" width="14" customWidth="1"/>${col4}<col min="${4+D}" max="${8+D}" width="8" customWidth="1"/></cols>`;
+    const colsXml=`<cols><col min="1" max="1" width="${nameW}" customWidth="1"/><col min="2" max="2" width="${shiftW}" customWidth="1"/><col min="3" max="3" width="${ctctW}" customWidth="1"/>${col4}<col min="${4+D}" max="${8+D}" width="9" customWidth="1"/></cols>`;
 
     const rows=[];
     let r=1;
