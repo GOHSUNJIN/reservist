@@ -18,9 +18,12 @@ const AdminRoster = {
       const phaseLine=_phaseParts.join('  ·  ');
       const showPhaseLine=r.status==='present'&&_phaseParts.length>0;
       const _pct=s.peopleStats[p.id]?.pct??null;
-      const _selPending=!r.status||r.status==='pending', _selPersonalLeave=r.status==='absent'&&!!(approvedLeavesForView[p.id]);
-      const selectBorderColor=_selPending?'#d4d9e2':mm.color, selectColor=_selPending?'#8a94a3':mm.color;
-      return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shiftWindow:Utils.shiftWindow(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:self.setStatus(p.id,'present'),markMc:self.setStatus(p.id,'mc'),markAbsent:self.setStatus(p.id,'absent'),markStatusSelect:self.setStatusFromSelect(p.id),selectBorderColor,selectColor,statusPendingOpt:_selPending?'selected':'',statusPresentOpt:r.status==='present'?'selected':'',statusMcOpt:r.status==='mc'?'selected':'',statusPersonalLeaveOpt:_selPersonalLeave?'selected':'',statusAbsentOpt:(r.status==='absent'&&!_selPersonalLeave)?'selected':'',onViewHistory:self.openPersonHistory(p.id),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0,
+      const _selPersonalLeave=r.status==='absent'&&!!(approvedLeavesForView[p.id]);
+      const _isPresent=r.status==='present', _isMc=r.status==='mc', _isAbsent=r.status==='absent'&&!_selPersonalLeave;
+      const _bBase='-webkit-appearance:none;padding:7px 4px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;text-align:center;';
+      const _bOn=(c)=>_bBase+'border:1.5px solid '+c+';color:#fff;background:'+c+';';
+      const _bOff=(c)=>_bBase+'border:1.5px solid '+c+';color:'+c+';background:transparent;';
+      return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shiftWindow:Utils.shiftWindow(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markPresent:self.setStatus(p.id,'present'),markMc:self.setStatus(p.id,'mc'),markAbsent:self.markAbsentClear(p.id),markPersonalLeave:self.markPersonalLeave(p.id),btnPresentStyle:_isPresent?_bOn('#1f8a5b'):_bOff('#1f8a5b'),btnMcStyle:_isMc?_bOn('#b9791a'):_bOff('#b9791a'),btnPersonalLeaveStyle:_selPersonalLeave?_bOn('#b9791a'):_bOff('#b9791a'),btnAbsentStyle:_isAbsent?_bOn('#c0392b'):_bOff('#c0392b'),onViewHistory:self.openPersonHistory(p.id),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0,
         lowAttendance:s.peopleStatsLoaded&&_pct!==null&&_pct<75,
         statPctText:s.peopleStatsLoaded&&_pct!==null?(_pct+'%'):'',
         statPctNum:_pct??-1,
