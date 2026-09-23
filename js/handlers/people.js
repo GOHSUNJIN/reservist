@@ -111,12 +111,12 @@ const PeopleHandlers = {
     const batch=batches[activeBatchIdx||0];
     if(!batch||demo) return;
     const members=batch.is_live?personnel:(batchMembersCache[batch.id]||[]);
-    const allAtt=await DB.attendance.getForBatch(batch.start_date,batch.dekit_date||batch.end_date).catch(()=>({}));
-    const allLeaves=await DB.leaves.listApprovedInRange(batch.start_date,batch.dekit_date||batch.end_date).catch(()=>[]);
+    const allAtt=await DB.attendance.getForBatch(batch.start_date,batch.end_date).catch(()=>({}));
+    const allLeaves=await DB.leaves.listApprovedInRange(batch.start_date,batch.end_date).catch(()=>[]);
     const leaveSet=new Set(allLeaves.map(l=>l.personnel_id+'_'+l.date));
     const today=Utils.dateKey(this.baseDate());
     if(batch.is_live) allAtt[today]={...(allAtt[today]||{}),...attendance};
-    const ceiling=batch.dekit_date||batch.end_date; const end=ceiling<today?ceiling:today;
+    const ceiling=batch.end_date; const end=ceiling<today?ceiling:today;
     const reportDays=[];
     for(let d=new Date(batch.start_date+'T00:00:00'),e=new Date(end+'T00:00:00');d<=e;d=new Date(d.getTime()+86400000)){
       const dk=Utils.dateKey(d);
