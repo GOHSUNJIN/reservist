@@ -199,7 +199,7 @@ const ExportHandlers = {
     rows.push(`<row r="${r}" ht="20" customHeight="1">${[
       sc(r,1,'Name',XF.hdrL),sc(r,2,'Shift',XF.hdrC),sc(r,3,'Contact',XF.hdrL),
       ...dates.map((d,i)=>sc(r,4+i,fmtDay(d)+' '+fmtDate(d),XF.hdrC)),
-      sc(r,4+D,'Present',XF.hdrC),sc(r,5+D,'MC',XF.hdrC),
+      sc(r,4+D,'Present',XF.hdrC),sc(r,5+D,'MC/PL',XF.hdrC),
       sc(r,6+D,'Absent',XF.hdrC),sc(r,7+D,'Meal',XF.hdrC),sc(r,8+D,'Rate',XF.hdrC),
     ].join('')}</row>`);
 
@@ -233,7 +233,7 @@ const ExportHandlers = {
     // Spacer + legend
     rows.push(`<row r="${++r}" ht="8" customHeight="1"/>`);
     const legRow=++r;
-    rows.push(`<row r="${legRow}">${sc(legRow,1,'P = Present  |  P* = Present (admin-corrected)  |  MC = Medical / Leave  |  A = Absent  |  Meal = Days eligible for meal allowance (6h+ worked, clocked out)',XF.legend)}</row>`);
+    rows.push(`<row r="${legRow}">${sc(legRow,1,'P = Present  |  P* = Present (admin-corrected)  |  MC/PL = Medical / Personal Leave  |  A = Absent  |  Meal = Days eligible for meal allowance (6h+ worked, clocked out)',XF.legend)}</row>`);
 
     const merges=[
       `<mergeCell ref="A1:${lastCol}1"/>`,
@@ -364,7 +364,7 @@ ${colsXml}
     <th style="text-align:left;">Shift</th>
     <th style="text-align:left;">Contact</th>
     ${headCols}
-    <th>P</th><th>MC</th><th>A</th><th>Meal</th><th>Rate</th>
+    <th>P</th><th>MC/PL</th><th>A</th><th>Meal</th><th>Rate</th>
   </tr></thead>
   <tbody>
     ${bodyRows}
