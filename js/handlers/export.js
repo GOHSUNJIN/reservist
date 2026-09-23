@@ -372,7 +372,7 @@ ${colsXml}
   </tbody>
 </table>
 </div>
-<div class="legend">P = Present &nbsp;·&nbsp; P* = Present (admin-corrected) &nbsp;·&nbsp; MC = Medical / Leave &nbsp;·&nbsp; A = Absent / Missed &nbsp;·&nbsp; P (blue) = Pending / Not yet reported &nbsp;·&nbsp; Meal = Days eligible for meal allowance (6h+ worked, clocked out)</div>`;
+<div class="legend">P = Present &nbsp;·&nbsp; P* = Present (admin-corrected) &nbsp;·&nbsp; MC = Medical / Leave &nbsp;·&nbsp; A = Absent / Missed &nbsp;·&nbsp; P (Blue) = Pending / Not yet reported &nbsp;·&nbsp; Meal = Days eligible for meal allowance (6h+ worked, clocked out)</div>`;
 
     const printCss=`<style id="print-report-css">
       @media print {
