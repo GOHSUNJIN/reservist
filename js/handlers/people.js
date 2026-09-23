@@ -112,7 +112,7 @@ const PeopleHandlers = {
     if(!batch||demo) return;
     const members=batch.is_live?personnel:(batchMembersCache[batch.id]||[]);
     const allAtt=await DB.attendance.getForBatch(batch.start_date,batch.end_date).catch(()=>({}));
-    const allLeaves=await DB.leaves.listApprovedInRange(batch.start_date,batch.end_date).catch(()=>[]);
+    const allLeaves=await DB.leaves.listApprovedInRange(batch.start_date,batch.end_date,this._myDept()).catch(()=>[]);
     const leaveSet=new Set(allLeaves.map(l=>l.personnel_id+'_'+l.date));
     const today=Utils.dateKey(this.baseDate());
     if(batch.is_live) allAtt[today]={...(allAtt[today]||{}),...attendance};

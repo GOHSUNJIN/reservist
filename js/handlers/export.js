@@ -16,7 +16,7 @@ const ExportHandlers = {
     if(!demo){
       const allAtt=await DB.attendance.getForBatch(batch.start_date,batch.end_date).catch(()=>({}));
       attCache={...attCache,...allAtt};
-      const allLeaves=await DB.leaves.listApprovedInRange(batch.start_date,batch.end_date).catch(()=>[]);
+      const allLeaves=await DB.leaves.listApprovedInRange(batch.start_date,batch.end_date,this._myDept()).catch(()=>[]);
       leaveSet=new Set(allLeaves.map(l=>l.personnel_id+'_'+l.date));
     }
     return {batch, members, start, end, dates, attCache, todayKey:Utils.dateKey(this.baseDate()), leaveSet};

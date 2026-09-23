@@ -100,12 +100,14 @@ const DB_Leaves = {
     return { data, error };
   },
 
-  async listApprovedInRange(startDate, endDate) {
-    const { data } = await _db.from('leave_requests')
-      .select('personnel_id, date, type')
+  async listApprovedInRange(startDate, endDate, dept) {
+    let q = _db.from('leave_requests')
+      .select('personnel_id, date, type, personnel!inner(department)')
       .eq('status', 'approved')
       .gte('date', startDate)
       .lte('date', endDate);
+    if (dept) q = q.eq('personnel.department', dept);
+    const { data } = await q;
     return data || [];
   },
 
