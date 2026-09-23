@@ -2109,9 +2109,9 @@
                 <div style="display:flex;align-items:center;gap:10px;">
                   <div class="avatar-sm" onClick="{{ pl.onViewAvatar }}" style="flex:0 0 auto;{{ pl.avatarStyle }}{{ pl.avatarCursor }}">{{ pl.avatarInitials }}</div>
                   <div style="flex:1;min-width:0;">
-                    <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;">
-                      <div class="text-body-bold" style="min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:calc(100% - 90px);">{{ pl.personName }}</div>
-                      <div style="font-size:11.5px;color:#a0a8b4;white-space:nowrap;flex-shrink:0;">{{ pl.dateLabel }}</div>
+                    <div style="position:relative;padding-right:82px;">
+                      <div class="text-body-bold" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ pl.personName }}</div>
+                      <div style="position:absolute;right:0;top:0;font-size:11.5px;color:#a0a8b4;white-space:nowrap;">{{ pl.dateLabel }}</div>
                     </div>
                     <div style="display:flex;align-items:center;gap:5px;margin-top:3px;flex-wrap:wrap;">
                       <span style="font-size:11px;font-weight:600;padding:1px 7px;border-radius:20px;background:{{ pl.typeBg }};color:{{ pl.typeColor }};border:1px solid {{ pl.typeBorder }};">{{ pl.typeLabel }}</span>
