@@ -26,11 +26,11 @@ const ExportHandlers = {
       return Utils.mealEligible(e, e.p4);
     };
     return members.map(p=>{
-      const entries=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return map[p.id]||null;});
-      const pres=entries.filter(e=>e?.status==='present').length;
-      const mc=entries.filter(e=>e?.status==='mc').length;
-      const abs=entries.filter(e=>e?.status==='absent'||e?.status==='missed').length;
-      const meal=entries.filter(_mealElig).length;
+      const entries=dates.map(d=>{const dk=Utils.dateKey(d);const map=dk===todayKey?attendance:(attCache[dk]||{});return {rec:map[p.id]||null,dk};});
+      const pres=entries.filter(e=>e.rec?.status==='present').length;
+      const mc=entries.filter(e=>e.rec?.status==='mc').length;
+      const abs=entries.filter(e=>e.rec?.status==='absent'||e.rec?.status==='missed').length;
+      const meal=entries.filter(e=>_mealElig(e.rec)).length;
       const recorded=pres+mc+abs;
       const pct=recorded>0?Math.round(pres/recorded*100):null;
       return {name:p.name, shift:Utils.deptLabel(p.department)||p.shift||'-', contact:p.contact||'-', entries, pres, mc, abs, meal, pct};
@@ -52,10 +52,10 @@ const ExportHandlers = {
     const rowData=this._buildExportMembers(members,dates,attCache,todayKey).map(r=>({
       ...r,
       cells:r.entries.map(e=>{
-        if(!e?.status) return {code:'-',alt:true};
-        if(e.status==='absent'||e.status==='missed') return {code:'A',xf:'absent'};
-        if(e.status==='mc') return {code:'MC',xf:'mc'};
-        return {code:e.editLog?.length>0?'P*':'P',xf:e.editLog?.length>0?'presentStar':'present'};
+        if(!e.rec?.status) return {code:'-',alt:true};
+        if(e.rec.status==='absent'||e.rec.status==='missed') return {code:'A',xf:'absent'};
+        if(e.rec.status==='mc') return {code:'MC',xf:'mc'};
+        return {code:e.rec.editLog?.length>0?'P*':'P',xf:e.rec.editLog?.length>0?'presentStar':'present'};
       }),
     }));
 
@@ -305,9 +305,10 @@ ${colsXml}
       ...r,
       pct: r.pct ?? 0,
       cells:r.entries.map(e=>{
-        if(!e?.status||e.status==='absent'||e.status==='missed') return {code:'A',cls:'A'};
-        if(e.status==='mc') return {code:'MC',cls:'MC'};
-        return {code:e.editLog?.length>0?'P*':'P',cls:e.editLog?.length>0?'Ps':'P'};
+        if(!e.rec?.status) return e.dk>todayKey ? {code:'P',cls:'Pend'} : {code:'A',cls:'A'};
+        if(e.rec.status==='absent'||e.rec.status==='missed') return {code:'A',cls:'A'};
+        if(e.rec.status==='mc') return {code:'MC',cls:'MC'};
+        return {code:e.rec.editLog?.length>0?'P*':'P',cls:e.rec.editLog?.length>0?'Ps':'P'};
       }),
     }));
 
@@ -371,7 +372,7 @@ ${colsXml}
   </tbody>
 </table>
 </div>
-<div class="legend">P = Present &nbsp;·&nbsp; P* = Present (admin-corrected) &nbsp;·&nbsp; MC = Medical / Leave &nbsp;·&nbsp; A = Absent / Missed &nbsp;·&nbsp; Meal = Days eligible for meal allowance (6h+ worked, clocked out)</div>`;
+<div class="legend">P = Present &nbsp;·&nbsp; P* = Present (admin-corrected) &nbsp;·&nbsp; MC = Medical / Leave &nbsp;·&nbsp; A = Absent / Missed &nbsp;·&nbsp; P (blue) = Pending / Not yet reported &nbsp;·&nbsp; Meal = Days eligible for meal allowance (6h+ worked, clocked out)</div>`;
 
     const printCss=`<style id="print-report-css">
       @media print {
@@ -423,6 +424,7 @@ ${colsXml}
   .Ps{background:#c8e6c9;color:#1b5e20;font-weight:700;}
   .MC{background:#fff8e1;color:#e65100;font-weight:700;}
   .A{background:#fde8e8;color:#c62828;font-weight:700;}
+  .Pend{background:#eef3fc;color:#2f5fd0;font-weight:700;}
   .total-row td{background:#f5f7fa;font-weight:700;border-top:2px solid #c8d0dc;}
   .legend{margin-top:10px;font-size:10px;color:#9aa3b2;}
 </style>
