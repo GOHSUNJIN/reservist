@@ -45,7 +45,7 @@ const ExportHandlers = {
     const exportData=await this._getExportData();
     if(!exportData){this._toast('No reservists found in this cycle.','error');return;}
 
-    const {batch,members,start,end,dates,attCache,todayKey}=exportData;
+    const {batch,members,start,end,dates,attCache,todayKey,leaveSet}=exportData;
     const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const fmtDate=d=>d.getDate()+' '+MO[d.getMonth()];
@@ -296,7 +296,7 @@ ${colsXml}
   exportPrint: async function() {
     const exportData=await this._getExportData();
     if(!exportData){ this._toast('No reservists found in this cycle.','error'); return; }
-    const {batch,members,start,end,dates,attCache,todayKey}=exportData;
+    const {batch,members,start,end,dates,attCache,todayKey,leaveSet}=exportData;
     const MO=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const fmtDate=d=>d.getDate()+' '+MO[d.getMonth()];
