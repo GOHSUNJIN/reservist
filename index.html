@@ -1662,15 +1662,11 @@
               </div>
             </sc-if>
             <sc-if value="{{ row.canMark }}" hint-placeholder-val="">
-              <div style="margin-top:9px;position:relative;">
-                <select onChange="{{ row.markStatusSelect }}" style="-webkit-appearance:none;appearance:none;width:100%;padding:7px 32px 7px 12px;border:1.5px solid {{ row.selectBorderColor }};border-radius:9px;font-size:12.5px;font-weight:600;color:{{ row.selectColor }};background:#fff;cursor:pointer;outline:none;">
-                  <option value="" disabled {{ row.statusPendingOpt }}>Mark status…</option>
-                  <option value="present" {{ row.statusPresentOpt }}>Present</option>
-                  <option value="mc" {{ row.statusMcOpt }}>MC</option>
-                  <option value="personal_leave" {{ row.statusPersonalLeaveOpt }}>Personal Leave</option>
-                  <option value="absent" {{ row.statusAbsentOpt }}>Absent</option>
-                </select>
-                <svg style="position:absolute;right:10px;top:50%;transform:translateY(-50%);pointer-events:none;" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="{{ row.selectBorderColor }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:5px;margin-top:9px;">
+                <button onClick="{{ row.markPresent }}" style="{{ row.btnPresentStyle }}">Present</button>
+                <button onClick="{{ row.markMc }}" style="{{ row.btnMcStyle }}">MC</button>
+                <button onClick="{{ row.markPersonalLeave }}" style="{{ row.btnPersonalLeaveStyle }}">Personal Leave</button>
+                <button onClick="{{ row.markAbsent }}" style="{{ row.btnAbsentStyle }}">Absent</button>
               </div>
             </sc-if>
             </div>

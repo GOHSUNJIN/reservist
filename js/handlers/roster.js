@@ -62,17 +62,22 @@ const RosterHandlers = {
 
   setStatusFromSelect: function(id) {
     return (e) => {
-      const val = e.target.value;
+      const val = e&&e.target?e.target.value:e;
       if(!val) return;
       if(val === 'personal_leave') { this.markPersonalLeave(id)(); return; }
-      if(val === 'absent') {
-        const off=this.state.viewOffset||0, dk=Utils.dateKey(this.dateForOffset(off));
-        if(this.state.approvedLeavesCache?.[dk]?.[id]){
-          DB.leaves.voidApprovedForDate(id,dk).catch(()=>{});
-          this.setState(s=>{const c={...s.approvedLeavesCache};if(c[dk]){const d={...c[dk]};delete d[id];c[dk]=d;}return{approvedLeavesCache:c};});
-        }
-      }
+      if(val === 'absent') { this.markAbsentClear(id)(); return; }
       this.setStatus(id, val)();
+    };
+  },
+
+  markAbsentClear: function(id) {
+    return () => {
+      const off=this.state.viewOffset||0, dk=Utils.dateKey(this.dateForOffset(off));
+      if(this.state.approvedLeavesCache?.[dk]?.[id]){
+        DB.leaves.voidApprovedForDate(id,dk).catch(()=>{});
+        this.setState(s=>{const c={...s.approvedLeavesCache};if(c[dk]){const d={...c[dk]};delete d[id];c[dk]=d;}return{approvedLeavesCache:c};});
+      }
+      this.setStatus(id,'absent')();
     };
   },
 
