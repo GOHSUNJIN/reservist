@@ -88,9 +88,8 @@ const RosterHandlers = {
       const dk=Utils.dateKey(this.dateForOffset(off));
       await this.setStatus(id,'absent')();
       if(this.state.demo) return;
-      console.log('[PersonalLeave] attempting id:', id, 'date:', dk, 'admin:', this.state.me?.name||'Admin');
-      const {error}=await DB.leaves.adminCreatePersonalLeave(id,dk,this.state.me?.name||'Admin').catch(e=>{console.error('[PersonalLeave] exception caught',e);return{error:e};});
-      if(error){console.error('[PersonalLeave] insert failed', JSON.stringify(error));this._toast('Could not set personal leave.','error');return;}
+      const {error}=await DB.leaves.adminCreatePersonalLeave(id,dk,this.state.me?.name||'Admin').catch(e=>({error:e}));
+      if(error){this._toast('Could not set personal leave.','error');return;}
       const leaves=await DB.leaves.listApprovedForDate(dk).catch(()=>[]);
       const leaveMap={};for(const l of leaves)leaveMap[l.personnel_id]=l;
       this.setState(s=>({approvedLeavesCache:{...s.approvedLeavesCache,[dk]:leaveMap}}));
@@ -327,23 +326,16 @@ const RosterHandlers = {
     const {batches,activeBatchIdx,demo,batchMembersCache,personnel}=this.state;
     if(demo) return;
     const batch=batches[activeBatchIdx||0];
-    console.log('[Avatars] batch:', batch?.label, 'is_live:', batch?.is_live, 'id:', batch?.id);
     const batchMembers=batch?.is_live?personnel:(batchMembersCache[batch?.id]||[]);
-    console.log('[Avatars] batchMembers:', batchMembers.length, batchMembers.map(p=>p.name));
     const memberSet=new Set(batchMembers.map(p=>p.id));
     const members=[...batchMembers,...(personnel||[]).filter(p=>!memberSet.has(p.id))];
-    console.log('[Avatars] total members to check:', members.length);
     const ids=members.map(p=>p.id).filter(id=>!this.state.avatars[id]);
-    console.log('[Avatars] ids without cached avatar:', ids.length);
-    if(!ids.length){console.log('[Avatars] early exit: all already cached');return;}
-    const existing=await DB.storage.listAvatarIds().catch(e=>{console.error('[Avatars] listAvatarIds error',e);return new Set();});
-    console.log('[Avatars] storage files found:', existing.size, [...existing]);
-    if(!existing.size){console.log('[Avatars] early exit: no files in storage');return;}
+    if(!ids.length) return;
+    const existing=await DB.storage.listAvatarIds().catch(()=>new Set());
+    if(!existing.size) return;
     const withAvatar=ids.filter(id=>existing.has(id));
-    console.log('[Avatars] matched ids:', withAvatar);
-    if(!withAvatar.length){console.log('[Avatars] early exit: no members have avatars in storage');return;}
+    if(!withAvatar.length) return;
     const urls=DB.storage.getAvatarUrls(withAvatar);
-    console.log('[Avatars] loading urls for:', Object.keys(urls));
     this.setState(s=>({avatars:{...s.avatars,...urls}}));
   },
 
