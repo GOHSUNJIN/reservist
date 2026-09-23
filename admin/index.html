@@ -882,6 +882,7 @@ function buildActionText(ev){
       ?`<strong class="has-person-tip" data-pid="${esc(ev.target_id)}">${esc(ev.target_name)}</strong>`
       :`<strong>${esc(ev.target_name)}</strong>`)
     :'';
+  const leaveLabel=t=>t==='mc'?'MC':t==='personal'?'Personal Leave':'leave';
   switch(ev.action){
     case 'roster.times_corrected': {
       const phases=[['check-in',m.check_in,m.prev_check_in],['lunch out',m.lunch_out,m.prev_lunch_out],['return',m.return,m.prev_return],['check-out',m.check_out,m.prev_check_out]];
@@ -902,8 +903,8 @@ function buildActionText(ev){
     case 'roster.status_set':
       if(tn&&m.status) return `Marked ${tn} <strong>${esc(m.status)}</strong>`;
       return tn?`Set ${tn}'s attendance status`:'Set attendance status';
-    case 'roster.mark_all_absent':   return 'Marked all absent'+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
-    case 'roster.mark_all_present':  return 'Marked all present'+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
+    case 'roster.mark_all_absent':   return 'Marked all absent'+(m.count?` (${m.count})`:'')+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
+    case 'roster.mark_all_present':  return 'Marked all present'+(m.count?` (${m.count})`:'')+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
     case 'roster.person_note_saved': return tn?`Saved note for ${tn}`:'Saved person note';
     case 'roster.log_note_saved': {
       let s=tn?`Saved log note for ${tn}`:'Saved log note';
@@ -928,34 +929,50 @@ function buildActionText(ev){
       return s;
     }
     case 'checkin.late_reason':      return (ev.meta?.prev_reason?'Updated late reason':'Submitted late reason')+(m.date?` for <strong>${esc(fmtDk(m.date))}</strong>`:'');
-    case 'leave.submitted':          return (tn?`Submitted leave request for ${tn}`:'Submitted leave request')+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
-    case 'leave.approved':           return (tn?`Approved ${tn}'s leave request`:'Approved leave request')+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
-    case 'leave.rejected':           return (tn?`Declined ${tn}'s leave request`:'Declined leave request')+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
-    case 'leave.cancelled':          return (tn?`Withdrew ${tn}'s leave request`:'Withdrew leave request')+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
-    case 'leave.bulk_approved':      return 'Bulk approved leave requests';
-    case 'leave.bulk_rejected':      return 'Bulk declined leave requests';
+    case 'leave.submitted': {
+      const lt=m.type?leaveLabel(m.type)+' request':'leave request';
+      return (tn?`Submitted ${lt} for ${tn}`:`Submitted ${lt}`)+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
+    }
+    case 'leave.approved': {
+      const lt=m.type?leaveLabel(m.type)+' request':'leave request';
+      return (tn?`Approved ${tn}'s ${lt}`:`Approved ${lt}`)+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
+    }
+    case 'leave.rejected': {
+      const lt=m.type?leaveLabel(m.type)+' request':'leave request';
+      return (tn?`Declined ${tn}'s ${lt}`:`Declined ${lt}`)+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
+    }
+    case 'leave.cancelled': {
+      const lt=m.type?leaveLabel(m.type)+' request':'leave request';
+      return (tn?`Withdrew ${tn}'s ${lt}`:`Withdrew ${lt}`)+(m.date?` on <strong>${esc(fmtDk(m.date))}</strong>`:'');
+    }
+    case 'leave.bulk_approved':      return m.count?`Bulk approved ${m.count} leave request${m.count!==1?'s':''}`:'Bulk approved leave requests';
+    case 'leave.bulk_rejected':      return m.count?`Bulk declined ${m.count} leave request${m.count!==1?'s':''}`:'Bulk declined leave requests';
     case 'signup.request_submitted': return 'Submitted signup request';
     case 'signup.approved':          return tn?`Approved ${tn}'s signup`:'Approved signup';
     case 'signup.rejected':          return tn?`Declined ${tn}'s signup`:'Declined signup';
     case 'signup.reopened':          return tn?`Re-opened ${tn}'s signup`:'Re-opened signup';
-    case 'signup.bulk_approved':     return 'Bulk approved signups';
+    case 'signup.bulk_approved':     return m.count?`Bulk approved ${m.count} signup${m.count!==1?'s':''}`:'Bulk approved signups';
     case 'personnel.added':          return tn?`Added ${tn} to roster`:'Added to roster';
     case 'personnel.removed':        return tn?`Removed ${tn} from roster`:'Removed from roster';
     case 'personnel.re_enrolled':    return tn?`Re-enrolled ${tn}`:'Re-enrolled personnel';
     case 'personnel.permanently_deleted': return tn?`Permanently deleted ${tn}'s record`:'Permanently deleted record';
-    case 'personnel.bulk_added':     return 'Bulk added personnel';
-    case 'personnel.bulk_deleted':   return 'Bulk permanently deleted records';
+    case 'personnel.bulk_added': {
+      let s=m.added?`Bulk added ${m.added} personnel`:'Bulk added personnel';
+      if(m.skipped) s+=`, skipped ${m.skipped}`;
+      return s;
+    }
+    case 'personnel.bulk_deleted':   return m.count?`Permanently deleted ${m.count} record${m.count!==1?'s':''}`:'Bulk permanently deleted records';
     case 'personnel.password_reset': return tn?`Reset ${tn}'s password`:'Reset password';
     case 'admin.added':              return tn?`Added ${tn} as supervisor`:'Added supervisor';
     case 'admin.demoted':            return tn?`Demoted ${tn}`:'Demoted supervisor';
     case 'admin.promoted':           return tn?`Promoted ${tn} to supervisor`:'Promoted to supervisor';
-    case 'batch.created':            return 'Created reporting cycle';
-    case 'batch.deleted':            return 'Deleted reporting cycle';
+    case 'batch.created':            return tn?`Created cycle ${tn}`:'Created reporting cycle';
+    case 'batch.deleted':            return tn?`Deleted cycle ${tn}`:'Deleted reporting cycle';
     case 'batch.activated':          return 'Activated reporting cycle';
-    case 'batch.label_edited':       return 'Edited cycle label';
+    case 'batch.label_edited':       return tn?`Renamed cycle to ${tn}`:'Edited cycle label';
     case 'batch.broadcast_updated':  return 'Updated cycle notice';
     case 'batch.no_report_toggled':  return 'Toggled no-report day'+(m.date?` for <strong>${esc(fmtDk(m.date))}</strong>`:'');
-    case 'batch.no_report_bulk':     return 'Bulk set no-report days';
+    case 'batch.no_report_bulk':     return m.count?`Set ${m.count} no-report day${m.count!==1?'s':''}`:'Bulk set no-report days';
     case 'account.name_changed':     return m.new_name?`Changed name to <strong>${esc(m.new_name)}</strong>`:'Changed display name';
     case 'account.password_changed': return 'Changed account password';
     case 'account.photo_uploaded':   return 'Uploaded profile photo';
@@ -979,6 +996,9 @@ function buildInlineDetail(ev){
     const arrow=from!==to?`<span class="darr">→</span><span class="dv">${esc(to)}</span>`:'';
     const dateStr=m.date?`<span class="dphase"><span class="dlabel">on</span><span class="dv">${esc(fmtDk(m.date))}</span></span>`:'';
     return `<div class="event-detail"><span class="dphase"><span class="dlabel">Status</span><span class="dv">${esc(from)}</span>${arrow}</span>${dateStr}</div>`;
+  }
+  if(ev.action==='leave.rejected'&&m.reason){
+    return `<div class="event-detail"><span class="dphase"><span class="dlabel">Reason</span><span class="dv">${esc(m.reason)}</span></span></div>`;
   }
   if(ev.action.startsWith('checkin.')&&ev.action!=='checkin.late_reason') return '';
   if(ev.action==='checkin.late_reason'&&m.reason){
