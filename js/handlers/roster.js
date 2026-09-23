@@ -180,6 +180,7 @@ const RosterHandlers = {
         b.is_live?Promise.resolve({}):DB.attendance.getForBatch(b.start_date,b.end_date).catch(()=>({})),
       ]);
       this.setState(s=>({activeBatchIdx:ni,viewOffset:off,selectedCalOffset:null,attendanceCache:b.is_live?{}:{...s.attendanceCache,...attMap},noReportDays:nrd,noReportDaysCache:cachedNrd?s.noReportDaysCache:{...s.noReportDaysCache,[b.id]:nrd},batchLoading:false,rosterSearch:'',logSearch:'',confirmMarkAllAbsent:false}));
+      this.loadRosterAvatars();
       return;
     }
     this.setState({viewOffset:off, logSearch:'', confirmMarkAllAbsent:false});
