@@ -2929,7 +2929,6 @@
             </div>
             <sc-for list="{{ personHistoryRows }}" as="hr">
               <div style="display:flex;align-items:center;gap:10px;padding:9px 20px;border-bottom:1px solid #f2f4f7;">
-                <span class="badge" style="color:{{ hr.color }};background:{{ hr.bg }};flex:0 0 auto;">{{ hr.label }}</span>
                 <div class="flex-fill">
                   <div style="font-size:13px;font-weight:500;color:#161f30;">{{ hr.dateLabel }}</div>
                   <sc-if value="{{ hr.adminCorrected }}" hint-placeholder-val="">
@@ -2940,6 +2939,7 @@
                   </sc-if>
                 </div>
                 <sc-if value="{{ hr.showTimeRange }}" hint-placeholder-val=""><div style="font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:#8a94a3;white-space:nowrap;">{{ hr.p1 }} to {{ hr.p4 }}</div></sc-if>
+                <span class="badge" style="color:{{ hr.color }};background:{{ hr.bg }};flex:0 0 auto;">{{ hr.label }}</span>
               </div>
             </sc-for>
             <sc-if value="{{ personHistoryShowPagination }}" hint-placeholder-val="">
