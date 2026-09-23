@@ -162,7 +162,7 @@ const CalendarBuilders = {
          p1:rec.p1||'-',p2:rec.p2||'-',p3:rec.p3||'-',p4:rec.p4||'-',
          p1Color:_ed('p1')?'#2f5fd0':_tc(rec.p1,'#161f30',_dc),p2Color:_ed('p2')?'#2f5fd0':_tc(rec.p2,'#161f30',_dc),p3Color:_ed('p3')?'#2f5fd0':_tc(rec.p3,'#161f30',_dc),p4Color:_ed('p4')?'#2f5fd0':_tc(rec.p4,'#161f30',_dc),
          p1Edited:_ed('p1'),p2Edited:_ed('p2'),p3Edited:_ed('p3'),p4Edited:_ed('p4'),
-         hasExpandToggle:status==='present'||status==='pending',isExpanded:_exDates.includes(today),onToggleExpand:this.toggleHistoryExpand(today),
+         hasExpandToggle:status==='present',isExpanded:_exDates.includes(today),onToggleExpand:this.toggleHistoryExpand(today),
          showTimes:status==='present'&&_exDates.includes(today),rowMarginBot:(status==='present'&&_exDates.includes(today))?'9px':'0',chevronRotate:_exDates.includes(today)?'180':'0',
          lateReason:rec.lateReason||'',showLateReason:!!(rec.lateReason)&&_exDates.includes(today)&&!_ed('p1'),
          isMissedRow:false,showMissedNote:false,missedNote:'',onOpenMissedNote:()=>{},

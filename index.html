@@ -1493,6 +1493,9 @@
                   <sc-if value="{{ row.showWelfareNote }}" hint-placeholder-val="">
                     <div style="margin-top:5px;padding-left:52px;font-size:11.5px;color:#3a6b4f;font-style:italic;">{{ row.welfareNote }}</div>
                   </sc-if>
+                  <sc-if value="{{ row.showLeaveReason }}" hint-placeholder-val="">
+                    <div style="margin-top:5px;padding-left:52px;font-size:11.5px;color:#8a5c25;font-style:italic;">"{{ row.leaveReason }}"</div>
+                  </sc-if>
                 </div>
               </sc-for>
               <sc-if value="{{ viewRosterEmpty }}" hint-placeholder-val="">
@@ -1767,7 +1770,7 @@
                 <div style="display:flex;align-items:flex-start;gap:10px;">
                   <div class="avatar-sm" onClick="{{ row.onViewAvatar }}" style="flex:0 0 auto;margin-top:2px;{{ row.avatarCursor }}{{ row.avatarStyle }}">{{ row.initials }}</div>
                   <div style="flex:1;min-width:0;cursor:pointer;" onClick="{{ row.onViewHistory }}">
-                    <span style="font-size:13.5px;font-weight:700;color:#161f30;">{{ row.name }}</span>
+                    <span style="font-size:13.5px;font-weight:700;color:#161f30;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ row.name }}</span>
                     <div style="display:flex;align-items:center;gap:6px;margin-top:2px;">
                       <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;white-space:nowrap;color:{{ row.color }};background:{{ row.bg }};">{{ row.label }}</span>
                       <sc-if value="{{ row.showNoGps }}" hint-placeholder-val="">
@@ -2208,7 +2211,7 @@
                     <div style="display:flex;align-items:baseline;flex-wrap:wrap;margin-top:5px;gap:0;">
                       <span style="font-size:11px;font-weight:700;color:#1f8a5b;">{{ p.statPresent }}</span><span style="font-size:10px;color:#9aa3b2;margin-left:2px;margin-right:7px;">present</span>
                       <span style="font-size:9px;color:#d4d9e2;margin-right:7px;">·</span>
-                      <span style="font-size:11px;font-weight:700;color:#b9791a;">{{ p.statMc }}</span><span style="font-size:10px;color:#9aa3b2;margin-left:2px;margin-right:7px;">MC</span>
+                      <span style="font-size:11px;font-weight:700;color:#b9791a;">{{ p.statMc }}</span><span style="font-size:10px;color:#9aa3b2;margin-left:2px;margin-right:7px;">leave</span>
                       <span style="font-size:9px;color:#d4d9e2;margin-right:7px;">·</span>
                       <span style="font-size:11px;font-weight:700;color:#c0392b;">{{ p.statAbsent }}</span><span style="font-size:10px;color:#9aa3b2;margin-left:2px;margin-right:7px;">absent</span>
                       <span style="font-size:9px;color:#d4d9e2;margin-right:7px;">·</span>
