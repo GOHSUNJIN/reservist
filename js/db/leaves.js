@@ -88,6 +88,15 @@ const DB_Leaves = {
     return data || [];
   },
 
+  async listApprovedInRange(startDate, endDate) {
+    const { data } = await _db.from('leave_requests')
+      .select('personnel_id, date, type')
+      .eq('status', 'approved')
+      .gte('date', startDate)
+      .lte('date', endDate);
+    return data || [];
+  },
+
   async cancelAllPendingByPerson(personnelId) {
     const { error } = await _db.from('leave_requests')
       .update({ status: 'cancelled' })

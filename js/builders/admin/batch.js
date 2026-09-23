@@ -25,7 +25,7 @@ const AdminBatch = {
       if(!_pickerYearMap[yr]) _pickerYearMap[yr]=[];
       _pickerYearMap[yr].push({...c, onPick:()=>{ self.closeCyclePicker(); c.onClick(); }});
     });
-    const allPickerYears=Object.keys(_pickerYearMap).sort((a,b)=>b-a);
+    const allPickerYears=Object.keys(_pickerYearMap).sort((a,b)=>a-b);
     const activePickerYear=s.cyclePickerYear||null;
     const cyclePickerYears=allPickerYears.map(yr=>({
       year:yr,
