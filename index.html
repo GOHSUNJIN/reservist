@@ -1664,7 +1664,7 @@
             <sc-if value="{{ row.canMark }}" hint-placeholder-val="">
               <sc-if value="{{ row.statusIsPending }}" hint-placeholder-val="">
                 <select onChange="{{ row.markStatusSelect }}" style="{{ row.statusSelectStylePending }}">
-                  <option value="" selected>— Mark status —</option>
+                  <option value="">Pending</option>
                   <option value="present">Present</option>
                   <option value="mc">MC</option>
                   <option value="personal_leave">Personal Leave</option>
@@ -1673,7 +1673,7 @@
               </sc-if>
               <sc-if value="{{ row.statusIsPresent }}" hint-placeholder-val="">
                 <select onChange="{{ row.markStatusSelect }}" style="{{ row.statusSelectStylePresent }}">
-                  <option value="present" selected>Present</option>
+                  <option value="present">Present</option>
                   <option value="mc">MC</option>
                   <option value="personal_leave">Personal Leave</option>
                   <option value="absent">Absent</option>
@@ -1681,26 +1681,26 @@
               </sc-if>
               <sc-if value="{{ row.statusIsMc }}" hint-placeholder-val="">
                 <select onChange="{{ row.markStatusSelect }}" style="{{ row.statusSelectStyleMc }}">
+                  <option value="mc">MC</option>
                   <option value="present">Present</option>
-                  <option value="mc" selected>MC</option>
                   <option value="personal_leave">Personal Leave</option>
                   <option value="absent">Absent</option>
                 </select>
               </sc-if>
               <sc-if value="{{ row.statusIsPersonalLeave }}" hint-placeholder-val="">
                 <select onChange="{{ row.markStatusSelect }}" style="{{ row.statusSelectStylePersonalLeave }}">
+                  <option value="personal_leave">Personal Leave</option>
                   <option value="present">Present</option>
                   <option value="mc">MC</option>
-                  <option value="personal_leave" selected>Personal Leave</option>
                   <option value="absent">Absent</option>
                 </select>
               </sc-if>
               <sc-if value="{{ row.statusIsAbsent }}" hint-placeholder-val="">
                 <select onChange="{{ row.markStatusSelect }}" style="{{ row.statusSelectStyleAbsent }}">
+                  <option value="absent">Absent</option>
                   <option value="present">Present</option>
                   <option value="mc">MC</option>
                   <option value="personal_leave">Personal Leave</option>
-                  <option value="absent" selected>Absent</option>
                 </select>
               </sc-if>
             </sc-if>

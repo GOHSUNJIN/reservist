@@ -91,7 +91,8 @@ const DB_Leaves = {
   async adminCreatePersonalLeave(personnelId, date, reviewedBy) {
     await _db.from('leave_requests').delete()
       .eq('personnel_id', personnelId).eq('date', date)
-      .in('status', ['pending', 'approved']).catch(() => {});
+      .in('status', ['pending', 'approved'])
+      .then(()=>{}, ()=>{});
     const { data, error } = await _db.from('leave_requests').insert({
       personnel_id: personnelId, date, type: 'personal', status: 'approved',
       reviewed_by: reviewedBy, reviewed_at: new Date().toISOString(),
