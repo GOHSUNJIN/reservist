@@ -352,7 +352,7 @@ ${colsXml}
 </div>
 <div class="stats">
   <div class="stat green"><div class="stat-val">${totPres}</div><div class="stat-label">Attendances</div></div>
-  <div class="stat blue"><div class="stat-val">${totMc}</div><div class="stat-label">MC / Leave</div></div>
+  <div class="stat amber"><div class="stat-val">${totMc}</div><div class="stat-label">MC / Leave</div></div>
   <div class="stat red"><div class="stat-val">${totAbs}</div><div class="stat-label">Absences</div></div>
   <div class="stat amber"><div class="stat-val">${totMeal}</div><div class="stat-label">Meal Claims</div></div>
   <div class="stat ${totPct>=80?'green':totPct>=60?'amber':'red'}"><div class="stat-val">${totPct}%</div><div class="stat-label">Overall Rate</div></div>
