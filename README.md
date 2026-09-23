@@ -210,49 +210,49 @@ Hovering over a profile photo in the feed shows an enlarged version of the photo
 | `checkin.p4` | Phase 4: Checked out | Reservist |
 | `checkin.late_reason` | Submitted late reason | Reservist (when more than 1 hour late) |
 | `roster.status_set` | Set attendance status | Admin: manual mark Present, MC, or Absent |
-| `roster.mark_all_absent` | Marked all absent | Admin |
-| `roster.mark_all_present` | Marked all present | Admin |
+| `roster.mark_all_absent` | Marked all absent (N) — count of affected records shown | Admin |
+| `roster.mark_all_present` | Marked all present (N) — count of affected records shown | Admin |
 | `roster.times_corrected` | Corrected attendance times | Admin: via time correction modal |
 | `roster.person_note_saved` | Saved person note | Admin |
 | `roster.log_note_saved` | Saved log note (with note text shown below the action label; shows "Note cleared" if the note was saved empty; shows a strikethrough and new text if an existing note was overwritten) | Admin |
 | `roster.welfare_note_saved` | Saved welfare note | Reservist (own record) or Admin |
 | `roster.missed_note_saved` | Saved missed-day note | Admin: note on a missed day in history |
-| `leave.submitted` | Submitted leave request | Reservist |
-| `leave.cancelled` | Withdrew leave request | Reservist |
-| `leave.approved` | Approved leave request | Admin |
-| `leave.rejected` | Declined leave request | Admin |
-| `leave.bulk_approved` | Bulk approved leave requests | Admin |
-| `leave.bulk_rejected` | Bulk declined leave requests | Admin |
+| `leave.submitted` | Submitted MC request / Submitted Personal Leave request — leave type shown | Reservist |
+| `leave.cancelled` | Withdrew MC request / Withdrew Personal Leave request — leave type shown | Reservist |
+| `leave.approved` | Approved [name]'s MC request / Approved [name]'s Personal Leave request — leave type shown | Admin |
+| `leave.rejected` | Declined [name]'s MC request / Declined [name]'s Personal Leave request — leave type shown; rejection reason shown inline below the label | Admin |
+| `leave.bulk_approved` | Bulk approved N leave requests — count shown | Admin |
+| `leave.bulk_rejected` | Bulk declined N leave requests — count shown | Admin |
 | `signup.request_submitted` | Submitted signup request | Reservist (new or returning) |
-| `signup.approved` | Approved signup | Admin |
-| `signup.rejected` | Declined signup | Admin |
-| `signup.reopened` | Re-opened signup | Admin |
-| `signup.bulk_approved` | Bulk approved signups | Admin |
-| `personnel.added` | Added to roster | Admin |
-| `personnel.re_enrolled` | Re-enrolled personnel | Admin |
-| `personnel.removed` | Removed from roster | Admin |
-| `personnel.bulk_added` | Bulk added personnel | Admin |
-| `personnel.permanently_deleted` | Permanently deleted record | Admin |
-| `personnel.bulk_deleted` | Bulk permanently deleted records | Admin |
-| `personnel.password_reset` | Reset password | Admin |
-| `batch.created` | Created cycle | Admin |
-| `batch.deleted` | Deleted cycle | Admin |
-| `batch.activated` | Activated cycle | System (auto-activation on login) |
-| `batch.label_edited` | Edited cycle label | Admin |
+| `signup.approved` | Approved [name]'s signup | Admin |
+| `signup.rejected` | Declined [name]'s signup | Admin |
+| `signup.reopened` | Re-opened [name]'s signup | Admin |
+| `signup.bulk_approved` | Bulk approved N signups — count shown | Admin |
+| `personnel.added` | Added [name] to roster | Admin |
+| `personnel.re_enrolled` | Re-enrolled [name] | Admin |
+| `personnel.removed` | Removed [name] from roster | Admin |
+| `personnel.bulk_added` | Bulk added N personnel, skipped M — counts shown | Admin |
+| `personnel.permanently_deleted` | Permanently deleted [name]'s record | Admin |
+| `personnel.bulk_deleted` | Permanently deleted N records — count shown | Admin |
+| `personnel.password_reset` | Reset [name]'s password | Admin |
+| `batch.created` | Created cycle [name] | Admin |
+| `batch.deleted` | Deleted cycle [name] | Admin |
+| `batch.activated` | Activated reporting cycle | System (auto-activation on login) |
+| `batch.label_edited` | Renamed cycle to [new name] | Admin |
 | `batch.broadcast_updated` | Updated cycle notice | Admin |
-| `batch.no_report_toggled` | Toggled no-report day | Admin |
-| `batch.no_report_bulk` | Bulk added no-report days | Admin |
-| `export.excel` | Exported Excel report | Admin |
-| `export.print` | Generated print report | Admin |
-| `export.person_history` | Exported person history | Admin |
-| `account.name_changed` | Changed display name | Any user |
-| `account.password_changed` | Changed password | Any user |
+| `batch.no_report_toggled` | Toggled no-report day for [date] | Admin |
+| `batch.no_report_bulk` | Set N no-report days — count shown | Admin |
+| `export.excel` | Exported Excel report for [cycle] | Admin |
+| `export.print` | Print report for [cycle] | Admin |
+| `export.person_history` | Exported [name]'s history | Admin |
+| `account.name_changed` | Changed name to [new name] | Any user |
+| `account.password_changed` | Changed account password | Any user |
 | `account.photo_uploaded` | Uploaded profile photo | Any user |
 | `account.photo_removed` | Removed profile photo | Any user |
 | `account.deleted` | Deleted own account | Any user |
-| `admin.added` | Added supervisor | Master |
-| `admin.demoted` | Demoted supervisor | Master |
-| `admin.promoted` | Promoted to supervisor | Master |
+| `admin.added` | Added [name] as supervisor | Master |
+| `admin.demoted` | Demoted [name] | Master |
+| `admin.promoted` | Promoted [name] to supervisor | Master |
 
 ---
 
