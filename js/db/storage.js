@@ -26,7 +26,7 @@ const DB_Storage = {
   },
 
   async listAvatarIds() {
-    const { data } = await _db.storage.from('avatars').list();
+    const { data } = await _db.storage.from('avatars').list(undefined, { limit: 1000 });
     return new Set((data || []).map(f => f.name));
   },
 };

@@ -122,9 +122,9 @@ CREATE POLICY "attendance_delete" ON attendance FOR DELETE TO authenticated
 CREATE POLICY "leave_select" ON leave_requests FOR SELECT TO authenticated
   USING (personnel_id = _auth_pid() OR _auth_role() IN ('admin','master'));
 
--- Reservists can only submit requests for themselves
+-- Reservists submit for themselves; admins can create approved leaves on behalf of personnel
 CREATE POLICY "leave_insert" ON leave_requests FOR INSERT TO authenticated
-  WITH CHECK (personnel_id = _auth_pid());
+  WITH CHECK (personnel_id = _auth_pid() OR _auth_role() IN ('admin','master'));
 
 -- Reservists can cancel their own pending requests; admins can approve/reject any
 CREATE POLICY "leave_update" ON leave_requests FOR UPDATE TO authenticated
