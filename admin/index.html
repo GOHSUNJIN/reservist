@@ -200,14 +200,14 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 <div id="filter-guide">
   <div class="fg-head">Filter categories</div>
   <div class="fg-list">
-    <div class="fg-row"><span class="fg-pill" style="background:#e7f3ec;color:#1f8a5b;">Attendance</span><span class="fg-desc">Check-in phases, time corrections, and status changes</span></div>
-    <div class="fg-row"><span class="fg-pill" style="background:#fdf6e9;color:#b9791a;">Leave</span><span class="fg-desc">Leave requests submitted, approved, declined, or withdrawn</span></div>
-    <div class="fg-row"><span class="fg-pill" style="background:#f0ecfd;color:#6b52c8;">Signup</span><span class="fg-desc">New member signup requests, approvals, and rejections</span></div>
-    <div class="fg-row"><span class="fg-pill" style="background:#e6f7f9;color:#0e7a8c;">Personnel</span><span class="fg-desc">Roster additions, removals, and re-enrolments</span></div>
-    <div class="fg-row"><span class="fg-pill" style="background:#edf2f7;color:#4a5568;">Cycle</span><span class="fg-desc">Reporting cycle creation, activation, and no-report days</span></div>
+    <div class="fg-row"><span class="fg-pill" style="background:#e7f3ec;color:#1f8a5b;">Attendance</span><span class="fg-desc">Check-in phases, time corrections and status changes</span></div>
+    <div class="fg-row"><span class="fg-pill" style="background:#fdf6e9;color:#b9791a;">Leave</span><span class="fg-desc">Leave requests submitted, approved, declined or withdrawn</span></div>
+    <div class="fg-row"><span class="fg-pill" style="background:#f0ecfd;color:#6b52c8;">Signup</span><span class="fg-desc">New member signup requests, approvals and rejections</span></div>
+    <div class="fg-row"><span class="fg-pill" style="background:#e6f7f9;color:#0e7a8c;">Personnel</span><span class="fg-desc">Roster additions, removals and re-enrolments</span></div>
+    <div class="fg-row"><span class="fg-pill" style="background:#edf2f7;color:#4a5568;">Cycle</span><span class="fg-desc">Reporting cycle creation, activation and no-report days</span></div>
     <div class="fg-row"><span class="fg-pill" style="background:#f0f2f7;color:#2d3748;">Export</span><span class="fg-desc">Excel or print reports that were generated</span></div>
-    <div class="fg-row"><span class="fg-pill" style="background:#fdf0e9;color:#e07b39;">Account</span><span class="fg-desc">Profile name, password, or photo changes</span></div>
-    <div class="fg-row"><span class="fg-pill" style="background:#f7e4e1;color:#c0392b;">Admin</span><span class="fg-desc">Supervisor accounts added, promoted, or demoted</span></div>
+    <div class="fg-row"><span class="fg-pill" style="background:#fdf0e9;color:#e07b39;">Account</span><span class="fg-desc">Profile name, password or photo changes</span></div>
+    <div class="fg-row"><span class="fg-pill" style="background:#f7e4e1;color:#c0392b;">Admin</span><span class="fg-desc">Supervisor accounts added, promoted or demoted</span></div>
   </div>
 </div>
 
@@ -972,7 +972,10 @@ function buildActionText(ev){
     case 'batch.label_edited':       return tn?`Renamed cycle to ${tn}`:'Edited cycle label';
     case 'batch.broadcast_updated':  return 'Updated cycle notice';
     case 'batch.no_report_toggled':  return 'Toggled no-report day'+(m.date?` for <strong>${esc(fmtDk(m.date))}</strong>`:'');
-    case 'batch.no_report_bulk':     return m.count?`Set ${m.count} no-report day${m.count!==1?'s':''}`:'Bulk set no-report days';
+    case 'batch.no_report_bulk':          return m.count?`Set ${m.count} no-report day${m.count!==1?'s':''}`:'Bulk set no-report days';
+    case 'batch.timings_updated':         return tn?`Updated cycle timings for ${tn}`:'Updated cycle phase timings';
+    case 'batch.person_timings_updated':  return tn?`Set custom timings for <strong>${esc(tn)}</strong>`:'Set custom phase timings';
+    case 'batch.person_timings_cleared':  return tn?`Cleared custom timings for <strong>${esc(tn)}</strong>`:'Cleared custom phase timings';
     case 'account.name_changed':     return m.new_name?`Changed name to <strong>${esc(m.new_name)}</strong>`:'Changed display name';
     case 'account.password_changed': return 'Changed account password';
     case 'account.photo_uploaded':   return 'Uploaded profile photo';
@@ -999,6 +1002,18 @@ function buildInlineDetail(ev){
   }
   if(ev.action==='leave.rejected'&&m.reason){
     return `<div class="event-detail"><span class="dphase"><span class="dlabel">Reason</span><span class="dv">${esc(m.reason)}</span></span></div>`;
+  }
+  if(ev.action==='batch.person_timings_updated'&&m.prev&&m.next){
+    const phases=[['p1_open','P1'],['p2_open','P2'],['p3_open','P3'],['p4_open','P4']];
+    const changed=phases.filter(([k])=>m.next[k]&&m.next[k]!==m.prev[k]);
+    if(!changed.length) return '';
+    return '<div class="event-detail">'+changed.map(([k,lbl])=>`<span class="dphase"><span class="dlabel">${lbl}</span><span class="dv" style="color:#8a94a3;">${esc(m.prev[k]||'—')}</span><span class="darr">→</span><span class="dv" style="color:#b9791a;font-weight:700;">${esc(m.next[k])}</span></span>`).join('')+'</div>';
+  }
+  if(ev.action==='batch.person_timings_cleared'&&m.prev){
+    const phases=[['p1_open','P1'],['p2_open','P2'],['p3_open','P3'],['p4_open','P4']];
+    const had=phases.filter(([k])=>m.prev[k]);
+    if(!had.length) return '';
+    return '<div class="event-detail">'+had.map(([k,lbl])=>`<span class="dphase"><span class="dlabel">${lbl}</span><span class="dv" style="color:#8a94a3;text-decoration:line-through;">${esc(m.prev[k])}</span></span>`).join('')+'</div>';
   }
   if(ev.action.startsWith('checkin.')&&ev.action!=='checkin.late_reason') return '';
   if(ev.action==='checkin.late_reason'&&m.reason){
