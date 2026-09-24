@@ -1,6 +1,5 @@
 const _t = v => v ? v.slice(0, 5) : null;
 const _COL_MAP  = {p1:'check_in_time',  p2:'lunch_out_time', p3:'work_return_time', p4:'work_end_time'};
-const _DIST_MAP = {p1:'gps_distance_m', p2:'lunch_out_dist', p3:'work_return_dist', p4:'work_end_dist'};
 
 const DB_Attendance = {
   _toEntry(r) {
@@ -9,11 +8,8 @@ const DB_Attendance = {
       p1: _t(r.check_in_time),
       p1dist: r.gps_distance_m,
       p2: _t(r.lunch_out_time),
-      p2dist: r.lunch_out_dist,
       p3: _t(r.work_return_time),
-      p3dist: r.work_return_dist,
       p4: _t(r.work_end_time),
-      p4dist: r.work_end_dist,
       lateReason: r.late_reason || null,
       welfareNote: r.welfare_note || null,
       gpsBypassed: r.gps_bypassed || false,
