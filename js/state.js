@@ -67,7 +67,7 @@ const makeInitialState = () => ({
   cyclePickerOpen: false, cyclePickerYear: null, cyclePickerPage: 1,
   broadcastOpen: false, broadcastText: '', broadcastSaving: false,
   noReportBulkOpen: false, noReportBulkText: '',
-  phaseTimingsOpen: false, phaseTimingsDraft: null, phaseTimingsSaving: false,
+  phaseTimingsOpen: false, phaseTimingsDraft: null, phaseTimingsSaving: false, phaseTimingsRoster: [],
   ptOverrideEditId: null, ptOverrideDraft: null, ptOverrideSaving: false, ptOverrideSearch: '',
 
   // ── Personnel management ─────────────────────────────────────────────────
