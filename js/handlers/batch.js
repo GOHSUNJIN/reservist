@@ -219,7 +219,6 @@ const BatchHandlers = {
   },
   closePhaseTimings: function() { this.setState({phaseTimingsOpen:false, phaseTimingsDraft:null}); },
   onPhaseTimingP1Open:     function(e){ this.setState(s=>({phaseTimingsDraft:{...s.phaseTimingsDraft,p1_open:e.target.value}})); },
-  onPhaseTimingShiftStart: function(e){ this.setState(s=>({phaseTimingsDraft:{...s.phaseTimingsDraft,shift_start:e.target.value}})); },
   onPhaseTimingP2Open:     function(e){ this.setState(s=>({phaseTimingsDraft:{...s.phaseTimingsDraft,p2_open:e.target.value}})); },
   onPhaseTimingP3Open:     function(e){ this.setState(s=>({phaseTimingsDraft:{...s.phaseTimingsDraft,p3_open:e.target.value}})); },
   onPhaseTimingP4Open:     function(e){ this.setState(s=>({phaseTimingsDraft:{...s.phaseTimingsDraft,p4_open:e.target.value}})); },

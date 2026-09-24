@@ -157,13 +157,13 @@ const AdminBatch = {
       phaseTimingsOpen:s.phaseTimingsOpen, phaseTimingsSaving:s.phaseTimingsSaving,
       phaseTimingsSavingOpacity:s.phaseTimingsSaving?0.6:1,
       openPhaseTimings:self.openPhaseTimings, closePhaseTimings:self.closePhaseTimings, savePhaseTimings:self.savePhaseTimings,
-      onPtP1Open:self.onPhaseTimingP1Open, onPtShiftStart:self.onPhaseTimingShiftStart,
+      onPtP1Open:self.onPhaseTimingP1Open,
       onPtP2Open:self.onPhaseTimingP2Open, onPtP3Open:self.onPhaseTimingP3Open, onPtP4Open:self.onPhaseTimingP4Open,
       ...(() => {
         const _t=s.phaseTimingsDraft||Utils.effectiveTimings(activeBatch);
         const _din=Utils.isBreakDinner(_t);
         return {
-          ptP1Open:_t.p1_open, ptShiftStart:_t.shift_start,
+          ptP1Open:_t.p1_open,
           ptP2Open:_t.p2_open, ptP3Open:_t.p3_open, ptP4Open:_t.p4_open,
           ptP1Close:Utils._addMins(_t.p1_open,120),
           ptP2Close:Utils._addMins(_t.p2_open,180),
