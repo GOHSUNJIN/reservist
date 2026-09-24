@@ -143,8 +143,8 @@ const CheckinBuilders = {
     });
     const allDone=phases.every(ph=>ph.done);
     const summaryP1=rec.p1||'-', summaryP2=rec.p2||'-', summaryP3=rec.p3||'-', summaryP4=rec.p4||'-', summaryP2Label=_breakLabel;
-    const shiftStart=_timings?_timings.shift_start:'09:00';
-    const [_sc,_sm]=shiftStart.split(':').map(Number);
+    const _lateBase=_timings?_timings.p1_open:Utils.LATE_CUTOFF.OFFICE;
+    const [_sc,_sm]=_lateBase.split(':').map(Number);
     const _lateMs=rec.p1?(()=>{const[h,m]=rec.p1.split(':').map(Number);return(h*60+m)-(_sc*60+_sm);})():0;
     const isLate=_lateMs>=60;
     const p1AdminEdited=(rec.editLog||[]).some(e=>e.fields?.includes('p1'));
@@ -206,7 +206,7 @@ const CheckinBuilders = {
       phases, allDone,
       summaryP1, summaryP2, summaryP3, summaryP4, summaryP2Label,
       showLunchSummary:!isCas, summaryGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',
-      isLate, lateShiftStart:shiftStart,
+      isLate,
       hasIncompletePast, incompletePastDate,
       canAddLateReason:isLate&&!p1AdminEdited&&!rec.lateReason&&status==='present'&&!outOfCycle&&!noRep,
       hasLateReason:isLate&&!p1AdminEdited&&!!rec.lateReason,

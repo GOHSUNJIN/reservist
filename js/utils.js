@@ -110,7 +110,7 @@ const Utils = {
   },
 
   // ── Custom phase timings (ops_security only) ───────────────────────────────
-  DEFAULT_TIMINGS:{shift_start:'09:00',p1_open:'08:00',p2_open:'11:00',p3_open:'13:00',p4_open:'14:00'},
+  DEFAULT_TIMINGS:{p1_open:'08:00',p2_open:'11:00',p3_open:'13:00',p4_open:'14:00'},
   _addMins(hhmm,mins){
     const[h,m]=(hhmm||'00:00').split(':').map(Number);
     const total=Math.min(h*60+m+mins,23*60+59);
