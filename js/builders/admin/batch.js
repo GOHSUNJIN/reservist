@@ -194,6 +194,7 @@ const AdminBatch = {
               avatarColor:_hasOv?'#b9791a':'#5c6678',
             };
           });
+        if(s.phaseTimingsOpen) console.log('[PhaseTmg.build] activeMembers:', activeMembers.length, 'filter:', JSON.stringify(_q), 'roster:', _roster.length, 'batchId:', activeBatch?.id, 'batchDept:', activeBatch?.department, 'batchT:', JSON.stringify(_batchT));
         return {
           ptOverrideEditId:s.ptOverrideEditId||null,
           ptOverrideEditName:_editPerson?.name||'',

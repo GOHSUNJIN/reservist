@@ -269,6 +269,7 @@ const AdminRoster = {
           noPersonHistory:!_phAll.length&&!s.personHistoryLoading,
           noPersonHistoryFiltered:_phAll.length>0&&_phFiltered.length===0,
           personHistoryFilter:_phFilter,
+          personHistoryFilterEmptyText:_phFilter==='mc'?'No leave records':_phFilter==='present'?'No present records':_phFilter==='absent'?'No absent records':'No records',
           personHistoryPage:_phPage,personHistoryTotalPages:_phTotalPages,
           personHistoryHasPrev:_phPage>1,personHistoryHasNext:_phPage<_phTotalPages,
           personHistoryShowPagination:_phTotalPages>1,

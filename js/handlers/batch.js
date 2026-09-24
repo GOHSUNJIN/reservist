@@ -215,6 +215,11 @@ const BatchHandlers = {
 
   openPhaseTimings: function() {
     const batch=this.state.batches[this.state.activeBatchIdx||0];
+    const liveMems=this.state.personnel.filter(p=>p.batch_id===batch?.id);
+    const cachedMems=this.state.batchMembersCache?.[batch?.id]||[];
+    console.log('[PhaseTmg.open] batchId:', batch?.id, 'is_live:', batch?.is_live, 'dept:', batch?.department,
+      'personnel_total:', this.state.personnel.length, 'live_members:', liveMems.length,
+      'cached_members:', cachedMems.length, 'isMaster:', this.state.isMaster, 'myDept:', this._myDept());
     this.setState({phaseTimingsOpen:true, phaseTimingsDraft:{...Utils.effectiveTimings(batch)}});
   },
   closePhaseTimings: function() { this.setState({phaseTimingsOpen:false, phaseTimingsDraft:null, ptOverrideEditId:null, ptOverrideDraft:null, ptOverrideSearch:''}); },
