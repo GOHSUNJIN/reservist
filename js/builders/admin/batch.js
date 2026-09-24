@@ -197,7 +197,7 @@ const AdminBatch = {
               avatarColor:_hasOv?'#b9791a':'#5c6678',
             };
           });
-        if(s.phaseTimingsOpen) console.log('[IndivOverrides] activeMembers:', activeMembers.length, '| filter:', JSON.stringify(_q), '| roster:', _roster.length, '| batchId:', activeBatch?.id, '| dept:', activeBatch?.department, '| sample:', activeMembers.slice(0,3).map(m=>m.name));
+        if(s.phaseTimingsOpen) console.log('[IndivOverrides] activeMembers:', activeMembers.length, '| filter:', JSON.stringify(_q), '| ptOverrideRoster:', _roster.length, '| batchId:', activeBatch?.id, '| dept:', activeBatch?.department, '| sample:', activeMembers.slice(0,3).map(m=>m.name));
         return {
           ptOverrideEditId:s.ptOverrideEditId||null,
           ptOverrideEditName:_editPerson?.name||'',
@@ -205,7 +205,7 @@ const AdminBatch = {
           ptOverrideEditP3:_draft.p3_open, ptOverrideEditP4:_draft.p4_open,
           ptOverrideIsDinner:_din2, ptOverrideBreakLabel:_din2?'DINNER':'LUNCH',
           ptOverrideBtnLabel:s.ptOverrideSaving?'Saving...':'Save override',
-          ptRoster:_roster,
+          ptOverrideRoster:_roster,
           ptRosterShowEmpty:_roster.length===0,
           ptRosterEmptyText:activeMembers.length===0?'No personnel in this cycle.':'No matches.',
           ptOverrideSearch:s.ptOverrideSearch||'',
