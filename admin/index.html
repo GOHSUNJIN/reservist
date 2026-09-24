@@ -974,8 +974,8 @@ function buildActionText(ev){
     case 'batch.no_report_toggled':  return 'Toggled no-report day'+(m.date?` for <strong>${esc(fmtDk(m.date))}</strong>`:'');
     case 'batch.no_report_bulk':          return m.count?`Set ${m.count} no-report day${m.count!==1?'s':''}`:'Bulk set no-report days';
     case 'batch.timings_updated':         return tn?`Updated cycle timings for ${tn}`:'Updated cycle phase timings';
-    case 'batch.person_timings_updated':  return tn?`Set custom timings for <strong>${esc(tn)}</strong>`:'Set custom phase timings';
-    case 'batch.person_timings_cleared':  return tn?`Cleared custom timings for <strong>${esc(tn)}</strong>`:'Cleared custom phase timings';
+    case 'batch.person_timings_updated':  return tn?`Set custom timings for ${tn}`:'Set custom phase timings';
+    case 'batch.person_timings_cleared':  return tn?`Cleared custom timings for ${tn}`:'Cleared custom phase timings';
     case 'account.name_changed':     return m.new_name?`Changed name to <strong>${esc(m.new_name)}</strong>`:'Changed display name';
     case 'account.password_changed': return 'Changed account password';
     case 'account.photo_uploaded':   return 'Uploaded profile photo';
