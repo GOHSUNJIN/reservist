@@ -183,11 +183,14 @@ const AdminBatch = {
           .map(m=>{
             const _eff=m.phase_timings?{..._batchT,...m.phase_timings}:_batchT;
             const _hasOv=!!m.phase_timings;
+            const _isEditing=m.id===s.ptOverrideEditId;
             return {
               id:m.id, name:m.name, initials:Utils.initials(m.name),
               hasOverride:_hasOv, showClear:_hasOv,
               p1:_eff.p1_open, p2:_eff.p2_open, p3:_eff.p3_open, p4:_eff.p4_open,
-              onEdit:()=>self.openPtOverrideEdit(m.id),
+              isEditing:_isEditing,
+              rowBg:_isEditing?'#f6f8fa':'transparent',
+              onToggle:_isEditing?self.closePtOverrideEdit:()=>self.openPtOverrideEdit(m.id),
               onClear:_hasOv?()=>self.clearPtOverride(m.id):null,
               timingColor:_hasOv?'#b9791a':'#8a94a3',
               avatarBg:_hasOv?'#fdf0dc':'#e5e8ef',
