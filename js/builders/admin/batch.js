@@ -197,6 +197,7 @@ const AdminBatch = {
               avatarColor:_hasOv?'#b9791a':'#5c6678',
             };
           });
+        if(s.phaseTimingsOpen) console.log('[IndivOverrides] activeMembers:', activeMembers.length, '| filter:', JSON.stringify(_q), '| roster:', _roster.length, '| batchId:', activeBatch?.id, '| dept:', activeBatch?.department, '| sample:', activeMembers.slice(0,3).map(m=>m.name));
         return {
           ptOverrideEditId:s.ptOverrideEditId||null,
           ptOverrideEditName:_editPerson?.name||'',
