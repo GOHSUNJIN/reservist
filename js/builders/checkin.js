@@ -183,7 +183,7 @@ const CheckinBuilders = {
     return {
       todayLong:Utils.fmtLong(this.baseDate()),
       clock:Utils.hhmm(s.now),
-      myShiftLabel:Utils.shiftLabel(me.shift), myShiftWindow:_timings?(_timings.p1_open+' · in by '+_lateCutoff):Utils.shiftWindow(me.shift),
+      myShiftLabel:Utils.shiftLabel(me.shift), myShiftWindow:_timings?(_isDinner?'1400 to 2100, Dinner 1800 to 1930':'0900 to 1800, Lunch 1200 to 1330'):Utils.shiftWindow(me.shift),
       myStatusLabel:outOfCycle?outOfCycleTitle:noRep?'No reporting':todayApprovedLeave&&status==='absent'?'Personal Leave':m.label,
       myStatusColor:outOfCycle?'#8a94a3':noRep?accent:todayApprovedLeave&&status==='absent'?'#b9791a':m.color,
       myStatusBg:outOfCycle?'#eceef2':noRep?'#eef3fc':todayApprovedLeave&&status==='absent'?'#f7efdc':m.bg,
