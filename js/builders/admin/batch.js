@@ -162,8 +162,7 @@ const AdminBatch = {
       ...(() => {
         const _t=s.phaseTimingsDraft||Utils.effectiveTimings(activeBatch);
         const _din=Utils.isBreakDinner(_t);
-        const _phRoster=s.phaseTimingsRoster||[];
-        const _ovCount=_phRoster.filter(m=>m.phase_timings).length;
+        const _ovCount=activeMembers.filter(m=>m.phase_timings).length;
         return {
           ptP1Open:_t.p1_open,
           ptP2Open:_t.p2_open, ptP3Open:_t.p3_open, ptP4Open:_t.p4_open,
@@ -177,10 +176,9 @@ const AdminBatch = {
         const _batchT=Utils.effectiveTimings(activeBatch);
         const _draft=s.ptOverrideDraft||_batchT;
         const _din2=Utils.isBreakDinner(_draft);
-        const _phRoster=s.phaseTimingsRoster||[];
-        const _editPerson=s.ptOverrideEditId?_phRoster.find(m=>m.id===s.ptOverrideEditId):null;
+        const _editPerson=s.ptOverrideEditId?activeMembers.find(m=>m.id===s.ptOverrideEditId):null;
         const _q=(s.ptOverrideSearch||'').toLowerCase().trim();
-        const _roster=_phRoster
+        const _roster=activeMembers
           .filter(m=>!_q||m.name.toLowerCase().includes(_q)||(m.contact||'').toLowerCase().includes(_q))
           .map(m=>{
             const _eff=m.phase_timings?{..._batchT,...m.phase_timings}:_batchT;
@@ -208,7 +206,7 @@ const AdminBatch = {
           ptOverrideBtnLabel:s.ptOverrideSaving?'Saving...':'Save override',
           ptRoster:_roster,
           ptRosterShowEmpty:_roster.length===0,
-          ptRosterEmptyText:_phRoster.length===0?'Loading...':'No matches.',
+          ptRosterEmptyText:activeMembers.length===0?'No personnel in this cycle.':'No matches.',
           ptOverrideSearch:s.ptOverrideSearch||'',
           ptOverrideSaving:!!s.ptOverrideSaving,
           ptOverrideSavingOpacity:s.ptOverrideSaving?0.6:1,
