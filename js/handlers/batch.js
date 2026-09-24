@@ -213,16 +213,12 @@ const BatchHandlers = {
 
   baseDate: function() { const d=new Date(); d.setHours(0,0,0,0); return d; },
 
-  openPhaseTimings: async function() {
+  openPhaseTimings: function() {
     const batch=this.state.batches[this.state.activeBatchIdx||0];
     if(!batch) return;
-    this.setState({phaseTimingsOpen:true, phaseTimingsDraft:{...Utils.effectiveTimings(batch)}, phaseTimingsRoster:[]});
-    const raw = this.state.demo
-      ? (batch.is_live ? this.state.personnel.filter(p=>p.batch_id===batch.id) : (this.state.batchMembersCache?.[batch.id]||[]))
-      : await DB.personnel.list(batch.id, true).catch(()=>[]);
-    this.setState({phaseTimingsRoster: raw.filter(p=>(p.role||'reservist')==='reservist')});
+    this.setState({phaseTimingsOpen:true, phaseTimingsDraft:{...Utils.effectiveTimings(batch)}, ptOverrideSearch:'', ptOverrideEditId:null, ptOverrideDraft:null});
   },
-  closePhaseTimings: function() { this.setState({phaseTimingsOpen:false, phaseTimingsDraft:null, ptOverrideEditId:null, ptOverrideDraft:null, ptOverrideSearch:'', phaseTimingsRoster:[]}); },
+  closePhaseTimings: function() { this.setState({phaseTimingsOpen:false, phaseTimingsDraft:null, ptOverrideEditId:null, ptOverrideDraft:null, ptOverrideSearch:''}); },
   onPhaseTimingP1Open:     function(e){ this.setState(s=>({phaseTimingsDraft:{...s.phaseTimingsDraft,p1_open:e.target.value}})); },
   onPhaseTimingP2Open:     function(e){ this.setState(s=>({phaseTimingsDraft:{...s.phaseTimingsDraft,p2_open:e.target.value}})); },
   onPhaseTimingP3Open:     function(e){ this.setState(s=>({phaseTimingsDraft:{...s.phaseTimingsDraft,p3_open:e.target.value}})); },
@@ -242,9 +238,10 @@ const BatchHandlers = {
   },
 
   openPtOverrideEdit: function(id) {
-    const {phaseTimingsRoster, batches, activeBatchIdx} = this.state;
+    const {personnel, batchMembersCache, batches, activeBatchIdx} = this.state;
     const activeBatch = batches[activeBatchIdx||0];
-    const person = phaseTimingsRoster.find(p=>p.id===id); if(!person) return;
+    const members = activeBatch?.is_live ? personnel.filter(p=>p.batch_id===activeBatch.id) : (batchMembersCache[activeBatch?.id]||[]);
+    const person = members.find(p=>p.id===id); if(!person) return;
     const batchTimings = Utils.effectiveTimings(activeBatch);
     this.setState({ptOverrideEditId:id, ptOverrideDraft:{...batchTimings,...(person.phase_timings||{})}});
   },
@@ -263,10 +260,11 @@ const BatchHandlers = {
     this.setState({ptOverrideSaving:false});
     if(error){ this._toast('Failed to save timings.','error'); return; }
     const activeBatch = batches[activeBatchIdx||0];
-    const personName = this.state.phaseTimingsRoster.find(p=>p.id===ptOverrideEditId)?.name||'';
+    const members = activeBatch?.is_live ? personnel.filter(p=>p.batch_id===activeBatch.id) : (batchMembersCache[activeBatch?.id]||[]);
+    const personName = members.find(p=>p.id===ptOverrideEditId)?.name||'';
     const saved = {...ptOverrideDraft};
     const patchArr = (arr) => arr.map(p=>p.id===ptOverrideEditId?{...p,phase_timings:saved}:p);
-    this.setState(s=>{ const newBmc={}; Object.keys(s.batchMembersCache).forEach(k=>{newBmc[k]=patchArr(s.batchMembersCache[k]);}); return {personnel:patchArr(s.personnel),batchMembersCache:newBmc,phaseTimingsRoster:patchArr(s.phaseTimingsRoster),ptOverrideEditId:null,ptOverrideDraft:null,ptOverrideSearch:''}; });
+    this.setState(s=>{ const newBmc={}; Object.keys(s.batchMembersCache).forEach(k=>{newBmc[k]=patchArr(s.batchMembersCache[k]);}); return {personnel:patchArr(s.personnel),batchMembersCache:newBmc,ptOverrideEditId:null,ptOverrideDraft:null,ptOverrideSearch:''}; });
     this._toast('Custom timings saved'+(personName?' for '+personName:'')+'.');
     this._log('batch','batch.person_timings_updated',{target_name:personName});
   },
@@ -277,7 +275,7 @@ const BatchHandlers = {
     const {error} = await DB.personnel.updateTimings(id, null);
     if(error){ this._toast('Failed to clear.','error'); return; }
     const patchArr = (arr) => arr.map(p=>p.id===id?{...p,phase_timings:null}:p);
-    this.setState(s=>{ const newBmc={}; Object.keys(s.batchMembersCache).forEach(k=>{newBmc[k]=patchArr(s.batchMembersCache[k]);}); return {personnel:patchArr(s.personnel),batchMembersCache:newBmc,phaseTimingsRoster:patchArr(s.phaseTimingsRoster)}; });
+    this.setState(s=>{ const newBmc={}; Object.keys(s.batchMembersCache).forEach(k=>{newBmc[k]=patchArr(s.batchMembersCache[k]);}); return {personnel:patchArr(s.personnel),batchMembersCache:newBmc}; });
     this._toast('Custom timings cleared'+(personName?' for '+personName:'')+'.');
     this._log('batch','batch.person_timings_cleared',{target_name:personName});
   },
