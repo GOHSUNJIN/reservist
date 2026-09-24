@@ -1,6 +1,4 @@
 const Utils = {
-  shiftLabel(s){ return 'Office'; },
-  shiftWindow(s){ return '0900 to 1800 hrs'; },
   initials(name){ const p=(name||'').trim().split(/\s+/); return ((p[0]||'')[0]||'').toUpperCase()+((p[p.length-1]||'')[0]||'').toUpperCase(); },
   meta(s){
     if(s==='present') return {label:'Present',color:'#1f8a5b',bg:'#e7f3ec'};

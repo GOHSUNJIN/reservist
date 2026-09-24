@@ -160,7 +160,7 @@ const CalendarBuilders = {
     const _exDates=s.historyExpandedDates||[];
     const _ed=f=>!!(rec.editLog||[]).some(e=>e.fields?.includes(f));
     const todayRow=(Utils.isReportDay(todayD,this._myDept())&&!this.isNoReport(0)&&(!activeBatch||today>=activeBatch.start_date)&&(!activeBatch||today<=activeBatch.end_date))
-      ?[{date:Utils.fmtMed(todayD)+', Today',dateKey:today,showMonthDivider:false,monthDividerLabel:'',shift:Utils.shiftLabel(me.shift),status,
+      ?[{date:Utils.fmtMed(todayD)+', Today',dateKey:today,showMonthDivider:false,monthDividerLabel:'',shift:'Office',status,
          p1:rec.p1||'-',p2:rec.p2||'-',p3:rec.p3||'-',p4:rec.p4||'-',
          p1Color:_ed('p1')?'#2f5fd0':_tc(rec.p1,'#161f30',_dc),p2Color:_ed('p2')?'#2f5fd0':_tc(rec.p2,'#161f30',_dc),p3Color:_ed('p3')?'#2f5fd0':_tc(rec.p3,'#161f30',_dc),p4Color:_ed('p4')?'#2f5fd0':_tc(rec.p4,'#161f30',_dc),
          p1Edited:_ed('p1'),p2Edited:_ed('p2'),p3Edited:_ed('p3'),p4Edited:_ed('p4'),
@@ -188,7 +188,7 @@ const CalendarBuilders = {
       const isMissed=r.status==='missed';
       const _ed2=f=>!!(r.editLog||[]).some(e=>e.fields?.includes(f));
       const _approvedLeave=r.status==='absent'?this._findApprovedLeave(r.date):null;
-      return {date:Utils.fmtMed(d),dateKey:r.date,shift:Utils.shiftLabel(me.shift),status:r.status,
+      return {date:Utils.fmtMed(d),dateKey:r.date,shift:'Office',status:r.status,
         p1:p1||'-',
         p2:p2||(isPresent?'–':'-'), p3:p3||(isPresent?'–':'-'), p4:p4||(isPresent?'–':'-'),
         p1Color:_ed2('p1')?'#2f5fd0':_tc(p1,'#161f30',_dc),
@@ -215,7 +215,7 @@ const CalendarBuilders = {
       for(let d=new Date(bStart);d<=yesterday;d=Utils.addDays(d,1)){
         const dk=Utils.dateKey(d);
         if(Utils.isReportDay(d,this._myDept())&&dk<=activeBatch.end_date&&!Utils.holidayName(d)&&!s.noReportDays.has(dk)&&!histKeys.has(dk)){
-          missedRows.push({date:Utils.fmtMed(d),dateKey:dk,shift:Utils.shiftLabel(me.shift),status:'missed',
+          missedRows.push({date:Utils.fmtMed(d),dateKey:dk,shift:'Office',status:'missed',
             p1:'-',p2:'-',p3:'-',p4:'-',p1Color:_dc,p2Color:_dc,p3Color:_dc,p4Color:_dc,
             p1Edited:false,p2Edited:false,p3Edited:false,p4Edited:false,
             showTimes:false,rowMarginBot:'0',chevronRotate:'0',hasExpandToggle:true,rowCursor:'pointer',isExpanded:false,onToggleExpand:this.openMissedNote(dk,''),showTimingWarning:false,
@@ -247,7 +247,7 @@ const CalendarBuilders = {
         const isApproved=r.status==='approved';
         const lbl=isMc?'MC':'Personal Leave';
         futureLeaveRows.push({
-          date:Utils.fmtMed(d),dateKey:dk,showMonthDivider:futureLeaveRows.length===0,monthDividerLabel:'Upcoming',shift:Utils.shiftLabel(me.shift),
+          date:Utils.fmtMed(d),dateKey:dk,showMonthDivider:futureLeaveRows.length===0,monthDividerLabel:'Upcoming',shift:'Office',
           status:isApproved?(isMc?'mc':'absent'):'pending',
           label:lbl,color:'#b9791a',bg:isApproved?'#f7efdc':'#fdf6e9',
           p1:'-',p2:'-',p3:'-',p4:'-',

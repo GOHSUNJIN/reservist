@@ -15,7 +15,6 @@ const AdminPeople = {
         const approvedByLabel=_addedByAdmin?'Added by':'Approved by';
         return {...p,
           initials:Utils.initials(p.name),
-          shiftLabel:Utils.shiftLabel(p.shift),
           onCopyContact:self.copyContact(p.contact||''),
           onEditNote:self.openNote(p.id,p.notes||''),
           isEditingNote:s.editingNoteId===p.id,
@@ -107,7 +106,7 @@ const AdminPeople = {
               avatarStyle:Utils.avatarStyle(av), avatarCursor:av?'cursor:pointer;':'',
               onViewAvatar:av?self.openAvatarLightbox(av):null,
               statusLabel:mm.label, statusColor:mm.color, statusBg:mm.bg,
-              batchLabel, shiftLabel:Utils.shiftLabel(p.shift),
+              batchLabel,
               isConfirming, onAskDelete:self.askDeleteMember(p.id),
               isSelected:_isSel, onToggleSelect:self.toggleMemberSelect(p.id),
               checkBorder:_isSel?'#3b5bdb':'#c8cdd6', checkBg:_isSel?'#3b5bdb':'#fff',
@@ -374,7 +373,7 @@ const AdminPeople = {
             const isCrossDept=isReactivation&&!!prevDept&&prevDept!==r.department;
             const _matchId=(s.signupContactToId||{})[_rc]||null;
             const _av=_matchId?(s.avatars[_matchId]||''):'';
-            return {id:r.id,name:r.name,contact:r.contact,shift:r.shift,batchLabel:b?b.label:'',initials:Utils.initials(r.name)||'?',
+            return {id:r.id,name:r.name,contact:r.contact,batchLabel:b?b.label:'',initials:Utils.initials(r.name)||'?',
               avatarStyle:Utils.avatarStyle(_av),avatarInitials:_av?'':Utils.initials(r.name)||'?',hasAvatar:!!_av,avatarCursor:_av?'cursor:pointer;':'',onViewAvatar:_av?self.openAvatarLightbox(_av):null,
               createdAt:r.created_at?(new Date(r.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'})+' · '+Utils.hhmm(new Date(r.created_at))):'',
               deptLabel:Utils.deptLabel(r.department),

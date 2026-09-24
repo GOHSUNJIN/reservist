@@ -60,13 +60,13 @@ const SignupHandlers = {
         return {finalPerson:null,existed:true,wasInactive:false,error:true,message:'This contact belongs to a supervisor account and cannot be enrolled as a reservist. Please contact your system administrator.'};
       }
       if(!existing.is_active){
-        const {data:reactivated}=await DB.personnel.reactivate(existing.id,{batchId:req.batch_id,shift:req.shift,authId:req.auth_id,department:dept});
+        const {data:reactivated}=await DB.personnel.reactivate(existing.id,{batchId:req.batch_id,authId:req.auth_id,department:dept});
         return {finalPerson:reactivated||existing,existed:true,wasInactive:true};
       }
       await DB.personnel.linkAuth(existing.id,req.auth_id);
       return {finalPerson:existing,existed:true,wasInactive:false};
     }
-    const {data:newPerson,error:addErr}=await DB.personnel.add({authId:req.auth_id,name:req.name,contact:req.contact,shift:req.shift,batchId:req.batch_id,department:dept});
+    const {data:newPerson,error:addErr}=await DB.personnel.add({authId:req.auth_id,name:req.name,contact:req.contact,batchId:req.batch_id,department:dept});
     if(addErr){
       await DB.signupRequests.reopen(signupId).catch(()=>{});
       return {finalPerson:null,existed:false,wasInactive:false,error:true,message:'Failed to create roster entry. Signup reverted to pending. Try again.'};
