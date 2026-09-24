@@ -1537,6 +1537,18 @@
                 </div>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c4c9d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
               </button>
+              <sc-if value="{{ showPhaseTimings }}" hint-placeholder-val="">
+              <button onClick="{{ openPhaseTimings }}" style="-webkit-appearance:none;width:100%;padding:14px 16px;background:transparent;border:none;border-bottom:1px solid #f2f4f7;cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;">
+                <div style="width:36px;height:36px;border-radius:10px;background:#fdf0dc;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                </div>
+                <div class="flex-fill" style="min-width:0;">
+                  <div style="font-size:13.5px;font-weight:600;color:#161f30;">Phase timings</div>
+                  <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ phaseTimingsSummary }}</div>
+                </div>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c4c9d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </button>
+              </sc-if>
               <sc-if value="{{ showSnapshot }}" hint-placeholder-val="">
               <button onClick="{{ openWaPreview }}" style="-webkit-appearance:none;width:100%;padding:14px 16px;background:transparent;border:none;cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;">
                 <div style="width:36px;height:36px;border-radius:10px;background:#e9faf2;display:flex;align-items:center;justify-content:center;flex:0 0 auto;">
@@ -3134,6 +3146,50 @@
         </div>
         <button onClick="{{ saveBroadcast }}" disabled="{{ broadcastSaving }}" style="width:100%;padding:13px;background:#2f5fd0;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ broadcastSavingOpacity }};">{{ broadcastBtnLabel }}</button>
         <button onClick="{{ closeBroadcast }}" class="btn-subtle">Cancel</button>
+      </div>
+    </div>
+    </sc-if>
+
+    <!-- ===== ADMIN: PHASE TIMINGS MODAL (ops_security only) ===== -->
+    <sc-if value="{{ phaseTimingsOpen }}" hint-placeholder-val="">
+    <div class="modal-overlay">
+      <div class="sheet-padded">
+        <div class="flex-between-tight">
+          <div class="text-title-lg">Phase timings</div>
+          <button onClick="{{ closePhaseTimings }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        </div>
+        <p style="font-size:13px;color:#5c6678;margin:0 0 18px;line-height:1.5;">Set when each phase window opens for this cycle. If the break opens at or after 18:00, it is labelled <strong>DINNER</strong> instead of LUNCH.</p>
+
+        <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:20px;">
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#5c6678;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;">Shift start · Late check-in threshold</div>
+            <input type="time" value="{{ ptShiftStart }}" onInput="{{ onPtShiftStart }}" style="-webkit-appearance:none;width:100%;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:15px;font-weight:600;color:#161f30;background:#f6f8fa;outline:none;box-sizing:border-box;" />
+            <div style="font-size:11px;color:#a0a8b4;margin-top:4px;">Check-ins 60+ min after this time are flagged as late.</div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#5c6678;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;">P1 · Check-in window opens</div>
+            <input type="time" value="{{ ptP1Open }}" onInput="{{ onPtP1Open }}" style="-webkit-appearance:none;width:100%;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:15px;font-weight:600;color:#161f30;background:#f6f8fa;outline:none;box-sizing:border-box;" />
+            <div style="font-size:11px;color:#a0a8b4;margin-top:4px;">Window closes at {{ ptP1Close }} (2 h after open).</div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:{{ ptIsDinner ? '#b9791a' : '#5c6678' }};letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;">P2 · {{ ptBreakLabel }} break window opens</div>
+            <input type="time" value="{{ ptP2Open }}" onInput="{{ onPtP2Open }}" style="-webkit-appearance:none;width:100%;padding:11px 13px;border:1px solid {{ ptIsDinner ? '#f0e2c2' : '#d4d9e2' }};border-radius:9px;font-size:15px;font-weight:600;color:#161f30;background:{{ ptIsDinner ? '#fdf6e9' : '#f6f8fa' }};outline:none;box-sizing:border-box;" />
+            <div style="font-size:11px;color:#a0a8b4;margin-top:4px;">Window closes at {{ ptP2Close }} (3 h after open).</div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#5c6678;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;">P3 · Return from {{ ptBreakLabel }} window opens</div>
+            <input type="time" value="{{ ptP3Open }}" onInput="{{ onPtP3Open }}" style="-webkit-appearance:none;width:100%;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:15px;font-weight:600;color:#161f30;background:#f6f8fa;outline:none;box-sizing:border-box;" />
+            <div style="font-size:11px;color:#a0a8b4;margin-top:4px;">Window closes at {{ ptP3Close }} (2 h after open).</div>
+          </div>
+          <div>
+            <div style="font-size:11px;font-weight:700;color:#5c6678;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;">P4 · Check-out window opens</div>
+            <input type="time" value="{{ ptP4Open }}" onInput="{{ onPtP4Open }}" style="-webkit-appearance:none;width:100%;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:15px;font-weight:600;color:#161f30;background:#f6f8fa;outline:none;box-sizing:border-box;" />
+            <div style="font-size:11px;color:#a0a8b4;margin-top:4px;">Window stays open until 23:59.</div>
+          </div>
+        </div>
+
+        <button onClick="{{ savePhaseTimings }}" style="width:100%;padding:13px;background:#b9791a;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ phaseTimingsSavingOpacity }};">{{ phaseTimingsSaving ? 'Saving...' : 'Save timings' }}</button>
+        <button onClick="{{ closePhaseTimings }}" class="btn-subtle">Cancel</button>
       </div>
     </div>
     </sc-if>

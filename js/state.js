@@ -67,6 +67,7 @@ const makeInitialState = () => ({
   cyclePickerOpen: false, cyclePickerYear: null, cyclePickerPage: 1,
   broadcastOpen: false, broadcastText: '', broadcastSaving: false,
   noReportBulkOpen: false, noReportBulkText: '',
+  phaseTimingsOpen: false, phaseTimingsDraft: null, phaseTimingsSaving: false,
 
   // ── Personnel management ─────────────────────────────────────────────────
   peopleTab: 'roster',
