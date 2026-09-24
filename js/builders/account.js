@@ -5,6 +5,9 @@ const AccountBuilders = {
     const me=this.cur(); if(!me) return {};
     const avatarUrl=s.avatars[s.currentUserId]||'';
     const acctBatch=(s.batches||[]).find(b=>b.id===me.batch_id)||(s.batches||[]).find(b=>b.is_live)||null;
+    const _acctBatchT=Utils.effectiveTimings(acctBatch);
+    const _acctMyT=(this._myDept()==='ops_security')?(me?.phase_timings||_acctBatchT):null;
+    const _acctIsDinner=_acctMyT?Utils.isBreakDinner(_acctMyT):false;
     const acctDekit=acctBatch?.dekit_date?new Date(acctBatch.dekit_date+'T00:00:00'):null;
     const acctTodayMid=new Date();acctTodayMid.setHours(0,0,0,0);
     const acctDkLeft=acctDekit?Math.round((acctDekit-acctTodayMid)/86400000):null;
@@ -38,6 +41,7 @@ const AccountBuilders = {
       acctSaving:s.acctSaving, acctSavingOpacity:s.acctSaving?0.6:1, capsLock:!!s.capsLock, onPwKeyDown:this.onPwKeyDown,
       acctDekitCountdown, acctShowDekit, acctCycleRowStyle,
       adminNotifGranted:s.adminNotifGranted, requestAdminNotifs:this.requestAdminNotifs,
+      faqBreakLabel:_acctIsDinner?'dinner':'lunch',
       helpOpen:s.helpOpen, openHelp:this.openHelp, closeHelp:this.closeHelp,
       dekitDateFull:acctDekit?Utils.fmtMed(acctDekit):'',
       changePwOpen:s.changePwOpen, openChangePw:this.openChangePw, closeChangePw:this.closeChangePw,

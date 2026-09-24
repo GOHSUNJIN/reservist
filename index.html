@@ -360,7 +360,7 @@
                   <p style="font-size:13.5px;color:#5c6678;margin:2px 0 0;">{{ phName }}</p>
                 </div>
               </div>
-              <div style="background:#f6f8fa;border-radius:10px;padding:13px 15px;margin-top:12px;font-size:13px;color:#5c6678;line-height:1.55;text-wrap:pretty;">There is no CNB reporting today. You do not need to report or check in, and no attendance submission is required.</div>
+              <div style="background:#f6f8fa;border-radius:10px;padding:13px 15px;margin-top:12px;font-size:13px;color:#5c6678;line-height:1.55;text-wrap:pretty;">There is no CNB reporting today. You do not need to report or check in and no attendance submission is required.</div>
             </div>
             </sc-if>
 
@@ -882,7 +882,7 @@
               <span class="section-label">ABOUT THIS APP</span>
             </div>
             <div style="padding:13px 15px;border-bottom:1px solid #f2f4f7;">
-              <div style="font-size:12.5px;color:#5c6678;line-height:1.7;">Built for PNSMen at G Division. Check in and out via GPS, submit leave requests for supervisor approval, and track meal allowance eligibility in one place.</div>
+              <div style="font-size:12.5px;color:#5c6678;line-height:1.7;">Built for PNSMen at G Division. Check in and out via GPS, submit leave requests for supervisor approval and track meal allowance eligibility in one place.</div>
             </div>
             <div style="padding:13px 15px;">
               <div style="font-size:12.5px;color:#5c6678;line-height:1.7;">Working 6 or more hours with a clock-out earns 1 meal allowance claim. You are advised to take at least 1 hour for lunch.</div>
@@ -1255,7 +1255,7 @@
                   <div style="width:8px;height:8px;border-radius:50%;background:#e8a020;flex:0 0 auto;margin-top:4px;"></div>
                   <div>
                     <div style="font-size:13px;font-weight:600;color:#b9791a;">Under 6 hrs / MC / Personal Leave</div>
-                    <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;">Present but short, or on approved leave</div>
+                    <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;">Present but short or on approved leave</div>
                   </div>
                 </div>
                 <span style="font-size:12px;font-weight:500;color:#8a94a3;white-space:nowrap;margin-left:8px;margin-top:2px;">No allowance</span>
@@ -2988,7 +2988,7 @@
           <sc-if value="{{ confirmWipeHistoryOpen }}" hint-placeholder-val="">
             <div style="background:#fff5f5;border:1px solid #f0d5d2;border-radius:10px;padding:14px 16px;">
               <div style="font-size:13px;font-weight:600;color:#c0392b;margin-bottom:4px;">Permanently delete {{ personHistoryName }}?</div>
-              <div style="font-size:12px;color:#8a94a3;margin-bottom:12px;">This removes all attendance records, leave requests, and their login account. This action cannot be undone.</div>
+              <div style="font-size:12px;color:#8a94a3;margin-bottom:12px;">This removes all attendance records, leave requests and their login account. This action cannot be undone.</div>
               <div class="flex-gap-8">
                 <button onClick="{{ cancelWipeHistory }}" style="flex:1;padding:9px;border-radius:8px;border:1px solid #d4d9e2;background:#fff;color:#5c6678;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
                 <button onClick="{{ confirmWipeHistory }}" style="flex:1;padding:9px;border-radius:8px;border:none;background:#c0392b;color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ wipeHistoryBtnOpacity }};">{{ wipeHistoryBtnText }}</button>
@@ -3034,7 +3034,7 @@
               <div style="padding:36px 16px;text-align:center;">
                 <div class="avatar-circle"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
                 <div class="text-sub">No members found</div>
-                <div class="text-muted">Try a different name, number, or filter.</div>
+                <div class="text-muted">Try a different name, number or filter.</div>
               </div>
             </sc-if>
             <sc-for list="{{ memberSearchRows }}" as="m">
@@ -3056,7 +3056,7 @@
                 <sc-if value="{{ m.isConfirming }}" hint-placeholder-val="">
                   <div style="background:#fff5f5;border:1px solid #f0d5d2;border-radius:9px;padding:11px 13px;">
                     <div style="font-size:12px;font-weight:600;color:#c0392b;margin-bottom:2px;">Delete {{ m.name }} permanently?</div>
-                    <div style="font-size:11.5px;color:#8a94a3;margin-bottom:10px;">Removes all records, leave history, and login account.</div>
+                    <div style="font-size:11.5px;color:#8a94a3;margin-bottom:10px;">Removes all records, leave history and login account.</div>
                     <div class="flex-gap-7">
                       <button onClick="{{ cancelDeleteMember }}" style="flex:1;padding:7px;border-radius:7px;border:1px solid #d4d9e2;background:#fff;color:#5c6678;font-size:12px;font-weight:600;cursor:pointer;">Cancel</button>
                       <button onClick="{{ confirmDeleteMember }}" style="flex:1;padding:7px;border-radius:7px;border:none;background:#c0392b;color:#fff;font-size:12px;font-weight:700;cursor:pointer;opacity:{{ deleteMemberBtnOpacity }};">{{ deleteMemberBtnText }}</button>
@@ -3088,7 +3088,7 @@
           <sc-if value="{{ confirmBulkDeleteOpen }}" hint-placeholder-val="">
             <div style="background:#fff5f5;border:1px solid #f0d5d2;border-radius:10px;padding:13px 15px;">
               <div style="font-size:13px;font-weight:600;color:#c0392b;margin-bottom:3px;">Delete {{ memberSelectedCount }} members permanently?</div>
-              <div style="font-size:12px;color:#8a94a3;margin-bottom:11px;">All records, leave history, and login accounts will be removed.</div>
+              <div style="font-size:12px;color:#8a94a3;margin-bottom:11px;">All records, leave history and login accounts will be removed.</div>
               <div class="flex-gap-8">
                 <button onClick="{{ cancelBulkDelete }}" style="flex:1;padding:8px;border-radius:8px;border:1px solid #d4d9e2;background:#fff;color:#5c6678;font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
                 <button onClick="{{ executeBulkDelete }}" style="flex:1;padding:8px;border-radius:8px;border:none;background:#c0392b;color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ bulkDeleteBtnOpacity }};">{{ bulkDeleteBtnText }}</button>
@@ -3165,13 +3165,13 @@
             <div style="font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:4px;">P1 · CHECK-IN</div>
             <input type="time" value="{{ ptP1Open }}" onInput="{{ onPtP1Open }}" style="-webkit-appearance:none;border:none;font-size:15px;font-weight:700;color:#161f30;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;" />
           </div>
-          <div style="border:1px solid #e8ecf1;border-radius:11px;padding:10px 12px;background:{{ ptIsDinner ? '#fdf6e9' : 'transparent' }};">
-            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;margin-bottom:4px;color:{{ ptIsDinner ? '#b9791a' : '#8a94a3' }};">P2 · {{ ptBreakLabel }}</div>
-            <input type="time" value="{{ ptP2Open }}" onInput="{{ onPtP2Open }}" style="-webkit-appearance:none;border:none;font-size:15px;font-weight:700;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;color:{{ ptIsDinner ? '#b9791a' : '#161f30' }};" />
+          <div style="border:1px solid #e8ecf1;border-radius:11px;padding:10px 12px;background:{{ ptP2Bg }};">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;margin-bottom:4px;color:{{ ptP2LabelColor }};">P2 · {{ ptBreakLabel }}</div>
+            <input type="time" value="{{ ptP2Open }}" onInput="{{ onPtP2Open }}" style="-webkit-appearance:none;border:none;font-size:15px;font-weight:700;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;color:{{ ptP2InputColor }};" />
           </div>
-          <div style="border:1px solid #e8ecf1;border-radius:11px;padding:10px 12px;background:{{ ptIsDinner ? '#fdf6e9' : 'transparent' }};">
-            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;margin-bottom:4px;color:{{ ptIsDinner ? '#b9791a' : '#8a94a3' }};">P3 · RETURN</div>
-            <input type="time" value="{{ ptP3Open }}" onInput="{{ onPtP3Open }}" style="-webkit-appearance:none;border:none;font-size:15px;font-weight:700;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;color:{{ ptIsDinner ? '#b9791a' : '#161f30' }};" />
+          <div style="border:1px solid #e8ecf1;border-radius:11px;padding:10px 12px;background:{{ ptP3Bg }};">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;margin-bottom:4px;color:{{ ptP3LabelColor }};">P3 · RETURN</div>
+            <input type="time" value="{{ ptP3Open }}" onInput="{{ onPtP3Open }}" style="-webkit-appearance:none;border:none;font-size:15px;font-weight:700;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;color:{{ ptP3InputColor }};" />
           </div>
           <div style="border:1px solid #e8ecf1;border-radius:11px;padding:10px 12px;">
             <div style="font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:4px;">P4 · CHECK-OUT</div>
@@ -3207,21 +3207,21 @@
             <sc-if value="{{ pr.isEditing }}" hint-placeholder-val="">
             <div style="padding-bottom:14px;">
               <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px;">
-                <div style="border:1px solid #e0e4ea;border-radius:10px;padding:9px 11px;">
-                  <div style="font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:3px;">P1 · CHECK-IN</div>
-                  <input type="time" value="{{ ptOverrideEditP1 }}" onInput="{{ onPtOverrideP1 }}" style="-webkit-appearance:none;border:none;font-size:14px;font-weight:700;color:#161f30;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;" />
+                <div style="border:{{ ptOvP1Border }};border-radius:10px;padding:9px 11px;background:{{ ptOvP1Bg }};">
+                  <div style="font-size:10px;font-weight:700;letter-spacing:.06em;margin-bottom:3px;color:{{ ptOvP1LabelColor }};">P1 · CHECK-IN</div>
+                  <input type="time" value="{{ ptOverrideEditP1 }}" onInput="{{ onPtOverrideP1 }}" style="-webkit-appearance:none;border:none;font-size:14px;font-weight:700;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;color:{{ ptOvP1InputColor }};" />
                 </div>
-                <div style="border:1px solid #e0e4ea;border-radius:10px;padding:9px 11px;background:{{ ptOverrideIsDinner ? '#fdf6e9' : 'transparent' }};">
-                  <div style="font-size:10px;font-weight:700;letter-spacing:.06em;margin-bottom:3px;color:{{ ptOverrideIsDinner ? '#b9791a' : '#8a94a3' }};">P2 · {{ ptOverrideBreakLabel }}</div>
-                  <input type="time" value="{{ ptOverrideEditP2 }}" onInput="{{ onPtOverrideP2 }}" style="-webkit-appearance:none;border:none;font-size:14px;font-weight:700;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;color:{{ ptOverrideIsDinner ? '#b9791a' : '#161f30' }};" />
+                <div style="border:{{ ptOvP2Border }};border-radius:10px;padding:9px 11px;background:{{ ptOvP2Bg }};">
+                  <div style="font-size:10px;font-weight:700;letter-spacing:.06em;margin-bottom:3px;color:{{ ptOvP2LabelColor }};">P2 · {{ ptOverrideBreakLabel }}</div>
+                  <input type="time" value="{{ ptOverrideEditP2 }}" onInput="{{ onPtOverrideP2 }}" style="-webkit-appearance:none;border:none;font-size:14px;font-weight:700;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;color:{{ ptOvP2InputColor }};" />
                 </div>
-                <div style="border:1px solid #e0e4ea;border-radius:10px;padding:9px 11px;background:{{ ptOverrideIsDinner ? '#fdf6e9' : 'transparent' }};">
-                  <div style="font-size:10px;font-weight:700;letter-spacing:.06em;margin-bottom:3px;color:{{ ptOverrideIsDinner ? '#b9791a' : '#8a94a3' }};">P3 · RETURN</div>
-                  <input type="time" value="{{ ptOverrideEditP3 }}" onInput="{{ onPtOverrideP3 }}" style="-webkit-appearance:none;border:none;font-size:14px;font-weight:700;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;color:{{ ptOverrideIsDinner ? '#b9791a' : '#161f30' }};" />
+                <div style="border:{{ ptOvP3Border }};border-radius:10px;padding:9px 11px;background:{{ ptOvP3Bg }};">
+                  <div style="font-size:10px;font-weight:700;letter-spacing:.06em;margin-bottom:3px;color:{{ ptOvP3LabelColor }};">P3 · RETURN</div>
+                  <input type="time" value="{{ ptOverrideEditP3 }}" onInput="{{ onPtOverrideP3 }}" style="-webkit-appearance:none;border:none;font-size:14px;font-weight:700;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;color:{{ ptOvP3InputColor }};" />
                 </div>
-                <div style="border:1px solid #e0e4ea;border-radius:10px;padding:9px 11px;">
-                  <div style="font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:3px;">P4 · CHECK-OUT</div>
-                  <input type="time" value="{{ ptOverrideEditP4 }}" onInput="{{ onPtOverrideP4 }}" style="-webkit-appearance:none;border:none;font-size:14px;font-weight:700;color:#161f30;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;" />
+                <div style="border:{{ ptOvP4Border }};border-radius:10px;padding:9px 11px;background:{{ ptOvP4Bg }};">
+                  <div style="font-size:10px;font-weight:700;letter-spacing:.06em;margin-bottom:3px;color:{{ ptOvP4LabelColor }};">P4 · CHECK-OUT</div>
+                  <input type="time" value="{{ ptOverrideEditP4 }}" onInput="{{ onPtOverrideP4 }}" style="-webkit-appearance:none;border:none;font-size:14px;font-weight:700;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;color:{{ ptOvP4InputColor }};" />
                 </div>
               </div>
               <div style="display:flex;gap:8px;">
@@ -3326,7 +3326,7 @@
             <sc-if value="{{ isNotCas }}" hint-placeholder-val="{{ true }}">
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">What are the four phases?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;"><strong>Phase 1:</strong> Arrive and check in. GPS required.<br><strong>Phase 2:</strong> Leave for lunch break.<br><strong>Phase 3:</strong> Return from lunch. GPS required.<br><strong>Phase 4:</strong> Check out at end of shift.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;"><strong>Phase 1:</strong> Arrive and check in. GPS required.<br><strong>Phase 2:</strong> Leave for {{ faqBreakLabel }} break.<br><strong>Phase 3:</strong> Return from {{ faqBreakLabel }}. GPS required.<br><strong>Phase 4:</strong> Check out at end of shift.</div>
             </div>
             </sc-if>
 
@@ -3358,12 +3358,12 @@
 
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I request MC or Personal Leave?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Tap <strong>Request absence</strong> on the Check-In tab. Select the date, choose <strong>MC</strong> or <strong>Personal Leave</strong>, add an optional reason, and submit. Your supervisor will approve or decline the request. Check the <strong>Requests</strong> tab under Info for status updates.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Tap <strong>Request absence</strong> on the Check-In tab. Select the date, choose <strong>MC</strong> or <strong>Personal Leave</strong>, add an optional reason and submit. Your supervisor will approve or decline the request. Check the <strong>Requests</strong> tab under Info for status updates.</div>
             </div>
 
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">Can I withdraw a pending request?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Yes, as long as it has not been actioned yet. Go to the <strong>Requests</strong> tab under Info, find the pending request, and tap <strong>Withdraw</strong>. Once approved or declined, it cannot be withdrawn.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Yes, as long as it has not been actioned yet. Go to the <strong>Requests</strong> tab under Info, find the pending request and tap <strong>Withdraw</strong>. Once approved or declined, it cannot be withdrawn.</div>
             </div>
 
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
@@ -3373,12 +3373,12 @@
 
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">What if GPS cannot detect my location?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Step outside to an open area and try again. If GPS is blocked entirely (permission denied, timeout, or signal unavailable), a bypass option appears immediately. Use it only when GPS keeps failing. If GPS works but you are simply out of range, there is no bypass: move closer to HQ and retry. Bypassed check-ins are flagged for your supervisor.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Step outside to an open area and try again. If GPS is blocked entirely (permission denied, timeout or signal unavailable), a bypass option appears immediately. Use it only when GPS keeps failing. If GPS works but you are simply out of range, there is no bypass: move closer to HQ and retry. Bypassed check-ins are flagged for your supervisor.</div>
             </div>
 
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">What is the work timer and meal allowance?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">When meal allowance is active for your cycle, a live timer on the Check-In tab tracks your total work time for the day. Once you reach 6 hours, a <strong>Meal eligible</strong> badge appears. Open the <strong>Meal</strong> tab to see your total entitlement count and a day-by-day breakdown showing MC, Personal Leave, or the reason a day was not eligible.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">When meal allowance is active for your cycle, a live timer on the Check-In tab tracks your total work time for the day. Once you reach 6 hours, a <strong>Meal eligible</strong> badge appears. Open the <strong>Meal</strong> tab to see your total entitlement count and a day-by-day breakdown showing MC, Personal Leave or the reason a day was not eligible.</div>
             </div>
 
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
@@ -3411,7 +3411,7 @@
 
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I add personnel without a signup request?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab, open <strong>Roster</strong>, and tap the <strong>+</strong> button. For multiple people at once, tap <strong>Bulk</strong> and paste a list of names and contact numbers. To re-enroll a previously removed reservist, search by their contact number and select the match: their account and history are reactivated without creating a duplicate.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab, open <strong>Roster</strong> and tap the <strong>+</strong> button. For multiple people at once, tap <strong>Bulk</strong> and paste a list of names and contact numbers. To re-enroll a previously removed reservist, search by their contact number and select the match: their account and history are reactivated without creating a duplicate.</div>
             </div>
 
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
@@ -3436,7 +3436,7 @@
 
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I export attendance records?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>Overview</strong> tab. Tap <strong>Excel</strong> to download a colour-coded spreadsheet with per-person totals, attendance rates, and meal allowance counts. Tap <strong>Print</strong> to generate a formatted PDF-ready report. To export one person's history, open their history modal from the People or Log tab and tap <strong>Export</strong>.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>Overview</strong> tab. Tap <strong>Excel</strong> to download a colour-coded spreadsheet with per-person totals, attendance rates and meal allowance counts. Tap <strong>Print</strong> to generate a formatted PDF-ready report. To export one person's history, open their history modal from the People or Log tab and tap <strong>Export</strong>.</div>
             </div>
 
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
@@ -3446,7 +3446,7 @@
 
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;margin-bottom:6px;">
               <div class="text-strong">How do I reset a reservist's password?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab, open the <strong>Roster</strong> sub-tab, find the person, and expand their card. Tap <strong>Reset PW</strong>, enter a temporary password, and share it with the reservist verbally. They can update it from their account settings.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab, open the <strong>Roster</strong> sub-tab, find the person and expand their card. Tap <strong>Reset PW</strong>, enter a temporary password and share it with the reservist verbally. They can update it from their account settings.</div>
             </div>
 
             <sc-if value="{{ isLnf }}" hint-placeholder-val="">
@@ -3477,7 +3477,7 @@
             </div>
             <div style="background:#f6f8fa;border-radius:14px;padding:13px 15px;">
               <div class="text-strong">How do I promote a reservist to supervisor?</div>
-              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab, open the <strong>Team</strong> sub-tab, and tap <strong>Promote reservist</strong>. Search by name, select the person, and confirm. They are promoted to Admin immediately and will see the supervisor dashboard on their next login.</div>
+              <div style="font-size:13px;color:#5c6678;line-height:1.55;">Go to the <strong>People</strong> tab, open the <strong>Team</strong> sub-tab and tap <strong>Promote reservist</strong>. Search by name, select the person and confirm. They are promoted to Admin immediately and will see the supervisor dashboard on their next login.</div>
             </div>
           </div>
           </sc-if>
