@@ -241,10 +241,11 @@ const BatchHandlers = {
     const activeBatch = batches[activeBatchIdx||0];
     const members = activeBatch?.is_live ? personnel.filter(p=>p.batch_id===activeBatch.id) : (batchMembersCache[activeBatch?.id]||[]);
     const person = members.find(p=>p.id===id); if(!person) return;
-    this.setState({ptOverrideEditId:id, ptOverrideDraft:{...Utils.DEFAULT_TIMINGS,...(person.phase_timings||{})}, ptOverrideSearch:''});
+    const batchTimings = Utils.effectiveTimings(activeBatch);
+    this.setState({ptOverrideEditId:id, ptOverrideDraft:{...batchTimings,...(person.phase_timings||{})}});
   },
   closePtOverrideEdit: function() { this.setState({ptOverrideEditId:null, ptOverrideDraft:null}); },
-  onPtOverrideSearch: function(e) { this.setState({ptOverrideSearch:e.target.value, ptOverrideEditId:null, ptOverrideDraft:null}); },
+  onPtOverrideSearch: function(e) { this.setState({ptOverrideSearch:e.target.value}); },
   onPtOverrideP1: function(e) { this.setState(s=>({ptOverrideDraft:{...s.ptOverrideDraft,p1_open:e.target.value}})); },
   onPtOverrideP2: function(e) { this.setState(s=>({ptOverrideDraft:{...s.ptOverrideDraft,p2_open:e.target.value}})); },
   onPtOverrideP3: function(e) { this.setState(s=>({ptOverrideDraft:{...s.ptOverrideDraft,p3_open:e.target.value}})); },

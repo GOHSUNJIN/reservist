@@ -1544,7 +1544,7 @@
                 </div>
                 <div class="flex-fill" style="min-width:0;">
                   <div style="font-size:13.5px;font-weight:600;color:#161f30;">Phase timings</div>
-                  <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ phaseTimingsSummary }}</div>
+                  <div style="font-size:11.5px;color:#8a94a3;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ phaseTimingsSub }}</div>
                 </div>
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c4c9d4" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
               </button>
@@ -3179,14 +3179,14 @@
             <input type="time" value="{{ ptP4Open }}" onInput="{{ onPtP4Open }}" style="-webkit-appearance:none;width:100%;border:none;font-size:18px;font-weight:700;color:#161f30;background:transparent;outline:none;padding:0;" />
           </div>
         </div>
-        <button onClick="{{ savePhaseTimings }}" style="width:100%;padding:13px;background:#b9791a;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ phaseTimingsSavingOpacity }};margin-bottom:8px;">{{ phaseTimingsSaving ? 'Saving...' : 'Save cycle timings' }}</button>
+        <button onClick="{{ savePhaseTimings }}" style="width:100%;padding:13px;background:#b9791a;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ phaseTimingsSavingOpacity }};margin-bottom:8px;">{{ phaseTimingsBtnLabel }}</button>
         <button onClick="{{ closePhaseTimings }}" class="btn-subtle">Cancel</button>
 
         <div style="margin:22px -20px 0;border-top:6px solid #f2f4f7;"></div>
 
         <div style="margin-top:20px;">
           <div style="font-size:10.5px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:4px;">INDIVIDUAL OVERRIDES</div>
-          <div style="font-size:12px;color:#8a94a3;margin-bottom:14px;line-height:1.4;">Custom timings for specific personnel — overrides the cycle defaults for their own check-in.</div>
+          <div style="font-size:12px;color:#8a94a3;margin-bottom:12px;line-height:1.4;">View and set custom check-in windows per person. Custom timings replace the cycle defaults above for their own check-in.</div>
 
           <sc-if value="{{ ptOverrideEditId }}" hint-placeholder-val="">
           <div style="background:#f6f8fa;border-radius:14px;padding:14px;margin-bottom:14px;">
@@ -3212,39 +3212,32 @@
                 <input type="time" value="{{ ptOverrideEditP4 }}" onInput="{{ onPtOverrideP4 }}" style="-webkit-appearance:none;width:100%;border:none;font-size:16px;font-weight:700;color:#161f30;background:transparent;outline:none;padding:0;" />
               </div>
             </div>
-            <button onClick="{{ savePtOverride }}" style="width:100%;padding:11px;background:#161f30;border:none;border-radius:10px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ ptOverrideSavingOpacity }};">{{ ptOverrideSaving ? 'Saving...' : 'Save override' }}</button>
+            <button onClick="{{ savePtOverride }}" style="width:100%;padding:11px;background:#161f30;border:none;border-radius:10px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ ptOverrideSavingOpacity }};">{{ ptOverrideBtnLabel }}</button>
           </div>
           </sc-if>
 
-          <sc-if value="{{ ptHasOverrides }}" hint-placeholder-val="">
-          <sc-for items="{{ ptMembersWithOverride }}" item="ov">
-            <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f2f4f7;">
-              <div style="width:34px;height:34px;border-radius:50%;background:#e5e8ef;color:#5c6678;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex:0 0 auto;">{{ ov.initials }}</div>
-              <div style="flex:1;min-width:0;">
-                <div style="font-size:13px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ ov.name }}</div>
-                <div style="font-size:11px;color:#8a94a3;margin-top:1px;">{{ ov.timingSummary }}</div>
-              </div>
-              <button onClick="{{ ov.onEdit }}" style="-webkit-appearance:none;border:none;background:#eef3fc;color:#2f5fd0;border-radius:8px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Edit</button>
-              <button onClick="{{ ov.onClear }}" style="-webkit-appearance:none;border:none;background:#fef2f2;color:#dc2626;border-radius:8px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Clear</button>
+          <div style="margin-bottom:10px;">
+            <input type="text" value="{{ ptOverrideSearch }}" onInput="{{ onPtOverrideSearch }}" placeholder="Filter personnel..." style="-webkit-appearance:none;width:100%;padding:9px 13px;border:1px solid #d4d9e2;border-radius:10px;font-size:14px;background:#f6f8fa;outline:none;box-sizing:border-box;" />
+          </div>
+
+          <sc-for items="{{ ptRoster }}" item="pr">
+          <div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #f2f4f7;">
+            <div style="width:33px;height:33px;border-radius:50%;background:{{ pr.avatarBg }};color:{{ pr.avatarColor }};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex:0 0 auto;">{{ pr.initials }}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ pr.name }}</div>
+              <div style="font-size:11px;color:{{ pr.timingColor }};margin-top:2px;font-feature-settings:'tnum';">P1 {{ pr.p1 }} · P2 {{ pr.p2 }} · P3 {{ pr.p3 }} · P4 {{ pr.p4 }}</div>
             </div>
+            <div style="display:flex;gap:5px;flex:0 0 auto;">
+              <button onClick="{{ pr.onEdit }}" style="-webkit-appearance:none;border:none;background:#eef3fc;color:#2f5fd0;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;">Edit</button>
+              <sc-if value="{{ pr.showClear }}" hint-placeholder-val="">
+              <button onClick="{{ pr.onClear }}" style="-webkit-appearance:none;border:none;background:#fef2f2;color:#dc2626;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;">Clear</button>
+              </sc-if>
+            </div>
+          </div>
           </sc-for>
-          </sc-if>
 
-          <div style="margin-top:12px;">
-            <input type="text" value="{{ ptOverrideSearch }}" onInput="{{ onPtOverrideSearch }}" placeholder="Search to add override..." style="-webkit-appearance:none;width:100%;padding:10px 13px;border:1px solid #d4d9e2;border-radius:10px;font-size:14px;background:#f6f8fa;outline:none;box-sizing:border-box;" />
-          </div>
-          <sc-if value="{{ ptOverrideHasResults }}" hint-placeholder-val="">
-          <div style="background:#fff;border-radius:10px;border:1px solid #e3e6ec;overflow:hidden;margin-top:6px;">
-            <sc-for items="{{ ptOverrideSearchResults }}" item="res">
-            <button onClick="{{ res.onSelect }}" style="-webkit-appearance:none;width:100%;padding:10px 14px;background:transparent;border:none;border-bottom:1px solid #f6f8fa;cursor:pointer;display:flex;align-items:center;gap:10px;text-align:left;">
-              <div style="width:30px;height:30px;border-radius:50%;background:#e5e8ef;color:#5c6678;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex:0 0 auto;">{{ res.initials }}</div>
-              <div style="font-size:13.5px;font-weight:600;color:#161f30;">{{ res.name }}</div>
-            </button>
-            </sc-for>
-          </div>
-          </sc-if>
-          <sc-if value="{{ ptOverrideNoResults }}" hint-placeholder-val="">
-          <div style="text-align:center;color:#8a94a3;font-size:13px;padding:10px 0;">No matches found.</div>
+          <sc-if value="{{ ptRosterShowEmpty }}" hint-placeholder-val="">
+          <div style="text-align:center;color:#8a94a3;font-size:13px;padding:14px 0;">{{ ptRosterEmptyText }}</div>
           </sc-if>
         </div>
       </div>

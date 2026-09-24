@@ -162,40 +162,49 @@ const AdminBatch = {
       ...(() => {
         const _t=s.phaseTimingsDraft||Utils.effectiveTimings(activeBatch);
         const _din=Utils.isBreakDinner(_t);
+        const _ovCount=activeMembers.filter(m=>m.phase_timings).length;
         return {
           ptP1Open:_t.p1_open,
           ptP2Open:_t.p2_open, ptP3Open:_t.p3_open, ptP4Open:_t.p4_open,
           ptIsDinner:_din, ptBreakLabel:_din?'DINNER':'LUNCH',
-          phaseTimingsSummary:`P1 ${_t.p1_open} · ${_din?'Dinner':'Lunch'} ${_t.p2_open} · Return ${_t.p3_open} · P4 ${_t.p4_open}`,
+          phaseTimingsBtnLabel:s.phaseTimingsSaving?'Saving...':'Save cycle timings',
+          phaseTimingsSub:_ovCount>0?(_ovCount+' individual override'+(_ovCount===1?'':'s')):'No individual overrides',
         };
       })(),
       // Feature: individual phase timing overrides
       ...(() => {
-        const _draft=s.ptOverrideDraft||Utils.DEFAULT_TIMINGS;
+        const _batchT=Utils.effectiveTimings(activeBatch);
+        const _draft=s.ptOverrideDraft||_batchT;
         const _din2=Utils.isBreakDinner(_draft);
         const _editPerson=s.ptOverrideEditId?activeMembers.find(m=>m.id===s.ptOverrideEditId):null;
-        const _withOv=activeMembers.filter(m=>m.phase_timings).map(m=>({
-          id:m.id, name:m.name, initials:Utils.initials(m.name),
-          timingSummary:`P1 ${m.phase_timings.p1_open} · P2 ${m.phase_timings.p2_open} · P3 ${m.phase_timings.p3_open} · P4 ${m.phase_timings.p4_open}`,
-          onEdit:()=>self.openPtOverrideEdit(m.id),
-          onClear:()=>self.clearPtOverride(m.id),
-        }));
         const _q=(s.ptOverrideSearch||'').toLowerCase().trim();
-        const _results=_q?activeMembers.filter(m=>!m.phase_timings&&m.id!==s.ptOverrideEditId&&(m.name.toLowerCase().includes(_q)||(m.contact||'').toLowerCase().includes(_q))).slice(0,5).map(m=>({
-          id:m.id, name:m.name, initials:Utils.initials(m.name),
-          onSelect:()=>self.openPtOverrideEdit(m.id),
-        })):[];
+        const _roster=activeMembers
+          .filter(m=>!_q||m.name.toLowerCase().includes(_q)||(m.contact||'').toLowerCase().includes(_q))
+          .map(m=>{
+            const _eff=m.phase_timings?{..._batchT,...m.phase_timings}:_batchT;
+            const _hasOv=!!m.phase_timings;
+            return {
+              id:m.id, name:m.name, initials:Utils.initials(m.name),
+              hasOverride:_hasOv, showClear:_hasOv,
+              p1:_eff.p1_open, p2:_eff.p2_open, p3:_eff.p3_open, p4:_eff.p4_open,
+              onEdit:()=>self.openPtOverrideEdit(m.id),
+              onClear:_hasOv?()=>self.clearPtOverride(m.id):null,
+              timingColor:_hasOv?'#b9791a':'#8a94a3',
+              avatarBg:_hasOv?'#fdf0dc':'#e5e8ef',
+              avatarColor:_hasOv?'#b9791a':'#5c6678',
+            };
+          });
         return {
           ptOverrideEditId:s.ptOverrideEditId||null,
           ptOverrideEditName:_editPerson?.name||'',
           ptOverrideEditP1:_draft.p1_open, ptOverrideEditP2:_draft.p2_open,
           ptOverrideEditP3:_draft.p3_open, ptOverrideEditP4:_draft.p4_open,
           ptOverrideIsDinner:_din2, ptOverrideBreakLabel:_din2?'DINNER':'LUNCH',
-          ptMembersWithOverride:_withOv, ptHasOverrides:_withOv.length>0,
+          ptOverrideBtnLabel:s.ptOverrideSaving?'Saving...':'Save override',
+          ptRoster:_roster,
+          ptRosterShowEmpty:_roster.length===0,
+          ptRosterEmptyText:activeMembers.length===0?'No personnel in this cycle.':'No matches.',
           ptOverrideSearch:s.ptOverrideSearch||'',
-          ptOverrideSearchResults:_results,
-          ptOverrideHasResults:_results.length>0,
-          ptOverrideNoResults:!!(_q&&!_results.length),
           ptOverrideSaving:!!s.ptOverrideSaving,
           ptOverrideSavingOpacity:s.ptOverrideSaving?0.6:1,
           onPtOverrideSearch:self.onPtOverrideSearch,
