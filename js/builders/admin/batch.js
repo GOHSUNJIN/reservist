@@ -165,11 +165,45 @@ const AdminBatch = {
         return {
           ptP1Open:_t.p1_open,
           ptP2Open:_t.p2_open, ptP3Open:_t.p3_open, ptP4Open:_t.p4_open,
-          ptP1Close:Utils._addMins(_t.p1_open,120),
-          ptP2Close:Utils._addMins(_t.p2_open,180),
-          ptP3Close:Utils._addMins(_t.p3_open,120),
           ptIsDinner:_din, ptBreakLabel:_din?'DINNER':'LUNCH',
-          phaseTimingsSummary:`P1 from ${_t.p1_open} · ${_din?'Dinner':'Lunch'} ${_t.p2_open} · Return ${_t.p3_open} · P4 from ${_t.p4_open}`,
+          phaseTimingsSummary:`P1 ${_t.p1_open} · ${_din?'Dinner':'Lunch'} ${_t.p2_open} · Return ${_t.p3_open} · P4 ${_t.p4_open}`,
+        };
+      })(),
+      // Feature: individual phase timing overrides
+      ...(() => {
+        const _draft=s.ptOverrideDraft||Utils.DEFAULT_TIMINGS;
+        const _din2=Utils.isBreakDinner(_draft);
+        const _editPerson=s.ptOverrideEditId?activeMembers.find(m=>m.id===s.ptOverrideEditId):null;
+        const _withOv=activeMembers.filter(m=>m.phase_timings).map(m=>({
+          id:m.id, name:m.name, initials:Utils.initials(m.name),
+          timingSummary:`P1 ${m.phase_timings.p1_open} · P2 ${m.phase_timings.p2_open} · P3 ${m.phase_timings.p3_open} · P4 ${m.phase_timings.p4_open}`,
+          onEdit:()=>self.openPtOverrideEdit(m.id),
+          onClear:()=>self.clearPtOverride(m.id),
+        }));
+        const _q=(s.ptOverrideSearch||'').toLowerCase().trim();
+        const _results=_q?activeMembers.filter(m=>!m.phase_timings&&m.id!==s.ptOverrideEditId&&(m.name.toLowerCase().includes(_q)||(m.contact||'').toLowerCase().includes(_q))).slice(0,5).map(m=>({
+          id:m.id, name:m.name, initials:Utils.initials(m.name),
+          onSelect:()=>self.openPtOverrideEdit(m.id),
+        })):[];
+        return {
+          ptOverrideEditId:s.ptOverrideEditId||null,
+          ptOverrideEditName:_editPerson?.name||'',
+          ptOverrideEditP1:_draft.p1_open, ptOverrideEditP2:_draft.p2_open,
+          ptOverrideEditP3:_draft.p3_open, ptOverrideEditP4:_draft.p4_open,
+          ptOverrideIsDinner:_din2, ptOverrideBreakLabel:_din2?'DINNER':'LUNCH',
+          ptMembersWithOverride:_withOv, ptHasOverrides:_withOv.length>0,
+          ptOverrideSearch:s.ptOverrideSearch||'',
+          ptOverrideSearchResults:_results,
+          ptOverrideHasResults:_results.length>0,
+          ptOverrideNoResults:!!(_q&&!_results.length),
+          ptOverrideSaving:!!s.ptOverrideSaving,
+          ptOverrideSavingOpacity:s.ptOverrideSaving?0.6:1,
+          onPtOverrideSearch:self.onPtOverrideSearch,
+          openPtOverrideEdit:self.openPtOverrideEdit,
+          closePtOverrideEdit:self.closePtOverrideEdit,
+          onPtOverrideP1:self.onPtOverrideP1, onPtOverrideP2:self.onPtOverrideP2,
+          onPtOverrideP3:self.onPtOverrideP3, onPtOverrideP4:self.onPtOverrideP4,
+          savePtOverride:self.savePtOverride,
         };
       })(),
     };
