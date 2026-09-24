@@ -80,7 +80,6 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Log search**: Filter the log by name.
 - **Log status filter**: Filter the log by attendance status (Present, MC, Absent) to focus on a specific group.
 - **Click name to open history**: In the Log tab, clicking a reservist's name opens their full attendance history without needing to navigate to the People tab.
-- **Shift label on log cards**: Each log card shows the reservist's shift alongside their check-in times.
 - **Admin log note**: Add a free-text note against any person's attendance entry for the current view date. The note icon and the Edit button are both toggleable: clicking either a second time closes the panel without saving.
 - **GPS distance badge**: Each log card shows the GPS distance recorded at check-in as a small badge (for example: "GPS · 43 m" in green). A 0 m reading is highlighted in amber as a possible spoofing indicator.
 - **Late check-in alerts**: Anyone who checks in more than one hour after shift start is automatically flagged. The late badge shows the written reason inline (for example: "Late - Dental appointment") so supervisors do not need to expand anything to read it. If no reason was given, the badge shows "Late - No reason".
@@ -211,30 +210,30 @@ Hovering over a profile photo in the feed shows an enlarged version of the photo
 | `checkin.p4` | Phase 4: Checked out | Reservist |
 | `checkin.late_reason` | Submitted late reason | Reservist (when more than 1 hour late) |
 | `roster.status_set` | Set attendance status | Admin: manual mark Present, MC, or Absent |
-| `roster.mark_all_absent` | Marked all absent (N) — count of affected records shown | Admin |
-| `roster.mark_all_present` | Marked all present (N) — count of affected records shown | Admin |
+| `roster.mark_all_absent` | Marked all absent (N): count of affected records shown | Admin |
+| `roster.mark_all_present` | Marked all present (N): count of affected records shown | Admin |
 | `roster.times_corrected` | Corrected attendance times | Admin: via time correction modal |
 | `roster.person_note_saved` | Saved person note | Admin |
 | `roster.log_note_saved` | Saved log note (with note text shown below the action label; shows "Note cleared" if the note was saved empty; shows a strikethrough and new text if an existing note was overwritten) | Admin |
 | `roster.welfare_note_saved` | Saved welfare note | Reservist (own record) or Admin |
 | `roster.missed_note_saved` | Saved missed-day note | Admin: note on a missed day in history |
-| `leave.submitted` | Submitted MC request / Submitted Personal Leave request — leave type shown | Reservist |
-| `leave.cancelled` | Withdrew MC request / Withdrew Personal Leave request — leave type shown | Reservist |
-| `leave.approved` | Approved [name]'s MC request / Approved [name]'s Personal Leave request — leave type shown | Admin |
-| `leave.rejected` | Declined [name]'s MC request / Declined [name]'s Personal Leave request — leave type shown; rejection reason shown inline below the label | Admin |
-| `leave.bulk_approved` | Bulk approved N leave requests — count shown | Admin |
-| `leave.bulk_rejected` | Bulk declined N leave requests — count shown | Admin |
+| `leave.submitted` | Submitted MC request / Submitted Personal Leave request: leave type shown | Reservist |
+| `leave.cancelled` | Withdrew MC request / Withdrew Personal Leave request: leave type shown | Reservist |
+| `leave.approved` | Approved [name]'s MC request / Approved [name]'s Personal Leave request: leave type shown | Admin |
+| `leave.rejected` | Declined [name]'s MC request / Declined [name]'s Personal Leave request: leave type shown; rejection reason shown inline below the label | Admin |
+| `leave.bulk_approved` | Bulk approved N leave requests: count shown | Admin |
+| `leave.bulk_rejected` | Bulk declined N leave requests: count shown | Admin |
 | `signup.request_submitted` | Submitted signup request | Reservist (new or returning) |
 | `signup.approved` | Approved [name]'s signup | Admin |
 | `signup.rejected` | Declined [name]'s signup | Admin |
 | `signup.reopened` | Re-opened [name]'s signup | Admin |
-| `signup.bulk_approved` | Bulk approved N signups — count shown | Admin |
+| `signup.bulk_approved` | Bulk approved N signups: count shown | Admin |
 | `personnel.added` | Added [name] to roster | Admin |
 | `personnel.re_enrolled` | Re-enrolled [name] | Admin |
 | `personnel.removed` | Removed [name] from roster | Admin |
-| `personnel.bulk_added` | Bulk added N personnel, skipped M — counts shown | Admin |
+| `personnel.bulk_added` | Bulk added N personnel, skipped M: counts shown | Admin |
 | `personnel.permanently_deleted` | Permanently deleted [name]'s record | Admin |
-| `personnel.bulk_deleted` | Permanently deleted N records — count shown | Admin |
+| `personnel.bulk_deleted` | Permanently deleted N records: count shown | Admin |
 | `personnel.password_reset` | Reset [name]'s password | Admin |
 | `batch.created` | Created cycle [name] | Admin |
 | `batch.deleted` | Deleted cycle [name] | Admin |
@@ -242,7 +241,7 @@ Hovering over a profile photo in the feed shows an enlarged version of the photo
 | `batch.label_edited` | Renamed cycle to [new name] | Admin |
 | `batch.broadcast_updated` | Updated cycle notice | Admin |
 | `batch.no_report_toggled` | Toggled no-report day for [date] | Admin |
-| `batch.no_report_bulk` | Set N no-report days — count shown | Admin |
+| `batch.no_report_bulk` | Set N no-report days: count shown | Admin |
 | `export.excel` | Exported Excel report for [cycle] | Admin |
 | `export.print` | Print report for [cycle] | Admin |
 | `export.person_history` | Exported [name]'s history | Admin |
@@ -399,8 +398,11 @@ scripts/
             ├── add_lnf_department.sql        - Added L&F as a department
             ├── add_nrd_department.sql        - Added NRD as a department
             ├── fix_avatar_storage_policy.sql - Storage policy fix for avatar uploads
-            ├── fix_lnf_batch_dates.sql       - Corrected L&F cycle date values
-            └── renumber_lnf_cycles.sql       - Renumbered L&F cycle labels
+            ├── fix_lnf_batch_dates.sql        - Corrected L&F cycle date values
+            ├── renumber_lnf_cycles.sql        - Renumbered L&F cycle labels
+            ├── drop_p2p3p4_gps_dist.sql       - Dropped GPS distance columns for phases 2 to 4; updated log_phase RPCs
+            ├── drop_shift_column.sql          - Dropped shift column from personnel table
+            └── drop_signup_requests_shift.sql - Dropped shift column from signup_requests table
 ```
 
 `index.html` is the single-page template that wires all builders and handlers together. The `<x-dc>` element at the top of the file is where all deployment-specific configuration lives.
@@ -435,7 +437,6 @@ All data is stored in a structured cloud database (PostgreSQL), with seven table
 |---|---|
 | Name | Full name |
 | Contact | Phone number (used as login) |
-| Shift | Office (0900 to 1800) |
 | Role | Reservist, Admin, or Master |
 | Department | Which department the person belongs to (ops_security, cas, or lnf) |
 | Cycle | Which reporting cycle they belong to |
@@ -467,7 +468,6 @@ All data is stored in a structured cloud database (PostgreSQL), with seven table
 | Return time | Phase 3 timestamp |
 | End of shift time | Phase 4 timestamp |
 | GPS distance (in) | Metres from HQ at check-in |
-| GPS distance (return) | Metres from HQ at return |
 | Late reason | Written reason if late by over one hour |
 | GPS bypassed | Flagged true if GPS was overridden or times were admin-corrected |
 | Welfare note | Supervisor's daily note (also used for missed-attendance notes) |
@@ -571,7 +571,6 @@ CREATE TABLE personnel (
   auth_id UUID,
   name TEXT NOT NULL,
   contact TEXT,
-  shift TEXT CHECK (shift IS NULL OR shift IN ('OFFICE')),
   role TEXT NOT NULL DEFAULT 'reservist' CHECK (role IN ('reservist', 'admin', 'master')),
   department department_type NOT NULL DEFAULT 'ops_security',
   batch_id UUID,
@@ -603,7 +602,6 @@ CREATE TABLE attendance (
   work_return_time TIME,
   work_end_time TIME,
   gps_distance_m INTEGER,
-  work_return_dist INTEGER,
   late_reason TEXT,
   gps_bypassed BOOLEAN DEFAULT false,
   welfare_note TEXT,
@@ -633,7 +631,6 @@ CREATE TABLE signup_requests (
   auth_id UUID NOT NULL,
   name TEXT NOT NULL,
   contact TEXT NOT NULL,
-  shift TEXT NOT NULL,
   department department_type NOT NULL DEFAULT 'ops_security',
   batch_id UUID REFERENCES batches(id),
   status TEXT NOT NULL DEFAULT 'pending' CHECK (status IN ('pending', 'approved', 'rejected')),
@@ -990,7 +987,7 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Mark a reservist with approved leave as Present: leave is voided, reservist can re-submit
 
 #### People tab - Roster view
-- [ ] All personnel listed with name, contact, shift, attendance stats
+- [ ] All personnel listed with name, contact, attendance stats
 - [ ] Search by name or contact: filters correctly
 - [ ] Tap the chevron on a card: action bar expands (History, Note, Reset PW, Remove)
 - [ ] Only one card expanded at a time - opening another collapses the previous
@@ -1152,9 +1149,9 @@ Features that improve day-to-day operations but are not blockers for handover.
 
    _Not started: the service worker handles caching and offline but has no PushManager or VAPID subscription code._
 
-10. **Multiple shifts**: The system tracks shift assignments but only supports "Office". Extending to AM, PM, Night and custom shifts with their own phase windows supports departments with rotating schedules.
+10. **Multiple shifts**: Support AM, PM, Night and custom shifts with their own phase windows for departments with rotating schedules.
 
-    _Not started: shiftLabel() and shiftWindow() in utils.js always return hardcoded "Office" values regardless of shift field. Depends on item 3 (editable phase windows) being done first._
+    _Not started: shift tracking was removed from the codebase. shiftLabel(), shiftWindow() and the shift column in personnel no longer exist. This feature would need to be built from scratch. Depends on item 3 (editable phase windows) being done first._
 
 11. **Shift scheduler**: Pre-assign which reservists report on which days. Mark-all-absent then only targets scheduled personnel, which is useful when not all reservists report every weekday.
 
@@ -1299,7 +1296,7 @@ These change code that the entire check-in flow depends on. The current constant
 | Item | Risk |
 |---|---|
 | 3 - Editable phase windows (CPO/LNF) | Ops Security is done. Extending to CPO and LNF requires the same phase_timings column pattern on batches scoped to those departments. |
-| 10 - Multiple shifts | Depends on phase windows being dynamic first. Do not start this before item 3 is stable. |
+| 10 - Multiple shifts | Shift tracking has been removed from the codebase. This would need to be built from scratch. Do not start this before item 3 is stable. |
 | 13 - Automated summaries | Requires an external API (WhatsApp Business or email). External dependency means new failure modes outside your control. |
 
 ### Group F: Do last - schema migrations
