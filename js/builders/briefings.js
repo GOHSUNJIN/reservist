@@ -10,6 +10,8 @@ const BriefingsBuilders = {
     const LNF_ROLE={title:'Logistics and Finance',window:'0900 to 1700, Mon to Sat',items:['Escort contractors to and from the office.','During events, assist with deployments, refreshments and milk runs.','Assist NSFs with moving items from place to place when needed.','Collect and return keys in the L&F office.']};
     const isLnf=this._myDept()==='lnf';
     const activeRole=isLnf?LNF_ROLE:OFFICE_ROLE;
+    const _bTimings=(this._myDept()==='ops_security')?(me?.phase_timings||Utils.effectiveTimings(myBatch)):null;
+    const _isInfoDinner=_bTimings?Utils.isBreakDinner(_bTimings):false;
     const briefTab=s.briefTab||'info';
     const briefTabs=[{key:'info',label:'Info'},{key:'history',label:'Requests'}].map(t=>({
       ...t, onClick:this.setBriefTab(t.key),
@@ -97,7 +99,7 @@ const BriefingsBuilders = {
     const briefTransport=this.props.hqTransport||'';
     const showBriefTransport=!!briefTransport;
     return {
-      myShiftTitle:activeRole.title, infoShiftWindow:activeRole.window, myShiftItems:activeRole.items, myShiftNote:'',
+      myShiftTitle:activeRole.title, infoShiftWindow:isLnf?activeRole.window:(_isInfoDinner?'1400 to 2100, Dinner 1800 to 1930':'0900 to 1800, Lunch 1200 to 1330'), myShiftItems:activeRole.items, myShiftNote:'',
       briefLocation:(this.props.hqName||'Bedok DHQ')+' Canteen',
       briefDays:isLnf?'Monday to Saturday':'Monday to Friday',
       briefAttire:'Civilian',
