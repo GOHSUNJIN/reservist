@@ -151,6 +151,8 @@ const CalendarBuilders = {
     const rec=this.myRec(), status=rec.status||'pending';
     const todayD=this.baseDate(), today=Utils.dateKey(todayD);
     const activeBatch=s.batches.find(b=>b.id===me.batch_id)||s.batches[s.activeBatchIdx||0];
+    const _cTimings=(!isCas&&this._myDept()==='ops_security')?(s.me?.phase_timings||Utils.effectiveTimings(activeBatch)):null;
+    const _histBreakLabel=(_cTimings&&Utils.isBreakDinner(_cTimings))?'DINNER':'LUNCH';
 
     const _tc=(v,c1,c0)=>v?c1:c0;
     const _dc='#c2c8d2';
@@ -167,7 +169,7 @@ const CalendarBuilders = {
          lateReason:rec.lateReason||'',showLateReason:!!(rec.lateReason)&&_exDates.includes(today)&&!_ed('p1'),
          isMissedRow:false,showMissedNote:false,missedNote:'',onOpenMissedNote:()=>{},
          showTimingWarning:status==='present'&&(isCas?!rec.p4:(!rec.p2||!rec.p3||!rec.p4)),
-         showLunchTimes:!isCas, histGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',
+         showLunchTimes:!isCas, histGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',p2Label:_histBreakLabel,
          missingClockOut:status==='present'&&!rec.p4,
          hasIncompleteTimes:status==='present'&&!!rec.p4&&(isCas?false:(!rec.p2||!rec.p3))&&_exDates.includes(today),
          isToday:true,
@@ -199,7 +201,7 @@ const CalendarBuilders = {
         showTimes:isPresent&&_rowEx,rowMarginBot:(isPresent&&_rowEx)?'9px':'0',chevronRotate:_rowEx?'180':'0',hasIncompleteTimes:hasIncompleteTimes&&_rowEx,
         missingClockOut,
         showTimingWarning:isPresent&&(isCas?!p4:(!p2||!p3||!p4)),
-        showLunchTimes:!isCas, histGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',
+        showLunchTimes:!isCas, histGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',p2Label:_histBreakLabel,
         lateReason:r.lateReason||'',showLateReason:!!(r.lateReason)&&_rowEx&&!_ed2('p1'),
         isMissedRow:isMissed,missedNote:r.welfareNote||'',showMissedNote:false,
         onOpenMissedNote:isMissed?this.openMissedNote(r.date,r.welfareNote||''):()=>{},
@@ -217,7 +219,7 @@ const CalendarBuilders = {
             p1:'-',p2:'-',p3:'-',p4:'-',p1Color:_dc,p2Color:_dc,p3Color:_dc,p4Color:_dc,
             p1Edited:false,p2Edited:false,p3Edited:false,p4Edited:false,
             showTimes:false,rowMarginBot:'0',chevronRotate:'0',hasExpandToggle:true,rowCursor:'pointer',isExpanded:false,onToggleExpand:this.openMissedNote(dk,''),showTimingWarning:false,
-            isMissedRow:true,missedNote:'',showMissedNote:false,onOpenMissedNote:this.openMissedNote(dk,''),
+            isMissedRow:true,missedNote:'',showMissedNote:false,onOpenMissedNote:this.openMissedNote(dk,''),p2Label:_histBreakLabel,
             ...Utils.meta('missed')});
         }
       }
@@ -255,7 +257,7 @@ const CalendarBuilders = {
           showTimes:false,rowMarginBot:'0',chevronRotate:'0',
           showTimingWarning:false,isMissedRow:false,missedNote:'',showMissedNote:false,
           onOpenMissedNote:()=>{},missingClockOut:false,hasIncompleteTimes:false,
-          showLunchTimes:!isCas,histGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',
+          showLunchTimes:!isCas,histGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',p2Label:_histBreakLabel,
           lateReason:'',showLateReason:false,isToday:false,
         });
       }
