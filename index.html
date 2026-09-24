@@ -3162,11 +3162,6 @@
 
         <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:20px;">
           <div>
-            <div style="font-size:11px;font-weight:700;color:#5c6678;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;">Shift start · Late check-in threshold</div>
-            <input type="time" value="{{ ptShiftStart }}" onInput="{{ onPtShiftStart }}" style="-webkit-appearance:none;width:100%;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:15px;font-weight:600;color:#161f30;background:#f6f8fa;outline:none;box-sizing:border-box;" />
-            <div style="font-size:11px;color:#a0a8b4;margin-top:4px;">Check-ins 60+ min after this time are flagged as late.</div>
-          </div>
-          <div>
             <div style="font-size:11px;font-weight:700;color:#5c6678;letter-spacing:.05em;text-transform:uppercase;margin-bottom:6px;">P1 · Check-in window opens</div>
             <input type="time" value="{{ ptP1Open }}" onInput="{{ onPtP1Open }}" style="-webkit-appearance:none;width:100%;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:15px;font-weight:600;color:#161f30;background:#f6f8fa;outline:none;box-sizing:border-box;" />
             <div style="font-size:11px;color:#a0a8b4;margin-top:4px;">Window closes at {{ ptP1Close }} (2 h after open).</div>
