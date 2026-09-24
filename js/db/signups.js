@@ -1,7 +1,7 @@
 const DB_Signups = {
-  async create({ authId, name, contact, shift, batchId, department = 'ops_security' }) {
+  async create({ authId, name, contact, batchId, department = 'ops_security' }) {
     const { data, error } = await _db.from('signup_requests')
-      .insert({ auth_id: authId, name, contact, shift, batch_id: batchId, status: 'pending', department })
+      .insert({ auth_id: authId, name, contact, batch_id: batchId, status: 'pending', department })
       .select().maybeSingle();
     return { data, error };
   },
