@@ -8,7 +8,7 @@ A mobile-first web application for managing NS reservist attendance. Replaces ma
 
 ## Overview
 
-ReservistGO provides end-to-end attendance accountability for reservist cycles. Supervisors see a live dashboard of who has reported, who is late, and who has not shown up. Reservists check in from their phones with GPS verification. All records are timestamped, stored in the cloud, and exportable.
+ReservistGO provides end-to-end attendance accountability for reservist cycles. Supervisors see a live dashboard of who has reported, who is late and who has not shown up. Reservists check in from their phones with GPS verification. All records are timestamped, stored in the cloud and exportable.
 
 **Zero hardware cost.** Runs in the browser on any smartphone. No dedicated terminals, no paper forms, no separate system login beyond a phone number and password.
 
@@ -33,14 +33,14 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 
 ### For Reservists
 
-- **Department-based check-in flow**: Ops Security reservists log four phases (check in, lunch out, return from lunch, end of shift). Crime Prevention Office (CPO) reservists use a simplified two-phase flow: check in and check out only. Each phase is timestamped to the minute.
+- **Department-based check-in flow**: Ops Security reservists log four phases (check in, lunch/dinner out, return from lunch/dinner, end of shift). Crime Prevention Office (CPO) reservists use a simplified two-phase flow: check in and check out only. Each phase is timestamped to the minute. When a supervisor sets the cycle Phase 2 time to 17:00 or later, all lunch labels on the check-in screen switch to dinner automatically: "Lunch break" becomes "Dinner break", "Return from lunch" becomes "Return from dinner", and button labels follow the same change.
 - **GPS verification**: Tapping a check-in phase shows a "Locate me" button first. After GPS confirms you are within range of HQ, the button swaps to "Check in to work" (or the phase-specific label). Distance from HQ is recorded. The radius is configurable (default: 250 m).
 - **GPS bypass**: If GPS cannot detect your location at all (permission denied, signal unavailable, or timeout), a bypass option appears immediately so you can check in without GPS. The bypass is not offered when GPS works but you are simply out of range; in that case you must move closer to HQ and try again. Bypassed records are permanently flagged in the log.
 - **Leave and MC requests**: Submit requests digitally through the app. They go directly to the supervisor for approval with no phone calls or messages needed. Only one leave type is supported per day: MC (sick leave) or Personal Leave (other absences). When an MC is approved for today, the check-in phases are replaced with a "Marked as MC" card. When a Personal Leave is approved for today, the status chip switches to amber "Personal Leave" and an "On Personal Leave" card is shown instead.
 - **Cancel pending requests**: A leave or MC request can be withdrawn by the reservist before the supervisor has acted on it, from both the check-in screen and the Requests history tab.
-- **Request history**: The Requests tab shows the full history of submitted leave and MC requests, each with a coloured left bar, a type badge (MC and Personal Leave both in amber), and a status badge (Submitted, Approved, Declined, or Withdrawn). Records are deduplicated by date: if multiple requests exist for the same date, only the most relevant one is shown (pending takes priority over approved, approved over declined). Filter pills let you narrow the list by status. Pending requests can be withdrawn inline.
-- **Info and Attendance tabs**: The Info tab shows an About section explaining the app, shift and reporting details, dekit day steps, leave request history, and a team directory listing batchmates with contact links. The Attendance tab shows the personal attendance calendar and history.
-- **Attendance history**: View your full record for the cycle, including total days present, MC and Personal Leave, absent, and your attendance rate. Approved personal leave days are counted in the MC and Leave stat rather than the Absent stat, so the numbers reflect actual unexcused absences. Future approved MC or Personal Leave requests already visible in Shift History are included in the MC/Leave and Logged counts so the totals stay consistent with what is shown on screen. If a supervisor has manually corrected one of your check-in times, that time appears in blue in the Shift History grid so you can see at a glance which entries were admin-adjusted. The late check-in reason card is suppressed for any day where the supervisor has corrected the check-in time.
+- **Request history**: The Requests tab shows the full history of submitted leave and MC requests, each with a coloured left bar, a type badge (MC and Personal Leave both in amber) and a status badge (Submitted, Approved, Declined, or Withdrawn). Records are deduplicated by date: if multiple requests exist for the same date, only the most relevant one is shown (pending takes priority over approved, approved over declined). Filter pills let you narrow the list by status. Pending requests can be withdrawn inline.
+- **Info and Attendance tabs**: The Info tab shows an About section explaining the app, shift and reporting details, dekit day steps, leave request history and a team directory listing batchmates with contact links. The Attendance tab shows the personal attendance calendar and history.
+- **Attendance history**: View your full record for the cycle, including total days present, MC and Personal Leave, absent and your attendance rate. Approved personal leave days are counted in the MC and Leave stat rather than the Absent stat, so the numbers reflect actual unexcused absences. Future approved MC or Personal Leave requests already visible in Shift History are included in the MC/Leave and Logged counts so the totals stay consistent with what is shown on screen. If a supervisor has manually corrected one of your check-in times, that time appears in blue in the Shift History grid so you can see at a glance which entries were admin-adjusted. The late check-in reason card is suppressed for any day where the supervisor has corrected the check-in time.
 - **Upcoming leave in Shift History**: Approved or pending leave requests for future dates appear in a separate "Upcoming" section at the top of the Shift History list, above past attendance records. Each entry shows the date and leave type (MC or Personal Leave) with an amber badge.
 - **End-of-cycle notice**: When the reporting cycle ends, the Attendance tab shows a congratulations card and a reminder of the dekit date when the account will be deactivated. Today's row is suppressed for post-cycle days so no false Pending entry appears.
 - **Cycle-scoped history**: Attendance records from before a reservist's current batch start date are excluded from both the reservist's own Shift History and the admin's person history modal. This prevents pre-cycle auto-absent records from appearing as if they belong to the current cycle.
@@ -55,7 +55,7 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Logout confirmation**: Tapping Log Out shows a confirmation step before the session is ended, preventing accidental logouts.
 - **Session expiry warning**: A banner appears at 55 minutes into the session with a one-tap option to extend it before the session expires at 60 minutes.
 - **Idle timeout**: Sessions expire after 20 minutes of inactivity, with a warning at 18 minutes.
-- **Work timer and meal allowance**: When meal allowance is active for the cycle, a live timer shows total work time for the day, paused during lunch. Once 6 hours of work is reached, a "Meal eligible" badge appears. A reminder is shown inside the timer card when eligible but Phase 4 has not yet been recorded, to discourage leaving without clocking out. The Meal tab shows a summary of total entitlements and a Daily Breakdown card listing every reporting day so far with a per-day status badge. MC days show "MC", approved personal leave days show "Personal Leave", and present days under 6 hours or missing clock-out show the specific shortfall reason.
+- **Work timer and meal allowance**: When meal allowance is active for the cycle, a live timer shows total work time for the day, paused during lunch. Once 6 hours of work is reached, a "Meal eligible" badge appears. A reminder is shown inside the timer card when eligible but Phase 4 has not yet been recorded, to discourage leaving without clocking out. The Meal tab shows a summary of total entitlements and a Daily Breakdown card listing every reporting day so far with a per-day status badge. MC days show "MC", approved personal leave days show "Personal Leave" and present days under 6 hours or missing clock-out show the specific shortfall reason.
 - **Missing clock-out detection**: If a past day shows no clock-out, that calendar day is coloured orange with a dashed border. Tapping it shows a warning. A persistent orange banner also appears on the check-in screen if any day in the past two weeks is missing a clock-out, prompting the reservist to inform their supervisor so their meal allowance record can be corrected.
 - **Late check-in self-declaration**: If you check in more than one hour after shift start, a full-width amber action row labelled "Late check-in" appears on your check-in screen. Tapping it opens a reason field where you enter the reason for being late. The reason must be submitted before the check-in is accepted.
 - **In-app browser detection**: If opened from WhatsApp, Instagram, or another in-app browser where GPS is blocked, the app shows specific instructions for opening in the device's real browser.
@@ -87,7 +87,7 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Missing clock-out display**: When a reservist is marked present but has no Phase 4 clock-out, the OUT column of their log card shows a dash on an orange background instead of a time. This keeps the missing clock-out visible without adding a separate badge row, making it easy to scan and correct before payroll.
 
 **Requests and Leave:**
-- **Unified requests inbox**: All pending signup requests, MC requests, and personal leave requests appear in one place. Each signup is labelled New or Returning so the supervisor knows at a glance whether they are onboarding a first-timer or re-enrolling someone from a previous cycle. Returning reservists who have a profile photo on file have it displayed on their signup card automatically.
+- **Unified requests inbox**: All pending signup requests, MC requests and personal leave requests appear in one place. Each signup is labelled New or Returning so the supervisor knows at a glance whether they are onboarding a first-timer or re-enrolling someone from a previous cycle. Returning reservists who have a profile photo on file have it displayed on their signup card automatically.
 - **Leave type badges**: Pending leave requests display amber type badges for both MC and Personal Leave. The same colour is used consistently across the admin view and the reservist's own request history.
 - **Submission timestamps**: Pending requests and signups show the exact submission time (HH:MM) rather than a relative label. The time resets daily so context is always accurate.
 - **Signup search and filters**: The Pending Signups panel has a collapsible search bar with filter pills (All, New, Returning). A red dot on the search icon indicates when a filter is active.
@@ -96,7 +96,7 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Select-all for leave requests**: Same select-all behaviour for pending leave requests.
 - **Bulk leave actions**: Select multiple pending leave requests and approve or reject them in a single action. Bulk rejection requires a written reason recorded against each rejected request.
 - **Urgency sorting**: Pending leave requests are sorted by submission time, newest first, so recently submitted requests are visible immediately.
-- **Leave request rejection reason**: Each rejected request records the reviewer's name, timestamp, and written reason.
+- **Leave request rejection reason**: Each rejected request records the reviewer's name, timestamp and written reason.
 - **Reopen rejected signups**: A rejected signup request can be re-opened and returned to pending status if the decision needs to be reversed.
 - **Hide rejected signups**: Collapsed view for rejected signup requests to reduce clutter in the inbox.
 - **Copyable contact numbers**: Tap any phone number in the requests list, roster card, or supervisor list to copy it to the clipboard.
@@ -107,7 +107,7 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 
 **Personnel Management (People tab):**
 - **Roster view**: Lists all personnel in the current cycle with their attendance rate shown when stats are loaded.
-- **Collapsible action bar**: Each roster card is collapsed by default. A chevron button in the top-right corner of each card expands the action bar, which contains History, Note, Reset PW, and Remove. Only one card can be expanded at a time, keeping the list compact.
+- **Collapsible action bar**: Each roster card is collapsed by default. A chevron button in the top-right corner of each card expands the action bar, which contains History, Note, Reset PW and Remove. Only one card can be expanded at a time, keeping the list compact.
 - **Roster search**: Filter the personnel list by name or contact number with a persistent search bar.
 - **Per-person attendance history**: Click any person's card to open their full attendance history across all cycles. The history modal includes status filter chips (All, Present, MC, Absent) and pagination (15 records per page). Each row shows the date first, followed by the check-in time range (for present days), then the status tag on the right. Approved personal leave days are labelled "Personal Leave" in amber rather than "Absent". The history can be exported to Excel (.xlsx), with colour-coded status rows and personal leave days correctly labelled in the exported file.
 - **Avatar lightbox**: Tap any reservist's profile photo in the overview, roster, or log to view it enlarged. Tapping outside the photo closes it.
@@ -116,19 +116,20 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Bulk add personnel**: Paste a list of names and contact numbers to add multiple reservists at once.
 - **Re-enroll by search**: When adding personnel, search for removed reservists by name or contact number. Selecting a match triggers the re-enroll flow, reactivating their existing account and history without creating a duplicate entry.
 - **Personnel accountability**: Each personnel card shows who added the reservist: "Added by [name]" for direct admin additions, or "Approved by [name]" for self-signup approvals.
-- **Team tab**: View the full list of active supervisors in your department. Accessible from the People tab for all admin accounts. Each entry shows the supervisor's name, contact number, and role.
+- **Team tab**: View the full list of active supervisors in your department. Accessible from the People tab for all admin accounts. Each entry shows the supervisor's name, contact number and role.
 
 **Cycle Management:**
 - **Non-reporting day control**: Mark any date as a non-reporting day (public holiday or stand-down). Singapore public holidays are excluded automatically.
 - **Bulk no-report days**: Paste a list of dates to mark multiple non-reporting days in a single action.
 - **Cycle notice board (broadcast)**: Post a short notice that appears on every reservist's check-in screen for the duration of the cycle. The notice is scoped to the active department and does not appear to reservists in other departments.
+- **Phase timings (Ops Security only)**: Configure the opening time of each of the four check-in phases (P1 check-in, P2 lunch/dinner out, P3 return, P4 check-out) at the cycle level. Changes apply immediately to all Ops Security reservists in that cycle. When Phase 2 is set to 17:00 or later, the system activates dinner mode: every lunch label across the check-in screen, phase tiles, buttons and the Help FAQ switches to "Dinner break" and "Return from dinner" automatically. The late-arrival threshold always tracks Phase 1's opening time, so a cycle with a 17:00 P1 flags anyone who checks in after 18:00. The dark blue shift window on each reservist's check-in screen updates to show the custom P1 time and the resulting late cutoff. Individual overrides can be set per person from the same panel, letting one reservist follow a different schedule while the rest of the cycle uses the defaults. Phases that differ from the cycle default are highlighted in amber in the editor so changes are visible at a glance. Clearing an override reverts the person to the cycle default immediately with no save step needed.
 - **Meal allowance toggle**: Enable or disable meal allowance per cycle. When active, the work timer and meal eligibility calculations are shown to reservists.
-- **Cycle picker**: Browse all cycles grouped by year with a visual picker. Each cycle row shows a colour-coded tag: Live (green) for the currently active cycle, Upcoming (grey) for future cycles, and Past (slate blue) for completed ones. The active cycle is always shown first in the list.
+- **Cycle picker**: Browse all cycles grouped by year with a visual picker. Each cycle row shows a colour-coded tag: Live (green) for the currently active cycle, Upcoming (grey) for future cycles and Past (slate blue) for completed ones. The active cycle is always shown first in the list.
 - **Cycle management**: Create and label reporting cycles. The system prepares the next 8 cycles automatically on every admin login.
 - **Batch label editing**: Rename any cycle label inline without navigating away.
 
 **Export and Reporting:**
-- **Excel export**: Export the full attendance matrix for any cycle as a real Excel workbook (.xlsx). Includes per-person rates, totals, a legend, colour-coded status cells, and a dedicated Meal column showing how many days each reservist was eligible for meal allowance (clocked out with 6h+ worked). The Shift column shows the department label (Ops Security, Crime Prevention, or Logistics and Finance) and a Contact column shows each person's phone number. Personal leave days are shown as PL in amber rather than A, matching MC styling. The sheet opens with a styled title row and consistent row heights. The header rows freeze so they stay visible when scrolling down. Attendance rates are calculated as present days divided by recorded days (present + MC/Leave + absent), matching the People tab, so mid-cycle exports show accurate rates rather than rates diluted by future unrecorded days.
+- **Excel export**: Export the full attendance matrix for any cycle as a real Excel workbook (.xlsx). Includes per-person rates, totals, a legend, colour-coded status cells and a dedicated Meal column showing how many days each reservist was eligible for meal allowance (clocked out with 6h+ worked). The Shift column shows the department label (Ops Security, Crime Prevention, or Logistics and Finance) and a Contact column shows each person's phone number. Personal leave days are shown as PL in amber rather than A, matching MC styling. The sheet opens with a styled title row and consistent row heights. The header rows freeze so they stay visible when scrolling down. Attendance rates are calculated as present days divided by recorded days (present + MC/Leave + absent), matching the People tab, so mid-cycle exports show accurate rates rather than rates diluted by future unrecorded days.
 - **Print report**: Generate a formatted A4 attendance report, printable or saveable as PDF directly from the browser without leaving the app. Includes a Meal Claims summary stat and per-person meal-eligible day count alongside the attendance totals. The Shift column shows the department label and a Contact column shows each person's phone number. Absent cells are shown with a red background. Personal leave days are shown as PL in amber. Future dates with no record yet are shown as a blue P (Pending) rather than red A, so absences are not inflated by days that have not happened yet. Today's date with no record also shows as blue P if the day is still in progress.
 - **WhatsApp attendance summary**: One tap generates the day's attendance summary. A preview modal lets you review and edit the text, copy it to clipboard, or send it directly to the unit group chat.
 - **Per-person history export**: Export any individual's attendance history to Excel (.xlsx) from within the history modal. Rows are colour-coded by status (present, MC, absent, leave).
@@ -143,7 +144,7 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 All supervisor capabilities, plus:
 
 - **Department switcher**: Switch the entire admin view between departments (Ops Security and Crime Prevention Office/CPO) using a dropdown in the header. Each department's last-selected cycle is remembered independently, so switching back restores the previous context.
-- **Cross-department isolation**: All data (personnel, cycles, attendance, leave requests, signup requests, and realtime updates) is fully scoped to the active department. Switching departments clears the current view and reloads fresh data for the selected department.
+- **Cross-department isolation**: All data (personnel, cycles, attendance, leave requests, signup requests and realtime updates) is fully scoped to the active department. Switching departments clears the current view and reloads fresh data for the selected department.
 - **Create supervisor accounts**: Add new admin accounts directly within the app.
 - **Remove supervisors**: Demote any admin back to reservist status. Demoted supervisors return to the reservist pool automatically.
 - **Promote to supervisor**: Promote any existing reservist to admin status. Search by name with cycle filters.
@@ -160,11 +161,11 @@ Every action in the system is recorded:
 - Check-in times are stamped server-side at the moment the request is processed. Clients cannot supply a backdated or future time: offline check-ins are validated against server time and rejected if more than 4 hours old.
 - Late arrivals are flagged automatically. If more than one hour late, the reservist must submit a written reason, which is stored alongside the attendance record and displayed inline on the log card.
 - If GPS verification is bypassed (due to GPS failure or supervisor authorisation), this is permanently marked in the log with a visible indicator.
-- If a supervisor manually corrects a reservist's times, the record is flagged as admin-entered, and the edit log includes the editor's name and timestamp.
+- If a supervisor manually corrects a reservist's times, the record is flagged as admin-entered and the edit log includes the editor's name and timestamp.
 - All leave and MC approvals record who approved them and when. Rejections record the reviewer and reason.
 - **Absences are written automatically.** If a reservist does not check in by midnight, the system marks them absent through two independent processes (one in the app, one on the server) to ensure no gaps occur even if the supervisor is offline. See [Auto-Absent](#auto-absent).
 - Data is stored in a managed cloud database. Nothing relies on a local file or spreadsheet.
-- Every significant user action (check-in phases, roster changes, leave decisions, personnel management, exports, and account changes) is written to a dedicated `audit_log` table and visible in the ReservistGO Monitor.
+- Every significant user action (check-in phases, roster changes, leave decisions, personnel management, exports and account changes) is written to a dedicated `audit_log` table and visible in the ReservistGO Monitor.
 
 ---
 
@@ -195,7 +196,7 @@ Hovering over a profile photo in the feed shows an enlarged version of the photo
 
 ### Filtering
 
-- **Search:** Full-text filter across actor name, action, and target name with 300 ms debounce.
+- **Search:** Full-text filter across actor name, action and target name with 300 ms debounce.
 - **Date range:** From/to date pickers to narrow to any window.
 - **Category pills:** Filter by Attendance, Leave, Signup, Personnel, Cycle, Export, Account, or Admin. Selecting a pill resets the offset and reloads. Multiple pills can be active at once.
 - **Department selector (master only):** Switch between departments to scope the entire feed to one department, or leave unset to view all.
@@ -262,7 +263,7 @@ The system uses three permission levels:
 
 | Role | Who | Access |
 |---|---|---|
-| Reservist | NS personnel | Own check-in, leave requests, and attendance history (scoped to their department) |
+| Reservist | NS personnel | Own check-in, leave requests and attendance history (scoped to their department) |
 | Admin | Supervisors and staff officers | Full roster and attendance management, leave approval, personnel records, time correction (scoped to their department) |
 | Master | Command level | Everything Admin can do, plus managing all supervisor accounts and switching between departments |
 
@@ -282,14 +283,14 @@ Row-level security policies are enforced at the database level, not just in the 
 
 ReservistGO collects only what is operationally necessary:
 
-- **No NRIC, rank, or service details**: accounts require only a name, phone number, and password.
+- **No NRIC, rank, or service details**: accounts require only a name, phone number and password.
 - **No location history**: GPS is used solely at the moment of check-in to verify proximity to HQ. Exact coordinates are never recorded; only the distance from HQ in metres is stored.
 - **No device data**: the app does not collect device identifiers, browser fingerprints, or any information about the user's phone.
 - **Passwords are never stored in plain text**: all passwords are encrypted by the authentication service before storage. Even administrators cannot view a user's password.
-- **Profile photos are optional**: avatars are stored only if the user chooses to upload one, and can be removed at any time.
+- **Profile photos are optional**: avatars are stored only if the user chooses to upload one and can be removed at any time.
 - **Sessions leave no permanent trace**: login sessions are held in the browser's temporary memory and are cleared when the tab is closed or after 20 minutes of inactivity.
 
-The only personal data held in the system is: name, phone number, and attendance records.
+The only personal data held in the system is: name, phone number and attendance records.
 
 ---
 
@@ -299,7 +300,7 @@ When a reservist's account is deactivated at the end of a cycle, their login cre
 
 1. The reservist logs in with their existing phone number and password.
 2. The app detects the inactive account and automatically submits a re-enrollment request on their behalf. If the request cannot be submitted (network failure), a clear error message is shown with instructions to contact the supervisor directly.
-3. The supervisor sees the request in the Requests tab, labelled **Returning**, and approves it with one tap.
+3. The supervisor sees the request in the Requests tab, labelled **Returning** and approves it with one tap.
 4. The reservist's account is reactivated and assigned to the current cycle. They can log in immediately.
 
 No manual coordination, no new account creation, no password reset needed.
@@ -317,7 +318,7 @@ When a supervisor deactivates a reservist or when a cycle ends and auto-deactiva
 | Component | Technology | What it does |
 |---|---|---|
 | The app | Vanilla JavaScript | Runs in the browser. No third-party framework, so fewer failure points and no licensing costs. |
-| Database | Supabase (PostgreSQL) | Stores all personnel records, attendance, and leave requests. Managed, hosted, and automatically backed up. |
+| Database | Supabase (PostgreSQL) | Stores all personnel records, attendance and leave requests. Managed, hosted and automatically backed up. |
 | Login / accounts | Supabase Auth | Handles all password security. Passwords are encrypted before storage. |
 | Live updates | Supabase Realtime | Pushes attendance changes to all connected supervisors instantly, without any page refresh. |
 | Profile photos | Supabase Storage | Profile pictures stored in the cloud, isolated per user. |
@@ -330,9 +331,9 @@ The app is a single-page application built without a framework. State is held in
 
 **Builders** read the current state and return a flat object of UI properties for the template. They contain no side effects: just pure computation. This makes the UI predictable; the same state always produces the same output.
 
-**Handlers** respond to user actions. They call the database, update state via `setState`, and trigger side effects like toasts and haptic feedback. Handlers never read from the DOM directly.
+**Handlers** respond to user actions. They call the database, update state via `setState` and trigger side effects like toasts and haptic feedback. Handlers never read from the DOM directly.
 
-The template in `index.html` is driven by `sc-if`, `sc-for`, and `{{ prop }}` expressions. Because the template engine does not support ternary expressions or arithmetic, all computed values (styles, labels, badge counts, pagination state) are pre-computed as named properties in the builder layer before the template consumes them.
+The template in `index.html` is driven by `sc-if`, `sc-for` and `{{ prop }}` expressions. Because the template engine does not support ternary expressions or arithmetic, all computed values (styles, labels, badge counts, pagination state) are pre-computed as named properties in the builder layer before the template consumes them.
 
 ### Code Structure
 
@@ -380,7 +381,7 @@ js/
     ├── requests.js      - Leave approve/reject, bulk actions, welfare notes, missed-day notes, log notes
     ├── people.js        - Add/remove personnel, re-enroll, deactivate, bulk add, people stats
     ├── member_search.js - Cross-cycle member search, permanent delete, bulk delete, person history, password reset
-    ├── admin_mgmt.js    - Add, demote, and promote admin accounts
+    ├── admin_mgmt.js    - Add, demote and promote admin accounts
     ├── batch.js         - Cycle CRUD, broadcast, no-report days, meal toggle, cycle picker, jump to date
     ├── export.js        - Excel (.xlsx) attendance export and print/PDF report generation
     ├── roster.js        - Manual status override, time correction, search, sort, day navigation, roster card expand/collapse
@@ -404,17 +405,17 @@ scripts/
 
 `index.html` is the single-page template that wires all builders and handlers together. The `<x-dc>` element at the top of the file is where all deployment-specific configuration lives.
 
-`admin/index.html` is the ReservistGO Monitor, a self-contained single-file admin console. It has its own Supabase client (separate session storage key `ops-monitor-session`), its own login form, and no dependency on the main app's JS files. On first visit within the same tab as an authenticated admin session, it auto-logs in by reading the main app's session from `sessionStorage` under `ops-auth`.
+`admin/index.html` is the ReservistGO Monitor, a self-contained single-file admin console. It has its own Supabase client (separate session storage key `ops-monitor-session`), its own login form and no dependency on the main app's JS files. On first visit within the same tab as an authenticated admin session, it auto-logs in by reading the main app's session from `sessionStorage` under `ops-auth`.
 
 ### Key Patterns
 
-**Attendance state cache**: Today's attendance is stored in `state.attendance`. Past and future dates are stored in `state.attendanceCache`, keyed by date string (`YYYY-MM-DD`). Roster handlers use `_viewAttMap`, `_setViewEntry`, and `_delViewEntry` helpers to read and write the correct map depending on the current view offset.
+**Attendance state cache**: Today's attendance is stored in `state.attendance`. Past and future dates are stored in `state.attendanceCache`, keyed by date string (`YYYY-MM-DD`). Roster handlers use `_viewAttMap`, `_setViewEntry` and `_delViewEntry` helpers to read and write the correct map depending on the current view offset.
 
 **Approved leave cache**: `state.approvedLeavesCache` maps date keys to a map of `personnelId: leaveType`. It is populated when attendance is fetched and updated when leave is approved or voided. The roster and calendar builders use it to colour-code reservists who are absent due to approved leave rather than unexplained absence. When a supervisor overrides an absent status to present, the cache entry is cleared immediately alongside the database void.
 
 **Offline queue**: When the device is offline, check-in actions are pushed to `this._offlineQueues` and persisted to `sessionStorage`. On reconnect, `_onOnline` replays the queue in order against the database.
 
-**Realtime**: Supabase Realtime channels push row-level changes for attendance (admin view), leave status (reservist view), new requests (admin notifications), and personnel status changes (reservist view) without polling. If a reservist's account is deactivated while they are logged in, the personnel status channel fires immediately, shows a toast, and logs them out within a few seconds. If a reservist self-deactivates, the admin's personnel deactivation channel fires and removes the person from the active roster in real time. All subscription errors (channel errors, timeouts) are logged to the console for debugging rather than failing silently. When an admin corrects a past-date attendance record, the realtime channel fires on the reservist's session and updates their history state immediately, so edited times appear in the reservist's shift history without a page refresh.
+**Realtime**: Supabase Realtime channels push row-level changes for attendance (admin view), leave status (reservist view), new requests (admin notifications) and personnel status changes (reservist view) without polling. If a reservist's account is deactivated while they are logged in, the personnel status channel fires immediately, shows a toast and logs them out within a few seconds. If a reservist self-deactivates, the admin's personnel deactivation channel fires and removes the person from the active roster in real time. All subscription errors (channel errors, timeouts) are logged to the console for debugging rather than failing silently. When an admin corrects a past-date attendance record, the realtime channel fires on the reservist's session and updates their history state immediately, so edited times appear in the reservist's shift history without a page refresh.
 
 **Batch provisioning**: On every admin login, the system ensures a live batch exists and that 8 future batches are pre-created. This prevents the cycle selector from being empty when a new cycle starts. Batch creation is idempotent: if a batch with the same start date and department already exists, the existing record is returned rather than creating a duplicate.
 
@@ -422,7 +423,7 @@ scripts/
 
 **Person history pagination**: The person history modal is paginated at 15 records per page. Status filters (All, Present, MC, Absent) are applied before pagination. Page state is reset when the filter changes.
 
-**Department isolation**: All database queries, realtime subscriptions, and state updates are scoped to the active department. The `_myDept()` helper on handlers returns the master account's manually selected department or the user's own department (set at signup). Switching departments clears all cached data (personnel, batches, attendance, requests) and reloads from scratch for the new department. Realtime subscriptions (attendance, leave requests, personnel deactivations) operate on unfiltered Supabase channels because the `leave_requests` table has no department column and Realtime cannot filter on joined tables; instead each callback guards against cross-department rows by checking the incoming `personnel_id` against `state.personnel`, which is always department-scoped. Leave approval and rejection verify that the requester belongs to the admin's department before any database write. Approved leave lookups (`listApprovedInRange`) filter via a personnel join so only leaves belonging to the active department are returned; this is used in both the export pipeline and attendance statistics. No-report day queries always pass the active department so stand-downs set by one department do not affect another department's reporting day calculations, including when navigating to past batches. Contact lookups (`findByContact`) are scoped to the active department so a matching record in another department is never returned. Signup `reopen` is guarded to only act on rejected requests; `reject` is guarded to only act on pending ones, preventing double-processing in concurrent admin sessions.
+**Department isolation**: All database queries, realtime subscriptions and state updates are scoped to the active department. The `_myDept()` helper on handlers returns the master account's manually selected department or the user's own department (set at signup). Switching departments clears all cached data (personnel, batches, attendance, requests) and reloads from scratch for the new department. Realtime subscriptions (attendance, leave requests, personnel deactivations) operate on unfiltered Supabase channels because the `leave_requests` table has no department column and Realtime cannot filter on joined tables; instead each callback guards against cross-department rows by checking the incoming `personnel_id` against `state.personnel`, which is always department-scoped. Leave approval and rejection verify that the requester belongs to the admin's department before any database write. Approved leave lookups (`listApprovedInRange`) filter via a personnel join so only leaves belonging to the active department are returned; this is used in both the export pipeline and attendance statistics. No-report day queries always pass the active department so stand-downs set by one department do not affect another department's reporting day calculations, including when navigating to past batches. Contact lookups (`findByContact`) are scoped to the active department so a matching record in another department is never returned. Signup `reopen` is guarded to only act on rejected requests; `reject` is guarded to only act on pending ones, preventing double-processing in concurrent admin sessions.
 
 ### Database Schema
 
@@ -523,7 +524,7 @@ Reservists who do not check in on a reporting day are marked absent automaticall
 
 ### Auto-Deactivation
 
-A second scheduled task runs at 02:00 SGT every day. It deactivates any personnel whose batch's dekit date has already passed, and in the same operation cancels any pending leave requests they still have open. This ensures that a reservist whose cycle has ended cannot have outstanding leave requests approved after the fact. The app also performs this check on every login and on every midnight date rollover, so deactivation is enforced through three independent paths.
+A second scheduled task runs at 02:00 SGT every day. It deactivates any personnel whose batch's dekit date has already passed and in the same operation cancels any pending leave requests they still have open. This ensures that a reservist whose cycle has ended cannot have outstanding leave requests approved after the fact. The app also performs this check on every login and on every midnight date rollover, so deactivation is enforced through three independent paths.
 
 ---
 
@@ -791,11 +792,11 @@ The system auto-creates the next 8 cycles on every admin login, so no manual cyc
 
 ### Reservist forgot their password
 
-Go to People tab, find the person, and tap Reset Password. Enter and confirm a new temporary password and share it with the reservist verbally. They can change it later from their account settings.
+Go to People tab, find the person and tap Reset Password. Enter and confirm a new temporary password and share it with the reservist verbally. They can change it later from their account settings.
 
 ### Attendance status is wrong
 
-Open the Log tab, navigate to the date in question, find the person, and tap the edit icon to correct their status or times. All edits are flagged as admin-entered with your name and a timestamp.
+Open the Log tab, navigate to the date in question, find the person and tap the edit icon to correct their status or times. All edits are flagged as admin-entered with your name and a timestamp.
 
 ### A reservist is showing as absent but was present
 
@@ -848,7 +849,7 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Deactivated reservist logs in with no live batch: clear error shown, no re-enrollment request created
 - [ ] Deactivated reservist logs in with a pending re-enrollment request: message shown that the request is awaiting approval, no duplicate request created
 - [ ] Reservist account auto-deactivated at dekit date on login: deactivation message shown, cannot re-enter the app
-- [ ] Reservist session active when midnight rolls to the dekit date: app detects the date change, deactivates account, and logs out without requiring a page refresh
+- [ ] Reservist session active when midnight rolls to the dekit date: app detects the date change, deactivates account and logs out without requiring a page refresh
 - [ ] Admin deactivates a reservist who had pending leave requests: all pending requests are cancelled (verify in DB or admin Requests tab shows none for that person)
 - [ ] Reservist self-deletes their account: pending leave requests cancelled, deactivation message shown on login screen
 - [ ] Adding a person whose contact has multiple DB records (e.g. old deactivated duplicate): active record is preferred, or if all inactive, the most recent is selected for re-enroll
@@ -901,7 +902,7 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] No-report days shown in slate blue
 - [ ] Absent days shown in red
 - [ ] Days with missing clock-out shown in orange with dashed border
-- [ ] Tap any calendar day: detail panel shows correct label, sub-text, and colour
+- [ ] Tap any calendar day: detail panel shows correct label, sub-text and colour
 - [ ] Tap a past day with approved personal leave: detail panel shows "Personal Leave" in amber, not "Absent"
 
 #### Info tab
@@ -935,7 +936,7 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 
 #### Overview tab
 - [ ] Stat tiles show correct Present, Leave, Absent, Pending counts for today
-- [ ] Pending requests card shows avatars, copyable contact numbers, type badges, and time
+- [ ] Pending requests card shows avatars, copyable contact numbers, type badges and time
 - [ ] Tap Approve or Decline on a pending request from the Overview tab
 - [ ] Calendar shows current day highlighted
 - [ ] Realtime: open a second browser tab as a reservist and check in - Overview updates without refresh
@@ -1088,8 +1089,8 @@ All admin checks above apply. Run them for both departments. Then verify the fol
 
 ## Known Limitations
 
-- **CPO Info tab content is a placeholder.** The Info tab for Crime Prevention Office (CPO) reservists currently shows placeholder text. The attire, location, and operational details for CPO have not yet been configured in the codebase.
-- **Phase windows are hardcoded.** The check-in phase times (check-in from 08:00, lunch from 11:00, return from lunch from 13:00, check-out from 14:00) are fixed constants and cannot be changed from within the app. Changing them requires a code update and redeployment. This is tracked as item 3 in the Planned Enhancements section.
+- **CPO Info tab content is a placeholder.** The Info tab for Crime Prevention Office (CPO) reservists currently shows placeholder text. The attire, location and operational details for CPO have not yet been configured in the codebase.
+- **Phase windows are configurable for Ops Security only.** Ops Security supervisors can set custom phase times per cycle and per person from the cycle management panel. CPO and LNF departments use hardcoded phase windows (08:00, 11:00, 13:00, 14:00) that cannot be changed from within the app without a code update and redeployment.
 - **Departments cannot be added or removed from within the app.** The department list (Ops Security and CPO) is defined in the database schema as an enum. Adding a new department requires a schema migration. This is tracked as item 6 in the Planned Enhancements section.
 - **No push notifications.** Supervisors must have the app open to see new leave requests or signup requests. There is no background alert. This is tracked as item 9 in the Planned Enhancements section.
 - **RLS batch-mate visibility requires a manual SQL step.** If the Supabase project is ever recreated from scratch, the `_auth_batch_id()` function and the updated `personnel_select` policy in `scripts/sql/rls_policies.sql` must be re-run in the Supabase SQL editor for the YOUR TEAM section to appear correctly for reservists.
@@ -1098,7 +1099,7 @@ All admin checks above apply. Run them for both departments. Then verify the fol
 
 ## Planned Enhancements
 
-The goal for the next stage of development is to make ReservistGO fully self-managed: a successor with no technical background should be able to run, configure, and hand it off again without touching any code or deployment files. Everything below is ordered by how directly it unblocks that goal.
+The goal for the next stage of development is to make ReservistGO fully self-managed: a successor with no technical background should be able to run, configure and hand it off again without touching any code or deployment files. Everything below is ordered by how directly it unblocks that goal.
 
 Each item is annotated with its current build status based on a code audit:
 - **Done** - fully implemented and live
@@ -1109,17 +1110,17 @@ Each item is annotated with its current build status based on a code audit:
 
 These are the things that currently require a developer to change. Eliminating them means the app is truly self-contained after initial deployment.
 
-1. **In-app settings panel (Master account)**: Move all deployment-time config into a Settings tab editable from within the app. This covers org name, HQ name, GPS coordinates, check-in radius, accent colour, and the WhatsApp group link. Once done, the `index.html` config block and Vercel environment variables are set once and never touched again.
+1. **In-app settings panel (Master account)**: Move all deployment-time config into a Settings tab editable from within the app. This covers org name, HQ name, GPS coordinates, check-in radius, accent colour and the WhatsApp group link. Once done, the `index.html` config block and Vercel environment variables are set once and never touched again.
 
    _Partial: all config values (orgName, hqLat, hqLon, hqRange, waGroupLink, accent) exist as data-props in index.html and are read at runtime, but no DB settings table or in-app edit UI exists yet._
 
-2. **Editable Info tab content**: The About text, attire requirement, dekit checklist steps, and reporting details are currently hardcoded. Moving them to a database record per department and exposing an edit form in the cycle management panel means a supervisor can update them each cycle without a code change.
+2. **Editable Info tab content**: The About text, attire requirement, dekit checklist steps and reporting details are currently hardcoded. Moving them to a database record per department and exposing an edit form in the cycle management panel means a supervisor can update them each cycle without a code change.
 
    _Not started: content is hardcoded in briefings.js with no DB backing._
 
-3. **Editable phase windows**: Check-in phase times (0900, 1200, 1400, 1800) are fixed constants. Storing them per cycle in the database lets supervisors set different hours for each cycle. Phase banners, the work timer, and meal eligibility all derive from these values automatically.
+3. **Editable phase windows**: Check-in phase times (0900, 1200, 1400, 1800) are fixed constants. Storing them per cycle in the database lets supervisors set different hours for each cycle. Phase banners, the work timer and meal eligibility all derive from these values automatically.
 
-   _Not started: phase times are hardcoded constants in utils.js (currently 08:00, 11:00, 13:00, 14:00) and referenced in at least four places._
+   _Partial: fully implemented for Ops Security. Admins can set custom P1–P4 times at the cycle level and override them per individual. Dinner mode (labels switch from lunch to dinner) activates automatically when P2 is 17:00 or later. The late-arrival cutoff, shift window display and check-in button labels all update accordingly. CPO and LNF still use hardcoded defaults._
 
 4. **WhatsApp group link in database**: Currently set at deployment. Moving it to a department-level record lets supervisors update it from the app when the group changes.
 
@@ -1127,7 +1128,7 @@ These are the things that currently require a developer to change. Eliminating t
 
 5. **Per-cycle GPS location and radius**: HQ coordinates are deployment-level. Storing them per cycle lets supervisors run cycles at different venues (exercises, off-site operations) without redeployment.
 
-   _Not started: hqLat, hqLon, and hqRange are deployment-level data-props with no per-cycle equivalent in the batches table._
+   _Not started: hqLat, hqLon and hqRange are deployment-level data-props with no per-cycle equivalent in the batches table._
 
 ### Stage 2 - Department self-management
 
@@ -1137,13 +1138,13 @@ These items require database schema work but unlock full multi-department contro
 
    _Partial: department scoping is enforced throughout the codebase (_myDept() helper, all queries), but departments are a fixed enum - not a table - so there is no Master UI to add or remove them._
 
-7. **Per-department configuration panel**: Once departments are table-driven, each department stores its own HQ coordinates, GPS radius, phase windows, WA group link, accent colour, and Info tab content. The Master account edits these from a Settings panel. No config files need to be touched after initial deployment.
+7. **Per-department configuration panel**: Once departments are table-driven, each department stores its own HQ coordinates, GPS radius, phase windows, WA group link, accent colour and Info tab content. The Master account edits these from a Settings panel. No config files need to be touched after initial deployment.
 
    _Not started: depends on item 6._
 
 8. **Scoped department access for supervisors**: Currently all admins in a department see all data for that department. As more departments are added, this may need tightening so each supervisor is scoped to one department, with the Master account retaining full cross-department visibility.
 
-   **Done:** department scoping is fully enforced via _myDept() across all queries, realtime subscriptions, and state updates. RLS policies reinforce this at the database level.
+   **Done:** department scoping is fully enforced via _myDept() across all queries, realtime subscriptions and state updates. RLS policies reinforce this at the database level.
 
 ### Stage 3 - Operational upgrades
 
@@ -1153,7 +1154,7 @@ Features that improve day-to-day operations but are not blockers for handover.
 
    _Not started: the service worker handles caching and offline but has no PushManager or VAPID subscription code._
 
-10. **Multiple shifts**: The system tracks shift assignments but only supports "Office". Extending to AM, PM, Night, and custom shifts with their own phase windows supports departments with rotating schedules.
+10. **Multiple shifts**: The system tracks shift assignments but only supports "Office". Extending to AM, PM, Night and custom shifts with their own phase windows supports departments with rotating schedules.
 
     _Not started: shiftLabel() and shiftWindow() in utils.js always return hardcoded "Office" values regardless of shift field. Depends on item 3 (editable phase windows) being done first._
 
@@ -1163,9 +1164,9 @@ Features that improve day-to-day operations but are not blockers for handover.
 
 12. **Audit log viewer**: A read-only tab for the Master account showing all supervisor actions (overrides, time corrections, approvals, account changes). Useful for accountability without database access.
 
-    **Done:** a dedicated `audit_log` table records every significant action across all roles and departments. The ReservistGO Monitor at `/admin` provides a searchable, filterable live feed of all events with expandable metadata, stat tiles, category pills, date range filters, and department scoping for master accounts. Auto-logs in from the main app session when navigating as an authenticated supervisor or master.
+    **Done:** a dedicated `audit_log` table records every significant action across all roles and departments. The ReservistGO Monitor at `/admin` provides a searchable, filterable live feed of all events with expandable metadata, stat tiles, category pills, date range filters and department scoping for master accounts. Auto-logs in from the main app session when navigating as an authenticated supervisor or master.
 
-13. **Automated attendance summaries**: Scheduled daily or weekly reports to the supervisor's WhatsApp or email covering attendance rate, pending requests, and missing clock-outs. Requires a messaging API integration.
+13. **Automated attendance summaries**: Scheduled daily or weekly reports to the supervisor's WhatsApp or email covering attendance rate, pending requests and missing clock-outs. Requires a messaging API integration.
 
     _Not started: the WhatsApp summary exists as a manual one-tap flow only, with no scheduled or automated sending._
 
@@ -1197,7 +1198,7 @@ Longer-horizon features that would meaningfully expand what the system can do. N
 
     _Not started: all cycle dates are available in state but no ICS file generation exists._
 
-20. **Attendance trend charts**: Visual graphs showing attendance rate over time, lateness frequency, and MC patterns across cycles. Surfaced in the admin Overview tab to help supervisors identify welfare concerns or accountability issues early.
+20. **Attendance trend charts**: Visual graphs showing attendance rate over time, lateness frequency and MC patterns across cycles. Surfaced in the admin Overview tab to help supervisors identify welfare concerns or accountability issues early.
 
     _Not started: no charting library is loaded and no chart UI exists._
 
@@ -1205,7 +1206,7 @@ Longer-horizon features that would meaningfully expand what the system can do. N
 
     _Partial: late_reason is stored per attendance record and displayed inline on log cards. No cumulative count or roster-level flag exists._
 
-22. **Supervisor handover notes**: A structured notes field for the outgoing supervisor to leave context for their replacement: known welfare cases, ongoing issues, cycle quirks, and contacts. Stored in the database and accessible to the incoming admin immediately on their first login.
+22. **Supervisor handover notes**: A structured notes field for the outgoing supervisor to leave context for their replacement: known welfare cases, ongoing issues, cycle quirks and contacts. Stored in the database and accessible to the incoming admin immediately on their first login.
 
     _Not started: no handover notes field in the batches table and no UI for it._
 
@@ -1213,7 +1214,7 @@ Longer-horizon features that would meaningfully expand what the system can do. N
 
     _Not started: no emergency contact fields in the personnel table._
 
-24. **Cross-cycle analytics**: A summary view for the Master account showing attendance rates, average lateness, and MC frequency across all past cycles. Useful for identifying long-term trends and for justifying manpower decisions.
+24. **Cross-cycle analytics**: A summary view for the Master account showing attendance rates, average lateness and MC frequency across all past cycles. Useful for identifying long-term trends and for justifying manpower decisions.
 
     _Not started: cross-cycle member search exists but no analytics aggregation or summary view._
 
@@ -1225,7 +1226,7 @@ Longer-horizon features that would meaningfully expand what the system can do. N
 
     _Not started: no duty_assignments table or duty display in the check-in or roster views._
 
-27. **Announcement board**: A persistent, pinned notice visible to all reservists across all cycles, separate from the cycle-specific broadcast. Useful for standing orders, dress code reminders, and permanent welfare resources that do not change cycle to cycle.
+27. **Announcement board**: A persistent, pinned notice visible to all reservists across all cycles, separate from the cycle-specific broadcast. Useful for standing orders, dress code reminders and permanent welfare resources that do not change cycle to cycle.
 
     _Partial: the cycle notice_text field already broadcasts a message per cycle. There is no separate global/persistent announcement table for cross-cycle notices._
 
@@ -1237,7 +1238,7 @@ Longer-horizon features that would meaningfully expand what the system can do. N
 
 ## Implementation Order Guide
 
-The safest way to build these features is to work from the outside in: start with things that only read existing data, then add new data, then change how existing data is used, and leave schema migrations for last. Breaking the site almost always happens when existing queries or logic are changed without a fallback. The groups below follow that principle.
+The safest way to build these features is to work from the outside in: start with things that only read existing data, then add new data, then change how existing data is used and leave schema migrations for last. Breaking the site almost always happens when existing queries or logic are changed without a fallback. The groups below follow that principle.
 
 ### Group A: Zero risk - pure frontend, no database changes
 
@@ -1295,11 +1296,11 @@ These add new code paths to existing handlers or extend the service worker. A bu
 
 ### Group E: Higher risk - replacing existing core logic
 
-These change code that the entire check-in flow depends on. The current constants are referenced in at least four places (utils.js, checkin.js, builders, the work timer). Replace them one file at a time, keep the hardcoded value as a fallback if the DB value is missing, and test each phase window end-to-end before shipping.
+These change code that the entire check-in flow depends on. The current constants are referenced in at least four places (utils.js, checkin.js, builders, the work timer). Replace them one file at a time, keep the hardcoded value as a fallback if the DB value is missing and test each phase window end-to-end before shipping.
 
 | Item | Risk |
 |---|---|
-| 3 - Editable phase windows | Phase constants are used in check-in validation, the work timer, meal eligibility, and phase reminder banners. Touch all four or none. |
+| 3 - Editable phase windows (CPO/LNF) | Ops Security is done. Extending to CPO and LNF requires the same phase_timings column pattern on batches scoped to those departments. |
 | 10 - Multiple shifts | Depends on phase windows being dynamic first. Do not start this before item 3 is stable. |
 | 13 - Automated summaries | Requires an external API (WhatsApp Business or email). External dependency means new failure modes outside your control. |
 
@@ -1315,4 +1316,4 @@ These change the shape of existing tables or convert a database enum to a table.
 
 ### Golden rule
 
-Never change an existing query or logic path without keeping the old behaviour as a fallback. Read new data if it exists; use the hardcoded value if it does not. This way every feature in Group B, C, and D can be shipped incrementally and rolled back by removing a UI element without touching the database.
+Never change an existing query or logic path without keeping the old behaviour as a fallback. Read new data if it exists; use the hardcoded value if it does not. This way every feature in Group B, C and D can be shipped incrementally and rolled back by removing a UI element without touching the database.
