@@ -153,7 +153,7 @@ const AdminBatch = {
       onNoReportBulkText:self.onNoReportBulkText, applyNoReportBulk:self.applyNoReportBulk,
       batchJumpDate:s.batchJumpDate, onBatchJumpDate:self.onBatchJumpDate, jumpToDate:self.jumpToDate,
       // Feature: phase timings (ops_security only)
-      showPhaseTimings:self._myDept()==='ops_security',
+      showPhaseTimings:!!(activeBatch?.department==='ops_security'&&(self._myDept()==='ops_security'||self.state.isMaster)),
       phaseTimingsOpen:s.phaseTimingsOpen, phaseTimingsSaving:s.phaseTimingsSaving,
       phaseTimingsSavingOpacity:s.phaseTimingsSaving?0.6:1,
       openPhaseTimings:self.openPhaseTimings, closePhaseTimings:self.closePhaseTimings, savePhaseTimings:self.savePhaseTimings,
