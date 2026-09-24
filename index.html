@@ -3202,7 +3202,7 @@
             <input type="text" value="{{ ptOverrideSearch }}" onInput="{{ onPtOverrideSearch }}" placeholder="Filter personnel..." style="-webkit-appearance:none;width:100%;padding:9px 13px;border:1px solid #d4d9e2;border-radius:10px;font-size:14px;background:#f6f8fa;outline:none;box-sizing:border-box;" />
           </div>
 
-          <sc-for list="{{ ptRoster }}" as="pr">
+          <sc-for list="{{ ptOverrideRoster }}" as="pr">
           <div style="border-bottom:1px solid #f2f4f7;background:{{ pr.rowBg }};">
             <div style="display:flex;align-items:center;gap:10px;padding:12px 0;cursor:pointer;" onClick="{{ pr.onToggle }}">
               <div style="width:34px;height:34px;border-radius:50%;background:{{ pr.avatarBg }};color:{{ pr.avatarColor }};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex:0 0 auto;">{{ pr.initials }}</div>
