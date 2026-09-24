@@ -590,7 +590,6 @@ CREATE TABLE batches (
   end_date DATE NOT NULL,
   dekit_date DATE,
   is_live BOOLEAN NOT NULL DEFAULT false,
-  meal_active BOOLEAN NOT NULL DEFAULT false,
   notice_text TEXT
 );
 
@@ -622,7 +621,6 @@ CREATE TABLE leave_requests (
   date DATE,
   type TEXT NOT NULL DEFAULT 'personal',
   reason TEXT,
-  requested_shift TEXT,
   status TEXT NOT NULL DEFAULT 'pending',
   created_at TIMESTAMPTZ DEFAULT NOW(),
   reviewed_by TEXT,

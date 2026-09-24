@@ -8,9 +8,8 @@ const DB_Leaves = {
     return data || [];
   },
 
-  async request(personnelId, date, type, reason, requestedShift) {
+  async request(personnelId, date, type, reason) {
     const row = { personnel_id: personnelId, date, type, reason: reason || null };
-    if (requestedShift) row.requested_shift = requestedShift;
     const { data, error } = await _db.from('leave_requests').insert(row).select().maybeSingle();
     return { data, error };
   },

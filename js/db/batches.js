@@ -37,10 +37,6 @@ const DB_Batches = {
     return { error };
   },
 
-  async setMealActive(batchId, active) {
-    await _db.from('batches').update({ meal_active: active }).eq('id', batchId);
-  },
-
   async updateLabel(batchId, label) {
     await _db.from('batches').update({ label }).eq('id', batchId);
   },
