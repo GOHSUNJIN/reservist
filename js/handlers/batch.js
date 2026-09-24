@@ -261,23 +261,28 @@ const BatchHandlers = {
     if(error){ this._toast('Failed to save timings.','error'); return; }
     const activeBatch = batches[activeBatchIdx||0];
     const members = activeBatch?.is_live ? personnel.filter(p=>p.batch_id===activeBatch.id) : (batchMembersCache[activeBatch?.id]||[]);
-    const personName = members.find(p=>p.id===ptOverrideEditId)?.name||'';
+    const _prevPerson=members.find(p=>p.id===ptOverrideEditId);
+    const personName = _prevPerson?.name||'';
     const saved = {...ptOverrideDraft};
+    const _batchT=Utils.effectiveTimings(activeBatch);
+    const _prevEff=_prevPerson?.phase_timings?{..._batchT,..._prevPerson.phase_timings}:{..._batchT};
     const patchArr = (arr) => arr.map(p=>p.id===ptOverrideEditId?{...p,phase_timings:saved}:p);
     this.setState(s=>{ const newBmc={}; Object.keys(s.batchMembersCache).forEach(k=>{newBmc[k]=patchArr(s.batchMembersCache[k]);}); return {personnel:patchArr(s.personnel),batchMembersCache:newBmc,ptOverrideEditId:null,ptOverrideDraft:null,ptOverrideSearch:''}; });
     this._toast('Custom timings saved'+(personName?' for '+personName:'')+'.');
-    this._log('batch','batch.person_timings_updated',{target_name:personName});
+    this._log('batch','batch.person_timings_updated',{target_name:personName,prev:_prevEff,next:saved});
   },
   clearPtOverride: async function(id) {
     const {demo, personnel} = this.state;
     if(demo){ this._toast('Cannot clear timings in demo mode.','error'); return; }
-    const personName = personnel.find(p=>p.id===id)?.name||'';
+    const _prevP=personnel.find(p=>p.id===id);
+    const personName = _prevP?.name||'';
+    const _prevTimings=_prevP?.phase_timings||null;
     const {error} = await DB.personnel.updateTimings(id, null);
     if(error){ this._toast('Failed to clear.','error'); return; }
     const patchArr = (arr) => arr.map(p=>p.id===id?{...p,phase_timings:null}:p);
     this.setState(s=>{ const newBmc={}; Object.keys(s.batchMembersCache).forEach(k=>{newBmc[k]=patchArr(s.batchMembersCache[k]);}); return {personnel:patchArr(s.personnel),batchMembersCache:newBmc,ptOverrideDraft:null}; });
     this._toast('Custom timings cleared'+(personName?' for '+personName:'')+'.');
-    this._log('batch','batch.person_timings_cleared',{target_name:personName});
+    this._log('batch','batch.person_timings_cleared',{target_name:personName,prev:_prevTimings});
   },
 
   openCyclePicker:    function() { this.setState({cyclePickerOpen:true, cyclePickerYear:null, cyclePickerPage:1}); },
