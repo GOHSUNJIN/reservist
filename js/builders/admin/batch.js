@@ -2,7 +2,7 @@
 const AdminBatch = {
 
   build: function(self, s, accent, ctx) {
-    const {batches,activeBatchIdx,activeBatch,activeMembers,npShift,todayForChips,liveBatch,approvedByContact} = ctx;
+    const {batches,activeBatchIdx,activeBatch,activeMembers,todayForChips,liveBatch,approvedByContact} = ctx;
     const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const allChips=batches.map((b,i)=>{
@@ -97,14 +97,14 @@ const AdminBatch = {
       startEditBatchLabel:self.startEditBatchLabel, onBatchLabelText:self.onBatchLabelText,
       saveBatchLabel:self.saveBatchLabel, cancelBatchLabel:self.cancelBatchLabel,
       newBatchDate:s.newBatchDate,onNewBatchDate:self.onNewBatchDate,createBatch:self.createBatch,batchCreating:s.batchCreating,
-      npName:s.npName, npContact:s.npContact, npShift, npPassword:s.npPassword,
+      npName:s.npName, npContact:s.npContact, npPassword:s.npPassword,
       addPersonnelOpen:!!(s.addPersonnelOpen), toggleAddPersonnel:self.toggleAddPersonnel,
       addPersonnelBtnBg:s.addPersonnelOpen?'#161f30':'#eceef2',
       addPersonnelBtnStroke:s.addPersonnelOpen?'#fff':'#5c6678',
       showReenrollConfirm:!!(s.npReenrollRecord), showAddForm:!(s.npReenrollRecord),
       reenrollName:s.npReenrollRecord?.name||'',
       confirmReenroll:self.confirmReenroll, cancelReenroll:self.cancelReenroll,
-      onNpName:self.onNpName, onNpContact:self.onNpContact, onNpShift:self.onNpShift, onNpPassword:self.onNpPassword, addPerson:self.addPerson,
+      onNpName:self.onNpName, onNpContact:self.onNpContact, onNpPassword:self.onNpPassword, addPerson:self.addPerson,
       onNpAddSearch:self.onNpAddSearch, npAddSearch:s.npAddSearch||'',
       ...(()=>{
         const q=(s.npAddSearch||'').toLowerCase().trim();

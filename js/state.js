@@ -72,7 +72,7 @@ const makeInitialState = () => ({
 
   // ── Personnel management ─────────────────────────────────────────────────
   peopleTab: 'roster',
-  npName: '', npContact: '', npShift: 'OFFICE', npPassword: '', showNpPw: false,
+  npName: '', npContact: '', npPassword: '', showNpPw: false,
   addPersonnelOpen: false, npReenrollRecord: null, npAddSearch: '', npDeactivatedPool: [],
   confirmDeactivateId: null,
   peopleStats: {}, peopleStatsLoaded: false,

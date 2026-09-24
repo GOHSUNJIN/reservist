@@ -45,7 +45,7 @@ const InitHandlers = {
       const deptBatches = await DB.batches.list(dept).catch(()=>[]);
       const liveBatch = deptBatches.find(b=>b.is_live);
       if(liveBatch){
-        const {error:reqErr}=await DB.signupRequests.create({authId:user.id, name:me.name, contact:me.contact, shift:me.shift||'OFFICE', batchId:liveBatch.id, department:dept}).catch(()=>({error:true}));
+        const {error:reqErr}=await DB.signupRequests.create({authId:user.id, name:me.name, contact:me.contact, shift:'OFFICE', batchId:liveBatch.id, department:dept}).catch(()=>({error:true}));
         await DB.auth.logout();
         if(reqErr){
           this.setState({authed:false,loading:false,authError:'Your account is inactive. We could not send a re-enrollment request automatically. Please contact your supervisor directly.'});
