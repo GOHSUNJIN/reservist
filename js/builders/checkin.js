@@ -145,7 +145,6 @@ const CheckinBuilders = {
     const summaryP1=rec.p1||'-', summaryP2=rec.p2||'-', summaryP3=rec.p3||'-', summaryP4=rec.p4||'-', summaryP2Label=_breakLabel;
     const _lateBase=_timings?_timings.p1_open:Utils.LATE_CUTOFF.OFFICE;
     const [_sc,_sm]=_lateBase.split(':').map(Number);
-    const _lateCutoff=String((_sc+1)%24).padStart(2,'0')+':'+String(_sm).padStart(2,'0');
     const _lateMs=rec.p1?(()=>{const[h,m]=rec.p1.split(':').map(Number);return(h*60+m)-(_sc*60+_sm);})():0;
     const isLate=_lateMs>=60;
     const p1AdminEdited=(rec.editLog||[]).some(e=>e.fields?.includes('p1'));
