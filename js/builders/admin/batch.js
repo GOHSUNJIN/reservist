@@ -183,11 +183,20 @@ const AdminBatch = {
           .map(m=>{
             const _eff=m.phase_timings?{..._batchT,...m.phase_timings}:_batchT;
             const _hasOv=!!m.phase_timings;
+            const _ov=m.phase_timings||{};
             const _isEditing=m.id===s.ptOverrideEditId;
+            const _av=s.avatars[m.id]||'';
             return {
               id:m.id, name:m.name, initials:Utils.initials(m.name),
+              avatarStyle:Utils.avatarStyle(_av),
+              avatarCursor:_av?'cursor:pointer;':'',
+              onViewAvatar:_av?()=>self.openAvatarLightbox(_av):null,
               hasOverride:_hasOv, showClear:_hasOv,
               p1:_eff.p1_open, p2:_eff.p2_open, p3:_eff.p3_open, p4:_eff.p4_open,
+              p1Color:_ov.p1_open?'#b9791a':'#8a94a3',
+              p2Color:_ov.p2_open?'#b9791a':'#8a94a3',
+              p3Color:_ov.p3_open?'#b9791a':'#8a94a3',
+              p4Color:_ov.p4_open?'#b9791a':'#8a94a3',
               isEditing:_isEditing,
               rowBg:_isEditing?'#f6f8fa':'transparent',
               onToggle:_isEditing?self.closePtOverrideEdit:()=>self.openPtOverrideEdit(m.id),

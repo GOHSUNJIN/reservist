@@ -3160,38 +3160,28 @@
         </div>
         <div style="font-size:12px;color:#8a94a3;margin-bottom:18px;">{{ activeCycleLabel }}</div>
 
-        <div style="border:1px solid #e8ecf1;border-radius:13px;overflow:hidden;margin-bottom:14px;">
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-bottom:1px solid #f2f4f7;">
-            <div>
-              <div style="font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:1px;">P1</div>
-              <div style="font-size:14px;font-weight:600;color:#161f30;">Check-in</div>
-            </div>
-            <input type="time" value="{{ ptP1Open }}" onInput="{{ onPtP1Open }}" style="-webkit-appearance:none;border:none;font-size:16px;font-weight:700;color:#161f30;background:transparent;outline:none;padding:0;text-align:right;min-width:0;" />
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;">
+          <div style="border:1px solid #e8ecf1;border-radius:11px;padding:10px 12px;">
+            <div style="font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:4px;">P1 · CHECK-IN</div>
+            <input type="time" value="{{ ptP1Open }}" onInput="{{ onPtP1Open }}" style="-webkit-appearance:none;border:none;font-size:15px;font-weight:700;color:#161f30;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;" />
           </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-bottom:1px solid #f2f4f7;background:{{ ptIsDinner ? '#fdf6e9' : 'transparent' }};">
-            <div>
-              <div style="font-size:10px;font-weight:700;color:{{ ptIsDinner ? '#b9791a' : '#8a94a3' }};letter-spacing:.06em;margin-bottom:1px;">P2</div>
-              <div style="font-size:14px;font-weight:600;color:#161f30;">{{ ptBreakLabel }}</div>
-            </div>
-            <input type="time" value="{{ ptP2Open }}" onInput="{{ onPtP2Open }}" style="-webkit-appearance:none;border:none;font-size:16px;font-weight:700;color:{{ ptIsDinner ? '#b9791a' : '#161f30' }};background:transparent;outline:none;padding:0;text-align:right;min-width:0;" />
+          <div style="border:1px solid #e8ecf1;border-radius:11px;padding:10px 12px;background:{{ ptIsDinner ? '#fdf6e9' : 'transparent' }};">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;margin-bottom:4px;color:{{ ptIsDinner ? '#b9791a' : '#8a94a3' }};">P2 · {{ ptBreakLabel }}</div>
+            <input type="time" value="{{ ptP2Open }}" onInput="{{ onPtP2Open }}" style="-webkit-appearance:none;border:none;font-size:15px;font-weight:700;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;color:{{ ptIsDinner ? '#b9791a' : '#161f30' }};" />
           </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px;border-bottom:1px solid #f2f4f7;background:{{ ptIsDinner ? '#fdf6e9' : 'transparent' }};">
-            <div>
-              <div style="font-size:10px;font-weight:700;color:{{ ptIsDinner ? '#b9791a' : '#8a94a3' }};letter-spacing:.06em;margin-bottom:1px;">P3</div>
-              <div style="font-size:14px;font-weight:600;color:#161f30;">Return</div>
-            </div>
-            <input type="time" value="{{ ptP3Open }}" onInput="{{ onPtP3Open }}" style="-webkit-appearance:none;border:none;font-size:16px;font-weight:700;color:{{ ptIsDinner ? '#b9791a' : '#161f30' }};background:transparent;outline:none;padding:0;text-align:right;min-width:0;" />
+          <div style="border:1px solid #e8ecf1;border-radius:11px;padding:10px 12px;background:{{ ptIsDinner ? '#fdf6e9' : 'transparent' }};">
+            <div style="font-size:10px;font-weight:700;letter-spacing:.06em;margin-bottom:4px;color:{{ ptIsDinner ? '#b9791a' : '#8a94a3' }};">P3 · RETURN</div>
+            <input type="time" value="{{ ptP3Open }}" onInput="{{ onPtP3Open }}" style="-webkit-appearance:none;border:none;font-size:15px;font-weight:700;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;color:{{ ptIsDinner ? '#b9791a' : '#161f30' }};" />
           </div>
-          <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 14px;">
-            <div>
-              <div style="font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:1px;">P4</div>
-              <div style="font-size:14px;font-weight:600;color:#161f30;">Check-out</div>
-            </div>
-            <input type="time" value="{{ ptP4Open }}" onInput="{{ onPtP4Open }}" style="-webkit-appearance:none;border:none;font-size:16px;font-weight:700;color:#161f30;background:transparent;outline:none;padding:0;text-align:right;min-width:0;" />
+          <div style="border:1px solid #e8ecf1;border-radius:11px;padding:10px 12px;">
+            <div style="font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:4px;">P4 · CHECK-OUT</div>
+            <input type="time" value="{{ ptP4Open }}" onInput="{{ onPtP4Open }}" style="-webkit-appearance:none;border:none;font-size:15px;font-weight:700;color:#161f30;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;" />
           </div>
         </div>
-        <button onClick="{{ savePhaseTimings }}" style="width:100%;padding:13px;background:#b9791a;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ phaseTimingsSavingOpacity }};margin-bottom:8px;">{{ phaseTimingsBtnLabel }}</button>
-        <button onClick="{{ closePhaseTimings }}" class="btn-subtle">Cancel</button>
+        <div style="display:flex;gap:8px;margin-bottom:4px;">
+          <button onClick="{{ savePhaseTimings }}" style="-webkit-appearance:none;flex:1;padding:12px;background:#b9791a;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ phaseTimingsSavingOpacity }};">{{ phaseTimingsBtnLabel }}</button>
+          <button onClick="{{ closePhaseTimings }}" style="-webkit-appearance:none;flex:0 0 auto;padding:12px 16px;background:#f0f2f5;border:none;border-radius:11px;font-size:15px;font-weight:600;color:#5c6678;cursor:pointer;">Cancel</button>
+        </div>
 
         <div style="margin:22px -20px 0;border-top:6px solid #f2f4f7;"></div>
 
@@ -3205,10 +3195,10 @@
           <sc-for list="{{ ptOverrideRoster }}" as="pr">
           <div style="border-bottom:1px solid #f2f4f7;background:{{ pr.rowBg }};">
             <div style="display:flex;align-items:center;gap:10px;padding:12px 0;cursor:pointer;" onClick="{{ pr.onToggle }}">
-              <div style="width:34px;height:34px;border-radius:50%;background:{{ pr.avatarBg }};color:{{ pr.avatarColor }};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex:0 0 auto;">{{ pr.initials }}</div>
+              <div onClick="{{ pr.onViewAvatar }}" style="width:34px;height:34px;border-radius:50%;background:{{ pr.avatarBg }};color:{{ pr.avatarColor }};display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex:0 0 auto;{{ pr.avatarCursor }}{{ pr.avatarStyle }}">{{ pr.initials }}</div>
               <div style="flex:1;min-width:0;">
                 <div style="font-size:13px;font-weight:600;color:#161f30;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ pr.name }}</div>
-                <div style="font-size:11px;color:{{ pr.timingColor }};margin-top:2px;font-feature-settings:'tnum';">P1 {{ pr.p1 }} · P2 {{ pr.p2 }} · P3 {{ pr.p3 }} · P4 {{ pr.p4 }}</div>
+                <div style="font-size:11px;margin-top:2px;font-feature-settings:'tnum';"><span style="color:{{ pr.p1Color }};">P1 {{ pr.p1 }}</span><span style="color:#c8cdd6;"> · </span><span style="color:{{ pr.p2Color }};">P2 {{ pr.p2 }}</span><span style="color:#c8cdd6;"> · </span><span style="color:{{ pr.p3Color }};">P3 {{ pr.p3 }}</span><span style="color:#c8cdd6;"> · </span><span style="color:{{ pr.p4Color }};">P4 {{ pr.p4 }}</span></div>
               </div>
               <sc-if value="{{ pr.hasOverride }}" hint-placeholder-val="">
               <div style="background:#fdf0dc;color:#b9791a;border-radius:6px;padding:2px 7px;font-size:10px;font-weight:700;flex:0 0 auto;letter-spacing:.03em;">Custom</div>
@@ -3216,40 +3206,30 @@
             </div>
             <sc-if value="{{ pr.isEditing }}" hint-placeholder-val="">
             <div style="padding-bottom:14px;">
-              <div style="border:1px solid #e0e4ea;border-radius:10px;overflow:hidden;margin-bottom:10px;">
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid #f2f4f7;">
-                  <div>
-                    <div style="font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:1px;">P1</div>
-                    <div style="font-size:13px;font-weight:600;color:#161f30;">Check-in</div>
-                  </div>
-                  <input type="time" value="{{ ptOverrideEditP1 }}" onInput="{{ onPtOverrideP1 }}" style="-webkit-appearance:none;border:none;font-size:15px;font-weight:700;color:#161f30;background:transparent;outline:none;padding:0;text-align:right;min-width:0;" />
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-bottom:10px;">
+                <div style="border:1px solid #e0e4ea;border-radius:10px;padding:9px 11px;">
+                  <div style="font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:3px;">P1 · CHECK-IN</div>
+                  <input type="time" value="{{ ptOverrideEditP1 }}" onInput="{{ onPtOverrideP1 }}" style="-webkit-appearance:none;border:none;font-size:14px;font-weight:700;color:#161f30;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;" />
                 </div>
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid #f2f4f7;background:{{ ptOverrideIsDinner ? '#fdf6e9' : 'transparent' }};">
-                  <div>
-                    <div style="font-size:10px;font-weight:700;color:{{ ptOverrideIsDinner ? '#b9791a' : '#8a94a3' }};letter-spacing:.06em;margin-bottom:1px;">P2</div>
-                    <div style="font-size:13px;font-weight:600;color:#161f30;">{{ ptOverrideBreakLabel }}</div>
-                  </div>
-                  <input type="time" value="{{ ptOverrideEditP2 }}" onInput="{{ onPtOverrideP2 }}" style="-webkit-appearance:none;border:none;font-size:15px;font-weight:700;color:{{ ptOverrideIsDinner ? '#b9791a' : '#161f30' }};background:transparent;outline:none;padding:0;text-align:right;min-width:0;" />
+                <div style="border:1px solid #e0e4ea;border-radius:10px;padding:9px 11px;background:{{ ptOverrideIsDinner ? '#fdf6e9' : 'transparent' }};">
+                  <div style="font-size:10px;font-weight:700;letter-spacing:.06em;margin-bottom:3px;color:{{ ptOverrideIsDinner ? '#b9791a' : '#8a94a3' }};">P2 · {{ ptOverrideBreakLabel }}</div>
+                  <input type="time" value="{{ ptOverrideEditP2 }}" onInput="{{ onPtOverrideP2 }}" style="-webkit-appearance:none;border:none;font-size:14px;font-weight:700;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;color:{{ ptOverrideIsDinner ? '#b9791a' : '#161f30' }};" />
                 </div>
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid #f2f4f7;background:{{ ptOverrideIsDinner ? '#fdf6e9' : 'transparent' }};">
-                  <div>
-                    <div style="font-size:10px;font-weight:700;color:{{ ptOverrideIsDinner ? '#b9791a' : '#8a94a3' }};letter-spacing:.06em;margin-bottom:1px;">P3</div>
-                    <div style="font-size:13px;font-weight:600;color:#161f30;">Return</div>
-                  </div>
-                  <input type="time" value="{{ ptOverrideEditP3 }}" onInput="{{ onPtOverrideP3 }}" style="-webkit-appearance:none;border:none;font-size:15px;font-weight:700;color:{{ ptOverrideIsDinner ? '#b9791a' : '#161f30' }};background:transparent;outline:none;padding:0;text-align:right;min-width:0;" />
+                <div style="border:1px solid #e0e4ea;border-radius:10px;padding:9px 11px;background:{{ ptOverrideIsDinner ? '#fdf6e9' : 'transparent' }};">
+                  <div style="font-size:10px;font-weight:700;letter-spacing:.06em;margin-bottom:3px;color:{{ ptOverrideIsDinner ? '#b9791a' : '#8a94a3' }};">P3 · RETURN</div>
+                  <input type="time" value="{{ ptOverrideEditP3 }}" onInput="{{ onPtOverrideP3 }}" style="-webkit-appearance:none;border:none;font-size:14px;font-weight:700;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;color:{{ ptOverrideIsDinner ? '#b9791a' : '#161f30' }};" />
                 </div>
-                <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;">
-                  <div>
-                    <div style="font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:1px;">P4</div>
-                    <div style="font-size:13px;font-weight:600;color:#161f30;">Check-out</div>
-                  </div>
-                  <input type="time" value="{{ ptOverrideEditP4 }}" onInput="{{ onPtOverrideP4 }}" style="-webkit-appearance:none;border:none;font-size:15px;font-weight:700;color:#161f30;background:transparent;outline:none;padding:0;text-align:right;min-width:0;" />
+                <div style="border:1px solid #e0e4ea;border-radius:10px;padding:9px 11px;">
+                  <div style="font-size:10px;font-weight:700;color:#8a94a3;letter-spacing:.06em;margin-bottom:3px;">P4 · CHECK-OUT</div>
+                  <input type="time" value="{{ ptOverrideEditP4 }}" onInput="{{ onPtOverrideP4 }}" style="-webkit-appearance:none;border:none;font-size:14px;font-weight:700;color:#161f30;background:transparent;outline:none;padding:0;width:100%;box-sizing:border-box;" />
                 </div>
               </div>
-              <button onClick="{{ savePtOverride }}" style="width:100%;padding:11px;background:#161f30;border:none;border-radius:10px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ ptOverrideSavingOpacity }};margin-bottom:6px;">{{ ptOverrideBtnLabel }}</button>
-              <sc-if value="{{ pr.showClear }}" hint-placeholder-val="">
-              <button onClick="{{ pr.onClear }}" style="width:100%;padding:10px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;font-size:14px;font-weight:600;color:#dc2626;cursor:pointer;">Clear override</button>
-              </sc-if>
+              <div style="display:flex;gap:8px;">
+                <button onClick="{{ savePtOverride }}" style="-webkit-appearance:none;flex:1;padding:10px;background:#161f30;border:none;border-radius:10px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ ptOverrideSavingOpacity }};">{{ ptOverrideBtnLabel }}</button>
+                <sc-if value="{{ pr.showClear }}" hint-placeholder-val="">
+                <button onClick="{{ pr.onClear }}" style="-webkit-appearance:none;flex:0 0 auto;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:10px;font-size:14px;font-weight:600;color:#dc2626;cursor:pointer;">Clear</button>
+                </sc-if>
+              </div>
             </div>
             </sc-if>
           </div>
