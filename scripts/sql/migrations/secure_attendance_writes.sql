@@ -66,7 +66,7 @@ $$;
 -- ── 2. log_phase_offline ──────────────────────────────────────────────────────
 -- Called by the app when replaying offline check-ins. Validates the
 -- client-supplied time against server time before writing.
--- Returns 'ok' on success, or 'rejected:<reason>' if the time is invalid.
+-- Returns 'ok' on success or 'rejected:<reason>' if the time is invalid.
 CREATE OR REPLACE FUNCTION log_phase_offline(
   p_phase    TEXT,
   p_date     DATE,

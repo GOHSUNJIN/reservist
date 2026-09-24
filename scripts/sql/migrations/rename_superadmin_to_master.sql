@@ -18,7 +18,7 @@ ALTER TABLE personnel ADD CONSTRAINT personnel_role_check
 
 -- ── 4. Update RLS policies ────────────────────────────────────────────────────
 -- Drop and recreate the policies that referenced 'superadmin'.
--- Copy the updated versions from scripts/sql/rls_policies.sql, or run the
+-- Copy the updated versions from scripts/sql/rls_policies.sql or run the
 -- full rls_policies.sql file to replace all policies in one step.
 --
 -- The _auth_role() helper function reads the role column directly, so it

@@ -1,4 +1,4 @@
-// ── Member search, history, and password reset handlers ───────────────────
+// ── Member search, history and password reset handlers ───────────────────
 const MemberSearchHandlers = {
 
   openPersonHistory: function(id) {

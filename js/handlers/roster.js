@@ -1,4 +1,4 @@
-// ── Roster, log, and attendance handlers ──────────────────────────────────
+// ── Roster, log and attendance handlers ──────────────────────────────────
 const RosterHandlers = {
 
   toggleRosterCard: function(id) {
