@@ -109,7 +109,7 @@ const CheckinHandlers = {
       const rec={...this.myRec()};
       if(key==='p1'){rec.status='present';rec.p1=time;rec.p1dist=dist;if(bypassed)rec.gpsBypassed=true;}
       else if(key==='p2') rec.p2=time;
-      else if(key==='p3'){rec.p3=time;rec.p3dist=dist;if(bypassed)rec.gpsBypassed=true;}
+      else if(key==='p3'){rec.p3=time;if(bypassed)rec.gpsBypassed=true;}
       else if(key==='p4') rec.p4=time;
       this.setState(s=>({attendance:{...s.attendance,[currentUserId]:rec},locStatus:'idle',locPhase:null,...(!bypassed&&key==='p1'?{showLateWarning:false}:{})}));
       this._haptic();
