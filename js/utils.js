@@ -128,7 +128,7 @@ const Utils = {
     if(key==='p4') return [t.p4_open,'23:59'];
     return null;
   },
-  isBreakDinner(timings){ return (timings||this.DEFAULT_TIMINGS).p2_open>='18:00'; },
+  isBreakDinner(timings){ return (timings||this.DEFAULT_TIMINGS).p2_open>='17:00'; },
 
   phaseWindow(shift,key,dept){
     const w=dept==='cas'?this.PHASE_WINDOWS.CAS:dept==='lnf'?this.PHASE_WINDOWS.LNF:this.PHASE_WINDOWS.OFFICE;
