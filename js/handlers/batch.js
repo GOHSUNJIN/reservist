@@ -146,7 +146,7 @@ const BatchHandlers = {
 
   onNewBatchDate: function(e) { this.setState({newBatchDate:e.target.value}); },
 
-  // Returns true if the day at the given offset is a no-report day (weekend, holiday, or manually set).
+  // Returns true if the day at the given offset is a no-report day (weekend, holiday or manually set).
   isNoReport: function(off) {
     const d=this.dateForOffset(off);
     if(!Utils.isReportDay(d,this._myDept())) return false;
@@ -275,7 +275,7 @@ const BatchHandlers = {
     const {error} = await DB.personnel.updateTimings(id, null);
     if(error){ this._toast('Failed to clear.','error'); return; }
     const patchArr = (arr) => arr.map(p=>p.id===id?{...p,phase_timings:null}:p);
-    this.setState(s=>{ const newBmc={}; Object.keys(s.batchMembersCache).forEach(k=>{newBmc[k]=patchArr(s.batchMembersCache[k]);}); return {personnel:patchArr(s.personnel),batchMembersCache:newBmc}; });
+    this.setState(s=>{ const newBmc={}; Object.keys(s.batchMembersCache).forEach(k=>{newBmc[k]=patchArr(s.batchMembersCache[k]);}); return {personnel:patchArr(s.personnel),batchMembersCache:newBmc,ptOverrideDraft:null}; });
     this._toast('Custom timings cleared'+(personName?' for '+personName:'')+'.');
     this._log('batch','batch.person_timings_cleared',{target_name:personName});
   },
