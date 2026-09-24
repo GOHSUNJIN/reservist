@@ -133,7 +133,7 @@ const AdminBatch = {
       bulkAddAdding:s.bulkAddAdding,
       bulkAddAddingOpacity:s.bulkAddAdding?0.6:1,
       ...(()=>{
-        const _parsed=(s.bulkAddParsed||[]).map(r=>({...r,validColor:r.valid?'#1f8a5b':'#c0392b',validLabel:r.valid?'OK':'Skip',shiftDisplay:'OFFICE'}));
+        const _parsed=(s.bulkAddParsed||[]).map(r=>({...r,validColor:r.valid?'#1f8a5b':'#c0392b',validLabel:r.valid?'OK':'Skip'}));
         const _vc=_parsed.filter(r=>r.valid).length;
         return {
           bulkAddParsed:_parsed,

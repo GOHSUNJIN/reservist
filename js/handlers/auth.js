@@ -48,7 +48,6 @@ const AuthHandlers = {
       return;
     }
     const activeBatch = nextBatch || liveBatch;
-    const shift = 'OFFICE';
     this.setState({loading:true, authError:''});
     const {user,error} = await DB.auth.signup(cleanContact, suPassword, suName.trim());
     let signupUser = user;
@@ -86,7 +85,7 @@ const AuthHandlers = {
       this.setState({loading:false, authError:'You are already enrolled for this cycle. Please log in directly.'});
       return;
     }
-    const {error:reqErr} = await DB.signupRequests.create({authId:signupUser.id, name:suName.trim(), contact:cleanContact, shift, batchId:activeBatch.id, department:suDepartment});
+    const {error:reqErr} = await DB.signupRequests.create({authId:signupUser.id, name:suName.trim(), contact:cleanContact, batchId:activeBatch.id, department:suDepartment});
     if(reqErr){
       await DB.auth.logout();
       this.setState({loading:false, authError:'Signup failed: '+(reqErr.message||'database error. Check Supabase grants.')});
@@ -166,10 +165,10 @@ const AuthHandlers = {
     const start=Utils.mondayOf(today), end=Utils.addDays(start,13), dekit=Utils.addDays(end,3);
     const batch={id:'demo-batch',label:'Demo Cycle',start_date:Utils.dateKey(start),end_date:Utils.dateKey(end),dekit_date:Utils.dateKey(dekit),is_live:true};
     const personnel=[
-      {id:'d1',name:'Demo User',contact:'9000 0001',shift:'OFFICE',role:'reservist',batch_id:'demo-batch',is_active:true},
-      {id:'d2',name:'Tan Jian Hui',contact:'9000 0002',shift:'OFFICE',role:'reservist',batch_id:'demo-batch',is_active:true},
-      {id:'d3',name:'Ahmad Fariz',contact:'9000 0003',shift:'OFFICE',role:'reservist',batch_id:'demo-batch',is_active:true},
-      {id:'d4',name:'Lim Hui Ying',contact:'9000 0004',shift:'OFFICE',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d1',name:'Demo User',contact:'9000 0001',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d2',name:'Tan Jian Hui',contact:'9000 0002',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d3',name:'Ahmad Fariz',contact:'9000 0003',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d4',name:'Lim Hui Ying',contact:'9000 0004',role:'reservist',batch_id:'demo-batch',is_active:true},
     ];
     this.setState({authed:true,role:'reservist',tab:'checkin',demo:true,currentUserId:'d1',me:personnel[0],personnel,batches:[batch],activeBatchIdx:0,attendance:{},noReportDays:new Set(),history:[],historyLoaded:true,authError:'',accountDeleted:false});
   },
@@ -180,10 +179,10 @@ const AuthHandlers = {
     const {start,end,dekit}=Utils.batchDatesFrom(tue);
     const batch={id:'demo-batch',label:'Demo Cycle',start_date:Utils.dateKey(start),end_date:Utils.dateKey(end),dekit_date:Utils.dateKey(dekit),is_live:true};
     const personnel=[
-      {id:'d2',name:'Tan Jian Hui',contact:'9000 0002',shift:'OFFICE',role:'reservist',batch_id:'demo-batch',is_active:true},
-      {id:'d3',name:'Ahmad Fariz',contact:'9000 0003',shift:'OFFICE',role:'reservist',batch_id:'demo-batch',is_active:true},
-      {id:'d4',name:'Lim Hui Ying',contact:'9000 0004',shift:'OFFICE',role:'reservist',batch_id:'demo-batch',is_active:true},
-      {id:'d5',name:'Brandon Yeo',contact:'9000 0005',shift:'OFFICE',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d2',name:'Tan Jian Hui',contact:'9000 0002',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d3',name:'Ahmad Fariz',contact:'9000 0003',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d4',name:'Lim Hui Ying',contact:'9000 0004',role:'reservist',batch_id:'demo-batch',is_active:true},
+      {id:'d5',name:'Brandon Yeo',contact:'9000 0005',role:'reservist',batch_id:'demo-batch',is_active:true},
     ];
     this.setState({authed:true,role:'admin',tab:'overview',demo:true,currentUserId:'demo-admin',me:{id:'demo-admin',name:'Supervisor',role:'admin'},personnel,batches:[batch],activeBatchIdx:0,attendance:{'d2':{status:'present',p1:'08:24',p1dist:32},'d3':{status:'present',p1:'08:31',p1dist:48},'d5':{status:'mc',p1:null}},noReportDays:new Set(),history:[],authError:'',accountDeleted:false});
   },
