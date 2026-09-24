@@ -1009,13 +1009,7 @@ function buildInlineDetail(ev){
     if(!changed.length) return '';
     return '<div class="event-detail">'+changed.map(([k,lbl])=>`<span class="dphase"><span class="dlabel">${lbl}</span><span class="dv" style="color:#8a94a3;">${esc(m.prev[k]||'—')}</span><span class="darr">→</span><span class="dv" style="color:#b9791a;font-weight:700;">${esc(m.next[k])}</span></span>`).join('')+'</div>';
   }
-  if(ev.action==='batch.person_timings_cleared'&&m.prev){
-    const phases=[['p1_open','P1'],['p2_open','P2'],['p3_open','P3'],['p4_open','P4']];
-    const had=phases.filter(([k])=>m.prev[k]);
-    if(!had.length) return '';
-    return '<div class="event-detail">'+had.map(([k,lbl])=>`<span class="dphase"><span class="dlabel">${lbl}</span><span class="dv" style="color:#8a94a3;text-decoration:line-through;">${esc(m.prev[k])}</span></span>`).join('')+'</div>';
-  }
-  if(ev.action.startsWith('checkin.')&&ev.action!=='checkin.late_reason') return '';
+if(ev.action.startsWith('checkin.')&&ev.action!=='checkin.late_reason') return '';
   if(ev.action==='checkin.late_reason'&&m.reason){
     if(m.prev_reason&&m.prev_reason!==m.reason){
       return `<div class="event-detail"><span class="dphase"><span class="dlabel">Reason</span><span class="dv" style="color:#8a94a3;text-decoration:line-through;">${esc(m.prev_reason)}</span><span class="darr">→</span><span class="dv" style="color:#2f5fd0;font-weight:700;">${esc(m.reason)}</span></span></div>`;
