@@ -69,13 +69,16 @@ const CheckinBuilders = {
     const now=s.now;
     const testMode=s.demo;
     const isCas=this._myDept()==='cas';
+    const _timings=(!isCas&&this._myDept()==='ops_security')?Utils.effectiveTimings(myBatch):null;
+    const _isDinner=_timings?Utils.isBreakDinner(_timings):false;
+    const _breakLabel=_isDinner?'DINNER':'LUNCH';
     const phaseDefs=isCas?[
       {key:'p1',num:1,label:'Check in to work',needsGps:true,depends:null},
       {key:'p4',num:2,label:'Check out',needsGps:true,depends:'p1'},
     ]:[
       {key:'p1',num:1,label:'Check in to work',needsGps:true,depends:null},
-      {key:'p2',num:2,label:'Lunch break',needsGps:true,depends:'p1'},
-      {key:'p3',num:3,label:'Return from lunch',needsGps:true,depends:'p2'},
+      {key:'p2',num:2,label:_isDinner?'Dinner break':'Lunch break',needsGps:true,depends:'p1'},
+      {key:'p3',num:3,label:_isDinner?'Return from dinner':'Return from lunch',needsGps:true,depends:'p2'},
       {key:'p4',num:4,label:'Check out',needsGps:true,depends:'p3'},
     ];
     const phases=phaseDefs.map(pd=>{
@@ -83,17 +86,17 @@ const CheckinBuilders = {
       const dist=rec[pd.key+'dist']??null;
       const done=!!time;
       const locked=!!pd.depends&&!rec[pd.depends];
-      const inWin=testMode||Utils.phaseInWindow(shift,pd.key,now,this._myDept());
-      const pastWin=!testMode&&Utils.phaseWindowPast(shift,pd.key,now,this._myDept());
+      const inWin=testMode||Utils.phaseInWindow(shift,pd.key,now,this._myDept(),_timings);
+      const pastWin=!testMode&&Utils.phaseWindowPast(shift,pd.key,now,this._myDept(),_timings);
       const upcoming=!done&&!locked&&!inWin&&!pastWin;
       const lateActive=pd.key==='p1'&&!done&&!locked&&pastWin;
       const isActive=!done&&!locked&&(inWin||pastWin);
       const myGpsActive=isActive&&pd.needsGps&&s.locPhase===pd.key;
       const doneText=done?(pd.needsGps?(dist!=null?'GPS verified · '+dist+' m from '+hqName:'GPS verified'):'Recorded'):'';
-      const btnLabel=pd.key==='p1'?'Check in to work':pd.key==='p2'?'Record lunch break':pd.key==='p3'?'Return from lunch':'Check out';
-      const win=Utils.phaseWindow(shift,pd.key,this._myDept());
+      const btnLabel=pd.key==='p1'?'Check in to work':pd.key==='p2'?(_isDinner?'Record dinner break':'Record lunch break'):pd.key==='p3'?(_isDinner?'Return from dinner':'Return from lunch'):'Check out';
+      const win=_timings?Utils.effectivePhaseWindow(pd.key,_timings):Utils.phaseWindow(shift,pd.key,this._myDept());
       const locIsOutOfRange=myGpsActive&&locOutOfRange;
-      const _waPhaseLabel=pd.key==='p1'?'Check in':pd.key==='p2'?'Lunch break':pd.key==='p3'?'Return from lunch':'Check out';
+      const _waPhaseLabel=pd.key==='p1'?'Check in':pd.key==='p2'?(_isDinner?'Dinner break':'Lunch break'):pd.key==='p3'?(_isDinner?'Return from dinner':'Return from lunch'):'Check out';
       const _waGeoMsg=`Hi, I need help with my attendance.\n\nName: ${me.name}\nPhase: ${_waPhaseLabel}\nDate: ${Utils.dateKey(this.baseDate())}\n\nGPS shows me ${s.locDistance!=null?s.locDistance+'m ':''}out of range. Please assist with a manual record.`;
       const geofenceWaLink=`https://api.whatsapp.com/send?text=${encodeURIComponent(_waGeoMsg)}`;
       return {
@@ -139,8 +142,8 @@ const CheckinBuilders = {
       };
     });
     const allDone=phases.every(ph=>ph.done);
-    const summaryP1=rec.p1||'-', summaryP2=rec.p2||'-', summaryP3=rec.p3||'-', summaryP4=rec.p4||'-', summaryP2Label='LUNCH';
-    const shiftStart='09:00';
+    const summaryP1=rec.p1||'-', summaryP2=rec.p2||'-', summaryP3=rec.p3||'-', summaryP4=rec.p4||'-', summaryP2Label=_breakLabel;
+    const shiftStart=_timings?_timings.shift_start:'09:00';
     const [_sc,_sm]=shiftStart.split(':').map(Number);
     const _lateMs=rec.p1?(()=>{const[h,m]=rec.p1.split(':').map(Number);return(h*60+m)-(_sc*60+_sm);})():0;
     const isLate=_lateMs>=60;
@@ -149,7 +152,7 @@ const CheckinBuilders = {
     const hasIncompletePast=!!incompletePastRec;
     const incompletePastDate=hasIncompletePast?Utils.fmtMed(new Date(incompletePastRec.date+'T00:00:00')):'';
     const _waDate=Utils.fmtMed(this.baseDate());
-    const _waBreakLabel='LUNCH';
+    const _waBreakLabel=_breakLabel;
     const _waTimes=[];
     if(rec.p1) _waTimes.push('IN  '+rec.p1);
     if(!isCas&&rec.p2) _waTimes.push(_waBreakLabel+'  '+rec.p2);
@@ -220,7 +223,7 @@ const CheckinBuilders = {
       lateReasonLen:(s.lateReasonText||'').length, lateReasonMax:500,
       welfareNoteLen:(s.welfareNoteText||'').length, welfareNoteMax:1000,
       batchLabel, dekitCountdown, batchRange, showBatchInfo:!!activeBatch,
-      showCheckinReminder:!outOfCycle&&!noRep&&status==='pending'&&!s.demo&&(Utils.phaseInWindow(shift,'p1',now,this._myDept())||Utils.phaseWindowPast(shift,'p1',now,this._myDept())),
+      showCheckinReminder:!outOfCycle&&!noRep&&status==='pending'&&!s.demo&&(Utils.phaseInWindow(shift,'p1',now,this._myDept(),_timings)||Utils.phaseWindowPast(shift,'p1',now,this._myDept(),_timings)),
       // Work timer and meal eligibility
       ...(() => {
         const nowHhmm=Utils.hhmm(s.now);

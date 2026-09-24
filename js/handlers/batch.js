@@ -213,6 +213,30 @@ const BatchHandlers = {
 
   baseDate: function() { const d=new Date(); d.setHours(0,0,0,0); return d; },
 
+  openPhaseTimings: function() {
+    const batch=this.state.batches[this.state.activeBatchIdx||0];
+    this.setState({phaseTimingsOpen:true, phaseTimingsDraft:{...Utils.effectiveTimings(batch)}});
+  },
+  closePhaseTimings: function() { this.setState({phaseTimingsOpen:false, phaseTimingsDraft:null}); },
+  onPhaseTimingP1Open:     function(e){ this.setState(s=>({phaseTimingsDraft:{...s.phaseTimingsDraft,p1_open:e.target.value}})); },
+  onPhaseTimingShiftStart: function(e){ this.setState(s=>({phaseTimingsDraft:{...s.phaseTimingsDraft,shift_start:e.target.value}})); },
+  onPhaseTimingP2Open:     function(e){ this.setState(s=>({phaseTimingsDraft:{...s.phaseTimingsDraft,p2_open:e.target.value}})); },
+  onPhaseTimingP3Open:     function(e){ this.setState(s=>({phaseTimingsDraft:{...s.phaseTimingsDraft,p3_open:e.target.value}})); },
+  onPhaseTimingP4Open:     function(e){ this.setState(s=>({phaseTimingsDraft:{...s.phaseTimingsDraft,p4_open:e.target.value}})); },
+  savePhaseTimings: async function() {
+    const {phaseTimingsDraft,batches,activeBatchIdx,demo}=this.state;
+    if(!phaseTimingsDraft) return;
+    const batch=batches[activeBatchIdx||0]; if(!batch) return;
+    if(demo){ this._toast('Cannot change timings in demo mode.','error'); return; }
+    this.setState({phaseTimingsSaving:true});
+    const {error}=await DB.batches.updateTimings(batch.id,phaseTimingsDraft);
+    this.setState({phaseTimingsSaving:false});
+    if(error){ this._toast('Failed to save timings.','error'); return; }
+    this.setState(s=>({batches:s.batches.map(b=>b.id===batch.id?{...b,phase_timings:phaseTimingsDraft}:b),phaseTimingsOpen:false,phaseTimingsDraft:null}));
+    this._toast('Phase timings saved.');
+    this._log('batch','batch.timings_updated',{target_name:batch?.label||''});
+  },
+
   openCyclePicker:    function() { this.setState({cyclePickerOpen:true, cyclePickerYear:null, cyclePickerPage:1}); },
   closeCyclePicker:   function() { this.setState({cyclePickerOpen:false, cyclePickerYear:null, cyclePickerPage:1}); },
   setCyclePickerYear: function(yr) { this.setState(s=>({cyclePickerYear:s.cyclePickerYear===yr?null:yr, cyclePickerPage:1})); },

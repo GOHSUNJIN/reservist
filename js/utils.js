@@ -108,18 +108,42 @@ const Utils = {
     CAS:  {p1:['08:00','12:00'],p2:['11:00','14:00'],p3:['13:00','15:00'],p4:['14:00','23:59']},
     LNF:  {p1:['08:00','12:00'],p2:['11:00','14:00'],p3:['13:00','15:00'],p4:['14:00','23:59']},
   },
+
+  // ── Custom phase timings (ops_security only) ───────────────────────────────
+  DEFAULT_TIMINGS:{shift_start:'09:00',p1_open:'08:00',p2_open:'11:00',p3_open:'13:00',p4_open:'14:00'},
+  _addMins(hhmm,mins){
+    const[h,m]=(hhmm||'00:00').split(':').map(Number);
+    const total=Math.min(h*60+m+mins,23*60+59);
+    return String(Math.floor(total/60)).padStart(2,'0')+':'+String(total%60).padStart(2,'0');
+  },
+  effectiveTimings(batch){
+    if(!batch||batch.department!=='ops_security') return this.DEFAULT_TIMINGS;
+    return {...this.DEFAULT_TIMINGS,...(batch.phase_timings||{})};
+  },
+  effectivePhaseWindow(key,timings){
+    const t=timings||this.DEFAULT_TIMINGS;
+    if(key==='p1') return [t.p1_open,this._addMins(t.p1_open,120)];
+    if(key==='p2') return [t.p2_open,this._addMins(t.p2_open,180)];
+    if(key==='p3') return [t.p3_open,this._addMins(t.p3_open,120)];
+    if(key==='p4') return [t.p4_open,'23:59'];
+    return null;
+  },
+  isBreakDinner(timings){ return (timings||this.DEFAULT_TIMINGS).p2_open>='18:00'; },
+
   phaseWindow(shift,key,dept){
     const w=dept==='cas'?this.PHASE_WINDOWS.CAS:dept==='lnf'?this.PHASE_WINDOWS.LNF:this.PHASE_WINDOWS.OFFICE;
     return w[key]||null;
   },
-  phaseInWindow(shift,key,now,dept){
-    const w=this.phaseWindow(shift,key,dept);if(!w)return false;
+  phaseInWindow(shift,key,now,dept,timings){
+    const w=timings?this.effectivePhaseWindow(key,timings):this.phaseWindow(shift,key,dept);
+    if(!w)return false;
     const p=n=>String(n).padStart(2,'0');
     const t=p(now.getHours())+':'+p(now.getMinutes());
     return t>=w[0]&&t<=w[1];
   },
-  phaseWindowPast(shift,key,now,dept){
-    const w=this.phaseWindow(shift,key,dept);if(!w)return false;
+  phaseWindowPast(shift,key,now,dept,timings){
+    const w=timings?this.effectivePhaseWindow(key,timings):this.phaseWindow(shift,key,dept);
+    if(!w)return false;
     const p=n=>String(n).padStart(2,'0');
     const t=p(now.getHours())+':'+p(now.getMinutes());
     return t>w[1];

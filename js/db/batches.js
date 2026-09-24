@@ -49,4 +49,9 @@ const DB_Batches = {
     const { data, error } = await _db.from('batches').update({ notice_text: text || null }).eq('id', batchId).select().maybeSingle();
     return { data, error };
   },
+
+  async updateTimings(batchId, timings) {
+    const { data, error } = await _db.from('batches').update({ phase_timings: timings }).eq('id', batchId).select().maybeSingle();
+    return { data, error };
+  },
 };
