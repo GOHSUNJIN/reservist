@@ -68,6 +68,7 @@ const makeInitialState = () => ({
   broadcastOpen: false, broadcastText: '', broadcastSaving: false,
   noReportBulkOpen: false, noReportBulkText: '',
   phaseTimingsOpen: false, phaseTimingsDraft: null, phaseTimingsSaving: false,
+  ptOverrideEditId: null, ptOverrideDraft: null, ptOverrideSaving: false, ptOverrideSearch: '',
 
   // ── Personnel management ─────────────────────────────────────────────────
   peopleTab: 'roster',

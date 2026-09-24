@@ -82,6 +82,11 @@ const DB_Personnel = {
     return { data, error };
   },
 
+  async updateTimings(personnelId, timings) {
+    const { data, error } = await _db.from('personnel').update({ phase_timings: timings || null }).eq('id', personnelId).select().maybeSingle();
+    return { data, error };
+  },
+
   async updateNote(personnelId, notes) {
     const { data, error } = await _db.from('personnel').update({ notes }).eq('id', personnelId).select().maybeSingle();
     return { data, error };
