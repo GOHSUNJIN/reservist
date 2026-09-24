@@ -36,7 +36,7 @@ const ExportHandlers = {
       const meal=entries.filter(e=>_mealElig(e.rec)).length;
       const recorded=pres+mc+abs;
       const pct=recorded>0?Math.round(pres/recorded*100):null;
-      return {name:p.name, shift:Utils.deptLabel(p.department)||p.shift||'-', contact:p.contact||'-', entries, pres, mc, abs, meal, pct};
+      return {name:p.name, shift:Utils.deptLabel(p.department)||'-', contact:p.contact||'-', entries, pres, mc, abs, meal, pct};
     });
   },
 

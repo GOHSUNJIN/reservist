@@ -30,8 +30,8 @@ const DB_Personnel = {
     return data.find(p => p.is_active) || data[0];
   },
 
-  async add({ authId, name, contact, shift, batchId, role = 'reservist', department = 'ops_security' }) {
-    const row = { name, contact, shift: shift || null, batch_id: batchId, role, is_active: true, department };
+  async add({ authId, name, contact, batchId, role = 'reservist', department = 'ops_security' }) {
+    const row = { name, contact, batch_id: batchId, role, is_active: true, department };
     if (authId) row.auth_id = authId;
     const { data, error } = await _db.from('personnel').insert(row).select().maybeSingle();
     return { data, error };
@@ -62,10 +62,9 @@ const DB_Personnel = {
     return { error };
   },
 
-  async reactivate(personnelId, { batchId, shift, authId, department } = {}) {
+  async reactivate(personnelId, { batchId, authId, department } = {}) {
     const updates = { is_active: true, deactivated_at: null };
     if (batchId !== undefined) updates.batch_id = batchId;
-    if (shift !== undefined) updates.shift = shift;
     if (authId !== undefined) updates.auth_id = authId;
     if (department !== undefined) updates.department = department;
     const { data, error } = await _db.from('personnel').update(updates).eq('id', personnelId).select().maybeSingle();
@@ -74,11 +73,6 @@ const DB_Personnel = {
 
   async updateName(personnelId, name) {
     const { data, error } = await _db.from('personnel').update({ name }).eq('id', personnelId).select().maybeSingle();
-    return { data, error };
-  },
-
-  async updateShift(personnelId, shift) {
-    const { data, error } = await _db.from('personnel').update({ shift: shift || null }).eq('id', personnelId).select().maybeSingle();
     return { data, error };
   },
 
@@ -107,14 +101,14 @@ const DB_Personnel = {
 
   async demoteToReservist(personnelId) {
     const { error } = await _db.from('personnel')
-      .update({ role: 'reservist', batch_id: null, shift: null })
+      .update({ role: 'reservist', batch_id: null })
       .eq('id', personnelId);
     return { error };
   },
 
   async promoteToAdmin(personnelId) {
     const { data, error } = await _db.from('personnel')
-      .update({ role: 'admin', shift: null, batch_id: null })
+      .update({ role: 'admin', batch_id: null })
       .eq('id', personnelId).select().maybeSingle();
     return { data, error };
   },

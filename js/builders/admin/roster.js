@@ -30,7 +30,7 @@ const AdminRoster = {
       const statusSelectStyleMc=_selBase+'border:1.5px solid #b9791a;color:#b9791a;background:#fff;';
       const statusSelectStylePersonalLeave=_selBase+'border:1.5px solid #b9791a;color:#b9791a;background:#fff;';
       const statusSelectStyleAbsent=_selBase+'border:1.5px solid #c0392b;color:#c0392b;background:#fff;';
-      return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),shiftWindow:Utils.shiftWindow(p.shift),shift:p.shift,status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markStatusSelect:self.setStatusFromSelect(p.id),statusIsPending:_sPending,statusIsPresent:_sPresent,statusIsMc:_sMc,statusIsPersonalLeave:_sPersonalLeave,statusIsAbsent:_sAbsent,statusSelectStylePending,statusSelectStylePresent,statusSelectStyleMc,statusSelectStylePersonalLeave,statusSelectStyleAbsent,onViewHistory:self.openPersonHistory(p.id),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0,
+      return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markStatusSelect:self.setStatusFromSelect(p.id),statusIsPending:_sPending,statusIsPresent:_sPresent,statusIsMc:_sMc,statusIsPersonalLeave:_sPersonalLeave,statusIsAbsent:_sAbsent,statusSelectStylePending,statusSelectStylePresent,statusSelectStyleMc,statusSelectStylePersonalLeave,statusSelectStyleAbsent,onViewHistory:self.openPersonHistory(p.id),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0,
         lowAttendance:s.peopleStatsLoaded&&_pct!==null&&_pct<75,
         statPctText:s.peopleStatsLoaded&&_pct!==null?(_pct+'%'):'',
         statPctNum:_pct??-1,
@@ -85,7 +85,7 @@ const AdminRoster = {
       const av=s.avatars[p.id]||'';
       const avatarStyle=Utils.avatarStyle(av);
       return {
-        id:p.id, name:p.name, contact:p.contact||'', initials:Utils.initials(p.name), shiftLabel:Utils.shiftLabel(p.shift),
+        id:p.id, name:p.name, contact:p.contact||'', initials:Utils.initials(p.name),
         onViewHistory:self.openPersonHistory(p.id), onCopyContact:self.copyContact(p.contact||''),
         showQuickAbsent:r.status==='pending'&&viewOffset<=0,
         markAbsent:self.setStatus(p.id,'absent'),
@@ -115,7 +115,7 @@ const AdminRoster = {
         outLabelColor:_missingCo?'#c2410c':'#9aa3b2',
         outValue:r.p4||'–',
         outValueColor:_missingCo?'#c2410c':(r.p4?(_ef.has('p4')?_ec:'#161f30'):'#c2c8d2'),
-        hasApprovedLeave:!!(approvedLeavesForView[p.id]),avatarStyle, onViewAvatar:av?self.openAvatarLightbox(av):null, avatarCursor:av?'cursor:pointer;':'', shift:p.shift||'OFFICE',
+        hasApprovedLeave:!!(approvedLeavesForView[p.id]),avatarStyle, onViewAvatar:av?self.openAvatarLightbox(av):null, avatarCursor:av?'cursor:pointer;':'',
         p2Label:'LCH',
         p2FormLabel:'Lunch',
         p3Label:'Return (lunch)',
@@ -192,7 +192,7 @@ const AdminRoster = {
         if(inProgress) return {showMealBadge:false};
         return {showMealBadge:true,mealBadgeText:mealOk?(done?'Meal eligible':'On track'):(done?'No meal allowance':'No meal claim'),mealBadgeColor:mealOk?'#1f8a5b':'#c0392b',mealBadgeBg:mealOk?'#e7f3ec':'#fef0ef',mealBadgeBorder:mealOk?'#a8d5bb':'#f5c0bb',showWorkTime:workMinsVal>0,workTimeText:Utils.fmtMins(workMinsVal)+' worked'};
       })();
-      return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),shiftLabel:Utils.shiftLabel(p.shift),status:r.status,label:mm.label,color:mm.color,bg:mm.bg,timeText:_timeText,showTimeText:!!_timeText,timeTextColor:_timeTextColor,timeTextWeight:_timeTextWeight,avatarStyle:Utils.avatarStyle(av),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),onViewHistory:self.openPersonHistory(p.id),onCopyContact:self.copyContact(p.contact||''),
+      return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),status:r.status,label:mm.label,color:mm.color,bg:mm.bg,timeText:_timeText,showTimeText:!!_timeText,timeTextColor:_timeTextColor,timeTextWeight:_timeTextWeight,avatarStyle:Utils.avatarStyle(av),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),onViewHistory:self.openPersonHistory(p.id),onCopyContact:self.copyContact(p.contact||''),
         missingClockOut:_missingClockOut,
         showStatPct:s.peopleStatsLoaded&&_vpct!==null, statPct:_vpct!==null?(_vpct+'%'):'', lowAttendancePct:s.peopleStatsLoaded&&_vpct!==null&&_vpct<75,
         statPctColor:(_vpct!==null&&_vpct<75)?'#c0392b':'#8a94a3',
