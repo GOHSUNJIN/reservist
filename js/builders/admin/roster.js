@@ -14,7 +14,12 @@ const AdminRoster = {
       const cardStyle='background:#fff;border:1px solid #e3e6ec;border-left:3px solid '+mm.color+';border-radius:12px;padding:11px 13px;box-shadow:0 1px 5px rgba(20,30,50,.06);overflow:hidden;';
       const av=s.avatars[p.id]||'';
       const avatarStyle=Utils.avatarStyle(av);
-      const _phaseParts=[r.p1?'IN '+r.p1:null,r.p2?('LCH '+r.p2):null,r.p3?'BACK '+r.p3:null,r.p4?'OUT '+r.p4:null].filter(Boolean);
+      const _rosterPTimings=(!isCas&&self._myDept()==='ops_security')?(p.phase_timings||Utils.effectiveTimings(activeBatch)):null;
+      const _rosterBreakShort=(()=>{
+        if(r.dinnerMode!=null) return r.dinnerMode?'DIN':'LCH';
+        return (_rosterPTimings&&Utils.isBreakDinner(_rosterPTimings))?'DIN':'LCH';
+      })();
+      const _phaseParts=[r.p1?'IN '+r.p1:null,r.p2?(_rosterBreakShort+' '+r.p2):null,r.p3?'BACK '+r.p3:null,r.p4?'OUT '+r.p4:null].filter(Boolean);
       const phaseLine=_phaseParts.join('  ·  ');
       const showPhaseLine=r.status==='present'&&_phaseParts.length>0;
       const _pct=s.peopleStats[p.id]?.pct??null;
@@ -73,6 +78,14 @@ const AdminRoster = {
       const _ef=new Set((r.editLog||[]).flatMap(e=>e.fields||[]));
       const _ec=accent;
       const _adminEditedP1=_ef.has('p1');
+      // Use the dinner_mode flag stored on the record at P1 check-in time.
+      // Falls back to person's current timings for records that pre-date this field.
+      const _logPTimings=(!isCas&&self._myDept()==='ops_security')?(p.phase_timings||Utils.effectiveTimings(activeBatch)):null;
+      const _logBreakLabel=(()=>{
+        if(r.dinnerMode!=null) return r.dinnerMode?'DINNER':'LUNCH';
+        return (_logPTimings&&Utils.isBreakDinner(_logPTimings))?'DINNER':'LUNCH';
+      })();
+      const _logBreakShort=_logBreakLabel==='DINNER'?'DIN':'LCH';
       const [_cc,_ccm]='09:00'.split(':').map(Number);
       const _lm=r.p1?(()=>{const[h,m]=r.p1.split(':').map(Number);return(h*60+m)-(_cc*60+_ccm);})():0;
       const isLate=r.status==='present'&&_lm>=60;
@@ -116,9 +129,9 @@ const AdminRoster = {
         outValue:r.p4||'–',
         outValueColor:_missingCo?'#c2410c':(r.p4?(_ef.has('p4')?_ec:'#161f30'):'#c2c8d2'),
         hasApprovedLeave:!!(approvedLeavesForView[p.id]),avatarStyle, onViewAvatar:av?self.openAvatarLightbox(av):null, avatarCursor:av?'cursor:pointer;':'',
-        p2Label:'LCH',
-        p2FormLabel:'Lunch',
-        p3Label:'Return (lunch)',
+        p2Label:_logBreakShort,
+        p2FormLabel:_logBreakLabel==='DINNER'?'Dinner':'Lunch',
+        p3Label:_logBreakLabel==='DINNER'?'Return (dinner)':'Return (lunch)',
         showLunchEdit: !isCas,
         isTimesEditing:s.timesEditId===p.id,
         onEditTimes:self.openTimesEdit(p.id),

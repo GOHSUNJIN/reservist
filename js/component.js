@@ -54,6 +54,7 @@ class AppComponent extends DCLogic {
           let ok = true;
           if(pend.type==='phase'){
             await DB.attendance.logPhase(pend.id, pend.date, pend.key, pend.time, pend.dist, pend.bypassed||false).catch(()=>{ ok=false; });
+            if(ok && pend.key==='p1' && pend.dinnerMode!=null) DB.attendance.setDinnerMode(pend.id, pend.date, pend.dinnerMode).catch(()=>{});
           } else if(pend.type==='audit_log'){
             await DB.audit.log(pend.entry).catch(()=>{ ok=false; });
           } else {

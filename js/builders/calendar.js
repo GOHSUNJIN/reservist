@@ -153,6 +153,12 @@ const CalendarBuilders = {
     const activeBatch=s.batches.find(b=>b.id===me.batch_id)||s.batches[s.activeBatchIdx||0];
     const _cTimings=(!isCas&&this._myDept()==='ops_security')?(s.me?.phase_timings||Utils.effectiveTimings(activeBatch)):null;
     const _histBreakLabel=(_cTimings&&Utils.isBreakDinner(_cTimings))?'DINNER':'LUNCH';
+    // Use the dinner_mode flag stored on the record at P1 check-in time.
+    // Falls back to current timings for old records that pre-date this field.
+    const _rowBreakLabel=(r)=>{
+      if(r.dinnerMode!=null) return r.dinnerMode?'DINNER':'LUNCH';
+      return _histBreakLabel;
+    };
 
     const _tc=(v,c1,c0)=>v?c1:c0;
     const _dc='#c2c8d2';
@@ -201,7 +207,7 @@ const CalendarBuilders = {
         showTimes:isPresent&&_rowEx,rowMarginBot:(isPresent&&_rowEx)?'9px':'0',chevronRotate:_rowEx?'180':'0',hasIncompleteTimes:hasIncompleteTimes&&_rowEx,
         missingClockOut,
         showTimingWarning:isPresent&&(isCas?!p4:(!p2||!p3||!p4)),
-        showLunchTimes:!isCas, histGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',p2Label:_histBreakLabel,
+        showLunchTimes:!isCas, histGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',p2Label:_rowBreakLabel(r),
         lateReason:r.lateReason||'',showLateReason:!!(r.lateReason)&&_rowEx&&!_ed2('p1'),
         isMissedRow:isMissed,missedNote:r.welfareNote||'',showMissedNote:false,
         onOpenMissedNote:isMissed?this.openMissedNote(r.date,r.welfareNote||''):()=>{},
