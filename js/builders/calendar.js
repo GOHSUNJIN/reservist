@@ -153,13 +153,16 @@ const CalendarBuilders = {
     const activeBatch=s.batches.find(b=>b.id===me.batch_id)||s.batches[s.activeBatchIdx||0];
     const _cTimings=(!isCas&&this._myDept()==='ops_security')?(s.me?.phase_timings||Utils.effectiveTimings(activeBatch)):null;
     const _histBreakLabel=(_cTimings&&Utils.isBreakDinner(_cTimings))?'DINNER':'LUNCH';
-    const _timingsSince=_cTimings?.timings_since||null;
-    const _prevWasDinner=_cTimings?.prev_was_dinner??null;
-    // Priority: (1) dinner_mode stored at check-in time, (2) timings_since stamp written when
-    // admin changed the timings (records before that date use the previous mode), (3) current timings.
+    const _modeChanges=_cTimings?.mode_changes||[];
+    // Per-row label: (1) dinner_mode stored at P1 check-in, (2) latest mode_changes entry on or
+    // before the row's date (upserted per day, so same-day flip-flops collapse to net result),
+    // (3) fall back to current timings for records that pre-date this feature.
     const _rowBreakLabel=(r)=>{
       if(r.dinnerMode!=null) return r.dinnerMode?'DINNER':'LUNCH';
-      if(_timingsSince&&_prevWasDinner!=null&&r.date&&r.date<_timingsSince) return _prevWasDinner?'DINNER':'LUNCH';
+      if(r.date&&_modeChanges.length>0){
+        const rel=_modeChanges.filter(e=>e.from<=r.date);
+        if(rel.length>0) return rel.reduce((a,b)=>a.from>b.from?a:b).dinner?'DINNER':'LUNCH';
+      }
       return _histBreakLabel;
     };
 
