@@ -1,7 +1,7 @@
 const DB_Leaves = {
   async listPending(dept) {
     let q = _db.from('leave_requests')
-      .select('*, personnel!inner(name, shift, contact, department)')
+      .select('*, personnel!inner(name, contact, department)')
       .eq('status', 'pending').order('created_at');
     if (dept) q = q.eq('personnel.department', dept);
     const { data } = await q;

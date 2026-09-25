@@ -36,7 +36,7 @@ const AdminMgmtHandlers = {
       if(existing){this.setState({addingAdmin:false});this._toast('This contact is already registered.','error');return;}
       const {user,error}=await DB.auth.createUserAsAdmin(cleanContact,npAdminPassword,npAdminName.trim());
       if(error||!user){this.setState({addingAdmin:false});this._toast('Failed to create account. Try again.','error');return;}
-      const {error:addErr}=await DB.personnel.add({authId:user.id,name:npAdminName.trim(),contact:cleanContact,shift:null,batchId:null,role:'admin',department:this._myDept()});
+      const {error:addErr}=await DB.personnel.add({authId:user.id,name:npAdminName.trim(),contact:cleanContact,batchId:null,role:'admin',department:this._myDept()});
       if(addErr){await DB.auth.deleteUser(user.id).catch(()=>{});this.setState({addingAdmin:false});this._toast('Failed to add admin to roster. Try again.','error');return;}
       await this.loadAdmins();
     } else {
@@ -61,7 +61,7 @@ const AdminMgmtHandlers = {
       if(error){this._toast('Failed to remove admin. Try again.','error');return;}
     }
     const name = admin?.name || '';
-    this.setState(s=>({adminsList:s.adminsList.filter(a=>a.id!==id),personnel:admin?[...s.personnel,{...admin,role:'reservist',batch_id:null,shift:null}]:s.personnel}));
+    this.setState(s=>({adminsList:s.adminsList.filter(a=>a.id!==id),personnel:admin?[...s.personnel,{...admin,role:'reservist',batch_id:null}]:s.personnel}));
     this._toast((admin?.name||'Admin')+' removed and returned to reservist pool.');
     this._log('admin', 'admin.demoted', { target_id: id, target_name: name });
   },
