@@ -228,10 +228,12 @@ const BatchHandlers = {
     if(!phaseTimingsDraft) return;
     const batch=batches[activeBatchIdx||0]; if(!batch) return;
     if(demo){ this._toast('Cannot change timings in demo mode.','error'); return; }
-    // Record what mode was active before the change so historical rows can be labeled correctly.
-    const prevTimings=Utils.effectiveTimings(batch);
-    const {timings_since:_,prev_was_dinner:__,...cleanDraft}=phaseTimingsDraft;
-    const timingsToSave={...cleanDraft,timings_since:Utils.dateKey(new Date()),prev_was_dinner:Utils.isBreakDinner(prevTimings)};
+    const {timings_since:_,prev_was_dinner:__,mode_changes:_mc,...cleanDraft}=phaseTimingsDraft;
+    const today=Utils.dateKey(new Date());
+    const newMode=Utils.isBreakDinner(cleanDraft);
+    const cutoff=Utils.dateKey(Utils.addDays(new Date(),-90));
+    const prevChanges=((batch.phase_timings||{}).mode_changes||[]).filter(e=>e.from!==today&&e.from>=cutoff);
+    const timingsToSave={...cleanDraft,mode_changes:[...prevChanges,{from:today,dinner:newMode}]};
     this.setState({phaseTimingsSaving:true});
     const {error}=await DB.batches.updateTimings(batch.id,timingsToSave);
     this.setState({phaseTimingsSaving:false});
@@ -265,10 +267,12 @@ const BatchHandlers = {
     const personName = _prevPerson?.name||'';
     const _batchT=Utils.effectiveTimings(activeBatch);
     const _prevEff=_prevPerson?.phase_timings?{..._batchT,..._prevPerson.phase_timings}:{..._batchT};
-    // Strip stale metadata from the draft (inherited from the person's existing override),
-    // then stamp with today's date and the mode that was active before this save.
-    const {timings_since:_,prev_was_dinner:__,...cleanDraft}=ptOverrideDraft;
-    const saved={...cleanDraft,timings_since:Utils.dateKey(new Date()),prev_was_dinner:Utils.isBreakDinner(_prevEff)};
+    const {timings_since:_,prev_was_dinner:__,mode_changes:_mc,...cleanDraft}=ptOverrideDraft;
+    const today=Utils.dateKey(new Date());
+    const newMode=Utils.isBreakDinner(cleanDraft);
+    const cutoff=Utils.dateKey(Utils.addDays(new Date(),-90));
+    const prevChanges=(_prevPerson?.phase_timings?.mode_changes||[]).filter(e=>e.from!==today&&e.from>=cutoff);
+    const saved={...cleanDraft,mode_changes:[...prevChanges,{from:today,dinner:newMode}]};
     this.setState({ptOverrideSaving:true});
     const {error} = await DB.personnel.updateTimings(ptOverrideEditId, saved);
     this.setState({ptOverrideSaving:false});
