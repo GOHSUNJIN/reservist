@@ -33,7 +33,7 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 
 ### For Reservists
 
-- **Department-based check-in flow**: Ops Security reservists log four phases (check in, lunch/dinner out, return from lunch/dinner, end of shift). Crime Prevention Office (CPO) reservists use a simplified two-phase flow: check in and check out only. Each phase is timestamped to the minute. When a supervisor sets the cycle Phase 2 time to 17:00 or later, all lunch labels on the check-in screen switch to dinner automatically: "Lunch break" becomes "Dinner break", "Return from lunch" becomes "Return from dinner", and button labels follow the same change.
+- **Department-based check-in flow**: Ops Security reservists log four phases (check in, lunch/dinner out, return from lunch/dinner, end of shift). Crime Prevention Office (CPO) reservists use a simplified two-phase flow: check in and check out only. Each phase is timestamped to the minute. When a supervisor sets the cycle Phase 2 time to 17:00 or later, all lunch labels on the check-in screen switch to dinner automatically: "Lunch break" becomes "Dinner break", "Return from lunch" becomes "Return from dinner", and button labels follow the same change. Attendance history records always show the label that was in effect at the time of check-in: changing to dinner mode today does not relabel past records as dinner, and switching back to lunch does not relabel past dinner records.
 - **GPS verification**: Tapping a check-in phase shows a "Locate me" button first. After GPS confirms you are within range of HQ, the button swaps to "Check in to work" (or the phase-specific label). Distance from HQ is recorded. The radius is configurable (default: 250 m).
 - **GPS bypass**: If GPS cannot detect your location at all (permission denied, signal unavailable, or timeout), a bypass option appears immediately so you can check in without GPS. The bypass is not offered when GPS works but you are simply out of range; in that case you must move closer to HQ and try again. Bypassed records are permanently flagged in the log.
 - **Leave and MC requests**: Submit requests digitally through the app. They go directly to the supervisor for approval with no phone calls or messages needed. Only one leave type is supported per day: MC (sick leave) or Personal Leave (other absences). When an MC is approved for today, the check-in phases are replaced with a "Marked as MC" card. When a Personal Leave is approved for today, the status chip switches to amber "Personal Leave" and an "On Personal Leave" card is shown instead.
@@ -121,7 +121,7 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Non-reporting day control**: Mark any date as a non-reporting day (public holiday or stand-down). Singapore public holidays are excluded automatically.
 - **Bulk no-report days**: Paste a list of dates to mark multiple non-reporting days in a single action.
 - **Cycle notice board (broadcast)**: Post a short notice that appears on every reservist's check-in screen for the duration of the cycle. The notice is scoped to the active department and does not appear to reservists in other departments.
-- **Phase timings (Ops Security only)**: Configure the opening time of each of the four check-in phases (P1 check-in, P2 lunch/dinner out, P3 return, P4 check-out) at the cycle level. Changes apply immediately to all Ops Security reservists in that cycle. When Phase 2 is set to 17:00 or later, the system activates dinner mode: every lunch label across the check-in screen, phase tiles, buttons and the Help FAQ switches to "Dinner break" and "Return from dinner" automatically. The late-arrival threshold always tracks Phase 1's opening time, so a cycle with a 17:00 P1 flags anyone who checks in after 18:00. The dark blue shift window on each reservist's check-in screen updates to show the custom P1 time and the resulting late cutoff. Individual overrides can be set per person from the same panel, letting one reservist follow a different schedule while the rest of the cycle uses the defaults. Phases that differ from the cycle default are highlighted in amber in the editor so changes are visible at a glance. Clearing an override reverts the person to the cycle default immediately with no save step needed.
+- **Phase timings (Ops Security only)**: Configure the opening time of each of the four check-in phases (P1 check-in, P2 lunch/dinner out, P3 return, P4 check-out) at the cycle level. Changes apply immediately to all Ops Security reservists in that cycle. When Phase 2 is set to 17:00 or later, the system activates dinner mode: every lunch label across the check-in screen, phase tiles, buttons and the Help FAQ switches to "Dinner break" and "Return from dinner" automatically. The late-arrival threshold always tracks Phase 1's opening time, so a cycle with a 17:00 P1 flags anyone who checks in after 18:00. The dark blue shift window on each reservist's check-in screen updates to show the custom P1 time and the resulting late cutoff. Individual overrides can be set per person from the same panel, letting one reservist follow a different schedule while the rest of the cycle uses the defaults. Phases that differ from the cycle default are highlighted in amber in the editor so changes are visible at a glance. Clearing an override reverts the person to the cycle default immediately with no save step needed. Changing timings only affects records from the change date onwards: historical attendance rows retain the LUNCH or DINNER label that was in effect when they were originally recorded, regardless of how many times the timing is changed afterwards.
 - **Meal allowance toggle**: Enable or disable meal allowance per cycle. When active, the work timer and meal eligibility calculations are shown to reservists.
 - **Cycle picker**: Browse all cycles grouped by year with a visual picker. Each cycle row shows a colour-coded tag: Live (green) for the currently active cycle, Upcoming (grey) for future cycles and Past (slate blue) for completed ones. The active cycle is always shown first in the list.
 - **Cycle management**: Create and label reporting cycles. The system prepares the next 8 cycles automatically on every admin login.
@@ -402,7 +402,8 @@ scripts/
             ├── renumber_lnf_cycles.sql        - Renumbered L&F cycle labels
             ├── drop_p2p3p4_gps_dist.sql       - Dropped GPS distance columns for phases 2 to 4; updated log_phase RPCs
             ├── drop_shift_column.sql          - Dropped shift column from personnel table
-            └── drop_signup_requests_shift.sql - Dropped shift column from signup_requests table
+            ├── drop_signup_requests_shift.sql - Dropped shift column from signup_requests table
+            └── add_dinner_mode.sql            - Added dinner_mode boolean to attendance table for historical LUNCH/DINNER label accuracy
 ```
 
 `index.html` is the single-page template that wires all builders and handlers together. The `<x-dc>` element at the top of the file is where all deployment-specific configuration lives.
@@ -472,6 +473,7 @@ All data is stored in a structured cloud database (PostgreSQL), with seven table
 | GPS bypassed | Flagged true if GPS was overridden or times were admin-corrected |
 | Welfare note | Supervisor's daily note (also used for missed-attendance notes) |
 | Edit log | JSON list of admin edits, each with editor name and timestamp |
+| Dinner mode | Whether the break was dinner (true), lunch (false), or not recorded (null, for CPO and pre-migration records) |
 
 **No-reporting days** - a list of dates where no attendance is expected.
 
@@ -606,6 +608,7 @@ CREATE TABLE attendance (
   gps_bypassed BOOLEAN DEFAULT false,
   welfare_note TEXT,
   edit_log JSONB DEFAULT '[]',
+  dinner_mode BOOLEAN DEFAULT NULL,
   UNIQUE(personnel_id, date)
 );
 
