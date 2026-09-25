@@ -818,6 +818,10 @@ Sessions expire after 60 minutes or after 20 minutes of inactivity. A warning ap
 
 This should not happen after an admin login, as the system auto-creates 8 upcoming cycles. If the picker is empty, log out and log back in to trigger the provisioning step.
 
+### Leave or MC requests are not appearing in the admin inbox
+
+If the Requests tab shows no pending leave or MC requests despite a reservist having submitted one, the most likely cause is a silent database query failure. `DB.leaves.listPending` joins the `personnel` table to retrieve the submitter's name and contact. If that query references a column that no longer exists in the schema (for example, after a migration), Supabase returns an error, `data` is `null`, and the function silently returns an empty array instead of surfacing the error. Open the browser console: a PostgREST error on the `leave_requests` select confirms this. Fix by removing the stale column name from the `select(...)` call in `js/db/leaves.js`.
+
 ### A signup request is not appearing
 
 Signup requests only appear for admins scoped to the correct department. If you are a Master account, check that the department switcher in the header is set to the correct department.
