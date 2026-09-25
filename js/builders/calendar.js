@@ -153,10 +153,13 @@ const CalendarBuilders = {
     const activeBatch=s.batches.find(b=>b.id===me.batch_id)||s.batches[s.activeBatchIdx||0];
     const _cTimings=(!isCas&&this._myDept()==='ops_security')?(s.me?.phase_timings||Utils.effectiveTimings(activeBatch)):null;
     const _histBreakLabel=(_cTimings&&Utils.isBreakDinner(_cTimings))?'DINNER':'LUNCH';
-    // Use the dinner_mode flag stored on the record at P1 check-in time.
-    // Falls back to current timings for old records that pre-date this field.
+    const _timingsSince=_cTimings?.timings_since||null;
+    const _prevWasDinner=_cTimings?.prev_was_dinner??null;
+    // Priority: (1) dinner_mode stored at check-in time, (2) timings_since stamp written when
+    // admin changed the timings (records before that date use the previous mode), (3) current timings.
     const _rowBreakLabel=(r)=>{
       if(r.dinnerMode!=null) return r.dinnerMode?'DINNER':'LUNCH';
+      if(_timingsSince&&_prevWasDinner!=null&&r.date&&r.date<_timingsSince) return _prevWasDinner?'DINNER':'LUNCH';
       return _histBreakLabel;
     };
 
@@ -225,7 +228,7 @@ const CalendarBuilders = {
             p1:'-',p2:'-',p3:'-',p4:'-',p1Color:_dc,p2Color:_dc,p3Color:_dc,p4Color:_dc,
             p1Edited:false,p2Edited:false,p3Edited:false,p4Edited:false,
             showTimes:false,rowMarginBot:'0',chevronRotate:'0',hasExpandToggle:true,rowCursor:'pointer',isExpanded:false,onToggleExpand:this.openMissedNote(dk,''),showTimingWarning:false,
-            isMissedRow:true,missedNote:'',showMissedNote:false,onOpenMissedNote:this.openMissedNote(dk,''),p2Label:_histBreakLabel,
+            isMissedRow:true,missedNote:'',showMissedNote:false,onOpenMissedNote:this.openMissedNote(dk,''),p2Label:_rowBreakLabel({date:dk}),
             ...Utils.meta('missed')});
         }
       }

@@ -228,11 +228,15 @@ const BatchHandlers = {
     if(!phaseTimingsDraft) return;
     const batch=batches[activeBatchIdx||0]; if(!batch) return;
     if(demo){ this._toast('Cannot change timings in demo mode.','error'); return; }
+    // Record what mode was active before the change so historical rows can be labeled correctly.
+    const prevTimings=Utils.effectiveTimings(batch);
+    const {timings_since:_,prev_was_dinner:__,...cleanDraft}=phaseTimingsDraft;
+    const timingsToSave={...cleanDraft,timings_since:Utils.dateKey(new Date()),prev_was_dinner:Utils.isBreakDinner(prevTimings)};
     this.setState({phaseTimingsSaving:true});
-    const {error}=await DB.batches.updateTimings(batch.id,phaseTimingsDraft);
+    const {error}=await DB.batches.updateTimings(batch.id,timingsToSave);
     this.setState({phaseTimingsSaving:false});
     if(error){ this._toast('Failed to save timings.','error'); return; }
-    this.setState(s=>({batches:s.batches.map(b=>b.id===batch.id?{...b,phase_timings:phaseTimingsDraft}:b),phaseTimingsOpen:false,phaseTimingsDraft:null}));
+    this.setState(s=>({batches:s.batches.map(b=>b.id===batch.id?{...b,phase_timings:timingsToSave}:b),phaseTimingsOpen:false,phaseTimingsDraft:null}));
     this._toast('Phase timings saved.');
     this._log('batch','batch.timings_updated',{target_name:batch?.label||''});
   },
@@ -255,17 +259,20 @@ const BatchHandlers = {
     const {ptOverrideEditId, ptOverrideDraft, demo, personnel, batchMembersCache, batches, activeBatchIdx} = this.state;
     if(!ptOverrideEditId||!ptOverrideDraft) return;
     if(demo){ this._toast('Cannot set timings in demo mode.','error'); return; }
-    this.setState({ptOverrideSaving:true});
-    const {error} = await DB.personnel.updateTimings(ptOverrideEditId, ptOverrideDraft);
-    this.setState({ptOverrideSaving:false});
-    if(error){ this._toast('Failed to save timings.','error'); return; }
     const activeBatch = batches[activeBatchIdx||0];
     const members = activeBatch?.is_live ? personnel.filter(p=>p.batch_id===activeBatch.id) : (batchMembersCache[activeBatch?.id]||[]);
     const _prevPerson=members.find(p=>p.id===ptOverrideEditId);
     const personName = _prevPerson?.name||'';
-    const saved = {...ptOverrideDraft};
     const _batchT=Utils.effectiveTimings(activeBatch);
     const _prevEff=_prevPerson?.phase_timings?{..._batchT,..._prevPerson.phase_timings}:{..._batchT};
+    // Strip stale metadata from the draft (inherited from the person's existing override),
+    // then stamp with today's date and the mode that was active before this save.
+    const {timings_since:_,prev_was_dinner:__,...cleanDraft}=ptOverrideDraft;
+    const saved={...cleanDraft,timings_since:Utils.dateKey(new Date()),prev_was_dinner:Utils.isBreakDinner(_prevEff)};
+    this.setState({ptOverrideSaving:true});
+    const {error} = await DB.personnel.updateTimings(ptOverrideEditId, saved);
+    this.setState({ptOverrideSaving:false});
+    if(error){ this._toast('Failed to save timings.','error'); return; }
     const patchArr = (arr) => arr.map(p=>p.id===ptOverrideEditId?{...p,phase_timings:saved}:p);
     this.setState(s=>{ const newBmc={}; Object.keys(s.batchMembersCache).forEach(k=>{newBmc[k]=patchArr(s.batchMembersCache[k]);}); return {personnel:patchArr(s.personnel),batchMembersCache:newBmc,ptOverrideEditId:null,ptOverrideDraft:null,ptOverrideSearch:''}; });
     this._toast('Custom timings saved'+(personName?' for '+personName:'')+'.');

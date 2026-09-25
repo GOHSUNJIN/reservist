@@ -15,8 +15,11 @@ const AdminRoster = {
       const av=s.avatars[p.id]||'';
       const avatarStyle=Utils.avatarStyle(av);
       const _rosterPTimings=(!isCas&&self._myDept()==='ops_security')?(p.phase_timings||Utils.effectiveTimings(activeBatch)):null;
+      const _rosterTimingsSince=_rosterPTimings?.timings_since||null;
+      const _rosterPrevWasDinner=_rosterPTimings?.prev_was_dinner??null;
       const _rosterBreakShort=(()=>{
         if(r.dinnerMode!=null) return r.dinnerMode?'DIN':'LCH';
+        if(_rosterTimingsSince&&_rosterPrevWasDinner!=null&&viewDateKey<_rosterTimingsSince) return _rosterPrevWasDinner?'DIN':'LCH';
         return (_rosterPTimings&&Utils.isBreakDinner(_rosterPTimings))?'DIN':'LCH';
       })();
       const _phaseParts=[r.p1?'IN '+r.p1:null,r.p2?(_rosterBreakShort+' '+r.p2):null,r.p3?'BACK '+r.p3:null,r.p4?'OUT '+r.p4:null].filter(Boolean);
@@ -78,11 +81,13 @@ const AdminRoster = {
       const _ef=new Set((r.editLog||[]).flatMap(e=>e.fields||[]));
       const _ec=accent;
       const _adminEditedP1=_ef.has('p1');
-      // Use the dinner_mode flag stored on the record at P1 check-in time.
-      // Falls back to person's current timings for records that pre-date this field.
+      // Priority: (1) dinner_mode on record, (2) timings_since stamp, (3) current person timings.
       const _logPTimings=(!isCas&&self._myDept()==='ops_security')?(p.phase_timings||Utils.effectiveTimings(activeBatch)):null;
+      const _logTimingsSince=_logPTimings?.timings_since||null;
+      const _logPrevWasDinner=_logPTimings?.prev_was_dinner??null;
       const _logBreakLabel=(()=>{
         if(r.dinnerMode!=null) return r.dinnerMode?'DINNER':'LUNCH';
+        if(_logTimingsSince&&_logPrevWasDinner!=null&&viewDateKey<_logTimingsSince) return _logPrevWasDinner?'DINNER':'LUNCH';
         return (_logPTimings&&Utils.isBreakDinner(_logPTimings))?'DINNER':'LUNCH';
       })();
       const _logBreakShort=_logBreakLabel==='DINNER'?'DIN':'LCH';
