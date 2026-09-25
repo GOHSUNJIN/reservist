@@ -99,6 +99,14 @@ const CheckinHandlers = {
       const _lrClear=(key==='p2'||key==='p3')&&this.state.lateReasonOpen?{lateReasonOpen:false,lateReasonText:''}:{};
       this.setState({phaseSubmitting:true,..._lrClear});
       const time=Utils.hhmm(new Date()), dist=bypassed?null:locDistance;
+      const _isCasP1=this._myDept()==='cas';
+      const _isDinnerP1=(()=>{
+        if(key!=='p1') return null;
+        if(_isCasP1) return false;
+        if(this._myDept()!=='ops_security') return null;
+        const _tims=me?.phase_timings||Utils.effectiveTimings(this.state.batches.find(b=>b.id===me?.batch_id));
+        return Utils.isBreakDinner(_tims);
+      })();
       if(key==='p1'){
         const ml=Utils._hmToMins(time)-Utils._hmToMins(Utils.LATE_CUTOFF.OFFICE);
         if(ml>=60) this.setState({lateReasonOpen:true,lateReasonText:''});
@@ -117,7 +125,7 @@ const CheckinHandlers = {
       this._log('attendance', `checkin.${key}`, { date: Utils.dateKey(this.baseDate()), time, gps_bypassed: bypassed || false });
       if(demo){this.setState({phaseSubmitting:false});return;}
       if(!isOnline){
-        this._queuePush({type:'phase',id:currentUserId,date:today,key,time,dist,...(bypassed?{bypassed:true}:{})});
+        this._queuePush({type:'phase',id:currentUserId,date:today,key,time,dist,...(bypassed?{bypassed:true}:{}),...(_isDinnerP1!=null?{dinnerMode:_isDinnerP1}:{})});
         this.setState({phaseSubmitting:false});
       } else {
         const {time:serverTime,error:phErr}=await DB.attendance.logPhaseNow(currentUserId,today,key,dist,bypassed||false);
@@ -132,7 +140,10 @@ const CheckinHandlers = {
           } else {
             this._toast('Check-in saved locally but failed to sync. Check your connection.','error');
           }
-        } else if(serverTime) {
+        } else {
+          if(_isDinnerP1!=null) DB.attendance.setDinnerMode(currentUserId,today,_isDinnerP1).catch(()=>{});
+        }
+        if(!phErr&&serverTime) {
           const corrected={...rec};
           if(key==='p1') corrected.p1=serverTime;
           else if(key==='p2') corrected.p2=serverTime;

@@ -14,6 +14,7 @@ const DB_Attendance = {
       welfareNote: r.welfare_note || null,
       gpsBypassed: r.gps_bypassed || false,
       editLog: r.edit_log || [],
+      dinnerMode: r.dinner_mode ?? null,
     };
   },
 
@@ -96,6 +97,11 @@ const DB_Attendance = {
     });
     if (error) console.error('[logPhaseNow] phase='+key, error);
     return { time: data || null, error };
+  },
+
+  async setDinnerMode(personnelId, dateStr, isDinner) {
+    await _db.from('attendance').update({ dinner_mode: isDinner })
+      .eq('personnel_id', personnelId).eq('date', dateStr);
   },
 
   async submitLateReason(personnelId, dateStr, reason) {
