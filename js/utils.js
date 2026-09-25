@@ -127,6 +127,19 @@ const Utils = {
     return null;
   },
   isBreakDinner(timings){ return (timings||this.DEFAULT_TIMINGS).p2_open>='17:00'; },
+  resolveBreakLabel(dinnerMode, modeChanges, dateKey, timings){
+    if(dinnerMode!=null) return dinnerMode?'DINNER':'LUNCH';
+    if(dateKey&&modeChanges.length>0){
+      const rel=modeChanges.filter(e=>e.from<=dateKey);
+      if(rel.length>0) return rel.reduce((a,b)=>a.from>b.from?a:b).dinner?'DINNER':'LUNCH';
+    }
+    return (timings&&this.isBreakDinner(timings))?'DINNER':'LUNCH';
+  },
+  buildModeChanges(existingChanges, startDate, prevWasDinner, today, newMode){
+    const prevChanges=(existingChanges||[]).filter(e=>e.from!==today);
+    const baseline=prevChanges.length===0?[{from:startDate||'2000-01-01',dinner:prevWasDinner}]:[];
+    return [...baseline,...prevChanges,{from:today,dinner:newMode}];
+  },
 
   phaseWindow(shift,key,dept){
     const w=dept==='cas'?this.PHASE_WINDOWS.CAS:dept==='lnf'?this.PHASE_WINDOWS.LNF:this.PHASE_WINDOWS.OFFICE;
