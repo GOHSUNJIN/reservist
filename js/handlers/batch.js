@@ -230,12 +230,7 @@ const BatchHandlers = {
     if(demo){ this._toast('Cannot change timings in demo mode.','error'); return; }
     const {timings_since:_,prev_was_dinner:__,mode_changes:_mc,...cleanDraft}=phaseTimingsDraft;
     const today=Utils.dateKey(new Date());
-    const newMode=Utils.isBreakDinner(cleanDraft);
-    const prevTimings=Utils.effectiveTimings(batch);
-    const prevChanges=((batch.phase_timings||{}).mode_changes||[]).filter(e=>e.from!==today);
-    const prevWasDinner=Utils.isBreakDinner(prevTimings);
-    const baseline=prevChanges.length===0?[{from:batch.start_date||'2000-01-01',dinner:prevWasDinner}]:[];
-    const timingsToSave={...cleanDraft,mode_changes:[...baseline,...prevChanges,{from:today,dinner:newMode}]};
+    const timingsToSave={...cleanDraft,mode_changes:Utils.buildModeChanges((batch.phase_timings||{}).mode_changes,batch.start_date,Utils.isBreakDinner(Utils.effectiveTimings(batch)),today,Utils.isBreakDinner(cleanDraft))};
     this.setState({phaseTimingsSaving:true});
     const {error}=await DB.batches.updateTimings(batch.id,timingsToSave);
     this.setState({phaseTimingsSaving:false});
@@ -271,11 +266,7 @@ const BatchHandlers = {
     const _prevEff=_prevPerson?.phase_timings?{..._batchT,..._prevPerson.phase_timings}:{..._batchT};
     const {timings_since:_,prev_was_dinner:__,mode_changes:_mc,...cleanDraft}=ptOverrideDraft;
     const today=Utils.dateKey(new Date());
-    const newMode=Utils.isBreakDinner(cleanDraft);
-    const prevChanges=(_prevPerson?.phase_timings?.mode_changes||[]).filter(e=>e.from!==today);
-    const prevWasDinner=Utils.isBreakDinner(_prevEff);
-    const baseline=prevChanges.length===0?[{from:activeBatch?.start_date||'2000-01-01',dinner:prevWasDinner}]:[];
-    const saved={...cleanDraft,mode_changes:[...baseline,...prevChanges,{from:today,dinner:newMode}]};
+    const saved={...cleanDraft,mode_changes:Utils.buildModeChanges(_prevPerson?.phase_timings?.mode_changes,activeBatch?.start_date,Utils.isBreakDinner(_prevEff),today,Utils.isBreakDinner(cleanDraft))};
     this.setState({ptOverrideSaving:true});
     const {error} = await DB.personnel.updateTimings(ptOverrideEditId, saved);
     this.setState({ptOverrideSaving:false});

@@ -4,8 +4,6 @@ const AdminRoster = {
   build: function(self, s, accent, ctx) {
     const {activeBatch,activeMembers,viewOffset,viewDate,viewIsToday,viewReportDay,viewDateKey,viewMap,viewBlocked,isDekit,viewShowReporting,present,mc,pending,absent} = ctx;
     const isCas=self._myDept()==='cas';
-    const WD=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
-    const MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const beforeBatchStart=!!(activeBatch?.start_date&&viewDateKey<activeBatch.start_date);
     const visibleMembers=beforeBatchStart?[]:activeMembers;
     const approvedLeavesForView=s.approvedLeavesCache?.[viewDateKey]||{};
@@ -15,15 +13,7 @@ const AdminRoster = {
       const av=s.avatars[p.id]||'';
       const avatarStyle=Utils.avatarStyle(av);
       const _rosterPTimings=(!isCas&&self._myDept()==='ops_security')?(p.phase_timings||Utils.effectiveTimings(activeBatch)):null;
-      const _rosterModeChanges=_rosterPTimings?.mode_changes||[];
-      const _rosterBreakShort=(()=>{
-        if(r.dinnerMode!=null) return r.dinnerMode?'DIN':'LCH';
-        if(_rosterModeChanges.length>0){
-          const rel=_rosterModeChanges.filter(e=>e.from<=viewDateKey);
-          if(rel.length>0) return rel.reduce((a,b)=>a.from>b.from?a:b).dinner?'DIN':'LCH';
-        }
-        return (_rosterPTimings&&Utils.isBreakDinner(_rosterPTimings))?'DIN':'LCH';
-      })();
+      const _rosterBreakShort=Utils.resolveBreakLabel(r.dinnerMode,_rosterPTimings?.mode_changes||[],viewDateKey,_rosterPTimings)==='DINNER'?'DIN':'LCH';
       const _phaseParts=[r.p1?'IN '+r.p1:null,r.p2?(_rosterBreakShort+' '+r.p2):null,r.p3?'BACK '+r.p3:null,r.p4?'OUT '+r.p4:null].filter(Boolean);
       const phaseLine=_phaseParts.join('  ·  ');
       const showPhaseLine=r.status==='present'&&_phaseParts.length>0;
@@ -84,15 +74,7 @@ const AdminRoster = {
       const _ec=accent;
       const _adminEditedP1=_ef.has('p1');
       const _logPTimings=(!isCas&&self._myDept()==='ops_security')?(p.phase_timings||Utils.effectiveTimings(activeBatch)):null;
-      const _logModeChanges=_logPTimings?.mode_changes||[];
-      const _logBreakLabel=(()=>{
-        if(r.dinnerMode!=null) return r.dinnerMode?'DINNER':'LUNCH';
-        if(_logModeChanges.length>0){
-          const rel=_logModeChanges.filter(e=>e.from<=viewDateKey);
-          if(rel.length>0) return rel.reduce((a,b)=>a.from>b.from?a:b).dinner?'DINNER':'LUNCH';
-        }
-        return (_logPTimings&&Utils.isBreakDinner(_logPTimings))?'DINNER':'LUNCH';
-      })();
+      const _logBreakLabel=Utils.resolveBreakLabel(r.dinnerMode,_logPTimings?.mode_changes||[],viewDateKey,_logPTimings);
       const _logBreakShort=_logBreakLabel==='DINNER'?'DIN':'LCH';
       const [_cc,_ccm]='09:00'.split(':').map(Number);
       const _lm=r.p1?(()=>{const[h,m]=r.p1.split(':').map(Number);return(h*60+m)-(_cc*60+_ccm);})():0;
@@ -122,7 +104,7 @@ const AdminRoster = {
         gpsDistSuspicious: r.p1dist===0,
         gpsDistColor: r.p1dist===0?'#b9791a':'#1f8a5b',
         gpsDistBg: r.p1dist===0?'#fdf0dc':'#e7f3ec',
-        editSummary: (()=>{const log=r.editLog||[];if(!log.length)return'';const e=log[log.length-1];const d=new Date(e.at);const sg=new Date(d.getTime()+8*3600*1000);const hh=String(sg.getUTCHours()).padStart(2,'0'),mm2=String(sg.getUTCMinutes()).padStart(2,'0');const day=sg.getUTCDate(),mon=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][sg.getUTCMonth()];return'Edited by '+(e.by||'Admin')+' · '+hh+':'+mm2+', '+day+' '+mon;})(),
+        editSummary: (()=>{const log=r.editLog||[];if(!log.length)return'';const e=log[log.length-1];const d=new Date(e.at);const sg=new Date(d.getTime()+8*3600*1000);const hh=String(sg.getUTCHours()).padStart(2,'0'),mm2=String(sg.getUTCMinutes()).padStart(2,'0');const day=sg.getUTCDate(),mon=Utils._MS[sg.getUTCMonth()];return'Edited by '+(e.by||'Admin')+' · '+hh+':'+mm2+', '+day+' '+mon;})(),
         showEditSummary: !!(r.editLog&&r.editLog.length),
         showPhaseLine: r.status==='present',
         showLunchBoxes: !isCas,
@@ -181,8 +163,8 @@ const AdminRoster = {
     const lateNames=lateRows.map(r=>r.name).join(', ');
     const showLateAlert=false;
     const lateAlertLabel=lateCount===1?'1 late check-in':lateCount+' late check-ins';
-    const logDateLabel=viewIsToday?'TODAY\'S LOG':((WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()]).toUpperCase()+' LOG');
-    const dlabel=WD[viewDate.getDay()]+' '+viewDate.getDate()+' '+MON[viewDate.getMonth()];
+    const logDateLabel=viewIsToday?'TODAY\'S LOG':((Utils._WS[viewDate.getDay()]+' '+viewDate.getDate()+' '+Utils._MS[viewDate.getMonth()]).toUpperCase()+' LOG');
+    const dlabel=Utils._WS[viewDate.getDay()]+' '+viewDate.getDate()+' '+Utils._MS[viewDate.getMonth()];
     const rel=viewOffset===0?'Today':viewOffset===-1?'Yesterday':viewOffset===1?'Tomorrow':'';
     const viewDateLabel=(rel?rel+', ':'')+dlabel;
     const viewHoliday=Utils.holidayName(viewDate);

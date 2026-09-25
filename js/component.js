@@ -97,11 +97,7 @@ class AppComponent extends DCLogic {
   }
 
   componentWillUnmount(){
-    if(this._toastTimer) clearTimeout(this._toastTimer);
-    if(this._sessionWarnTimer) clearTimeout(this._sessionWarnTimer);
-    if(this._idleWarnTimer) clearTimeout(this._idleWarnTimer);
-    if(this._idleLogoutTimer) clearTimeout(this._idleLogoutTimer);
-    if(this._refreshDebounce) clearTimeout(this._refreshDebounce);
+    ['_toastTimer','_sessionWarnTimer','_idleWarnTimer','_idleLogoutTimer','_refreshDebounce'].forEach(t=>{if(this[t])clearTimeout(this[t]);});
     clearInterval(this._t);
     this._unsubscribeRealtime();
     document.removeEventListener('visibilitychange', this._onVisibilityChange);
