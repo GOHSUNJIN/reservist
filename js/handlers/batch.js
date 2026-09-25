@@ -231,9 +231,11 @@ const BatchHandlers = {
     const {timings_since:_,prev_was_dinner:__,mode_changes:_mc,...cleanDraft}=phaseTimingsDraft;
     const today=Utils.dateKey(new Date());
     const newMode=Utils.isBreakDinner(cleanDraft);
-    const cutoff=Utils.dateKey(Utils.addDays(new Date(),-90));
-    const prevChanges=((batch.phase_timings||{}).mode_changes||[]).filter(e=>e.from!==today&&e.from>=cutoff);
-    const timingsToSave={...cleanDraft,mode_changes:[...prevChanges,{from:today,dinner:newMode}]};
+    const prevTimings=Utils.effectiveTimings(batch);
+    const prevChanges=((batch.phase_timings||{}).mode_changes||[]).filter(e=>e.from!==today);
+    const prevWasDinner=Utils.isBreakDinner(prevTimings);
+    const baseline=prevChanges.length===0?[{from:batch.start_date||'2000-01-01',dinner:prevWasDinner}]:[];
+    const timingsToSave={...cleanDraft,mode_changes:[...baseline,...prevChanges,{from:today,dinner:newMode}]};
     this.setState({phaseTimingsSaving:true});
     const {error}=await DB.batches.updateTimings(batch.id,timingsToSave);
     this.setState({phaseTimingsSaving:false});
@@ -270,9 +272,10 @@ const BatchHandlers = {
     const {timings_since:_,prev_was_dinner:__,mode_changes:_mc,...cleanDraft}=ptOverrideDraft;
     const today=Utils.dateKey(new Date());
     const newMode=Utils.isBreakDinner(cleanDraft);
-    const cutoff=Utils.dateKey(Utils.addDays(new Date(),-90));
-    const prevChanges=(_prevPerson?.phase_timings?.mode_changes||[]).filter(e=>e.from!==today&&e.from>=cutoff);
-    const saved={...cleanDraft,mode_changes:[...prevChanges,{from:today,dinner:newMode}]};
+    const prevChanges=(_prevPerson?.phase_timings?.mode_changes||[]).filter(e=>e.from!==today);
+    const prevWasDinner=Utils.isBreakDinner(_prevEff);
+    const baseline=prevChanges.length===0?[{from:activeBatch?.start_date||'2000-01-01',dinner:prevWasDinner}]:[];
+    const saved={...cleanDraft,mode_changes:[...baseline,...prevChanges,{from:today,dinner:newMode}]};
     this.setState({ptOverrideSaving:true});
     const {error} = await DB.personnel.updateTimings(ptOverrideEditId, saved);
     this.setState({ptOverrideSaving:false});
