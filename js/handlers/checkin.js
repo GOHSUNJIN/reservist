@@ -107,7 +107,9 @@ const CheckinHandlers = {
         return Utils.isBreakDinner(_tims);
       })();
       if(key==='p1'){
-        const ml=Utils._hmToMins(time)-Utils._hmToMins(Utils.LATE_CUTOFF.OFFICE);
+        const _tims=me?.phase_timings||Utils.effectiveTimings(this.state.batches.find(b=>b.id===me?.batch_id));
+        const _cutoff=(_tims?.p1_open)||Utils.LATE_CUTOFF.OFFICE;
+        const ml=Utils._hmToMins(time)-Utils._hmToMins(_cutoff);
         if(ml>=30) this.setState({showLateWarning:true});
       }
       const today=Utils.dateKey(this.baseDate()), prev={...(this.state.attendance[currentUserId]||{})};
@@ -117,7 +119,7 @@ const CheckinHandlers = {
       else if(key==='p2') rec.p2=time;
       else if(key==='p3'){rec.p3=time;if(bypassed)rec.gpsBypassed=true;}
       else if(key==='p4') rec.p4=time;
-      this.setState(s=>({attendance:{...s.attendance,[currentUserId]:rec},locStatus:'idle',locPhase:null,...(!bypassed&&key==='p1'?{showLateWarning:false}:{})}));
+      this.setState(s=>({attendance:{...s.attendance,[currentUserId]:rec},locStatus:'idle',locPhase:null}));
       this._haptic();
       this._toast({p1:'Checked in',p2:'Break recorded',p3:'Returned',p4:'Checked out'}[key]||'Recorded');
       this._log('attendance', `checkin.${key}`, { date: Utils.dateKey(this.baseDate()), time, gps_bypassed: bypassed || false });
