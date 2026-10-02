@@ -12,6 +12,11 @@ slide_exports/
 _slide_preview/
 ~$*
 
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+
 # One-off scripts
 fix_slides.py
 gen_sample.py
