@@ -588,28 +588,6 @@
                 </div>
               </sc-if>
 
-              <sc-if value="{{ !allDone }}" hint-placeholder-val="">
-              <sc-if value="{{ canAddLateReason }}" hint-placeholder-val="">
-                <div onClick="{{ openLateReason }}" style="display:flex;align-items:center;gap:11px;margin-top:10px;padding:11px 13px;background:#fdf0dc;border:1px solid #f0e2c2;border-radius:12px;cursor:pointer;">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
-                  <div style="flex:1;">
-                    <div style="font-size:12.5px;font-weight:700;color:#b9791a;">Late check-in</div>
-                    <div style="font-size:11.5px;color:#c49b40;margin-top:1px;">Tap to add your reason</div>
-                  </div>
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#c49b40" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                </div>
-              </sc-if>
-              <sc-if value="{{ hasLateReason }}" hint-placeholder-val="">
-                <div style="margin-top:8px;padding:10px 12px;background:#fbeeec;border:1px solid #f1d3cf;border-radius:10px;display:flex;align-items:flex-start;gap:9px;">
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:2px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                  <div class="flex-fill">
-                    <div style="font-size:10px;font-weight:700;color:#c0392b;letter-spacing:.06em;margin-bottom:3px;">LATE REASON</div>
-                    <div style="font-size:13px;color:#c0392b;line-height:1.45;overflow-wrap:break-word;word-break:break-all;min-width:0;">{{ lateReasonDisplayText }}</div>
-                  </div>
-                  <button onClick="{{ openLateReason }}" style="-webkit-appearance:none;padding:4px 10px;background:none;border:1px solid #f1d3cf;border-radius:7px;font-size:12px;font-weight:600;color:#c0392b;cursor:pointer;">Edit</button>
-                </div>
-              </sc-if>
-              </sc-if>
 
               <div style="border-top:1px solid #f2f4f7;margin-top:16px;padding-top:14px;display:flex;gap:8px;">
                 <button onClick="{{ openLeaveRequest }}" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;background:#f6f8fa;border:1px solid #d4d9e2;border-radius:10px;font-size:13px;font-weight:600;color:#5c6678;cursor:pointer;">
@@ -1152,12 +1130,6 @@
                       <div style="font-size:11px;color:#d4622a;font-weight:500;line-height:1.4;margin-top:1px;">Inform your supervisor.</div>
                       </sc-if>
                     </div>
-                  </div>
-                </sc-if>
-                <sc-if value="{{ row.showLateReason }}" hint-placeholder-val="">
-                  <div style="margin-top:6px;padding:6px 9px;background:#fbeeec;border-radius:7px;display:flex;align-items:flex-start;gap:6px;">
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:1px;"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
-                    <div style="font-size:11.5px;color:#c0392b;font-weight:500;line-height:1.4;">Late reason: {{ row.lateReason }}</div>
                   </div>
                 </sc-if>
               </div>
@@ -2790,35 +2762,6 @@
         <span style="width:8px;height:8px;border-radius:50%;background:{{ toastBg }};flex:0 0 auto;display:inline-block;"></span>
         <span style="color:#161f30;">{{ toastMsg }}</span>
         <span style="color:#a0a8b4;font-size:15px;line-height:1;margin-left:2px;">×</span>
-      </div>
-    </div>
-    </sc-if>
-
-    <!-- ===== LATE REASON MODAL ===== -->
-    <sc-if value="{{ lateReasonOpen }}" hint-placeholder-val="">
-    <div class="modal-overlay">
-      <div style="width:100%;background:#fff;border-radius:20px 20px 0 0;padding:22px 20px 34px;box-shadow:0 -8px 32px rgba(20,30,50,.18);">
-        <div style="display:flex;align-items:flex-start;gap:12px;margin-bottom:14px;">
-          <div style="width:42px;height:42px;border-radius:50%;background:#fef3e2;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          </div>
-          <div style="flex:1;min-width:0;padding-top:2px;">
-            <div style="font-size:16px;font-weight:700;color:#161f30;line-height:1.2;">{{ lateReasonModalTitle }}</div>
-            <div style="font-size:12px;color:#5c6678;margin-top:4px;line-height:1.45;">{{ lateReasonModalSub }}</div>
-          </div>
-        </div>
-        <textarea onInput="{{ onLateReasonText }}" value="{{ lateReasonText }}" placeholder="State your reason for being late." style="width:100%;height:90px;padding:11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>
-        <div style="text-align:right;font-size:11px;color:#a0a8b4;margin-top:4px;margin-bottom:2px;">{{ lateReasonLen }}/{{ lateReasonMax }}</div>
-        <sc-if value="{{ lateReasonReady }}" hint-placeholder-val="">
-          <button onClick="{{ submitLateReason }}" style="-webkit-appearance:none;display:block;width:100%;margin-top:12px;padding:14px;background:#2f5fd0;border:none;border-radius:11px;font-size:15px;font-weight:700;color:#fff;cursor:pointer;text-align:center;box-sizing:border-box;line-height:1;">Submit reason</button>
-        </sc-if>
-        <sc-if value="{{ lateReasonSubmitting }}" hint-placeholder-val="">
-          <div style="display:block;width:100%;margin-top:12px;padding:14px;background:#7a9ed8;border-radius:11px;font-size:15px;font-weight:700;color:#fff;text-align:center;box-sizing:border-box;line-height:1;">Submitting…</div>
-        </sc-if>
-        <sc-if value="{{ lateReasonEmpty }}" hint-placeholder-val="{{ true }}">
-          <div style="display:block;width:100%;margin-top:12px;padding:14px;background:#eaedf5;border-radius:11px;font-size:15px;font-weight:700;color:#a0aabe;text-align:center;box-sizing:border-box;line-height:1;">Submit reason</div>
-        </sc-if>
-        <button onClick="{{ skipLateReason }}" style="-webkit-appearance:none;display:block;width:100%;margin-top:8px;padding:12px;background:none;border:none;font-size:13px;font-weight:600;color:#8a94a3;cursor:pointer;text-align:center;">Skip for now</button>
       </div>
     </div>
     </sc-if>

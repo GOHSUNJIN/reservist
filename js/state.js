@@ -44,7 +44,6 @@ const makeInitialState = () => ({
   locPhase: null, locSlow: false, locAccuracy: null, locPermErr: false, locRetryCount: 0,
   phaseSubmitting: false,
   showLateWarning: false,
-  lateReasonOpen: false, lateReasonText: '', lateReasonSubmitting: false,
   lateAlertDismissedCount: 0,
 
   // ── Roster and log ──────────────────────────────────────────────────────

@@ -96,8 +96,7 @@ const CheckinHandlers = {
       }
       const _pre={p2:'p1',p3:'p2',p4:'p3'}, _preMsg={p2:'Check in first.',p3:'Record your break out first.',p4:'Record your return before checking out.'};
       if(_pre[key]&&!this.myRec()?.[_pre[key]]){this._toast(_preMsg[key],'error');return;}
-      const _lrClear=(key==='p2'||key==='p3')&&this.state.lateReasonOpen?{lateReasonOpen:false,lateReasonText:''}:{};
-      this.setState({phaseSubmitting:true,..._lrClear});
+      this.setState({phaseSubmitting:true});
       const time=Utils.hhmm(new Date()), dist=bypassed?null:locDistance;
       const _isCasP1=this._myDept()==='cas';
       const _isDinnerP1=(()=>{
@@ -109,8 +108,7 @@ const CheckinHandlers = {
       })();
       if(key==='p1'){
         const ml=Utils._hmToMins(time)-Utils._hmToMins(Utils.LATE_CUTOFF.OFFICE);
-        if(ml>=60) this.setState({lateReasonOpen:true,lateReasonText:''});
-        else if(ml>=30) this.setState({showLateWarning:true});
+        if(ml>=30) this.setState({showLateWarning:true});
       }
       const today=Utils.dateKey(this.baseDate()), prev={...(this.state.attendance[currentUserId]||{})};
       if(key==='p1'&&prev.status==='mc'){this._toast('You have an approved MC for today. Contact your supervisor to change it.','error');this.setState({phaseSubmitting:false});return;}
@@ -168,26 +166,6 @@ const CheckinHandlers = {
 
   retrySync: function() { if(this.state.isOnline) this._onOnline(); },
 
-  openLateReason:     function() { this.setState({lateReasonOpen:true,lateReasonText:this.myRec()?.lateReason||''}); },
-  onLateReasonText:   function(e) { this.setState({lateReasonText:e.target.value}); },
-  skipLateReason:     function() { this.setState({lateReasonOpen:false,lateReasonText:''}); },
   dismissLateWarning: function() { this.setState({showLateWarning:false}); },
-
-  submitLateReason: async function() {
-    const {lateReasonText,currentUserId,demo,isOnline}=this.state;
-    if(!lateReasonText.trim()) return;
-    const prevReason=this.myRec()?.lateReason||null;
-    this.setState({lateReasonSubmitting:true});
-    if(!demo){
-      if(!isOnline){this._toast('No connection. Reason not saved. Try again when online.','error');this.setState({lateReasonSubmitting:false});return;}
-      const {error}=await DB.attendance.submitLateReason(currentUserId,Utils.dateKey(this.baseDate()),lateReasonText.trim());
-      if(error){this._toast('Failed to save reason. Try again.','error');this.setState({lateReasonSubmitting:false});return;}
-    }
-    this.setState({lateReasonOpen:false,lateReasonText:'',lateReasonSubmitting:false});
-    this._toast('Reason submitted.');
-    const meta={date:Utils.dateKey(this.baseDate()),reason:lateReasonText.trim()};
-    if(prevReason&&prevReason!==lateReasonText.trim()) meta.prev_reason=prevReason;
-    this._log('attendance','checkin.late_reason',meta);
-  },
 
 };
