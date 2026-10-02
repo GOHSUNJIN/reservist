@@ -125,7 +125,7 @@ const AuthHandlers = {
       markAllPresenting:false,
       historyPage:1, historyExpandedDates:[], briefTab:'info', logStatusFilter:'all',
       sessionExpiring:false, idleWarning:false, showA2hs:false, forgotPasswordOpen:false,
-      showLateWarning:false, lateReasonOpen:false, lateReasonText:'', lateReasonSubmitting:false,
+      showLateWarning:false,
       pendingLeaves:[], pendingLeavesLoaded:false,
       leaveOpen:false, leaveDate:'', leaveType:'mc', leaveReason:'', cancelLeaveId:null,
       myPendingRequests:[],

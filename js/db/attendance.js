@@ -104,13 +104,6 @@ const DB_Attendance = {
       .eq('personnel_id', personnelId).eq('date', dateStr);
   },
 
-  async submitLateReason(personnelId, dateStr, reason) {
-    const { error } = await _db.from('attendance')
-      .update({ late_reason: reason })
-      .eq('personnel_id', personnelId).eq('date', dateStr);
-    return { error };
-  },
-
   async setTimes(personnelId, dateStr, { p1, p2, p3, p4 }, editorName) {
     const { data: existing, error: fetchErr } = await _db.from('attendance')
       .select('id, edit_log, check_in_time, lunch_out_time, work_return_time, work_end_time, gps_bypassed')
