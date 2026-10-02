@@ -10,7 +10,6 @@ const DB_Attendance = {
       p2: _t(r.lunch_out_time),
       p3: _t(r.work_return_time),
       p4: _t(r.work_end_time),
-      lateReason: r.late_reason || null,
       welfareNote: r.welfare_note || null,
       gpsBypassed: r.gps_bypassed || false,
       editLog: r.edit_log || [],

@@ -257,7 +257,7 @@ const CalendarBuilders = {
           showTimingWarning:false,isMissedRow:false,missedNote:'',showMissedNote:false,
           onOpenMissedNote:()=>{},missingClockOut:false,hasIncompleteTimes:false,
           showLunchTimes:!isCas,histGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',p2Label:_histBreakLabel,
-          lateReason:'',showLateReason:false,isToday:false,
+          isToday:false,
         });
       }
     }

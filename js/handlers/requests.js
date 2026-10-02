@@ -248,7 +248,7 @@ const RequestHandlers = {
     }
     this.setState(s=>{
       const idx=s.history.findIndex(r=>r.date===missedNoteDateKey);
-      const newHistory=idx>=0?s.history.map((r,i)=>i===idx?{...r,welfareNote:note}:r):[...s.history,{date:missedNoteDateKey,status:'missed',welfareNote:note,p1:null,p2:null,p3:null,p4:null,lateReason:null}];
+      const newHistory=idx>=0?s.history.map((r,i)=>i===idx?{...r,welfareNote:note}:r):[...s.history,{date:missedNoteDateKey,status:'missed',welfareNote:note,p1:null,p2:null,p3:null,p4:null}];
       return {history:newHistory,missedNoteOpen:false,missedNoteDateKey:null,missedNoteText:''};
     });
     this._toast(note?'Note saved.':'Note cleared.');

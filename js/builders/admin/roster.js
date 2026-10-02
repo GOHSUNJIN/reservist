@@ -79,12 +79,8 @@ const AdminRoster = {
       const [_cc,_ccm]='09:00'.split(':').map(Number);
       const _lm=r.p1?(()=>{const[h,m]=r.p1.split(':').map(Number);return(h*60+m)-(_cc*60+_ccm);})():0;
       const isLate=r.status==='present'&&_lm>=60;
-      const lateReason=r.lateReason||'';
-      const showLateReason=isLate&&!_adminEditedP1&&!!lateReason;
-      const showNoLateReason=isLate&&!_adminEditedP1&&!lateReason;
-      const lateTagLabel=(isLate&&!_adminEditedP1)?('Late · '+(lateReason||'No reason')):'';
+      const lateTagLabel=isLate&&!_adminEditedP1?'Late':'';
       const _missingCo=!isLiveView&&r.status==='present'&&!!r.p1&&!r.p4;
-      const showAnyFlags=showNoLateReason||showLateReason;
       const av=s.avatars[p.id]||'';
       const avatarStyle=Utils.avatarStyle(av);
       return {
@@ -92,8 +88,7 @@ const AdminRoster = {
         onViewHistory:self.openPersonHistory(p.id), onCopyContact:self.copyContact(p.contact||''),
         showQuickAbsent:r.status==='pending'&&viewOffset<=0,
         markAbsent:self.setStatus(p.id,'absent'),
-        status:r.status, label:mm.label, color:mm.color, bg:mm.bg, isLate,
-        lateReason, showLateReason, showNoLateReason, lateTagLabel, showAnyFlags,
+        status:r.status, label:mm.label, color:mm.color, bg:mm.bg, isLate, lateTagLabel,
         welfareNote:r.welfareNote||'', showWelfareNote:!!(r.welfareNote),
         logNoteIconColor:r.welfareNote?'#1f8a5b':'#5c6678',
         isEditingLogNote:s.logNoteId===p.id,
