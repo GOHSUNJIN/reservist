@@ -79,7 +79,7 @@ const AdminRoster = {
       const _lateBase=_logPTimings?_logPTimings.p1_open:Utils.LATE_CUTOFF.OFFICE;
       const [_cc,_ccm]=_lateBase.split(':').map(Number);
       const _lm=r.p1?(()=>{const[h,m]=r.p1.split(':').map(Number);return(h*60+m)-(_cc*60+_ccm);})():0;
-      const isLate=r.status==='present'&&_lm>=60;
+      const isLate=r.status==='present'&&_lm>=120;
       const lateTagLabel=isLate&&!_adminEditedP1?'Late':'';
       const _missingCo=!isLiveView&&r.status==='present'&&!!r.p1&&!r.p4;
       const av=s.avatars[p.id]||'';

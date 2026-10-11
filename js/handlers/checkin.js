@@ -110,7 +110,7 @@ const CheckinHandlers = {
         const _tims=me?.phase_timings||Utils.effectiveTimings(this.state.batches.find(b=>b.id===me?.batch_id));
         const _cutoff=(_tims?.p1_open)||Utils.LATE_CUTOFF.OFFICE;
         const ml=Utils._hmToMins(time)-Utils._hmToMins(_cutoff);
-        if(ml>=30) this.setState({showLateWarning:true});
+        if(ml>=120) this.setState({showLateWarning:true});
       }
       const today=Utils.dateKey(this.baseDate()), prev={...(this.state.attendance[currentUserId]||{})};
       if(key==='p1'&&prev.status==='mc'){this._toast('You have an approved MC for today. Contact your supervisor to change it.','error');this.setState({phaseSubmitting:false});return;}
