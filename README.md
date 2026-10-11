@@ -80,7 +80,7 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Click name to open history**: In the Log tab, clicking a reservist's name opens their full attendance history without needing to navigate to the People tab.
 - **Admin log note**: Add a free-text note against any person's attendance entry for the current view date. The note icon and the Edit button are both toggleable: clicking either a second time closes the panel without saving.
 - **GPS distance badge**: Each log card shows the GPS distance recorded at check-in as a small badge (for example: "GPS · 43 m" in green). A 0 m reading is highlighted in amber as a possible spoofing indicator.
-- **Late check-in alerts**: Anyone who checks in more than one hour after shift start is automatically flagged with a Late badge on their log card.
+- **Late check-in alerts**: Anyone who checks in more than two hours after shift start is automatically flagged with a Late badge on their log card.
 - **Missing clock-out display**: When a reservist is marked present but has no Phase 4 clock-out, the OUT column of their log card shows a dash on an orange background instead of a time. This keeps the missing clock-out visible without adding a separate badge row, making it easy to scan and correct before payroll.
 
 **Requests and Leave:**
@@ -859,7 +859,7 @@ Use this checklist when verifying a deployment or after making changes. Test eac
 - [ ] Phase 3 (Return from lunch, from 13:00): GPS verify required, records on tap
 - [ ] Phase 4 (Check out, from 14:00): direct button, records timestamp
 - [ ] All 4 phases done: "All done for today" state shown
-- [ ] Late check-in (more than 1 hour after 0900): late check-in is flagged on the admin log card
+- [ ] Late check-in (more than 2 hours after phase 1 open): late check-in is flagged on the admin log card
 - [ ] GPS cannot detect location (permission denied or timeout): bypass option appears immediately
 - [ ] GPS out of range: no bypass offered, must retry or move closer to HQ
 - [ ] GPS bypass: check-in completes, record is flagged as GPS bypassed in admin log
