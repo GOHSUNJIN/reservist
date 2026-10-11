@@ -9,9 +9,14 @@ from datetime import date
 
 
 class TestLateThresholds:
-    """Mirrors the late-detection logic in handlers/checkin.js."""
+    """Mirrors the late-detection logic in handlers/checkin.js and builders/admin/roster.js.
+
+    Both the warning banner (shown to the reservist) and the admin 'Late' flag
+    fire at 120 minutes after the person's p1_open time.
+    """
 
     LATE_CUTOFF = "09:00"
+    LATE_MINS = 120
 
     @staticmethod
     def hm_to_mins(hhmm: str) -> int:
@@ -22,26 +27,19 @@ class TestLateThresholds:
         return self.hm_to_mins(checkin) - self.hm_to_mins(self.LATE_CUTOFF)
 
     def test_on_time_not_flagged(self):
-        assert self.mins_late("08:55") < 30
+        assert self.mins_late("08:55") < self.LATE_MINS
 
     def test_exactly_cutoff_not_flagged(self):
-        assert self.mins_late("09:00") < 30
+        assert self.mins_late("09:00") < self.LATE_MINS
 
-    def test_29_mins_late_not_flagged(self):
-        assert self.mins_late("09:29") < 30
+    def test_119_mins_late_not_flagged(self):
+        assert self.mins_late("10:59") < self.LATE_MINS
 
-    def test_30_mins_late_triggers_warning(self):
-        assert self.mins_late("09:30") >= 30
+    def test_120_mins_late_triggers_warning_and_flag(self):
+        assert self.mins_late("11:00") >= self.LATE_MINS
 
-    def test_59_mins_late_warning_only(self):
-        ml = self.mins_late("09:59")
-        assert 30 <= ml < 60
-
-    def test_60_mins_late_triggers_admin_flag(self):
-        assert self.mins_late("10:00") >= 60
-
-    def test_2h_late_also_flagged(self):
-        assert self.mins_late("11:00") >= 60
+    def test_3h_late_also_flagged(self):
+        assert self.mins_late("12:00") >= self.LATE_MINS
 
 
 class TestDateFormat:
