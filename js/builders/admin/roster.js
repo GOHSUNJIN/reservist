@@ -76,7 +76,8 @@ const AdminRoster = {
       const _logPTimings=(!isCas&&self._myDept()==='ops_security')?(p.phase_timings||Utils.effectiveTimings(activeBatch)):null;
       const _logBreakLabel=Utils.resolveBreakLabel(r.dinnerMode,_logPTimings?.mode_changes||[],viewDateKey,_logPTimings);
       const _logBreakShort=_logBreakLabel==='DINNER'?'DIN':'LCH';
-      const [_cc,_ccm]='09:00'.split(':').map(Number);
+      const _lateBase=_logPTimings?_logPTimings.p1_open:Utils.LATE_CUTOFF.OFFICE;
+      const [_cc,_ccm]=_lateBase.split(':').map(Number);
       const _lm=r.p1?(()=>{const[h,m]=r.p1.split(':').map(Number);return(h*60+m)-(_cc*60+_ccm);})():0;
       const isLate=r.status==='present'&&_lm>=60;
       const lateTagLabel=isLate&&!_adminEditedP1?'Late':'';
