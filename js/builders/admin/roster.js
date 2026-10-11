@@ -318,7 +318,7 @@ const AdminRoster = {
       repTogglePE:repToggleLocked?'none':'auto',
       prevDay:self.prevDay, nextDay:self.nextDay, goToday:self.goToday,
       onDaySwipeStart:self.onDaySwipeStart, onDaySwipeEnd:self.onDaySwipeEnd,
-      snapshotLink, showSnapshot:true,
+      snapshotLink,
       openWaPreview:()=>{ self.setState({waPreviewOpen:true,waPreviewText:snapshotLines.join('\n')}); },
       waPreviewOpen:s.waPreviewOpen, waPreviewText:s.waPreviewText,
       closeWaPreview:self.closeWaPreview, onWaPreviewText:self.onWaPreviewText, sendWaPreview:self.sendWaPreview, copyWaPreview:self.copyWaPreview,
