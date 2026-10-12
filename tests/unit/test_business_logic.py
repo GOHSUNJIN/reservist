@@ -347,3 +347,116 @@ class TestAddMins:
 
     def test_from_midnight(self):
         assert self.add_mins("00:00", 90) == "01:30"
+
+
+# ---------------------------------------------------------------------------
+# Per-shift late threshold (person's own p1_open)
+# ---------------------------------------------------------------------------
+
+class TestLateThresholdPerShift:
+    """Mirrors the updated late-base logic in builders/admin/roster.js.
+
+    _lateBase = person's phase_timings.p1_open, else batch effective p1_open.
+    The LATE_CUTOFF.OFFICE constant is no longer used as the log-row fallback.
+    """
+
+    LATE_MINS = 120
+
+    @staticmethod
+    def hm_to_mins(hhmm: str) -> int:
+        h, m = map(int, hhmm.split(":"))
+        return h * 60 + m
+
+    def late_base(self, phase_timings=None, batch_p1_open="08:00") -> str:
+        """Mirrors: (p.phase_timings?.p1_open) || effectiveTimings(activeBatch).p1_open"""
+        if phase_timings and phase_timings.get("p1_open"):
+            return phase_timings["p1_open"]
+        return batch_p1_open
+
+    def mins_late(self, checkin: str, phase_timings=None, batch_p1_open="08:00") -> int:
+        base = self.late_base(phase_timings, batch_p1_open)
+        return self.hm_to_mins(checkin) - self.hm_to_mins(base)
+
+    def test_custom_p1_1200_checkin_1400_exactly_120_flagged(self):
+        assert self.mins_late("14:00", {"p1_open": "12:00"}) >= self.LATE_MINS
+
+    def test_custom_p1_1300_checkin_1400_only_60_not_late(self):
+        assert self.mins_late("14:00", {"p1_open": "13:00"}) < self.LATE_MINS
+
+    def test_no_personal_timings_uses_batch_p1(self):
+        assert self.mins_late("10:00", phase_timings=None, batch_p1_open="08:00") == 120
+
+    def test_batch_p1_1200_checkin_1300_not_late(self):
+        assert self.mins_late("13:00", phase_timings=None, batch_p1_open="12:00") < self.LATE_MINS
+
+    def test_personal_timings_override_batch(self):
+        # batch says 08:00 → 14:00 would be 360 mins (late)
+        # person says 13:00 → 14:00 is only 60 mins (not late)
+        assert self.mins_late("14:00", {"p1_open": "13:00"}, batch_p1_open="08:00") < self.LATE_MINS
+
+    def test_exactly_119_mins_after_custom_p1_not_late(self):
+        assert self.mins_late("13:59", {"p1_open": "12:00"}) < self.LATE_MINS
+
+    def test_default_batch_p1_0800_office_hours_still_work(self):
+        assert self.mins_late("11:00", phase_timings=None, batch_p1_open="08:00") >= self.LATE_MINS
+
+
+# ---------------------------------------------------------------------------
+# Break label resolution (DINNER vs LUNCH)
+# ---------------------------------------------------------------------------
+
+class TestResolveBreakLabel:
+    """Mirrors Utils.resolveBreakLabel() and the updated roster break-label logic.
+
+    Priority: dinnerMode field → mode_changes → timings.p2_open.
+    With the fix, timings are always resolved from person/batch rather than null.
+    """
+
+    @staticmethod
+    def resolve_break_label(dinner_mode, mode_changes, date_key, timings):
+        default_p2 = "11:00"
+        if dinner_mode is not None:
+            return "DINNER" if dinner_mode else "LUNCH"
+        if date_key and mode_changes:
+            rel = [e for e in mode_changes if e["from"] <= date_key]
+            if rel:
+                latest = max(rel, key=lambda e: e["from"])
+                return "DINNER" if latest["dinner"] else "LUNCH"
+        if timings:
+            p2_open = timings.get("p2_open", default_p2)
+            return "DINNER" if p2_open >= "17:00" else "LUNCH"
+        return "LUNCH"
+
+    def test_dinner_mode_true_wins(self):
+        assert self.resolve_break_label(True, [], "2026-10-13", None) == "DINNER"
+
+    def test_dinner_mode_false_wins(self):
+        assert self.resolve_break_label(False, [], "2026-10-13", {"p2_open": "18:00"}) == "LUNCH"
+
+    def test_null_dinner_mode_null_timings_returns_lunch(self):
+        assert self.resolve_break_label(None, [], "2026-10-13", None) == "LUNCH"
+
+    def test_personal_timings_p2_1800_returns_dinner(self):
+        assert self.resolve_break_label(None, [], "2026-10-13", {"p2_open": "18:00"}) == "DINNER"
+
+    def test_personal_timings_p2_1700_exactly_returns_dinner(self):
+        assert self.resolve_break_label(None, [], "2026-10-13", {"p2_open": "17:00"}) == "DINNER"
+
+    def test_personal_timings_p2_1659_returns_lunch(self):
+        assert self.resolve_break_label(None, [], "2026-10-13", {"p2_open": "16:59"}) == "LUNCH"
+
+    def test_batch_timings_p2_1800_returns_dinner(self):
+        assert self.resolve_break_label(None, [], "2026-10-13", {"p2_open": "18:00"}) == "DINNER"
+
+    def test_mode_changes_dinner_overrides_lunch_timings(self):
+        changes = [{"from": "2026-10-12", "dinner": True}]
+        assert self.resolve_break_label(None, changes, "2026-10-13", {"p2_open": "11:00"}) == "DINNER"
+
+    def test_mode_changes_lunch_overrides_dinner_timings(self):
+        changes = [{"from": "2026-10-12", "dinner": False}]
+        assert self.resolve_break_label(None, changes, "2026-10-13", {"p2_open": "18:00"}) == "LUNCH"
+
+    def test_only_future_mode_changes_ignored(self):
+        changes = [{"from": "2026-10-14", "dinner": True}]
+        # date_key is 2026-10-13, change is for 2026-10-14 — not applicable
+        assert self.resolve_break_label(None, changes, "2026-10-13", {"p2_open": "11:00"}) == "LUNCH"
