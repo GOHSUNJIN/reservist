@@ -177,9 +177,10 @@ const AdminRoster = {
       const av=s.avatars[p.id]||'';
       const _vpct=s.peopleStats[p.id]?.pct??null;
       const _timeText=(r.status==='present'&&r.p1)?r.p1:'';
-      const [_rcc,_rccm]='09:00'.split(':').map(Number);
+      const _rLateBase=(p.phase_timings?.p1_open)||Utils.effectiveTimings(activeBatch).p1_open;
+      const [_rcc,_rccm]=_rLateBase.split(':').map(Number);
       const _rlm=r.p1?(()=>{const[h,m]=r.p1.split(':').map(Number);return(h*60+m)-(_rcc*60+_rccm);})():0;
-      const _rLate=r.status==='present'&&_rlm>=60;
+      const _rLate=r.status==='present'&&_rlm>=120;
       const _timeTextColor=_rLate?'#c0392b':'#9aa3b2';
       const _timeTextWeight=_rLate?'700':'400';
       const _missingClockOut=!isLiveView&&r.status==='present'&&!!r.p1&&!r.p4;
