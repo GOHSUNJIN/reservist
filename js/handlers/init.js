@@ -101,7 +101,7 @@ const InitHandlers = {
 
     if(role==='reservist'){
       const myBatch = batches.find(b=>b.id===me.batch_id);
-      if(myBatch?.dekit_date && today >= myBatch.dekit_date){
+      if(myBatch?.dekit_date && today > myBatch.dekit_date){
         const {error:deactivateErr} = await DB.personnel.deactivate(me.id).catch(()=>({error:true}));
         DB.leaves.cancelAllPendingByPerson(me.id).catch(()=>{});
         await DB.auth.logout();
@@ -257,7 +257,7 @@ const InitHandlers = {
       this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0, attendance:_ndFilteredAtt, attendanceDate:newDate, noReportDays:nrd, viewOffset:0, attendanceCache:{}, approvedLeavesCache:{[newDate]:_ndAlMap}, confirmMarkAllAbsent:false, lateAlertDismissedCount:0});
     } else if(this.state.role==='reservist'){
       const myBatch=this.state.batches.find(b=>b.id===this.state.me?.batch_id);
-      if(myBatch?.dekit_date && newDate>=myBatch.dekit_date){
+      if(myBatch?.dekit_date && newDate>myBatch.dekit_date){
         const {error:deactivateErr}=await DB.personnel.deactivate(this.state.me.id).catch(()=>({error:true}));
         await DB.auth.logout();
         if(deactivateErr){
