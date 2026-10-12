@@ -1115,7 +1115,7 @@ These are the things that currently require a developer to change. Eliminating t
 
 3. **Editable phase windows**: Check-in phase times (0900, 1200, 1400, 1800) are fixed constants. Storing them per cycle in the database lets supervisors set different hours for each cycle. Phase banners, the work timer and meal eligibility all derive from these values automatically.
 
-   _Partial: fully implemented for Ops Security. Admins can set custom P1–P4 times at the cycle level and override them per individual. Dinner mode (labels switch from lunch to dinner) activates automatically when P2 is 17:00 or later. The late-arrival cutoff, shift window display and check-in button labels all update accordingly. CPO and LNF still use hardcoded defaults._
+   _Partial: fully implemented for Ops Security. Admins can set custom P1 to P4 times at the cycle level and override them per individual. Dinner mode (labels switch from lunch to dinner) activates automatically when P2 is 17:00 or later. The late-arrival cutoff, shift window display and check-in button labels all update accordingly. CPO and LNF still use hardcoded defaults._
 
 4. **WhatsApp group link in database**: Currently set at deployment. Moving it to a department-level record lets supervisors update it from the app when the group changes.
 
