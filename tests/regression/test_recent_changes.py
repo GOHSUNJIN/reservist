@@ -131,3 +131,79 @@ class TestBreakLabelUsesPersonTimings:
         )
         assert "_rosterBreakTimings" in break_short_line, \
             "_rosterBreakShort must use _rosterBreakTimings, not _rosterPTimings"
+
+
+class TestBreakTimingsMerge:
+    """_logBreakTimings and _rosterBreakTimings must use a spread merge so that
+    a person with partial phase_timings (e.g. only p1_open) does not lose the
+    batch's p2_open or mode_changes required for dinner detection.
+
+    The old pattern was:  p.phase_timings || effectiveTimings(activeBatch)
+    The correct pattern is: {...effectiveTimings(activeBatch), ...(p.phase_timings||{})}
+    """
+
+    def _roster(self):
+        return (ROOT / "js" / "builders" / "admin" / "roster.js").read_text(encoding="utf-8")
+
+    def _checkin_handler(self):
+        return (ROOT / "js" / "handlers" / "checkin.js").read_text(encoding="utf-8")
+
+    def _checkin_builder(self):
+        return (ROOT / "js" / "builders" / "checkin.js").read_text(encoding="utf-8")
+
+    def test_log_break_timings_uses_spread_merge(self):
+        src = self._roster()
+        line = next((l for l in src.splitlines() if "_logBreakTimings=" in l), "")
+        assert "...Utils.effectiveTimings(activeBatch)" in line and "...(p.phase_timings" in line, \
+            "_logBreakTimings must spread-merge batch and person timings, not use ||"
+
+    def test_roster_break_timings_uses_spread_merge(self):
+        src = self._roster()
+        line = next((l for l in src.splitlines() if "_rosterBreakTimings=" in l), "")
+        assert "...Utils.effectiveTimings(activeBatch)" in line and "...(p.phase_timings" in line, \
+            "_rosterBreakTimings must spread-merge batch and person timings, not use ||"
+
+    def test_checkin_handler_dinner_detection_uses_spread_merge(self):
+        src = self._checkin_handler()
+        # The _tims used for isBreakDinner must be a spread merge
+        lines = src.splitlines()
+        tims_line = next((l for l in lines if "_tims=" in l and "isBreakDinner" not in l
+                          and "effectiveTimings" in l and "phase_timings" in l), "")
+        assert "...Utils.effectiveTimings(" in tims_line and "...(" in tims_line, \
+            "checkin handler dinner _tims must spread-merge, not use ||"
+
+    def test_checkin_builder_timings_uses_spread_merge(self):
+        src = self._checkin_builder()
+        line = next((l for l in src.splitlines()
+                     if "_timings=" in l and "effectiveTimings" in l), "")
+        assert "...Utils.effectiveTimings(" in line and "...(" in line, \
+            "checkin builder _timings must spread-merge batch and person timings"
+
+    def test_log_break_timings_does_not_use_or_pattern(self):
+        src = self._roster()
+        line = next((l for l in src.splitlines() if "_logBreakTimings=" in l), "")
+        # The old broken pattern: p.phase_timings||Utils.effectiveTimings
+        assert "phase_timings||Utils.effectiveTimings" not in line and \
+               "phase_timings || Utils.effectiveTimings" not in line, \
+            "old || pattern must not exist for _logBreakTimings"
+
+
+class TestLogViewBreakColumnLabel:
+    """The log view break column header must use the dynamic {{ row.p2Label }}
+    binding, not a hardcoded 'LCH' string.  This ensures dinner-schedule
+    reservists see 'DIN' instead of the static literal."""
+
+    def _html(self):
+        return (ROOT / "index.html").read_text(encoding="utf-8")
+
+    def test_p2_column_header_uses_p2_label_binding(self):
+        assert "{{ row.p2Label }}" in self._html(), \
+            "log view break column must use {{ row.p2Label }}, not hardcoded LCH"
+
+    def test_no_hardcoded_lch_in_log_column(self):
+        html = self._html()
+        # The only 'LCH' that should remain is inside JS strings or comments, not
+        # as a bare text node in the log-view phase grid.
+        # Check that the specific pattern (div containing only LCH) is gone.
+        assert ">LCH<" not in html, \
+            "hardcoded >LCH< text node must not appear in the template"
