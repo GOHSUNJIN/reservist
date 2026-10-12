@@ -78,6 +78,7 @@ const AdminRoster = {
       const _logBreakTimings={...Utils.effectiveTimings(activeBatch),...(p.phase_timings||{})};
       const _logBreakLabel=Utils.resolveBreakLabel(null,_logBreakTimings.mode_changes||[],viewDateKey,_logBreakTimings);
       const _logBreakShort=_logBreakLabel==='DINNER'?'DIN':'LCH';
+      console.log('[roster] break-label', p.name, {batchDept:activeBatch?.department, batchPhaseTimings:activeBatch?.phase_timings, personPhaseTimings:p.phase_timings, merged:_logBreakTimings, dinnerMode:r.dinnerMode, viewDateKey, label:_logBreakLabel});
       const _lateBase=(p.phase_timings?.p1_open)||Utils.effectiveTimings(activeBatch).p1_open;
       const [_cc,_ccm]=_lateBase.split(':').map(Number);
       const _lm=r.p1?(()=>{const[h,m]=r.p1.split(':').map(Number);return(h*60+m)-(_cc*60+_ccm);})():0;
