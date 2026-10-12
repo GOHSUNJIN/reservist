@@ -71,3 +71,63 @@ class TestNoReportingDayCommunicationActions:
 
     def test_open_wa_preview_button_present(self):
         assert "openWaPreview" in self._html()
+
+
+class TestLateBaseUsesPersonalTimings:
+    """Log rows in roster.js must derive _lateBase from the person's own
+    phase_timings.p1_open, falling back to effectiveTimings(activeBatch),
+    not the hardcoded LATE_CUTOFF.OFFICE constant."""
+
+    def _roster(self):
+        return (ROOT / "js" / "builders" / "admin" / "roster.js").read_text(encoding="utf-8")
+
+    def test_late_base_uses_phase_timings_p1_open(self):
+        assert "p.phase_timings?.p1_open" in self._roster(), \
+            "_lateBase must try person's phase_timings.p1_open first"
+
+    def test_late_base_falls_back_to_effective_timings(self):
+        assert "effectiveTimings(activeBatch).p1_open" in self._roster(), \
+            "_lateBase must fall back to effectiveTimings(activeBatch).p1_open"
+
+    def test_late_base_line_does_not_reference_late_cutoff_office(self):
+        late_base_line = next(
+            (l for l in self._roster().splitlines() if "_lateBase=" in l),
+            ""
+        )
+        assert "LATE_CUTOFF.OFFICE" not in late_base_line, \
+            "_lateBase assignment must not use LATE_CUTOFF.OFFICE as its fallback"
+
+
+class TestBreakLabelUsesPersonTimings:
+    """Both the roster card phase line and the log rows must resolve break
+    labels against person/batch timings rather than passing null, so that
+    dinner-schedule reservists show DIN instead of LCH."""
+
+    def _roster(self):
+        return (ROOT / "js" / "builders" / "admin" / "roster.js").read_text(encoding="utf-8")
+
+    def test_log_rows_define_log_break_timings(self):
+        assert "_logBreakTimings" in self._roster(), \
+            "Log rows must define _logBreakTimings for break label resolution"
+
+    def test_roster_cards_define_roster_break_timings(self):
+        assert "_rosterBreakTimings" in self._roster(), \
+            "Roster cards must define _rosterBreakTimings for break label resolution"
+
+    def test_log_break_label_uses_log_break_timings_not_log_p_timings(self):
+        src = self._roster()
+        break_label_line = next(
+            (l for l in src.splitlines() if "_logBreakLabel=" in l),
+            ""
+        )
+        assert "_logBreakTimings" in break_label_line, \
+            "_logBreakLabel must be resolved with _logBreakTimings, not _logPTimings"
+
+    def test_roster_break_short_uses_roster_break_timings(self):
+        src = self._roster()
+        break_short_line = next(
+            (l for l in src.splitlines() if "_rosterBreakShort=" in l),
+            ""
+        )
+        assert "_rosterBreakTimings" in break_short_line, \
+            "_rosterBreakShort must use _rosterBreakTimings, not _rosterPTimings"
