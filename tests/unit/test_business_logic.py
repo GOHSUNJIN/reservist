@@ -460,3 +460,76 @@ class TestResolveBreakLabel:
         changes = [{"from": "2026-10-14", "dinner": True}]
         # date_key is 2026-10-13, change is for 2026-10-14 — not applicable
         assert self.resolve_break_label(None, changes, "2026-10-13", {"p2_open": "11:00"}) == "LUNCH"
+
+    def test_dinner_mode_true_wins_over_stale_lunch_mode_changes(self):
+        # dinnerMode stored at check-in time is true; mode_changes for an older
+        # date say lunch — dinnerMode must win (priority: dinnerMode > mode_changes)
+        changes = [{"from": "2026-09-01", "dinner": False}]
+        assert self.resolve_break_label(True, changes, "2026-10-12", {"p2_open": "11:00"}) == "DINNER"
+
+    def test_dinner_mode_false_wins_over_dinner_timings(self):
+        # explicit False on the record should still beat timings saying dinner
+        assert self.resolve_break_label(False, [], "2026-10-13", {"p2_open": "18:00"}) == "LUNCH"
+
+
+# ---------------------------------------------------------------------------
+# Effective timings merge (person overrides on top of batch)
+# ---------------------------------------------------------------------------
+
+class TestEffectiveTimingsMerge:
+    """Mirrors the spread merge used for _logBreakTimings and _rosterBreakTimings:
+        {...effectiveTimings(activeBatch), ...(p.phase_timings or {})}
+
+    The key invariant: a person with only p1_open set must NOT lose the batch's
+    p2_open, mode_changes, or other fields — those are required for dinner detection.
+    """
+
+    DEFAULT_TIMINGS = {"p1_open": "08:00", "p2_open": "11:00", "p3_open": "13:00", "p4_open": "14:00"}
+
+    def effective_timings(self, batch_phase_timings: dict | None) -> dict:
+        """Mirrors Utils.effectiveTimings() for ops_security batches."""
+        return {**self.DEFAULT_TIMINGS, **(batch_phase_timings or {})}
+
+    def merged(self, batch_phase_timings: dict | None, person_phase_timings: dict | None) -> dict:
+        """Mirrors the spread merge in roster.js."""
+        return {**self.effective_timings(batch_phase_timings), **(person_phase_timings or {})}
+
+    def test_person_with_only_p1_preserves_batch_p2_open(self):
+        result = self.merged({"p2_open": "18:00"}, {"p1_open": "13:00"})
+        assert result["p2_open"] == "18:00", "batch p2_open must survive when person only sets p1_open"
+
+    def test_person_p1_overrides_batch_p1(self):
+        result = self.merged({"p1_open": "08:00"}, {"p1_open": "13:00"})
+        assert result["p1_open"] == "13:00"
+
+    def test_person_timings_none_uses_batch_fully(self):
+        result = self.merged({"p2_open": "18:00"}, None)
+        assert result["p2_open"] == "18:00"
+
+    def test_empty_person_timings_uses_batch_fully(self):
+        result = self.merged({"p2_open": "18:00"}, {})
+        assert result["p2_open"] == "18:00"
+
+    def test_no_batch_no_person_returns_defaults(self):
+        result = self.merged(None, None)
+        assert result == self.DEFAULT_TIMINGS
+
+    def test_batch_mode_changes_preserved_when_person_has_partial_timings(self):
+        mode_changes = [{"from": "2026-10-01", "dinner": True}]
+        result = self.merged({"mode_changes": mode_changes}, {"p1_open": "13:00"})
+        assert result.get("mode_changes") == mode_changes, \
+            "batch mode_changes must not be lost when person only sets p1_open"
+
+    def test_person_p2_overrides_batch_p2(self):
+        result = self.merged({"p2_open": "18:00"}, {"p2_open": "11:00"})
+        assert result["p2_open"] == "11:00"
+
+    def test_old_or_pattern_would_lose_batch_p2(self):
+        # Demonstrates why 'person_timings or batch_timings' was wrong:
+        # the OR picks the partial person object and drops batch's p2_open.
+        person = {"p1_open": "13:00"}
+        batch_effective = {**self.DEFAULT_TIMINGS, "p2_open": "18:00"}
+        old_result = person or batch_effective  # the broken pattern
+        assert old_result.get("p2_open") != "18:00", "OR pattern loses batch p2_open"
+        new_result = self.merged({"p2_open": "18:00"}, person)
+        assert new_result["p2_open"] == "18:00", "spread merge preserves batch p2_open"
