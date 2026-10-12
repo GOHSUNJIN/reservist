@@ -13,7 +13,8 @@ const AdminRoster = {
       const av=s.avatars[p.id]||'';
       const avatarStyle=Utils.avatarStyle(av);
       const _rosterPTimings=(!isCas&&self._myDept()==='ops_security')?(p.phase_timings||Utils.effectiveTimings(activeBatch)):null;
-      const _rosterBreakShort=Utils.resolveBreakLabel(r.dinnerMode,_rosterPTimings?.mode_changes||[],viewDateKey,_rosterPTimings)==='DINNER'?'DIN':'LCH';
+      const _rosterBreakTimings=p.phase_timings||Utils.effectiveTimings(activeBatch);
+      const _rosterBreakShort=Utils.resolveBreakLabel(r.dinnerMode,_rosterBreakTimings.mode_changes||[],viewDateKey,_rosterBreakTimings)==='DINNER'?'DIN':'LCH';
       const _phaseParts=[r.p1?'IN '+r.p1:null,r.p2?(_rosterBreakShort+' '+r.p2):null,r.p3?'BACK '+r.p3:null,r.p4?'OUT '+r.p4:null].filter(Boolean);
       const phaseLine=_phaseParts.join('  ·  ');
       const showPhaseLine=r.status==='present'&&_phaseParts.length>0;
@@ -74,9 +75,10 @@ const AdminRoster = {
       const _ec=accent;
       const _adminEditedP1=_ef.has('p1');
       const _logPTimings=(!isCas&&self._myDept()==='ops_security')?(p.phase_timings||Utils.effectiveTimings(activeBatch)):null;
-      const _logBreakLabel=Utils.resolveBreakLabel(r.dinnerMode,_logPTimings?.mode_changes||[],viewDateKey,_logPTimings);
+      const _logBreakTimings=p.phase_timings||Utils.effectiveTimings(activeBatch);
+      const _logBreakLabel=Utils.resolveBreakLabel(r.dinnerMode,_logBreakTimings.mode_changes||[],viewDateKey,_logBreakTimings);
       const _logBreakShort=_logBreakLabel==='DINNER'?'DIN':'LCH';
-      const _lateBase=_logPTimings?_logPTimings.p1_open:Utils.LATE_CUTOFF.OFFICE;
+      const _lateBase=(p.phase_timings?.p1_open)||Utils.effectiveTimings(activeBatch).p1_open;
       const [_cc,_ccm]=_lateBase.split(':').map(Number);
       const _lm=r.p1?(()=>{const[h,m]=r.p1.split(':').map(Number);return(h*60+m)-(_cc*60+_ccm);})():0;
       const isLate=r.status==='present'&&_lm>=120;
