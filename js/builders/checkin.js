@@ -69,7 +69,7 @@ const CheckinBuilders = {
     const now=s.now;
     const testMode=s.demo;
     const isCas=this._myDept()==='cas';
-    const _timings=(!isCas&&this._myDept()==='ops_security')?(s.me?.phase_timings||Utils.effectiveTimings(myBatch)):null;
+    const _timings=(!isCas&&this._myDept()==='ops_security')?{...Utils.effectiveTimings(myBatch),...(s.me?.phase_timings||{})}:null;
     const _isDinner=_timings?Utils.isBreakDinner(_timings):false;
     const _breakLabel=_isDinner?'DINNER':'LUNCH';
     const phaseDefs=isCas?[

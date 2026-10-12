@@ -103,11 +103,11 @@ const CheckinHandlers = {
         if(key!=='p1') return null;
         if(_isCasP1) return false;
         if(this._myDept()!=='ops_security') return null;
-        const _tims=me?.phase_timings||Utils.effectiveTimings(this.state.batches.find(b=>b.id===me?.batch_id));
+        const _tims={...Utils.effectiveTimings(this.state.batches.find(b=>b.id===me?.batch_id)),...(me?.phase_timings||{})};
         return Utils.isBreakDinner(_tims);
       })();
       if(key==='p1'){
-        const _tims=me?.phase_timings||Utils.effectiveTimings(this.state.batches.find(b=>b.id===me?.batch_id));
+        const _tims={...Utils.effectiveTimings(this.state.batches.find(b=>b.id===me?.batch_id)),...(me?.phase_timings||{})};
         const _cutoff=(_tims?.p1_open)||Utils.LATE_CUTOFF.OFFICE;
         const ml=Utils._hmToMins(time)-Utils._hmToMins(_cutoff);
         if(ml>=120) this.setState({showLateWarning:true});
