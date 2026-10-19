@@ -42,8 +42,9 @@ const AuthHandlers = {
       return;
     }
     const isLastDay = today === liveBatch.end_date;
-    const nextBatch = isLastDay ? deptBatches.find(b=>b.start_date>liveBatch.end_date) : null;
-    if(isLastDay && !nextBatch){
+    const isBeyondEnd = today > liveBatch.end_date;
+    const nextBatch = (isLastDay || isBeyondEnd) ? deptBatches.find(b=>b.start_date>liveBatch.end_date) : null;
+    if((isLastDay || isBeyondEnd) && !nextBatch){
       this.setState({authError:'Sign-ups for this cycle have closed. Please wait for the next cycle to open or contact your supervisor.'});
       return;
     }
