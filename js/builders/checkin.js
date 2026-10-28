@@ -188,7 +188,7 @@ const CheckinBuilders = {
       myStatusBg:outOfCycle?'#eceef2':noRep?'#eef3fc':todayApprovedLeave&&status==='absent'?'#f7efdc':m.bg,
       myStatusPulse:(!outOfCycle&&status==='pending'&&!noRep)?'animation:pulseDot 1.6s ease infinite;':'',
       phToday:!outOfCycle&&noRep,
-      phName:Utils.holidayName(todayD)||(isOffDay?'Reservists do not report on weekends.':'No CNB reporting today.'),
+      phName:Utils.holidayName(todayD)||(isOffDay?'Reservists do not report on weekends.':'No reporting today.'),
       isMc:!outOfCycle&&status==='mc'&&!noRep,
       isPersonalLeave:!outOfCycle&&status==='absent'&&!noRep&&!!todayApprovedLeave,
       isAbsent:!outOfCycle&&status==='absent'&&!noRep&&!todayApprovedLeave,
