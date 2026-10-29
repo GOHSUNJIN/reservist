@@ -83,7 +83,7 @@
       </div>
       <div style="margin-top:28px;z-index:1;position:relative;">
         <div style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.2em;color:{{ accent }};text-transform:uppercase;margin-bottom:12px;">Reservist Operations Portal</div>
-        <h1 style="font-size:28px;line-height:1.18;font-weight:700;margin:0;letter-spacing:-0.01em;">Report. Verify.<br>Stay accounted for.</h1>
+        <h1 style="font-size:28px;line-height:1.18;font-weight:700;margin:0;letter-spacing:-0.01em;">Report. Verify.<br>Stay Accounted For.</h1>
       </div>
       <div style="position:absolute;right:-90px;top:-50px;width:240px;height:240px;border-radius:50%;border:1px solid rgba(47,95,208,.22);"></div>
       <div style="position:absolute;right:-55px;top:-10px;width:160px;height:160px;border-radius:50%;border:1px solid rgba(47,95,208,.14);"></div>
@@ -100,24 +100,24 @@
           <div style="width:56px;height:56px;border-radius:50%;background:#eef3fc;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
             <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2f5fd0" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
           </div>
-          <div style="font-size:18px;font-weight:700;color:#161f30;margin-bottom:8px;">Request submitted</div>
+          <div style="font-size:18px;font-weight:700;color:#161f30;margin-bottom:8px;">Request Submitted</div>
           <div style="font-size:13.5px;color:#5c6678;line-height:1.55;margin-bottom:24px;">Your signup has been sent to an admin for approval. You can log in once your account is approved.</div>
-          <button onClick="{{ dismissSignupPending }}" style="-webkit-appearance:none;width:100%;padding:14px;background:#2f5fd0;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;">Back to log in</button>
+          <button onClick="{{ dismissSignupPending }}" style="-webkit-appearance:none;width:100%;padding:14px;background:#2f5fd0;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;">Back to Log In</button>
         </div>
       </sc-if>
 
       <sc-if value="{{ !signupPending }}" hint-placeholder-val="{{ true }}">
       <div style="display:flex;gap:4px;background:#e7eaef;padding:4px;border-radius:11px;margin-bottom:24px;">
-        <button onClick="{{ goLogin }}" style="{{ loginTabStyle }}">Log in</button>
-        <button onClick="{{ goSignup }}" style="{{ signupTabStyle }}">Sign up</button>
+        <button onClick="{{ goLogin }}" style="{{ loginTabStyle }}">Log In</button>
+        <button onClick="{{ goSignup }}" style="{{ signupTabStyle }}">Sign Up</button>
       </div>
       </sc-if>
 
       <sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}">
       <div>
-        <h2 style="font-size:21px;font-weight:700;margin:0 0 4px;color:#161f30;">Welcome back</h2>
+        <h2 style="font-size:21px;font-weight:700;margin:0 0 4px;color:#161f30;">Welcome Back</h2>
         <p style="font-size:14px;color:#5c6678;margin:0 0 22px;">Log in to check in for your shift.</p>
-        <label class="text-field-label">Contact number</label>
+        <label class="text-field-label">Contact Number</label>
         <input value="{{ loginNric }}" onInput="{{ onLoginNric }}" onKeyDown="{{ onLoginNricKeyDown }}" placeholder="9xxx xxxx" type="tel" inputmode="numeric" autocomplete="off" style="width:100%;padding:13px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;margin-bottom:15px;" />
         <label class="text-field-label">Password</label>
         <div style="position:relative;margin-bottom:6px;">
@@ -133,12 +133,12 @@
         </sc-if>
         <button onClick="{{ doLogin }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:12px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoadingOpacity }};pointer-events:{{ authLoadingPointerEvents }};">{{ loginBtnLabel }}</button>
         <div style="text-align:center;margin-top:14px;">
-          <button onClick="{{ openForgotPassword }}" style="background:none;border:none;color:#8a94a3;font-size:13px;cursor:pointer;text-decoration:underline;padding:0;">Forgot password?</button>
+          <button onClick="{{ openForgotPassword }}" style="background:none;border:none;color:#8a94a3;font-size:13px;cursor:pointer;text-decoration:underline;padding:0;">Forgot Password?</button>
         </div>
         <sc-if value="{{ forgotPasswordOpen }}" hint-placeholder-val="">
         <div style="background:#f6f8fa;border:1px solid #e3e6ec;border-radius:14px;padding:14px 15px;margin-top:14px;">
           <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:8px;">
-            <div style="font-size:13.5px;font-weight:700;color:#161f30;">Forgot your password?</div>
+            <div style="font-size:13.5px;font-weight:700;color:#161f30;">Forgot Your Password?</div>
             <button onClick="{{ closeForgotPassword }}" style="background:none;border:none;cursor:pointer;color:#8a94a3;padding:0;margin-left:10px;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
           </div>
           <div style="font-size:13px;color:#5c6678;line-height:1.6;">Contact your supervisor to reset your password. They can remove and re-add your account with a new password from the admin panel.</div>
@@ -175,9 +175,9 @@
           </div>
         </div>
         </sc-if>
-        <label class="text-field-label">Full name</label>
+        <label class="text-field-label">Full Name</label>
         <input value="{{ suName }}" onInput="{{ onSuName }}" onKeyDown="{{ onSuKeyDown }}" placeholder="Full name" autocapitalize="words" autocorrect="off" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;margin-bottom:14px;" />
-        <label class="text-field-label">Contact number</label>
+        <label class="text-field-label">Contact Number</label>
         <input value="{{ suContact }}" onInput="{{ onSuContact }}" onKeyDown="{{ onSuKeyDown }}" placeholder="9xxx xxxx" type="tel" inputmode="numeric" autocomplete="off" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;margin-bottom:14px;" />
         <label class="text-field-label">Password</label>
         <div style="position:relative;">
