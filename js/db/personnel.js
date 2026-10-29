@@ -52,9 +52,14 @@ const DB_Personnel = {
     if (lErr || aErr) return { error: lErr || aErr };
     await _db.storage.from('avatars').remove([personnelId]).catch(()=>{});
     const { error: pErr } = await _db.from('personnel').delete().eq('id', personnelId);
-    if (pErr) return { error: pErr };
     if (authId) await _db.rpc('delete_auth_user', { p_user_id: authId }).catch(()=>{});
+    if (pErr) return { error: pErr };
     return { error: null };
+  },
+
+  async checkExists(personnelId) {
+    const { data } = await _db.from('personnel').select('id').eq('id', personnelId).maybeSingle();
+    return !!data;
   },
 
   async setCreatedBy(personnelId, createdBy) {

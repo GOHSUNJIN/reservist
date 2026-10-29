@@ -71,7 +71,7 @@ const CheckinBuilders = {
     const isCas=this._myDept()==='cas';
     const _timings=(!isCas&&this._myDept()==='ops_security')?{...Utils.effectiveTimings(myBatch),...(s.me?.phase_timings||{})}:null;
     const _isDinner=_timings?Utils.isBreakDinner(_timings):false;
-    const _breakLabel=_isDinner?'DINNER':'LUNCH';
+    const _breakLabel=_isDinner?'Dinner':'Lunch';
     const phaseDefs=isCas?[
       {key:'p1',num:1,label:'Check in to work',needsGps:true,depends:null},
       {key:'p4',num:2,label:'Check out',needsGps:true,depends:'p1'},
@@ -183,7 +183,7 @@ const CheckinBuilders = {
       todayLong:Utils.fmtLong(this.baseDate()),
       clock:Utils.hhmm(s.now),
       myShiftLabel:'Office', myShiftWindow:_timings?(_isDinner?'1400 to 2100, Dinner 1800 to 1930':'0900 to 1800, Lunch 1200 to 1330'):'0900 to 1800 hrs',
-      myStatusLabel:outOfCycle?outOfCycleTitle:noRep?'No reporting':todayApprovedLeave&&status==='absent'?'Personal Leave':m.label,
+      myStatusLabel:outOfCycle?outOfCycleTitle:noRep?'No reporting':todayApprovedLeave&&status==='absent'?'Personal leave':m.label,
       myStatusColor:outOfCycle?'#8a94a3':noRep?accent:todayApprovedLeave&&status==='absent'?'#b9791a':m.color,
       myStatusBg:outOfCycle?'#eceef2':noRep?'#eef3fc':todayApprovedLeave&&status==='absent'?'#f7efdc':m.bg,
       myStatusPulse:(!outOfCycle&&status==='pending'&&!noRep)?'animation:pulseDot 1.6s ease infinite;':'',

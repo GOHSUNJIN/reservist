@@ -32,7 +32,10 @@ const MemberSearchHandlers = {
     this.setState({wipingHistory:true});
     if(!s.demo){
       const {error}=await DB.personnel.deletePermanently(id,authId).catch(()=>({error:true}));
-      if(error){this._toast('Delete failed. Check your connection.','error');this.setState({wipingHistory:false});return;}
+      if(error){
+        const stillExists=await DB.personnel.checkExists(id).catch(()=>true);
+        if(stillExists){this._toast('Delete failed. Check your connection.','error');this.setState({wipingHistory:false});return;}
+      }
     }
     const name = person?.name || '';
     this.setState(prev=>{
@@ -70,7 +73,10 @@ const MemberSearchHandlers = {
     this.setState({deletingMember:true});
     if(!demo){
       const {error}=await DB.personnel.deletePermanently(confirmDeleteMemberId,authId).catch(()=>({error:true}));
-      if(error){this._toast('Delete failed. Check your connection.','error');this.setState({deletingMember:false});return;}
+      if(error){
+        const stillExists=await DB.personnel.checkExists(confirmDeleteMemberId).catch(()=>true);
+        if(stillExists){this._toast('Delete failed. Check your connection.','error');this.setState({deletingMember:false});return;}
+      }
     }
     this.setState(prev=>{
       const memberSearchList=prev.memberSearchList.filter(p=>p.id!==confirmDeleteMemberId);
@@ -128,7 +134,7 @@ const MemberSearchHandlers = {
     const W=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     const rows=rawRows.map(r=>{
       const isPersonalLeave=r.status==='absent'&&leaveSet.has(r.date);
-      const mm=isPersonalLeave?{label:'Personal Leave'}:Utils.meta(r.status);
+      const mm=isPersonalLeave?{label:'Personal leave'}:Utils.meta(r.status);
       const d=new Date(r.date+'T00:00:00'), editLog=r.editLog||[], latestEdit=editLog.length?editLog[editLog.length-1]:null;
       return {dateLabel:W[d.getDay()]+' '+d.getDate()+' '+M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,p1:r.p1?r.p1.slice(0,5):'-',p4:r.p4?r.p4.slice(0,5):'-',note:editLog.length>0?'Corrected by '+(latestEdit?.by||''):'',statusKey:r.status==='present'?'present':r.status==='mc'?'mc':(isPersonalLeave?'leave':'absent')};
     });
