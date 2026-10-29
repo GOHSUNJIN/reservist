@@ -161,7 +161,7 @@ const AdminRoster = {
     const lateNames=lateRows.map(r=>r.name).join(', ');
     const showLateAlert=false;
     const lateAlertLabel=lateCount===1?'1 late check-in':lateCount+' late check-ins';
-    const logDateLabel=viewIsToday?'TODAY\'S LOG':((Utils._WS[viewDate.getDay()]+' '+viewDate.getDate()+' '+Utils._MS[viewDate.getMonth()]).toUpperCase()+' LOG');
+    const logDateLabel=viewIsToday?"Today's log":(Utils._WS[viewDate.getDay()]+' '+viewDate.getDate()+' '+Utils._MS[viewDate.getMonth()]+' log');
     const dlabel=Utils._WS[viewDate.getDay()]+' '+viewDate.getDate()+' '+Utils._MS[viewDate.getMonth()];
     const rel=viewOffset===0?'Today':viewOffset===-1?'Yesterday':viewOffset===1?'Tomorrow':'';
     const viewDateLabel=(rel?rel+', ':'')+dlabel;
@@ -203,7 +203,7 @@ const AdminRoster = {
     });
     const vPresent=viewRoster.filter(r=>r.status==='present').length, vMc=viewRoster.filter(r=>r.status==='mc'||(r.status==='absent'&&r.hasApprovedLeave)).length, vAbsent=viewRoster.filter(r=>r.status==='absent'&&!r.hasApprovedLeave).length, vPending=viewRoster.filter(r=>r.status==='pending').length, vTotal=viewRoster.length;
     const vPercent=vTotal?Math.round((vPresent+vMc)/vTotal*100):0;
-    const viewListHeader=viewOffset<0?'ATTENDANCE RECORD':viewOffset>0?'SCHEDULED ROSTER':'LIVE STATUS';
+    const viewListHeader=viewOffset<0?'Attendance record':viewOffset>0?'Scheduled roster':'Live status';
     const viewPercentText=viewOffset>0?(vTotal+' rostered'):(vPercent+'% reported');
     const viewPercentColor=viewOffset>0?'#8a94a3':'#1f8a5b';
     const vThirdLabel=viewOffset<0?'Absent':'Pending', vThirdVal=viewOffset<0?vAbsent:vPending, vThirdColor=viewOffset<0?'#c0392b':'#5c6678';
@@ -263,7 +263,7 @@ const AdminRoster = {
         const _phPS=15,_phTotalPages=Math.max(1,Math.ceil(_phFiltered.length/_phPS));
         const _phPage=Math.min(Math.max(1,s.personHistoryPage||1),_phTotalPages);
         const _phPaged=_phFiltered.slice((_phPage-1)*_phPS,_phPage*_phPS);
-        const _phRows=_phPaged.map(r=>{const isPersonalLeave=r.status==='absent'&&_phLeaveSet.has(r.date);const mm=isPersonalLeave?{label:'Personal Leave',color:'#b9791a',bg:'#f7efdc'}:Utils.meta(r.status);const d=new Date(r.date+'T00:00:00');const el=r.editLog||[];const le=el.length?el[el.length-1]:null;return{dateLabel:_W[d.getDay()]+' '+d.getDate()+' '+_M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,color:mm.color,bg:mm.bg,p1:r.p1||'-',p4:r.p4||'-',showTimeRange:r.status==='present',adminCorrected:el.length>0,editedBy:le?.by||''};});
+        const _phRows=_phPaged.map(r=>{const isPersonalLeave=r.status==='absent'&&_phLeaveSet.has(r.date);const mm=isPersonalLeave?{label:'Personal leave',color:'#b9791a',bg:'#f7efdc'}:Utils.meta(r.status);const d=new Date(r.date+'T00:00:00');const el=r.editLog||[];const le=el.length?el[el.length-1]:null;return{dateLabel:_W[d.getDay()]+' '+d.getDate()+' '+_M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,color:mm.color,bg:mm.bg,p1:r.p1||'-',p4:r.p4||'-',showTimeRange:r.status==='present',adminCorrected:el.length>0,editedBy:le?.by||''};});
         const _phSBtn=(f)=>`padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid ${_phFilter===f?accent:'#d4d9e2'};background:${_phFilter===f?accent:'#fff'};color:${_phFilter===f?'#fff':'#5c6678'};white-space:nowrap;`;
         return {
           personHistoryRows:_phRows,
@@ -292,7 +292,7 @@ const AdminRoster = {
       realtimeLive:s.realtimeLive,
       realtimeLiveBg:s.realtimeLive?'#e7f3ec':'#f7e4e1',
       realtimeLiveColor:s.realtimeLive?'#1f8a5b':'#c0392b',
-      realtimeLiveLabel:s.realtimeLive?'● LIVE':'● Reconnecting',
+      realtimeLiveLabel:s.realtimeLive?'● Live':'● Reconnecting',
       showRealtimeBadge:!!s.realtimeChannel,
       rosterSearch:s.rosterSearch, onRosterSearch:self.onRosterSearch, onRosterSearchKeyDown:self.onRosterSearchKeyDown, hasRosterSearch:!!search, clearRosterSearch:self.clearRosterSearch,
       retrySync:self.retrySync,

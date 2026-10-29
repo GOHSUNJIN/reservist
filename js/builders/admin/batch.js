@@ -67,7 +67,7 @@ const AdminBatch = {
     const _ebe=activeBatch?new Date(activeBatch.end_date+'T00:00:00'):null;
     const editTargetRange=_ebs&&_ebe?(Utils.fmtShort(_ebs)+' to '+Utils.fmtShort(_ebe)+' '+_ebs.getFullYear()):'';
     const editTargetIsPast=!!(activeBatch&&activeBatch.end_date<todayForChips&&!activeBatch.is_live);
-    const editTargetStatus=editTargetIsLive?'LIVE':editTargetIsPast?'PAST':'UPCOMING';
+    const editTargetStatus=editTargetIsLive?'Live':editTargetIsPast?'Past':'Upcoming';
     const editTargetStatusChipBg=editTargetIsLive?'#22c55e':editTargetIsPast?'rgba(255,255,255,.1)':'rgba(47,95,208,.5)';
     const editTargetStatusChipColor=editTargetIsLive?'#fff':editTargetIsPast?'#8a94a3':'#a8c0f8';
     const _sortedBatches=[...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
@@ -166,7 +166,7 @@ const AdminBatch = {
         return {
           ptP1Open:_t.p1_open,
           ptP2Open:_t.p2_open, ptP3Open:_t.p3_open, ptP4Open:_t.p4_open,
-          ptIsDinner:_din, ptBreakLabel:_din?'DINNER':'LUNCH',
+          ptIsDinner:_din, ptBreakLabel:_din?'Dinner':'Lunch',
           phaseTimingsBtnLabel:s.phaseTimingsSaving?'Saving...':'Save cycle timings',
           phaseTimingsSub:_ovCount>0?(_ovCount+' individual override'+(_ovCount===1?'':'s')):'No individual overrides',
           ptP2Bg:_din?'#fdf6e9':'transparent', ptP3Bg:_din?'#fdf6e9':'transparent',
@@ -214,7 +214,7 @@ const AdminBatch = {
           ptOverrideEditName:_editPerson?.name||'',
           ptOverrideEditP1:_draft.p1_open, ptOverrideEditP2:_draft.p2_open,
           ptOverrideEditP3:_draft.p3_open, ptOverrideEditP4:_draft.p4_open,
-          ptOverrideIsDinner:_din2, ptOverrideBreakLabel:_din2?'DINNER':'LUNCH',
+          ptOverrideIsDinner:_din2, ptOverrideBreakLabel:_din2?'Dinner':'Lunch',
           ptOvP1Border:(_draft.p1_open!==_batchT.p1_open)?'1px solid #b9791a':'1px solid #e0e4ea',
           ptOvP2Border:(_draft.p2_open!==_batchT.p2_open)?'1px solid #b9791a':'1px solid #e0e4ea',
           ptOvP3Border:(_draft.p3_open!==_batchT.p3_open)?'1px solid #b9791a':'1px solid #e0e4ea',

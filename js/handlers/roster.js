@@ -93,7 +93,7 @@ const RosterHandlers = {
       const leaves=await DB.leaves.listApprovedForDate(dk).catch(()=>[]);
       const leaveMap={};for(const l of leaves)leaveMap[l.personnel_id]=l;
       this.setState(s=>({approvedLeavesCache:{...s.approvedLeavesCache,[dk]:leaveMap}}));
-      this._toast('Marked as Personal Leave');
+      this._toast('Marked as personal leave');
       const person=this.state.personnel.find(p=>p.id===id);
       this._log('attendance','roster.status_set',{date:dk,status:'personal_leave',target_id:id,target_name:person?.name||''});
     };
