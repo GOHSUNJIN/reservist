@@ -59,9 +59,9 @@ const SignupHandlers = {
         await DB.signupRequests.reopen(signupId).catch(()=>{});
         return {finalPerson:null,existed:true,wasInactive:false,error:true,message:'This contact belongs to a supervisor account and cannot be enrolled as a reservist. Please contact your system administrator.'};
       }
-      if(!existing.is_active){
+      if(!existing.is_active || existing.department !== dept){
         const {data:reactivated}=await DB.personnel.reactivate(existing.id,{batchId:req.batch_id,authId:req.auth_id,department:dept});
-        return {finalPerson:reactivated||existing,existed:true,wasInactive:true};
+        return {finalPerson:reactivated||existing,existed:true,wasInactive:!existing.is_active};
       }
       await DB.personnel.linkAuth(existing.id,req.auth_id);
       return {finalPerson:existing,existed:true,wasInactive:false};
