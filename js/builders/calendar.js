@@ -23,7 +23,7 @@ const CalendarBuilders = {
       if(st==='mc')      return {label:'MC',sub:'Sick leave declared for today',color:'#b9791a',bg:'#f7efdc'};
       if(st==='absent'){
         return this._findApprovedLeave(dk)
-          ? {label:'Personal leave',sub:'Personal leave approved for today',color:'#b9791a',bg:'#f7efdc'}
+          ? {label:'Personal Leave',sub:'Personal Leave approved for today',color:'#b9791a',bg:'#f7efdc'}
           : {label:'Absent',sub:'You have been marked absent',color:'#c0392b',bg:'#f7e4e1'};
       }
       return {label:'Pending',sub:'You have not checked in yet today',color:'#5c6678',bg:'#eceef2'};
@@ -44,7 +44,7 @@ const CalendarBuilders = {
         if(hr.status==='mc')     return {label:'MC',sub:'Sick leave recorded',color:'#b9791a',bg:'#f7efdc'};
         if(hr.status==='absent'){
           return this._findApprovedLeave(dk)
-            ?{label:'Personal leave',sub:'Personal leave approved',color:'#b9791a',bg:'#f7efdc'}
+            ?{label:'Personal Leave',sub:'Personal Leave approved',color:'#b9791a',bg:'#f7efdc'}
             :{label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
         }
       }
@@ -205,7 +205,7 @@ const CalendarBuilders = {
         isMissedRow:isMissed,missedNote:r.welfareNote||'',showMissedNote:false,
         onOpenMissedNote:isMissed?this.openMissedNote(r.date,r.welfareNote||''):()=>{},
         isPersonalLeave:!!_approvedLeave,
-        ...(_approvedLeave?{label:'Personal leave',color:'#b9791a',bg:'#f7efdc'}:Utils.meta(r.status))};
+        ...(_approvedLeave?{label:'Personal Leave',color:'#b9791a',bg:'#f7efdc'}:Utils.meta(r.status))};
     });
 
     const missedRows=[];
@@ -244,7 +244,7 @@ const CalendarBuilders = {
         const d=new Date(dk+'T00:00:00');
         const isMc=r.type==='mc';
         const isApproved=r.status==='approved';
-        const lbl=isMc?'MC':'Personal leave';
+        const lbl=isMc?'MC':'Personal Leave';
         futureLeaveRows.push({
           date:Utils.fmtMed(d),dateKey:dk,showMonthDivider:futureLeaveRows.length===0,monthDividerLabel:'Upcoming',shift:'Office',
           status:isApproved?(isMc?'mc':'absent'):'pending',

@@ -60,7 +60,7 @@ const BriefingsBuilders = {
       else if(isPresentNoOut){label='No clock-out';color='#ea580c';bg='#fff3e0';}
       else if(isPresentUnder){label='Under 6 hrs';color='#b9791a';bg='#fdf6e9';}
       else if(isMc){label='MC';color='#b9791a';bg='#fdf6e9';}
-      else if(isLeave){label='Personal leave';color='#b9791a';bg='#f7efdc';}
+      else if(isLeave){label='Personal Leave';color='#b9791a';bg='#f7efdc';}
       else{label='Absent';color='#c0392b';bg='#f7e4e1';}
       return {
         dateLabel:Utils.fmtMed(d),
@@ -172,7 +172,7 @@ const BriefingsBuilders = {
           leaveHistFiltered:filtered.length>0, leaveHistEmpty:filtered.length===0&&deduped.length>0,
           leaveHistoryItems:filtered.map(r=>({
             id:r.id,
-            typeLabel:r.type==='mc'?'MC':'Personal leave',
+            typeLabel:r.type==='mc'?'MC':'Personal Leave',
             typeBg:'#fdf6e9',
             typeColor:'#b9791a',
             typeBorder:'#f0e2c2',
