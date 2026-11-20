@@ -52,7 +52,8 @@ const DB_Personnel = {
     if (lErr || aErr) return { error: lErr || aErr };
     await _db.storage.from('avatars').remove([personnelId]).catch(()=>{});
     const { error: pErr } = await _db.from('personnel').delete().eq('id', personnelId);
-    if (authId) await _db.rpc('delete_auth_user', { p_user_id: authId }).catch(()=>{});
+    // rpc() returns a query builder (no .catch), so await it and ignore the result
+    if (authId) await _db.rpc('delete_auth_user', { p_user_id: authId }).then(()=>{}, ()=>{});
     if (pErr) return { error: pErr };
     return { error: null };
   },
@@ -98,7 +99,7 @@ const DB_Personnel = {
   },
 
   async assignBatch(batchId, dept) {
-    let q = _db.from('personnel').update({batch_id:batchId}).is('batch_id',null).eq('is_active',true);
+    let q = _db.from('personnel').update({batch_id:batchId}).is('batch_id',null).eq('is_active',true).eq('role','reservist');
     if (dept) q = q.eq('department', dept);
     await q;
   },

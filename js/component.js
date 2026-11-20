@@ -50,11 +50,16 @@ class AppComponent extends DCLogic {
       const pending = this._offlineQueues;
       if(pending.length && !this.state.demo && this.state.authed !== false && this.state.me?.is_active !== false){
         const failed = [];
+        const refused = [];
         for(const pend of pending){
           let ok = true;
           if(pend.type==='phase'){
-            await DB.attendance.logPhase(pend.id, pend.date, pend.key, pend.time, pend.dist, pend.bypassed||false).catch(()=>{ ok=false; });
-            if(ok && pend.key==='p1' && pend.dinnerMode!=null) DB.attendance.setDinnerMode(pend.id, pend.date, pend.dinnerMode).catch(()=>{});
+            const res = await DB.attendance.logPhase(pend.id, pend.date, pend.key, pend.time, pend.dist, pend.bypassed||false).catch(()=>{ ok=false; return null; });
+            const err = res?.error;
+            // 'rejected:...' means the server refused it (too late, another day); retrying won't help
+            if(typeof err==='string' && err.startsWith('rejected:')) refused.push(pend);
+            else if(err) ok=false;
+            if(ok && !err && pend.key==='p1' && pend.dinnerMode!=null) DB.attendance.setDinnerMode(pend.id, pend.date, pend.dinnerMode).catch(()=>{});
           } else if(pend.type==='audit_log'){
             await DB.audit.log(pend.entry).catch(()=>{ ok=false; });
           } else {
@@ -68,7 +73,8 @@ class AppComponent extends DCLogic {
         this._offlineQueues = failed;
         try{ localStorage.setItem('offlineQ', JSON.stringify(failed)); }catch{}
         if(!failed.length){ this.setState({offlinePending:false}); }
-        else { this._toast('Some check-ins failed to sync. Tap Retry.','error'); }
+        if(refused.length){ this._toast(`${refused.length===1?'An offline check-in was':refused.length+' offline check-ins were'} not accepted (sent too late or on another day). Ask your admin to correct your times.`,'error'); }
+        else if(failed.length){ this._toast('Some check-ins failed to sync. Tap Retry.','error'); }
       }
       if(this.state.authed && !this.state.demo){
         if(this._refreshDebounce) clearTimeout(this._refreshDebounce);

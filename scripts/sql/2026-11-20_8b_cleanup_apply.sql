@@ -1,9 +1,10 @@
 -- ============================================================================
+-- ALREADY APPLIED on 2026-11-20. The reservist's name was removed afterwards because this repo is public; re-running now deactivates nobody. The record is in backup_20261120_cleanup.deactivated_personnel.
 -- ReservistGO: data clean-up APPLY
 -- ----------------------------------------------------------------------------
 -- Removes the rows shown by 2026-11-20_8a_cleanup_preview_READ_ONLY.sql.
 -- Copies every removed attendance row into backup_20261120_cleanup first
--- (2026-11-20_8c_cleanup_undo.sql puts them back). Also deactivates (name removed)
+-- (2026-11-20_8c_cleanup_undo.sql puts them back). Also deactivated one named reservist (name removed from this public file)
 -- (active, no cycle; reversible). Removed test logins are
 -- listed there too but cannot be restored (they had no data).
 -- One transaction; ends by showing what it did.
@@ -229,7 +230,7 @@ SELECT p.id, p.name, p.is_active, p.deactivated_at FROM public.personnel p JOIN 
 DO $$
 BEGIN
   IF (SELECT count(*) FROM backup_20261120_cleanup.deactivated_personnel) > 1 THEN
-    RAISE EXCEPTION 'More than one active "(name removed)" without a cycle; nothing was changed. Send this message.';
+    RAISE EXCEPTION 'More than one matching active reservist without a cycle; nothing was changed. Send this message.';
   END IF;
 END $$;
 

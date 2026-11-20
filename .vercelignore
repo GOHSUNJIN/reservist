@@ -1,0 +1,6 @@
+# Not part of the web app: keep these out of the public deployment
+scripts/sql/
+tests/
+README.md
+pytest.ini
+*.patch
