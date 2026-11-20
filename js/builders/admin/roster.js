@@ -9,7 +9,7 @@ const AdminRoster = {
     const approvedLeavesForView=s.approvedLeavesCache?.[viewDateKey]||{};
     const roster=visibleMembers.map(p=>{
       const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, _bMm=Utils.meta(r.status), mm=r.status==='absent'&&approvedLeavesForView[p.id]?Utils.leaveMeta(approvedLeavesForView[p.id]?.type):_bMm;
-      const cardStyle='background:#fff;border:1px solid #e3e6ec;border-left:3px solid '+mm.color+';border-radius:var(--r-md);padding:11px 13px;box-shadow:0 1px 5px rgba(20,30,50,.06);overflow:hidden;';
+      const cardStyle='background:#fff;border:1px solid #e3e6ec;border-radius:var(--r-md);padding:11px 13px;box-shadow:0 1px 5px rgba(20,30,50,.06);overflow:hidden;';
       const av=s.avatars[p.id]||'';
       const avatarStyle=Utils.avatarStyle(av);
       const _rosterPTimings=(!isCas&&self._myDept()==='ops_security')?(p.phase_timings||Utils.effectiveTimings(activeBatch)):null;
@@ -25,13 +25,8 @@ const AdminRoster = {
       const _bOn=(c)=>_bBase+'border:1.5px solid '+c+';color:#fff;background:'+c+';';
       const _bOff=(c)=>_bBase+'border:1.5px solid '+c+';color:'+c+';background:transparent;';
       const _sPending=r.status==='pending', _sPresent=_isPresent, _sMc=_isMc, _sPersonalLeave=_selPersonalLeave, _sAbsent=_isAbsent;
-      const _selBase='padding:7px 8px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;width:100%;box-sizing:border-box;margin-top:9px;';
-      const statusSelectStylePending=_selBase+'border:1.5px solid #2f5fd0;color:var(--blue);background:#fff;';
-      const statusSelectStylePresent=_selBase+'border:1.5px solid var(--green);color:var(--green);background:#fff;';
-      const statusSelectStyleMc=_selBase+'border:1.5px solid #b9791a;color:var(--amber-text);background:#fff;';
-      const statusSelectStylePersonalLeave=_selBase+'border:1.5px solid #b9791a;color:var(--amber-text);background:#fff;';
-      const statusSelectStyleAbsent=_selBase+'border:1.5px solid var(--red);color:var(--red);background:#fff;';
-      return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markStatusSelect:self.setStatusFromSelect(p.id),statusIsPending:_sPending,statusIsPresent:_sPresent,statusIsMc:_sMc,statusIsPersonalLeave:_sPersonalLeave,statusIsAbsent:_sAbsent,statusSelectStylePending,statusSelectStylePresent,statusSelectStyleMc,statusSelectStylePersonalLeave,statusSelectStyleAbsent,onViewHistory:self.openPersonHistory(p.id),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0,
+      const statusSelectStylePending='', statusSelectStylePresent='', statusSelectStyleMc='', statusSelectStylePersonalLeave='', statusSelectStyleAbsent='';
+      return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markStatusSelect:self.setStatusFromSelect(p.id),stopRowClick:e=>e.stopPropagation(),statusIsPending:_sPending,statusIsPresent:_sPresent,statusIsMc:_sMc,statusIsPersonalLeave:_sPersonalLeave,statusIsAbsent:_sAbsent,statusSelectStylePending,statusSelectStylePresent,statusSelectStyleMc,statusSelectStylePersonalLeave,statusSelectStyleAbsent,onViewHistory:self.openPersonHistory(p.id),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0,
         lowAttendance:s.peopleStatsLoaded&&_pct!==null&&_pct<75,
         statPctText:s.peopleStatsLoaded&&_pct!==null?(_pct+'%'):'',
         statPctNum:_pct??-1,

@@ -28,7 +28,8 @@ const AuthBuilders = {
       showAuth:!s.authed, showApp:s.authed,
       isLogin:s.authMode==='login'&&!s.signupPending, isSignup:s.authMode==='signup'&&!s.signupPending,
       isRejected:s.authMode==='rejected'&&!s.signupPending, isReapply:s.authMode==='reapply'&&!s.signupPending,
-      showAuthTabs:!s.signupPending&&s.authMode!=='rejected'&&s.authMode!=='reapply'&&s.authMode!=='setpw',
+      showAuthTabs:!s.signupPending&&s.authMode!=='rejected'&&s.authMode!=='reapply'&&s.authMode!=='setpw'&&s.authMode!=='pending',
+      isPendingStatus:s.authMode==='pending'&&!s.signupPending,
       isSetPassword:s.authMode==='setpw'&&!s.signupPending,
       setPwNew:s.setPwNew, setPwConfirm:s.setPwConfirm, onSetPwNew:this.onSetPwNew, onSetPwConfirm:this.onSetPwConfirm,
       onSetPwKeyDown:this.onSetPwKeyDown, doSetPassword:this.doSetPassword, logoutSetPw:this.logoutSetPw,
@@ -36,16 +37,23 @@ const AuthBuilders = {
       setPwBtnLabel:s.loading?'Saving…':'Save Password',
       ...(()=>{
         const r=s.rejectedReq||{};
+        const pr=s.pendingReq||{};
+        const prIntake=pr.intakeLabel||((s.batches||[]).find(b=>b.id===pr.batch_id)||{}).label||'';
+        const prWhen=pr.created_at?new Date(pr.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
         const when=r.reviewed_at?new Date(r.reviewed_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
         return {
           rejectedDeptLabel:Utils.deptLabel(r.department)||'the department',
           rejectedReason:r.rejection_reason||'', hasRejectedReason:!!r.rejection_reason,
           rejectedWhen:when, hasRejectedWhen:!!when,
           rejectedName:r.name||'', rejectedContact:r.contact||'',
+          pendingDeptLabel:Utils.deptLabel(pr.department)||'your department',
+          pendingIntake:prIntake, hasPendingIntake:!!prIntake,
+          pendingWhen:prWhen, hasPendingWhen:!!prWhen,
+          pendingCheckLabel:s.loading?'Checking…':'Check Again',
           reapplySameDeptNote:(suDept&&suDept===r.department)?'This is the department that declined your last request.':'',
         };
       })(),
-      openReapply:this.openReapply, cancelReapply:this.cancelReapply, doReapply:this.doReapply, logoutRejected:this.logoutRejected,
+      openReapply:this.openReapply, cancelReapply:this.cancelReapply, doReapply:this.doReapply, logoutRejected:this.logoutRejected, logoutPending:this.logoutPending, checkPendingAgain:this.checkPendingAgain,
       reapplyBtnLabel:s.loading?'Submitting…':'Submit Application',
       goLogin:this.goLogin, goSignup:this.goSignup,
       loginTabStyle:tb(s.authMode==='login'), signupTabStyle:tb(s.authMode==='signup'),

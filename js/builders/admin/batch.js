@@ -68,8 +68,8 @@ const AdminBatch = {
     const editTargetRange=_ebs&&_ebe?(Utils.fmtShort(_ebs)+' to '+Utils.fmtShort(_ebe)+' '+_ebs.getFullYear()):'';
     const editTargetIsPast=!!(activeBatch&&activeBatch.end_date<todayForChips&&!activeBatch.is_live);
     const editTargetStatus=editTargetIsLive?'Live':editTargetIsPast?'Past':'Upcoming';
-    const editTargetStatusChipBg=editTargetIsLive?PAL.green:editTargetIsPast?'rgba(255,255,255,.1)':'rgba(47,95,208,.5)';
-    const editTargetStatusChipColor=editTargetIsLive?'#fff':editTargetIsPast?PAL.muted:'#a8c0f8';
+    const editTargetStatusChipBg=editTargetIsLive?PAL.green:editTargetIsPast?'#eceef2':'#eef3fc';
+    const editTargetStatusChipColor=editTargetIsLive?'#fff':editTargetIsPast?PAL.ink2:PAL.blue;
     const _sortedBatches=[...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
     const _isLastDay=!!(liveBatch&&todayForChips===liveBatch.end_date);
     const _nextBatch=_isLastDay?_sortedBatches.find(b=>b.start_date>liveBatch.end_date):null;

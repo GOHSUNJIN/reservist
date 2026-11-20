@@ -5,7 +5,7 @@ const Utils = {
     if(s==='present') return {label:'Present',color:PAL.green,bg:'#e7f3ec'};
     if(s==='mc')      return {label:'MC',  color:PAL.amberText,bg:'#f7efdc'};
     if(s==='absent')  return {label:'Absent', color:PAL.red,bg:'#f7e4e1'};
-    if(s==='missed')    return {label:'Missed',    color:PAL.red,bg:'#f7e4e1'};
+    if(s==='missed')    return {label:'Absent',    color:PAL.red,bg:'#f7e4e1'};
     if(s==='cancelled') return {label:'Cancelled', color:PAL.muted,bg:'#eceef2'};
     return {label:'Pending',color:PAL.blue,bg:'#eef3fc'};
   },
@@ -128,6 +128,16 @@ const Utils = {
     if(key==='p3') return [t.p3_open,this._addMins(t.p3_open,120)];
     if(key==='p4') return [t.p4_open,'23:59'];
     return null;
+  },
+  // Has this day's shift finished? Past days yes, future days no, today once the shift end time has passed.
+  // Ends: L&F 17:00, dinner shift 21:00, otherwise 18:00.
+  shiftOver(dateKey, dept, timings, dinnerMode, now){
+    const n=now||new Date(), today=this.dateKey(n);
+    if(dateKey<today) return true;
+    if(dateKey>today) return false;
+    const dinner=dinnerMode!=null?!!dinnerMode:this.isBreakDinner(timings);
+    const end=dept==='lnf'?'17:00':(dinner?'21:00':'18:00');
+    return this.hhmm(n)>=end;
   },
   isBreakDinner(timings){ return (timings||this.DEFAULT_TIMINGS).p2_open>='17:00'; },
   resolveBreakLabel(dinnerMode, modeChanges, dateKey, timings){

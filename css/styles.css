@@ -37,9 +37,9 @@ button{-webkit-appearance:none;}
 .row-item{padding:12px 16px;border-bottom:1px solid #f2f4f7;display:flex;align-items:center;gap:12px;}
 
 /* ── Bottom navigation ────────────────────────────────────────────────────── */
-.nav-btn{flex:1;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;padding:6px 2px 6px;transition:color .15s;}
-.nav-btn-pill{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 14px 4px;border-radius:var(--r-md);transition:background .2s;min-width:52px;}
-.nav-btn span{font-size:var(--fs-label);font-weight:600;}
+.nav-btn{flex:1 1 auto;min-width:0;background:none;border:none;cursor:pointer;display:flex;flex-direction:column;align-items:center;padding:6px 2px 6px;transition:color .15s;}
+.nav-btn-pill{display:flex;flex-direction:column;align-items:center;gap:3px;padding:5px 2px 4px;border-radius:var(--r-md);transition:background .2s;width:100%;max-width:72px;box-sizing:border-box;}
+.nav-btn span{font-size:var(--fs-label);font-weight:600;white-space:nowrap;}
 
 /* ── Input & select focus ─────────────────────────────────────────────────── */
 input:focus,select:focus{border-color:#2f5fd0 !important;box-shadow:0 0 0 3px rgba(47,95,208,.12);outline:none;}
@@ -157,3 +157,27 @@ button:active{transform:scale(.97);transition:transform .08s;}
 button,[role=button]{touch-action:manipulation;}
 [role=button]{cursor:pointer;}
 :focus-visible{outline:2px solid var(--blue);outline-offset:2px;}
+
+/* ── Nav badges sit on the icon, not in the corner of the tab ─────────────── */
+.nav-btn-pill{position:relative;}
+.nav-dot{position:absolute;top:2px;left:calc(50% + 6px);width:9px;height:9px;border-radius:50%;border:1.5px solid #fff;box-sizing:content-box;}
+.nav-count{position:absolute;top:-3px;left:calc(50% + 4px);min-width:16px;height:16px;border-radius:var(--r-sm);background:var(--amber-solid);border:1.5px solid #fff;display:inline-flex;align-items:center;justify-content:center;padding:0 3px;box-sizing:border-box;font-size:var(--fs-label);font-weight:700;color:#fff;line-height:1;}
+
+/* ── Admin header: compact, sticky cycle/date row, day bar and search ─────── */
+:root{--admin-bar-h:52px;--day-bar-h:50px;}
+.admin-bar{position:sticky;top:0;z-index:7;display:flex;align-items:center;gap:6px;height:var(--admin-bar-h);margin:-10px -18px 4px;padding:8px 18px;background:#f6f7f9;box-sizing:border-box;}
+.admin-bar-cycle{flex:1;min-width:0;display:flex;align-items:center;gap:7px;height:36px;padding:0 10px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-md);cursor:pointer;-webkit-appearance:none;text-align:left;}
+.admin-bar-range{font-size:var(--fs-label);color:var(--muted);font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
+.admin-bar-date{flex:0 0 auto;width:136px;height:36px;padding:0 8px;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:13px;background:#fff;color:#36404f;box-sizing:border-box;outline:none;}
+.admin-bar-go{flex:0 0 auto;height:36px;padding:0 12px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:#36404f;cursor:pointer;-webkit-appearance:none;}
+.day-bar{position:sticky;top:var(--admin-bar-h);z-index:6;height:var(--day-bar-h);box-sizing:border-box;background:#131a27;border-radius:var(--r-md);padding:5px 8px;color:#fff;display:flex;align-items:center;gap:8px;margin-bottom:10px;box-shadow:-18px 0 0 #f6f7f9,18px 0 0 #f6f7f9;}
+.tab-sticky{position:sticky;top:calc(var(--admin-bar-h) + var(--day-bar-h));z-index:5;background:#f6f7f9;margin:0 -18px 6px;padding:0 18px 4px;}
+.tab-sticky.no-day{top:var(--admin-bar-h);}
+@media (max-width:359px){.admin-bar{gap:5px;}.admin-bar-cycle{padding:0 8px;gap:4px;}.admin-bar-cycle svg{display:none;}.admin-bar-date{width:112px;padding:0 6px;}.admin-bar-go{padding:0 9px;}}
+
+/* ── Roster status: one pill; the native dropdown sits invisibly on top of it ── */
+.status-pill{position:relative;flex:0 0 auto;display:inline-flex;align-items:center;gap:5px;padding:5px 10px;border-radius:var(--r-pill);font-size:var(--fs-label);font-weight:700;white-space:nowrap;cursor:pointer;}
+.status-pill-select{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:16px;-webkit-appearance:none;appearance:none;border:0;}
+.status-pill:focus-within{outline:2px solid var(--blue);outline-offset:2px;}
+.admin-bar-range{display:none;}
+@media (min-width:480px){.admin-bar-range{display:inline;}}

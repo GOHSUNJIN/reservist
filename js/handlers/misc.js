@@ -127,6 +127,16 @@ const MiscHandlers = {
     this._scrollTop();
   },
 
+  goLeave: function() {
+    this.setState({tab:'leave'});
+    if(this.state.role==='reservist' && !this.state.demo) {
+      DB.leaves.myHistory(this.state.currentUserId)
+        .then(hist=>{this.setState(s=>({myLeaveHistory:hist.length>0?hist:s.myLeaveHistory,myLeaveHistoryLoaded:true}));})
+        .catch(()=>{});
+    }
+    this._scrollTop();
+  },
+
   setBriefTab: function(k) {
     return () => {
       this.setState({briefTab:k});

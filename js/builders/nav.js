@@ -3,7 +3,7 @@ const NavBuilders = {
 
   _buildNav: function(s, accent, orgName) {
     const me=this.cur();
-    const TITLES={checkin:'Check-In',briefings:'Briefings',attendance:'Attendance',meal:'Meal Allowance',overview:'Dashboard',roster:'Roster',log:'Attendance Log',people:'Personnel'};
+    const TITLES={checkin:'Check-In',briefings:'Info',leave:'Leave',attendance:'Attendance',meal:'Meal',overview:'Overview',roster:'Roster',log:'Log',people:'People'};
     const nc=t=>s.tab===t?accent:PAL.muted;
     const nb=t=>s.tab===t?'#eef3fc':'transparent';
     return {
@@ -12,17 +12,17 @@ const NavBuilders = {
       userName:s.role==='admin'?(me?.name||'Supervisor'):(me?.name||''),
       userInitials:s.role==='admin'?(me?.name?Utils.initials(me.name):'SV'):Utils.initials(me?.name||''),
       tabTitle:TITLES[s.tab]||'',
-      headerKicker:(()=>{const dl=Utils.deptLabel(this._myDept());return s.isMaster?'Master, '+dl:s.role==='admin'?'Admin, '+dl:dl+', PNSMEN';})(),
-      goCheckin:this.go('checkin'), goBriefings:this.go('briefings'), goAttendance:this.go('attendance'), goMeal:this.goMeal,
+      headerKicker:(()=>{const dl=Utils.deptLabel(this._myDept());return s.isMaster?'Master, '+dl:s.role==='admin'?'Admin, '+dl:dl+', PNSmen';})(),
+      goCheckin:this.go('checkin'), goBriefings:this.go('briefings'), goLeave:this.goLeave, goAttendance:this.go('attendance'), goMeal:this.goMeal,
       goOverview:()=>{ this.setState({tab:'overview'}); setTimeout(()=>this.loadRosterAvatars(),0); this._scrollTop(); },
       goRoster:()=>{ this.setState({tab:'roster'}); setTimeout(()=>this.loadRosterAvatars(),0); this._scrollTop(); },
       goLog:()=>{ this.setState({tab:'log'}); setTimeout(()=>this.loadRosterAvatars(),0); this._scrollTop(); },
       goPeople:this.goPeople,
-      cCheckin:nc('checkin'), cBriefings:nc('briefings'), cAttendance:nc('attendance'), cMeal:nc('meal'),
+      cCheckin:nc('checkin'), cBriefings:nc('briefings'), cLeave:nc('leave'), cAttendance:nc('attendance'), cMeal:nc('meal'),
       cOverview:nc('overview'), cRoster:nc('roster'), cLog:nc('log'), cPeople:nc('people'),
-      nbCheckin:nb('checkin'), nbBriefings:nb('briefings'), nbAttendance:nb('attendance'), nbMeal:nb('meal'),
+      nbCheckin:nb('checkin'), nbBriefings:nb('briefings'), nbLeave:nb('leave'), nbAttendance:nb('attendance'), nbMeal:nb('meal'),
       nbOverview:nb('overview'), nbRoster:nb('roster'), nbLog:nb('log'), nbPeople:nb('people'),
-      tabCheckin:s.tab==='checkin', tabBriefings:s.tab==='briefings', tabAttendance:s.tab==='attendance', tabMeal:s.tab==='meal',
+      tabCheckin:s.tab==='checkin', tabBriefings:s.tab==='briefings', tabLeave:s.tab==='leave', tabInfoOrLeave:s.tab==='briefings'||s.tab==='leave', tabAttendance:s.tab==='attendance', tabMeal:s.tab==='meal',
       tabOverview:s.tab==='overview', tabRoster:s.tab==='roster', tabLog:s.tab==='log', tabPeople:s.tab==='people',
       pendingSignupCount:s.pendingSignups.length,
       hasPendingSignups:s.pendingSignups.length>0,

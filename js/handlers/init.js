@@ -27,10 +27,15 @@ const InitHandlers = {
         this.setState({authed:false,loading:false,authError:'',signupPending:false,authMode:'rejected',rejectedReq:req});
         return;
       }
-      await DB.auth.logout();
       if(req?.status==='pending'){
-        this.setState({authed:false,loading:false,authError:'Your account is pending admin approval. You will be able to log in once an admin approves your request.'});
-      } else if(req?.status==='approved'){
+        // Stay signed in on a calm status screen that explains what happens next.
+        const open = await DB.batches.listOpenForSignup(req.department).catch(()=>[]);
+        const intake = (open||[]).find(b=>b.id===req.batch_id);
+        this.setState({authed:false,loading:false,authError:'',signupPending:false,authMode:'pending',pendingReq:{...req, intakeLabel:intake?.label||''}});
+        return;
+      }
+      await DB.auth.logout();
+      if(req?.status==='approved'){
         this.setState({authed:false,loading:false,authError:'Your signup was approved but your account setup is incomplete. Please contact your supervisor to fix this.'});
       } else {
         this.setState({authed:false,loading:false,authError:'Account setup incomplete. Please sign up again.'});

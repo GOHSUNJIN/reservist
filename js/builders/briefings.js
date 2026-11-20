@@ -51,12 +51,14 @@ const BriefingsBuilders = {
     const mealDays=[..._h].filter(r=>r.date<=today).sort((a,b)=>b.date.localeCompare(a.date)).map((r,i,arr)=>{
       const d=new Date(r.date+'T00:00:00');
       const isEligible=r.status==='present'&&!!r.p4&&_workMins(r)>=360;
-      const isPresentNoOut=r.status==='present'&&!r.p4;
+      const isInProgress=r.status==='present'&&!r.p4&&!Utils.shiftOver(r.date,this._myDept(),_bTimings,r.dinnerMode,s.now);
+      const isPresentNoOut=r.status==='present'&&!r.p4&&!isInProgress;
       const isPresentUnder=r.status==='present'&&!!r.p4&&!isEligible;
       const isMc=r.status==='mc';
       const isLeave=r.status==='absent'&&_leaveSet.has(r.date);
       let label,color,bg;
       if(isEligible){label='Entitled';color=PAL.green;bg='#e7f3ec';}
+      else if(isInProgress){label='In progress';color=PAL.blue;bg='#eef3fc';}
       else if(isPresentNoOut){label='No clock-out';color='#c2410c';bg='#fff3e0';}
       else if(isPresentUnder){label='Under 6 hrs';color=PAL.amberText;bg='#fdf6e9';}
       else if(isMc){label='MC';color=PAL.amberText;bg='#fdf6e9';}
@@ -109,7 +111,7 @@ const BriefingsBuilders = {
       dekitItems:[
         {n:'1',text:'Confirm your meal allowance entitlement count with the Manpower Officer.'},
         {n:'2',text:'Bring hardcopies of any MCs taken.'},
-        {n:'3',text:'Update the Manpower Officer in charge once all PNSMEN have arrived.'},
+        {n:'3',text:'Update the Manpower Officer in charge once all PNSmen have arrived.'},
       ],
       cycleDayLabel, cycleProgressPct, showCycleProgress,
       infoDekitCountdown, showInfoDekitCountdown,
@@ -118,7 +120,7 @@ const BriefingsBuilders = {
         {n:'2',text:'Submit an MC or personal leave request in the app. Your record updates immediately.'},
         {n:'3',text:'Keep your MC hardcopy. You will need it for dekit day.'},
       ],
-      briefTabs, briefTabInfo:briefTab==='info', briefTabHistory:briefTab==='history',
+      briefTabs, briefTabInfo:s.tab!=='leave', briefTabHistory:s.tab==='leave', showInfoHero:s.tab!=='leave'&&(s.role!=='reservist'||this._myDept()!=='cas'),
       waGroupUrl, showWaGroup:!!waGroupUrl,
       teamMembers: me?.batch_id ? s.personnel
         .filter(p=>p.batch_id===me.batch_id&&p.id!==s.currentUserId&&(p.role||'reservist')==='reservist')

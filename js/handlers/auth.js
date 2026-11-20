@@ -127,7 +127,7 @@ const AuthHandlers = {
       viewOffset:0, rosterSearch:'', logSearch:'',
       markingAllAbsent:false, confirmMarkAllAbsent:false,
       personHistoryId:null, personHistoryRows:[], personHistoryLoading:false,
-      signupPending:false, rejectedReq:null, pwSetUser:null, setPwNew:'', setPwConfirm:'', showSetPw:false,
+      signupPending:false, rejectedReq:null, pendingReq:null, pwSetUser:null, setPwNew:'', setPwConfirm:'', showSetPw:false,
       rejectSignupId:null, rejectSignupReason:'', rejectSignupSaving:false, moveSignupId:null, moveSignupDept:'', moveSignupSaving:false,
       pendingSignups:[], pendingSignupsLoaded:false, approvedSignups:[], rejectedSignups:[], rejectedSignupsLoaded:false,
       selectedSignupIds:[],
@@ -286,6 +286,20 @@ const AuthHandlers = {
   logoutSetPw: async function() {
     await DB.auth.logout();
     this.setState({authMode:'login', pwSetUser:null, setPwNew:'', setPwConfirm:'', authError:'', loading:false});
+  },
+
+  logoutPending: async function() {
+    await DB.auth.logout();
+    this.setState({authMode:'login', pendingReq:null, authError:'', loading:false});
+  },
+
+  // Re-check a pending request (an admin may have approved or declined it since)
+  checkPendingAgain: async function() {
+    this.setState({loading:true});
+    const { data } = await _db.auth.getUser().catch(()=>({data:null}));
+    if(!data?.user){ this.setState({loading:false, authMode:'login', pendingReq:null}); return; }
+    await this._afterLogin(data.user);
+    this.setState({loading:false});
   },
 
   logoutRejected: async function() {

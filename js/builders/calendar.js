@@ -160,6 +160,9 @@ const CalendarBuilders = {
 
     const _exDates=s.historyExpandedDates||[];
     const _ed=f=>!!(rec.editLog||[]).some(e=>e.fields?.includes(f));
+    const _myTimings=(this._myDept()==='ops_security')?(me?.phase_timings||Utils.effectiveTimings(activeBatch)):null;
+    const _inProgress=r=>r.status==='present'&&!r.p4&&!Utils.shiftOver(r.date||today,this._myDept(),_myTimings,r.dinnerMode,s.now);
+    const _todayInProg=_inProgress({...rec,status,date:today});
     const todayRow=(Utils.isReportDay(todayD,this._myDept())&&!this.isNoReport(0)&&(!activeBatch||today>=activeBatch.start_date)&&(!activeBatch||today<=activeBatch.end_date))
       ?[{date:Utils.fmtMed(todayD)+', Today',dateKey:today,showMonthDivider:false,monthDividerLabel:'',shift:'Office',status,
          p1:rec.p1||'-',p2:rec.p2||'-',p3:rec.p3||'-',p4:rec.p4||'-',
@@ -168,12 +171,13 @@ const CalendarBuilders = {
          hasExpandToggle:status==='present',rowCursor:status==='present'?'pointer':'default',isExpanded:_exDates.includes(today),onToggleExpand:this.toggleHistoryExpand(today),
          showTimes:status==='present'&&_exDates.includes(today),rowMarginBot:(status==='present'&&_exDates.includes(today))?'9px':'0',chevronRotate:_exDates.includes(today)?'180':'0',
          isMissedRow:false,showMissedNote:false,missedNote:'',onOpenMissedNote:()=>{},
-         showTimingWarning:status==='present'&&(isCas?!rec.p4:(!rec.p2||!rec.p3||!rec.p4)),
+         showTimingWarning:!_todayInProg&&status==='present'&&(isCas?!rec.p4:(!rec.p2||!rec.p3||!rec.p4)),
          showLunchTimes:!isCas, histGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',p2Label:_histBreakLabel,
-         missingClockOut:status==='present'&&!rec.p4,
+         missingClockOut:status==='present'&&!rec.p4&&!_todayInProg,
          hasIncompleteTimes:status==='present'&&!!rec.p4&&(isCas?false:(!rec.p2||!rec.p3))&&_exDates.includes(today),
          isToday:true,
-         ...Utils.meta(status)}]:[];
+         ...Utils.meta(status),
+         ...(_todayInProg?{label:'In progress',color:PAL.blue,bg:'#eef3fc'}:{})}]:[];
 
     const _nc=PAL.amberText; // amber for unrecorded slots
     const _histFiltered=s.history.filter(r=>Utils.isReportDay(new Date(r.date+'T00:00:00'),this._myDept())&&(!activeBatch||r.date>=activeBatch.start_date));
@@ -182,7 +186,8 @@ const CalendarBuilders = {
       const d=new Date(r.date+'T00:00:00');
       const p1=r.p1||null,p2=r.p2||null,p3=r.p3||null,p4=r.p4||null;
       const isPresent=r.status==='present';
-      const missingClockOut=isPresent&&!p4;
+      const _rowInProg=_inProgress(r);
+      const missingClockOut=isPresent&&!p4&&!_rowInProg;
       const hasIncompleteTimes=isPresent&&!missingClockOut&&(isCas?false:(!p2||!p3));
       const _rowEx=_exDates.includes(r.date);
       const isMissed=r.status==='missed';
@@ -200,12 +205,13 @@ const CalendarBuilders = {
         onToggleExpand:isMissed?this.openMissedNote(r.date,r.welfareNote||''):this.toggleHistoryExpand(r.date),
         showTimes:isPresent&&_rowEx,rowMarginBot:(isPresent&&_rowEx)?'9px':'0',chevronRotate:_rowEx?'180':'0',hasIncompleteTimes:hasIncompleteTimes&&_rowEx,
         missingClockOut,
-        showTimingWarning:isPresent&&(isCas?!p4:(!p2||!p3||!p4)),
+        showTimingWarning:!_rowInProg&&isPresent&&(isCas?!p4:(!p2||!p3||!p4)),
         showLunchTimes:!isCas, histGridCols:isCas?'repeat(2,1fr)':'repeat(4,1fr)',p2Label:_rowBreakLabel(r),
         isMissedRow:isMissed,missedNote:r.welfareNote||'',showMissedNote:false,
         onOpenMissedNote:isMissed?this.openMissedNote(r.date,r.welfareNote||''):()=>{},
         isPersonalLeave:!!_approvedLeave,
-        ...(_approvedLeave?{label:'Personal Leave',color:PAL.amberText,bg:'#f7efdc'}:Utils.meta(r.status))};
+        ...(_approvedLeave?{label:'Personal Leave',color:PAL.amberText,bg:'#f7efdc'}:Utils.meta(r.status)),
+        ...(_rowInProg?{label:'In progress',color:PAL.blue,bg:'#eef3fc'}:{})};
     });
 
     const missedRows=[];
