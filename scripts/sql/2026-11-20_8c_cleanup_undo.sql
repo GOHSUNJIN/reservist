@@ -1,5 +1,6 @@
 -- ============================================================================
--- ReservistGO: UNDO the data clean-up (attendance rows only)
+-- ReservistGO: UNDO the data clean-up (attendance rows and the deactivation;
+-- the two empty test logins cannot be restored)
 -- ============================================================================
 BEGIN;
 DO $$
@@ -19,6 +20,8 @@ BEGIN
                 AND b.table_name = 'removed_attendance' AND b.column_name = c.column_name);
   EXECUTE format('INSERT INTO public.attendance (%s) SELECT %s FROM backup_20261120_cleanup.removed_attendance ON CONFLICT DO NOTHING', cols, cols);
 END $$;
+UPDATE public.personnel p SET is_active = d.is_active, deactivated_at = d.deactivated_at
+FROM backup_20261120_cleanup.deactivated_personnel d WHERE p.id = d.id;
 INSERT INTO public.audit_log (actor_name, actor_role, category, action, meta)
 VALUES ('Database clean-up', 'system', 'data', 'data.cleanup.undone', NULL);
 COMMIT;

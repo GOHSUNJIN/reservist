@@ -59,6 +59,10 @@ sel_logins AS (
     AND NOT EXISTS (SELECT 1 FROM public.signup_requests s WHERE s.auth_id = u.id)
     AND u.created_at < now() - interval '3 days'
 ),
+sel_deactivate AS (   -- asked for by the owner on 20 Nov: active, no cycle
+  SELECT p.id, p.name FROM public.personnel p
+  WHERE lower(btrim(p.name)) = '(name removed)' AND p.is_active AND p.role = 'reservist' AND p.batch_id IS NULL
+),
 kept_holiday AS (   -- holiday absences kept because colleagues worked that day
   SELECT e.date, e.department, count(*) AS n FROM empty_absent e JOIN holidays h ON h.d = e.date
   WHERE EXISTS (SELECT 1 FROM dept_day_present x WHERE x.date = e.date AND x.department = e.department)
@@ -93,8 +97,12 @@ out(sort, item, n, detail) AS (
          coalesce(string_agg(split_part(email, '@', 1), ', '), '')
   FROM sel_logins
   UNION ALL
-  SELECT 7, 'total attendance rows to remove', count(*), '' FROM sel_rows
+  SELECT 7, 'deactivate (remove from roster): active reservist with no cycle', count(*),
+         coalesce(string_agg(name, ', '), '')
+  FROM sel_deactivate
   UNION ALL
-  SELECT 8, 'attendance rows after clean-up', (SELECT count(*) FROM public.attendance) - (SELECT count(*) FROM sel_rows), ''
+  SELECT 8, 'total attendance rows to remove', count(*), '' FROM sel_rows
+  UNION ALL
+  SELECT 9, 'attendance rows after clean-up', (SELECT count(*) FROM public.attendance) - (SELECT count(*) FROM sel_rows), ''
 )
 SELECT item, n AS count, detail FROM out ORDER BY sort;
