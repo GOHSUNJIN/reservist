@@ -115,6 +115,10 @@ const AccountHandlers = {
       const {error} = await DB.auth.updatePassword(acctPwNew).catch(e=>({error:e}));
       if(error){ this.setState({acctSaving:false, acctPwError:'Failed to update password. Try again.'}); return; }
     }
+    if(!demo && me?.must_change_password){
+      await DB.personnel.clearMustChangePassword(me.id).catch(()=>{});
+      this.setState(s=>({me:{...s.me,must_change_password:false}}));
+    }
     this.setState({acctSaving:false, changePwOpen:false, acctPwCurrent:'', acctPwNew:'', acctPwConfirm:''});
     this._toast('Password updated.');
     this._log('account', 'account.password_changed', {});

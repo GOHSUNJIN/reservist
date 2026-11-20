@@ -196,6 +196,26 @@
       </div>
       </sc-if>
 
+      <!-- Account created or reset by a supervisor: set a private password before continuing -->
+      <sc-if value="{{ isSetPassword }}" hint-placeholder-val="">
+      <div>
+        <h2 style="font-size:21px;font-weight:700;margin:0 0 4px;color:#161f30;">Set Your Own Password</h2>
+        <p style="font-size:14px;color:#5c6678;margin:0 0 18px;line-height:1.5;">Your password was set by a supervisor. Choose a new one that only you know before continuing.</p>
+        <label class="text-field-label">New Password</label>
+        <div style="position:relative;margin-bottom:14px;">
+          <input value="{{ setPwNew }}" onInput="{{ onSetPwNew }}" onKeyDown="{{ onSetPwKeyDown }}" type="{{ setPwType }}" autocomplete="new-password" placeholder="At least 6 characters" style="width:100%;padding:12px 14px;padding-right:60px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;box-sizing:border-box;" />
+          <button type="button" onClick="{{ toggleSetPw }}" style="position:absolute;right:10px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:#8a94a3;font-size:12px;font-weight:600;padding:4px;">{{ setPwToggleLabel }}</button>
+        </div>
+        <label class="text-field-label">Confirm New Password</label>
+        <input value="{{ setPwConfirm }}" onInput="{{ onSetPwConfirm }}" onKeyDown="{{ onSetPwKeyDown }}" type="{{ setPwType }}" autocomplete="new-password" placeholder="Type it again" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;box-sizing:border-box;" />
+        <sc-if value="{{ authError }}" hint-placeholder-val="">
+          <div style="color:#c0392b;font-size:13px;margin-top:12px;">{{ authError }}</div>
+        </sc-if>
+        <button onClick="{{ doSetPassword }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:18px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoadingOpacity }};pointer-events:{{ authLoadingPointerEvents }};">{{ setPwBtnLabel }}</button>
+        <button onClick="{{ logoutSetPw }}" style="-webkit-appearance:none;width:100%;padding:12px;background:none;border:none;color:#8a94a3;font-size:13.5px;cursor:pointer;margin-top:6px;">Log Out</button>
+      </div>
+      </sc-if>
+
       <!-- Declined sign-up: the account stays logged in so the person can apply again -->
       <sc-if value="{{ isRejected }}" hint-placeholder-val="">
       <div>
@@ -1859,6 +1879,9 @@
                       </sc-if>
                       <div onClick="{{ row.onCopyContact }}" style="font-size:11px;color:#b0b8c7;font-family:'IBM Plex Mono',monospace;cursor:pointer;">{{ row.contact }}</div>
                     </div>
+                    <sc-if value="{{ row.showOffline }}" hint-placeholder-val="">
+                      <div style="margin-top:4px;"><span title="Sent from the offline queue: the time the phone claimed, then when it actually reached the server" style="display:inline-block;font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;background:#fdf0dc;color:#b9791a;line-height:1.4;">Offline · {{ row.offlineText }}</span></div>
+                    </sc-if>
                     <sc-if value="{{ row.showAnyFlags }}" hint-placeholder-val="">
                       <div style="display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:7px;">
                         <sc-if value="{{ row.isLate }}" hint-placeholder-val="">

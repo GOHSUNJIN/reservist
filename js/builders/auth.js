@@ -28,7 +28,12 @@ const AuthBuilders = {
       showAuth:!s.authed, showApp:s.authed,
       isLogin:s.authMode==='login'&&!s.signupPending, isSignup:s.authMode==='signup'&&!s.signupPending,
       isRejected:s.authMode==='rejected'&&!s.signupPending, isReapply:s.authMode==='reapply'&&!s.signupPending,
-      showAuthTabs:!s.signupPending&&s.authMode!=='rejected'&&s.authMode!=='reapply',
+      showAuthTabs:!s.signupPending&&s.authMode!=='rejected'&&s.authMode!=='reapply'&&s.authMode!=='setpw',
+      isSetPassword:s.authMode==='setpw'&&!s.signupPending,
+      setPwNew:s.setPwNew, setPwConfirm:s.setPwConfirm, onSetPwNew:this.onSetPwNew, onSetPwConfirm:this.onSetPwConfirm,
+      onSetPwKeyDown:this.onSetPwKeyDown, doSetPassword:this.doSetPassword, logoutSetPw:this.logoutSetPw,
+      setPwType:s.showSetPw?'text':'password', toggleSetPw:this.toggleSetPw, setPwToggleLabel:s.showSetPw?'Hide':'Show',
+      setPwBtnLabel:s.loading?'Saving…':'Save Password',
       ...(()=>{
         const r=s.rejectedReq||{};
         const when=r.reviewed_at?new Date(r.reviewed_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';

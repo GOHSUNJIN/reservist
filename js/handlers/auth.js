@@ -127,7 +127,7 @@ const AuthHandlers = {
       viewOffset:0, rosterSearch:'', logSearch:'',
       markingAllAbsent:false, confirmMarkAllAbsent:false,
       personHistoryId:null, personHistoryRows:[], personHistoryLoading:false,
-      signupPending:false, rejectedReq:null,
+      signupPending:false, rejectedReq:null, pwSetUser:null, setPwNew:'', setPwConfirm:'', showSetPw:false,
       rejectSignupId:null, rejectSignupReason:'', rejectSignupSaving:false, moveSignupId:null, moveSignupDept:'', moveSignupSaving:false,
       pendingSignups:[], pendingSignupsLoaded:false, approvedSignups:[], rejectedSignups:[], rejectedSignupsLoaded:false,
       selectedSignupIds:[],
@@ -254,6 +254,38 @@ const AuthHandlers = {
     await DB.auth.logout();
     this.setState({loading:false, authMode:'login', rejectedReq:null, signupPending:true,
       suName:'', suContact:'', suPassword:'', suDepartment:''});
+  },
+
+  // ── Forced password change ───────────────────────────────────────────────
+  onSetPwNew:     function(e) { this.setState({setPwNew:e.target.value, authError:''}); },
+  onSetPwConfirm: function(e) { this.setState({setPwConfirm:e.target.value, authError:''}); },
+  toggleSetPw:    function() { this.setState(s=>({showSetPw:!s.showSetPw})); },
+  onSetPwKeyDown: function(e) { if(e.key==='Enter') this.doSetPassword(); },
+
+  doSetPassword: async function() {
+    const {setPwNew, setPwConfirm, pwSetUser} = this.state;
+    if(setPwNew.length < 6){ this.setState({authError:'Password must be at least 6 characters.'}); return; }
+    if(setPwNew !== setPwConfirm){ this.setState({authError:'Passwords do not match.'}); return; }
+    this.setState({loading:true, authError:''});
+    const {error} = await DB.auth.updatePassword(setPwNew).catch(e=>({error:e}));
+    if(error){
+      const same = /different from the old|same_password/i.test(error.message||error.code||'');
+      this.setState({loading:false, authError: same ? 'Choose a password different from the one you were given.' : 'Could not update your password. Please try again.'});
+      return;
+    }
+    const me = await DB.personnel.get(pwSetUser?.id).catch(()=>null);
+    if(me?.id){
+      const {error:clearErr} = await DB.personnel.clearMustChangePassword(me.id).catch(e=>({error:e}));
+      if(clearErr){ this.setState({loading:false, authError:'Password changed, but we could not finish setup. Please log in again.'}); return; }
+    }
+    this.setState({authMode:'login', setPwNew:'', setPwConfirm:'', showSetPw:false});
+    await this._afterLogin(pwSetUser);
+    this._log('account', 'account.password_changed', { forced: true });
+  },
+
+  logoutSetPw: async function() {
+    await DB.auth.logout();
+    this.setState({authMode:'login', pwSetUser:null, setPwNew:'', setPwConfirm:'', authError:'', loading:false});
   },
 
   logoutRejected: async function() {

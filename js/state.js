@@ -104,6 +104,9 @@ const makeInitialState = () => ({
   // ── Declined applicant: "Apply Again" ────────────────────────────────────
   rejectedReq: null,
 
+  // ── Forced password change (account created or reset by a supervisor) ────
+  pwSetUser: null, setPwNew: '', setPwConfirm: '', showSetPw: false,
+
   // ── Leave requests ───────────────────────────────────────────────────────
   leaveOpen: false, leaveDate: '', leaveType: 'mc', leaveReason: '', leaveSubmitting: false,
   leaveHistFilter: 'all', cancelLeaveId: null,

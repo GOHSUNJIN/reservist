@@ -350,6 +350,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
         <button class="pill" data-cat="export" onclick="setCat(this)">Export</button>
         <button class="pill" data-cat="account" onclick="setCat(this)">Account</button>
         <button class="pill" data-cat="admin" onclick="setCat(this)">Admin</button>
+        <button class="pill" data-cat="data" onclick="setCat(this)" title="Every direct change to attendance, leave and personnel records, written by the database">Data changes</button>
         <button id="clear-filters-btn" onclick="clearFilters()" style="display:none;align-items:center;gap:5px;margin-left:auto;padding:5px 11px;border-radius:20px;border:1px solid #f1d0cc;background:#f7e4e1;font-size:12px;font-weight:600;color:#c0392b;cursor:pointer;white-space:nowrap;flex-shrink:0;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Clear</button>
         <button class="filter-guide-btn" id="filter-guide-btn" title="What are these?">?</button>
       </div>
@@ -406,6 +407,7 @@ const CAT = {
   export:     { bg:'#f0f2f7', color:'#2d3748', label:'Export',     stripe:'#4a5568' },
   account:    { bg:'#fdf0e9', color:'#e07b39', label:'Account',    stripe:'#e07b39' },
   admin:      { bg:'#f7e4e1', color:'#c0392b', label:'Admin',      stripe:'#c0392b' },
+  data:       { bg:'#eef1f6', color:'#334155', label:'Data change', stripe:'#94a3b8' },
 };
 
 const ACTIONS = {
@@ -574,7 +576,7 @@ async function loadStats(){
   if(!_me) return;
   const dept=_isSA?(_filterDept||null):(_me.department||null);
   const today=new Date(); today.setHours(0,0,0,0);
-  let q=_db.from('audit_log').select('category,actor_id').neq('category','auth').neq('category','session');
+  let q=_db.from('audit_log').select('category,actor_id').neq('category','auth').neq('category','session').neq('category','data');
   if(dept) q=q.eq('department',dept);
   q=q.gte('created_at',today.toISOString());
   const {data:td}=await q;
@@ -588,7 +590,7 @@ async function loadStats(){
   document.getElementById('stat-top-cat').textContent=topCat?(CAT[topCat]?.label||topCat):'-';
 
   const wk=new Date(); wk.setDate(wk.getDate()-6); wk.setHours(0,0,0,0);
-  let q2=_db.from('audit_log').select('id',{count:'exact',head:true}).neq('category','auth').neq('category','session');
+  let q2=_db.from('audit_log').select('id',{count:'exact',head:true}).neq('category','auth').neq('category','session').neq('category','data');
   if(dept) q2=q2.eq('department',dept);
   q2=q2.gte('created_at',wk.toISOString());
   const{count}=await q2;
@@ -647,6 +649,7 @@ async function loadEvents(resetPage){
   let q=_db.from('audit_log').select('*',{count:'exact'}).neq('category','auth').neq('category','session');
   if(dept) q=q.eq('department',dept);
   if(_cats.size>0) q=q.in('category',[..._cats]);
+  else q=q.neq('category','data');  // raw data changes only when their pill is selected
   if(_from) q=q.gte('created_at',_from+'T00:00:00');
   if(_to) q=q.lte('created_at',_to+'T23:59:59');
   if(_search){const s=_search.replace(/[%_\\]/g,'\\$&').replace(/'/g,"''");q=q.or(`actor_name.ilike.%${s}%,action.ilike.%${s}%,target_name.ilike.%${s}%`);}
@@ -760,6 +763,7 @@ function subscribeRealtime(){
     .on('postgres_changes',{event:'INSERT',schema:'public',table:'audit_log'},payload=>{
       const ev=payload.new;
       if(!ev||!_me||ev.category==='auth'||ev.category==='session') return;
+      if(ev.category==='data'&&!_cats.has('data')) return;
       const dept=_isSA?(_filterDept||null):(_me.department||null);
       if(dept&&ev.department!==dept) return;
       if(_page!==0||_search||_from||_to||(_cats.size>0&&!_cats.has(ev.category))){
@@ -886,6 +890,13 @@ function buildActionText(ev){
       :`<strong>${esc(ev.target_name)}</strong>`)
     :'';
   const leaveLabel=t=>t==='mc'?'MC':t==='personal'?'Personal Leave':'leave';
+  if(ev.action&&ev.action.startsWith('data.')){
+    const [,tbl,op]=ev.action.split('.');
+    const what={attendance:'attendance record',leave_requests:'leave request',personnel:'personnel record'}[tbl]||tbl;
+    const who=ev.target_name?` of <strong>${esc(ev.target_name)}</strong>`:'';
+    if(tbl==='auth') return op==='password_reset'?`Reset the password${who}`:`Deleted the login${who}`;
+    return `${{insert:'Created',update:'Changed',delete:'Deleted'}[op]||esc(op)} ${what}${who}`;
+  }
   switch(ev.action){
     case 'roster.times_corrected': {
       const phases=[['check-in',m.check_in,m.prev_check_in],['lunch out',m.lunch_out,m.prev_lunch_out],['return',m.return,m.prev_return],['check-out',m.check_out,m.prev_check_out]];
@@ -1003,8 +1014,29 @@ function buildActionText(ev){
   }
 }
 
+function _dataVal(v){
+  if(v===null||v===undefined||v==='') return '—';
+  if(typeof v==='object') v=JSON.stringify(v);
+  v=String(v); if(/^\d{2}:\d{2}:00$/.test(v)) v=v.slice(0,5);
+  return v.length>48?v.slice(0,47)+'…':v;
+}
 function buildInlineDetail(ev){
   const m=ev.meta||{};
+  if(ev.action&&ev.action.startsWith('data.')){
+    const skip=new Set(['id','created_at','edit_log','offline_log','personnel_id','auth_id','batch_id']);
+    let parts=[];
+    if(m.changes){
+      parts=Object.entries(m.changes).filter(([k])=>!skip.has(k)).map(([k,c])=>
+        `<span class="dphase"><span class="dlabel">${esc(k.replace(/_/g,' '))}</span><span class="dv" style="color:#8a94a3;">${esc(_dataVal(c.from))}</span><span class="darr">→</span><span class="dv">${esc(_dataVal(c.to))}</span></span>`);
+      if(!parts.length&&m.changes.edit_log) parts.push('<span class="dphase"><span class="dv">edit history updated</span></span>');
+      if(m.changes.auth_id) parts.push('<span class="dphase"><span class="dlabel">login</span><span class="dv">relinked</span></span>');
+    } else if(m.row){
+      const keys=['date','status','type','check_in_time','work_end_time','role','department','is_active'];
+      parts=keys.filter(k=>m.row[k]!==undefined&&m.row[k]!==null).map(k=>
+        `<span class="dphase"><span class="dlabel">${esc(k.replace(/_/g,' '))}</span><span class="dv">${esc(_dataVal(m.row[k]))}</span></span>`);
+    }
+    return parts.length?`<div class="event-detail">${parts.join('')}</div>`:'';
+  }
   if(ev.action==='roster.times_corrected') return '';
   if(ev.action==='roster.status_set'){
     const from=m.prev_status||'—', to=m.status||'—';

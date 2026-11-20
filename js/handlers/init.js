@@ -69,6 +69,11 @@ const InitHandlers = {
       }
       return;
     }
+    if(me.must_change_password && !this.state.demo){
+      // Account created or reset by a supervisor: set a private password first
+      this.setState({authed:false,loading:false,authError:'',authMode:'setpw',pwSetUser:user,setPwNew:'',setPwConfirm:'',showSetPw:false});
+      return;
+    }
     const _raw = localStorage.getItem('avatar_'+me.id);
     const _valid = _raw && _raw !== 'REMOVED' && (_raw.startsWith('http') || _raw.startsWith('data:'));
     const _invalid = _raw && _raw !== 'REMOVED' && !_valid;
@@ -234,7 +239,7 @@ const InitHandlers = {
     if(this.state.role==='admin'){
       const {attendanceDate:yesterday, attendance:yesterdayAtt, personnel, noReportDays} = this.state;
       const _batchForYesterday=this.state.batches.find(b=>b.start_date<=yesterday&&yesterday<=(b.dekit_date||b.end_date));
-      if(yesterday && _batchForYesterday && Utils.isReportDay(new Date(yesterday+'T00:00:00'), dept) && !noReportDays.has(yesterday)){
+      if(yesterday && _batchForYesterday && Utils.isReportDay(new Date(yesterday+'T00:00:00'), dept) && !noReportDays.has(yesterday) && !Utils.holidayName(new Date(yesterday+'T00:00:00'))){
         const [approvedLeaves, freshPendingLeaves] = await Promise.all([
           DB.leaves.listApprovedForDate(yesterday).catch(()=>[]),
           DB.leaves.listPending(dept).catch(()=>[]),
@@ -244,6 +249,9 @@ const InitHandlers = {
         const pending = personnel.filter(p=>{
           const r = yesterdayAtt[p.id];
           if(p.role !== 'reservist') return false;
+          // Only inside the person's own cycle (same rule as the nightly job)
+          const pb = this.state.batches.find(b=>b.id===p.batch_id);
+          if(!pb || yesterday < pb.start_date || yesterday > pb.end_date) return false;
           if(r && r.status !== 'pending') return false;
           if(approvedLeaveIds.has(p.id)) return false;
           return !pendingLeavesForYesterday.some(l => l.personnel_id === p.id);

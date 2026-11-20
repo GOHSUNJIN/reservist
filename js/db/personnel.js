@@ -76,6 +76,12 @@ const DB_Personnel = {
     return { data, error };
   },
 
+  // After the user sets their own password (forced change or account settings)
+  async clearMustChangePassword(personnelId) {
+    const { error } = await _db.from('personnel').update({ must_change_password: false }).eq('id', personnelId);
+    return { error };
+  },
+
   async updateName(personnelId, name) {
     const { data, error } = await _db.from('personnel').update({ name }).eq('id', personnelId).select().maybeSingle();
     return { data, error };

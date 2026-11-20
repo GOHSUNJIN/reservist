@@ -97,6 +97,9 @@ const AdminRoster = {
         isEditingLogNote:s.logNoteId===p.id,
         onEditLogNote:self.openLogNote(p.id, r.welfareNote||''),
         showNoGps: !!(r.gpsBypassed),
+        // Phases sent from the offline queue: the time claimed vs when it actually arrived
+        showOffline: (r.offlineLog||[]).length>0,
+        offlineText: (r.offlineLog||[]).map(e=>(String(e.phase||'').toUpperCase())+' '+(e.time||'')+', sent '+String(e.received_at||'').slice(11,16)).join(' · '),
         showGpsDist: r.status==='present'&&!r.gpsBypassed&&r.p1dist!=null,
         gpsDistText: (r.p1dist??0)+' m',
         gpsDistSuspicious: r.p1dist===0,

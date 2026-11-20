@@ -14,6 +14,7 @@ const DB_Attendance = {
       gpsBypassed: r.gps_bypassed || false,
       editLog: r.edit_log || [],
       dinnerMode: r.dinner_mode ?? null,
+      offlineLog: Array.isArray(r.offline_log) ? r.offline_log : [],
     };
   },
 

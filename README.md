@@ -52,6 +52,7 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Department selection at signup**: Reservists choose their department (Ops Security or Crime Prevention Office/CPO) during signup. The intake cycle shown on the form updates to reflect whichever department is selected.
 - **Returning reservist re-enrollment**: When a reservist from a previous cycle logs in after their account was deactivated, the app automatically submits a re-enrollment request to the supervisor. No manual coordination required.
 - **Declined sign-up: Apply Again**: If a sign-up is declined (for example, the wrong department was picked), logging in shows "Your request to join [department] was not approved." with the supervisor's reason, if one was given, and an **Apply Again** button. The form opens with their name and contact already filled in, so they only pick the correct department. The intake is chosen automatically. No new account, password or email is needed. The new request goes to that department's admins as Pending. The declined request stays on record and the re-application is logged. Limited to 3 re-applications per day.
+- **Set your own password**: If a supervisor created your account or reset your password, the app asks you to choose a new password before anything else.
 - **Logout confirmation**: Tapping Log Out shows a confirmation step before the session is ended, preventing accidental logouts.
 - **Session expiry warning**: A banner appears at 55 minutes into the session with a one-tap option to extend it before the session expires at 60 minutes.
 - **Idle timeout**: Sessions expire after 20 minutes of inactivity, with a warning at 18 minutes.
@@ -82,6 +83,7 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Admin log note**: Add a free-text note against any person's attendance entry for the current view date. The note icon and the Edit button are both toggleable: clicking either a second time closes the panel without saving.
 - **GPS distance badge**: Each log card shows the GPS distance recorded at check-in as a small badge (for example: "GPS · 43 m" in green). A 0 m reading is highlighted in amber as a possible spoofing indicator.
 - **Late check-in alerts**: Anyone who checks in more than two hours after shift start is automatically flagged with a Late badge on their log card.
+- **Offline badge**: A phase sent from the phone's offline queue shows an amber "Offline" badge with the time the phone claimed and the time it actually reached the server, so a late arrival can't be hidden behind an offline check-in.
 - **Dinner-aware break column**: The break column header in the time log shows DIN for dinner-schedule reservists and LCH for lunch-schedule ones. The label is determined by the dinner mode recorded at P1 check-in time, with the batch or personal timings as a fallback.
 - **Missing clock-out display**: When a reservist is marked present but has no Phase 4 clock-out, the OUT column of their log card shows a dash on an orange background instead of a time. This keeps the missing clock-out visible without adding a separate badge row, making it easy to scan and correct before payroll.
 
@@ -167,6 +169,8 @@ Every action in the system is recorded:
 - **Absences are written automatically.** If a reservist does not check in by midnight, the system marks them absent through two independent processes (one in the app, one on the server) to ensure no gaps occur even if the supervisor is offline. See [Auto-Absent](#auto-absent).
 - Data is stored in a managed cloud database. Nothing relies on a local file or spreadsheet.
 - Every significant user action (check-in phases, roster changes, leave decisions, personnel management, exports and account changes) is written to a dedicated `audit_log` table and visible in the ReservistGO Monitor.
+- **Data changes are recorded by the database itself.** Any direct change to attendance, leave or personnel records, and every password reset or account deletion, is written to the audit log with who did it and the old and new values, even if it was made outside the app. They appear in the Monitor under the **Data changes** filter (hidden from the default feed).
+- **Supervisor-set passwords are temporary.** Accounts created or reset by a supervisor (including Bulk Add) must set their own password at their next login.
 
 ---
 
@@ -527,12 +531,18 @@ All data is stored in a structured cloud database (PostgreSQL), with seven table
 
 Reservists who do not check in on a reporting day are marked absent automatically through two independent processes:
 
-1. **In the app**: when the clock ticks past midnight, the app immediately marks anyone still showing as unchecked for the previous day. Approved leaves and pending leave requests for that date are excluded automatically.
-2. **On the server**: a scheduled task runs at 00:05 SGT every day and writes absent records for any active reservist with no entry for the previous weekday. This runs independently of whether any supervisor or reservist has the app open.
+1. **In the app**: when the clock ticks past midnight, the app immediately marks anyone still showing as unchecked for the previous day. Approved leaves, pending leave requests and public holidays are excluded, and only people whose own cycle covers that day are marked.
+2. **On the server**: a scheduled task runs at 00:05 SGT every day (`app_private.auto_mark_absent()`). For each department it uses that department's report days (Mon to Fri; L&F Mon to Sat) and its own no-report days, skips public holidays, only marks days inside each person's cycle (start to end date) and skips days with a pending or approved leave request. It runs whether or not anyone has the app open.
+
+Public holidays for the server task live in `app_private.public_holidays` (2025 to 2027 are loaded, including observed Mondays). Add the next year's dates when MOM publishes them, usually in June:
+
+```sql
+INSERT INTO app_private.public_holidays (date, name) VALUES ('2028-01-01', 'New Year''s Day');
+```
 
 ### Auto-Deactivation
 
-A second scheduled task runs at 02:00 SGT every day. It deactivates any personnel whose batch's dekit date has already passed and in the same operation cancels any pending leave requests they still have open. This ensures that a reservist whose cycle has ended cannot have outstanding leave requests approved after the fact. The app also performs this check on every login and on every midnight date rollover, so deactivation is enforced through three independent paths.
+A second scheduled task runs at 02:00 SGT every day (`app_private.deactivate_expired()`, using the Singapore date). It deactivates any reservist whose batch's dekit date has already passed and in the same operation cancels any pending leave requests they still have open. This ensures that a reservist whose cycle has ended cannot have outstanding leave requests approved after the fact. The app also performs this check on every login and on every midnight date rollover, so deactivation is enforced through three independent paths.
 
 ---
 
