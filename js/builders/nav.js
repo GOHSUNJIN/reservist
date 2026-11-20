@@ -4,7 +4,7 @@ const NavBuilders = {
   _buildNav: function(s, accent, orgName) {
     const me=this.cur();
     const TITLES={checkin:'Check-In',briefings:'Briefings',attendance:'Attendance',meal:'Meal Allowance',overview:'Dashboard',roster:'Roster',log:'Attendance Log',people:'Personnel'};
-    const nc=t=>s.tab===t?accent:'#9aa3b2';
+    const nc=t=>s.tab===t?accent:PAL.muted;
     const nb=t=>s.tab===t?'#eef3fc':'transparent';
     return {
       isReservist:s.role==='reservist', isAdmin:s.role==='admin', isMaster:s.isMaster||false, isAdminOnly:s.role==='admin'&&!(s.isMaster||false),

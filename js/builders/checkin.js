@@ -57,13 +57,13 @@ const CheckinBuilders = {
       ?'Still locating. GPS signal is very weak. Move outside to an open area, then try again.'
       :'Taking longer than usual. Try stepping near a window or outside.';
     if(locVerified){
-      gLocBorder='#cfe6d8';gLocCardBg='#f5faf7';gLocBadgeBg='#e7f3ec';gLocBadgeColor='#1f8a5b';
-      gLocMsg=s.locDistance+' m from '+hqName+', on-site'+accStr;gLocMsgColor='#1f8a5b';
+      gLocBorder='#cfe6d8';gLocCardBg='#f5faf7';gLocBadgeBg='#e7f3ec';gLocBadgeColor=PAL.green;
+      gLocMsg=s.locDistance+' m from '+hqName+', on-site'+accStr;gLocMsgColor=PAL.green;
     }
-    else if(locOutOfRange){gLocBorder='#f1d3cf';gLocCardBg='#fbeeec';gLocBadgeBg='#f7e4e1';gLocBadgeColor='#c0392b';const veryPoorAcc=s.locAccuracy!=null&&s.locAccuracy>300;const badFix=s.locDistance!=null&&s.locDistance>50000;gLocMsg=(veryPoorAcc||badFix)?('GPS signal too weak to verify your location'+(s.locAccuracy!=null?' (±'+s.locAccuracy+'m)':'')+'. Step outside to an open area with clear sky and try again.'):s.locDistance+' m away. You must be at '+hqName+' to check in.'+accStr+(poorAcc?'\n\nNote: GPS accuracy is low (±'+s.locAccuracy+'m). If you are on-site, move outside and try again.':'');gLocMsgColor='#c0392b';}
-    else if(locGpsError){gLocBorder='#f0e2c2';gLocCardBg='#fdf6e9';gLocBadgeBg='#f7efdc';gLocBadgeColor='#b9791a';gLocMsg=s.locGpsMsg||'Location unavailable. Check permissions and try again.';gLocMsgColor='#b9791a';}
-    else if(locLocating){gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor=accent;gLocMsg=s.locSlow?slowMsg:'Locating you via GPS...';gLocMsgColor='#8a94a3';}
-    else{gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor='#8a94a3';gLocMsg='Tap "Locate me" to verify your location.';gLocMsgColor='#8a94a3';}
+    else if(locOutOfRange){gLocBorder='#f1d3cf';gLocCardBg='#fbeeec';gLocBadgeBg='#f7e4e1';gLocBadgeColor=PAL.red;const veryPoorAcc=s.locAccuracy!=null&&s.locAccuracy>300;const badFix=s.locDistance!=null&&s.locDistance>50000;gLocMsg=(veryPoorAcc||badFix)?('GPS signal too weak to verify your location'+(s.locAccuracy!=null?' (±'+s.locAccuracy+'m)':'')+'. Step outside to an open area with clear sky and try again.'):s.locDistance+' m away. You must be at '+hqName+' to check in.'+accStr+(poorAcc?'\n\nNote: GPS accuracy is low (±'+s.locAccuracy+'m). If you are on-site, move outside and try again.':'');gLocMsgColor=PAL.red;}
+    else if(locGpsError){gLocBorder='#f0e2c2';gLocCardBg='#fdf6e9';gLocBadgeBg='#f7efdc';gLocBadgeColor=PAL.amberText;gLocMsg=s.locGpsMsg||'Location unavailable. Check permissions and try again.';gLocMsgColor=PAL.amberText;}
+    else if(locLocating){gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor=accent;gLocMsg=s.locSlow?slowMsg:'Locating you via GPS...';gLocMsgColor=PAL.muted;}
+    else{gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor=PAL.muted;gLocMsg='Tap "Locate me" to verify your location.';gLocMsgColor=PAL.muted;}
 
     const shift='OFFICE';
     const now=s.now;
@@ -103,13 +103,13 @@ const CheckinBuilders = {
         key:pd.key, num:pd.num, label:pd.label, isLast:pd.key==='p4', notLast:pd.key!=='p4',
         needsGps:pd.needsGps, notNeedsGps:!pd.needsGps,
         done, notDone:!done, time:time||'-', doneText,
-        labelColor:done?'#1f8a5b':isActive?'#161f30':'#a0a8b4',
+        labelColor:done?PAL.green:isActive?PAL.ink:PAL.muted,
         locked, upcoming, isActive, notActive:!isActive||done,
-        lateActive, btnBg:lateActive?'#b9791a':accent,
-        stepBg:done?'#1f8a5b':isActive?(lateActive?'#b9791a':accent):'#eceef2',
-        stepColor:done||isActive?'#fff':'#8a94a3',
+        lateActive, btnBg:lateActive?PAL.amberSolid:accent,
+        stepBg:done?PAL.green:isActive?(lateActive?PAL.amberSolid:accent):'#eceef2',
+        stepColor:done||isActive?'#fff':PAL.muted,
         stepShadow:done?'0 0 0 3px #d4ede0':isActive?'0 0 0 3px #dbe6fa':'none',
-        connectorBg:done?'#1f8a5b':'#eceef2',
+        connectorBg:done?PAL.green:'#eceef2',
         rowPadBot:done?'8px':'16px',
         subLabel:win?'From '+win[0]:'',
         btnLabel,
@@ -129,9 +129,9 @@ const CheckinBuilders = {
         locBorder:myGpsActive?gLocBorder:'#eef0f4',
         locCardBg:myGpsActive?gLocCardBg:'#fff',
         locBadgeBg:myGpsActive?gLocBadgeBg:'#eceef2',
-        locBadgeColor:myGpsActive?gLocBadgeColor:'#8a94a3',
+        locBadgeColor:myGpsActive?gLocBadgeColor:PAL.muted,
         locMsg:myGpsActive?gLocMsg:('Tap "Locate me" to verify you are at '+hqName+'.'),
-        locMsgColor:myGpsActive?gLocMsgColor:'#8a94a3',
+        locMsgColor:myGpsActive?gLocMsgColor:PAL.muted,
         checkInOpacity:(myGpsActive&&locVerified&&!s.phaseSubmitting)?'1':'.45',
         checkInPE:(myGpsActive&&locVerified&&!s.phaseSubmitting)?'auto':'none',
         locIsOutOfRange, geofenceWaLink,
@@ -184,7 +184,7 @@ const CheckinBuilders = {
       clock:Utils.hhmm(s.now),
       myShiftLabel:'Office', myShiftWindow:_timings?(_isDinner?'1400 to 2100, Dinner 1800 to 1930':'0900 to 1800, Lunch 1200 to 1330'):'0900 to 1800 hrs',
       myStatusLabel:outOfCycle?outOfCycleTitle:noRep?'No reporting':todayApprovedLeave&&status==='absent'?'Personal Leave':m.label,
-      myStatusColor:outOfCycle?'#8a94a3':noRep?accent:todayApprovedLeave&&status==='absent'?'#b9791a':m.color,
+      myStatusColor:outOfCycle?PAL.muted:noRep?accent:todayApprovedLeave&&status==='absent'?PAL.amberText:m.color,
       myStatusBg:outOfCycle?'#eceef2':noRep?'#eef3fc':todayApprovedLeave&&status==='absent'?'#f7efdc':m.bg,
       myStatusPulse:(!outOfCycle&&status==='pending'&&!noRep)?'animation:pulseDot 1.6s ease infinite;':'',
       phToday:!outOfCycle&&noRep,
@@ -220,7 +220,7 @@ const CheckinBuilders = {
         const breakMinsVal=onBreak?Math.max(0,Utils._hmToMins(nowHhmm)-Utils._hmToMins(rec.p2)):(rec.p2&&rec.p3?Math.max(0,Utils._hmToMins(rec.p3)-Utils._hmToMins(rec.p2)):0);
         const isMealEligible=Utils.mealEligible(rec,nowHhmm);
         const mealStatusText=rec.p4?(isMealEligible?'Meal eligible':'No meal allowance'):(isMealEligible?'Meal eligible':'No meal claim');
-        const mealStatusColor=isMealEligible?'#1f8a5b':'#b9791a';
+        const mealStatusColor=isMealEligible?PAL.green:PAL.amberText;
         const mealStatusBg=isMealEligible?'#e7f3ec':'#fdf6e9';
         const mealStatusBorderColor=isMealEligible?'#a8d5bb':'#f0e2c2';
         return {

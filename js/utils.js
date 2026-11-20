@@ -1,16 +1,17 @@
+const PAL = Object.freeze({ ink:'#161f30', ink2:'#5c6678', muted:'#667085', blue:'#2f5fd0', green:'#1a7a50', red:'#b0342a', amberText:'#8f5c10', amberSolid:'#9a6512', whatsapp:'#1a7f4b' }); // mirrors the CSS variables in css/styles.css
 const Utils = {
   initials(name){ const p=(name||'').trim().split(/\s+/); return ((p[0]||'')[0]||'').toUpperCase()+((p[p.length-1]||'')[0]||'').toUpperCase(); },
   meta(s){
-    if(s==='present') return {label:'Present',color:'#1f8a5b',bg:'#e7f3ec'};
-    if(s==='mc')      return {label:'MC',  color:'#b9791a',bg:'#f7efdc'};
-    if(s==='absent')  return {label:'Absent', color:'#c0392b',bg:'#f7e4e1'};
-    if(s==='missed')    return {label:'Missed',    color:'#c0392b',bg:'#f7e4e1'};
-    if(s==='cancelled') return {label:'Cancelled', color:'#8a94a3',bg:'#eceef2'};
-    return {label:'Pending',color:'#2f5fd0',bg:'#eef3fc'};
+    if(s==='present') return {label:'Present',color:PAL.green,bg:'#e7f3ec'};
+    if(s==='mc')      return {label:'MC',  color:PAL.amberText,bg:'#f7efdc'};
+    if(s==='absent')  return {label:'Absent', color:PAL.red,bg:'#f7e4e1'};
+    if(s==='missed')    return {label:'Missed',    color:PAL.red,bg:'#f7e4e1'};
+    if(s==='cancelled') return {label:'Cancelled', color:PAL.muted,bg:'#eceef2'};
+    return {label:'Pending',color:PAL.blue,bg:'#eef3fc'};
   },
   leaveMeta(type){
-    if(type==='personal'||type==='other') return {label:'Personal Leave',color:'#b9791a',bg:'#f7efdc'};
-    return {label:'Absent',color:'#c0392b',bg:'#f7e4e1'};
+    if(type==='personal'||type==='other') return {label:'Personal Leave',color:PAL.amberText,bg:'#f7efdc'};
+    return {label:'Absent',color:PAL.red,bg:'#f7e4e1'};
   },
   hhmm(d){ const p=n=>String(n).padStart(2,'0'); return p(d.getHours())+':'+p(d.getMinutes()); },
   dateKey(d){ const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate()); },
@@ -195,3 +196,10 @@ const Utils = {
   avatarStyle(av) { return av ? `background-image:url("${av.replace(/\\/g,'%5C').replace(/"/g,'%22').replace(/\)/g,'%29')}");background-size:cover;background-position:center;color:transparent;` : ''; },
   filterByIds(obj, idSet) { return Object.fromEntries(Object.entries(obj).filter(([id])=>idSet.has(id))); },
 };
+
+// Keyboard support for tappable rows that contain other controls (role="button"): Enter/Space act like a tap
+document.addEventListener('keydown', e => {
+  if ((e.key === 'Enter' || e.key === ' ') && e.target instanceof Element && e.target.matches('[role="button"]:not(button)')) {
+    e.preventDefault(); e.target.click();
+  }
+});

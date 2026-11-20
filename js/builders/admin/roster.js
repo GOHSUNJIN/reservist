@@ -9,7 +9,7 @@ const AdminRoster = {
     const approvedLeavesForView=s.approvedLeavesCache?.[viewDateKey]||{};
     const roster=visibleMembers.map(p=>{
       const r=viewMap[p.id]||{status:viewOffset>=0?'pending':'absent',time:'-'}, _bMm=Utils.meta(r.status), mm=r.status==='absent'&&approvedLeavesForView[p.id]?Utils.leaveMeta(approvedLeavesForView[p.id]?.type):_bMm;
-      const cardStyle='background:#fff;border:1px solid #e3e6ec;border-left:3px solid '+mm.color+';border-radius:12px;padding:11px 13px;box-shadow:0 1px 5px rgba(20,30,50,.06);overflow:hidden;';
+      const cardStyle='background:#fff;border:1px solid #e3e6ec;border-left:3px solid '+mm.color+';border-radius:var(--r-md);padding:11px 13px;box-shadow:0 1px 5px rgba(20,30,50,.06);overflow:hidden;';
       const av=s.avatars[p.id]||'';
       const avatarStyle=Utils.avatarStyle(av);
       const _rosterPTimings=(!isCas&&self._myDept()==='ops_security')?(p.phase_timings||Utils.effectiveTimings(activeBatch)):null;
@@ -21,16 +21,16 @@ const AdminRoster = {
       const _pct=s.peopleStats[p.id]?.pct??null;
       const _selPersonalLeave=r.status==='absent'&&!!(approvedLeavesForView[p.id]);
       const _isPresent=r.status==='present', _isMc=r.status==='mc', _isAbsent=r.status==='absent'&&!_selPersonalLeave;
-      const _bBase='-webkit-appearance:none;padding:7px 4px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;text-align:center;';
+      const _bBase='-webkit-appearance:none;padding:7px 4px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;text-align:center;';
       const _bOn=(c)=>_bBase+'border:1.5px solid '+c+';color:#fff;background:'+c+';';
       const _bOff=(c)=>_bBase+'border:1.5px solid '+c+';color:'+c+';background:transparent;';
       const _sPending=r.status==='pending', _sPresent=_isPresent, _sMc=_isMc, _sPersonalLeave=_selPersonalLeave, _sAbsent=_isAbsent;
-      const _selBase='padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;width:100%;box-sizing:border-box;margin-top:9px;';
-      const statusSelectStylePending=_selBase+'border:1.5px solid #2f5fd0;color:#2f5fd0;background:#fff;';
-      const statusSelectStylePresent=_selBase+'border:1.5px solid #1f8a5b;color:#1f8a5b;background:#fff;';
-      const statusSelectStyleMc=_selBase+'border:1.5px solid #b9791a;color:#b9791a;background:#fff;';
-      const statusSelectStylePersonalLeave=_selBase+'border:1.5px solid #b9791a;color:#b9791a;background:#fff;';
-      const statusSelectStyleAbsent=_selBase+'border:1.5px solid #c0392b;color:#c0392b;background:#fff;';
+      const _selBase='padding:7px 8px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;width:100%;box-sizing:border-box;margin-top:9px;';
+      const statusSelectStylePending=_selBase+'border:1.5px solid #2f5fd0;color:var(--blue);background:#fff;';
+      const statusSelectStylePresent=_selBase+'border:1.5px solid var(--green);color:var(--green);background:#fff;';
+      const statusSelectStyleMc=_selBase+'border:1.5px solid #b9791a;color:var(--amber-text);background:#fff;';
+      const statusSelectStylePersonalLeave=_selBase+'border:1.5px solid #b9791a;color:var(--amber-text);background:#fff;';
+      const statusSelectStyleAbsent=_selBase+'border:1.5px solid var(--red);color:var(--red);background:#fff;';
       return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),status:r.status,time:r.p1||'-',label:mm.label,color:mm.color,bg:mm.bg,geo:(r.status==='present'&&r.p1dist!=null)?(', GPS verified '+r.p1dist+' m'):'',markStatusSelect:self.setStatusFromSelect(p.id),statusIsPending:_sPending,statusIsPresent:_sPresent,statusIsMc:_sMc,statusIsPersonalLeave:_sPersonalLeave,statusIsAbsent:_sAbsent,statusSelectStylePending,statusSelectStylePresent,statusSelectStyleMc,statusSelectStylePersonalLeave,statusSelectStyleAbsent,onViewHistory:self.openPersonHistory(p.id),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',cardStyle,avatarStyle,phaseLine,showPhaseLine,welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),canMark:viewOffset<=0,
         lowAttendance:s.peopleStatsLoaded&&_pct!==null&&_pct<75,
         statPctText:s.peopleStatsLoaded&&_pct!==null?(_pct+'%'):'',
@@ -54,13 +54,13 @@ const AdminRoster = {
       if(sortKey==='pct'){return (b.statPctNum??-1)-(a.statPctNum??-1);}
       return a.name.localeCompare(b.name);
     });
-    const _sb='flex:1;padding:7px 8px;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;border:none;white-space:nowrap;transition:background .15s,color .15s;';
-    const _sa=_sb+'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.12);';
-    const _si=_sb+'background:transparent;color:#8a94a3;';
+    const _sb='flex:1;padding:7px 8px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;border:none;white-space:nowrap;transition:background .15s,color .15s;';
+    const _sa=_sb+'background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(20,30,50,.12);';
+    const _si=_sb+'background:transparent;color:var(--ink-2);';
     const rosterSortNameStyle=sortKey==='name'?_sa:_si;
     const rosterSortStatusStyle=sortKey==='status'?_sa:_si;
     const rosterSortPctStyle=sortKey==='pct'?_sa:_si;
-    const _rSBtn=(f)=>`padding:5px 10px;border-radius:20px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${rosterStatusFilter===f?accent:'#d4d9e2'};background:${rosterStatusFilter===f?accent:'#fff'};color:${rosterStatusFilter===f?'#fff':'#5c6678'};`;
+    const _rSBtn=(f)=>`padding:5px 10px;border-radius:var(--r-pill);font-size:var(--fs-small);font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${rosterStatusFilter===f?accent:'#d4d9e2'};background:${rosterStatusFilter===f?accent:'#fff'};color:${rosterStatusFilter===f?'#fff':PAL.ink2};`;
     const rosterStatusAllStyle=_rSBtn('all'),rosterStatusPresentStyle=_rSBtn('present'),rosterStatusMcStyle=_rSBtn('mc'),rosterStatusAbsentStyle=_rSBtn('absent'),rosterStatusPendingStyle=_rSBtn('pending');
     const total=roster.length;
     const snapshotLastLine=viewIsToday?('⏳ Pending ('+pending+'): '+(roster.filter(r=>r.status==='pending').map(r=>r.name).join(', ')||'(none)')):('❌ Absent ('+absent+'): '+(roster.filter(r=>r.status==='absent'&&!r.hasApprovedLeave).map(r=>r.name).join(', ')||'(none)'));
@@ -93,7 +93,7 @@ const AdminRoster = {
         markAbsent:self.setStatus(p.id,'absent'),
         status:r.status, label:mm.label, color:mm.color, bg:mm.bg, isLate, lateTagLabel,
         welfareNote:r.welfareNote||'', showWelfareNote:!!(r.welfareNote),
-        logNoteIconColor:r.welfareNote?'#1f8a5b':'#5c6678',
+        logNoteIconColor:r.welfareNote?PAL.green:PAL.ink2,
         isEditingLogNote:s.logNoteId===p.id,
         onEditLogNote:self.openLogNote(p.id, r.welfareNote||''),
         showNoGps: !!(r.gpsBypassed),
@@ -103,7 +103,7 @@ const AdminRoster = {
         showGpsDist: r.status==='present'&&!r.gpsBypassed&&r.p1dist!=null,
         gpsDistText: (r.p1dist??0)+' m',
         gpsDistSuspicious: r.p1dist===0,
-        gpsDistColor: r.p1dist===0?'#b9791a':'#1f8a5b',
+        gpsDistColor: r.p1dist===0?PAL.amberText:PAL.green,
         gpsDistBg: r.p1dist===0?'#fdf0dc':'#e7f3ec',
         editSummary: (()=>{const log=r.editLog||[];if(!log.length)return'';const e=log[log.length-1];const d=new Date(e.at);const sg=new Date(d.getTime()+8*3600*1000);const hh=String(sg.getUTCHours()).padStart(2,'0'),mm2=String(sg.getUTCMinutes()).padStart(2,'0');const day=sg.getUTCDate(),mon=Utils._MS[sg.getUTCMonth()];return'Edited by '+(e.by||'Admin')+' · '+hh+':'+mm2+', '+day+' '+mon;})(),
         showEditSummary: !!(r.editLog&&r.editLog.length),
@@ -111,14 +111,14 @@ const AdminRoster = {
         showLunchBoxes: !isCas,
         phaseGridCols: isCas?'repeat(2,1fr)':'repeat(4,1fr)',
         p1:r.p1||'-', p2:r.p2||'-', p3:r.p3||'-', p4:r.p4||'-',
-        p1Color:r.p1?(_ef.has('p1')?_ec:isLate?'#c0392b':'#161f30'):'#c2c8d2',
-        p2Color:r.p2?(_ef.has('p2')?_ec:'#161f30'):'#c2c8d2',
-        p3Color:r.p3?(_ef.has('p3')?_ec:'#161f30'):'#c2c8d2',
-        p4Color:r.p4?(_ef.has('p4')?_ec:'#161f30'):'#c2c8d2',
+        p1Color:r.p1?(_ef.has('p1')?_ec:isLate?PAL.red:PAL.ink):'#c2c8d2',
+        p2Color:r.p2?(_ef.has('p2')?_ec:PAL.ink):'#c2c8d2',
+        p3Color:r.p3?(_ef.has('p3')?_ec:PAL.ink):'#c2c8d2',
+        p4Color:r.p4?(_ef.has('p4')?_ec:PAL.ink):'#c2c8d2',
         outCellBg:_missingCo?'#fff3e0':'transparent',
-        outLabelColor:_missingCo?'#c2410c':'#9aa3b2',
+        outLabelColor:_missingCo?'#c2410c':PAL.muted,
         outValue:r.p4||'–',
-        outValueColor:_missingCo?'#c2410c':(r.p4?(_ef.has('p4')?_ec:'#161f30'):'#c2c8d2'),
+        outValueColor:_missingCo?'#c2410c':(r.p4?(_ef.has('p4')?_ec:PAL.ink):'#c2c8d2'),
         hasApprovedLeave:!!(approvedLeavesForView[p.id]),avatarStyle, onViewAvatar:av?self.openAvatarLightbox(av):null, avatarCursor:av?'cursor:pointer;':'',
         p2Label:_logBreakShort,
         p2FormLabel:_logBreakLabel==='DINNER'?'Dinner':'Lunch',
@@ -138,7 +138,7 @@ const AdminRoster = {
           return {
             showMealBadge:true,
             mealBadgeText:mealOk?(done?'Meal eligible':'On track'):(done?'No meal allowance':'No meal claim'),
-            mealBadgeColor:mealOk?'#1f8a5b':'#c0392b',
+            mealBadgeColor:mealOk?PAL.green:PAL.red,
             mealBadgeBg:mealOk?'#e7f3ec':'#f7e4e1',
             mealBadgeBorder:mealOk?'#a8d5bb':'#e5a9a4',
             showWorkTime:workMinsVal>0,
@@ -158,7 +158,7 @@ const AdminRoster = {
     });
     const filteredLogRows=logSearch?statusFiltered.filter(r=>r.name.toLowerCase().includes(logSearch)):statusFiltered;
     const pendingCount=logRows.filter(r=>r.status==='pending').length;
-    const _fSBtn=(f)=>`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${logStatusFilter===f?accent:'#d4d9e2'};background:${logStatusFilter===f?accent:'#fff'};color:${logStatusFilter===f?'#fff':'#5c6678'};`;
+    const _fSBtn=(f)=>`padding:5px 11px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${logStatusFilter===f?accent:'#d4d9e2'};background:${logStatusFilter===f?accent:'#fff'};color:${logStatusFilter===f?'#fff':PAL.ink2};`;
     const lateRows=viewIsToday?logRows.filter(r=>r.isLate):[];
     const lateCount=lateRows.length;
     const lateNames=lateRows.map(r=>r.name).join(', ');
@@ -184,7 +184,7 @@ const AdminRoster = {
       const [_rcc,_rccm]=_rLateBase.split(':').map(Number);
       const _rlm=r.p1?(()=>{const[h,m]=r.p1.split(':').map(Number);return(h*60+m)-(_rcc*60+_rccm);})():0;
       const _rLate=r.status==='present'&&_rlm>=120;
-      const _timeTextColor=_rLate?'#c0392b':'#9aa3b2';
+      const _timeTextColor=_rLate?PAL.red:PAL.muted;
       const _timeTextWeight=_rLate?'700':'400';
       const _missingClockOut=!isLiveView&&r.status==='present'&&!!r.p1&&!r.p4;
       const _mealBadge=(()=>{
@@ -195,12 +195,12 @@ const AdminRoster = {
         const done=!!r.p4;
         const inProgress=!done&&!mealOk;
         if(inProgress) return {showMealBadge:false};
-        return {showMealBadge:true,mealBadgeText:mealOk?(done?'Meal eligible':'On track'):(done?'No meal allowance':'No meal claim'),mealBadgeColor:mealOk?'#1f8a5b':'#c0392b',mealBadgeBg:mealOk?'#e7f3ec':'#fef0ef',mealBadgeBorder:mealOk?'#a8d5bb':'#f5c0bb',showWorkTime:workMinsVal>0,workTimeText:Utils.fmtMins(workMinsVal)+' worked'};
+        return {showMealBadge:true,mealBadgeText:mealOk?(done?'Meal eligible':'On track'):(done?'No meal allowance':'No meal claim'),mealBadgeColor:mealOk?PAL.green:PAL.red,mealBadgeBg:mealOk?'#e7f3ec':'#fef0ef',mealBadgeBorder:mealOk?'#a8d5bb':'#f5c0bb',showWorkTime:workMinsVal>0,workTimeText:Utils.fmtMins(workMinsVal)+' worked'};
       })();
       return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),status:r.status,label:mm.label,color:mm.color,bg:mm.bg,timeText:_timeText,showTimeText:!!_timeText,timeTextColor:_timeTextColor,timeTextWeight:_timeTextWeight,avatarStyle:Utils.avatarStyle(av),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),onViewHistory:self.openPersonHistory(p.id),onCopyContact:self.copyContact(p.contact||''),
         missingClockOut:_missingClockOut,
         showStatPct:s.peopleStatsLoaded&&_vpct!==null, statPct:_vpct!==null?(_vpct+'%'):'', lowAttendancePct:s.peopleStatsLoaded&&_vpct!==null&&_vpct<75,
-        statPctColor:(_vpct!==null&&_vpct<75)?'#c0392b':'#8a94a3',
+        statPctColor:(_vpct!==null&&_vpct<75)?PAL.red:PAL.muted,
         hasApprovedLeave:!!(approvedLeavesForView[p.id]),leaveReason:approvedLeavesForView[p.id]?.reason||'',showLeaveReason:!!(approvedLeavesForView[p.id]?.reason),
         ..._mealBadge};
     });
@@ -208,15 +208,15 @@ const AdminRoster = {
     const vPercent=vTotal?Math.round((vPresent+vMc)/vTotal*100):0;
     const viewListHeader=viewOffset<0?'Attendance record':viewOffset>0?'Scheduled roster':'Live status';
     const viewPercentText=viewOffset>0?(vTotal+' rostered'):(vPercent+'% reported');
-    const viewPercentColor=viewOffset>0?'#8a94a3':'#1f8a5b';
-    const vThirdLabel=viewOffset<0?'Absent':'Pending', vThirdVal=viewOffset<0?vAbsent:vPending, vThirdColor=viewOffset<0?'#c0392b':'#5c6678';
+    const viewPercentColor=viewOffset>0?PAL.muted:PAL.green;
+    const vThirdLabel=viewOffset<0?'Absent':'Pending', vThirdVal=viewOffset<0?vAbsent:vPending, vThirdColor=viewOffset<0?PAL.red:PAL.ink2;
     const _batchPcts=s.peopleStatsLoaded?activeMembers.map(p=>s.peopleStats[p.id]?.pct).filter(p=>p!=null):[];
     const _batchAvg=_batchPcts.length?Math.round(_batchPcts.reduce((a,b)=>a+b,0)/_batchPcts.length):null;
     const _batchBelow=_batchPcts.filter(p=>p<75).length;
     const showBatchSummary=s.peopleStatsLoaded&&_batchAvg!==null&&_batchPcts.length>0;
     const batchSummaryAvg=_batchAvg!==null?_batchAvg+'% avg':'';
     const batchSummaryBelow=_batchBelow>0?'· '+_batchBelow+' below 75%':'';
-    const batchSummaryColor=_batchAvg!==null&&_batchAvg<75?'#c0392b':'#1f8a5b';
+    const batchSummaryColor=_batchAvg!==null&&_batchAvg<75?PAL.red:PAL.green;
 
     return {
       roster, filteredRoster:sortedFiltered, logRows:filteredLogRows, logRowsEmpty:filteredLogRows.length===0,
@@ -226,7 +226,7 @@ const AdminRoster = {
       logDateLabel,
       timesEditP1:s.timesEditP1||'', timesEditP2:s.timesEditP2||'', timesEditP3:s.timesEditP3||'', timesEditP4:s.timesEditP4||'',
       timesEditSaving:s.timesEditSaving||false,
-      ...(()=>{const _iStyle=k=>{const err=s.timesEditErrField===k;return`width:100%;padding:8px 10px;border:1.5px solid ${err?'#c0392b':'#d4d9e2'};border-radius:8px;font-size:13px;font-family:'IBM Plex Mono',monospace;outline:none;background:${err?'#fff5f5':'#f6f8fa'};box-sizing:border-box;color:#161f30;`;};return{timesEditP1Style:_iStyle('p1'),timesEditP2Style:_iStyle('p2'),timesEditP3Style:_iStyle('p3'),timesEditP4Style:_iStyle('p4')};})(),
+      ...(()=>{const _iStyle=k=>{const err=s.timesEditErrField===k;return`width:100%;padding:8px 10px;border:1.5px solid ${err?PAL.red:'#d4d9e2'};border-radius:var(--r-sm);font-size:13px;font-family:'IBM Plex Mono',monospace;outline:none;background:${err?'#fff5f5':'#f6f8fa'};box-sizing:border-box;color:#161f30;`;};return{timesEditP1Style:_iStyle('p1'),timesEditP2Style:_iStyle('p2'),timesEditP3Style:_iStyle('p3'),timesEditP4Style:_iStyle('p4')};})(),
       onTimesP1:self.onTimesP1, onTimesP2:self.onTimesP2, onTimesP3:self.onTimesP3, onTimesP4:self.onTimesP4,
       saveTimesEdit:self.saveTimesEdit, closeTimesEdit:self.closeTimesEdit,
       setLogStatusAll:self.setLogStatusFilter('all'), setLogStatusPresent:self.setLogStatusFilter('present'),
@@ -238,8 +238,8 @@ const AdminRoster = {
       markingAllAbsent:s.markingAllAbsent, confirmMarkAllAbsent:s.confirmMarkAllAbsent, notConfirmMarkAllAbsent:!s.confirmMarkAllAbsent,
       markAllAbsentPendingCount:pendingCount,
       markAllAbsentConfirmLabel:'Mark '+pendingCount+' pending as absent',
-      markAllAbsentStyle:`padding:5px 9px;border-radius:7px;cursor:pointer;border:1px solid #f7e4e1;background:#fff;color:#c0392b;opacity:${s.markingAllAbsent?'0.45':'1'};display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;white-space:nowrap;`,
-      markAllAbsentConfirmStyle:`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:700;cursor:pointer;border:none;background:#c0392b;color:#fff;`,
+      markAllAbsentStyle:`padding:5px 9px;border-radius:var(--r-sm);cursor:pointer;border:1px solid #f7e4e1;background:#fff;color:#c0392b;opacity:${s.markingAllAbsent?'0.45':'1'};display:flex;align-items:center;gap:5px;font-size:var(--fs-small);font-weight:600;white-space:nowrap;`,
+      markAllAbsentConfirmStyle:`padding:5px 11px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:700;cursor:pointer;border:none;background:var(--red);color:#fff;`,
       pendingCount,
       logSearch:s.logSearch||'', onLogSearch:self.onLogSearch, onLogSearchKeyDown:self.onLogSearchKeyDown, clearLogSearch:self.clearLogSearch, hasLogSearch:!!(s.logSearch),
       personHistoryOpen:!!s.personHistoryId,
@@ -266,8 +266,8 @@ const AdminRoster = {
         const _phPS=15,_phTotalPages=Math.max(1,Math.ceil(_phFiltered.length/_phPS));
         const _phPage=Math.min(Math.max(1,s.personHistoryPage||1),_phTotalPages);
         const _phPaged=_phFiltered.slice((_phPage-1)*_phPS,_phPage*_phPS);
-        const _phRows=_phPaged.map(r=>{const isPersonalLeave=r.status==='absent'&&_phLeaveSet.has(r.date);const mm=isPersonalLeave?{label:'Personal Leave',color:'#b9791a',bg:'#f7efdc'}:Utils.meta(r.status);const d=new Date(r.date+'T00:00:00');const el=r.editLog||[];const le=el.length?el[el.length-1]:null;return{dateLabel:_W[d.getDay()]+' '+d.getDate()+' '+_M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,color:mm.color,bg:mm.bg,p1:r.p1||'-',p4:r.p4||'-',showTimeRange:r.status==='present',adminCorrected:el.length>0,editedBy:le?.by||''};});
-        const _phSBtn=(f)=>`padding:4px 10px;border-radius:20px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid ${_phFilter===f?accent:'#d4d9e2'};background:${_phFilter===f?accent:'#fff'};color:${_phFilter===f?'#fff':'#5c6678'};white-space:nowrap;`;
+        const _phRows=_phPaged.map(r=>{const isPersonalLeave=r.status==='absent'&&_phLeaveSet.has(r.date);const mm=isPersonalLeave?{label:'Personal Leave',color:PAL.amberText,bg:'#f7efdc'}:Utils.meta(r.status);const d=new Date(r.date+'T00:00:00');const el=r.editLog||[];const le=el.length?el[el.length-1]:null;return{dateLabel:_W[d.getDay()]+' '+d.getDate()+' '+_M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,color:mm.color,bg:mm.bg,p1:r.p1||'-',p4:r.p4||'-',showTimeRange:r.status==='present',adminCorrected:el.length>0,editedBy:le?.by||''};});
+        const _phSBtn=(f)=>`padding:4px 10px;border-radius:var(--r-pill);font-size:var(--fs-small);font-weight:600;cursor:pointer;border:1px solid ${_phFilter===f?accent:'#d4d9e2'};background:${_phFilter===f?accent:'#fff'};color:${_phFilter===f?'#fff':PAL.ink2};white-space:nowrap;`;
         return {
           personHistoryRows:_phRows,
           personHistoryTotal:_phAll.length,
@@ -294,7 +294,7 @@ const AdminRoster = {
       exportPersonHistory:self.exportPersonHistory,
       realtimeLive:s.realtimeLive,
       realtimeLiveBg:s.realtimeLive?'#e7f3ec':'#f7e4e1',
-      realtimeLiveColor:s.realtimeLive?'#1f8a5b':'#c0392b',
+      realtimeLiveColor:s.realtimeLive?PAL.green:PAL.red,
       realtimeLiveLabel:s.realtimeLive?'● Live':'● Reconnecting',
       showRealtimeBadge:!!s.realtimeChannel,
       rosterSearch:s.rosterSearch, onRosterSearch:self.onRosterSearch, onRosterSearchKeyDown:self.onRosterSearchKeyDown, hasRosterSearch:!!search, clearRosterSearch:self.clearRosterSearch,
@@ -303,8 +303,8 @@ const AdminRoster = {
       askMarkAllPresent:self.askMarkAllPresent, cancelMarkAllPresent:self.cancelMarkAllPresent,
       confirmMarkAllPresent:!!s.confirmMarkAllPresent, notConfirmMarkAllPresent:!s.confirmMarkAllPresent,
       notConfirmAny:!s.confirmMarkAllAbsent&&!s.confirmMarkAllPresent,
-      markAllPresentStyle:`padding:5px 9px;border-radius:7px;cursor:pointer;border:1px solid #cfe6d8;background:#fff;color:#1f8a5b;opacity:${s.markAllPresenting?'0.45':'1'};display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;white-space:nowrap;`,
-      markAllPresentConfirmStyle:`padding:5px 11px;border-radius:7px;font-size:11.5px;font-weight:700;cursor:pointer;border:none;background:#1f8a5b;color:#fff;`,
+      markAllPresentStyle:`padding:5px 9px;border-radius:var(--r-sm);cursor:pointer;border:1px solid #cfe6d8;background:#fff;color:var(--green);opacity:${s.markAllPresenting?'0.45':'1'};display:flex;align-items:center;gap:5px;font-size:var(--fs-small);font-weight:600;white-space:nowrap;`,
+      markAllPresentConfirmStyle:`padding:5px 11px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:700;cursor:pointer;border:none;background:var(--green);color:#fff;`,
       showLogPendingBadge:viewIsToday&&viewReportDay&&pendingCount>0, logPendingBadgeCount:String(pendingCount),
       rosterStatusFilter,
       setRosterStatusAll:self.setRosterStatusFilter('all'),setRosterStatusPresent:self.setRosterStatusFilter('present'),

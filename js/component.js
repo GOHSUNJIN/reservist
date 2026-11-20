@@ -144,14 +144,14 @@ class AppComponent extends DCLogic {
   // ── Render ────────────────────────────────────────────────────────────────
   renderVals(){
     const s=this.state;
-    const accent=this.props.accent||'#2f5fd0';
+    const accent=this.props.accent||PAL.blue;
     const orgName=this.props.orgName||'ReservistGO';
     const hqName=this.props.hqName||'Bedok DHQ';
     return {
       accent, orgName, hqName,
       bgOuter:'#cdd2da',
       bgContent:'#f6f7f9',
-      showToast:!!s.toast, toastMsg:s.toast?.msg||'', toastBg:s.toast?.type==='error'?'#c0392b':'#1f8a5b', toastBorder:s.toast?.type==='error'?'#f1d3cf':'#cfe6d8',
+      showToast:!!s.toast, toastMsg:s.toast?.msg||'', toastBg:s.toast?.type==='error'?PAL.red:PAL.green, toastBorder:s.toast?.type==='error'?'#f1d3cf':'#cfe6d8',
       dismissToast:this.dismissToast,
       sessionExpiring:s.sessionExpiring, refreshSessionNow:this.refreshSessionNow,
       idleWarning:s.idleWarning, stayActive:this.stayActive,

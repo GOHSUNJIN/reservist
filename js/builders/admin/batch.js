@@ -10,14 +10,14 @@ const AdminBatch = {
       const isFuture=b.start_date>todayForChips;
       const isPast=b.end_date<todayForChips&&!b.is_live;
       const isActive=i===activeBatchIdx;
-      let chipStyle='flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;padding:7px 13px;border-radius:9px;cursor:pointer;white-space:nowrap;text-align:left;';
+      let chipStyle='flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-start;padding:7px 13px;border-radius:var(--r-sm);cursor:pointer;white-space:nowrap;text-align:left;';
       if(isActive) chipStyle+='background:'+accent+';color:#fff;border:1px solid '+accent+';';
-      else if(isFuture) chipStyle+='background:#f6f8fa;color:#8a94a3;border:1.5px dashed #c2c8d2;';
-      else if(isPast) chipStyle+='background:#f6f8fa;color:#8a94a3;border:1px solid #e3e6ec;';
-      else chipStyle+='background:#fff;color:#5c6678;border:1px solid #d4d9e2;';
+      else if(isFuture) chipStyle+='background:#f6f8fa;color:var(--muted);border:1.5px dashed #c2c8d2;';
+      else if(isPast) chipStyle+='background:#f6f8fa;color:var(--muted);border:1px solid #e3e6ec;';
+      else chipStyle+='background:#fff;color:var(--ink-2);border:1px solid #d4d9e2;';
       return {label:b.label, range:Utils.fmtShort(bs)+' to '+Utils.fmtShort(be), onClick:self.setBatch(i), style:chipStyle, isPast, isActive, isFuture, startDate:b.start_date,
         showPastTag:isPast&&!isActive, showUpcomingTag:isFuture&&!isActive, showLiveTag:b.is_live&&!isActive,
-        pickerBg:isActive?'#eef3fc':'#fff', pickerLabelColor:isActive?'#2f5fd0':'#161f30'};
+        pickerBg:isActive?'#eef3fc':'#fff', pickerLabelColor:isActive?PAL.blue:PAL.ink};
     });
     const activeChips=allChips.filter(c=>!c.isPast);
     const _pickerYearMap={};
@@ -32,8 +32,8 @@ const AdminBatch = {
       year:yr,
       isSelected:yr===activePickerYear,
       style:yr===activePickerYear
-        ?'-webkit-appearance:none;padding:5px 14px;background:#161f30;border:none;border-radius:20px;font-size:12px;font-weight:600;color:#fff;cursor:pointer;'
-        :'-webkit-appearance:none;padding:5px 14px;background:#f0f2f5;border:none;border-radius:20px;font-size:12px;font-weight:600;color:#5c6678;cursor:pointer;',
+        ?'-webkit-appearance:none;padding:5px 14px;background:#161f30;border:none;border-radius:var(--r-pill);font-size:var(--fs-small);font-weight:600;color:#fff;cursor:pointer;'
+        :'-webkit-appearance:none;padding:5px 14px;background:#f0f2f5;border:none;border-radius:var(--r-pill);font-size:var(--fs-small);font-weight:600;color:var(--ink-2);cursor:pointer;',
       onSelect:()=>self.setCyclePickerYear(yr),
     }));
     const sortCycles=(arr)=>[...arr].sort((a,b)=>{
@@ -55,8 +55,8 @@ const AdminBatch = {
     const cyclePickerHasPrev=safeCyclePage>1, cyclePickerHasNext=safeCyclePage<cycleTotalPages;
     const cyclePickerShowPagination=cycleTotalPages>1;
     const cyclePickerPageInfo=`${safeCyclePage} / ${cycleTotalPages}`;
-    const cyclePickerPrevColor=cyclePickerHasPrev?'#161f30':'#c4c9d4', cyclePickerPrevCursor=cyclePickerHasPrev?'pointer':'default';
-    const cyclePickerNextColor=cyclePickerHasNext?'#161f30':'#c4c9d4', cyclePickerNextCursor=cyclePickerHasNext?'pointer':'default';
+    const cyclePickerPrevColor=cyclePickerHasPrev?PAL.ink:'#a0a8b4', cyclePickerPrevCursor=cyclePickerHasPrev?'pointer':'default';
+    const cyclePickerNextColor=cyclePickerHasNext?PAL.ink:'#a0a8b4', cyclePickerNextCursor=cyclePickerHasNext?'pointer':'default';
     const activeCycleLabel=activeBatch?.label||'No cycle';
     const _abs=activeBatch?new Date(activeBatch.start_date+'T00:00:00'):null;
     const _abe=activeBatch?new Date(activeBatch.end_date+'T00:00:00'):null;
@@ -68,8 +68,8 @@ const AdminBatch = {
     const editTargetRange=_ebs&&_ebe?(Utils.fmtShort(_ebs)+' to '+Utils.fmtShort(_ebe)+' '+_ebs.getFullYear()):'';
     const editTargetIsPast=!!(activeBatch&&activeBatch.end_date<todayForChips&&!activeBatch.is_live);
     const editTargetStatus=editTargetIsLive?'Live':editTargetIsPast?'Past':'Upcoming';
-    const editTargetStatusChipBg=editTargetIsLive?'#22c55e':editTargetIsPast?'rgba(255,255,255,.1)':'rgba(47,95,208,.5)';
-    const editTargetStatusChipColor=editTargetIsLive?'#fff':editTargetIsPast?'#8a94a3':'#a8c0f8';
+    const editTargetStatusChipBg=editTargetIsLive?PAL.green:editTargetIsPast?'rgba(255,255,255,.1)':'rgba(47,95,208,.5)';
+    const editTargetStatusChipColor=editTargetIsLive?'#fff':editTargetIsPast?PAL.muted:'#a8c0f8';
     const _sortedBatches=[...batches].sort((a,b)=>a.start_date>b.start_date?1:-1);
     const _isLastDay=!!(liveBatch&&todayForChips===liveBatch.end_date);
     const _nextBatch=_isLastDay?_sortedBatches.find(b=>b.start_date>liveBatch.end_date):null;
@@ -85,7 +85,7 @@ const AdminBatch = {
       activeChips,
       cyclePickerGroups, cyclePickerOpen:s.cyclePickerOpen,
       cyclePickerYears, setCyclePickerYear:self.setCyclePickerYear,
-      cyclePickerHasPrev, cyclePickerHasNext, cyclePickerShowPagination, cyclePickerPageInfo,
+      cyclePickerHasPrev, cyclePickerHasNext, cyclePickerPrevDisabled:!cyclePickerHasPrev, cyclePickerNextDisabled:!cyclePickerHasNext, cyclePickerShowPagination, cyclePickerPageInfo,
       cyclePickerPrevColor, cyclePickerPrevCursor, cyclePickerNextColor, cyclePickerNextCursor,
       cyclePickerNext:self.cyclePickerNext, cyclePickerPrev:self.cyclePickerPrev,
       openCyclePicker:self.openCyclePicker, closeCyclePicker:self.closeCyclePicker,
@@ -99,8 +99,8 @@ const AdminBatch = {
       newBatchDate:s.newBatchDate,onNewBatchDate:self.onNewBatchDate,createBatch:self.createBatch,batchCreating:s.batchCreating,
       npName:s.npName, npContact:s.npContact, npPassword:s.npPassword,
       addPersonnelOpen:!!(s.addPersonnelOpen), toggleAddPersonnel:self.toggleAddPersonnel,
-      addPersonnelBtnBg:s.addPersonnelOpen?'#161f30':'#eceef2',
-      addPersonnelBtnStroke:s.addPersonnelOpen?'#fff':'#5c6678',
+      addPersonnelBtnBg:s.addPersonnelOpen?PAL.ink:'#eceef2',
+      addPersonnelBtnStroke:s.addPersonnelOpen?'#fff':PAL.ink2,
       showReenrollConfirm:!!(s.npReenrollRecord), showAddForm:!(s.npReenrollRecord),
       reenrollName:s.npReenrollRecord?.name||'',
       confirmReenroll:self.confirmReenroll, cancelReenroll:self.cancelReenroll,
@@ -125,7 +125,7 @@ const AdminBatch = {
       openBroadcast:self.openBroadcast, closeBroadcast:self.closeBroadcast,
       onBroadcastText:self.onBroadcastText, saveBroadcast:self.saveBroadcast,
       activeBatchNotice:activeBatch?.notice_text||'', hasActiveBatchNotice:!!(activeBatch?.notice_text),
-      broadcastSubColor:activeBatch?.notice_text?'#2f5fd0':'#8a94a3',
+      broadcastSubColor:activeBatch?.notice_text?PAL.blue:PAL.muted,
       broadcastSubText:activeBatch?.notice_text||'No active notice',
       // Feature: bulk add
       bulkAddOpen:s.bulkAddOpen, bulkAddText:s.bulkAddText||'',
@@ -133,7 +133,7 @@ const AdminBatch = {
       bulkAddAdding:s.bulkAddAdding,
       bulkAddAddingOpacity:s.bulkAddAdding?0.6:1,
       ...(()=>{
-        const _parsed=(s.bulkAddParsed||[]).map(r=>({...r,validColor:r.valid?'#1f8a5b':'#c0392b',validLabel:r.valid?'OK':'Skip'}));
+        const _parsed=(s.bulkAddParsed||[]).map(r=>({...r,validColor:r.valid?PAL.green:PAL.red,validLabel:r.valid?'OK':'Skip'}));
         const _vc=_parsed.filter(r=>r.valid).length;
         return {
           bulkAddParsed:_parsed,
@@ -170,8 +170,8 @@ const AdminBatch = {
           phaseTimingsBtnLabel:s.phaseTimingsSaving?'Saving...':'Save cycle timings',
           phaseTimingsSub:_ovCount>0?(_ovCount+' individual override'+(_ovCount===1?'':'s')):'No individual overrides',
           ptP2Bg:_din?'#fdf6e9':'transparent', ptP3Bg:_din?'#fdf6e9':'transparent',
-          ptP2LabelColor:_din?'#b9791a':'#8a94a3', ptP3LabelColor:_din?'#b9791a':'#8a94a3',
-          ptP2InputColor:_din?'#b9791a':'#161f30', ptP3InputColor:_din?'#b9791a':'#161f30',
+          ptP2LabelColor:_din?PAL.amberText:PAL.muted, ptP3LabelColor:_din?PAL.amberText:PAL.muted,
+          ptP2InputColor:_din?PAL.amberText:PAL.ink, ptP3InputColor:_din?PAL.amberText:PAL.ink,
         };
       })(),
       // Feature: individual phase timing overrides
@@ -196,17 +196,17 @@ const AdminBatch = {
               onViewAvatar:_av?()=>self.openAvatarLightbox(_av):null,
               hasOverride:_hasOv, showClear:_hasOv,
               p1:_eff.p1_open, p2:_eff.p2_open, p3:_eff.p3_open, p4:_eff.p4_open,
-              p1Color:(_ov.p1_open&&_ov.p1_open!==_batchT.p1_open)?'#b9791a':'#8a94a3',
-              p2Color:(_ov.p2_open&&_ov.p2_open!==_batchT.p2_open)?'#b9791a':'#8a94a3',
-              p3Color:(_ov.p3_open&&_ov.p3_open!==_batchT.p3_open)?'#b9791a':'#8a94a3',
-              p4Color:(_ov.p4_open&&_ov.p4_open!==_batchT.p4_open)?'#b9791a':'#8a94a3',
+              p1Color:(_ov.p1_open&&_ov.p1_open!==_batchT.p1_open)?PAL.amberText:PAL.muted,
+              p2Color:(_ov.p2_open&&_ov.p2_open!==_batchT.p2_open)?PAL.amberText:PAL.muted,
+              p3Color:(_ov.p3_open&&_ov.p3_open!==_batchT.p3_open)?PAL.amberText:PAL.muted,
+              p4Color:(_ov.p4_open&&_ov.p4_open!==_batchT.p4_open)?PAL.amberText:PAL.muted,
               isEditing:_isEditing,
               rowBg:_isEditing?'#f6f8fa':'transparent',
               onToggle:_isEditing?self.closePtOverrideEdit:()=>self.openPtOverrideEdit(m.id),
               onClear:_hasOv?()=>self.clearPtOverride(m.id):null,
-              timingColor:_hasOv?'#b9791a':'#8a94a3',
+              timingColor:_hasOv?PAL.amberText:PAL.muted,
               avatarBg:_hasOv?'#fdf0dc':'#e5e8ef',
-              avatarColor:_hasOv?'#b9791a':'#5c6678',
+              avatarColor:_hasOv?PAL.amberText:PAL.ink2,
             };
           });
         return {
@@ -223,14 +223,14 @@ const AdminBatch = {
           ptOvP2Bg:(_draft.p2_open!==_batchT.p2_open)?'#fdf6e9':'transparent',
           ptOvP3Bg:(_draft.p3_open!==_batchT.p3_open)?'#fdf6e9':'transparent',
           ptOvP4Bg:(_draft.p4_open!==_batchT.p4_open)?'#fdf6e9':'transparent',
-          ptOvP1LabelColor:(_draft.p1_open!==_batchT.p1_open)?'#b9791a':'#8a94a3',
-          ptOvP2LabelColor:(_draft.p2_open!==_batchT.p2_open)?'#b9791a':'#8a94a3',
-          ptOvP3LabelColor:(_draft.p3_open!==_batchT.p3_open)?'#b9791a':'#8a94a3',
-          ptOvP4LabelColor:(_draft.p4_open!==_batchT.p4_open)?'#b9791a':'#8a94a3',
-          ptOvP1InputColor:(_draft.p1_open!==_batchT.p1_open)?'#b9791a':'#161f30',
-          ptOvP2InputColor:(_draft.p2_open!==_batchT.p2_open)?'#b9791a':'#161f30',
-          ptOvP3InputColor:(_draft.p3_open!==_batchT.p3_open)?'#b9791a':'#161f30',
-          ptOvP4InputColor:(_draft.p4_open!==_batchT.p4_open)?'#b9791a':'#161f30',
+          ptOvP1LabelColor:(_draft.p1_open!==_batchT.p1_open)?PAL.amberText:PAL.muted,
+          ptOvP2LabelColor:(_draft.p2_open!==_batchT.p2_open)?PAL.amberText:PAL.muted,
+          ptOvP3LabelColor:(_draft.p3_open!==_batchT.p3_open)?PAL.amberText:PAL.muted,
+          ptOvP4LabelColor:(_draft.p4_open!==_batchT.p4_open)?PAL.amberText:PAL.muted,
+          ptOvP1InputColor:(_draft.p1_open!==_batchT.p1_open)?PAL.amberText:PAL.ink,
+          ptOvP2InputColor:(_draft.p2_open!==_batchT.p2_open)?PAL.amberText:PAL.ink,
+          ptOvP3InputColor:(_draft.p3_open!==_batchT.p3_open)?PAL.amberText:PAL.ink,
+          ptOvP4InputColor:(_draft.p4_open!==_batchT.p4_open)?PAL.amberText:PAL.ink,
           ptOverrideBtnLabel:s.ptOverrideSaving?'Saving...':'Save override',
           ptOverrideRoster:_roster,
           ptRosterShowEmpty:_roster.length===0,

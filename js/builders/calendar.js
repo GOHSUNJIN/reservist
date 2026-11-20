@@ -16,39 +16,39 @@ const CalendarBuilders = {
   _calDayDetail: function(off, dst) {
     const d=this.dateForOffset(off), hol=Utils.holidayName(d), dk=Utils.dateKey(d);
     if(off===0){
-      if(!Utils.isReportDay(d,this._myDept())) return {label:'Weekend',sub:'No reporting required',color:'#8a94a3',bg:'#f6f8fa'};
-      if(this.isNoReport(0)) return {label:'No reporting',sub:hol||'Marked as a no-reporting day',color:'#b9791a',bg:'#f7efdc'};
+      if(!Utils.isReportDay(d,this._myDept())) return {label:'Weekend',sub:'No reporting required',color:PAL.muted,bg:'#f6f8fa'};
+      if(this.isNoReport(0)) return {label:'No reporting',sub:hol||'Marked as a no-reporting day',color:PAL.amberText,bg:'#f7efdc'};
       const rec=this.myRec(), st=rec.status||'pending';
-      if(st==='present') return {label:'Checked in',sub:'Reported at '+(rec.p1||'-'),color:'#1f8a5b',bg:'#e7f3ec'};
-      if(st==='mc')      return {label:'MC',sub:'Sick leave declared for today',color:'#b9791a',bg:'#f7efdc'};
+      if(st==='present') return {label:'Checked in',sub:'Reported at '+(rec.p1||'-'),color:PAL.green,bg:'#e7f3ec'};
+      if(st==='mc')      return {label:'MC',sub:'Sick leave declared for today',color:PAL.amberText,bg:'#f7efdc'};
       if(st==='absent'){
         return this._findApprovedLeave(dk)
-          ? {label:'Personal Leave',sub:'Personal Leave approved for today',color:'#b9791a',bg:'#f7efdc'}
-          : {label:'Absent',sub:'You have been marked absent',color:'#c0392b',bg:'#f7e4e1'};
+          ? {label:'Personal Leave',sub:'Personal Leave approved for today',color:PAL.amberText,bg:'#f7efdc'}
+          : {label:'Absent',sub:'You have been marked absent',color:PAL.red,bg:'#f7e4e1'};
       }
-      return {label:'Pending',sub:'You have not checked in yet today',color:'#5c6678',bg:'#eceef2'};
+      return {label:'Pending',sub:'You have not checked in yet today',color:PAL.ink2,bg:'#eceef2'};
     }
-    if(hol) return {label:'Public holiday',sub:hol+', no reporting',color:'#b9791a',bg:'#f7efdc'};
-    if(dst==='ph') return {label:'Public holiday',sub:'No reporting required',color:'#b9791a',bg:'#f7efdc'};
+    if(hol) return {label:'Public holiday',sub:hol+', no reporting',color:PAL.amberText,bg:'#f7efdc'};
+    if(dst==='ph') return {label:'Public holiday',sub:'No reporting required',color:PAL.amberText,bg:'#f7efdc'};
     if(dst==='nr') return {label:'No reporting',sub:'Marked as a no-reporting day',color:'#3b5bdb',bg:'#eef2fb'};
-    if(dst==='dekit') return {label:'Dekit day',sub:'Return equipment and submit meal allowance forms',color:'#161f30',bg:'#eceef2'};
-    if(dst==='end') return {label:off<0?'Reporting day':'Upcoming',sub:'Last reporting day of your cycle',color:'#5c6678',bg:'#eceef2'};
-    if(dst==='post') return {label:'No reporting',sub:'Reporting cycle ended, await dekit',color:'#8a94a3',bg:'#f0f2f7'};
-    if(dst==='wknd') return {label:'Weekend',sub:'No reporting required',color:'#8a94a3',bg:'#f6f8fa'};
+    if(dst==='dekit') return {label:'Dekit day',sub:'Return equipment and submit meal allowance forms',color:PAL.ink,bg:'#eceef2'};
+    if(dst==='end') return {label:off<0?'Reporting day':'Upcoming',sub:'Last reporting day of your cycle',color:PAL.ink2,bg:'#eceef2'};
+    if(dst==='post') return {label:'No reporting',sub:'Reporting cycle ended, await dekit',color:PAL.muted,bg:'#f0f2f7'};
+    if(dst==='wknd') return {label:'Weekend',sub:'No reporting required',color:PAL.muted,bg:'#f6f8fa'};
     if(dst==='past'||dst==='work'&&off<0){
       const hr=this._findHistRecord(dk);
       if(hr){
         const t=hr.p1||'-';
-        if(hr.status==='present'&&!hr.p4) return {label:'No clock-out',sub:'You did not clock out. Inform your supervisor. Meal allowance may not apply.',color:'#ea580c',bg:'#fff3e0'};
-        if(hr.status==='present') return {label:'Present',sub:'Reported at '+t,color:'#1f8a5b',bg:'#e7f3ec'};
-        if(hr.status==='mc')     return {label:'MC',sub:'Sick leave recorded',color:'#b9791a',bg:'#f7efdc'};
+        if(hr.status==='present'&&!hr.p4) return {label:'No clock-out',sub:'You did not clock out. Inform your supervisor. Meal allowance may not apply.',color:'#c2410c',bg:'#fff3e0'};
+        if(hr.status==='present') return {label:'Present',sub:'Reported at '+t,color:PAL.green,bg:'#e7f3ec'};
+        if(hr.status==='mc')     return {label:'MC',sub:'Sick leave recorded',color:PAL.amberText,bg:'#f7efdc'};
         if(hr.status==='absent'){
           return this._findApprovedLeave(dk)
-            ?{label:'Personal Leave',sub:'Personal Leave approved',color:'#b9791a',bg:'#f7efdc'}
-            :{label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
+            ?{label:'Personal Leave',sub:'Personal Leave approved',color:PAL.amberText,bg:'#f7efdc'}
+            :{label:'Absent',sub:'No attendance recorded',color:PAL.red,bg:'#f7e4e1'};
         }
       }
-      return {label:'Absent',sub:'No attendance recorded',color:'#c0392b',bg:'#f7e4e1'};
+      return {label:'Absent',sub:'No attendance recorded',color:PAL.red,bg:'#f7e4e1'};
     }
     if(dst==='work'){
       // Future reporting day - check for approved or pending leave
@@ -56,13 +56,13 @@ const CalendarBuilders = {
       if(futureLeave){
         const isMc=futureLeave.type==='mc';
         if(futureLeave.status==='approved')
-          return {label:isMc?'MC approved':'Leave approved',sub:isMc?'Sick leave approved for this day':'Absence approved for this day',color:'#b9791a',bg:'#f7efdc'};
-        return {label:isMc?'MC submitted':'Leave submitted',sub:'Awaiting admin approval',color:'#b9791a',bg:'#fdf6e9'};
+          return {label:isMc?'MC approved':'Leave approved',sub:isMc?'Sick leave approved for this day':'Absence approved for this day',color:PAL.amberText,bg:'#f7efdc'};
+        return {label:isMc?'MC submitted':'Leave submitted',sub:'Awaiting admin approval',color:PAL.amberText,bg:'#fdf6e9'};
       }
-      return {label:'Upcoming',sub:'Reporting day',color:'#5c6678',bg:'#eceef2'};
+      return {label:'Upcoming',sub:'Reporting day',color:PAL.ink2,bg:'#eceef2'};
     }
-    if(dst==='pre') return {label:'No reporting',sub:'Before your cycle started',color:'#5c6678',bg:'#eceef2'};
-    return {label:'No reporting',sub:'Outside your reporting cycle',color:'#b9791a',bg:'#f7efdc'};
+    if(dst==='pre') return {label:'No reporting',sub:'Before your cycle started',color:PAL.ink2,bg:'#eceef2'};
+    return {label:'No reporting',sub:'Outside your reporting cycle',color:PAL.amberText,bg:'#f7efdc'};
   },
 
   _buildCalendar: function(s, accent) {
@@ -75,15 +75,15 @@ const CalendarBuilders = {
     const gridStart=Utils.mondayOf(bs);
     const today=this.baseDate();
     const todayKey=Utils.dateKey(today), bsKey=Utils.dateKey(bs), beKey=Utils.dateKey(be), ddKey=Utils.dateKey(dd);
-    const cellBase='aspect-ratio:1;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;';
+    const cellBase='aspect-ratio:1;border-radius:var(--r-sm);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;';
     const cellStyle=st=>{
       if(st==='today') return cellBase+'background:'+accent+';color:#fff;';
-      if(st==='ph')    return cellBase+'background:#f7efdc;color:#b9791a;';
+      if(st==='ph')    return cellBase+'background:#f7efdc;color:var(--amber-text);';
       if(st==='nr')    return cellBase+'background:#eef2fb;color:#3b5bdb;border:1px dashed #a5b8f3;';
-      if(st==='work')  return cellBase+'background:#fff;border:1px solid #e3e6ec;color:#161f30;';
+      if(st==='work')  return cellBase+'background:#fff;border:1px solid #e3e6ec;color:var(--ink);';
       if(st==='end')   return cellBase+'background:#fff;border:1.5px solid '+accent+';color:'+accent+';';
       if(st==='dekit') return cellBase+'background:#131a27;color:#fff;';
-      if(st==='post')  return cellBase+'background:#f0f2f7;color:#8a94a3;';
+      if(st==='post')  return cellBase+'background:#f0f2f7;color:var(--muted);';
       if(st==='wknd')  return cellBase+'background:#f6f8fa;color:#c2c8d2;';
       if(st==='past')  return cellBase+'background:#f6f8fa;color:#b0b8c4;border:1px solid #eef0f4;';
       return cellBase+'background:transparent;color:#c2c8d2;';
@@ -109,16 +109,16 @@ const CalendarBuilders = {
         const hr=this._findHistRecord(dk);
         const pst=hr?.status;
         if(pst==='present'&&!hr?.p4) style=cellBase+'background:#fff3e0;color:#c2410c;border:2px dashed #fb923c;cursor:pointer;';
-        else if(pst==='present') style=cellBase+'background:#e7f3ec;color:#1f8a5b;border:2px solid #a8d5bb;cursor:pointer;';
-        else if(pst==='mc') style=cellBase+'background:#f7efdc;color:#b9791a;border:2px solid #e8c77a;cursor:pointer;';
+        else if(pst==='present') style=cellBase+'background:#e7f3ec;color:var(--green);border:2px solid #a8d5bb;cursor:pointer;';
+        else if(pst==='mc') style=cellBase+'background:#f7efdc;color:var(--amber-text);border:2px solid #e8c77a;cursor:pointer;';
         else if(pst==='absent'){
-          style=this._findApprovedLeave(dk)?cellBase+'background:#f7efdc;color:#b9791a;border:2px solid #e8c77a;cursor:pointer;':cellBase+'background:#f7e4e1;color:#c0392b;border:2px solid #e5a9a4;cursor:pointer;';
-        } else style=cellBase+'background:#f7e4e1;color:#c0392b;border:2px solid #e5a9a4;cursor:pointer;';
+          style=this._findApprovedLeave(dk)?cellBase+'background:#f7efdc;color:var(--amber-text);border:2px solid #e8c77a;cursor:pointer;':cellBase+'background:#f7e4e1;color:var(--red);border:2px solid #e5a9a4;cursor:pointer;';
+        } else style=cellBase+'background:#f7e4e1;color:var(--red);border:2px solid #e5a9a4;cursor:pointer;';
       }
       if(dst==='work'&&off>0){
         const fl=(this.state.myLeaveHistory||[]).find(r=>r.date===dk&&(r.status==='approved'||r.status==='pending'));
-        if(fl?.status==='approved') style=cellBase+'background:#f7efdc;color:#b9791a;border:2px solid #e8c77a;cursor:pointer;';
-        else if(fl?.status==='pending') style=cellBase+'background:#fdf6e9;color:#b9791a;border:1px dashed #e8c77a;cursor:pointer;';
+        if(fl?.status==='approved') style=cellBase+'background:#f7efdc;color:var(--amber-text);border:2px solid #e8c77a;cursor:pointer;';
+        else if(fl?.status==='pending') style=cellBase+'background:#fdf6e9;color:var(--amber-text);border:1px dashed #e8c77a;cursor:pointer;';
       }
       if(s.selectedCalOffset===off) style+='outline:2px solid '+accent+';outline-offset:1px;';
       return {num:d.getDate(),style,off,st:dst,onClick:this.selectCalDay(off)};
@@ -163,7 +163,7 @@ const CalendarBuilders = {
     const todayRow=(Utils.isReportDay(todayD,this._myDept())&&!this.isNoReport(0)&&(!activeBatch||today>=activeBatch.start_date)&&(!activeBatch||today<=activeBatch.end_date))
       ?[{date:Utils.fmtMed(todayD)+', Today',dateKey:today,showMonthDivider:false,monthDividerLabel:'',shift:'Office',status,
          p1:rec.p1||'-',p2:rec.p2||'-',p3:rec.p3||'-',p4:rec.p4||'-',
-         p1Color:_ed('p1')?'#2f5fd0':_tc(rec.p1,'#161f30',_dc),p2Color:_ed('p2')?'#2f5fd0':_tc(rec.p2,'#161f30',_dc),p3Color:_ed('p3')?'#2f5fd0':_tc(rec.p3,'#161f30',_dc),p4Color:_ed('p4')?'#2f5fd0':_tc(rec.p4,'#161f30',_dc),
+         p1Color:_ed('p1')?PAL.blue:_tc(rec.p1,PAL.ink,_dc),p2Color:_ed('p2')?PAL.blue:_tc(rec.p2,PAL.ink,_dc),p3Color:_ed('p3')?PAL.blue:_tc(rec.p3,PAL.ink,_dc),p4Color:_ed('p4')?PAL.blue:_tc(rec.p4,PAL.ink,_dc),
          p1Edited:_ed('p1'),p2Edited:_ed('p2'),p3Edited:_ed('p3'),p4Edited:_ed('p4'),
          hasExpandToggle:status==='present',rowCursor:status==='present'?'pointer':'default',isExpanded:_exDates.includes(today),onToggleExpand:this.toggleHistoryExpand(today),
          showTimes:status==='present'&&_exDates.includes(today),rowMarginBot:(status==='present'&&_exDates.includes(today))?'9px':'0',chevronRotate:_exDates.includes(today)?'180':'0',
@@ -175,7 +175,7 @@ const CalendarBuilders = {
          isToday:true,
          ...Utils.meta(status)}]:[];
 
-    const _nc='#b9791a'; // amber for unrecorded slots
+    const _nc=PAL.amberText; // amber for unrecorded slots
     const _histFiltered=s.history.filter(r=>Utils.isReportDay(new Date(r.date+'T00:00:00'),this._myDept())&&(!activeBatch||r.date>=activeBatch.start_date));
     const histKeys=new Set(_histFiltered.map(r=>r.date));
     const histRows=_histFiltered.map(r=>{
@@ -191,10 +191,10 @@ const CalendarBuilders = {
       return {date:Utils.fmtMed(d),dateKey:r.date,shift:'Office',status:r.status,
         p1:p1||'-',
         p2:p2||(isPresent?'–':'-'), p3:p3||(isPresent?'–':'-'), p4:p4||(isPresent?'–':'-'),
-        p1Color:_ed2('p1')?'#2f5fd0':_tc(p1,'#161f30',_dc),
-        p2Color:_ed2('p2')?'#2f5fd0':(p2?'#161f30':(isPresent?_nc:_dc)),
-        p3Color:_ed2('p3')?'#2f5fd0':(p3?'#161f30':(isPresent?_nc:_dc)),
-        p4Color:_ed2('p4')?'#2f5fd0':(p4?'#161f30':(isPresent?_nc:_dc)),
+        p1Color:_ed2('p1')?PAL.blue:_tc(p1,PAL.ink,_dc),
+        p2Color:_ed2('p2')?PAL.blue:(p2?PAL.ink:(isPresent?_nc:_dc)),
+        p3Color:_ed2('p3')?PAL.blue:(p3?PAL.ink:(isPresent?_nc:_dc)),
+        p4Color:_ed2('p4')?PAL.blue:(p4?PAL.ink:(isPresent?_nc:_dc)),
         p1Edited:_ed2('p1'),p2Edited:_ed2('p2'),p3Edited:_ed2('p3'),p4Edited:_ed2('p4'),
         hasExpandToggle:isPresent||isMissed,rowCursor:(isPresent||isMissed)?'pointer':'default',isExpanded:_rowEx,
         onToggleExpand:isMissed?this.openMissedNote(r.date,r.welfareNote||''):this.toggleHistoryExpand(r.date),
@@ -205,7 +205,7 @@ const CalendarBuilders = {
         isMissedRow:isMissed,missedNote:r.welfareNote||'',showMissedNote:false,
         onOpenMissedNote:isMissed?this.openMissedNote(r.date,r.welfareNote||''):()=>{},
         isPersonalLeave:!!_approvedLeave,
-        ...(_approvedLeave?{label:'Personal Leave',color:'#b9791a',bg:'#f7efdc'}:Utils.meta(r.status))};
+        ...(_approvedLeave?{label:'Personal Leave',color:PAL.amberText,bg:'#f7efdc'}:Utils.meta(r.status))};
     });
 
     const missedRows=[];
@@ -248,7 +248,7 @@ const CalendarBuilders = {
         futureLeaveRows.push({
           date:Utils.fmtMed(d),dateKey:dk,showMonthDivider:futureLeaveRows.length===0,monthDividerLabel:'Upcoming',shift:'Office',
           status:isApproved?(isMc?'mc':'absent'):'pending',
-          label:lbl,color:'#b9791a',bg:isApproved?'#f7efdc':'#fdf6e9',
+          label:lbl,color:PAL.amberText,bg:isApproved?'#f7efdc':'#fdf6e9',
           p1:'-',p2:'-',p3:'-',p4:'-',
           p1Color:_dc,p2Color:_dc,p3Color:_dc,p4Color:_dc,
           p1Edited:false,p2Edited:false,p3Edited:false,p4Edited:false,

@@ -15,7 +15,7 @@ const BriefingsBuilders = {
     const briefTab=s.briefTab||'info';
     const briefTabs=[{key:'info',label:'Info'},{key:'history',label:'Requests'}].map(t=>({
       ...t, onClick:this.setBriefTab(t.key),
-      style:`flex:1;padding:8px 4px;border:none;border-radius:8px;font-size:12.5px;font-weight:600;cursor:pointer;transition:all .15s;${briefTab===t.key?'background:#fff;color:#161f30;box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:#8a94a3;'}`,
+      style:`flex:1;padding:8px 4px;border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;transition:all .15s;${briefTab===t.key?'background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(20,30,50,.1);':'background:transparent;color:var(--ink-2);'}`,
     }));
     const waGroupUrl=this.props.waGroupLink||'';
     // Meal stats — merge today's live attendance over stale history / backfill
@@ -56,12 +56,12 @@ const BriefingsBuilders = {
       const isMc=r.status==='mc';
       const isLeave=r.status==='absent'&&_leaveSet.has(r.date);
       let label,color,bg;
-      if(isEligible){label='Entitled';color='#1f8a5b';bg='#e7f3ec';}
-      else if(isPresentNoOut){label='No clock-out';color='#ea580c';bg='#fff3e0';}
-      else if(isPresentUnder){label='Under 6 hrs';color='#b9791a';bg='#fdf6e9';}
-      else if(isMc){label='MC';color='#b9791a';bg='#fdf6e9';}
-      else if(isLeave){label='Personal Leave';color='#b9791a';bg='#f7efdc';}
-      else{label='Absent';color='#c0392b';bg='#f7e4e1';}
+      if(isEligible){label='Entitled';color=PAL.green;bg='#e7f3ec';}
+      else if(isPresentNoOut){label='No clock-out';color='#c2410c';bg='#fff3e0';}
+      else if(isPresentUnder){label='Under 6 hrs';color=PAL.amberText;bg='#fdf6e9';}
+      else if(isMc){label='MC';color=PAL.amberText;bg='#fdf6e9';}
+      else if(isLeave){label='Personal Leave';color=PAL.amberText;bg='#f7efdc';}
+      else{label='Absent';color=PAL.red;bg='#f7e4e1';}
       return {
         dateLabel:Utils.fmtMed(d),
         label,color,bg,isEligible,
@@ -149,7 +149,7 @@ const BriefingsBuilders = {
         for(const r of all){const prev=byDate.get(r.date);if(!prev||(pri[r.status]??4)<(pri[prev.status]??4)) byDate.set(r.date,r);}
         const deduped=[...byDate.values()].sort((a,b)=>b.date.localeCompare(a.date));
         const lhf=s.leaveHistFilter||'all';
-        const _fPill=(active)=>active?'-webkit-appearance:none;padding:5px 13px;border-radius:20px;border:none;font-size:12px;font-weight:600;background:#161f30;color:#fff;cursor:pointer;':'-webkit-appearance:none;padding:5px 13px;border-radius:20px;border:none;font-size:12px;font-weight:500;color:#8a94a3;background:#f1f3f6;cursor:pointer;';
+        const _fPill=(active)=>active?'-webkit-appearance:none;padding:5px 13px;border-radius:var(--r-pill);border:none;font-size:var(--fs-small);font-weight:600;background:#161f30;color:#fff;cursor:pointer;':'-webkit-appearance:none;padding:5px 13px;border-radius:var(--r-pill);border:none;font-size:var(--fs-small);font-weight:500;color:var(--muted);background:#f1f3f6;cursor:pointer;';
         const filtered=lhf==='all'?deduped:deduped.filter(r=>r.status===lhf);
         // Auto-reset filter to 'all' when active filter yields no results
         if(lhf!=='all'&&filtered.length===0&&deduped.length>0) setTimeout(()=>this.setState({leaveHistFilter:'all'}),0);
@@ -174,14 +174,14 @@ const BriefingsBuilders = {
             id:r.id,
             typeLabel:r.type==='mc'?'MC':'Personal Leave',
             typeBg:'#fdf6e9',
-            typeColor:'#b9791a',
+            typeColor:PAL.amberText,
             typeBorder:'#f0e2c2',
             dateLabel:r.date?Utils.fmtMed(new Date(r.date+'T00:00:00')):'',
             statusLabel:r.status==='approved'?'Approved':r.status==='rejected'?'Declined':r.status==='cancelled'?'Withdrawn':'Submitted',
-            statusColor:r.status==='approved'?'#1f8a5b':r.status==='rejected'?'#c0392b':r.status==='cancelled'?'#8a94a3':'#b9791a',
+            statusColor:r.status==='approved'?PAL.green:r.status==='rejected'?PAL.red:r.status==='cancelled'?PAL.muted:PAL.amberText,
             statusBg:r.status==='approved'?'#e7f3ec':r.status==='rejected'?'#f7e4e1':r.status==='cancelled'?'#f0f2f7':'#fdf6e9',
             statusBorder:r.status==='approved'?'#b8dfc9':r.status==='rejected'?'#f1d0cc':r.status==='cancelled'?'#d4d9e2':'#f0e2c2',
-            leftBar:r.status==='approved'?'#1f8a5b':r.status==='rejected'?'#c0392b':r.status==='cancelled'?'#d4d9e2':'#f0be5a',
+            leftBar:r.status==='approved'?PAL.green:r.status==='rejected'?PAL.red:r.status==='cancelled'?'#d4d9e2':'#f0be5a',
             isApproved:r.status==='approved',
             isRejected:r.status==='rejected',
             isPending:r.status==='pending',
