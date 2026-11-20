@@ -93,7 +93,7 @@ const RosterHandlers = {
       const leaves=await DB.leaves.listApprovedForDate(dk).catch(()=>[]);
       const leaveMap={};for(const l of leaves)leaveMap[l.personnel_id]=l;
       this.setState(s=>({approvedLeavesCache:{...s.approvedLeavesCache,[dk]:leaveMap}}));
-      this._toast('Marked as personal leave');
+      this._toast('Marked as personal leave.');
       const person=this.state.personnel.find(p=>p.id===id);
       this._log('attendance','roster.status_set',{date:dk,status:'personal_leave',target_id:id,target_name:person?.name||''});
     };
@@ -264,8 +264,8 @@ const RosterHandlers = {
     const _editIsCas=(_editPerson?.department||this._myDept())==='cas';
     if(!_editIsCas){
       if(timesEditP3&&!timesEditP2){this.setState({timesEditErrField:'p2'});this._toast('Lunch out time is required when recording a return.','error');return;}
-      if(timesEditP4&&!timesEditP3){this.setState({timesEditErrField:'p3'});this._toast('Return from lunch time is required when recording checkout.','error');return;}
-      if(timesEditP4&&!timesEditP2){this.setState({timesEditErrField:'p2'});this._toast('Lunch out time is required when recording checkout.','error');return;}
+      if(timesEditP4&&!timesEditP3){this.setState({timesEditErrField:'p3'});this._toast('Return from lunch time is required when recording a check-out.','error');return;}
+      if(timesEditP4&&!timesEditP2){this.setState({timesEditErrField:'p2'});this._toast('Lunch out time is required when recording a check-out.','error');return;}
     }
     const slots=[{t:timesEditP1,label:'Check-in',key:'p1'},{t:timesEditP2||null,label:'Lunch out',key:'p2'},{t:timesEditP3||null,label:'Return from lunch',key:'p3'},{t:timesEditP4||null,label:'Check-out',key:'p4'}];
     let prevMins=null, prevLabel='';

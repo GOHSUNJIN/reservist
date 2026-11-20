@@ -16,7 +16,7 @@ const AdminPeople = {
       moveDeptVal:s.moveSignupId===r.id?(s.moveSignupDept||''):'',
       moveDeptOptions:Object.entries(Utils.DEPARTMENTS).filter(([v])=>v!==r.department).map(([value,{label}])=>({value,label})),
       onMoveDept:self.onMoveSignupDept,onConfirmMove:self.confirmMoveSignup,onCancelMove:self.cancelMoveSignup,
-      confirmMoveLabel:s.moveSignupSaving?'Moving…':'Move request',
+      confirmMoveLabel:s.moveSignupSaving?'Moving…':'Move Request',
       moveBtnOpacity:(s.moveSignupId===r.id&&s.moveSignupDept&&!s.moveSignupSaving)?1:0.55,
     });
     return {
@@ -50,7 +50,7 @@ const AdminPeople = {
           approvedBy, approvedByLabel,
           showApprovedBy:!!approvedBy,
           onResetPw:self.openResetPw(p.id),
-          canResetPw:true, resetPwBtnLabel:p.auth_id?'Reset PW':'Set PW',
+          canResetPw:true, resetPwBtnLabel:p.auth_id?'Reset Password':'Set Password',
         };
       }),
       personnelListEmpty:activeMembers.length===0,
@@ -76,9 +76,9 @@ const AdminPeople = {
       onMemberSearchCycle:self.onMemberSearchCycle, memberSearchCycle:s.memberSearchCycle||'all',
       memberCycleOptions:(()=>{
         const seen=new Set();
-        const opts=[{value:'all',label:'All cycles'}];
+        const opts=[{value:'all',label:'All Cycles'}];
         const liveBatchId=(s.batches||[]).find(b=>b.is_live)?.id||null;
-        if(liveBatchId) opts.push({value:liveBatchId,label:'Current cycle'});
+        if(liveBatchId) opts.push({value:liveBatchId,label:'Current Cycle'});
         s.memberSearchList.forEach(p=>{
           if(p.batch_id&&p.batch_id!==liveBatchId&&!seen.has(p.batch_id)){
             seen.add(p.batch_id);

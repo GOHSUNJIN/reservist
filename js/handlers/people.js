@@ -15,7 +15,7 @@ const PeopleHandlers = {
     if(contactErr){this._toast(contactErr,'error');return;}
     if(personnel.some(p=>p.contact?.replace(/[\s-]/g,'')===cleanContact)){this._toast('This contact is already on the roster.','error');return;}
     const activeBatch=batches[activeBatchIdx||0];
-    if(!activeBatch){this._toast('No active batch selected. Create a batch first.','error');return;}
+    if(!activeBatch){this._toast('No active cycle selected. Create a cycle first.','error');return;}
     if(!demo){
       const existingRecord=await DB.personnel.findByContact(cleanContact, this._myDept()).catch(()=>null);
       if(existingRecord&&!existingRecord.is_active){this.setState({npReenrollRecord:existingRecord});return;}
@@ -42,7 +42,7 @@ const PeopleHandlers = {
     const {npName,batches,activeBatchIdx,npReenrollRecord,me}=this.state;
     if(!npReenrollRecord) return;
     const activeBatch=batches[activeBatchIdx||0];
-    if(!activeBatch){this._toast('No active batch selected.','error');return;}
+    if(!activeBatch){this._toast('No active cycle selected.','error');return;}
     if(npReenrollRecord.department && npReenrollRecord.department !== this._myDept()){
       console.warn('[confirmReenroll] cross-department re-enrollment: person dept='+npReenrollRecord.department+', admin dept='+this._myDept());
     }
@@ -161,7 +161,7 @@ const PeopleHandlers = {
   confirmBulkAdd: async function() {
     const {bulkAddParsed,batches,activeBatchIdx,demo,me,bulkAddPassword}=this.state;
     const batch=batches[activeBatchIdx||0];
-    if(!batch){this._toast('No active batch.','error');return;}
+    if(!batch){this._toast('No active cycle.','error');return;}
     const valid=bulkAddParsed.filter(r=>r.valid);
     if(!valid.length) return;
     if(demo){this._toast('Cannot add personnel in demo mode.','error');return;}

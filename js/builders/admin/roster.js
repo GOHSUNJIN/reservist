@@ -132,7 +132,7 @@ const AdminRoster = {
           if(inProgress) return {showMealBadge:false};
           return {
             showMealBadge:true,
-            mealBadgeText:mealOk?(done?'Meal eligible':'On track'):(done?'No meal allowance':'No meal claim'),
+            mealBadgeText:mealOk?(done?'Meal Eligible':'On Track'):(done?'No Meal Allowance':'No Meal Claim'),
             mealBadgeColor:mealOk?PAL.green:PAL.red,
             mealBadgeBg:mealOk?'#e7f3ec':'#f7e4e1',
             mealBadgeBorder:mealOk?'#a8d5bb':'#e5a9a4',
@@ -190,7 +190,7 @@ const AdminRoster = {
         const done=!!r.p4;
         const inProgress=!done&&!mealOk;
         if(inProgress) return {showMealBadge:false};
-        return {showMealBadge:true,mealBadgeText:mealOk?(done?'Meal eligible':'On track'):(done?'No meal allowance':'No meal claim'),mealBadgeColor:mealOk?PAL.green:PAL.red,mealBadgeBg:mealOk?'#e7f3ec':'#fef0ef',mealBadgeBorder:mealOk?'#a8d5bb':'#f5c0bb',showWorkTime:workMinsVal>0,workTimeText:Utils.fmtMins(workMinsVal)+' worked'};
+        return {showMealBadge:true,mealBadgeText:mealOk?(done?'Meal Eligible':'On Track'):(done?'No Meal Allowance':'No Meal Claim'),mealBadgeColor:mealOk?PAL.green:PAL.red,mealBadgeBg:mealOk?'#e7f3ec':'#fef0ef',mealBadgeBorder:mealOk?'#a8d5bb':'#f5c0bb',showWorkTime:workMinsVal>0,workTimeText:Utils.fmtMins(workMinsVal)+' worked'};
       })();
       return {id:p.id,name:p.name,contact:p.contact||'',initials:Utils.initials(p.name),status:r.status,label:mm.label,color:mm.color,bg:mm.bg,timeText:_timeText,showTimeText:!!_timeText,timeTextColor:_timeTextColor,timeTextWeight:_timeTextWeight,avatarStyle:Utils.avatarStyle(av),onViewAvatar:av?self.openAvatarLightbox(av):null,avatarCursor:av?'cursor:pointer;':'',welfareNote:r.welfareNote||'',showWelfareNote:!!(r.welfareNote),onViewHistory:self.openPersonHistory(p.id),onCopyContact:self.copyContact(p.contact||''),
         missingClockOut:_missingClockOut,
@@ -201,7 +201,7 @@ const AdminRoster = {
     });
     const vPresent=viewRoster.filter(r=>r.status==='present').length, vMc=viewRoster.filter(r=>r.status==='mc'||(r.status==='absent'&&r.hasApprovedLeave)).length, vAbsent=viewRoster.filter(r=>r.status==='absent'&&!r.hasApprovedLeave).length, vPending=viewRoster.filter(r=>r.status==='pending').length, vTotal=viewRoster.length;
     const vPercent=vTotal?Math.round((vPresent+vMc)/vTotal*100):0;
-    const viewListHeader=viewOffset<0?'Attendance record':viewOffset>0?'Scheduled roster':'Live status';
+    const viewListHeader=viewOffset<0?'Attendance Record':viewOffset>0?'Scheduled Roster':'Live Status';
     const viewPercentText=viewOffset>0?(vTotal+' rostered'):(vPercent+'% reported');
     const viewPercentColor=viewOffset>0?PAL.muted:PAL.green;
     const vThirdLabel=viewOffset<0?'Absent':'Pending', vThirdVal=viewOffset<0?vAbsent:vPending, vThirdColor=viewOffset<0?PAL.red:PAL.ink2;
@@ -345,8 +345,8 @@ const AdminRoster = {
         const _hasAuth=!!_rp.auth_id;
         return {
           resetPwPersonName:_rp.name||'',
-          resetPwTitle:_hasAuth?'Reset password':'Set password',
-          resetPwBtnLabel:s.resetPwSaving?(_hasAuth?'Resetting...':'Creating...'): (_hasAuth?'Reset password':'Create login & set password'),
+          resetPwTitle:_hasAuth?'Reset Password':'Set Password',
+          resetPwBtnLabel:s.resetPwSaving?(_hasAuth?'Resetting…':'Creating…'): (_hasAuth?'Reset Password':'Create Login & Set Password'),
         };
       })()),
       resetPwNew:s.resetPwNew||'', resetPwSaving:s.resetPwSaving,

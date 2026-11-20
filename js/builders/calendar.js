@@ -17,9 +17,9 @@ const CalendarBuilders = {
     const d=this.dateForOffset(off), hol=Utils.holidayName(d), dk=Utils.dateKey(d);
     if(off===0){
       if(!Utils.isReportDay(d,this._myDept())) return {label:'Weekend',sub:'No reporting required',color:PAL.muted,bg:'#f6f8fa'};
-      if(this.isNoReport(0)) return {label:'No reporting',sub:hol||'Marked as a no-reporting day',color:PAL.amberText,bg:'#f7efdc'};
+      if(this.isNoReport(0)) return {label:'No Reporting',sub:hol||'Marked as a no-reporting day',color:PAL.amberText,bg:'#f7efdc'};
       const rec=this.myRec(), st=rec.status||'pending';
-      if(st==='present') return {label:'Checked in',sub:'Reported at '+(rec.p1||'-'),color:PAL.green,bg:'#e7f3ec'};
+      if(st==='present') return {label:'Checked In',sub:'Reported at '+(rec.p1||'-'),color:PAL.green,bg:'#e7f3ec'};
       if(st==='mc')      return {label:'MC',sub:'Sick leave declared for today',color:PAL.amberText,bg:'#f7efdc'};
       if(st==='absent'){
         return this._findApprovedLeave(dk)
@@ -28,18 +28,18 @@ const CalendarBuilders = {
       }
       return {label:'Pending',sub:'You have not checked in yet today',color:PAL.ink2,bg:'#eceef2'};
     }
-    if(hol) return {label:'Public holiday',sub:hol+', no reporting',color:PAL.amberText,bg:'#f7efdc'};
-    if(dst==='ph') return {label:'Public holiday',sub:'No reporting required',color:PAL.amberText,bg:'#f7efdc'};
-    if(dst==='nr') return {label:'No reporting',sub:'Marked as a no-reporting day',color:'#3b5bdb',bg:'#eef2fb'};
-    if(dst==='dekit') return {label:'Dekit day',sub:'Return equipment and submit meal allowance forms',color:PAL.ink,bg:'#eceef2'};
-    if(dst==='end') return {label:off<0?'Reporting day':'Upcoming',sub:'Last reporting day of your cycle',color:PAL.ink2,bg:'#eceef2'};
-    if(dst==='post') return {label:'No reporting',sub:'Reporting cycle ended, await dekit',color:PAL.muted,bg:'#f0f2f7'};
+    if(hol) return {label:'Public Holiday',sub:hol+', no reporting',color:PAL.amberText,bg:'#f7efdc'};
+    if(dst==='ph') return {label:'Public Holiday',sub:'No reporting required',color:PAL.amberText,bg:'#f7efdc'};
+    if(dst==='nr') return {label:'No Reporting',sub:'Marked as a no-reporting day',color:'#3b5bdb',bg:'#eef2fb'};
+    if(dst==='dekit') return {label:'Dekit Day',sub:'Return equipment and submit meal allowance forms',color:PAL.ink,bg:'#eceef2'};
+    if(dst==='end') return {label:off<0?'Reporting Day':'Upcoming',sub:'Last reporting day of your cycle',color:PAL.ink2,bg:'#eceef2'};
+    if(dst==='post') return {label:'No Reporting',sub:'Reporting cycle ended, await dekit',color:PAL.muted,bg:'#f0f2f7'};
     if(dst==='wknd') return {label:'Weekend',sub:'No reporting required',color:PAL.muted,bg:'#f6f8fa'};
     if(dst==='past'||dst==='work'&&off<0){
       const hr=this._findHistRecord(dk);
       if(hr){
         const t=hr.p1||'-';
-        if(hr.status==='present'&&!hr.p4) return {label:'No clock-out',sub:'You did not clock out. Inform your supervisor. Meal allowance may not apply.',color:'#c2410c',bg:'#fff3e0'};
+        if(hr.status==='present'&&!hr.p4) return {label:'No Check-Out',sub:'You did not check out. Inform your supervisor. Meal allowance may not apply.',color:'#c2410c',bg:'#fff3e0'};
         if(hr.status==='present') return {label:'Present',sub:'Reported at '+t,color:PAL.green,bg:'#e7f3ec'};
         if(hr.status==='mc')     return {label:'MC',sub:'Sick leave recorded',color:PAL.amberText,bg:'#f7efdc'};
         if(hr.status==='absent'){
@@ -56,13 +56,13 @@ const CalendarBuilders = {
       if(futureLeave){
         const isMc=futureLeave.type==='mc';
         if(futureLeave.status==='approved')
-          return {label:isMc?'MC approved':'Leave approved',sub:isMc?'Sick leave approved for this day':'Absence approved for this day',color:PAL.amberText,bg:'#f7efdc'};
-        return {label:isMc?'MC submitted':'Leave submitted',sub:'Awaiting admin approval',color:PAL.amberText,bg:'#fdf6e9'};
+          return {label:isMc?'MC Approved':'Leave Approved',sub:isMc?'Sick leave approved for this day':'Absence approved for this day',color:PAL.amberText,bg:'#f7efdc'};
+        return {label:isMc?'MC Submitted':'Leave Submitted',sub:'Awaiting admin approval',color:PAL.amberText,bg:'#fdf6e9'};
       }
       return {label:'Upcoming',sub:'Reporting day',color:PAL.ink2,bg:'#eceef2'};
     }
-    if(dst==='pre') return {label:'No reporting',sub:'Before your cycle started',color:PAL.ink2,bg:'#eceef2'};
-    return {label:'No reporting',sub:'Outside your reporting cycle',color:PAL.amberText,bg:'#f7efdc'};
+    if(dst==='pre') return {label:'No Reporting',sub:'Before your cycle started',color:PAL.ink2,bg:'#eceef2'};
+    return {label:'No Reporting',sub:'Outside your reporting cycle',color:PAL.amberText,bg:'#f7efdc'};
   },
 
   _buildCalendar: function(s, accent) {
@@ -177,7 +177,7 @@ const CalendarBuilders = {
          hasIncompleteTimes:status==='present'&&!!rec.p4&&(isCas?false:(!rec.p2||!rec.p3))&&_exDates.includes(today),
          isToday:true,
          ...Utils.meta(status),
-         ...(_todayInProg?{label:'In progress',color:PAL.blue,bg:'#eef3fc'}:{})}]:[];
+         ...(_todayInProg?{label:'In Progress',color:PAL.blue,bg:'#eef3fc'}:{})}]:[];
 
     const _nc=PAL.amberText; // amber for unrecorded slots
     const _histFiltered=s.history.filter(r=>Utils.isReportDay(new Date(r.date+'T00:00:00'),this._myDept())&&(!activeBatch||r.date>=activeBatch.start_date));
@@ -211,7 +211,7 @@ const CalendarBuilders = {
         onOpenMissedNote:isMissed?this.openMissedNote(r.date,r.welfareNote||''):()=>{},
         isPersonalLeave:!!_approvedLeave,
         ...(_approvedLeave?{label:'Personal Leave',color:PAL.amberText,bg:'#f7efdc'}:Utils.meta(r.status)),
-        ...(_rowInProg?{label:'In progress',color:PAL.blue,bg:'#eef3fc'}:{})};
+        ...(_rowInProg?{label:'In Progress',color:PAL.blue,bg:'#eef3fc'}:{})};
     });
 
     const missedRows=[];

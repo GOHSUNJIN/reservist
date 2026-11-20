@@ -203,13 +203,13 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
   <div style="width:52px;height:52px;border-radius:var(--r-lg);background:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:20px;box-shadow:0 4px 16px rgba(20,30,70,.10);">
     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2f5fd0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
   </div>
-  <div style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:8px;">Desktop only</div>
+  <div style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:8px;">Desktop Only</div>
   <div style="font-size:14px;color:var(--ink-2);line-height:1.5;max-width:280px;">The Monitor is designed for desktop. Please open it on a laptop or computer.</div>
 </div>
 
 <!-- Filter guide popover -->
 <div id="filter-guide">
-  <div class="fg-head">Filter categories</div>
+  <div class="fg-head">Filter Categories</div>
   <div class="fg-list">
     <div class="fg-row"><span class="fg-pill" style="background:#e7f3ec;color:var(--green);">Attendance</span><span class="fg-desc">Check-in phases, time corrections and status changes</span></div>
     <div class="fg-row"><span class="fg-pill" style="background:#fdf6e9;color:var(--amber-text);">Leave</span><span class="fg-desc">Leave requests submitted, approved, declined or withdrawn</span></div>
@@ -243,7 +243,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
         <div class="login-brand-sub">ReservistGO Monitor</div>
       </div>
     </div>
-    <div class="login-heading">Sign in</div>
+    <div class="login-heading">Log In</div>
     <div class="login-sub">Admin and master access only.</div>
     <div class="field">
       <label class="field-label">Contact Number</label>
@@ -256,7 +256,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
       <button type="button" id="login-pw-eye" aria-label="Show or hide password" onclick="toggleLoginPw()" style="position:absolute;right:1px;top:50%;transform:translateY(-50%);width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;color:var(--ink-2);padding:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg></button>
       </div>
     </div>
-    <button id="login-btn" class="btn-login">Sign in</button>
+    <button id="login-btn" class="btn-login">Log In</button>
     <div id="login-err" class="login-err"></div>
   </div>
 </div>
@@ -266,9 +266,9 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
   <div class="denied-icon">
     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#b0342a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
   </div>
-  <div class="denied-title">Access denied</div>
+  <div class="denied-title">Access Denied</div>
   <div class="denied-sub">This page is restricted to admins and masters. Contact your system administrator if you believe this is an error.</div>
-  <button class="btn-login" style="width:auto;padding:11px 28px;" onclick="doLogout()">Back to login</button>
+  <button class="btn-login" style="width:auto;padding:11px 28px;" onclick="doLogout()">Back to Log In</button>
 </div>
 
 <!-- App -->
@@ -294,7 +294,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
         Home
       </button>
-      <button class="btn-logout" onclick="doLogout()">Log out</button>
+      <button class="btn-logout" onclick="doLogout()">Log Out</button>
     </div>
   </header>
 
@@ -340,7 +340,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
       <div class="toolbar-top">
         <div class="search-wrap">
           <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
-          <input class="search-inp" type="search" id="search-inp" placeholder="Search by name, action or target..." oninput="onSearch()">
+          <input class="search-inp" type="search" id="search-inp" placeholder="Search by name, action or target…" oninput="onSearch()">
         </div>
         <div class="date-wrap">
           <input class="date-inp" type="date" id="date-from" title="From" aria-label="From date" onchange="applyFilters()">
@@ -364,7 +364,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
         <button class="pill" data-cat="export" onclick="setCat(this)">Export</button>
         <button class="pill" data-cat="account" onclick="setCat(this)">Account</button>
         <button class="pill" data-cat="admin" onclick="setCat(this)">Admin</button>
-        <button class="pill" data-cat="data" onclick="setCat(this)" title="Every direct change to attendance, leave and personnel records, written by the database">Data changes</button>
+        <button class="pill" data-cat="data" onclick="setCat(this)" title="Every direct change to attendance, leave and personnel records, written by the database">Data Changes</button>
         <button id="clear-filters-btn" onclick="clearFilters()" style="display:none;align-items:center;gap:5px;margin-left:auto;padding:5px 11px;border-radius:var(--r-pill);border:1px solid #f1d0cc;background:#f7e4e1;font-size:var(--fs-small);font-weight:600;color:var(--red);cursor:pointer;white-space:nowrap;flex-shrink:0;"><svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Clear</button>
         <button class="filter-guide-btn" id="filter-guide-btn" title="What are these?">?</button>
       </div>
@@ -373,11 +373,11 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
     <!-- Events -->
     <div class="events-panel">
       <div class="events-header">
-        <span class="events-title">Activity feed</span>
+        <span class="events-title">Activity Feed</span>
         <div style="display:flex;align-items:center;gap:12px;">
           <div id="live-badge" style="display:flex;align-items:center;gap:5px;font-size:var(--fs-small);font-weight:600;color:var(--muted);">
             <span id="live-dot" style="width:7px;height:7px;border-radius:50%;background:#d1d5db;flex-shrink:0;"></span>
-            <span id="live-label">Connecting...</span>
+            <span id="live-label">Connecting…</span>
           </div>
           <span class="events-count" id="events-count"></span>
         </div>
@@ -836,7 +836,7 @@ async function showPersonTip(el,pid){
   tip.style.left=Math.min(rect.left,window.innerWidth-222)+'px';
   tip.style.display='block';
   if(_tipCache[pid]===undefined){
-    body.innerHTML='<div style="color:var(--muted);font-size:var(--fs-small);padding:2px 0 4px;">Loading...</div>';
+    body.innerHTML='<div style="color:var(--muted);font-size:var(--fs-small);padding:2px 0 4px;">Loading…</div>';
     const{data}=await _db.from('personnel').select('contact,department,role,batches(label)').eq('id',pid).maybeSingle();
     if(!data){_tipCache[pid]=null;}
     else if(data.role==='admin'||data.role==='master'){_tipCache[pid]='skip';}

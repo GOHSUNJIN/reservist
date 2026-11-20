@@ -27,21 +27,21 @@ const CheckinBuilders = {
     const myBatch=s.batches.find(b=>b.id===me.batch_id);
     let outOfCycle=false, outOfCycleTitle='', outOfCycleSub='';
     if(!myBatch){
-      outOfCycle=true; outOfCycleTitle='No cycle assigned';
+      outOfCycle=true; outOfCycleTitle='No Cycle Assigned';
       outOfCycleSub='You have not been assigned to a batch. Contact your supervisor.';
     } else {
       const bsKey=myBatch.start_date, beKey=myBatch.end_date, ddKey=myBatch.dekit_date;
       if(todayKey<bsKey){
-        outOfCycle=true; outOfCycleTitle='Cycle not started';
+        outOfCycle=true; outOfCycleTitle='Cycle Not Started';
         outOfCycleSub='Your reporting cycle begins on '+Utils.fmtMed(new Date(bsKey+'T00:00:00'))+'. Nothing to do yet.';
       } else if(ddKey&&todayKey===ddKey){
-        outOfCycle=true; outOfCycleTitle='Dekit day';
+        outOfCycle=true; outOfCycleTitle='Dekit Day';
         outOfCycleSub='Return all equipment today and confirm your meal allowance entitlement with the Manpower Officer.';
       } else if(ddKey&&todayKey>ddKey){
-        outOfCycle=true; outOfCycleTitle='Cycle complete';
+        outOfCycle=true; outOfCycleTitle='Cycle Complete';
         outOfCycleSub=(myBatch.label?myBatch.label+' is complete.':'Your cycle is complete.')+' Well done.';
       } else if(todayKey>beKey){
-        outOfCycle=true; outOfCycleTitle='Reporting days ended';
+        outOfCycle=true; outOfCycleTitle='Reporting Days Ended';
         const dekitD=ddKey?Utils.fmtMed(new Date(ddKey+'T00:00:00')):null;
         outOfCycleSub='Your last reporting day has passed.'+(dekitD?' Dekit on '+dekitD+'.':'');
       }
@@ -62,7 +62,7 @@ const CheckinBuilders = {
     }
     else if(locOutOfRange){gLocBorder='#f1d3cf';gLocCardBg='#fbeeec';gLocBadgeBg='#f7e4e1';gLocBadgeColor=PAL.red;const veryPoorAcc=s.locAccuracy!=null&&s.locAccuracy>300;const badFix=s.locDistance!=null&&s.locDistance>50000;gLocMsg=(veryPoorAcc||badFix)?('GPS signal too weak to verify your location'+(s.locAccuracy!=null?' (±'+s.locAccuracy+'m)':'')+'. Step outside to an open area with clear sky and try again.'):s.locDistance+' m away. You must be at '+hqName+' to check in.'+accStr+(poorAcc?'\n\nNote: GPS accuracy is low (±'+s.locAccuracy+'m). If you are on-site, move outside and try again.':'');gLocMsgColor=PAL.red;}
     else if(locGpsError){gLocBorder='#f0e2c2';gLocCardBg='#fdf6e9';gLocBadgeBg='#f7efdc';gLocBadgeColor=PAL.amberText;gLocMsg=s.locGpsMsg||'Location unavailable. Check permissions and try again.';gLocMsgColor=PAL.amberText;}
-    else if(locLocating){gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor=accent;gLocMsg=s.locSlow?slowMsg:'Locating you via GPS...';gLocMsgColor=PAL.muted;}
+    else if(locLocating){gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor=accent;gLocMsg=s.locSlow?slowMsg:'Locating you via GPS…';gLocMsgColor=PAL.muted;}
     else{gLocBorder='#eef0f4';gLocCardBg='#fff';gLocBadgeBg='#eceef2';gLocBadgeColor=PAL.muted;gLocMsg='Tap "Locate me" to verify your location.';gLocMsgColor=PAL.muted;}
 
     const shift='OFFICE';
@@ -73,13 +73,13 @@ const CheckinBuilders = {
     const _isDinner=_timings?Utils.isBreakDinner(_timings):false;
     const _breakLabel=_isDinner?'Dinner':'Lunch';
     const phaseDefs=isCas?[
-      {key:'p1',num:1,label:'Check in to work',needsGps:true,depends:null},
-      {key:'p4',num:2,label:'Check out',needsGps:true,depends:'p1'},
+      {key:'p1',num:1,label:'Check In to Work',needsGps:true,depends:null},
+      {key:'p4',num:2,label:'Check Out',needsGps:true,depends:'p1'},
     ]:[
-      {key:'p1',num:1,label:'Check in to work',needsGps:true,depends:null},
-      {key:'p2',num:2,label:_isDinner?'Dinner break':'Lunch break',needsGps:true,depends:'p1'},
-      {key:'p3',num:3,label:_isDinner?'Return from dinner':'Return from lunch',needsGps:true,depends:'p2'},
-      {key:'p4',num:4,label:'Check out',needsGps:true,depends:'p3'},
+      {key:'p1',num:1,label:'Check In to Work',needsGps:true,depends:null},
+      {key:'p2',num:2,label:_isDinner?'Dinner Break':'Lunch Break',needsGps:true,depends:'p1'},
+      {key:'p3',num:3,label:_isDinner?'Return from Dinner':'Return from Lunch',needsGps:true,depends:'p2'},
+      {key:'p4',num:4,label:'Check Out',needsGps:true,depends:'p3'},
     ];
     const phases=phaseDefs.map(pd=>{
       const time=rec[pd.key];
@@ -93,10 +93,10 @@ const CheckinBuilders = {
       const isActive=!done&&!locked&&(inWin||pastWin);
       const myGpsActive=isActive&&pd.needsGps&&s.locPhase===pd.key;
       const doneText=done?(pd.needsGps?(dist!=null?'GPS verified · '+dist+' m from '+hqName:'GPS verified'):'Recorded'):'';
-      const btnLabel=pd.key==='p1'?'Check in to work':pd.key==='p2'?(_isDinner?'Record dinner break':'Record lunch break'):pd.key==='p3'?(_isDinner?'Return from dinner':'Return from lunch'):'Check out';
+      const btnLabel=pd.key==='p1'?'Check In to Work':pd.key==='p2'?(_isDinner?'Record Dinner Break':'Record Lunch Break'):pd.key==='p3'?(_isDinner?'Return from Dinner':'Return from Lunch'):'Check Out';
       const win=_timings?Utils.effectivePhaseWindow(pd.key,_timings):Utils.phaseWindow(shift,pd.key,this._myDept());
       const locIsOutOfRange=myGpsActive&&locOutOfRange;
-      const _waPhaseLabel=pd.key==='p1'?'Check in':pd.key==='p2'?(_isDinner?'Dinner break':'Lunch break'):pd.key==='p3'?(_isDinner?'Return from dinner':'Return from lunch'):'Check out';
+      const _waPhaseLabel=pd.key==='p1'?'Check In':pd.key==='p2'?(_isDinner?'Dinner Break':'Lunch Break'):pd.key==='p3'?(_isDinner?'Return from Dinner':'Return from Lunch'):'Check Out';
       const _waGeoMsg=`Hi, I need help with my attendance.\n\nName: ${me.name}\nPhase: ${_waPhaseLabel}\nDate: ${Utils.dateKey(this.baseDate())}\n\nGPS shows me ${s.locDistance!=null?s.locDistance+'m ':''}out of range. Please assist with a manual record.`;
       const geofenceWaLink=`https://api.whatsapp.com/send?text=${encodeURIComponent(_waGeoMsg)}`;
       return {
@@ -123,7 +123,7 @@ const CheckinBuilders = {
         locShowReload:false,
         locIsPermErr:myGpsActive&&locGpsError&&s.locPermErr,
         locIsNotPermErr:!(myGpsActive&&locGpsError&&s.locPermErr),
-        locBtnLabel:locLocating?'Locating...':(locIdle?'Locate me':'Try again'),
+        locBtnLabel:locLocating?'Locating…':(locIdle?'Locate Me':'Try Again'),
         locBtnDisabled:myGpsActive&&locLocating,
         locBtnOpacity:myGpsActive&&locLocating?'.6':'1',
         locBorder:myGpsActive?gLocBorder:'#eef0f4',
@@ -136,7 +136,7 @@ const CheckinBuilders = {
         checkInPE:(myGpsActive&&locVerified&&!s.phaseSubmitting)?'auto':'none',
         locIsOutOfRange, geofenceWaLink,
         showGpsBypass: myGpsActive && locGpsError,
-        bypassLabel: pd.key==='p1'?'Check in without GPS':pd.key==='p2'?'Record break without GPS':pd.key==='p3'?'Record return without GPS':'Check out without GPS',
+        bypassLabel: pd.key==='p1'?'Check In without GPS':pd.key==='p2'?'Record Break without GPS':pd.key==='p3'?'Record Return without GPS':'Check Out without GPS',
         onBypass: this.doPhaseBypass(pd.key),
         showBrowserTip: myGpsActive && locGpsError && !s.locPermErr,
       };
@@ -183,7 +183,7 @@ const CheckinBuilders = {
       todayLong:Utils.fmtLong(this.baseDate()),
       clock:Utils.hhmm(s.now),
       myShiftLabel:'Office', myShiftWindow:_timings?(_isDinner?'1400 to 2100, Dinner 1800 to 1930':'0900 to 1800, Lunch 1200 to 1330'):'0900 to 1800 hrs',
-      myStatusLabel:outOfCycle?outOfCycleTitle:noRep?'No reporting':todayApprovedLeave&&status==='absent'?'Personal Leave':m.label,
+      myStatusLabel:outOfCycle?outOfCycleTitle:noRep?'No Reporting':todayApprovedLeave&&status==='absent'?'Personal Leave':m.label,
       myStatusColor:outOfCycle?PAL.muted:noRep?accent:todayApprovedLeave&&status==='absent'?PAL.amberText:m.color,
       myStatusBg:outOfCycle?'#eceef2':noRep?'#eef3fc':todayApprovedLeave&&status==='absent'?'#f7efdc':m.bg,
       myStatusPulse:(!outOfCycle&&status==='pending'&&!noRep)?'animation:pulseDot 1.6s ease infinite;':'',
@@ -219,7 +219,7 @@ const CheckinBuilders = {
         const workMinsVal=Utils.workMins(rec,nowHhmm);
         const breakMinsVal=onBreak?Math.max(0,Utils._hmToMins(nowHhmm)-Utils._hmToMins(rec.p2)):(rec.p2&&rec.p3?Math.max(0,Utils._hmToMins(rec.p3)-Utils._hmToMins(rec.p2)):0);
         const isMealEligible=Utils.mealEligible(rec,nowHhmm);
-        const mealStatusText=rec.p4?(isMealEligible?'Meal eligible':'No meal allowance'):(isMealEligible?'Meal eligible':'No meal claim');
+        const mealStatusText=rec.p4?(isMealEligible?'Meal Eligible':'No Meal Allowance'):(isMealEligible?'Meal Eligible':'No Meal Claim');
         const mealStatusColor=isMealEligible?PAL.green:PAL.amberText;
         const mealStatusBg=isMealEligible?'#e7f3ec':'#fdf6e9';
         const mealStatusBorderColor=isMealEligible?'#a8d5bb':'#f0e2c2';
@@ -255,7 +255,7 @@ const CheckinBuilders = {
       onLeaveTypePersonal:this.onLeaveType('personal'), onLeaveTypeMc:this.onLeaveType('mc'),
       onLeaveReason:this.onLeaveReason, submitLeaveRequest:this.submitLeaveRequest, closeLeaveRequest:this.closeLeaveRequest,
       welfareNote:rec.welfareNote||'', hasWelfareNote:!!(rec.welfareNote),
-      welfareNoteBtnLabel:rec.welfareNote?'Edit daily note':'Add a note for today',
+      welfareNoteBtnLabel:rec.welfareNote?'Edit Daily Note':'Add a Note for Today',
       canAddWelfareNote:s.role==='admin'&&!outOfCycle&&!noRep&&Utils.isReportDay(todayD,this._myDept()),
       supervisorNote:rec.welfareNote||'', hasSupervisorNote:s.role==='reservist'&&!!(rec.welfareNote),
       openWelfareNote:this.openWelfareNote, closeWelfareNote:this.closeWelfareNote,

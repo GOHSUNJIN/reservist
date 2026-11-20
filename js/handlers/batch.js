@@ -46,7 +46,7 @@ const BatchHandlers = {
     const label=Utils.batchLabel(startStr,endStr,cycleNum);
     if(!demo){
       const {data,error}=await DB.batches.create(label,startStr,endStr,dekitStr,dept);
-      if(error||!data){ this._toast('Failed to create batch.','error'); this.setState({batchCreating:false}); return; }
+      if(error||!data){ this._toast('Failed to create cycle.','error'); this.setState({batchCreating:false}); return; }
       const newBatches=await DB.batches.list(dept).catch(()=>[...batches,data]);
       const liveIdx=newBatches.findIndex(b=>b.is_live);
       this.setState({batches:newBatches,activeBatchIdx:liveIdx>=0?liveIdx:0,newBatchDate:'',batchCreating:false,tab:'people'});
@@ -54,7 +54,7 @@ const BatchHandlers = {
       const nb={id:'demo-b-'+Date.now(),label,start_date:startStr,end_date:endStr,dekit_date:dekitStr,is_live:true};
       this.setState(prev=>({batches:[...prev.batches,nb],newBatchDate:'',batchCreating:false}));
     }
-    this._toast('Batch '+label+' created.');
+    this._toast('Cycle '+label+' created.');
     this._log('batch', 'batch.created', { target_name: label });
   },
 
@@ -63,11 +63,11 @@ const BatchHandlers = {
     const batch = batches[activeBatchIdx||0]; if(!batch) return;
     if(!demo){
       const {error} = await DB.batches.remove(batch.id).catch(()=>({error:true}));
-      if(error){ this._toast('Failed to remove batch. It may have linked records.','error'); return; }
+      if(error){ this._toast('Failed to remove cycle. It may have linked records.','error'); return; }
     }
     const newBatches = batches.filter(b=>b.id!==batch.id);
     this.setState({batches:newBatches, activeBatchIdx:0});
-    this._toast('Batch removed.');
+    this._toast('Cycle removed.');
     this._log('batch', 'batch.deleted', { target_name: batch.label||batch.id });
   },
 
@@ -84,7 +84,7 @@ const BatchHandlers = {
     if(!demo) await DB.batches.updateLabel(activeBatch.id, batchLabelText.trim()).catch(()=>{});
     const newBatches = batches.map(b=>b.id===activeBatch.id?{...b,label:batchLabelText.trim()}:b);
     this.setState({batches:newBatches, editingBatchLabel:false});
-    this._toast('Batch label updated.');
+    this._toast('Cycle name updated.');
     this._log('batch', 'batch.label_edited', { target_name: batchLabelText.trim() });
   },
 
@@ -273,7 +273,7 @@ const BatchHandlers = {
     if(error){ this._toast('Failed to save timings.','error'); return; }
     const patchArr = (arr) => arr.map(p=>p.id===ptOverrideEditId?{...p,phase_timings:saved}:p);
     this.setState(s=>{ const newBmc={}; Object.keys(s.batchMembersCache).forEach(k=>{newBmc[k]=patchArr(s.batchMembersCache[k]);}); return {personnel:patchArr(s.personnel),batchMembersCache:newBmc,ptOverrideEditId:null,ptOverrideDraft:null,ptOverrideSearch:''}; });
-    this._toast('Custom timings saved'+(personName?' for '+personName:'')+'.');
+    this._toast('Custom timings saved.'+(personName?' for '+personName:'')+'.');
     this._log('batch','batch.person_timings_updated',{target_name:personName,prev:_prevEff,next:saved});
   },
   clearPtOverride: async function(id) {
@@ -286,7 +286,7 @@ const BatchHandlers = {
     if(error){ this._toast('Failed to clear.','error'); return; }
     const patchArr = (arr) => arr.map(p=>p.id===id?{...p,phase_timings:null}:p);
     this.setState(s=>{ const newBmc={}; Object.keys(s.batchMembersCache).forEach(k=>{newBmc[k]=patchArr(s.batchMembersCache[k]);}); return {personnel:patchArr(s.personnel),batchMembersCache:newBmc,ptOverrideEditId:null,ptOverrideDraft:null}; });
-    this._toast('Custom timings cleared'+(personName?' for '+personName:'')+'.');
+    this._toast('Custom timings cleared.'+(personName?' for '+personName:'')+'.');
     this._log('batch','batch.person_timings_cleared',{target_name:personName,prev:_prevTimings});
   },
 
