@@ -1,4 +1,12 @@
 const DB_Batches = {
+  // Open intakes for the sign-up and "Apply Again" forms. Works before login
+  // and for accounts that are not approved yet (they can't read the table).
+  async listOpenForSignup(dept) {
+    const { data, error } = await _db.rpc('signup_open_batches', dept ? { p_department: dept } : {});
+    if (error) console.error('[listOpenForSignup]', error);
+    return data || [];
+  },
+
   async list(dept) {
     let q = _db.from('batches').select('*').order('start_date');
     if (dept) q = q.eq('department', dept);

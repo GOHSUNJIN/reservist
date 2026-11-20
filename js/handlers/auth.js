@@ -27,28 +27,13 @@ const AuthHandlers = {
     if(suPassword.length < 6){ this.setState({authError:'Password must be at least 6 characters.'}); return; }
     const {clean:cleanContact, error:contactErr} = Utils.validateSGContact(suContact);
     if(contactErr){ this.setState({authError:contactErr}); return; }
-    const today = Utils.dateKey(this.baseDate());
     let allBatches = this.state.batches;
     if(!allBatches.length) {
-      allBatches = await DB.batches.list().catch(()=>[]);
+      allBatches = await DB.batches.listOpenForSignup().catch(()=>[]);
       if(allBatches.length) this.setState({batches:allBatches});
     }
-    const allSorted = [...allBatches].sort((a,b)=>a.start_date>b.start_date?1:-1);
-    const strictDept = allSorted.filter(b=>b.department===suDepartment);
-    const deptBatches = strictDept.length ? strictDept : allSorted.filter(b=>!b.department);
-    const liveBatch = deptBatches.find(b=>b.is_live) || deptBatches.find(b=>today>=b.start_date&&today<=b.end_date);
-    if(!liveBatch){
-      this.setState({authError:'No active intake batch is open for sign-up right now.'});
-      return;
-    }
-    const isLastDay = today === liveBatch.end_date;
-    const isBeyondEnd = today > liveBatch.end_date;
-    const nextBatch = (isLastDay || isBeyondEnd) ? deptBatches.find(b=>b.start_date>liveBatch.end_date) : null;
-    if((isLastDay || isBeyondEnd) && !nextBatch){
-      this.setState({authError:'Sign-ups for this cycle have closed. Please wait for the next cycle to open or contact your supervisor.'});
-      return;
-    }
-    const activeBatch = nextBatch || liveBatch;
+    const {batch:activeBatch, error:batchErr} = this._signupTargetBatch(allBatches, suDepartment);
+    if(batchErr){ this.setState({authError:batchErr}); return; }
     this.setState({loading:true, authError:''});
     const {user,error} = await DB.auth.signup(cleanContact, suPassword, suName.trim());
     let signupUser = user;
@@ -77,8 +62,8 @@ const AuthHandlers = {
       await DB.signupRequests.deletePendingById(existingReq.id).catch(()=>{});
     }
     if(existingReq?.status==='rejected'){
-      await DB.auth.logout();
-      this.setState({loading:false, authError:'Your previous signup request was not approved. Contact your supervisor.'});
+      // Keep them logged in so they can apply again without a new account.
+      this.setState({loading:false, authError:'', suPassword:'', authMode:'rejected', rejectedReq:existingReq});
       return;
     }
     if(existingReq?.status==='approved' && existingReq.batch_id===activeBatch.id){
@@ -89,7 +74,8 @@ const AuthHandlers = {
     const {error:reqErr} = await DB.signupRequests.create({authId:signupUser.id, name:suName.trim(), contact:cleanContact, batchId:activeBatch.id, department:suDepartment});
     if(reqErr){
       await DB.auth.logout();
-      this.setState({loading:false, authError:'Signup failed: '+(reqErr.message||'database error. Check Supabase grants.')});
+      const friendly = reqErr.hint==='rate_limited' || reqErr.hint==='already_pending';
+      this.setState({loading:false, authError: friendly ? reqErr.message : 'Signup failed: '+(reqErr.message||'database error. Check Supabase grants.')});
       return;
     }
     this._log('signup', 'signup.request_submitted', { target_name: suName.trim(), department: suDepartment });
@@ -141,7 +127,8 @@ const AuthHandlers = {
       viewOffset:0, rosterSearch:'', logSearch:'',
       markingAllAbsent:false, confirmMarkAllAbsent:false,
       personHistoryId:null, personHistoryRows:[], personHistoryLoading:false,
-      signupPending:false,
+      signupPending:false, rejectedReq:null,
+      rejectSignupId:null, rejectSignupReason:'', rejectSignupSaving:false, moveSignupId:null, moveSignupDept:'', moveSignupSaving:false,
       pendingSignups:[], pendingSignupsLoaded:false, approvedSignups:[], rejectedSignups:[], rejectedSignupsLoaded:false,
       selectedSignupIds:[],
       signupSearch:'', signupTypeFilter:'all', signupSearchOpen:false, signupContactToId:{},
@@ -201,7 +188,9 @@ const AuthHandlers = {
     if(e.key==='Enter' && this.state.authMode==='login') this.doLogin();
   },
   onSuKeyDown: function(e) {
-    if(e.key==='Enter' && this.state.authMode==='signup') this.doSignup();
+    if(e.key!=='Enter') return;
+    if(this.state.authMode==='signup') this.doSignup();
+    else if(this.state.authMode==='reapply') this.doReapply();
   },
   onSuName:        function(e) { this.setState({suName:e.target.value}); },
   onSuContact:     function(e) { this.setState({suContact:e.target.value}); },
@@ -210,7 +199,7 @@ const AuthHandlers = {
     const dept = e.target.value;
     this.setState({suDepartment:dept, authError:''});
     if(!dept || this.state.demo) return;
-    const deptBatches = await DB.batches.list(dept).catch(()=>[]);
+    const deptBatches = await DB.batches.listOpenForSignup(dept).catch(()=>[]);
     if(deptBatches.length) {
       this.setState(s=>{
         const existing = new Set(s.batches.map(b=>b.id));
@@ -218,6 +207,58 @@ const AuthHandlers = {
         return {batches:merged};
       });
     }
+  },
+
+  // Same intake rule the sign-up form shows: the live cycle, or the next one
+  // from the live cycle's last day.
+  _signupTargetBatch: function(batches, dept) {
+    const today = Utils.dateKey(this.baseDate());
+    const allSorted = [...(batches||[])].sort((a,b)=>a.start_date>b.start_date?1:-1);
+    const strictDept = allSorted.filter(b=>b.department===dept);
+    const deptBatches = strictDept.length ? strictDept : allSorted.filter(b=>!b.department);
+    const liveBatch = deptBatches.find(b=>b.is_live) || deptBatches.find(b=>today>=b.start_date&&today<=b.end_date);
+    if(!liveBatch) return {batch:null, error:'No active intake batch is open for sign-up right now.'};
+    const isLastDay = today === liveBatch.end_date;
+    const isBeyondEnd = today > liveBatch.end_date;
+    const nextBatch = (isLastDay || isBeyondEnd) ? deptBatches.find(b=>b.start_date>liveBatch.end_date) : null;
+    if((isLastDay || isBeyondEnd) && !nextBatch){
+      return {batch:null, error:'Sign-ups for this cycle have closed. Please wait for the next cycle to open or contact your supervisor.'};
+    }
+    return {batch:nextBatch || liveBatch, error:null};
+  },
+
+  // ── Declined sign-up: "Apply Again" ──────────────────────────────────────
+  // The account stays logged in on the declined screen, so re-applying needs
+  // no new account, password or email.
+  openReapply: async function() {
+    const req = this.state.rejectedReq;
+    this.setState({authMode:'reapply', authError:'', suName:req?.name||'', suDepartment:''});
+    const batches = await DB.batches.listOpenForSignup().catch(()=>[]);
+    if(batches.length) this.setState({batches});
+  },
+
+  cancelReapply: function() { this.setState({authMode:'rejected', authError:'', suDepartment:''}); },
+
+  doReapply: async function() {
+    const {suDepartment, suName, batches} = this.state;
+    if(!suDepartment){ this.setState({authError:'Please select your department.'}); return; }
+    if(!suName.trim()){ this.setState({authError:'Please enter your full name.'}); return; }
+    const {batch, error:batchErr} = this._signupTargetBatch(batches, suDepartment);
+    if(batchErr){ this.setState({authError:batchErr}); return; }
+    this.setState({loading:true, authError:''});
+    const {error} = await DB.signupRequests.reapply(suDepartment, batch.id, suName.trim()).catch(e=>({error:e}));
+    if(error){
+      this.setState({loading:false, authError:error.message||'Could not submit your application. Please try again.'});
+      return;
+    }
+    await DB.auth.logout();
+    this.setState({loading:false, authMode:'login', rejectedReq:null, signupPending:true,
+      suName:'', suContact:'', suPassword:'', suDepartment:''});
+  },
+
+  logoutRejected: async function() {
+    await DB.auth.logout();
+    this.setState({authMode:'login', rejectedReq:null, authError:'', suName:'', suDepartment:'', loading:false});
   },
 
   dismissSignupPending: function() { this.setState({signupPending:false, authMode:'login'}); },
@@ -259,7 +300,7 @@ const AuthHandlers = {
 
   _refreshSignupSlots: async function() {
     if(this.state.demo) return;
-    const batches = await DB.batches.list().catch(()=>[]);
+    const batches = await DB.batches.listOpenForSignup().catch(()=>[]);
     if(batches.length) {
       const liveIdx = batches.findIndex(b=>b.is_live);
       this.setState({batches, activeBatchIdx:liveIdx>=0?liveIdx:0});

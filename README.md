@@ -51,6 +51,7 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Offline check-in**: If connectivity is lost during check-in, the action is saved on the device and submitted automatically once the connection is restored.
 - **Department selection at signup**: Reservists choose their department (Ops Security or Crime Prevention Office/CPO) during signup. The intake cycle shown on the form updates to reflect whichever department is selected.
 - **Returning reservist re-enrollment**: When a reservist from a previous cycle logs in after their account was deactivated, the app automatically submits a re-enrollment request to the supervisor. No manual coordination required.
+- **Declined sign-up: Apply Again**: If a sign-up is declined (for example, the wrong department was picked), logging in shows "Your request to join [department] was not approved." with the supervisor's reason, if one was given, and an **Apply Again** button. The form opens with their name and contact already filled in, so they only pick the correct department. The intake is chosen automatically. No new account, password or email is needed. The new request goes to that department's admins as Pending. The declined request stays on record and the re-application is logged. Limited to 3 re-applications per day.
 - **Logout confirmation**: Tapping Log Out shows a confirmation step before the session is ended, preventing accidental logouts.
 - **Session expiry warning**: A banner appears at 55 minutes into the session with a one-tap option to extend it before the session expires at 60 minutes.
 - **Idle timeout**: Sessions expire after 20 minutes of inactivity, with a warning at 18 minutes.
@@ -95,7 +96,9 @@ ReservistGO runs directly in the phone's browser. Personnel access it through a 
 - **Bulk leave actions**: Select multiple pending leave requests and approve or reject them in a single action. Bulk rejection requires a written reason recorded against each rejected request.
 - **Urgency sorting**: Pending leave requests are sorted by submission time, newest first, so recently submitted requests are visible immediately.
 - **Leave request rejection reason**: Each rejected request records the reviewer's name, timestamp and written reason.
-- **Reopen rejected signups**: A rejected signup request can be re-opened and returned to pending status if the decision needs to be reversed.
+- **Decline with a reason**: Declining a signup opens a box for an optional reason. The applicant sees it when they next log in.
+- **Move to department**: A pending or declined signup can be moved to the correct department instead of being declined. It arrives in that department's inbox as Pending, in its open intake. A declined request keeps its history and is tagged **Re-applied** once the person applies again or is moved.
+- **Reopen rejected signups**: A rejected signup request can be re-opened and returned to pending status if the decision needs to be reversed (not available once the person has re-applied).
 - **Hide rejected signups**: Collapsed view for rejected signup requests to reduce clutter in the inbox.
 - **Copyable contact numbers**: Tap any phone number in the requests list, roster card or supervisor list to copy it to the clipboard.
 
@@ -226,6 +229,8 @@ Hovering over a profile photo in the feed shows an enlarged version of the photo
 | `signup.rejected` | Declined [name]'s signup | Admin |
 | `signup.reopened` | Re-opened [name]'s signup | Admin |
 | `signup.bulk_approved` | Bulk approved N signups: count shown | Admin |
+| `signup.reapplied` | Applied again to [department] (declined by [department]) | Applicant (logged by the server) |
+| `signup.moved` | Moved [name]'s signup to [department] | Admin (logged by the server) |
 | `personnel.added` | Added [name] to roster | Admin |
 | `personnel.re_enrolled` | Re-enrolled [name] | Admin |
 | `personnel.removed` | Removed [name] from roster | Admin |
@@ -266,13 +271,15 @@ The system uses three permission levels:
 
 Accounts are tied to Singapore mobile numbers. All sessions expire when the browser is closed. Idle sessions time out after 20 minutes.
 
-Row-level security policies are enforced at the database level, not just in the app:
+Row-level security policies and server-side checks enforce these rules in the database, so they hold even for someone calling the API directly with their own login (see `scripts/sql/2026-11-20_3_migration.sql`):
 
-- Reservists can only write attendance records for today in SGT (Asia/Singapore timezone), not UTC, so a reservist cannot exploit a UTC midnight window to submit records for the wrong date.
-- Admin accounts can only read, update or delete signup requests that belong to their own department. Superadmins retain full cross-department visibility.
-- Leave approval and rejection check department membership at the application layer before any database write, so an admin cannot action a request from a different department even if it reaches the handler.
-- Signup status transitions are guarded: reopen only works on rejected requests and reject only works on pending ones, preventing race conditions when two admins process the same request simultaneously.
-- Reservists are capped at 10 pending leave requests at any one time. Submitting beyond this limit returns an error.
+- **Accounts that are not approved** (pending or declined) can read only their own sign-up requests and the list of open intakes. They cannot read personnel, attendance, leave, cycles, the audit log or the photo list.
+- **Reservists** read their own attendance and leave, and their batchmates in the team directory. Every attendance write goes through server functions: check-in only for themselves and only for today (Singapore time, stamped by the server); dinner mode only after their own check-in; notes only on their own days in the current cycle. They can submit leave as pending and withdraw it, but cannot approve it. On their own record they can only change their name or deactivate.
+- **Admins** see and manage only their own department: personnel, attendance, leave, signups, cycles, no-report days and Monitor entries. They cannot change roles, edit admin or master accounts, review their own leave, or move someone to another department directly (department changes go through signup approval or Move to department).
+- **Masters** keep full access across departments and are the only role that can change roles.
+- **Audit log** entries are append-only. The server fills in who wrote each entry, their role, department and time, and reservists can only record their own kind of actions.
+- **Password reset and account deletion** check the caller: masters can act on anyone; admins only on reservists in their department.
+- Signup status transitions are guarded: reopen only works on rejected requests and reject only works on pending ones, preventing race conditions when two admins process the same request simultaneously. Each account can have one pending request at a time.
 
 ---
 
@@ -537,11 +544,7 @@ A second scheduled task runs at 02:00 SGT every day. It deactivates any personne
 
 1. Create a free account at [supabase.com](https://supabase.com) and start a new project.
 2. In the project's SQL editor, paste and run the schema below to create all six tables.
-3. Set access rules so authenticated users can read and write data:
-   ```sql
-   CREATE POLICY "authenticated" ON <table>
-     FOR ALL TO authenticated USING (true) WITH CHECK (true);
-   ```
+3. Set access rules (after the storage bucket in step 4): run `scripts/sql/2026-11-20_2_backup.sql` and then `scripts/sql/2026-11-20_3_migration.sql`. Do **not** add blanket "authenticated can do anything" policies: the migration drops every policy on the app tables and replaces them with role-based rules.
 4. Create a storage bucket named `avatars` for profile photos. Set it to **public** so photos load without authentication. Then add these three policies in the SQL editor:
    ```sql
    CREATE POLICY "upload own avatar" ON storage.objects
@@ -556,6 +559,7 @@ A second scheduled task runs at 02:00 SGT every day. It deactivates any personne
      FOR SELECT TO authenticated
      USING (bucket_id = 'avatars');
    ```
+   (The migration in step 3 replaces the avatar read policy so only enrolled users can list the bucket.)
 5. Run `scripts/sql/supabase_cron.sql` to enable the automatic absent and auto-deactivation jobs. Requires the `pg_cron` extension (enabled by default on Supabase Pro).
 
 > **Upgrading an existing deployment?** If you already have the tables from an earlier version, the migration scripts in `scripts/sql/migrations/` document every schema change applied since the initial release. Run only the ones that apply to your version.

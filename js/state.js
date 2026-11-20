@@ -98,6 +98,11 @@ const makeInitialState = () => ({
   signupSearch: '', signupTypeFilter: 'all', signupSearchOpen: false,
   rejectedSignupsHidden: true,
   signupContactToId: {},
+  rejectSignupId: null, rejectSignupReason: '', rejectSignupSaving: false,
+  moveSignupId: null, moveSignupDept: '', moveSignupSaving: false,
+
+  // ── Declined applicant: "Apply Again" ────────────────────────────────────
+  rejectedReq: null,
 
   // ── Leave requests ───────────────────────────────────────────────────────
   leaveOpen: false, leaveDate: '', leaveType: 'mc', leaveReason: '', leaveSubmitting: false,

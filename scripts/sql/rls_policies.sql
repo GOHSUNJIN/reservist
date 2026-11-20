@@ -1,4 +1,10 @@
 -- ============================================================
+-- SUPERSEDED by 2026-11-20_3_migration.sql. DO NOT RUN.
+-- Postgres ORs permissive policies together, so re-running this
+-- file after the migration would re-open the holes it closed
+-- (e.g. reservists approving their own leave). Kept for history.
+-- ============================================================
+-- ============================================================
 -- Row Level Security policies for ReservistGO
 -- Run this entire file in the Supabase SQL Editor once.
 -- ============================================================

@@ -6,6 +6,19 @@ const AdminPeople = {
 
     const _prSearch=(s.peopleRosterSearch||'').toLowerCase().trim();
     const _filteredActiveMembers=_prSearch?activeMembers.filter(p=>p.name.toLowerCase().includes(_prSearch)||(p.contact||'').toLowerCase().includes(_prSearch)):activeMembers;
+    // Inline panels on a sign-up card: decline with reason, move department
+    const _signupPanels=(r)=>({
+      isRejecting:s.rejectSignupId===r.id,
+      rejectReason:s.rejectSignupId===r.id?(s.rejectSignupReason||''):'',
+      onRejectReason:self.onRejectSignupReason,onConfirmReject:self.confirmRejectSignup,onCancelReject:self.cancelRejectSignup,
+      confirmRejectLabel:s.rejectSignupSaving?'Declining…':'Confirm decline',
+      isMoving:s.moveSignupId===r.id,onOpenMove:self.openMoveSignup(r.id),
+      moveDeptVal:s.moveSignupId===r.id?(s.moveSignupDept||''):'',
+      moveDeptOptions:Object.entries(Utils.DEPARTMENTS).filter(([v])=>v!==r.department).map(([value,{label}])=>({value,label})),
+      onMoveDept:self.onMoveSignupDept,onConfirmMove:self.confirmMoveSignup,onCancelMove:self.cancelMoveSignup,
+      confirmMoveLabel:s.moveSignupSaving?'Moving…':'Move request',
+      moveBtnOpacity:(s.moveSignupId===r.id&&s.moveSignupDept&&!s.moveSignupSaving)?1:0.55,
+    });
     return {
       personnelList:_filteredActiveMembers.map(p=>{
         const av=s.avatars[p.id]||'';
@@ -380,7 +393,8 @@ const AdminPeople = {
               isReactivation,isNew:!isReactivation,
               isCrossDept, prevDeptLabel:isCrossDept?('Previously: '+Utils.deptLabel(prevDept)):'',
               onCopyContact:self.copyContact(r.contact||''),
-              onApprove:self.approveSignup(r.id),onReject:self.rejectSignup(r.id)};
+              onApprove:self.approveSignup(r.id),onReject:self.rejectSignup(r.id),
+              ..._signupPanels(r)};
           }),
           signupSearchHasNoResults:(!!_sq||_stf!=='all')&&s.pendingSignups.length>0&&_basef.length===0,
         };
@@ -394,7 +408,11 @@ const AdminPeople = {
         return (s.rejectedSignups||[]).filter(r=>!_skip.has(_norm(r.contact))).map(r=>{
           const b=(s.batches||[]).find(b=>b.id===r.batch_id);
           const reviewedAt=r.reviewed_at?new Date(r.reviewed_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
-          return {id:r.id,name:r.name,contact:r.contact,batchLabel:b?b.label:'',initials:Utils.initials(r.name)||'?',reviewedAt,reviewedBy:r.reviewed_by||'',onReopen:self.reopenSignup(r.id)};
+          const isSuperseded=!!r.superseded_by;
+          return {id:r.id,name:r.name,contact:r.contact,batchLabel:b?b.label:'',initials:Utils.initials(r.name)||'?',reviewedAt,reviewedBy:r.reviewed_by||'',onReopen:self.reopenSignup(r.id),
+            rejectionReason:r.rejection_reason||'',hasRejectionReason:!!r.rejection_reason,
+            isSuperseded,canAct:!isSuperseded,
+            ..._signupPanels(r)};
         });
       })(),
       hasRejectedSignups:(()=>{const _norm=c=>(c||'').replace(/[\s-]/g,'');const _skip=new Set([...(s.pendingSignups||[]).map(r=>_norm(r.contact)),...(s.personnel||[]).map(p=>_norm(p.contact))]);return (s.rejectedSignups||[]).some(r=>!_skip.has(_norm(r.contact)));})(),

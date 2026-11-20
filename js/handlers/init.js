@@ -22,11 +22,14 @@ const InitHandlers = {
     const me = await DB.personnel.get(user.id).catch(()=>null);
     if(!me){
       const req = await DB.signupRequests.getByAuthId(user.id).catch(()=>null);
+      if(req?.status==='rejected'){
+        // Stay logged in on the declined screen so they can apply again.
+        this.setState({authed:false,loading:false,authError:'',signupPending:false,authMode:'rejected',rejectedReq:req});
+        return;
+      }
       await DB.auth.logout();
       if(req?.status==='pending'){
         this.setState({authed:false,loading:false,authError:'Your account is pending admin approval. You will be able to log in once an admin approves your request.'});
-      } else if(req?.status==='rejected'){
-        this.setState({authed:false,loading:false,authError:'Your signup request was not approved. Please contact your supervisor.'});
       } else if(req?.status==='approved'){
         this.setState({authed:false,loading:false,authError:'Your signup was approved but your account setup is incomplete. Please contact your supervisor to fix this.'});
       } else {
@@ -36,7 +39,15 @@ const InitHandlers = {
     }
     const dept = me.department || 'ops_security';
     if(!me.is_active){
-      const existingReq = await DB.signupRequests.getByContact(me.contact).catch(()=>null);
+      const existingReq = await DB.signupRequests.getByAuthId(user.id).catch(()=>null)
+        || await DB.signupRequests.getByContact(me.contact).catch(()=>null);
+      // Re-enrolment declined after they became inactive: same declined screen
+      const _declinedAt = existingReq?.reviewed_at || existingReq?.created_at;
+      if(existingReq?.status==='rejected' && !existingReq.superseded_by
+         && (!me.deactivated_at || (_declinedAt && new Date(_declinedAt) > new Date(me.deactivated_at)))){
+        this.setState({authed:false,loading:false,authError:'',signupPending:false,authMode:'rejected',rejectedReq:existingReq});
+        return;
+      }
       if(existingReq?.status==='pending'){
         await DB.auth.logout();
         this.setState({authed:false,loading:false,authError:'Your re-enrollment request is pending supervisor approval. You will be notified once it is approved.'});

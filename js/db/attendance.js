@@ -98,9 +98,13 @@ const DB_Attendance = {
     return { time: data || null, error };
   },
 
+  // Server checks: reservists only for their own row, today, after P1.
   async setDinnerMode(personnelId, dateStr, isDinner) {
-    await _db.from('attendance').update({ dinner_mode: isDinner })
-      .eq('personnel_id', personnelId).eq('date', dateStr);
+    const { error } = await _db.rpc('set_dinner_mode', {
+      p_personnel_id: personnelId, p_date: dateStr, p_is_dinner: !!isDinner,
+    });
+    if (error) console.error('[setDinnerMode]', error);
+    return { error };
   },
 
   async setTimes(personnelId, dateStr, { p1, p2, p3, p4 }, editorName) {
@@ -135,13 +139,13 @@ const DB_Attendance = {
     return { error, editLog };
   },
 
+  // Notes go through an RPC so reservists never write attendance rows directly.
+  // A new row is created as 'absent' (welfare note) or 'missed' (past day);
+  // an existing row only gets its note changed.
   async saveWelfareNote(personnelId, dateStr, note) {
-    const existingId = await this._findRow(personnelId, dateStr);
-    if (existingId) {
-      const { error } = await _db.from('attendance').update({ welfare_note: note }).eq('id', existingId);
-      return { error };
-    }
-    const { error } = await _db.from('attendance').insert({ personnel_id: personnelId, date: dateStr, status: 'absent', welfare_note: note });
+    const { error } = await _db.rpc('save_attendance_note', {
+      p_personnel_id: personnelId, p_date: dateStr, p_note: note, p_missed: false,
+    });
     return { error };
   },
 
@@ -151,12 +155,9 @@ const DB_Attendance = {
   },
 
   async saveMissedNote(personnelId, dateStr, note) {
-    const existingId = await this._findRow(personnelId, dateStr);
-    if (existingId) {
-      const { error } = await _db.from('attendance').update({ welfare_note: note }).eq('id', existingId);
-      return { error };
-    }
-    const { error } = await _db.from('attendance').insert({ personnel_id: personnelId, date: dateStr, status: 'missed', welfare_note: note });
+    const { error } = await _db.rpc('save_attendance_note', {
+      p_personnel_id: personnelId, p_date: dateStr, p_note: note, p_missed: true,
+    });
     return { error };
   },
 };

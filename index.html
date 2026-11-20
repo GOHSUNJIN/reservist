@@ -15,8 +15,8 @@
 <meta name="apple-mobile-web-app-title" content="ReservistGO">
 <meta name="format-detection" content="telephone=no, date=no, address=no, email=no, url=no">
 <script src="./js/component.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js" defer></script>
-<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.2/dist/umd/supabase.js" integrity="sha384-A97u3Qnt9GZHURO9YJZRe7VQgGUeFzcv6I1oIGnUTxQrCxnpQMwR0/G8F2zt9abZ" crossorigin="anonymous" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" integrity="sha384-+mbV2IY1Zk/X1p/nWllGySJSUN8uMs+gUAN10Or95UBH0fpj6GfKgPmgC5EXieXG" crossorigin="anonymous" defer></script>
 <script src="./js/config.js" defer></script>
 <script src="./js/utils.js" defer></script>
 <script src="./js/db-client.js" defer></script>
@@ -106,7 +106,7 @@
         </div>
       </sc-if>
 
-      <sc-if value="{{ !signupPending }}" hint-placeholder-val="{{ true }}">
+      <sc-if value="{{ showAuthTabs }}" hint-placeholder-val="{{ true }}">
       <div style="display:flex;gap:4px;background:#e7eaef;padding:4px;border-radius:11px;margin-bottom:24px;">
         <button onClick="{{ goLogin }}" style="{{ loginTabStyle }}">Log In</button>
         <button onClick="{{ goSignup }}" style="{{ signupTabStyle }}">Sign Up</button>
@@ -193,6 +193,71 @@
         </sc-if>
         <button onClick="{{ doSignup }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:18px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoadingOpacity }};pointer-events:{{ authLoadingPointerEvents }};">{{ signupBtnLabel }}</button>
 
+      </div>
+      </sc-if>
+
+      <!-- Declined sign-up: the account stays logged in so the person can apply again -->
+      <sc-if value="{{ isRejected }}" hint-placeholder-val="">
+      <div>
+        <div style="text-align:center;padding:12px 0 4px;">
+          <div style="width:56px;height:56px;border-radius:50%;background:#fbeeec;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#c0392b" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          </div>
+          <div style="font-size:18px;font-weight:700;color:#161f30;margin-bottom:8px;">Request Not Approved</div>
+          <div style="font-size:14px;color:#36404f;line-height:1.55;margin-bottom:6px;">Your request to join <strong>{{ rejectedDeptLabel }}</strong> was not approved.</div>
+          <sc-if value="{{ hasRejectedWhen }}" hint-placeholder-val=""><div style="font-size:12px;color:#8a94a3;margin-bottom:14px;">Reviewed {{ rejectedWhen }}</div></sc-if>
+        </div>
+        <sc-if value="{{ hasRejectedReason }}" hint-placeholder-val="">
+        <div style="background:#fff;border:1px solid #e3e6ec;border-radius:12px;padding:12px 14px;margin:4px 0 14px;">
+          <div style="font-size:11px;font-weight:600;color:#8a94a3;letter-spacing:.05em;margin-bottom:4px;">REASON</div>
+          <div style="font-size:13.5px;color:#36404f;line-height:1.5;white-space:pre-wrap;word-break:break-word;">{{ rejectedReason }}</div>
+        </div>
+        </sc-if>
+        <div style="font-size:13px;color:#5c6678;line-height:1.55;margin-bottom:18px;text-align:center;">If you chose the wrong department, apply again and pick the correct one. Your details are already filled in.</div>
+        <button onClick="{{ openReapply }}" style="-webkit-appearance:none;width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(47,95,208,.28);">Apply Again</button>
+        <button onClick="{{ logoutRejected }}" style="-webkit-appearance:none;width:100%;padding:13px;background:#fff;color:#5c6678;border:1px solid #d4d9e2;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;">Log Out</button>
+      </div>
+      </sc-if>
+
+      <sc-if value="{{ isReapply }}" hint-placeholder-val="">
+      <div>
+        <h2 style="font-size:21px;font-weight:700;margin:0 0 4px;color:#161f30;">Apply Again</h2>
+        <p style="font-size:14px;color:#5c6678;margin:0 0 16px;">Pick the correct department. Your account, password and contact number stay the same.</p>
+
+        <div style="margin-bottom:12px;">
+          <label class="text-field-label" style="margin-bottom:8px;display:block;">Department</label>
+          <select value="{{ signupDeptSelectVal }}" onChange="{{ onSignupDeptSelect }}" style="width:100%;padding:11px 36px 11px 13px;border:1px solid #d4d9e2;border-radius:9px;font-size:15px;font-weight:500;color:#161f30;background:#fff;outline:none;cursor:pointer;box-sizing:border-box;">
+            <option value="">Select your department</option>
+            <sc-for list="{{ signupDeptOptions }}" as="opt">
+              <option value="{{ opt.value }}">{{ opt.label }}</option>
+            </sc-for>
+          </select>
+          <sc-if value="{{ reapplySameDeptNote }}" hint-placeholder-val=""><div style="font-size:12px;color:#b9791a;margin-top:6px;">{{ reapplySameDeptNote }}</div></sc-if>
+        </div>
+
+        <sc-if value="{{ showIntakeBadge }}" hint-placeholder-val="">
+        <div style="background:#eef3fc;border:1px solid #d7e2f7;border-radius:14px;padding:13px 15px;margin-bottom:18px;">
+          <sc-if value="{{ signupIsNextCycle }}">
+            <div style="font-size:11px;font-weight:600;color:#b9791a;letter-spacing:.06em;margin-bottom:4px;">Last day of current cycle</div>
+          </sc-if>
+          <div style="font-size:12px;color:#3a4a66;line-height:1.5;">You will be enrolled in the <strong>{{ intakeLabel }}</strong> intake{{ signupCycleNote }}, as set by your supervisor.</div>
+          <div style="display:flex;align-items:center;gap:7px;margin-top:9px;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="{{ accent }}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;"><rect x="3" y="5" width="18" height="16" rx="2"></rect><line x1="3" y1="9" x2="21" y2="9"></line><line x1="8" y1="3" x2="8" y2="6"></line><line x1="16" y1="3" x2="16" y2="6"></line></svg>
+            <span style="font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:{{ accent }};white-space:nowrap;">{{ intakeRangeFull }}</span>
+          </div>
+        </div>
+        </sc-if>
+
+        <label class="text-field-label">Full Name</label>
+        <input value="{{ suName }}" onInput="{{ onSuName }}" onKeyDown="{{ onSuKeyDown }}" placeholder="Full name" autocapitalize="words" autocorrect="off" style="width:100%;padding:12px 14px;border:1px solid #d4d9e2;border-radius:10px;font-size:16px;background:#fff;outline:none;margin-bottom:14px;" />
+        <label class="text-field-label">Contact Number</label>
+        <div style="width:100%;padding:12px 14px;border:1px solid #e3e6ec;border-radius:10px;font-size:16px;background:#f1f3f6;color:#5c6678;margin-bottom:4px;box-sizing:border-box;">{{ rejectedContact }}</div>
+        <div style="font-size:11.5px;color:#8a94a3;margin-bottom:6px;">Linked to your account, so it can't be changed here.</div>
+        <sc-if value="{{ authError }}" hint-placeholder-val="">
+          <div style="color:#c0392b;font-size:13px;margin-top:12px;">{{ authError }}</div>
+        </sc-if>
+        <button onClick="{{ doReapply }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;margin-top:18px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoadingOpacity }};pointer-events:{{ authLoadingPointerEvents }};">{{ reapplyBtnLabel }}</button>
+        <button onClick="{{ cancelReapply }}" style="-webkit-appearance:none;width:100%;padding:12px;background:none;border:none;color:#8a94a3;font-size:13.5px;cursor:pointer;margin-top:6px;">Back</button>
       </div>
       </sc-if>
     </div>
@@ -1968,8 +2033,35 @@
               </div>
               <div class="flex-gap-8">
                 <button onClick="{{ sr.onReject }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fbeeec;border:1px solid #f1d3cf;color:#c0392b;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Decline</button>
+                <button onClick="{{ sr.onOpenMove }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;color:#3a4a66;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Move</button>
                 <button onClick="{{ sr.onApprove }}" style="-webkit-appearance:none;flex:2;padding:7px;background:#e7f3ec;border:1px solid #cfe6d8;color:#1f8a5b;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Approve</button>
               </div>
+              <sc-if value="{{ sr.isRejecting }}" hint-placeholder-val="">
+              <div style="background:#fdf6f5;border:1px solid #f1d3cf;border-radius:9px;padding:10px;margin-top:8px;">
+                <div style="font-size:11.5px;font-weight:600;color:#7a3428;margin-bottom:6px;">Reason (optional, shown to the applicant)</div>
+                <textarea onInput="{{ sr.onRejectReason }}" value="{{ sr.rejectReason }}" maxlength="500" placeholder="e.g. Wrong department: you report to Ops Security" style="width:100%;height:56px;padding:8px 10px;border:1px solid #f1d3cf;border-radius:7px;font-family:inherit;font-size:13px;resize:none;outline:none;box-sizing:border-box;background:#fff;" rows="2"></textarea>
+                <div class="flex-gap-8" style="margin-top:8px;">
+                  <button onClick="{{ sr.onCancelReject }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;color:#5c6678;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Cancel</button>
+                  <button onClick="{{ sr.onConfirmReject }}" style="-webkit-appearance:none;flex:2;padding:7px;background:#c0392b;border:none;color:#fff;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">{{ sr.confirmRejectLabel }}</button>
+                </div>
+              </div>
+              </sc-if>
+              <sc-if value="{{ sr.isMoving }}" hint-placeholder-val="">
+              <div style="background:#f4f6fb;border:1px solid #d7e2f7;border-radius:9px;padding:10px;margin-top:8px;">
+                <div style="font-size:11.5px;font-weight:600;color:#3a4a66;margin-bottom:6px;">Move this request to</div>
+                <select value="{{ sr.moveDeptVal }}" onChange="{{ sr.onMoveDept }}" style="width:100%;padding:8px 10px;border:1px solid #d4d9e2;border-radius:7px;font-size:13px;background:#fff;outline:none;box-sizing:border-box;">
+                  <option value="">Choose department</option>
+                  <sc-for list="{{ sr.moveDeptOptions }}" as="mo">
+                    <option value="{{ mo.value }}">{{ mo.label }}</option>
+                  </sc-for>
+                </select>
+                <div style="font-size:11px;color:#8a94a3;margin-top:6px;line-height:1.4;">It goes to that department's admins as Pending, in their open intake.</div>
+                <div class="flex-gap-8" style="margin-top:8px;">
+                  <button onClick="{{ sr.onCancelMove }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;color:#5c6678;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Cancel</button>
+                  <button onClick="{{ sr.onConfirmMove }}" style="-webkit-appearance:none;flex:2;padding:7px;background:#2f5fd0;border:none;color:#fff;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;opacity:{{ sr.moveBtnOpacity }};">{{ sr.confirmMoveLabel }}</button>
+                </div>
+              </div>
+              </sc-if>
             </div>
             </sc-for>
           <sc-if value="{{ signupSearchHasNoResults }}" hint-placeholder-val="">
@@ -2140,9 +2232,36 @@
                     <div style="font-size:11px;color:#b9791a;margin-top:2px;">Declined {{ sr.reviewedAt }}<sc-if value="{{ sr.reviewedBy }}" hint-placeholder-val=""> by {{ sr.reviewedBy }}</sc-if></div>
                   </sc-if>
                 </div>
-                <span style="flex:0 0 auto;font-size:10px;font-weight:700;background:#f7e4e1;color:#c0392b;border:1px solid #f1d0cc;padding:2px 7px;border-radius:20px;">Declined</span>
+                <div style="flex:0 0 auto;display:flex;flex-direction:column;align-items:flex-end;gap:3px;">
+                  <span style="font-size:10px;font-weight:700;background:#f7e4e1;color:#c0392b;border:1px solid #f1d0cc;padding:2px 7px;border-radius:20px;">Declined</span>
+                  <sc-if value="{{ sr.isSuperseded }}" hint-placeholder-val=""><span style="font-size:10px;font-weight:700;background:#eef3fc;color:#3b5bdb;border:1px solid #c5d3f5;padding:2px 7px;border-radius:20px;">Re-applied</span></sc-if>
+                </div>
               </div>
-              <button onClick="{{ sr.onReopen }}" style="-webkit-appearance:none;width:100%;padding:7px;background:#fff;border:1px solid #d4d9e2;color:#5c6678;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Reopen as pending</button>
+              <sc-if value="{{ sr.hasRejectionReason }}" hint-placeholder-val="">
+                <div style="font-size:11.5px;color:#5c6678;font-style:italic;margin:-2px 0 8px 44px;word-break:break-word;">Reason: {{ sr.rejectionReason }}</div>
+              </sc-if>
+              <sc-if value="{{ sr.canAct }}" hint-placeholder-val="{{ true }}">
+              <div class="flex-gap-8">
+                <button onClick="{{ sr.onReopen }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;color:#5c6678;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Reopen as pending</button>
+                <button onClick="{{ sr.onOpenMove }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;color:#3a4a66;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Move to department</button>
+              </div>
+              </sc-if>
+              <sc-if value="{{ sr.isMoving }}" hint-placeholder-val="">
+              <div style="background:#f4f6fb;border:1px solid #d7e2f7;border-radius:9px;padding:10px;margin-top:8px;">
+                <div style="font-size:11.5px;font-weight:600;color:#3a4a66;margin-bottom:6px;">Move this request to</div>
+                <select value="{{ sr.moveDeptVal }}" onChange="{{ sr.onMoveDept }}" style="width:100%;padding:8px 10px;border:1px solid #d4d9e2;border-radius:7px;font-size:13px;background:#fff;outline:none;box-sizing:border-box;">
+                  <option value="">Choose department</option>
+                  <sc-for list="{{ sr.moveDeptOptions }}" as="mo">
+                    <option value="{{ mo.value }}">{{ mo.label }}</option>
+                  </sc-for>
+                </select>
+                <div style="font-size:11px;color:#8a94a3;margin-top:6px;line-height:1.4;">It goes to that department's admins as Pending, in their open intake.</div>
+                <div class="flex-gap-8" style="margin-top:8px;">
+                  <button onClick="{{ sr.onCancelMove }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;color:#5c6678;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;">Cancel</button>
+                  <button onClick="{{ sr.onConfirmMove }}" style="-webkit-appearance:none;flex:2;padding:7px;background:#2f5fd0;border:none;color:#fff;border-radius:8px;font-size:12px;font-weight:600;cursor:pointer;opacity:{{ sr.moveBtnOpacity }};">{{ sr.confirmMoveLabel }}</button>
+                </div>
+              </div>
+              </sc-if>
             </div>
             </sc-for>
             </sc-if>

@@ -43,35 +43,23 @@ const SignupHandlers = {
       const req=this.state.rejectedSignups.find(r=>r.id===id);
       if(!req) return;
       const {error}=await DB.signupRequests.reopen(id).catch(()=>({error:true}));
-      if(error){this._toast('Failed to re-open. Try again.','error');return;}
+      if(error){this._toast(error.hint==='superseded'||error.hint==='already_pending'?error.message:'Failed to re-open. Try again.','error');return;}
       this.setState(s=>({rejectedSignups:s.rejectedSignups.filter(r=>r.id!==id),pendingSignups:[{...req,status:'pending',reviewed_by:null,reviewed_at:null},...s.pendingSignups]}));
       this._toast(req.name+"'s signup re-opened.");
       this._log('signup', 'signup.reopened', { target_name: req.name });
     };
   },
 
-  // Finds or creates a personnel record for an approved signup; reactivates inactive records if found.
-  _ensurePersonnelForSignup: async function(req, signupId) {
-    const dept = req.department || 'ops_security';
-    const existing=await DB.personnel.findByContact(req.contact, dept).catch(()=>null);
-    if(existing){
-      if(existing.role==='admin'||existing.role==='master'){
-        await DB.signupRequests.reopen(signupId).catch(()=>{});
-        return {finalPerson:null,existed:true,wasInactive:false,error:true,message:'This contact belongs to a supervisor account and cannot be enrolled as a reservist. Please contact your system administrator.'};
-      }
-      if(!existing.is_active || existing.department !== dept){
-        const {data:reactivated}=await DB.personnel.reactivate(existing.id,{batchId:req.batch_id,authId:req.auth_id,department:dept});
-        return {finalPerson:reactivated||existing,existed:true,wasInactive:!existing.is_active};
-      }
-      await DB.personnel.linkAuth(existing.id,req.auth_id);
-      return {finalPerson:existing,existed:true,wasInactive:false};
+  // Approval runs server-side (approve_signup): it links or creates the
+  // personnel row, including a returning reservist whose record sits in
+  // another department, which admins can no longer edit directly.
+  _approveOne: async function(req) {
+    const {data,error}=await DB.signupRequests.approveAndEnrol(req.id).catch(e=>({error:e}));
+    if(error){
+      if(error.hint==='already_processed') return {gone:true,message:'Already approved by another admin.'};
+      return {failed:true,message:error.message||'Failed to approve. Try again.'};
     }
-    const {data:newPerson,error:addErr}=await DB.personnel.add({authId:req.auth_id,name:req.name,contact:req.contact,batchId:req.batch_id,department:dept});
-    if(addErr){
-      await DB.signupRequests.reopen(signupId).catch(()=>{});
-      return {finalPerson:null,existed:false,wasInactive:false,error:true,message:'Failed to create roster entry. Signup reverted to pending. Try again.'};
-    }
-    return {finalPerson:newPerson,existed:false,wasInactive:false};
+    return {finalPerson:data?.personnel||null,existed:!!data?.existed,wasInactive:!!data?.was_inactive};
   },
 
   approveSignup: function(id) {
@@ -79,11 +67,9 @@ const SignupHandlers = {
       const req=this.state.pendingSignups.find(r=>r.id===id);
       if(!req) return;
       const reviewerName=this.cur()?.name||null;
-      const {data:approvedRow,error:approveErr}=await DB.signupRequests.approve(id,reviewerName);
-      if(approveErr){this._toast('Failed to approve. Try again.','error');return;}
-      if(!approvedRow){this.setState(s=>({pendingSignups:s.pendingSignups.filter(r=>r.id!==id)}));this._toast('Already approved by another admin.','error');return;}
-      const {finalPerson,existed,wasInactive,error:personErr,message:personMsg}=await this._ensurePersonnelForSignup(req,id);
-      if(personErr){this._toast(personMsg,'error');return;}
+      const {finalPerson,existed,wasInactive,gone,failed,message}=await this._approveOne(req);
+      if(gone){this.setState(s=>({pendingSignups:s.pendingSignups.filter(r=>r.id!==id)}));this._toast(message,'error');return;}
+      if(failed){this._toast(message,'error');return;}
       if(finalPerson?.id){const _rb=this.state.batches.find(b=>b.id===req.batch_id);this._backfillAbsent(finalPerson.id,_rb,req.department||'ops_security').catch(()=>{});}
       const freshPersonnel=await DB.personnel.list(null,true,this._myDept()).catch(()=>null);
       this.setState(s=>({
@@ -96,23 +82,65 @@ const SignupHandlers = {
     };
   },
 
+  // Decline opens an inline box for an optional reason, shown to the applicant.
   rejectSignup: function(id) {
-    return async () => {
-      const req=this.state.pendingSignups.find(r=>r.id===id);
-      if(!req) return;
-      const reviewerName=this.cur()?.name||null;
-      const {error}=await DB.signupRequests.reject(id,reviewerName);
-      if(error){this._toast('Failed to decline. Try again.','error');return;}
-      const rejected={...req,status:'rejected',reviewed_by:reviewerName,reviewed_at:new Date().toISOString()};
-      this.setState(s=>({
-        pendingSignups:s.pendingSignups.filter(r=>r.id!==id),
-        selectedSignupIds:s.selectedSignupIds.filter(x=>x!==id),
-        rejectedSignups:[rejected,...(s.rejectedSignups||[])],
-        rejectedSignupsLoaded:true,
-      }));
-      this._toast(req.name+"'s signup was declined.");
-      this._log('signup', 'signup.rejected', { target_name: req.name });
-    };
+    return () => this.setState(s=>({rejectSignupId:s.rejectSignupId===id?null:id,rejectSignupReason:'',moveSignupId:null,moveSignupDept:''}));
+  },
+  onRejectSignupReason: function(e) { this.setState({rejectSignupReason:e.target.value}); },
+  cancelRejectSignup:   function() { this.setState({rejectSignupId:null,rejectSignupReason:''}); },
+
+  confirmRejectSignup: async function() {
+    const {rejectSignupId:id,rejectSignupReason,rejectSignupSaving}=this.state;
+    if(!id||rejectSignupSaving) return;
+    const req=this.state.pendingSignups.find(r=>r.id===id);
+    if(!req){this.setState({rejectSignupId:null});return;}
+    const reason=(rejectSignupReason||'').trim();
+    if(reason.length>500){this._toast('Reason is too long (max 500 characters).','error');return;}
+    const reviewerName=this.cur()?.name||null;
+    this.setState({rejectSignupSaving:true});
+    if(!this.state.demo){
+      const {error}=await DB.signupRequests.reject(id,reviewerName,reason).catch(()=>({error:true}));
+      if(error){this._toast('Failed to decline. Try again.','error');this.setState({rejectSignupSaving:false});return;}
+    }
+    const rejected={...req,status:'rejected',reviewed_by:reviewerName,reviewed_at:new Date().toISOString(),rejection_reason:reason||null};
+    this.setState(s=>({
+      pendingSignups:s.pendingSignups.filter(r=>r.id!==id),
+      selectedSignupIds:s.selectedSignupIds.filter(x=>x!==id),
+      rejectedSignups:[rejected,...(s.rejectedSignups||[])],
+      rejectedSignupsLoaded:true,
+      rejectSignupId:null,rejectSignupReason:'',rejectSignupSaving:false,
+    }));
+    this._toast(req.name+"'s signup was declined.");
+    this._log('signup', 'signup.rejected', { target_name: req.name, ...(reason?{reason}:{}) });
+  },
+
+  // Move a pending or declined request to the department it should go to.
+  openMoveSignup: function(id) {
+    return () => this.setState(s=>({moveSignupId:s.moveSignupId===id?null:id,moveSignupDept:'',rejectSignupId:null,rejectSignupReason:''}));
+  },
+  onMoveSignupDept: function(e) { this.setState({moveSignupDept:e.target.value}); },
+  cancelMoveSignup: function() { this.setState({moveSignupId:null,moveSignupDept:''}); },
+
+  confirmMoveSignup: async function() {
+    const {moveSignupId:id,moveSignupDept:dept,moveSignupSaving}=this.state;
+    if(!id||moveSignupSaving) return;
+    if(!dept){this._toast('Choose a department first.','error');return;}
+    const req=this.state.pendingSignups.find(r=>r.id===id)||(this.state.rejectedSignups||[]).find(r=>r.id===id);
+    if(!req){this.setState({moveSignupId:null});return;}
+    this.setState({moveSignupSaving:true});
+    let newId=null;
+    if(!this.state.demo){
+      const {data,error}=await DB.signupRequests.moveToDepartment(id,dept).catch(e=>({error:e}));
+      if(error){this._toast(error.message||'Failed to move. Try again.','error');this.setState({moveSignupSaving:false});return;}
+      newId=data?.id||null;
+    }
+    this.setState(s=>({
+      pendingSignups:s.pendingSignups.filter(r=>r.id!==id),
+      selectedSignupIds:s.selectedSignupIds.filter(x=>x!==id),
+      rejectedSignups:(s.rejectedSignups||[]).map(r=>r.id===id?{...r,superseded_by:newId||'moved',superseded_at:new Date().toISOString()}:r),
+      moveSignupId:null,moveSignupDept:'',moveSignupSaving:false,
+    }));
+    this._toast(req.name+"'s request moved to "+Utils.deptLabel(dept)+'.');
   },
 
   toggleSignupSelect: function(id) {
@@ -130,10 +158,9 @@ const SignupHandlers = {
         this.setState(s=>({pendingSignups:s.pendingSignups.filter(r=>r.id!==req.id),approvedSignups:[{...req,status:'approved',reviewed_by:reviewerName,reviewed_at:new Date().toISOString()},...s.approvedSignups]}));
         count++;continue;
       }
-      const {data:approvedRow,error:approveErr}=await DB.signupRequests.approve(req.id,reviewerName);
-      if(approveErr||!approvedRow) continue;
-      const {finalPerson,existed,wasInactive,error:personErr,message:personMsg}=await this._ensurePersonnelForSignup(req,req.id);
-      if(personErr){this._toast(personMsg,'error');continue;}
+      const {finalPerson,existed,wasInactive,gone,failed,message}=await this._approveOne(req);
+      if(gone){this.setState(s=>({pendingSignups:s.pendingSignups.filter(r=>r.id!==req.id)}));continue;}
+      if(failed){this._toast(req.name+': '+message,'error');continue;}
       if(finalPerson?.id){const _rb=this.state.batches.find(b=>b.id===req.batch_id);this._backfillAbsent(finalPerson.id,_rb,req.department||'ops_security').catch(()=>{});}
       this.setState(s=>({
         pendingSignups:s.pendingSignups.filter(r=>r.id!==req.id),

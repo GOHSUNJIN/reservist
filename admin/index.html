@@ -375,7 +375,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
   </main>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.2/dist/umd/supabase.js" integrity="sha384-A97u3Qnt9GZHURO9YJZRe7VQgGUeFzcv6I1oIGnUTxQrCxnpQMwR0/G8F2zt9abZ" crossorigin="anonymous"></script>
 <script src="../js/config.js"></script>
 <script>
 // Block touch/mobile devices regardless of viewport width
@@ -423,6 +423,7 @@ const ACTIONS = {
   'signup.request_submitted':'Submitted signup request',
   'signup.approved':'Approved signup','signup.rejected':'Declined signup',
   'signup.reopened':'Re-opened signup','signup.bulk_approved':'Bulk approved signups',
+  'signup.reapplied':'Applied again','signup.moved':'Moved signup to another department',
   'personnel.added':'Added to roster','personnel.re_enrolled':'Re-enrolled personnel',
   'personnel.removed':'Removed from roster','personnel.bulk_added':'Bulk added personnel',
   'personnel.bulk_deleted':'Bulk permanently deleted records',
@@ -455,12 +456,14 @@ const META_LABELS = {
   prev_check_in:'Prev check-in', prev_lunch_out:'Prev lunch out',
   prev_return:'Prev return', prev_check_out:'Prev check-out',
   p1:'Check-in', p2:'Lunch out', p3:'Return', p4:'Check-out', bypassed:'GPS bypassed',
+  from_department:'From department', to_department:'To department', previous_status:'Previous status',
+  previous_request_id:'Previous request', request_id:'Request', batch_id:'Intake',
 };
 
-function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function initials(n){if(!n)return'?';const p=n.trim().split(/\s+/);return p.length>=2?(p[0][0]+p[p.length-1][0]).toUpperCase():n.slice(0,2).toUpperCase();}
 function avatarBg(role){return role==='master'?'#7c3aed':role==='admin'?'#2563eb':'#64748b';}
-function roleLabel(role){return role==='master'?'Master':role==='admin'?'Admin':'Reservist';}
+function roleLabel(role){return role==='master'?'Master':role==='admin'?'Admin':role==='applicant'?'Applicant':'Reservist';}
 function roleBg(role){return role==='master'?'#ede9fe':role==='admin'?'#dbeafe':'#f1f5f9';}
 function roleColor(role){return role==='master'?'#6d28d9':role==='admin'?'#1d4ed8':'#475569';}
 
@@ -821,7 +824,7 @@ async function showPersonTip(el,pid){
   if(tip.style.display==='none') return;
   const info=_tipCache[pid];
   if(!info||info==='skip'){tip.style.display='none';return;}
-  body.innerHTML=`<div class="ptip-contact-row" onclick="copyPtipContact('${esc(info.contact)}')"><div><div class="ptip-label">Contact</div><div class="ptip-contact-num">${esc(info.contact)}</div></div><div><span class="ptip-copy-hint" id="ptip-copy-hint">Copy</span><span class="ptip-copy-fb" id="ptip-copy-fb">Copied!</span></div></div><div class="ptip-row"><div class="ptip-label">Department</div><div class="ptip-val">${esc(info.dept)}</div></div><div class="ptip-row"><div class="ptip-label">Cycle</div><div class="ptip-val">${esc(info.cycle)}</div></div>`;
+  body.innerHTML=`<div class="ptip-contact-row" data-contact="${esc(info.contact)}" onclick="copyPtipContact(this.dataset.contact)"><div><div class="ptip-label">Contact</div><div class="ptip-contact-num">${esc(info.contact)}</div></div><div><span class="ptip-copy-hint" id="ptip-copy-hint">Copy</span><span class="ptip-copy-fb" id="ptip-copy-fb">Copied!</span></div></div><div class="ptip-row"><div class="ptip-label">Department</div><div class="ptip-val">${esc(info.dept)}</div></div><div class="ptip-row"><div class="ptip-label">Cycle</div><div class="ptip-val">${esc(info.cycle)}</div></div>`;
   requestAnimationFrame(()=>_positionTip());
 }
 function hidePersonTip(){_tipHideTimer=setTimeout(()=>{document.getElementById('person-tip').style.display='none';},180);}
@@ -952,6 +955,15 @@ function buildActionText(ev){
     case 'signup.rejected':          return tn?`Declined ${tn}'s signup`:'Declined signup';
     case 'signup.reopened':          return tn?`Re-opened ${tn}'s signup`:'Re-opened signup';
     case 'signup.bulk_approved':     return m.count?`Bulk approved ${m.count} signup${m.count!==1?'s':''}`:'Bulk approved signups';
+    case 'signup.reapplied': {
+      const to=DEPT_LABELS[m.to_department]||m.to_department, from=DEPT_LABELS[m.from_department]||m.from_department;
+      return to?(from?`Applied again to ${esc(to)} (declined by ${esc(from)})`:`Applied again to ${esc(to)}`):'Applied again';
+    }
+    case 'signup.moved': {
+      const who=ev.target_name?`<strong>${esc(ev.target_name)}</strong>'s`:'a';
+      const to=DEPT_LABELS[m.to_department]||m.to_department;
+      return `Moved ${who} ${m.previous_status==='rejected'?'declined ':''}signup${to?` to ${esc(to)}`:''}`;
+    }
     case 'personnel.added':          return tn?`Added ${tn} to roster`:'Added to roster';
     case 'personnel.removed':        return tn?`Removed ${tn} from roster`:'Removed from roster';
     case 'personnel.re_enrolled':    return tn?`Re-enrolled ${tn}`:'Re-enrolled personnel';

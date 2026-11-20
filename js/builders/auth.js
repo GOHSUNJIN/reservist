@@ -27,6 +27,21 @@ const AuthBuilders = {
     return {
       showAuth:!s.authed, showApp:s.authed,
       isLogin:s.authMode==='login'&&!s.signupPending, isSignup:s.authMode==='signup'&&!s.signupPending,
+      isRejected:s.authMode==='rejected'&&!s.signupPending, isReapply:s.authMode==='reapply'&&!s.signupPending,
+      showAuthTabs:!s.signupPending&&s.authMode!=='rejected'&&s.authMode!=='reapply',
+      ...(()=>{
+        const r=s.rejectedReq||{};
+        const when=r.reviewed_at?new Date(r.reviewed_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
+        return {
+          rejectedDeptLabel:Utils.deptLabel(r.department)||'the department',
+          rejectedReason:r.rejection_reason||'', hasRejectedReason:!!r.rejection_reason,
+          rejectedWhen:when, hasRejectedWhen:!!when,
+          rejectedName:r.name||'', rejectedContact:r.contact||'',
+          reapplySameDeptNote:(suDept&&suDept===r.department)?'This is the department that declined your last request.':'',
+        };
+      })(),
+      openReapply:this.openReapply, cancelReapply:this.cancelReapply, doReapply:this.doReapply, logoutRejected:this.logoutRejected,
+      reapplyBtnLabel:s.loading?'Submitting…':'Submit Application',
       goLogin:this.goLogin, goSignup:this.goSignup,
       loginTabStyle:tb(s.authMode==='login'), signupTabStyle:tb(s.authMode==='signup'),
       accountDeleted:s.accountDeleted,
