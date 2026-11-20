@@ -49,7 +49,7 @@ const AdminRoster = {
       if(sortKey==='pct'){return (b.statPctNum??-1)-(a.statPctNum??-1);}
       return a.name.localeCompare(b.name);
     });
-    const _sb='flex:1;padding:7px 8px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;border:none;white-space:nowrap;transition:background .15s,color .15s;';
+    const _sb='flex:1;padding:7px 6px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;border:none;white-space:nowrap;transition:background .15s,color .15s;';
     const _sa=_sb+'background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(20,30,50,.12);';
     const _si=_sb+'background:transparent;color:var(--ink-2);';
     const rosterSortNameStyle=sortKey==='name'?_sa:_si;
@@ -233,7 +233,7 @@ const AdminRoster = {
       markingAllAbsent:s.markingAllAbsent, confirmMarkAllAbsent:s.confirmMarkAllAbsent, notConfirmMarkAllAbsent:!s.confirmMarkAllAbsent,
       markAllAbsentPendingCount:pendingCount,
       markAllAbsentConfirmLabel:'Mark '+pendingCount+' pending as absent',
-      markAllAbsentStyle:`padding:5px 9px;border-radius:var(--r-sm);cursor:pointer;border:1px solid #f7e4e1;background:#fff;color:#c0392b;opacity:${s.markingAllAbsent?'0.45':'1'};display:flex;align-items:center;gap:5px;font-size:var(--fs-small);font-weight:600;white-space:nowrap;`,
+      markAllAbsentStyle:`padding:5px 7px;border-radius:var(--r-sm);cursor:pointer;border:1px solid #f7e4e1;background:#fff;color:var(--red);opacity:${s.markingAllAbsent?'0.45':'1'};display:flex;align-items:center;gap:4px;font-size:var(--fs-small);font-weight:600;white-space:nowrap;`,
       markAllAbsentConfirmStyle:`padding:5px 11px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:700;cursor:pointer;border:none;background:var(--red);color:#fff;`,
       pendingCount,
       logSearch:s.logSearch||'', onLogSearch:self.onLogSearch, onLogSearchKeyDown:self.onLogSearchKeyDown, clearLogSearch:self.clearLogSearch, hasLogSearch:!!(s.logSearch),
@@ -298,7 +298,7 @@ const AdminRoster = {
       askMarkAllPresent:self.askMarkAllPresent, cancelMarkAllPresent:self.cancelMarkAllPresent,
       confirmMarkAllPresent:!!s.confirmMarkAllPresent, notConfirmMarkAllPresent:!s.confirmMarkAllPresent,
       notConfirmAny:!s.confirmMarkAllAbsent&&!s.confirmMarkAllPresent,
-      markAllPresentStyle:`padding:5px 9px;border-radius:var(--r-sm);cursor:pointer;border:1px solid #cfe6d8;background:#fff;color:var(--green);opacity:${s.markAllPresenting?'0.45':'1'};display:flex;align-items:center;gap:5px;font-size:var(--fs-small);font-weight:600;white-space:nowrap;`,
+      markAllPresentStyle:`padding:5px 7px;border-radius:var(--r-sm);cursor:pointer;border:1px solid #cfe6d8;background:#fff;color:var(--green);opacity:${s.markAllPresenting?'0.45':'1'};display:flex;align-items:center;gap:4px;font-size:var(--fs-small);font-weight:600;white-space:nowrap;`,
       markAllPresentConfirmStyle:`padding:5px 11px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:700;cursor:pointer;border:none;background:var(--green);color:#fff;`,
       showLogPendingBadge:viewIsToday&&viewReportDay&&pendingCount>0, logPendingBadgeCount:String(pendingCount),
       rosterStatusFilter,

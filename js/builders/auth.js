@@ -33,7 +33,7 @@ const AuthBuilders = {
       isSetPassword:s.authMode==='setpw'&&!s.signupPending,
       setPwNew:s.setPwNew, setPwConfirm:s.setPwConfirm, onSetPwNew:this.onSetPwNew, onSetPwConfirm:this.onSetPwConfirm,
       onSetPwKeyDown:this.onSetPwKeyDown, doSetPassword:this.doSetPassword, logoutSetPw:this.logoutSetPw,
-      setPwType:s.showSetPw?'text':'password', toggleSetPw:this.toggleSetPw, setPwToggleLabel:s.showSetPw?'Hide':'Show',
+      setPwType:s.showSetPw?'text':'password', toggleSetPw:this.toggleSetPw, hideSetPw:!s.showSetPw, showSetPwIcon:!!s.showSetPw,
       setPwBtnLabel:s.loading?'Saving…':'Save Password',
       ...(()=>{
         const r=s.rejectedReq||{};

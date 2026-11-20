@@ -181,3 +181,21 @@ button,[role=button]{touch-action:manipulation;}
 .status-pill:focus-within{outline:2px solid var(--blue);outline-offset:2px;}
 .admin-bar-range{display:none;}
 @media (min-width:480px){.admin-bar-range{display:inline;}}
+
+/* ── Group 3: 44px tap targets, reduced motion ───────────────────────────── */
+.tap44{min-height:44px;min-width:44px;box-sizing:border-box;}
+@keyframes fadeOnly{from{opacity:0;}to{opacity:1;}}
+@keyframes busyPulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+@media (prefers-reduced-motion: reduce){
+  /* same feedback, no movement: spinners pulse instead of spinning, the check-in ring stays still,
+     toasts fade instead of sliding, buttons don't shrink when pressed */
+  button:not(.pw-eye):active{transform:none !important;}
+  .pw-eye:active{transform:translateY(-50%) !important;}
+  .spinner,[style*="animation:spin"],[style*="animation: spin"]{animation:busyPulse 1.2s ease-in-out infinite !important;}
+  [style*="animation:ring"],[style*="animation: ring"]{animation:none !important;opacity:.35;}
+  [style*="fadeSlideDown"],.toast-wrap{animation-name:fadeOnly !important;}
+  html,.scroll{scroll-behavior:auto !important;}
+}
+/* Show/hide password: same eye icon everywhere, 44px target */
+.pw-eye{position:absolute;right:1px;top:50%;transform:translateY(-50%);width:44px;height:44px;display:flex;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;color:var(--ink-2);padding:0;-webkit-appearance:none;}
+.pw-eye:active{transform:translateY(-50%) scale(.95);}
