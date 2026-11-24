@@ -102,14 +102,14 @@
           </div>
           <div style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:8px;">Request Submitted</div>
           <div style="font-size:13.5px;color:var(--ink-2);line-height:1.55;margin-bottom:24px;">Your signup has been sent to an admin for approval. You can log in once your account is approved.</div>
-          <button onClick="{{ dismissSignupPending }}" style="-webkit-appearance:none;width:100%;padding:14px;background:#2f5fd0;color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:600;cursor:pointer;">Back to Log In</button>
+          <button class="b-lg" onClick="{{ dismissSignupPending }}" style="-webkit-appearance:none;width:100%;padding:14px;background:#2f5fd0;color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:600;cursor:pointer;">Back to Log In</button>
         </div>
       </sc-if>
 
       <sc-if value="{{ showAuthTabs }}" hint-placeholder-val="{{ true }}">
       <div style="display:flex;gap:4px;background:#e7eaef;padding:4px;border-radius:var(--r-md);margin-bottom:24px;">
-        <button onClick="{{ goLogin }}" style="{{ loginTabStyle }}">Log In</button>
-        <button onClick="{{ goSignup }}" style="{{ signupTabStyle }}">Sign Up</button>
+        <button class="b-md" onClick="{{ goLogin }}" style="{{ loginTabStyle }}">Log In</button>
+        <button class="b-md" onClick="{{ goSignup }}" style="{{ signupTabStyle }}">Sign Up</button>
       </div>
       </sc-if>
 
@@ -131,9 +131,9 @@
         <sc-if value="{{ authError }}" hint-placeholder-val="">
           <div style="color:var(--red);font-size:13px;margin-bottom:6px;">{{ authError }}</div>
         </sc-if>
-        <button onClick="{{ doLogin }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:600;cursor:pointer;margin-top:12px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoadingOpacity }};pointer-events:{{ authLoadingPointerEvents }};">{{ loginBtnLabel }}</button>
+        <button class="b-lg" onClick="{{ doLogin }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:600;cursor:pointer;margin-top:12px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoadingOpacity }};pointer-events:{{ authLoadingPointerEvents }};">{{ loginBtnLabel }}</button>
         <div style="text-align:center;margin-top:14px;">
-          <button onClick="{{ openForgotPassword }}" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;text-decoration:underline;padding:0;">Forgot Password?</button>
+          <button class="hit44" onClick="{{ openForgotPassword }}" style="background:none;border:none;color:var(--muted);font-size:13px;cursor:pointer;text-decoration:underline;padding:0;">Forgot Password?</button>
         </div>
         <sc-if value="{{ forgotPasswordOpen }}" hint-placeholder-val="">
         <div style="background:#f6f8fa;border:1px solid #e3e6ec;border-radius:var(--r-lg);padding:14px 15px;margin-top:14px;">
@@ -191,7 +191,7 @@
         <sc-if value="{{ authError }}" hint-placeholder-val="">
           <div style="color:var(--red);font-size:13px;margin-top:12px;">{{ authError }}</div>
         </sc-if>
-        <button onClick="{{ doSignup }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:600;cursor:pointer;margin-top:18px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoadingOpacity }};pointer-events:{{ authLoadingPointerEvents }};">{{ signupBtnLabel }}</button>
+        <button class="b-lg" onClick="{{ doSignup }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:600;cursor:pointer;margin-top:18px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoadingOpacity }};pointer-events:{{ authLoadingPointerEvents }};">{{ signupBtnLabel }}</button>
 
       </div>
       </sc-if>
@@ -214,8 +214,8 @@
         <sc-if value="{{ authError }}" hint-placeholder-val="">
           <div style="color:var(--red);font-size:13px;margin-top:12px;">{{ authError }}</div>
         </sc-if>
-        <button onClick="{{ doSetPassword }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:600;cursor:pointer;margin-top:18px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoadingOpacity }};pointer-events:{{ authLoadingPointerEvents }};">{{ setPwBtnLabel }}</button>
-        <button onClick="{{ logoutSetPw }}" style="-webkit-appearance:none;width:100%;padding:12px;background:none;border:none;color:var(--muted);font-size:13.5px;cursor:pointer;margin-top:6px;">Log Out</button>
+        <button class="b-lg" onClick="{{ doSetPassword }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:600;cursor:pointer;margin-top:18px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoadingOpacity }};pointer-events:{{ authLoadingPointerEvents }};">{{ setPwBtnLabel }}</button>
+        <button class="b-text" onClick="{{ logoutSetPw }}" style="-webkit-appearance:none;width:100%;padding:12px;background:none;border:none;color:var(--muted);font-size:13.5px;cursor:pointer;margin-top:6px;">Log Out</button>
       </div>
       </sc-if>
 
@@ -245,8 +245,8 @@
             <li>If it is not approved, you will see the reason here and can apply again.</li>
           </ol>
         </div>
-        <button onClick="{{ checkPendingAgain }}" style="-webkit-appearance:none;width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(47,95,208,.25);">{{ pendingCheckLabel }}</button>
-        <button onClick="{{ logoutPending }}" style="-webkit-appearance:none;width:100%;padding:13px;background:#fff;color:var(--ink-2);border:1px solid #d4d9e2;border-radius:var(--r-md);font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;">Log Out</button>
+        <button class="b-lg" onClick="{{ checkPendingAgain }}" style="-webkit-appearance:none;width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(47,95,208,.25);">{{ pendingCheckLabel }}</button>
+        <button class="b-lg" onClick="{{ logoutPending }}" style="-webkit-appearance:none;width:100%;padding:13px;background:#fff;color:var(--ink-2);border:1px solid #d4d9e2;border-radius:var(--r-md);font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;">Log Out</button>
       </div>
       </sc-if>
 
@@ -267,8 +267,8 @@
         </div>
         </sc-if>
         <div style="font-size:13px;color:var(--ink-2);line-height:1.55;margin-bottom:18px;text-align:center;">If you chose the wrong department, apply again and pick the correct one. Your details are already filled in.</div>
-        <button onClick="{{ openReapply }}" style="-webkit-appearance:none;width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(47,95,208,.28);">Apply Again</button>
-        <button onClick="{{ logoutRejected }}" style="-webkit-appearance:none;width:100%;padding:13px;background:#fff;color:var(--ink-2);border:1px solid #d4d9e2;border-radius:var(--r-md);font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;">Log Out</button>
+        <button class="b-lg" onClick="{{ openReapply }}" style="-webkit-appearance:none;width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:600;cursor:pointer;box-shadow:0 4px 14px rgba(47,95,208,.28);">Apply Again</button>
+        <button class="b-lg" onClick="{{ logoutRejected }}" style="-webkit-appearance:none;width:100%;padding:13px;background:#fff;color:var(--ink-2);border:1px solid #d4d9e2;border-radius:var(--r-md);font-size:14px;font-weight:600;cursor:pointer;margin-top:10px;">Log Out</button>
       </div>
       </sc-if>
 
@@ -309,8 +309,8 @@
         <sc-if value="{{ authError }}" hint-placeholder-val="">
           <div style="color:var(--red);font-size:13px;margin-top:12px;">{{ authError }}</div>
         </sc-if>
-        <button onClick="{{ doReapply }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:600;cursor:pointer;margin-top:18px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoadingOpacity }};pointer-events:{{ authLoadingPointerEvents }};">{{ reapplyBtnLabel }}</button>
-        <button onClick="{{ cancelReapply }}" style="-webkit-appearance:none;width:100%;padding:12px;background:none;border:none;color:var(--muted);font-size:13.5px;cursor:pointer;margin-top:6px;">Back</button>
+        <button class="b-lg" onClick="{{ doReapply }}" disabled="{{ authLoading }}" style="width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:600;cursor:pointer;margin-top:18px;box-shadow:0 4px 14px rgba(47,95,208,.28);opacity:{{ authLoadingOpacity }};pointer-events:{{ authLoadingPointerEvents }};">{{ reapplyBtnLabel }}</button>
+        <button class="b-text" onClick="{{ cancelReapply }}" style="-webkit-appearance:none;width:100%;padding:12px;background:none;border:none;color:var(--muted);font-size:13.5px;cursor:pointer;margin-top:6px;">Back</button>
       </div>
       </sc-if>
     </div>
@@ -341,7 +341,7 @@
     <div style="background:#fbeeec;border-bottom:1px solid #f1d3cf;padding:10px 18px;display:flex;align-items:center;gap:10px;z-index:9;flex:0 0 auto;">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b0342a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>
       <span style="flex:1;font-size:var(--fs-small);color:#7a3428;font-weight:500;">Your session is expiring soon.</span>
-      <button onClick="{{ refreshSessionNow }}" style="padding:9px 14px;background:var(--red);color:#fff;border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;white-space:nowrap;">Stay Logged In</button>
+      <button class="b-md" onClick="{{ refreshSessionNow }}" style="padding:9px 14px;background:var(--red);color:#fff;border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;white-space:nowrap;">Stay Logged In</button>
     </div>
     </sc-if>
 
@@ -349,7 +349,7 @@
     <div style="background:#fdf0dc;border-bottom:1px solid #f0e2c2;padding:10px 18px;display:flex;align-items:center;gap:10px;z-index:9;flex:0 0 auto;">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"></circle><polyline points="12 7 12 12 15 14"></polyline></svg>
       <span style="flex:1;font-size:var(--fs-small);color:var(--amber-text);font-weight:500;">You'll be logged out in 2 minutes due to inactivity.</span>
-      <button onClick="{{ stayActive }}" style="padding:9px 14px;background:var(--amber-solid);color:#fff;border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;white-space:nowrap;">I'm Here</button>
+      <button class="b-md" onClick="{{ stayActive }}" style="padding:9px 14px;background:var(--amber-solid);color:#fff;border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;white-space:nowrap;">I'm Here</button>
     </div>
     </sc-if>
 
@@ -439,7 +439,7 @@
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#b9791a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 1l22 22"></path><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path><path d="M10.71 5.05A16 16 0 0 1 22.56 9"></path><path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path><path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line></svg>
             <span style="flex:1;">You're offline{{ offlineQueueMsg }}</span>
             <sc-if value="{{ offlinePending }}" hint-placeholder-val="">
-              <button onClick="{{ retrySync }}" style="padding:3px 9px;background:none;border:1px solid #c49a3a;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--amber-text);cursor:pointer;white-space:nowrap;">Retry</button>
+              <button class="b-sm" onClick="{{ retrySync }}" style="padding:3px 9px;background:none;border:1px solid #c49a3a;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--amber-text);cursor:pointer;white-space:nowrap;">Retry</button>
             </sc-if>
           </div>
           </sc-if>
@@ -497,8 +497,8 @@
                 <sc-if value="{{ hasPendingRequestReason }}" hint-placeholder-val=""><div style="margin-top:6px;font-size:var(--fs-small);color:#a0714a;font-style:italic;">"{{ pendingRequestReason }}"</div></sc-if>
               </div>
               <div style="display:flex;gap:8px;margin-top:0;">
-                <button onClick="{{ onCancelPendingRequest }}" style="-webkit-appearance:none;flex:1;padding:10px;background:none;border:1px solid #e3e6ec;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;">Withdraw Request</button>
-                <button onClick="{{ openLeaveRequest }}" style="-webkit-appearance:none;flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;background:#f6f8fa;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;">
+                <button class="b-md" onClick="{{ onCancelPendingRequest }}" style="-webkit-appearance:none;flex:1;padding:10px;background:none;border:1px solid #e3e6ec;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;">Withdraw Request</button>
+                <button class="b-md" onClick="{{ openLeaveRequest }}" style="-webkit-appearance:none;flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;background:#f6f8fa;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                   Request Absence
                 </button>
@@ -516,7 +516,7 @@
                   <span style="font-size:var(--fs-small);color:var(--muted);margin-left:auto;">{{ pendingRequestTimeAgo }}</span>
                 </div>
                 <p style="font-size:var(--fs-small);color:var(--muted);margin:0 0 10px;line-height:1.5;">Your <strong>{{ pendingRequestLabel }}</strong> request was not reviewed within 2 days. You can submit a new request.</p>
-                <button onClick="{{ onResubmitExpiredRequest }}" style="-webkit-appearance:none;width:100%;padding:10px;background:#161f30;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:#fff;cursor:pointer;">Submit New Request</button>
+                <button class="b-lg" onClick="{{ onResubmitExpiredRequest }}" style="-webkit-appearance:none;width:100%;padding:10px;background:#161f30;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:#fff;cursor:pointer;">Submit New Request</button>
               </div>
             </div>
             </sc-if>
@@ -605,23 +605,23 @@
                           </div>
                         </sc-if>
                         <sc-if value="{{ ph.showGpsBypass }}" hint-placeholder-val="">
-                          <button onClick="{{ ph.onBypass }}" style="margin-top:10px;width:100%;padding:9px;background:#fff;border:1.5px solid #f0e2c2;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--amber-text);cursor:pointer;">{{ ph.bypassLabel }}</button>
+                          <button class="b-md" onClick="{{ ph.onBypass }}" style="margin-top:10px;width:100%;padding:9px;background:#fff;border:1.5px solid #f0e2c2;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--amber-text);cursor:pointer;">{{ ph.bypassLabel }}</button>
                         </sc-if>
                       </div>
                       </sc-if>
                       <sc-if value="{{ !ph.locVerified }}" hint-placeholder-val="{{ true }}">
-                        <button onClick="{{ ph.onStart }}" disabled="{{ ph.locBtnDisabled }}" style="width:100%;margin-top:10px;padding:11px 0;display:flex;align-items:center;justify-content:center;gap:7px;background:{{ ph.btnBg }};color:#fff;border:none;border-radius:var(--r-md);font-size:13px;font-weight:700;cursor:pointer;opacity:{{ ph.locBtnOpacity }};">
+                        <button class="b-lg" onClick="{{ ph.onStart }}" disabled="{{ ph.locBtnDisabled }}" style="width:100%;margin-top:10px;padding:11px 0;display:flex;align-items:center;justify-content:center;gap:7px;background:{{ ph.btnBg }};color:#fff;border:none;border-radius:var(--r-md);font-size:13px;font-weight:700;cursor:pointer;opacity:{{ ph.locBtnOpacity }};">
                           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7-5.5-7-11a7 7 0 0 1 14 0c0 5.5-7 11-7 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg>
                           {{ ph.locBtnLabel }}
                         </button>
                       </sc-if>
                       <sc-if value="{{ ph.locVerified }}" hint-placeholder-val="">
-                        <button onClick="{{ ph.onSubmit }}" style="width:100%;margin-top:10px;padding:11px 0;background:{{ ph.btnBg }};color:#fff;border:none;border-radius:var(--r-md);font-size:13px;font-weight:700;cursor:pointer;">{{ ph.btnLabel }}</button>
+                        <button class="b-lg" onClick="{{ ph.onSubmit }}" style="width:100%;margin-top:10px;padding:11px 0;background:{{ ph.btnBg }};color:#fff;border:none;border-radius:var(--r-md);font-size:13px;font-weight:700;cursor:pointer;">{{ ph.btnLabel }}</button>
                       </sc-if>
                     </sc-if>
                     <!-- Active non-GPS phase -->
                     <sc-if value="{{ ph.notNeedsGps }}" hint-placeholder-val="">
-                      <button onClick="{{ ph.onSubmit }}" style="width:100%;padding:11px;background:{{ ph.btnBg }};color:#fff;border:none;border-radius:var(--r-md);font-size:13px;font-weight:700;cursor:pointer;margin-top:10px;">{{ ph.btnLabel }}</button>
+                      <button class="b-lg" onClick="{{ ph.onSubmit }}" style="width:100%;padding:11px;background:{{ ph.btnBg }};color:#fff;border:none;border-radius:var(--r-md);font-size:13px;font-weight:700;cursor:pointer;margin-top:10px;">{{ ph.btnLabel }}</button>
                     </sc-if>
                   </sc-if>
                 </div>
@@ -697,7 +697,7 @@
 
 
               <div style="border-top:1px solid #f2f4f7;margin-top:16px;padding-top:14px;display:flex;gap:8px;">
-                <button onClick="{{ openLeaveRequest }}" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;background:#f6f8fa;border:1px solid #d4d9e2;border-radius:var(--r-md);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;">
+                <button class="b-md" onClick="{{ openLeaveRequest }}" style="flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;background:#f6f8fa;border:1px solid #d4d9e2;border-radius:var(--r-md);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                   Request Absence
                 </button>
@@ -722,7 +722,7 @@
 
               <!-- Welfare note -->
               <sc-if value="{{ canAddWelfareNote }}" hint-placeholder-val="">
-              <button onClick="{{ openWelfareNote }}" style="width:100%;margin-top:10px;padding:10px 12px;background:#f6f8fa;border:1px solid #d4d9e2;border-radius:var(--r-md);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;">
+              <button class="b-md" onClick="{{ openWelfareNote }}" style="width:100%;margin-top:10px;padding:10px 12px;background:#f6f8fa;border:1px solid #d4d9e2;border-radius:var(--r-md);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;display:inline-flex;align-items:center;justify-content:center;gap:6px;">
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path><line x1="16" y1="8" x2="2" y2="22"></line><line x1="17.5" y1="15" x2="9" y2="15"></line></svg>
                 {{ welfareNoteBtnLabel }}
                 <sc-if value="{{ hasWelfareNote }}" hint-placeholder-val="">
@@ -747,7 +747,7 @@
                   Share to Group
                 </a>
                 </sc-if>
-                <button onClick="{{ openLeaveRequest }}" style="-webkit-appearance:none;flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;background:#f6f8fa;border:1px solid #d4d9e2;border-radius:var(--r-md);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;">
+                <button class="b-md" onClick="{{ openLeaveRequest }}" style="-webkit-appearance:none;flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;background:#f6f8fa;border:1px solid #d4d9e2;border-radius:var(--r-md);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                   Request Absence
                 </button>
@@ -760,7 +760,7 @@
               <h2 style="font-size:19px;font-weight:700;margin:2px 0 6px;color:var(--ink);">On Personal Leave</h2>
               <p style="font-size:13.5px;color:var(--ink-2);margin:0;line-height:1.5;text-wrap:pretty;">Your personal leave has been approved. You are recorded as absent for today.</p>
               <div style="display:flex;gap:8px;margin-top:12px;">
-                <button onClick="{{ openLeaveRequest }}" style="-webkit-appearance:none;flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;background:#f6f8fa;border:1px solid #d4d9e2;border-radius:var(--r-md);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;">
+                <button class="b-md" onClick="{{ openLeaveRequest }}" style="-webkit-appearance:none;flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;background:#f6f8fa;border:1px solid #d4d9e2;border-radius:var(--r-md);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                   Request Absence
                 </button>
@@ -773,7 +773,7 @@
               <h2 style="font-size:19px;font-weight:700;margin:2px 0 6px;color:var(--ink);">Marked Absent</h2>
               <p style="font-size:13.5px;color:var(--ink-2);margin:0;line-height:1.5;text-wrap:pretty;">You have been marked absent for today.</p>
               <div style="display:flex;gap:8px;margin-top:12px;">
-                <button onClick="{{ openLeaveRequest }}" style="-webkit-appearance:none;flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;background:#f6f8fa;border:1px solid #d4d9e2;border-radius:var(--r-md);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;">
+                <button class="b-md" onClick="{{ openLeaveRequest }}" style="-webkit-appearance:none;flex:1;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 12px;background:#f6f8fa;border:1px solid #d4d9e2;border-radius:var(--r-md);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                   Request Absence
                 </button>
@@ -1039,7 +1039,7 @@
 
           <!-- LEAVE HISTORY tab -->
           <sc-if value="{{ briefTabHistory }}" hint-placeholder-val="">
-          <button onClick="{{ openLeaveRequest }}" style="-webkit-appearance:none;width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:600;cursor:pointer;">
+          <button class="b-lg" onClick="{{ openLeaveRequest }}" style="-webkit-appearance:none;width:100%;display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:600;cursor:pointer;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
             Request Absence
           </button>
@@ -1048,11 +1048,11 @@
           </sc-if>
           <sc-if value="{{ showLeaveHistory }}" hint-placeholder-val="">
           <div style="padding:0 16px 10px;display:flex;gap:6px;flex-wrap:wrap;border-bottom:1px solid #f2f4f7;padding-top:12px;">
-            <button onClick="{{ setLeaveHistAll }}" class="tap44" style="{{ leaveHistFilterAllStyle }}">All</button>
-            <sc-if value="{{ showLeaveHistFilterPending }}" hint-placeholder-val=""><button onClick="{{ setLeaveHistPending }}" class="tap44" style="{{ leaveHistFilterPendingStyle }}">Submitted</button></sc-if>
-            <sc-if value="{{ showLeaveHistFilterApproved }}" hint-placeholder-val=""><button onClick="{{ setLeaveHistApproved }}" class="tap44" style="{{ leaveHistFilterApprovedStyle }}">Approved</button></sc-if>
-            <sc-if value="{{ showLeaveHistFilterRejected }}" hint-placeholder-val=""><button onClick="{{ setLeaveHistRejected }}" class="tap44" style="{{ leaveHistFilterRejectedStyle }}">Declined</button></sc-if>
-            <sc-if value="{{ showLeaveHistFilterCancelled }}" hint-placeholder-val=""><button onClick="{{ setLeaveHistCancelled }}" class="tap44" style="{{ leaveHistFilterCancelledStyle }}">Withdrawn</button></sc-if>
+            <button onClick="{{ setLeaveHistAll }}" class="b-sm" style="{{ leaveHistFilterAllStyle }}">All</button>
+            <sc-if value="{{ showLeaveHistFilterPending }}" hint-placeholder-val=""><button onClick="{{ setLeaveHistPending }}" class="b-sm" style="{{ leaveHistFilterPendingStyle }}">Submitted</button></sc-if>
+            <sc-if value="{{ showLeaveHistFilterApproved }}" hint-placeholder-val=""><button onClick="{{ setLeaveHistApproved }}" class="b-sm" style="{{ leaveHistFilterApprovedStyle }}">Approved</button></sc-if>
+            <sc-if value="{{ showLeaveHistFilterRejected }}" hint-placeholder-val=""><button onClick="{{ setLeaveHistRejected }}" class="b-sm" style="{{ leaveHistFilterRejectedStyle }}">Declined</button></sc-if>
+            <sc-if value="{{ showLeaveHistFilterCancelled }}" hint-placeholder-val=""><button onClick="{{ setLeaveHistCancelled }}" class="b-sm" style="{{ leaveHistFilterCancelledStyle }}">Withdrawn</button></sc-if>
           </div>
           <sc-if value="{{ leaveHistFiltered }}" hint-placeholder-val="">
             <sc-for list="{{ leaveHistoryItems }}" as="rh" hint-placeholder-count="3">
@@ -1079,12 +1079,12 @@
                   <sc-if value="{{ rh.isCancelConfirming }}" hint-placeholder-val="">
                     <div style="display:flex;align-items:center;gap:8px;margin-top:9px;">
                       <span style="font-size:var(--fs-small);color:var(--muted);flex:1;">Withdraw this request?</span>
-                      <button onClick="{{ rh.onDismissCancel }}" style="-webkit-appearance:none;padding:4px 10px;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--ink-2);background:#fff;cursor:pointer;">No</button>
-                      <button onClick="{{ rh.onConfirmCancel }}" style="-webkit-appearance:none;padding:4px 10px;border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:#fff;background:var(--red);cursor:pointer;">Withdraw</button>
+                      <button class="b-sm" onClick="{{ rh.onDismissCancel }}" style="-webkit-appearance:none;padding:4px 10px;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--ink-2);background:#fff;cursor:pointer;">No</button>
+                      <button class="b-sm" onClick="{{ rh.onConfirmCancel }}" style="-webkit-appearance:none;padding:4px 10px;border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:#fff;background:var(--red);cursor:pointer;">Withdraw</button>
                     </div>
                   </sc-if>
                   <sc-if value="{{ !rh.isCancelConfirming }}" hint-placeholder-val="">
-                    <button onClick="{{ rh.onAskCancel }}" style="-webkit-appearance:none;margin-top:9px;padding:0;background:none;border:none;font-size:var(--fs-small);font-weight:500;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:2px;">Withdraw Request</button>
+                    <button class="hit44" onClick="{{ rh.onAskCancel }}" style="-webkit-appearance:none;margin-top:9px;padding:0;background:none;border:none;font-size:var(--fs-small);font-weight:500;color:var(--muted);cursor:pointer;text-decoration:underline;text-underline-offset:2px;">Withdraw Request</button>
                   </sc-if>
                 </sc-if>
               </div>
@@ -1386,7 +1386,7 @@
           <div style="padding:14px 18px 12px;border-bottom:1px solid #e3e6ec;display:flex;align-items:center;justify-content:space-between;gap:10px;flex:0 0 auto;">
             <div class="text-title">Select Cycle</div>
             <sc-if value="{{ showJumpToLive }}" hint-placeholder-val="">
-              <button onClick="{{ jumpToLiveCycle }}" style="-webkit-appearance:none;padding:5px 11px;border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;background:#e7f3ec;color:var(--green);cursor:pointer;white-space:nowrap;">Go to Live</button>
+              <button class="b-sm" onClick="{{ jumpToLiveCycle }}" style="-webkit-appearance:none;padding:5px 11px;border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;background:#e7f3ec;color:var(--green);cursor:pointer;white-space:nowrap;">Go to Live</button>
             </sc-if>
             <button aria-label="Close" onClick="{{ closeCyclePicker }}" style="background:none;border:none;cursor:pointer;padding:4px;display:flex;color:var(--muted);flex-shrink:0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
           </div>
@@ -1417,9 +1417,9 @@
           </div>
           <sc-if value="{{ cyclePickerShowPagination }}" hint-placeholder-val="">
           <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 18px;border-top:1px solid #eef0f4;background:#fff;flex:0 0 auto;padding-bottom:max(10px,env(safe-area-inset-bottom,10px));">
-            <button onClick="{{ cyclePickerPrev }}" disabled="{{ cyclePickerPrevDisabled }}" style="-webkit-appearance:none;padding:7px 18px;background:#f0f2f5;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:{{ cyclePickerPrevColor }};cursor:{{ cyclePickerPrevCursor }};">Prev</button>
+            <button class="b-sm" onClick="{{ cyclePickerPrev }}" disabled="{{ cyclePickerPrevDisabled }}" style="-webkit-appearance:none;padding:7px 18px;background:#f0f2f5;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:{{ cyclePickerPrevColor }};cursor:{{ cyclePickerPrevCursor }};">Prev</button>
             <span style="font-size:var(--fs-small);color:var(--muted);">{{ cyclePickerPageInfo }}</span>
-            <button onClick="{{ cyclePickerNext }}" disabled="{{ cyclePickerNextDisabled }}" style="-webkit-appearance:none;padding:7px 18px;background:#f0f2f5;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:{{ cyclePickerNextColor }};cursor:{{ cyclePickerNextCursor }};">Next</button>
+            <button class="b-sm" onClick="{{ cyclePickerNext }}" disabled="{{ cyclePickerNextDisabled }}" style="-webkit-appearance:none;padding:7px 18px;background:#f0f2f5;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:{{ cyclePickerNextColor }};cursor:{{ cyclePickerNextCursor }};">Next</button>
           </div>
           </sc-if>
         </div>
@@ -1436,7 +1436,7 @@
               <div style="font-size:var(--fs-label);color:var(--muted-on-dark);font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;text-transform:uppercase;margin-top:1px;">{{ viewDateSub }}</div>
             </div>
             <sc-if value="{{ viewNotToday }}" hint-placeholder-val="">
-              <button onClick="{{ goToday }}" style="flex:0 0 auto;background:#222c3d;border:none;color:#cdd4df;font-size:var(--fs-label);font-weight:700;padding:9px 11px;border-radius:var(--r-sm);cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;">Today</button>
+              <button class="b-md" onClick="{{ goToday }}" style="flex:0 0 auto;background:#222c3d;border:none;color:#cdd4df;font-size:var(--fs-label);font-weight:700;padding:9px 11px;border-radius:var(--r-sm);cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;">Today</button>
             </sc-if>
             <button aria-label="Next day" onClick="{{ nextDay }}" class="btn-icon-dark"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#cdd4df" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
           </div>
@@ -1469,15 +1469,15 @@
                   <div style="font-size:var(--fs-label);font-weight:700;color:var(--muted);letter-spacing:.06em;margin-bottom:6px;">DECLINE REASON (OPTIONAL)</div>
                   <textarea aria-label="Decline reason" onInput="{{ lr.onRejectLeaveReason }}" value="{{ lr.rejectLeaveReason }}" placeholder="e.g. No leave balance" style="width:100%;height:56px;padding:8px 10px;border:1px solid #f1d3cf;border-radius:var(--r-sm);font-family:inherit;font-size:13px;resize:none;outline:none;box-sizing:border-box;background:#fff;" rows="2"></textarea>
                   <div style="display:flex;gap:7px;margin-top:7px;">
-                    <button onClick="{{ lr.cancelRejectLeave }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #e3e6ec;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
-                    <button onClick="{{ lr.confirmRejectLeave }}" style="-webkit-appearance:none;flex:1;padding:7px;background:var(--red);border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:#fff;cursor:pointer;opacity:{{ lr.declineBusyOpacity }};pointer-events:{{ lr.declineBusyPE }};">Confirm Decline</button>
+                    <button class="b-md" onClick="{{ lr.cancelRejectLeave }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #e3e6ec;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
+                    <button class="b-md" onClick="{{ lr.confirmRejectLeave }}" style="-webkit-appearance:none;flex:1;padding:7px;background:var(--red);border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:#fff;cursor:pointer;opacity:{{ lr.declineBusyOpacity }};pointer-events:{{ lr.declineBusyPE }};">Confirm Decline</button>
                   </div>
                 </div>
               </sc-if>
               <sc-if value="{{ !lr.isRejectOpen }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;gap:7px;margin-top:6px;opacity:{{ lr.leaveBusyOpacity }};pointer-events:{{ lr.leaveBusyPE }};">
-                <button onClick="{{ lr.onApprove }}" class="tap44" style="-webkit-appearance:none;flex:1;padding:7px;background:#e7f3ec;border:1px solid #cfe6d8;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--green);cursor:pointer;">Approve</button>
-                <button onClick="{{ lr.onReject }}" class="tap44" style="-webkit-appearance:none;flex:1;padding:7px;background:#fbeeec;border:1px solid #f1d3cf;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--red);cursor:pointer;">Decline</button>
+                <button onClick="{{ lr.onApprove }}" class="b-md" style="-webkit-appearance:none;flex:1;padding:7px;background:#e7f3ec;border:1px solid #cfe6d8;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--green);cursor:pointer;">Approve</button>
+                <button onClick="{{ lr.onReject }}" class="b-md" style="-webkit-appearance:none;flex:1;padding:7px;background:#fbeeec;border:1px solid #f1d3cf;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--red);cursor:pointer;">Decline</button>
               </div>
               </sc-if>
             </div>
@@ -1650,7 +1650,7 @@
                 <div style="font-size:13.5px;font-weight:600;color:var(--ink);">No-reporting day</div>
                 <div class="text-micro">{{ noRepMsg }}</div>
               </div>
-              <button type="button" class="btn-reset" aria-label="Toggle no-reporting day" onClick="{{ toggleNoReporting }}" style="width:50px;height:28px;border-radius:var(--r-pill);background:{{ noRepTrackBg }};position:relative;cursor:pointer;flex:0 0 auto;opacity:{{ repToggleOpacity }};pointer-events:{{ repTogglePE }};">
+              <button type="button" class="btn-reset hit44" aria-label="Toggle no-reporting day" onClick="{{ toggleNoReporting }}" style="width:50px;height:28px;border-radius:var(--r-pill);background:{{ noRepTrackBg }};position:relative;cursor:pointer;flex:0 0 auto;opacity:{{ repToggleOpacity }};pointer-events:{{ repTogglePE }};">
                 <span style="position:absolute;top:3px;left:{{ noRepKnobX }};width:22px;height:22px;border-radius:50%;background:#fff;transition:left .15s;"></span>
               </button>
             </div>
@@ -1676,7 +1676,7 @@
               <div style="font-size:var(--fs-label);color:var(--muted-on-dark);font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;text-transform:uppercase;margin-top:1px;">{{ viewDateSub }}</div>
             </div>
             <sc-if value="{{ viewNotToday }}" hint-placeholder-val="">
-              <button onClick="{{ goToday }}" style="flex:0 0 auto;background:#222c3d;border:none;color:#cdd4df;font-size:var(--fs-label);font-weight:700;padding:9px 11px;border-radius:var(--r-sm);cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;">Today</button>
+              <button class="b-md" onClick="{{ goToday }}" style="flex:0 0 auto;background:#222c3d;border:none;color:#cdd4df;font-size:var(--fs-label);font-weight:700;padding:9px 11px;border-radius:var(--r-sm);cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;">Today</button>
             </sc-if>
             <button aria-label="Next day" onClick="{{ nextDay }}" class="btn-icon-dark"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#cdd4df" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
           </div>
@@ -1691,37 +1691,37 @@
           </div>
           <div>
           <div style="display:flex;gap:6px;flex-wrap:wrap;padding-bottom:2px;">
-            <button onClick="{{ setRosterStatusAll }}" class="tap44" style="{{ rosterStatusAllStyle }}">All</button>
-            <button onClick="{{ setRosterStatusPresent }}" class="tap44" style="{{ rosterStatusPresentStyle }}">Present</button>
-            <button onClick="{{ setRosterStatusMc }}" class="tap44" style="{{ rosterStatusMcStyle }}">Leave</button>
-            <button onClick="{{ setRosterStatusAbsent }}" class="tap44" style="{{ rosterStatusAbsentStyle }}">Absent</button>
-            <button onClick="{{ setRosterStatusPending }}" class="tap44" style="{{ rosterStatusPendingStyle }}">Pending</button>
+            <button onClick="{{ setRosterStatusAll }}" class="b-sm" style="{{ rosterStatusAllStyle }}">All</button>
+            <button onClick="{{ setRosterStatusPresent }}" class="b-sm" style="{{ rosterStatusPresentStyle }}">Present</button>
+            <button onClick="{{ setRosterStatusMc }}" class="b-sm" style="{{ rosterStatusMcStyle }}">Leave</button>
+            <button onClick="{{ setRosterStatusAbsent }}" class="b-sm" style="{{ rosterStatusAbsentStyle }}">Absent</button>
+            <button onClick="{{ setRosterStatusPending }}" class="b-sm" style="{{ rosterStatusPendingStyle }}">Pending</button>
           </div>
           </div>
           <sc-if value="{{ notConfirmAny }}" hint-placeholder-val="">
           <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:14px;">
             <div style="display:flex;background:#eceef2;border-radius:var(--r-md);padding:3px;gap:2px;flex-shrink:0;">
-              <button onClick="{{ setRosterSortName }}" class="tap44" style="{{ rosterSortNameStyle }}">A to Z</button>
-              <button onClick="{{ setRosterSortStatus }}" class="tap44" style="{{ rosterSortStatusStyle }}">Status</button>
+              <button onClick="{{ setRosterSortName }}" class="b-sm" style="{{ rosterSortNameStyle }}">A to Z</button>
+              <button onClick="{{ setRosterSortStatus }}" class="b-sm" style="{{ rosterSortStatusStyle }}">Status</button>
             </div>
             <div style="display:flex;gap:4px;flex-shrink:0;">
-              <button onClick="{{ askMarkAllPresent }}" class="tap44" disabled="{{ markAllPresenting }}" style="{{ markAllPresentStyle }}" title="Mark all present"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg> Mark Present</button>
-              <button onClick="{{ askMarkAllAbsent }}" class="tap44" disabled="{{ markingAllAbsent }}" style="{{ markAllAbsentStyle }}" title="Mark all absent"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> Mark Absent</button>
+              <button onClick="{{ askMarkAllPresent }}" class="b-sm" disabled="{{ markAllPresenting }}" style="{{ markAllPresentStyle }}" title="Mark all present"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg> Mark Present</button>
+              <button onClick="{{ askMarkAllAbsent }}" class="b-sm" disabled="{{ markingAllAbsent }}" style="{{ markAllAbsentStyle }}" title="Mark all absent"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg> Mark Absent</button>
             </div>
           </div>
           </sc-if>
           <sc-if value="{{ confirmMarkAllPresent }}" hint-placeholder-val="">
           <div style="display:flex;gap:5px;align-items:center;justify-content:flex-end;margin-bottom:12px;">
             <span style="font-size:var(--fs-small);color:var(--muted);flex:1;">Mark all pending as present?</span>
-            <button onClick="{{ cancelMarkAllPresent }}" class="tap44" style="padding:5px 10px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;border:1px solid #d4d9e2;background:#fff;color:var(--ink-2);">Cancel</button>
-            <button onClick="{{ markAllPresent }}" class="tap44" style="{{ markAllPresentConfirmStyle }}">Confirm</button>
+            <button onClick="{{ cancelMarkAllPresent }}" class="b-sm" style="padding:5px 10px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;border:1px solid #d4d9e2;background:#fff;color:var(--ink-2);">Cancel</button>
+            <button onClick="{{ markAllPresent }}" class="b-sm" style="{{ markAllPresentConfirmStyle }}">Confirm</button>
           </div>
           </sc-if>
           <sc-if value="{{ confirmMarkAllAbsent }}" hint-placeholder-val="">
           <div style="display:flex;gap:5px;align-items:center;justify-content:flex-end;margin-bottom:12px;">
             <span style="font-size:var(--fs-small);color:var(--muted);flex:1;">{{ markAllAbsentConfirmLabel }}?</span>
-            <button onClick="{{ cancelMarkAllAbsent }}" class="tap44" style="padding:5px 10px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;border:1px solid #d4d9e2;background:#fff;color:var(--ink-2);">Cancel</button>
-            <button onClick="{{ markAllAbsent }}" class="tap44" style="{{ markAllAbsentConfirmStyle }}">Confirm</button>
+            <button onClick="{{ cancelMarkAllAbsent }}" class="b-sm" style="padding:5px 10px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;border:1px solid #d4d9e2;background:#fff;color:var(--ink-2);">Cancel</button>
+            <button onClick="{{ markAllAbsent }}" class="b-sm" style="{{ markAllAbsentConfirmStyle }}">Confirm</button>
           </div>
           </sc-if>
           <sc-if value="{{ showFilteredCount }}" hint-placeholder-val="">
@@ -1834,7 +1834,7 @@
               <div style="font-size:var(--fs-label);color:var(--muted-on-dark);font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;text-transform:uppercase;margin-top:1px;">{{ viewDateSub }}</div>
             </div>
             <sc-if value="{{ viewNotToday }}" hint-placeholder-val="">
-              <button onClick="{{ goToday }}" style="flex:0 0 auto;background:#222c3d;border:none;color:#cdd4df;font-size:var(--fs-label);font-weight:700;padding:9px 11px;border-radius:var(--r-sm);cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;">Today</button>
+              <button class="b-md" onClick="{{ goToday }}" style="flex:0 0 auto;background:#222c3d;border:none;color:#cdd4df;font-size:var(--fs-label);font-weight:700;padding:9px 11px;border-radius:var(--r-sm);cursor:pointer;font-family:'IBM Plex Mono',monospace;letter-spacing:.06em;">Today</button>
             </sc-if>
             <button aria-label="Next day" onClick="{{ nextDay }}" class="btn-icon-dark"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#cdd4df" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg></button>
           </div>
@@ -1846,12 +1846,12 @@
               </sc-if>
             </div>
             <div style="display:flex;align-items:center;gap:2px;background:#f0f2f5;border-radius:var(--r-md);padding:3px;">
-              <button onClick="{{ exportPrint }}" title="Print Report" class="log-print-btn" style="display:flex;align-items:center;gap:5px;padding:6px 11px;background:transparent;border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:#36404f;cursor:pointer;white-space:nowrap;">
+              <button onClick="{{ exportPrint }}" title="Print Report" class="log-print-btn b-sm" style="display:flex;align-items:center;gap:5px;padding:6px 11px;background:transparent;border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:#36404f;cursor:pointer;white-space:nowrap;">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
                 Print
               </button>
               <div class="log-print-btn" style="width:1px;height:16px;background:#d8dce6;flex-shrink:0;"></div>
-              <button onClick="{{ exportCsv }}" title="Export Excel" style="display:flex;align-items:center;gap:5px;padding:6px 11px;background:transparent;border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:#36404f;cursor:pointer;white-space:nowrap;">
+              <button class="b-sm" onClick="{{ exportCsv }}" title="Export Excel" style="display:flex;align-items:center;gap:5px;padding:6px 11px;background:transparent;border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:#36404f;cursor:pointer;white-space:nowrap;">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
                 Excel
               </button>
@@ -1870,11 +1870,11 @@
           </div>
           </div>
           <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:8px;">
-            <button onClick="{{ setLogStatusAll }}" class="tap44" style="{{ logStatusAllStyle }}">All</button>
-            <button onClick="{{ setLogStatusPresent }}" class="tap44" style="{{ logStatusPresentStyle }}">Present</button>
-            <button onClick="{{ setLogStatusMc }}" class="tap44" style="{{ logStatusMcStyle }}">Leave</button>
-            <button onClick="{{ setLogStatusAbsent }}" class="tap44" style="{{ logStatusAbsentStyle }}">Absent</button>
-            <button onClick="{{ setLogStatusPending }}" class="tap44" style="{{ logStatusPendingStyle }}">Pending</button>
+            <button onClick="{{ setLogStatusAll }}" class="b-sm" style="{{ logStatusAllStyle }}">All</button>
+            <button onClick="{{ setLogStatusPresent }}" class="b-sm" style="{{ logStatusPresentStyle }}">Present</button>
+            <button onClick="{{ setLogStatusMc }}" class="b-sm" style="{{ logStatusMcStyle }}">Leave</button>
+            <button onClick="{{ setLogStatusAbsent }}" class="b-sm" style="{{ logStatusAbsentStyle }}">Absent</button>
+            <button onClick="{{ setLogStatusPending }}" class="b-sm" style="{{ logStatusPendingStyle }}">Pending</button>
           </div>
           <sc-if value="{{ showLogFilterCount }}" hint-placeholder-val="">
             <div style="font-size:var(--fs-small);color:var(--muted);margin-bottom:8px;padding:0 2px;">{{ logFilterCountLabel }}</div>
@@ -1924,11 +1924,11 @@
                     </sc-if>
                   </div>
                   <div style="display:flex;gap:5px;flex-shrink:0;">
-                    <button aria-label="Add or edit note" onClick="{{ row.onEditLogNote }}" class="tap44" style="-webkit-appearance:none;width:28px;height:28px;background:#f6f8fa;border:1px solid #e3e6ec;border-radius:var(--r-sm);cursor:pointer;color:{{ row.logNoteIconColor }};display:flex;align-items:center;justify-content:center;padding:0;" title="Note"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></button>
+                    <button aria-label="Add or edit note" onClick="{{ row.onEditLogNote }}" class="b-md b-icon" style="-webkit-appearance:none;width:28px;height:28px;background:#f6f8fa;border:1px solid #e3e6ec;border-radius:var(--r-sm);cursor:pointer;color:{{ row.logNoteIconColor }};display:flex;align-items:center;justify-content:center;padding:0;" title="Note"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg></button>
                     <sc-if value="{{ row.showQuickAbsent }}" hint-placeholder-val="">
-                      <button onClick="{{ row.markAbsent }}" style="-webkit-appearance:none;height:28px;padding:0 9px;background:#fdf0ef;border:1px solid #f1d0cc;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--red);cursor:pointer;white-space:nowrap;">Absent</button>
+                      <button class="b-md" onClick="{{ row.markAbsent }}" style="-webkit-appearance:none;height:28px;padding:0 9px;background:#fdf0ef;border:1px solid #f1d0cc;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--red);cursor:pointer;white-space:nowrap;">Absent</button>
                     </sc-if>
-                    <button onClick="{{ row.onEditTimes }}" class="tap44" style="-webkit-appearance:none;height:28px;padding:0 10px;background:#f6f8fa;border:1px solid #e3e6ec;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--ink-2);cursor:pointer;">Edit</button>
+                    <button onClick="{{ row.onEditTimes }}" class="b-md" style="-webkit-appearance:none;height:28px;padding:0 10px;background:#f6f8fa;border:1px solid #e3e6ec;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--ink-2);cursor:pointer;">Edit</button>
                   </div>
                 </div>
                 <sc-if value="{{ row.showPhaseLine }}" hint-placeholder-val="">
@@ -1977,8 +1977,8 @@
                       </div>
                     </div>
                     <div class="flex-gap-8">
-                      <button onClick="{{ saveTimesEdit }}" style="-webkit-appearance:none;flex:1;padding:10px;background:#161f30;color:#fff;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:600;cursor:pointer;">Save</button>
-                      <button onClick="{{ closeTimesEdit }}" style="-webkit-appearance:none;padding:10px 16px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
+                      <button class="b-md" onClick="{{ saveTimesEdit }}" style="-webkit-appearance:none;flex:1;padding:10px;background:#161f30;color:#fff;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:600;cursor:pointer;">Save</button>
+                      <button class="b-md" onClick="{{ closeTimesEdit }}" style="-webkit-appearance:none;padding:10px 16px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
                     </div>
                   </div>
                 </sc-if>
@@ -1993,8 +1993,8 @@
                     <div style="font-size:var(--fs-label);font-weight:700;color:var(--muted);letter-spacing:.06em;margin-bottom:6px;">NOTE FOR RESERVIST</div>
                     <textarea aria-label="Note for reservist" onInput="{{ onLogNoteText }}" value="{{ logNoteText }}" placeholder="Visible to this reservist in their check-in view" style="width:100%;height:60px;padding:8px 10px;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-family:inherit;font-size:13px;resize:none;outline:none;box-sizing:border-box;background:#fff;" rows="2"></textarea>
                     <div style="display:flex;gap:7px;margin-top:7px;">
-                      <button onClick="{{ closeLogNote }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
-                      <button onClick="{{ saveLogNote }}" style="-webkit-appearance:none;flex:2;padding:7px;background:#161f30;border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:#fff;cursor:pointer;opacity:{{ logNoteSavingOpacity }};pointer-events:{{ logNoteSavingPE }};">Save Note</button>
+                      <button class="b-md" onClick="{{ closeLogNote }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
+                      <button class="b-md" onClick="{{ saveLogNote }}" style="-webkit-appearance:none;flex:2;padding:7px;background:#161f30;border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:#fff;cursor:pointer;opacity:{{ logNoteSavingOpacity }};pointer-events:{{ logNoteSavingPE }};">Save Note</button>
                     </div>
                   </div>
                 </sc-if>
@@ -2018,14 +2018,14 @@
           <div class="tab-sticky no-day" style="padding-top:2px;">
           <!-- Sub-tab strip -->
           <div style="display:flex;gap:4px;margin-bottom:8px;background:#eef0f4;border-radius:var(--r-md);padding:4px;">
-            <button onClick="{{ setPeopleTabRequests }}" style="{{ ptRequestsStyle }}">
+            <button class="b-sm" onClick="{{ setPeopleTabRequests }}" style="{{ ptRequestsStyle }}">
               Requests
               <sc-if value="{{ hasPendingRequests }}" hint-placeholder-val="">
                 <span style="display:inline-block;background:var(--red);color:#fff;font-size:var(--fs-label);font-weight:700;padding:1px 6px;border-radius:var(--r-pill);margin-left:4px;vertical-align:middle;">{{ pendingTotalCount }}</span>
               </sc-if>
             </button>
-            <button onClick="{{ setPeopleTabRoster }}" style="{{ ptRosterStyle }}">Roster</button>
-            <button onClick="{{ setPeopleTabAdmins }}" style="{{ ptAdminsStyle }}">Team</button>
+            <button class="b-sm" onClick="{{ setPeopleTabRoster }}" style="{{ ptRosterStyle }}">Roster</button>
+            <button class="b-sm" onClick="{{ setPeopleTabAdmins }}" style="{{ ptAdminsStyle }}">Team</button>
           </div>
           <button onClick="{{ openMemberSearch }}" style="width:100%;margin-bottom:6px;padding:9px 14px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-md);display:flex;align-items:center;gap:9px;cursor:pointer;">
             <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#8a94a3" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
@@ -2060,9 +2060,9 @@
                 </sc-if>
               </div>
               <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                <button onClick="{{ setSignupTypeAll }}" class="tap44" style="{{ signupFilterAllStyle }}">All</button>
-                <button onClick="{{ setSignupTypeNew }}" class="tap44" style="{{ signupFilterNewStyle }}">New</button>
-                <button onClick="{{ setSignupTypeReturning }}" class="tap44" style="{{ signupFilterReturningStyle }}">Returning</button>
+                <button onClick="{{ setSignupTypeAll }}" class="b-sm" style="{{ signupFilterAllStyle }}">All</button>
+                <button onClick="{{ setSignupTypeNew }}" class="b-sm" style="{{ signupFilterNewStyle }}">New</button>
+                <button onClick="{{ setSignupTypeReturning }}" class="b-sm" style="{{ signupFilterReturningStyle }}">Returning</button>
               </div>
             </div>
             </sc-if>
@@ -2087,17 +2087,17 @@
                 </sc-if>
               </div>
               <div class="flex-gap-8">
-                <button onClick="{{ sr.onReject }}" class="tap44" style="-webkit-appearance:none;flex:1;padding:7px;background:#fbeeec;border:1px solid #f1d3cf;color:var(--red);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Decline</button>
-                <button onClick="{{ sr.onOpenMove }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;color:#3a4a66;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Move</button>
-                <button onClick="{{ sr.onApprove }}" class="tap44" style="-webkit-appearance:none;flex:2;padding:7px;background:#e7f3ec;border:1px solid #cfe6d8;color:var(--green);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Approve</button>
+                <button onClick="{{ sr.onReject }}" class="b-md" style="-webkit-appearance:none;flex:1;padding:7px;background:#fbeeec;border:1px solid #f1d3cf;color:var(--red);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Decline</button>
+                <button class="b-md" onClick="{{ sr.onOpenMove }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;color:#3a4a66;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Move</button>
+                <button onClick="{{ sr.onApprove }}" class="b-md" style="-webkit-appearance:none;flex:2;padding:7px;background:#e7f3ec;border:1px solid #cfe6d8;color:var(--green);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Approve</button>
               </div>
               <sc-if value="{{ sr.isRejecting }}" hint-placeholder-val="">
               <div style="background:#fdf6f5;border:1px solid #f1d3cf;border-radius:var(--r-sm);padding:10px;margin-top:8px;">
                 <div style="font-size:var(--fs-small);font-weight:600;color:#7a3428;margin-bottom:6px;">Reason (optional, shown to the applicant)</div>
                 <textarea aria-label="Decline reason" onInput="{{ sr.onRejectReason }}" value="{{ sr.rejectReason }}" maxlength="500" placeholder="e.g. Wrong department: you report to Ops Security" style="width:100%;height:56px;padding:8px 10px;border:1px solid #f1d3cf;border-radius:var(--r-sm);font-family:inherit;font-size:13px;resize:none;outline:none;box-sizing:border-box;background:#fff;" rows="2"></textarea>
                 <div class="flex-gap-8" style="margin-top:8px;">
-                  <button onClick="{{ sr.onCancelReject }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;color:var(--ink-2);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Cancel</button>
-                  <button onClick="{{ sr.onConfirmReject }}" style="-webkit-appearance:none;flex:2;padding:7px;background:var(--red);border:none;color:#fff;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">{{ sr.confirmRejectLabel }}</button>
+                  <button class="b-md" onClick="{{ sr.onCancelReject }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;color:var(--ink-2);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Cancel</button>
+                  <button class="b-md" onClick="{{ sr.onConfirmReject }}" style="-webkit-appearance:none;flex:2;padding:7px;background:var(--red);border:none;color:#fff;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">{{ sr.confirmRejectLabel }}</button>
                 </div>
               </div>
               </sc-if>
@@ -2112,8 +2112,8 @@
                 </select>
                 <div style="font-size:var(--fs-small);color:var(--muted);margin-top:6px;line-height:1.4;">It goes to that department's admins as Pending, in their open intake.</div>
                 <div class="flex-gap-8" style="margin-top:8px;">
-                  <button onClick="{{ sr.onCancelMove }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;color:var(--ink-2);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Cancel</button>
-                  <button onClick="{{ sr.onConfirmMove }}" style="-webkit-appearance:none;flex:2;padding:7px;background:#2f5fd0;border:none;color:#fff;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;opacity:{{ sr.moveBtnOpacity }};">{{ sr.confirmMoveLabel }}</button>
+                  <button class="b-md" onClick="{{ sr.onCancelMove }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;color:var(--ink-2);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Cancel</button>
+                  <button class="b-md" onClick="{{ sr.onConfirmMove }}" style="-webkit-appearance:none;flex:2;padding:7px;background:#2f5fd0;border:none;color:#fff;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;opacity:{{ sr.moveBtnOpacity }};">{{ sr.confirmMoveLabel }}</button>
                 </div>
               </div>
               </sc-if>
@@ -2149,9 +2149,9 @@
                 </sc-if>
               </div>
               <div style="display:flex;gap:6px;flex-wrap:wrap;">
-                <button onClick="{{ setLeaveTypeAll }}" class="tap44" style="{{ filterAllStyle }}">All</button>
-                <button onClick="{{ setLeaveTypeMc }}" class="tap44" style="{{ filterMcStyle }}">MC</button>
-                <button onClick="{{ setLeaveTypePersonal }}" class="tap44" style="{{ filterPersonalStyle }}">Personal</button>
+                <button onClick="{{ setLeaveTypeAll }}" class="b-sm" style="{{ filterAllStyle }}">All</button>
+                <button onClick="{{ setLeaveTypeMc }}" class="b-sm" style="{{ filterMcStyle }}">MC</button>
+                <button onClick="{{ setLeaveTypePersonal }}" class="b-sm" style="{{ filterPersonalStyle }}">Personal</button>
               </div>
             </div>
             </sc-if>
@@ -2176,15 +2176,15 @@
                   <div style="font-size:var(--fs-label);font-weight:600;color:var(--muted);letter-spacing:.06em;margin-bottom:6px;">DECLINE REASON (OPTIONAL)</div>
                   <textarea aria-label="Decline reason" onInput="{{ lr.onRejectLeaveReason }}" value="{{ lr.rejectLeaveReason }}" placeholder="e.g. No leave balance" style="width:100%;height:60px;padding:8px 10px;border:1px solid #f1d3cf;border-radius:var(--r-sm);font-family:inherit;font-size:13px;resize:none;outline:none;box-sizing:border-box;background:#fff;" rows="2"></textarea>
                   <div style="display:flex;gap:7px;margin-top:7px;">
-                    <button onClick="{{ lr.cancelRejectLeave }}" style="-webkit-appearance:none;flex:1;padding:8px;background:#fff;border:1px solid #e3e6ec;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
-                    <button onClick="{{ lr.confirmRejectLeave }}" style="-webkit-appearance:none;flex:1;padding:8px;background:var(--red);border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:#fff;cursor:pointer;opacity:{{ lr.declineBusyOpacity }};pointer-events:{{ lr.declineBusyPE }};">Confirm Decline</button>
+                    <button class="b-md" onClick="{{ lr.cancelRejectLeave }}" style="-webkit-appearance:none;flex:1;padding:8px;background:#fff;border:1px solid #e3e6ec;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
+                    <button class="b-md" onClick="{{ lr.confirmRejectLeave }}" style="-webkit-appearance:none;flex:1;padding:8px;background:var(--red);border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:#fff;cursor:pointer;opacity:{{ lr.declineBusyOpacity }};pointer-events:{{ lr.declineBusyPE }};">Confirm Decline</button>
                   </div>
                 </div>
               </sc-if>
               <sc-if value="{{ !lr.isRejectOpen }}" hint-placeholder-val="{{ true }}">
               <div style="display:flex;gap:8px;margin-top:4px;opacity:{{ lr.leaveBusyOpacity }};pointer-events:{{ lr.leaveBusyPE }};">
-                <button onClick="{{ lr.onReject }}" class="tap44" style="-webkit-appearance:none;flex:1;padding:7px;background:#fbeeec;border:1px solid #f1d3cf;color:var(--red);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Decline</button>
-                <button onClick="{{ lr.onApprove }}" class="tap44" style="-webkit-appearance:none;flex:2;padding:7px;background:#e7f3ec;border:1px solid #cfe6d8;color:var(--green);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Approve</button>
+                <button onClick="{{ lr.onReject }}" class="b-md" style="-webkit-appearance:none;flex:1;padding:7px;background:#fbeeec;border:1px solid #f1d3cf;color:var(--red);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Decline</button>
+                <button onClick="{{ lr.onApprove }}" class="b-md" style="-webkit-appearance:none;flex:2;padding:7px;background:#e7f3ec;border:1px solid #cfe6d8;color:var(--green);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Approve</button>
               </div>
               </sc-if>
             </div>
@@ -2202,7 +2202,7 @@
               <span class="text-label">PROCESSED REQUESTS</span>
               <span style="background:#8a94a3;color:#fff;font-size:var(--fs-small);font-weight:700;padding:2px 7px;border-radius:var(--r-pill);">{{ processedLeavesCount }}</span>
               <div style="flex:1;"></div>
-              <button onClick="{{ toggleProcessedLeaves }}" style="-webkit-appearance:none;background:none;border:none;cursor:pointer;padding:2px 4px;display:flex;align-items:center;gap:4px;font-size:var(--fs-small);color:var(--muted);font-weight:500;">
+              <button class="hit44" onClick="{{ toggleProcessedLeaves }}" style="-webkit-appearance:none;background:none;border:none;cursor:pointer;padding:2px 4px;display:flex;align-items:center;gap:4px;font-size:var(--fs-small);color:var(--muted);font-weight:500;">
                 <sc-if value="{{ processedLeavesHidden }}" hint-placeholder-val="{{ true }}">Show</sc-if>
                 <sc-if value="{{ !processedLeavesHidden }}" hint-placeholder-val="">Hide</sc-if>
               </button>
@@ -2213,13 +2213,13 @@
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0;"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
                 <input aria-label="Search processed leave" type="text" value="{{ processedLeavesSearch }}" onInput="{{ onProcessedLeavesSearch }}" placeholder="Search name…" style="-webkit-appearance:none;flex:1;border:none;outline:none;font-size:13px;color:var(--ink);background:transparent;">
                 <sc-if value="{{ hasProcessedLeavesSearch }}" hint-placeholder-val="">
-                  <button onClick="{{ clearProcessedLeavesSearch }}" style="-webkit-appearance:none;background:none;border:none;cursor:pointer;color:var(--muted);padding:0 2px;font-size:15px;line-height:1;">&times;</button>
+                  <button class="hit44" onClick="{{ clearProcessedLeavesSearch }}" style="-webkit-appearance:none;background:none;border:none;cursor:pointer;color:var(--muted);padding:0 2px;font-size:15px;line-height:1;">&times;</button>
                 </sc-if>
               </div>
               <div style="display:flex;gap:6px;">
-                <button onClick="{{ setPlFilterAll }}" class="tap44" style="{{ plFilterAllStyle }}">All</button>
-                <button onClick="{{ setPlFilterMc }}" class="tap44" style="{{ plFilterMcStyle }}">MC</button>
-                <button onClick="{{ setPlFilterPersonal }}" class="tap44" style="{{ plFilterPersonalStyle }}">Personal Leave</button>
+                <button onClick="{{ setPlFilterAll }}" class="b-sm" style="{{ plFilterAllStyle }}">All</button>
+                <button onClick="{{ setPlFilterMc }}" class="b-sm" style="{{ plFilterMcStyle }}">MC</button>
+                <button onClick="{{ setPlFilterPersonal }}" class="b-sm" style="{{ plFilterPersonalStyle }}">Personal Leave</button>
               </div>
             </div>
             <sc-for list="{{ processedLeavesItems }}" as="pl" hint-placeholder-count="2">
@@ -2254,9 +2254,9 @@
             </sc-if>
             <sc-if value="{{ processedLeavesShowPagination }}" hint-placeholder-val="">
             <div style="display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 14px;border-top:1px solid #f2f4f7;">
-              <button onClick="{{ processedLeavesPagePrev }}" style="-webkit-appearance:none;background:none;border:none;cursor:pointer;opacity:{{ processedLeavesPrevOpacity }};font-size:13px;color:var(--ink-2);padding:4px 8px;">Prev</button>
+              <button class="b-sm" onClick="{{ processedLeavesPagePrev }}" style="-webkit-appearance:none;background:none;border:none;cursor:pointer;opacity:{{ processedLeavesPrevOpacity }};font-size:13px;color:var(--ink-2);padding:4px 8px;">Prev</button>
               <span style="font-size:var(--fs-small);color:var(--muted);">{{ processedLeavesPageLabel }}</span>
-              <button onClick="{{ processedLeavesPageNext }}" style="-webkit-appearance:none;background:none;border:none;cursor:pointer;opacity:{{ processedLeavesNextOpacity }};font-size:13px;color:var(--ink-2);padding:4px 8px;">Next</button>
+              <button class="b-sm" onClick="{{ processedLeavesPageNext }}" style="-webkit-appearance:none;background:none;border:none;cursor:pointer;opacity:{{ processedLeavesNextOpacity }};font-size:13px;color:var(--ink-2);padding:4px 8px;">Next</button>
             </div>
             </sc-if>
             </sc-if>
@@ -2269,7 +2269,7 @@
               <span class="text-label">DECLINED SIGNUPS</span>
               <span style="background:#8a94a3;color:#fff;font-size:var(--fs-small);font-weight:700;padding:2px 7px;border-radius:var(--r-pill);">{{ rejectedSignupCount }}</span>
               <div style="flex:1;"></div>
-              <button onClick="{{ toggleRejectedSignups }}" style="-webkit-appearance:none;background:none;border:none;cursor:pointer;padding:2px 4px;display:flex;align-items:center;gap:4px;font-size:var(--fs-small);color:var(--muted);font-weight:500;">
+              <button class="hit44" onClick="{{ toggleRejectedSignups }}" style="-webkit-appearance:none;background:none;border:none;cursor:pointer;padding:2px 4px;display:flex;align-items:center;gap:4px;font-size:var(--fs-small);color:var(--muted);font-weight:500;">
                 <sc-if value="{{ rejectedSignupsHidden }}" hint-placeholder-val="{{ true }}">Show</sc-if>
                 <sc-if value="{{ !rejectedSignupsHidden }}" hint-placeholder-val="">Hide</sc-if>
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transform:rotate({{ rejectedSignupsChevronRotate }}deg);transition:transform .2s;"><polyline points="6 9 12 15 18 9"/></svg>
@@ -2297,8 +2297,8 @@
               </sc-if>
               <sc-if value="{{ sr.canAct }}" hint-placeholder-val="{{ true }}">
               <div class="flex-gap-8">
-                <button onClick="{{ sr.onReopen }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;color:var(--ink-2);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Reopen as Pending</button>
-                <button onClick="{{ sr.onOpenMove }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;color:#3a4a66;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Move to Department</button>
+                <button class="b-md" onClick="{{ sr.onReopen }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;color:var(--ink-2);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Reopen as Pending</button>
+                <button class="b-md" onClick="{{ sr.onOpenMove }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;color:#3a4a66;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Move to Department</button>
               </div>
               </sc-if>
               <sc-if value="{{ sr.isMoving }}" hint-placeholder-val="">
@@ -2312,8 +2312,8 @@
                 </select>
                 <div style="font-size:var(--fs-small);color:var(--muted);margin-top:6px;line-height:1.4;">It goes to that department's admins as Pending, in their open intake.</div>
                 <div class="flex-gap-8" style="margin-top:8px;">
-                  <button onClick="{{ sr.onCancelMove }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;color:var(--ink-2);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Cancel</button>
-                  <button onClick="{{ sr.onConfirmMove }}" style="-webkit-appearance:none;flex:2;padding:7px;background:#2f5fd0;border:none;color:#fff;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;opacity:{{ sr.moveBtnOpacity }};">{{ sr.confirmMoveLabel }}</button>
+                  <button class="b-md" onClick="{{ sr.onCancelMove }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #d4d9e2;color:var(--ink-2);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Cancel</button>
+                  <button class="b-md" onClick="{{ sr.onConfirmMove }}" style="-webkit-appearance:none;flex:2;padding:7px;background:#2f5fd0;border:none;color:#fff;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;opacity:{{ sr.moveBtnOpacity }};">{{ sr.confirmMoveLabel }}</button>
                 </div>
               </div>
               </sc-if>
@@ -2345,7 +2345,7 @@
                     <span style="font-size:var(--fs-small);color:var(--ink-2);">New signups enroll in this cycle</span>
                   </sc-if>
                 </sc-if>
-                <button onClick="{{ startEditBatchLabel }}" class="tap44" style="margin-left:auto;background:none;border:none;color:var(--blue);font-size:var(--fs-small);font-weight:600;padding:4px 2px;cursor:pointer;">Rename Cycle</button>
+                <button onClick="{{ startEditBatchLabel }}" class="hit44" style="margin-left:auto;background:none;border:none;color:var(--blue);font-size:var(--fs-small);font-weight:600;padding:4px 2px;cursor:pointer;">Rename Cycle</button>
               </div>
             </sc-if>
             <sc-if value="{{ editingBatchLabel }}" hint-placeholder-val="">
@@ -2353,8 +2353,8 @@
                 <div style="font-size:var(--fs-label);font-weight:600;color:var(--ink-2);letter-spacing:.06em;margin-bottom:8px;">CYCLE NAME</div>
                 <input aria-label="Cycle name" value="{{ batchLabelText }}" onInput="{{ onBatchLabelText }}" placeholder="e.g. Cycle 14/2026" style="width:100%;padding:9px 11px;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:15px;font-weight:600;outline:none;color:var(--ink);background:#fff;margin-bottom:10px;box-sizing:border-box;" />
                 <div class="flex-gap-8">
-                  <button onClick="{{ saveBatchLabel }}" style="flex:1;padding:9px;background:var(--blue);color:#fff;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:600;cursor:pointer;">Save</button>
-                  <button onClick="{{ cancelBatchLabel }}" style="padding:9px 14px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
+                  <button class="b-md" onClick="{{ saveBatchLabel }}" style="flex:1;padding:9px;background:var(--blue);color:#fff;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:600;cursor:pointer;">Save</button>
+                  <button class="b-md" onClick="{{ cancelBatchLabel }}" style="padding:9px 14px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
                 </div>
               </div>
             </sc-if>
@@ -2364,11 +2364,11 @@
               <span class="text-label">PERSONNEL</span>
               <div style="display:flex;align-items:center;gap:8px;">
                 <span style="font-size:var(--fs-small);color:var(--muted);white-space:nowrap;">{{ statTotal }} on roster</span>
-                <button onClick="{{ openBulkAdd }}" class="tap44" title="Bulk add" style="padding:4px 9px;border-radius:var(--r-sm);border:1px solid #d4d9e2;background:#f6f8fa;cursor:pointer;font-size:var(--fs-small);font-weight:600;color:var(--ink-2);display:inline-flex;align-items:center;gap:4px;">
+                <button onClick="{{ openBulkAdd }}" class="b-md" title="Bulk add" style="padding:4px 9px;border-radius:var(--r-sm);border:1px solid #d4d9e2;background:#f6f8fa;cursor:pointer;font-size:var(--fs-small);font-weight:600;color:var(--ink-2);display:inline-flex;align-items:center;gap:4px;">
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/><line x1="20" y1="8" x2="20" y2="14"/></svg>
                   Bulk
                 </button>
-                <button aria-label="Add personnel" onClick="{{ toggleAddPersonnel }}" class="tap44" title="Add personnel" style="width:26px;height:26px;border-radius:50%;background:{{ addPersonnelBtnBg }};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto;padding:0;">
+                <button aria-label="Add personnel" onClick="{{ toggleAddPersonnel }}" class="b-md b-icon" title="Add personnel" style="width:26px;height:26px;border-radius:50%;background:{{ addPersonnelBtnBg }};border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto;padding:0;">
                   <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="{{ addPersonnelBtnStroke }}" stroke-width="2.5" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
                 </button>
               </div>
@@ -2400,7 +2400,7 @@
                     </div>
                     </sc-if>
                   </div>
-                  <button aria-label="Show details" onClick="{{ p.onToggleExpand }}" style="-webkit-appearance:none;background:none;border:none;padding:6px;cursor:pointer;display:flex;align-items:center;flex:0 0 auto;margin-right:-4px;">
+                  <button class="b-md b-icon" aria-label="Show details" onClick="{{ p.onToggleExpand }}" style="-webkit-appearance:none;background:none;border:none;padding:6px;cursor:pointer;display:flex;align-items:center;flex:0 0 auto;margin-right:-4px;">
                     <sc-if value="{{ p.isExpanded }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg></sc-if>
                     <sc-if value="{{ !p.isExpanded }}"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#9aa3b2" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"/></svg></sc-if>
                   </button>
@@ -2429,8 +2429,8 @@
                   <div style="margin-top:10px;">
                     <input aria-label="Note about this person" value="{{ editingNoteText }}" onInput="{{ onNoteText }}" placeholder="Add a note about this person…" style="width:100%;padding:9px 11px;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:13px;background:#f6f8fa;outline:none;" />
                     <div style="display:flex;gap:8px;margin-top:7px;">
-                      <button onClick="{{ saveNote }}" style="flex:1;padding:9px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:600;cursor:pointer;">Save</button>
-                      <button onClick="{{ closeNote }}" style="padding:9px 14px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
+                      <button class="b-md" onClick="{{ saveNote }}" style="flex:1;padding:9px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:600;cursor:pointer;">Save</button>
+                      <button class="b-md" onClick="{{ closeNote }}" style="padding:9px 14px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
                     </div>
                   </div>
                 </sc-if>
@@ -2438,8 +2438,8 @@
                   <div style="margin-top:9px;background:#fbeeec;border:1px solid #f1d3cf;border-radius:var(--r-sm);padding:11px 13px;">
                     <div style="font-size:var(--fs-small);font-weight:600;color:var(--red);margin-bottom:8px;">Remove {{ p.name }} from roster?</div>
                     <div class="flex-gap-7">
-                      <button onClick="{{ confirmDeactivatePerson }}" style="flex:1;padding:8px;background:var(--red);color:#fff;border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Remove</button>
-                      <button onClick="{{ cancelDeactivatePerson }}" style="padding:8px 13px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
+                      <button class="b-md" onClick="{{ confirmDeactivatePerson }}" style="flex:1;padding:8px;background:var(--red);color:#fff;border:none;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Remove</button>
+                      <button class="b-md" onClick="{{ cancelDeactivatePerson }}" style="padding:8px 13px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
                     </div>
                   </div>
                 </sc-if>
@@ -2482,12 +2482,12 @@
                 <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
                   <sc-if value="{{ adm.canResetPw }}">
                     <sc-if value="{{ !adm.isConfirming }}">
-                      <button aria-label="Reset password" onClick="{{ adm.onResetAdminPw }}" title="Reset password" style="-webkit-appearance:none;width:32px;height:32px;border-radius:var(--r-sm);background:#f6f8fa;border:1px solid #e3e6ec;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
+                      <button class="b-md b-icon" aria-label="Reset password" onClick="{{ adm.onResetAdminPw }}" title="Reset password" style="-webkit-appearance:none;width:32px;height:32px;border-radius:var(--r-sm);background:#f6f8fa;border:1px solid #e3e6ec;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></button>
                     </sc-if>
                   </sc-if>
                   <sc-if value="{{ adm.canDeactivate }}">
                     <sc-if value="{{ !adm.isConfirming }}">
-                      <button aria-label="Remove admin" onClick="{{ adm.onAskDeactivate }}" title="Remove admin" style="-webkit-appearance:none;width:32px;height:32px;border-radius:var(--r-sm);background:#fff5f5;border:1px solid #f5d5d2;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b0342a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+                      <button class="b-md b-icon" aria-label="Remove admin" onClick="{{ adm.onAskDeactivate }}" title="Remove admin" style="-webkit-appearance:none;width:32px;height:32px;border-radius:var(--r-sm);background:#fff5f5;border:1px solid #f5d5d2;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#b0342a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
                     </sc-if>
                   </sc-if>
                 </div>
@@ -2498,8 +2498,8 @@
                 <div style="margin-top:8px;background:#fff5f5;border:1px solid #f5d5d2;border-radius:var(--r-sm);padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
                   <span style="font-size:var(--fs-small);color:#922b21;font-weight:500;">Remove {{ adm.name }} as admin?</span>
                   <div class="flex-gap-7">
-                    <button onClick="{{ adm.onCancelDeactivate }}" style="-webkit-appearance:none;padding:5px 11px;background:#fff;border:1px solid #d4d9e2;color:var(--ink-2);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Cancel</button>
-                    <button onClick="{{ adm.onConfirmDeactivate }}" style="-webkit-appearance:none;padding:5px 11px;background:var(--red);border:none;color:#fff;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Remove</button>
+                    <button class="b-md" onClick="{{ adm.onCancelDeactivate }}" style="-webkit-appearance:none;padding:5px 11px;background:#fff;border:1px solid #d4d9e2;color:var(--ink-2);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Cancel</button>
+                    <button class="b-md" onClick="{{ adm.onConfirmDeactivate }}" style="-webkit-appearance:none;padding:5px 11px;background:var(--red);border:none;color:#fff;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Remove</button>
                   </div>
                 </div>
               </sc-if>
@@ -2586,7 +2586,7 @@
           <div style="font-size:var(--fs-small);color:var(--muted);margin-top:3px;">Reservist</div>
         </sc-if>
         <sc-if value="{{ acctHasAvatar }}" hint-placeholder-val="">
-          <button onClick="{{ removeAvatar }}" style="-webkit-appearance:none;margin-top:8px;font-size:var(--fs-small);color:var(--red);background:none;border:none;cursor:pointer;padding:0;">Remove Photo</button>
+          <button class="hit44" onClick="{{ removeAvatar }}" style="-webkit-appearance:none;margin-top:8px;font-size:var(--fs-small);color:var(--red);background:none;border:none;cursor:pointer;padding:0;">Remove Photo</button>
         </sc-if>
       </div>
 
@@ -2640,14 +2640,14 @@
         </sc-if>
 
         <sc-if value="{{ logoutConfirmClosed }}" hint-placeholder-val="">
-        <button onClick="{{ askLogout }}" style="-webkit-appearance:none;width:100%;padding:13px;background:#fff;border:1px solid #e3e6ec;border-radius:var(--r-md);font-size:14px;font-weight:600;color:#36404f;cursor:pointer;margin-bottom:14px;">Log Out</button>
+        <button class="b-lg" onClick="{{ askLogout }}" style="-webkit-appearance:none;width:100%;padding:13px;background:#fff;border:1px solid #e3e6ec;border-radius:var(--r-md);font-size:14px;font-weight:600;color:#36404f;cursor:pointer;margin-bottom:14px;">Log Out</button>
         </sc-if>
         <sc-if value="{{ logoutConfirmOpen }}" hint-placeholder-val="">
         <div style="background:#fff;border:1px solid #e3e6ec;border-radius:var(--r-lg);padding:14px;margin-bottom:14px;">
           <div style="font-size:13.5px;font-weight:500;color:var(--ink-2);text-align:center;margin-bottom:11px;">Log out of this account?</div>
           <div style="display:flex;gap:8px;">
-            <button onClick="{{ cancelLogout }}" style="-webkit-appearance:none;flex:1;padding:10px;background:#f6f8fa;border:1px solid #e3e6ec;border-radius:var(--r-sm);font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
-            <button onClick="{{ logout }}" style="-webkit-appearance:none;flex:1;padding:10px;background:var(--red);border:none;border-radius:var(--r-sm);font-size:13.5px;font-weight:600;color:#fff;cursor:pointer;">Log Out</button>
+            <button class="b-md" onClick="{{ cancelLogout }}" style="-webkit-appearance:none;flex:1;padding:10px;background:#f6f8fa;border:1px solid #e3e6ec;border-radius:var(--r-sm);font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
+            <button class="b-md" onClick="{{ logout }}" style="-webkit-appearance:none;flex:1;padding:10px;background:var(--red);border:none;border-radius:var(--r-sm);font-size:13.5px;font-weight:600;color:#fff;cursor:pointer;">Log Out</button>
           </div>
         </div>
         </sc-if>
@@ -2692,7 +2692,7 @@
         </div>
         <sc-if value="{{ capsLock }}" hint-placeholder-val=""><div style="font-size:var(--fs-small);color:var(--amber-text);margin-top:6px;">⇪ Caps Lock is on</div></sc-if>
         <sc-if value="{{ acctPwError }}" hint-placeholder-val=""><div style="color:var(--red);font-size:var(--fs-small);margin-top:6px;">{{ acctPwError }}</div></sc-if>
-        <button onClick="{{ saveAcctPw }}" disabled="{{ acctSaving }}" style="-webkit-appearance:none;width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;cursor:pointer;margin-top:14px;opacity:{{ acctSavingOpacity }};">Update Password</button>
+        <button class="b-lg" onClick="{{ saveAcctPw }}" disabled="{{ acctSaving }}" style="-webkit-appearance:none;width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;cursor:pointer;margin-top:14px;opacity:{{ acctSavingOpacity }};">Update Password</button>
       </div>
     </div>
     </sc-if>
@@ -2709,7 +2709,7 @@
         </div>
         <input aria-label="Display name" value="{{ acctNameEdit }}" onInput="{{ onAcctNameEdit }}" placeholder="Enter display name" autocapitalize="words" autocorrect="off" class="field" />
         <sc-if value="{{ acctNameError }}" hint-placeholder-val=""><div style="color:var(--red);font-size:var(--fs-small);margin-top:6px;">{{ acctNameError }}</div></sc-if>
-        <button onClick="{{ saveAcctName }}" disabled="{{ acctSaving }}" style="-webkit-appearance:none;width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;cursor:pointer;margin-top:14px;opacity:{{ acctSavingOpacity }};">Save Name</button>
+        <button class="b-lg" onClick="{{ saveAcctName }}" disabled="{{ acctSaving }}" style="-webkit-appearance:none;width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;cursor:pointer;margin-top:14px;opacity:{{ acctSavingOpacity }};">Save Name</button>
       </div>
     </div>
     </sc-if>
@@ -2736,8 +2736,8 @@
           </div>
         </sc-if>
         <div style="display:flex;flex-direction:column;gap:10px;">
-          <button onClick="{{ deleteAccount }}" style="-webkit-appearance:none;width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;cursor:pointer;">Deactivate</button>
-          <button onClick="{{ cancelDelete }}" style="-webkit-appearance:none;width:100%;padding:14px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-md);font-size:14px;font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
+          <button class="b-lg" onClick="{{ deleteAccount }}" style="-webkit-appearance:none;width:100%;padding:14px;background:var(--red);color:#fff;border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;cursor:pointer;">Deactivate</button>
+          <button class="b-lg" onClick="{{ cancelDelete }}" style="-webkit-appearance:none;width:100%;padding:14px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-md);font-size:14px;font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
         </div>
       </div>
     </div>
@@ -2766,8 +2766,8 @@
             </div>
             <div style="font-size:var(--fs-small);color:var(--amber-text);line-height:1.5;margin-bottom:14px;">Re-enrolling will restore their existing account and attendance history. Their previous password is kept.</div>
             <div class="flex-gap-8">
-              <button onClick="{{ confirmReenroll }}" style="-webkit-appearance:none;flex:1;padding:11px;background:var(--amber-solid);color:#fff;border:none;border-radius:var(--r-sm);font-size:13.5px;font-weight:700;cursor:pointer;">Re-enroll {{ reenrollName }}</button>
-              <button onClick="{{ cancelReenroll }}" style="-webkit-appearance:none;padding:11px 16px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
+              <button class="b-lg" onClick="{{ confirmReenroll }}" style="-webkit-appearance:none;flex:1;padding:11px;background:var(--amber-solid);color:#fff;border:none;border-radius:var(--r-sm);font-size:13.5px;font-weight:700;cursor:pointer;">Re-enroll {{ reenrollName }}</button>
+              <button class="b-lg" onClick="{{ cancelReenroll }}" style="-webkit-appearance:none;padding:11px 16px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:13.5px;font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
             </div>
           </div>
         </sc-if>
@@ -2811,7 +2811,7 @@
           </button>
         </div>
         <div style="font-size:var(--fs-small);color:var(--muted);margin-bottom:14px;line-height:1.5;">Password is only needed for new personnel. For returning reservists, leave it blank. They will use their previous password.</div>
-        <button onClick="{{ addPerson }}" style="-webkit-appearance:none;display:block;width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;cursor:pointer;text-align:center;box-sizing:border-box;line-height:1;">Add to Roster</button>
+        <button class="b-lg" onClick="{{ addPerson }}" style="-webkit-appearance:none;display:block;width:100%;padding:14px;background:{{ accent }};color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;cursor:pointer;text-align:center;box-sizing:border-box;line-height:1;">Add to Roster</button>
         </sc-if>
       </div>
     </div>
@@ -2838,7 +2838,7 @@
           </button>
         </div>
         <div style="font-size:var(--fs-small);color:var(--muted);margin-bottom:14px;line-height:1.5;">The admin logs in with their contact number and this password.</div>
-        <button onClick="{{ addAdmin }}" style="-webkit-appearance:none;display:block;width:100%;padding:14px;background:#161f30;color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;cursor:pointer;text-align:center;box-sizing:border-box;line-height:1;">Add Admin</button>
+        <button class="b-lg" onClick="{{ addAdmin }}" style="-webkit-appearance:none;display:block;width:100%;padding:14px;background:#161f30;color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;cursor:pointer;text-align:center;box-sizing:border-box;line-height:1;">Add Admin</button>
       </div>
     </div>
     </sc-if>
@@ -2857,8 +2857,8 @@
         <sc-if value="{{ !promoteAdminId }}" hint-placeholder-val="{{ true }}">
           <input aria-label="Search people to promote" value="{{ promoteSearch }}" onInput="{{ onPromoteSearch }}" onKeyDown="{{ onPromoteSearchKeyDown }}" placeholder="Search by name or number…" autocorrect="off" autocapitalize="off" spellcheck="false" style="width:100%;padding:9px 12px;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:14px;outline:none;background:#f6f8fa;margin-bottom:8px;box-sizing:border-box;" />
           <div style="display:flex;background:#eef0f4;border-radius:var(--r-sm);padding:3px;margin-bottom:8px;">
-            <button onClick="{{ setPromoteCurrentCycle }}" class="tap44" style="{{ promoteFilterCurrentStyle }}">Current Cycle</button>
-            <button onClick="{{ setPromoteAllCycles }}" class="tap44" style="{{ promoteFilterAllStyle }}">All Cycles</button>
+            <button onClick="{{ setPromoteCurrentCycle }}" class="b-sm" style="{{ promoteFilterCurrentStyle }}">Current Cycle</button>
+            <button onClick="{{ setPromoteAllCycles }}" class="b-sm" style="{{ promoteFilterAllStyle }}">All Cycles</button>
           </div>
           <div style="border:1px solid #e8ebf0;border-radius:var(--r-sm);overflow:hidden;margin-bottom:4px;">
             <sc-if value="{{ promoteListEmpty }}" hint-placeholder-val="">
@@ -2880,9 +2880,9 @@
             </sc-for>
             <sc-if value="{{ promoteShowPagination }}" hint-placeholder-val="">
               <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-top:1px solid #eef0f4;background:#f9fafb;">
-                <button onClick="{{ promotePrevPage }}" style="-webkit-appearance:none;padding:5px 12px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:{{ promoteHasPrevColor }};cursor:{{ promoteHasPrevCursor }};">Prev</button>
+                <button class="b-sm" onClick="{{ promotePrevPage }}" style="-webkit-appearance:none;padding:5px 12px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:{{ promoteHasPrevColor }};cursor:{{ promoteHasPrevCursor }};">Prev</button>
                 <span style="font-size:var(--fs-small);color:var(--muted);">{{ promotePageInfo }}</span>
-                <button onClick="{{ promoteNextPage }}" style="-webkit-appearance:none;padding:5px 12px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:{{ promoteHasNextColor }};cursor:{{ promoteHasNextCursor }};">Next</button>
+                <button class="b-sm" onClick="{{ promoteNextPage }}" style="-webkit-appearance:none;padding:5px 12px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:{{ promoteHasNextColor }};cursor:{{ promoteHasNextCursor }};">Next</button>
               </div>
             </sc-if>
           </div>
@@ -2893,17 +2893,17 @@
               <div style="font-size:13.5px;font-weight:600;color:var(--ink);">{{ promoteAdminTargetName }}</div>
               <div style="font-size:var(--fs-small);color:var(--ink-2);">{{ promoteAdminTargetContact }}</div>
             </div>
-            <button onClick="{{ clearPromoteSelection }}" style="-webkit-appearance:none;background:none;border:none;color:var(--muted);cursor:pointer;font-size:var(--fs-small);font-weight:600;padding:4px 8px;">Change</button>
+            <button class="b-sm" onClick="{{ clearPromoteSelection }}" style="-webkit-appearance:none;background:none;border:none;color:var(--muted);cursor:pointer;font-size:var(--fs-small);font-weight:600;padding:4px 8px;">Change</button>
           </div>
           <sc-if value="{{ !confirmPromoteAdminId }}">
-            <button onClick="{{ askPromoteAdmin }}" style="-webkit-appearance:none;width:100%;padding:14px;background:#161f30;color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;cursor:pointer;">Promote to Admin</button>
+            <button class="b-lg" onClick="{{ askPromoteAdmin }}" style="-webkit-appearance:none;width:100%;padding:14px;background:#161f30;color:#fff;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;cursor:pointer;">Promote to Admin</button>
           </sc-if>
           <sc-if value="{{ confirmPromoteAdminId }}">
             <div style="background:#fdf0dc;border:1px solid #f0e2c2;border-radius:var(--r-sm);padding:10px 12px;display:flex;align-items:center;justify-content:space-between;gap:10px;">
               <span style="font-size:var(--fs-small);color:var(--amber-text);font-weight:500;">Promote {{ promoteAdminTargetName }} to admin?</span>
               <div class="flex-gap-7">
-                <button onClick="{{ cancelPromoteAdmin }}" style="-webkit-appearance:none;padding:5px 11px;background:#fff;border:1px solid #d4d9e2;color:var(--ink-2);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Cancel</button>
-                <button onClick="{{ confirmPromoteAdmin }}" style="-webkit-appearance:none;padding:5px 11px;background:#161f30;border:none;color:#fff;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Confirm</button>
+                <button class="b-md" onClick="{{ cancelPromoteAdmin }}" style="-webkit-appearance:none;padding:5px 11px;background:#fff;border:1px solid #d4d9e2;color:var(--ink-2);border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Cancel</button>
+                <button class="b-md" onClick="{{ confirmPromoteAdmin }}" style="-webkit-appearance:none;padding:5px 11px;background:#161f30;border:none;color:#fff;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Confirm</button>
               </div>
             </div>
           </sc-if>
@@ -2937,8 +2937,8 @@
           </div>
         </div>
         <textarea aria-label="Reason for absence" onInput="{{ onMissedNoteText }}" value="{{ missedNoteText }}" placeholder="e.g. Was on annual leave, forgot to inform in advance" style="width:100%;height:90px;padding:11px 13px;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>
-        <button onClick="{{ saveMissedNote }}" style="-webkit-appearance:none;display:block;width:100%;margin-top:12px;padding:14px;background:#2f5fd0;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;color:#fff;cursor:pointer;text-align:center;box-sizing:border-box;line-height:1;">Save Note</button>
-        <button onClick="{{ closeMissedNote }}" style="-webkit-appearance:none;display:block;width:100%;margin-top:8px;padding:12px;background:none;border:none;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;text-align:center;">Cancel</button>
+        <button class="b-lg" onClick="{{ saveMissedNote }}" style="-webkit-appearance:none;display:block;width:100%;margin-top:12px;padding:14px;background:#2f5fd0;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;color:#fff;cursor:pointer;text-align:center;box-sizing:border-box;line-height:1;">Save Note</button>
+        <button class="b-text" onClick="{{ closeMissedNote }}" style="-webkit-appearance:none;display:block;width:100%;margin-top:8px;padding:12px;background:none;border:none;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;text-align:center;">Cancel</button>
       </div>
     </div>
     </sc-if>
@@ -2957,8 +2957,8 @@
         <p style="font-size:var(--fs-small);color:var(--ink-2);margin:0 0 12px;line-height:1.5;">Edit the message before sending. Tap Send to open WhatsApp.</p>
         <textarea aria-label="Roll call message" onInput="{{ onWaPreviewText }}" value="{{ waPreviewText }}" style="width:100%;height:160px;padding:11px 13px;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-family:'IBM Plex Mono',monospace;font-size:var(--fs-small);resize:none;outline:none;box-sizing:border-box;line-height:1.6;color:var(--ink);" rows="6"></textarea>
         <div style="display:flex;gap:8px;margin-top:12px;">
-          <button onClick="{{ copyWaPreview }}" style="-webkit-appearance:none;padding:13px 16px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-md);font-size:14px;font-weight:600;color:var(--ink-2);cursor:pointer;display:flex;align-items:center;gap:6px;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
-          <button onClick="{{ sendWaPreview }}" style="-webkit-appearance:none;flex:1;padding:13px;background:var(--whatsapp);border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Send via WhatsApp</button>
+          <button class="b-lg" onClick="{{ copyWaPreview }}" style="-webkit-appearance:none;padding:13px 16px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-md);font-size:14px;font-weight:600;color:var(--ink-2);cursor:pointer;display:flex;align-items:center;gap:6px;flex-shrink:0;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>Copy</button>
+          <button class="b-lg" onClick="{{ sendWaPreview }}" style="-webkit-appearance:none;flex:1;padding:13px;background:var(--whatsapp);border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;"><svg width="17" height="17" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg> Send via WhatsApp</button>
         </div>
         <button onClick="{{ closeWaPreview }}" class="btn-subtle">Cancel</button>
       </div>
@@ -2998,17 +2998,17 @@
         <div class="mb-12">
           <div class="text-tag">TYPE</div>
           <div class="flex-gap-7">
-            <sc-if value="{{ leaveIsPersonal }}" hint-placeholder-val="{{ true }}"><button onClick="{{ onLeaveTypePersonal }}" style="flex:1;padding:8px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;border:1.5px solid {{ accent }};background:{{ accent }};color:#fff;">Personal</button></sc-if>
-            <sc-if value="{{ !leaveIsPersonal }}" hint-placeholder-val=""><button onClick="{{ onLeaveTypePersonal }}" style="flex:1;padding:8px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;border:1.5px solid #d4d9e2;background:#fff;color:var(--ink-2);">Personal</button></sc-if>
-            <sc-if value="{{ leaveIsMc }}" hint-placeholder-val=""><button onClick="{{ onLeaveTypeMc }}" style="flex:1;padding:8px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;border:1.5px solid {{ accent }};background:{{ accent }};color:#fff;">MC</button></sc-if>
-            <sc-if value="{{ !leaveIsMc }}" hint-placeholder-val="{{ true }}"><button onClick="{{ onLeaveTypeMc }}" style="flex:1;padding:8px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;border:1.5px solid #d4d9e2;background:#fff;color:var(--ink-2);">MC</button></sc-if>
+            <sc-if value="{{ leaveIsPersonal }}" hint-placeholder-val="{{ true }}"><button class="b-md" onClick="{{ onLeaveTypePersonal }}" style="flex:1;padding:8px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;border:1.5px solid {{ accent }};background:{{ accent }};color:#fff;">Personal</button></sc-if>
+            <sc-if value="{{ !leaveIsPersonal }}" hint-placeholder-val=""><button class="b-md" onClick="{{ onLeaveTypePersonal }}" style="flex:1;padding:8px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;border:1.5px solid #d4d9e2;background:#fff;color:var(--ink-2);">Personal</button></sc-if>
+            <sc-if value="{{ leaveIsMc }}" hint-placeholder-val=""><button class="b-md" onClick="{{ onLeaveTypeMc }}" style="flex:1;padding:8px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;border:1.5px solid {{ accent }};background:{{ accent }};color:#fff;">MC</button></sc-if>
+            <sc-if value="{{ !leaveIsMc }}" hint-placeholder-val="{{ true }}"><button class="b-md" onClick="{{ onLeaveTypeMc }}" style="flex:1;padding:8px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;border:1.5px solid #d4d9e2;background:#fff;color:var(--ink-2);">MC</button></sc-if>
           </div>
         </div>
         <div style="margin-bottom:16px;">
           <div class="text-tag">REASON (OPTIONAL)</div>
           <textarea aria-label="Reason" onInput="{{ onLeaveReason }}" value="{{ leaveReason }}" placeholder="Brief reason…" style="width:100%;height:72px;padding:10px 13px;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="3"></textarea>
         </div>
-        <sc-if value="{{ leaveReady }}" hint-placeholder-val=""><button onClick="{{ submitLeaveRequest }}" style="width:100%;padding:13px;background:{{ accent }};border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ leaveSubmittingOpacity }};pointer-events:{{ leaveSubmittingPE }};">Submit Request</button></sc-if>
+        <sc-if value="{{ leaveReady }}" hint-placeholder-val=""><button class="b-lg" onClick="{{ submitLeaveRequest }}" style="width:100%;padding:13px;background:{{ accent }};border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ leaveSubmittingOpacity }};pointer-events:{{ leaveSubmittingPE }};">Submit Request</button></sc-if>
         <sc-if value="{{ !leaveReady }}" hint-placeholder-val="{{ true }}"><div style="width:100%;padding:13px;background:#eaedf5;border-radius:var(--r-md);font-size:15px;font-weight:700;color:var(--muted);text-align:center;box-sizing:border-box;">Select a date first</div></sc-if>
         <button onClick="{{ closeLeaveRequest }}" class="btn-subtle">Cancel</button>
       </div>
@@ -3025,7 +3025,7 @@
             <div style="font-size:var(--fs-small);color:var(--muted);margin-top:2px;">Attendance History</div>
           </div>
           <div style="display:flex;align-items:center;gap:4px;">
-            <button onClick="{{ exportPersonHistory }}" style="background:none;border:none;cursor:pointer;padding:5px 8px;color:var(--ink-2);display:flex;align-items:center;gap:5px;font-size:var(--fs-small);font-weight:600;border-radius:var(--r-sm);border:1px solid #e3e6ec;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Excel</button>
+            <button class="b-sm" onClick="{{ exportPersonHistory }}" style="background:none;border:none;cursor:pointer;padding:5px 8px;color:var(--ink-2);display:flex;align-items:center;gap:5px;font-size:var(--fs-small);font-weight:600;border-radius:var(--r-sm);border:1px solid #e3e6ec;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Excel</button>
             <button aria-label="Close" onClick="{{ closePersonHistory }}" class="btn-icon"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
           </div>
         </div>
@@ -3035,10 +3035,10 @@
           </sc-if>
           <sc-if value="{{ !personHistoryLoading }}" hint-placeholder-val="">
             <div style="padding:10px 16px 8px;display:flex;gap:6px;overflow-x:auto;border-bottom:1px solid #f2f4f7;">
-              <button onClick="{{ setPersonHistoryFilterAll }}" class="tap44" style="{{ personHistoryFilterAllStyle }}">All</button>
-              <button onClick="{{ setPersonHistoryFilterPresent }}" class="tap44" style="{{ personHistoryFilterPresentStyle }}">Present</button>
-              <button onClick="{{ setPersonHistoryFilterMc }}" class="tap44" style="{{ personHistoryFilterMcStyle }}">Leave</button>
-              <button onClick="{{ setPersonHistoryFilterAbsent }}" class="tap44" style="{{ personHistoryFilterAbsentStyle }}">Absent</button>
+              <button onClick="{{ setPersonHistoryFilterAll }}" class="b-sm" style="{{ personHistoryFilterAllStyle }}">All</button>
+              <button onClick="{{ setPersonHistoryFilterPresent }}" class="b-sm" style="{{ personHistoryFilterPresentStyle }}">Present</button>
+              <button onClick="{{ setPersonHistoryFilterMc }}" class="b-sm" style="{{ personHistoryFilterMcStyle }}">Leave</button>
+              <button onClick="{{ setPersonHistoryFilterAbsent }}" class="b-sm" style="{{ personHistoryFilterAbsentStyle }}">Absent</button>
             </div>
             <sc-for list="{{ personHistoryRows }}" as="hr">
               <div style="display:flex;align-items:center;gap:10px;padding:9px 20px;border-bottom:1px solid #f2f4f7;">
@@ -3057,9 +3057,9 @@
             </sc-for>
             <sc-if value="{{ personHistoryShowPagination }}" hint-placeholder-val="">
               <div style="padding:10px 16px;display:flex;align-items:center;justify-content:center;gap:12px;">
-                <button aria-label="Previous page" onClick="{{ personHistoryPagePrev }}" style="-webkit-appearance:none;width:32px;height:32px;border-radius:var(--r-sm);border:1px solid #d4d9e2;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:{{ personHistoryPrevOpacity }};"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
+                <button class="b-sm b-icon" aria-label="Previous page" onClick="{{ personHistoryPagePrev }}" style="-webkit-appearance:none;width:32px;height:32px;border-radius:var(--r-sm);border:1px solid #d4d9e2;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:{{ personHistoryPrevOpacity }};"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg></button>
                 <span style="font-size:var(--fs-small);color:var(--muted);font-weight:500;">{{ personHistoryPageLabel }}</span>
-                <button aria-label="Next page" onClick="{{ personHistoryPageNext }}" style="-webkit-appearance:none;width:32px;height:32px;border-radius:var(--r-sm);border:1px solid #d4d9e2;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:{{ personHistoryNextOpacity }};"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+                <button class="b-sm b-icon" aria-label="Next page" onClick="{{ personHistoryPageNext }}" style="-webkit-appearance:none;width:32px;height:32px;border-radius:var(--r-sm);border:1px solid #d4d9e2;background:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:{{ personHistoryNextOpacity }};"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#5c6678" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg></button>
               </div>
             </sc-if>
             <sc-if value="{{ noPersonHistory }}" hint-placeholder-val="">
@@ -3080,7 +3080,7 @@
         </div>
         <div style="padding:12px 20px 28px;border-top:1px solid #f2f4f7;flex:0 0 auto;">
           <sc-if value="{{ !confirmWipeHistoryOpen }}" hint-placeholder-val="">
-            <button onClick="{{ askWipeHistory }}" style="width:100%;padding:10px;border-radius:var(--r-md);border:1px solid #f0d5d2;background:#fff;color:var(--red);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;">
+            <button class="b-md" onClick="{{ askWipeHistory }}" style="width:100%;padding:10px;border-radius:var(--r-md);border:1px solid #f0d5d2;background:#fff;color:var(--red);font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path></svg>
               Delete Member Permanently
             </button>
@@ -3090,8 +3090,8 @@
               <div style="font-size:13px;font-weight:600;color:var(--red);margin-bottom:4px;">Permanently delete {{ personHistoryName }}?</div>
               <div style="font-size:var(--fs-small);color:var(--muted);margin-bottom:12px;">This removes all attendance records, leave requests and their login account. This action cannot be undone.</div>
               <div class="flex-gap-8">
-                <button onClick="{{ cancelWipeHistory }}" style="flex:1;padding:9px;border-radius:var(--r-sm);border:1px solid #d4d9e2;background:#fff;color:var(--ink-2);font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
-                <button onClick="{{ confirmWipeHistory }}" style="flex:1;padding:9px;border-radius:var(--r-sm);border:none;background:var(--red);color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ wipeHistoryBtnOpacity }};">{{ wipeHistoryBtnText }}</button>
+                <button class="b-md" onClick="{{ cancelWipeHistory }}" style="flex:1;padding:9px;border-radius:var(--r-sm);border:1px solid #d4d9e2;background:#fff;color:var(--ink-2);font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+                <button class="b-md" onClick="{{ confirmWipeHistory }}" style="flex:1;padding:9px;border-radius:var(--r-sm);border:none;background:var(--red);color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ wipeHistoryBtnOpacity }};">{{ wipeHistoryBtnText }}</button>
               </div>
             </div>
           </sc-if>
@@ -3119,10 +3119,10 @@
             </sc-for>
           </select>
           <div style="display:flex;gap:6px;">
-            <button onClick="{{ setMemberStatusAll }}" class="tap44" style="{{ memberStatusAllStyle }}">All</button>
-            <button onClick="{{ setMemberStatusActive }}" class="tap44" style="{{ memberStatusActiveStyle }}">Current</button>
-            <button onClick="{{ setMemberStatusInactive }}" class="tap44" style="{{ memberStatusInactiveStyle }}">Past</button>
-            <button onClick="{{ setMemberStatusRemoved }}" class="tap44" style="{{ memberStatusRemovedStyle }}">Removed</button>
+            <button onClick="{{ setMemberStatusAll }}" class="b-sm" style="{{ memberStatusAllStyle }}">All</button>
+            <button onClick="{{ setMemberStatusActive }}" class="b-sm" style="{{ memberStatusActiveStyle }}">Current</button>
+            <button onClick="{{ setMemberStatusInactive }}" class="b-sm" style="{{ memberStatusInactiveStyle }}">Past</button>
+            <button onClick="{{ setMemberStatusRemoved }}" class="b-sm" style="{{ memberStatusRemovedStyle }}">Removed</button>
           </div>
         </div>
         <div style="overflow-y:auto;flex:1;padding:6px 0 24px;">
@@ -3141,7 +3141,7 @@
               <div style="padding:10px 20px;border-bottom:1px solid #f2f4f7;">
                 <sc-if value="{{ !m.isConfirming }}" hint-placeholder-val="">
                   <div style="display:flex;align-items:center;gap:10px;">
-                    <button type="button" class="btn-reset" onClick="{{ m.onToggleSelect }}" style="flex:0 0 auto;width:22px;height:22px;border-radius:var(--r-xs);border:1.5px solid {{ m.checkBorder }};background:{{ m.checkBg }};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
+                    <button type="button" class="btn-reset hit44" onClick="{{ m.onToggleSelect }}" style="flex:0 0 auto;width:22px;height:22px;border-radius:var(--r-xs);border:1.5px solid {{ m.checkBorder }};background:{{ m.checkBg }};display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;">
                       <sc-if value="{{ m.isSelected }}"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></sc-if>
                     </button>
                     <button type="button" class="btn-reset avatar-sm" onClick="{{ m.onViewAvatar }}" style="flex:0 0 auto;font-size:var(--fs-small);{{ m.avatarCursor }}{{ m.avatarStyle }}" title="View photo">{{ m.initials }}</button>
@@ -3150,7 +3150,7 @@
                       <div class="text-hint">{{ m.batchLabel }}</div>
                     </div>
                     <span style="font-size:var(--fs-small);font-weight:600;padding:2px 8px;border-radius:var(--r-pill);color:{{ m.statusColor }};background:{{ m.statusBg }};flex:0 0 auto;">{{ m.statusLabel }}</span>
-                    <button aria-label="Delete member" onClick="{{ m.onAskDelete }}" style="background:none;border:none;cursor:pointer;padding:5px;color:var(--red);flex:0 0 auto;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
+                    <button class="b-md b-icon" aria-label="Delete member" onClick="{{ m.onAskDelete }}" style="background:none;border:none;cursor:pointer;padding:5px;color:var(--red);flex:0 0 auto;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg></button>
                   </div>
                 </sc-if>
                 <sc-if value="{{ m.isConfirming }}" hint-placeholder-val="">
@@ -3158,8 +3158,8 @@
                     <div style="font-size:var(--fs-small);font-weight:600;color:var(--red);margin-bottom:2px;">Delete {{ m.name }} permanently?</div>
                     <div style="font-size:var(--fs-small);color:var(--muted);margin-bottom:10px;">Removes all records, leave history and login account.</div>
                     <div class="flex-gap-7">
-                      <button onClick="{{ cancelDeleteMember }}" style="flex:1;padding:7px;border-radius:var(--r-sm);border:1px solid #d4d9e2;background:#fff;color:var(--ink-2);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Cancel</button>
-                      <button onClick="{{ confirmDeleteMember }}" style="flex:1;padding:7px;border-radius:var(--r-sm);border:none;background:var(--red);color:#fff;font-size:var(--fs-small);font-weight:700;cursor:pointer;opacity:{{ deleteMemberBtnOpacity }};">{{ deleteMemberBtnText }}</button>
+                      <button class="b-md" onClick="{{ cancelDeleteMember }}" style="flex:1;padding:7px;border-radius:var(--r-sm);border:1px solid #d4d9e2;background:#fff;color:var(--ink-2);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Cancel</button>
+                      <button class="b-md" onClick="{{ confirmDeleteMember }}" style="flex:1;padding:7px;border-radius:var(--r-sm);border:none;background:var(--red);color:#fff;font-size:var(--fs-small);font-weight:700;cursor:pointer;opacity:{{ deleteMemberBtnOpacity }};">{{ deleteMemberBtnText }}</button>
                     </div>
                   </div>
                 </sc-if>
@@ -3169,9 +3169,9 @@
         </div>
         <sc-if value="{{ memberSearchShowPagination }}" hint-placeholder-val="">
         <div style="padding:10px 20px;border-top:1px solid #f2f4f7;flex:0 0 auto;display:flex;align-items:center;justify-content:space-between;gap:8px;">
-          <button onClick="{{ memberSearchPagePrev }}" style="padding:6px 14px;border-radius:var(--r-sm);border:1px solid #d4d9e2;background:#fff;color:var(--ink-2);font-size:var(--fs-small);font-weight:600;cursor:pointer;opacity:{{ memberSearchPrevOpacity }};" disabled="{{ !memberSearchHasPrev }}">Prev</button>
+          <button class="b-sm" onClick="{{ memberSearchPagePrev }}" style="padding:6px 14px;border-radius:var(--r-sm);border:1px solid #d4d9e2;background:#fff;color:var(--ink-2);font-size:var(--fs-small);font-weight:600;cursor:pointer;opacity:{{ memberSearchPrevOpacity }};" disabled="{{ !memberSearchHasPrev }}">Prev</button>
           <span style="font-size:var(--fs-small);color:var(--muted);font-weight:500;">{{ memberSearchPageLabel }}</span>
-          <button onClick="{{ memberSearchPageNext }}" style="padding:6px 14px;border-radius:var(--r-sm);border:1px solid #d4d9e2;background:#fff;color:var(--ink-2);font-size:var(--fs-small);font-weight:600;cursor:pointer;opacity:{{ memberSearchNextOpacity }};" disabled="{{ !memberSearchHasNext }}">Next</button>
+          <button class="b-sm" onClick="{{ memberSearchPageNext }}" style="padding:6px 14px;border-radius:var(--r-sm);border:1px solid #d4d9e2;background:#fff;color:var(--ink-2);font-size:var(--fs-small);font-weight:600;cursor:pointer;opacity:{{ memberSearchNextOpacity }};" disabled="{{ !memberSearchHasNext }}">Next</button>
         </div>
         </sc-if>
         <sc-if value="{{ hasMemberSelection }}" hint-placeholder-val="">
@@ -3180,8 +3180,8 @@
             <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
               <span style="font-size:13px;color:var(--ink-2);font-weight:500;">{{ memberSelectedCount }} selected</span>
               <div class="flex-gap-7">
-                <button onClick="{{ clearMemberSelect }}" style="padding:8px 14px;border-radius:var(--r-sm);border:1px solid #d4d9e2;background:#fff;color:var(--ink-2);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Clear</button>
-                <button onClick="{{ askBulkDelete }}" style="padding:8px 14px;border-radius:var(--r-sm);border:none;background:var(--red);color:#fff;font-size:var(--fs-small);font-weight:700;cursor:pointer;">Delete {{ memberSelectedCount }}</button>
+                <button class="b-md" onClick="{{ clearMemberSelect }}" style="padding:8px 14px;border-radius:var(--r-sm);border:1px solid #d4d9e2;background:#fff;color:var(--ink-2);font-size:var(--fs-small);font-weight:600;cursor:pointer;">Clear</button>
+                <button class="b-md" onClick="{{ askBulkDelete }}" style="padding:8px 14px;border-radius:var(--r-sm);border:none;background:var(--red);color:#fff;font-size:var(--fs-small);font-weight:700;cursor:pointer;">Delete {{ memberSelectedCount }}</button>
               </div>
             </div>
           </sc-if>
@@ -3190,8 +3190,8 @@
               <div style="font-size:13px;font-weight:600;color:var(--red);margin-bottom:3px;">Delete {{ memberSelectedCount }} members permanently?</div>
               <div style="font-size:var(--fs-small);color:var(--muted);margin-bottom:11px;">All records, leave history and login accounts will be removed.</div>
               <div class="flex-gap-8">
-                <button onClick="{{ cancelBulkDelete }}" style="flex:1;padding:8px;border-radius:var(--r-sm);border:1px solid #d4d9e2;background:#fff;color:var(--ink-2);font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
-                <button onClick="{{ executeBulkDelete }}" style="flex:1;padding:8px;border-radius:var(--r-sm);border:none;background:var(--red);color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ bulkDeleteBtnOpacity }};">{{ bulkDeleteBtnText }}</button>
+                <button class="b-md" onClick="{{ cancelBulkDelete }}" style="flex:1;padding:8px;border-radius:var(--r-sm);border:1px solid #d4d9e2;background:#fff;color:var(--ink-2);font-size:13px;font-weight:600;cursor:pointer;">Cancel</button>
+                <button class="b-md" onClick="{{ executeBulkDelete }}" style="flex:1;padding:8px;border-radius:var(--r-sm);border:none;background:var(--red);color:#fff;font-size:13px;font-weight:700;cursor:pointer;opacity:{{ bulkDeleteBtnOpacity }};">{{ bulkDeleteBtnText }}</button>
               </div>
             </div>
           </sc-if>
@@ -3214,7 +3214,7 @@
         </div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
           <div class="text-tag" style="margin:0;">NEW TEMPORARY PASSWORD</div>
-          <button onClick="{{ generateResetPw }}" style="-webkit-appearance:none;padding:4px 10px;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--blue);background:#eef3fc;cursor:pointer;">Generate</button>
+          <button class="b-sm" onClick="{{ generateResetPw }}" style="-webkit-appearance:none;padding:4px 10px;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--blue);background:#eef3fc;cursor:pointer;">Generate</button>
         </div>
         <div style="position:relative;margin-bottom:14px;">
           <input aria-label="New password" type="{{ resetPwType }}" value="{{ resetPwNew }}" onInput="{{ onResetPwNew }}" placeholder="Min. 6 characters" style="width:100%;padding:12px 14px;padding-right:46px;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:15px;background:#f6f8fa;outline:none;box-sizing:border-box;" />
@@ -3224,7 +3224,7 @@
           </button>
         </div>
         <div style="background:#fdf0dc;border:1px solid #f0e2c2;border-radius:var(--r-sm);padding:10px 12px;font-size:var(--fs-small);color:#8a5a00;margin-bottom:18px;line-height:1.5;">Send the new password to the person via a secure channel. They can update it in their account settings after logging in.</div>
-        <button onClick="{{ submitResetPw }}" disabled="{{ resetPwSaving }}" style="width:100%;padding:13px;background:#161f30;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ resetPwSavingOpacity }};">{{ resetPwBtnLabel }}</button>
+        <button class="b-lg" onClick="{{ submitResetPw }}" disabled="{{ resetPwSaving }}" style="width:100%;padding:13px;background:#161f30;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ resetPwSavingOpacity }};">{{ resetPwBtnLabel }}</button>
         <button onClick="{{ closeResetPw }}" class="btn-subtle">Cancel</button>
       </div>
     </div>
@@ -3241,10 +3241,10 @@
         <p style="font-size:13px;color:var(--ink-2);margin:0 0 14px;line-height:1.5;">Type a message to show as a banner on every reservist's check-in screen. Leave blank to clear any existing notice.</p>
         <textarea aria-label="Notice message" onInput="{{ onBroadcastText }}" value="{{ broadcastText }}" placeholder="e.g. Welfare test tomorrow. All to report by 0800." style="width:100%;height:90px;padding:12px 13px;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-family:inherit;font-size:14px;resize:none;outline:none;box-sizing:border-box;" rows="4"></textarea>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:5px;margin-bottom:12px;">
-          <button onClick="{{ clearBroadcastText }}" style="-webkit-appearance:none;padding:0;background:none;border:none;font-size:var(--fs-small);color:var(--red);cursor:pointer;font-weight:500;">Clear</button>
+          <button class="hit44" onClick="{{ clearBroadcastText }}" style="-webkit-appearance:none;padding:0;background:none;border:none;font-size:var(--fs-small);color:var(--red);cursor:pointer;font-weight:500;">Clear</button>
           <span style="font-size:var(--fs-small);color:var(--muted);">{{ broadcastCharCount }} chars</span>
         </div>
-        <button onClick="{{ saveBroadcast }}" disabled="{{ broadcastSaving }}" style="width:100%;padding:13px;background:#2f5fd0;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ broadcastSavingOpacity }};">{{ broadcastBtnLabel }}</button>
+        <button class="b-lg" onClick="{{ saveBroadcast }}" disabled="{{ broadcastSaving }}" style="width:100%;padding:13px;background:#2f5fd0;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ broadcastSavingOpacity }};">{{ broadcastBtnLabel }}</button>
         <button onClick="{{ closeBroadcast }}" class="btn-subtle">Cancel</button>
       </div>
     </div>
@@ -3279,8 +3279,8 @@
           </div>
         </div>
         <div style="display:flex;gap:8px;margin-bottom:4px;">
-          <button onClick="{{ savePhaseTimings }}" style="-webkit-appearance:none;flex:1;padding:12px;background:var(--amber-solid);border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ phaseTimingsSavingOpacity }};">{{ phaseTimingsBtnLabel }}</button>
-          <button onClick="{{ closePhaseTimings }}" style="-webkit-appearance:none;flex:0 0 auto;padding:12px 16px;background:#f0f2f5;border:none;border-radius:var(--r-md);font-size:15px;font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
+          <button class="b-lg" onClick="{{ savePhaseTimings }}" style="-webkit-appearance:none;flex:1;padding:12px;background:var(--amber-solid);border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ phaseTimingsSavingOpacity }};">{{ phaseTimingsBtnLabel }}</button>
+          <button class="b-lg" onClick="{{ closePhaseTimings }}" style="-webkit-appearance:none;flex:0 0 auto;padding:12px 16px;background:#f0f2f5;border:none;border-radius:var(--r-md);font-size:15px;font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
         </div>
 
         <div style="margin:22px -20px 0;border-top:6px solid #f2f4f7;"></div>
@@ -3325,9 +3325,9 @@
                 </div>
               </div>
               <div style="display:flex;gap:8px;">
-                <button onClick="{{ savePtOverride }}" style="-webkit-appearance:none;flex:1;padding:10px;background:#161f30;border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ ptOverrideSavingOpacity }};">{{ ptOverrideBtnLabel }}</button>
+                <button class="b-md" onClick="{{ savePtOverride }}" style="-webkit-appearance:none;flex:1;padding:10px;background:#161f30;border:none;border-radius:var(--r-md);font-size:14px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ ptOverrideSavingOpacity }};">{{ ptOverrideBtnLabel }}</button>
                 <sc-if value="{{ pr.showClear }}" hint-placeholder-val="">
-                <button onClick="{{ pr.onClear }}" style="-webkit-appearance:none;flex:0 0 auto;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:var(--r-md);font-size:14px;font-weight:600;color:#dc2626;cursor:pointer;">Clear</button>
+                <button class="b-md" onClick="{{ pr.onClear }}" style="-webkit-appearance:none;flex:0 0 auto;padding:10px 14px;background:#fef2f2;border:1px solid #fecaca;border-radius:var(--r-md);font-size:14px;font-weight:600;color:#dc2626;cursor:pointer;">Clear</button>
                 </sc-if>
               </div>
             </div>
@@ -3353,7 +3353,7 @@
         </div>
         <p style="font-size:13px;color:var(--ink-2);margin:0 0 14px;line-height:1.5;">Enter dates separated by commas or one per line, in dd/mm/yyyy or yyyy-mm-dd format.</p>
         <textarea aria-label="No-report dates" onInput="{{ onNoReportBulkText }}" value="{{ noReportBulkText }}" placeholder="01/07/2026, 08/07/2026&#10;15/07/2026" style="width:100%;height:110px;padding:12px 13px;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-family:'IBM Plex Mono',monospace;font-size:13px;resize:none;outline:none;box-sizing:border-box;margin-bottom:16px;" rows="4"></textarea>
-        <button onClick="{{ applyNoReportBulk }}" style="width:100%;padding:13px;background:#161f30;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;color:#fff;cursor:pointer;">Apply</button>
+        <button class="b-lg" onClick="{{ applyNoReportBulk }}" style="width:100%;padding:13px;background:#161f30;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;color:#fff;cursor:pointer;">Apply</button>
         <button onClick="{{ closeNoReportBulk }}" class="btn-subtle">Cancel</button>
       </div>
     </div>
@@ -3378,7 +3378,7 @@
               <sc-if value="{{ showBulkAddPw }}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg></sc-if>
             </button>
           </div>
-          <button onClick="{{ parseBulkAdd }}" style="width:100%;padding:13px;background:#161f30;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;color:#fff;cursor:pointer;">Preview</button>
+          <button class="b-lg" onClick="{{ parseBulkAdd }}" style="width:100%;padding:13px;background:#161f30;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;color:#fff;cursor:pointer;">Preview</button>
           <button onClick="{{ closeBulkAdd }}" class="btn-subtle">Cancel</button>
         </sc-if>
         <sc-if value="{{ bulkAddIsPreview }}" hint-placeholder-val="">
@@ -3395,7 +3395,7 @@
             </sc-for>
           </div>
           <sc-if value="{{ bulkAddHasValid }}" hint-placeholder-val="{{ true }}">
-            <button onClick="{{ confirmBulkAdd }}" disabled="{{ bulkAddAdding }}" style="width:100%;padding:13px;background:#161f30;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ bulkAddAddingOpacity }};">{{ bulkAddBtnLabel }}</button>
+            <button class="b-lg" onClick="{{ confirmBulkAdd }}" disabled="{{ bulkAddAdding }}" style="width:100%;padding:13px;background:#161f30;border:none;border-radius:var(--r-md);font-size:15px;font-weight:700;color:#fff;cursor:pointer;opacity:{{ bulkAddAddingOpacity }};">{{ bulkAddBtnLabel }}</button>
           </sc-if>
           <button onClick="{{ closeBulkAdd }}" class="btn-subtle">Cancel</button>
         </sc-if>
@@ -3618,7 +3618,7 @@
         2. Tap <strong>Add to Home Screen</strong>
       </div>
       </sc-if>
-      <button onClick="{{ dismissA2hs }}" style="width:100%;margin-top:14px;padding:12px;background:#eef1f5;border:none;border-radius:var(--r-md);font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;">Not Now</button>
+      <button class="b-lg" onClick="{{ dismissA2hs }}" style="width:100%;margin-top:14px;padding:12px;background:#eef1f5;border:none;border-radius:var(--r-md);font-size:14px;font-weight:600;color:var(--muted);cursor:pointer;">Not Now</button>
     </div>
     </sc-if>
 

@@ -124,9 +124,9 @@ button:active{transform:scale(.97);transition:transform .08s;}
 .flex-between-tight  { display:flex;justify-content:space-between;align-items:center;margin-bottom:6px; }
 
 /* Buttons */
-.btn-icon-dark       { width:34px;height:34px;border-radius:var(--r-sm);background:#222c3d;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto; }
+.btn-icon-dark       { width:var(--btn-md);height:var(--btn-md);border-radius:var(--r-sm);background:#222c3d;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto; }
 .btn-circle          { width:32px;height:32px;border-radius:50%;background:#f0f2f5;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0; }
-.btn-subtle          { width:100%;margin-top:8px;padding:11px;background:none;border:none;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer; }
+.btn-subtle          { width:100%;margin-top:8px;min-height:44px;padding:0 11px;background:none;border:none;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer; }
 
 /* Badges */
 .badge-pill          { background:#f6f8fa;border:1px solid #eaedf2;border-radius:var(--r-sm);padding:7px 0;text-align:center; }
@@ -164,12 +164,12 @@ button,[role=button]{touch-action:manipulation;}
 .nav-count{position:absolute;top:-3px;left:calc(50% + 4px);min-width:16px;height:16px;border-radius:var(--r-sm);background:var(--amber-solid);border:1.5px solid #fff;display:inline-flex;align-items:center;justify-content:center;padding:0 3px;box-sizing:border-box;font-size:var(--fs-label);font-weight:700;color:#fff;line-height:1;}
 
 /* ── Admin header: compact, sticky cycle/date row, day bar and search ─────── */
-:root{--admin-bar-h:52px;--day-bar-h:50px;}
+:root{--admin-bar-h:56px;--day-bar-h:50px;}
 .admin-bar{position:sticky;top:0;z-index:7;display:flex;align-items:center;gap:6px;height:var(--admin-bar-h);margin:-10px -18px 4px;padding:8px 18px;background:#f6f7f9;box-sizing:border-box;}
-.admin-bar-cycle{flex:1;min-width:0;display:flex;align-items:center;gap:7px;height:36px;padding:0 10px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-md);cursor:pointer;-webkit-appearance:none;text-align:left;}
+.admin-bar-cycle{flex:1;min-width:0;display:flex;align-items:center;gap:7px;height:var(--btn-md);padding:0 10px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-md);cursor:pointer;-webkit-appearance:none;text-align:left;}
 .admin-bar-range{font-size:var(--fs-label);color:var(--muted);font-family:'IBM Plex Mono',monospace;white-space:nowrap;}
-.admin-bar-date{flex:0 0 auto;width:136px;height:36px;padding:0 8px;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:13px;background:#fff;color:#36404f;box-sizing:border-box;outline:none;}
-.admin-bar-go{flex:0 0 auto;height:36px;padding:0 12px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:#36404f;cursor:pointer;-webkit-appearance:none;}
+.admin-bar-date{flex:0 0 auto;width:136px;height:var(--btn-md);padding:0 8px;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:13px;background:#fff;color:#36404f;box-sizing:border-box;outline:none;}
+.admin-bar-go{flex:0 0 auto;height:var(--btn-md);padding:0 12px;background:#fff;border:1px solid #d4d9e2;border-radius:var(--r-sm);font-size:13px;font-weight:600;color:#36404f;cursor:pointer;-webkit-appearance:none;}
 .day-bar{position:sticky;top:var(--admin-bar-h);z-index:6;height:var(--day-bar-h);box-sizing:border-box;background:#131a27;border-radius:var(--r-md);padding:5px 8px;color:#fff;display:flex;align-items:center;gap:8px;margin-bottom:10px;box-shadow:-18px 0 0 #f6f7f9,18px 0 0 #f6f7f9;}
 .tab-sticky{position:sticky;top:calc(var(--admin-bar-h) + var(--day-bar-h));z-index:5;background:#f6f7f9;margin:0 -18px 6px;padding:0 18px 4px;}
 .tab-sticky.no-day{top:var(--admin-bar-h);}
@@ -183,7 +183,19 @@ button,[role=button]{touch-action:manipulation;}
 @media (min-width:480px){.admin-bar-range{display:inline;}}
 
 /* ── Group 3: 44px tap targets, reduced motion ───────────────────────────── */
-.tap44{min-height:44px;min-width:44px;box-sizing:border-box;}
+/* Button size scale. Visual height comes from the class; the touch area is at least 44px via ::after, so buttons never have to look 44px. */
+:root{--btn-lg:48px;--btn-md:40px;--btn-sm:32px;}
+.b-lg,.b-md,.b-sm{display:inline-flex;align-items:center;justify-content:center;gap:6px;box-sizing:border-box;position:relative;padding-top:0!important;padding-bottom:0!important;height:auto!important;line-height:1.25;vertical-align:middle;}
+.b-lg{min-height:var(--btn-lg)!important;}
+.b-md{min-height:var(--btn-md)!important;}
+.b-sm{min-height:var(--btn-sm)!important;}
+.b-icon{padding:0!important;flex:0 0 auto;}
+.b-md.b-icon{width:var(--btn-md)!important;}
+.b-sm.b-icon{width:var(--btn-sm)!important;}
+.b-md::after,.b-sm::after,.hit44::after{content:'';position:absolute;left:50%;top:50%;width:max(100%,44px);transform:translate(-50%,-50%);}
+.b-md::after,.b-sm::after,.hit44::after{height:max(100%,44px);}
+.hit44{position:relative;}
+.b-text{min-height:44px;padding-top:0!important;padding-bottom:0!important;}
 @keyframes fadeOnly{from{opacity:0;}to{opacity:1;}}
 @keyframes busyPulse{0%,100%{opacity:1;}50%{opacity:.35;}}
 @media (prefers-reduced-motion: reduce){
