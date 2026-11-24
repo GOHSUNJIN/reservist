@@ -100,7 +100,7 @@ const AdminRoster = {
         gpsDistSuspicious: r.p1dist===0,
         gpsDistColor: r.p1dist===0?PAL.amberText:PAL.green,
         gpsDistBg: r.p1dist===0?'#fdf0dc':'#e7f3ec',
-        editSummary: (()=>{const log=r.editLog||[];if(!log.length)return'';const e=log[log.length-1];const d=new Date(e.at);const sg=new Date(d.getTime()+8*3600*1000);const hh=String(sg.getUTCHours()).padStart(2,'0'),mm2=String(sg.getUTCMinutes()).padStart(2,'0');const day=sg.getUTCDate(),mon=Utils._MS[sg.getUTCMonth()];return'Edited by '+(e.by||'Admin')+' · '+hh+':'+mm2+', '+day+' '+mon;})(),
+        ...(()=>{const log=r.editLog||[];if(!log.length)return{editSummary:'',editBy:'',editWhen:''};const e=log[log.length-1];const d=new Date(e.at);const sg=new Date(d.getTime()+8*3600*1000);const hh=String(sg.getUTCHours()).padStart(2,'0'),mm2=String(sg.getUTCMinutes()).padStart(2,'0');const day=sg.getUTCDate(),mon=Utils._MS[sg.getUTCMonth()];const nowSg=new Date(Date.now()+8*3600*1000);const sameDay=nowSg.toISOString().slice(0,10)===sg.toISOString().slice(0,10);const when=hh+':'+mm2+(sameDay?'':', '+day+' '+mon);const by=e.by||'Admin';return{editSummary:'Edited by '+by+' · '+when,editBy:by,editWhen:when};})(),
         showEditSummary: !!(r.editLog&&r.editLog.length),
         showPhaseLine: r.status==='present',
         showLunchBoxes: !isCas,

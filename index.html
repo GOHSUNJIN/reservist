@@ -1913,7 +1913,7 @@
                       </div>
                     </sc-if>
                     <sc-if value="{{ row.showEditSummary }}" hint-placeholder-val="">
-                      <div style="font-size:var(--fs-small);color:var(--muted);margin-top:3px;">{{ row.editSummary }}</div>
+                      <div style="display:flex;gap:4px;min-width:0;font-size:var(--fs-small);color:var(--muted);margin-top:3px;white-space:nowrap;" title="{{ row.editSummary }}"><span style="min-width:0;overflow:hidden;text-overflow:ellipsis;">Edited by {{ row.editBy }}</span><span style="flex:0 0 auto;">· {{ row.editWhen }}</span></div>
                     </sc-if>
                   </div>
                   <div class="log-actions" style="display:flex;gap:5px;flex-shrink:0;">
