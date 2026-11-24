@@ -8,7 +8,7 @@
 <style>
 :root{
   /* Colour */
-  --ink:#161f30;--ink-body:#1c2533;--ink-2:#5c6678;--muted:#667085;
+  --ink:#161f30;--ink-body:#1c2533;--ink-2:#5c6678;--muted:#626b7d;
   --blue:#2f5fd0;--blue-on-dark:#7aa2ff;--muted-on-dark:#9aa3b2;
   --green:#1a7a50;--red:#b0342a;--amber-text:#8f5c10;--amber-solid:#9a6512;--whatsapp:#1a7f4b;
   /* Text size: 12px floor for labels and badges, 13px for anything people read */
@@ -127,7 +127,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 .dlabel{color:var(--muted);font-size:var(--fs-small);font-weight:600;}
 .dv{color:var(--ink);font-weight:500;}
 .darr{color:var(--blue);font-weight:700;}
-.dbypass{background:#fef3ec;color:#e07b39;font-size:var(--fs-label);font-weight:600;border-radius:var(--r-xs);padding:1px 5px;margin-left:2px;}
+.dbypass{background:#fef3ec;color:#a34a1b;font-size:var(--fs-label);font-weight:600;border-radius:var(--r-xs);padding:1px 5px;margin-left:2px;}
 .event-dept-chip{font-size:var(--fs-label);font-weight:600;border-radius:var(--r-xs);padding:2px 7px;white-space:nowrap;}
 
 /* ── Pagination ──────────────────────────────────────────────────────── */
@@ -144,7 +144,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 .filter-guide-btn{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;border:1.5px solid #c8cfd8;background:#f0f3f9;color:var(--ink-2);font-size:var(--fs-small);font-weight:700;cursor:default;flex-shrink:0;align-self:center;transition:border-color .15s,background .15s,color .15s;}
 .filter-guide-btn:hover{border-color:#2f5fd0;color:var(--blue);background:#eef3ff;}
 #filter-guide{position:fixed;background:#fff;border:1px solid #e8ecf4;border-radius:var(--r-lg);box-shadow:0 10px 36px rgba(20,30,70,.15),0 2px 8px rgba(20,30,70,.07);z-index:998;display:none;width:300px;overflow:hidden;overflow-y:auto;}
-.fg-head{font-size:var(--fs-label);font-weight:700;color:var(--muted);letter-spacing:.06em;text-transform:uppercase;padding:12px 14px 7px;border-bottom:1px solid #f0f3f9;}
+.fg-head{font-size:var(--fs-label);font-weight:700;color:var(--ink-2);letter-spacing:.06em;text-transform:uppercase;padding:12px 14px 7px;border-bottom:1px solid #f0f3f9;}
 .fg-list{padding:6px 10px 10px;}
 .fg-row{display:flex;align-items:center;gap:10px;padding:5px 4px;}
 .fg-row+.fg-row{border-top:1px solid #f7f9fc;}
@@ -219,7 +219,7 @@ h1.login-heading{margin:0 0 6px;}h1.h-title{margin:0;}
     <div class="fg-row"><span class="fg-pill" style="background:#e6f7f9;color:#0e7a8c;">Personnel</span><span class="fg-desc">Roster additions, removals and re-enrolments</span></div>
     <div class="fg-row"><span class="fg-pill" style="background:#edf2f7;color:#4a5568;">Cycle</span><span class="fg-desc">Reporting cycle creation, activation and no-report days</span></div>
     <div class="fg-row"><span class="fg-pill" style="background:#f0f2f7;color:#2d3748;">Export</span><span class="fg-desc">Excel or print reports that were generated</span></div>
-    <div class="fg-row"><span class="fg-pill" style="background:#fdf0e9;color:#e07b39;">Account</span><span class="fg-desc">Profile name, password or photo changes</span></div>
+    <div class="fg-row"><span class="fg-pill" style="background:#fdf0e9;color:#a34a1b;">Account</span><span class="fg-desc">Profile name, password or photo changes</span></div>
     <div class="fg-row"><span class="fg-pill" style="background:#f7e4e1;color:var(--red);">Admin</span><span class="fg-desc">Supervisor accounts added, promoted or demoted</span></div>
   </div>
 </div>
@@ -421,7 +421,7 @@ const CAT = {
   personnel:  { bg:'#e6f7f9', color:'#0e7a8c', label:'Personnel',  stripe:'#0e7a8c' },
   batch:      { bg:'#edf2f7', color:'#4a5568', label:'Cycle',      stripe:'#718096' },
   export:     { bg:'#f0f2f7', color:'#2d3748', label:'Export',     stripe:'#4a5568' },
-  account:    { bg:'#fdf0e9', color:'#b4531f', label:'Account',    stripe:'#e07b39' },
+  account:    { bg:'#fdf0e9', color:'#a34a1b', label:'Account',    stripe:'#e07b39' },
   admin:      { bg:'#f7e4e1', color:'#b0342a', label:'Admin',      stripe:'#c0392b' },
   data:       { bg:'#eef1f6', color:'#334155', label:'Data change', stripe:'#94a3b8' },
 };

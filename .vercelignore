@@ -4,3 +4,4 @@ tests/
 README.md
 pytest.ini
 *.patch
+DESIGN.md

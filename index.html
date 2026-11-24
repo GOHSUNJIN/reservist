@@ -1466,7 +1466,7 @@
               </sc-if>
               <sc-if value="{{ lr.isRejectOpen }}" hint-placeholder-val="">
                 <div style="margin-top:7px;padding:10px 12px;background:#fbeeec;border:1px solid #f1d3cf;border-radius:var(--r-sm);">
-                  <div style="font-size:var(--fs-label);font-weight:700;color:var(--muted);letter-spacing:.06em;margin-bottom:6px;">DECLINE REASON (OPTIONAL)</div>
+                  <div style="font-size:var(--fs-label);font-weight:700;color:var(--ink-2);letter-spacing:.06em;margin-bottom:6px;">DECLINE REASON (OPTIONAL)</div>
                   <textarea aria-label="Decline reason" onInput="{{ lr.onRejectLeaveReason }}" value="{{ lr.rejectLeaveReason }}" placeholder="e.g. No leave balance" style="width:100%;height:56px;padding:8px 10px;border:1px solid #f1d3cf;border-radius:var(--r-sm);font-family:inherit;font-size:13px;resize:none;outline:none;box-sizing:border-box;background:#fff;" rows="2"></textarea>
                   <div style="display:flex;gap:7px;margin-top:7px;">
                     <button class="b-md" onClick="{{ lr.cancelRejectLeave }}" style="-webkit-appearance:none;flex:1;padding:7px;background:#fff;border:1px solid #e3e6ec;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
@@ -2162,7 +2162,7 @@
               </div>
               <sc-if value="{{ lr.isRejectOpen }}" hint-placeholder-val="">
                 <div style="margin-top:8px;padding:10px 12px;background:#fbeeec;border:1px solid #f1d3cf;border-radius:var(--r-sm);">
-                  <div style="font-size:var(--fs-label);font-weight:600;color:var(--muted);letter-spacing:.06em;margin-bottom:6px;">DECLINE REASON (OPTIONAL)</div>
+                  <div style="font-size:var(--fs-label);font-weight:600;color:var(--ink-2);letter-spacing:.06em;margin-bottom:6px;">DECLINE REASON (OPTIONAL)</div>
                   <textarea aria-label="Decline reason" onInput="{{ lr.onRejectLeaveReason }}" value="{{ lr.rejectLeaveReason }}" placeholder="e.g. No leave balance" style="width:100%;height:60px;padding:8px 10px;border:1px solid #f1d3cf;border-radius:var(--r-sm);font-family:inherit;font-size:13px;resize:none;outline:none;box-sizing:border-box;background:#fff;" rows="2"></textarea>
                   <div style="display:flex;gap:7px;margin-top:7px;">
                     <button class="b-md" onClick="{{ lr.cancelRejectLeave }}" style="-webkit-appearance:none;flex:1;padding:8px;background:#fff;border:1px solid #e3e6ec;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;color:var(--ink-2);cursor:pointer;">Cancel</button>
