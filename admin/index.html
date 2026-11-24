@@ -173,7 +173,9 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 
 /* ── Mobile block ────────────────────────────────────────────────────── */
 #mobile-block{display:none;position:fixed;inset:0;background:#f0f3f9;z-index:9999;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:32px;}
-@media(max-width:1024px){#mobile-block{display:flex !important;}}
+@media(max-width:1024px){#mobile-block{display:flex !important;}body>*:not(#mobile-block):not(script){display:none !important;}}
+body.mobile-blocked>*:not(#mobile-block):not(script){display:none !important;}
+h1.login-heading{margin:0 0 6px;}h1.h-title{margin:0;}
 
 /* ── Empty / Loading ─────────────────────────────────────────────────── */
 .empty{padding:56px 24px;text-align:center;}
@@ -199,11 +201,11 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 <body>
 
 <!-- Mobile block -->
-<div id="mobile-block">
+<div id="mobile-block" role="region" aria-label="Desktop only">
   <div style="width:52px;height:52px;border-radius:var(--r-lg);background:#fff;display:flex;align-items:center;justify-content:center;margin-bottom:20px;box-shadow:0 4px 16px rgba(20,30,70,.10);">
     <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#2f5fd0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
   </div>
-  <div style="font-size:18px;font-weight:700;color:var(--ink);margin-bottom:8px;">Desktop Only</div>
+  <h1 style="font-size:18px;font-weight:700;color:var(--ink);margin:0 0 8px;">Desktop Only</h1>
   <div style="font-size:14px;color:var(--ink-2);line-height:1.5;max-width:280px;">The Monitor is designed for desktop. Please open it on a laptop or computer.</div>
 </div>
 
@@ -243,7 +245,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
         <div class="login-brand-sub">ReservistGO Monitor</div>
       </div>
     </div>
-    <div class="login-heading">Log In</div>
+    <h1 class="login-heading">Log In</h1>
     <div class="login-sub">Admin and master access only.</div>
     <div class="field">
       <label class="field-label">Contact Number</label>
@@ -279,7 +281,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
       </div>
       <div style="display:flex;align-items:baseline;gap:7px;">
-        <div class="h-title">ReservistGO</div>
+        <h1 class="h-title">ReservistGO</h1>
         <div style="font-size:var(--fs-small);color:var(--muted);font-weight:500;">Monitor</div>
       </div>
       <div class="h-divider"></div>
@@ -396,7 +398,7 @@ main{flex:1;padding:20px 24px 40px;max-width:1120px;margin:0 auto;width:100%;}
 // Block touch/mobile devices regardless of viewport width
 (function(){
   const isTouch='ontouchstart' in window||navigator.maxTouchPoints>0;
-  if(isTouch){const mb=document.getElementById('mobile-block');if(mb) mb.style.display='flex';}
+  if(isTouch){const mb=document.getElementById('mobile-block');if(mb){mb.style.display='flex';document.body.classList.add('mobile-blocked');}}
 })();
 const _db = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
   auth: { storage: window.sessionStorage, storageKey: 'ops-monitor-session', persistSession: true, autoRefreshToken: true }

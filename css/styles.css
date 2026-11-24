@@ -93,7 +93,6 @@ button:active{transform:scale(.97);transition:transform .08s;}
 .text-title-lg       { font-size:17px;font-weight:700;color:var(--ink); }
 
 /* Buttons */
-.btn-icon            { background:none;border:none;cursor:pointer;padding:4px;color:var(--muted); }
 
 /* Bottom sheets */
 .sheet               { width:100%;background:#fff;border-radius:20px 20px 0 0;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 -8px 32px rgba(20,30,50,.18); }
@@ -125,7 +124,6 @@ button:active{transform:scale(.97);transition:transform .08s;}
 
 /* Buttons */
 .btn-icon-dark       { width:var(--btn-md);height:var(--btn-md);border-radius:var(--r-sm);background:#222c3d;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex:0 0 auto; }
-.btn-circle          { width:32px;height:32px;border-radius:50%;background:#f0f2f5;border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0; }
 .btn-subtle          { width:100%;margin-top:8px;min-height:44px;padding:0 11px;background:none;border:none;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer; }
 
 /* Badges */
@@ -221,3 +219,10 @@ button,[role=button]{touch-action:manipulation;}
 .search-clear::after{content:'';position:absolute;inset:-6px;}
 /* Log row at 320px: when a pending row has three buttons, they move under the name so the name stays readable */
 @media (max-width:359px){.log-top{flex-wrap:wrap;}.log-actions:has(.log-absent){flex-basis:100%;justify-content:flex-end;}}
+/* One close button for every sheet and dialog: 32px grey circle; banner dismiss is a 28px plain x. Both keep a 44px touch area. */
+.btn-icon,.btn-circle{position:relative;width:var(--btn-sm);height:var(--btn-sm);flex:0 0 auto;display:flex;align-items:center;justify-content:center;padding:0;border:none;border-radius:50%;background:#f0f2f5;color:var(--ink-2);cursor:pointer;}
+.btn-icon svg,.btn-circle svg{width:16px;height:16px;}
+.btn-dismiss{position:relative;width:28px;height:28px;flex:0 0 auto;display:flex;align-items:center;justify-content:center;padding:0;border:none;border-radius:50%;background:none;cursor:pointer;}
+.btn-icon::after,.btn-circle::after,.btn-dismiss::after{content:'';position:absolute;left:50%;top:50%;width:44px;height:44px;transform:translate(-50%,-50%);}
+/* Overview stat bar at 320px: keep each label on one line */
+@media (max-width:359px){.stat-bar>div{padding-left:2px!important;padding-right:2px!important;}.stat-bar>div>div+div{font-size:var(--fs-label)!important;white-space:nowrap;}}
