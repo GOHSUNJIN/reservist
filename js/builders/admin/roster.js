@@ -55,7 +55,7 @@ const AdminRoster = {
     const rosterSortNameStyle=sortKey==='name'?_sa:_si;
     const rosterSortStatusStyle=sortKey==='status'?_sa:_si;
     const rosterSortPctStyle=sortKey==='pct'?_sa:_si;
-    const _rSBtn=(f)=>`padding:5px 10px;border-radius:var(--r-pill);font-size:var(--fs-small);font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${rosterStatusFilter===f?accent:'#d4d9e2'};background:${rosterStatusFilter===f?accent:'#fff'};color:${rosterStatusFilter===f?'#fff':PAL.ink2};`;
+    const _rSBtn=(f)=>Utils.chip(rosterStatusFilter===f,accent);
     const rosterStatusAllStyle=_rSBtn('all'),rosterStatusPresentStyle=_rSBtn('present'),rosterStatusMcStyle=_rSBtn('mc'),rosterStatusAbsentStyle=_rSBtn('absent'),rosterStatusPendingStyle=_rSBtn('pending');
     const total=roster.length;
     const snapshotLastLine=viewIsToday?('⏳ Pending ('+pending+'): '+(roster.filter(r=>r.status==='pending').map(r=>r.name).join(', ')||'(none)')):('❌ Absent ('+absent+'): '+(roster.filter(r=>r.status==='absent'&&!r.hasApprovedLeave).map(r=>r.name).join(', ')||'(none)'));
@@ -153,7 +153,7 @@ const AdminRoster = {
     });
     const filteredLogRows=logSearch?statusFiltered.filter(r=>r.name.toLowerCase().includes(logSearch)):statusFiltered;
     const pendingCount=logRows.filter(r=>r.status==='pending').length;
-    const _fSBtn=(f)=>`padding:5px 11px;border-radius:var(--r-sm);font-size:var(--fs-small);font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${logStatusFilter===f?accent:'#d4d9e2'};background:${logStatusFilter===f?accent:'#fff'};color:${logStatusFilter===f?'#fff':PAL.ink2};`;
+    const _fSBtn=(f)=>Utils.chip(logStatusFilter===f,accent);
     const lateRows=viewIsToday?logRows.filter(r=>r.isLate):[];
     const lateCount=lateRows.length;
     const lateNames=lateRows.map(r=>r.name).join(', ');
@@ -262,7 +262,7 @@ const AdminRoster = {
         const _phPage=Math.min(Math.max(1,s.personHistoryPage||1),_phTotalPages);
         const _phPaged=_phFiltered.slice((_phPage-1)*_phPS,_phPage*_phPS);
         const _phRows=_phPaged.map(r=>{const isPersonalLeave=r.status==='absent'&&_phLeaveSet.has(r.date);const mm=isPersonalLeave?{label:'Personal Leave',color:PAL.amberText,bg:'#f7efdc'}:Utils.meta(r.status);const d=new Date(r.date+'T00:00:00');const el=r.editLog||[];const le=el.length?el[el.length-1]:null;return{dateLabel:_W[d.getDay()]+' '+d.getDate()+' '+_M[d.getMonth()]+' '+d.getFullYear(),label:mm.label,color:mm.color,bg:mm.bg,p1:r.p1||'-',p4:r.p4||'-',showTimeRange:r.status==='present',adminCorrected:el.length>0,editedBy:le?.by||''};});
-        const _phSBtn=(f)=>`padding:4px 10px;border-radius:var(--r-pill);font-size:var(--fs-small);font-weight:600;cursor:pointer;border:1px solid ${_phFilter===f?accent:'#d4d9e2'};background:${_phFilter===f?accent:'#fff'};color:${_phFilter===f?'#fff':PAL.ink2};white-space:nowrap;`;
+        const _phSBtn=(f)=>Utils.chip(_phFilter===f,accent);
         return {
           personHistoryRows:_phRows,
           personHistoryTotal:_phAll.length,

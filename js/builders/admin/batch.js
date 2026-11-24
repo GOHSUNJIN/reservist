@@ -99,7 +99,7 @@ const AdminBatch = {
       newBatchDate:s.newBatchDate,onNewBatchDate:self.onNewBatchDate,createBatch:self.createBatch,batchCreating:s.batchCreating,
       npName:s.npName, npContact:s.npContact, npPassword:s.npPassword,
       addPersonnelOpen:!!(s.addPersonnelOpen), toggleAddPersonnel:self.toggleAddPersonnel,
-      addPersonnelBtnBg:s.addPersonnelOpen?PAL.ink:'#eceef2',
+      addPersonnelBtnBg:s.addPersonnelOpen?PAL.ink:'#f6f8fa',
       addPersonnelBtnStroke:s.addPersonnelOpen?'#fff':PAL.ink2,
       showReenrollConfirm:!!(s.npReenrollRecord), showAddForm:!(s.npReenrollRecord),
       reenrollName:s.npReenrollRecord?.name||'',

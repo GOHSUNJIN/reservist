@@ -131,6 +131,11 @@ const Utils = {
   },
   // Has this day's shift finished? Past days yes, future days no, today once the shift end time has passed.
   // Ends: L&F 17:00, dinner shift 21:00, otherwise 18:00.
+  // One filter chip style for the whole app: pill shape, accent when selected
+  chip(active, accent){
+    const a=accent||PAL.blue;
+    return `-webkit-appearance:none;padding:0 11px;border-radius:var(--r-pill);font-size:var(--fs-small);font-weight:600;cursor:pointer;white-space:nowrap;flex-shrink:0;border:1px solid ${active?a:'#d4d9e2'};background:${active?a:'#fff'};color:${active?'#fff':PAL.ink2};`;
+  },
   shiftOver(dateKey, dept, timings, dinnerMode, now){
     const n=now||new Date(), today=this.dateKey(n);
     if(dateKey<today) return true;

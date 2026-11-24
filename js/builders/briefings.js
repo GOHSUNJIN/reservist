@@ -151,7 +151,7 @@ const BriefingsBuilders = {
         for(const r of all){const prev=byDate.get(r.date);if(!prev||(pri[r.status]??4)<(pri[prev.status]??4)) byDate.set(r.date,r);}
         const deduped=[...byDate.values()].sort((a,b)=>b.date.localeCompare(a.date));
         const lhf=s.leaveHistFilter||'all';
-        const _fPill=(active)=>active?'-webkit-appearance:none;padding:5px 13px;border-radius:var(--r-pill);border:none;font-size:var(--fs-small);font-weight:600;background:#161f30;color:#fff;cursor:pointer;':'-webkit-appearance:none;padding:5px 13px;border-radius:var(--r-pill);border:none;font-size:var(--fs-small);font-weight:500;color:var(--muted);background:#f1f3f6;cursor:pointer;';
+        const _fPill=(active)=>Utils.chip(active,accent);
         const filtered=lhf==='all'?deduped:deduped.filter(r=>r.status===lhf);
         // Auto-reset filter to 'all' when active filter yields no results
         if(lhf!=='all'&&filtered.length===0&&deduped.length>0) setTimeout(()=>this.setState({leaveHistFilter:'all'}),0);

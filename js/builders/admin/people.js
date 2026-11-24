@@ -70,7 +70,7 @@ const AdminPeople = {
       setMemberStatusAll:self.onMemberSearchStatus('all'), setMemberStatusActive:self.onMemberSearchStatus('current'), setMemberStatusInactive:self.onMemberSearchStatus('past'), setMemberStatusRemoved:self.onMemberSearchStatus('removed'),
       ...(()=>{
         const mf=s.memberSearchStatus||'all';
-        const _msBtn=f=>`padding:5px 13px;border-radius:var(--r-pill);font-size:var(--fs-small);font-weight:600;cursor:pointer;border:1.5px solid ${mf===f?accent:'#d4d9e2'};background:${mf===f?accent:'#fff'};color:${mf===f?'#fff':PAL.ink2};white-space:nowrap;`;
+        const _msBtn=f=>Utils.chip(mf===f,accent);
         return {memberStatusAllStyle:_msBtn('all'),memberStatusActiveStyle:_msBtn('current'),memberStatusInactiveStyle:_msBtn('past'),memberStatusRemovedStyle:_msBtn('removed')};
       })(),
       onMemberSearchCycle:self.onMemberSearchCycle, memberSearchCycle:s.memberSearchCycle||'all',
@@ -145,7 +145,7 @@ const AdminPeople = {
       ...(()=>{
         const _lq=(s.leaveSearch||'').toLowerCase().trim();
         const _tf=s.leaveTypeFilter||'all';
-        const _fPill=(active)=>active?'-webkit-appearance:none;padding:5px 13px;border-radius:var(--r-pill);border:none;font-size:var(--fs-small);font-weight:600;background:#161f30;color:#fff;cursor:pointer;':'-webkit-appearance:none;padding:5px 13px;border-radius:var(--r-pill);border:none;font-size:var(--fs-small);font-weight:500;color:var(--muted);background:#f1f3f6;cursor:pointer;';
+        const _fPill=(active)=>Utils.chip(active,accent);
         const filterAllStyle=_fPill(_tf==='all'),filterMcStyle=_fPill(_tf==='mc'),filterPersonalStyle=_fPill(_tf==='personal');
         const leaveFilterActive=!!_lq||_tf!=='all';
         const leaveSearchIconStyle=s.leaveSearchOpen?'-webkit-appearance:none;background:#f0f2f7;border:1px solid #c8cdd6;border-radius:var(--r-sm);padding:5px 8px;cursor:pointer;display:flex;align-items:center;color:var(--ink);flex-shrink:0;':'-webkit-appearance:none;background:none;border:1px solid #e3e6ec;border-radius:var(--r-sm);padding:5px 8px;cursor:pointer;display:flex;align-items:center;color:var(--muted);flex-shrink:0;';
@@ -205,7 +205,7 @@ const AdminPeople = {
         const _plTotal=_pll.length,_plTotalPages=Math.max(1,Math.ceil(_plTotal/_PL_PS));
         const _plPage=Math.min(Math.max(1,s.processedLeavesPage||1),_plTotalPages);
         const _plPaged=_pll.slice((_plPage-1)*_PL_PS,_plPage*_PL_PS);
-        const _plPill=(active)=>active?'-webkit-appearance:none;padding:5px 13px;border-radius:var(--r-pill);border:none;font-size:var(--fs-small);font-weight:600;background:#161f30;color:#fff;cursor:pointer;':'-webkit-appearance:none;padding:5px 13px;border-radius:var(--r-pill);border:none;font-size:var(--fs-small);font-weight:500;color:var(--muted);background:#f1f3f6;cursor:pointer;';
+        const _plPill=(active)=>Utils.chip(active,accent);
         return {
           processedLeavesItems:_plPaged.map(l=>{const _av=s.avatars[l.personnel_id]||'';return({
             id:l.id,
@@ -370,7 +370,7 @@ const AdminPeople = {
         (s.approvedSignups||[]).forEach(a=>{const c=(a.contact||'').replace(/[\s-]/g,'');if(!_prevDeptMap[c])_prevDeptMap[c]=a.department;});
         const _sq=(s.signupSearch||'').toLowerCase().trim();
         const _stf=s.signupTypeFilter||'all';
-        const _fSignupPill=(active)=>active?'-webkit-appearance:none;padding:5px 13px;border-radius:var(--r-pill);border:none;font-size:var(--fs-small);font-weight:600;background:#161f30;color:#fff;cursor:pointer;':'-webkit-appearance:none;padding:5px 13px;border-radius:var(--r-pill);border:none;font-size:var(--fs-small);font-weight:500;color:var(--muted);background:#f1f3f6;cursor:pointer;';
+        const _fSignupPill=(active)=>Utils.chip(active,accent);
         const signupFilterAllStyle=_fSignupPill(_stf==='all'),signupFilterNewStyle=_fSignupPill(_stf==='new'),signupFilterReturningStyle=_fSignupPill(_stf==='returning');
         const signupFilterActive=!!_sq||_stf!=='all';
         const signupSearchIconStyle=s.signupSearchOpen?'-webkit-appearance:none;background:#f0f2f7;border:1px solid #c8cdd6;border-radius:var(--r-sm);padding:5px 8px;cursor:pointer;display:flex;align-items:center;color:var(--ink);flex-shrink:0;':'-webkit-appearance:none;background:none;border:1px solid #e3e6ec;border-radius:var(--r-sm);padding:5px 8px;cursor:pointer;display:flex;align-items:center;color:var(--muted);flex-shrink:0;';
